@@ -1,8 +1,23 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
-import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -25,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
 class SelectDutiesControllerSpec
@@ -48,6 +64,16 @@ class SelectDutiesControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
+  private def selectedValue(doc: Document): Option[String] = {
+    val checkBoxes = doc.select("div.govuk-checkboxes input[checked]")
+    if (checkBoxes.size() =!= 0)
+      Some(checkBoxes.`val`())
+    else
+      None
+  }
+
+  private val messagesKey: String = "select-duties"
+
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
@@ -65,6 +91,34 @@ class SelectDutiesControllerSpec
 
         status(performAction()) shouldBe NOT_FOUND
       }
+
+      "display the page" in {
+        val journey = buildCompleteJourneyGen(
+          acc14DeclarantMatchesUserEori = false,
+          acc14ConsigneeMatchesUserEori = false,
+          hasConsigneeDetailsInACC14 = true
+        ).sample.getOrElse(fail("Journey building has failed."))
+
+        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionToAmend)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => {
+            doc
+              .select("main h1")
+              .text()          shouldBe messageFromMessageKey(s"$messagesKey.title")
+            selectedValue(doc) shouldBe None
+          }
+        )
+      }
+
+
     }
   }
 
