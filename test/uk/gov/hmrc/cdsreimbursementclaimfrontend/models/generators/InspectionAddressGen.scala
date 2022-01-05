@@ -20,6 +20,7 @@ import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genCountry
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 
@@ -28,17 +29,16 @@ object InspectionAddressGen {
   lazy val genInspectionAddress = for {
     num         <- Gen.choose(1, 100)
     street      <- genStringWithMaxSizeOfN(7)
-    district    <- Gen.option(genStringWithMaxSizeOfN(5))
-    road        <- if (district.isDefined) Gen.option(genStringWithMaxSizeOfN(5))
-                   else Gen.const(None)
+    district    <- genStringWithMaxSizeOfN(5)
     city        <- genStringWithMaxSizeOfN(10)
     postcode    <- genPostcode
+    country     <- genCountry
     addressType <- Gen.oneOf(InspectionAddressType.values)
   } yield InspectionAddress(
     addressLine1 = s"$num $street",
     addressLine2 = district,
-    addressLine3 = road,
-    city = Some(city),
+    city = city,
+    countryCode = country.code,
     postalCode = postcode,
     addressType = addressType
   )

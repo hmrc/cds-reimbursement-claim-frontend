@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
 
-import java.util.UUID
+object C285ClaimGen {
+  import IdGen._
 
-final case class SubmitClaimRequest(
-  id: UUID,
-  completeClaim: CompleteClaim,
-  signedInUserDetails: SignedInUserDetails
-)
-
-object SubmitClaimRequest {
-  implicit val format: OFormat[SubmitClaimRequest] = Json.format
+  implicit lazy val arbitraryC285Claim: Typeclass[C285Claim] = gen[C285Claim]
 }

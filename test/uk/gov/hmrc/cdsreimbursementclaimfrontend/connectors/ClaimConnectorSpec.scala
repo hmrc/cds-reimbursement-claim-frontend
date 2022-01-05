@@ -21,7 +21,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -56,14 +56,14 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
   "Claim Connector" when {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    val submitClaimRequest         = sample[SubmitClaimRequest]
+    val c285ClaimRequest           = sample[C285ClaimRequest]
 
-    val url = "http://host3:123/foo-claim/claim"
+    val url = "http://host3:123/foo-claim/claims/c285"
 
     "handling requests to submit claim" must {
       behave like connectorBehaviour(
-        mockPost(url, Seq.empty, submitClaimRequest)(_),
-        () => connector.submitClaim(submitClaimRequest)
+        mockPost(url, Seq.empty, c285ClaimRequest)(_),
+        () => connector.submitClaim(c285ClaimRequest)
       )
     }
 

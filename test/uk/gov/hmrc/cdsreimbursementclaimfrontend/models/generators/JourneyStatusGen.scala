@@ -32,7 +32,7 @@ trait JourneyStatusLowerPriorityGen {
   import SignedInUserDetailsGen._
   import JourneyBindableGen._
   import DraftClaimGen._
-  import CompleteClaimGen._
+  import C285ClaimGen._
   import SubmissionResponseGen._
 
   implicit lazy val arbitraryFillingOutClaim: Typeclass[FillingOutClaim] = gen[FillingOutClaim]
