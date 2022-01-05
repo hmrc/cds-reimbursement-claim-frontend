@@ -1,6 +1,5 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-
 import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
@@ -28,12 +27,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 
-class SelectDutiesControllerSpec extends ControllerSpec
-  with AuthSupport
-  with SessionSupport
-  with BeforeAndAfterEach
-  with ScalaCheckPropertyChecks
-  with RejectedGoodsSingleJourneyTestData {
+class SelectDutiesControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with BeforeAndAfterEach
+    with ScalaCheckPropertyChecks
+    with RejectedGoodsSingleJourneyTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -60,7 +60,7 @@ class SelectDutiesControllerSpec extends ControllerSpec
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "not find the page if rejected goods feature is disabled" in{
+      "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
 
         status(performAction()) shouldBe NOT_FOUND
