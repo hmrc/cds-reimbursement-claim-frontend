@@ -18,10 +18,14 @@ POST         /rejected-goods/single/claimant-details/change-contact-details     
 GET          /rejected-goods/single/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.BasisForClaimController.show()
 POST         /rejected-goods/single/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.BasisForClaimController.submit()
 
+GET          /rejected-goods/single/disposal-method                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.DisposalMethodController.show()
+POST         /rejected-goods/single/disposal-method                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.DisposalMethodController.submit()
+
+GET          /rejected-goods/single/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.BasisForClaimController.show()
+POST         /rejected-goods/single/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.BasisForClaimController.submit()
+
+GET          /rejected-goods/single/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectDutiesController.show()
 
 GET          /rejected-goods/single/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.show()
 POST         /rejected-goods/single/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.submit()
 GET          /rejected-goods/single/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.showConfirmation()
-
-GET          /rejected-goods/single/disposal-method                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.DisposalMethodController.show()
-POST         /rejected-goods/single/disposal-method                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.DisposalMethodController.submit()
