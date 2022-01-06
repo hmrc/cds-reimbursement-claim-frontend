@@ -71,7 +71,7 @@ class BasisForClaimController @Inject() (
           ),
         basisOfClaim =>
           Future.successful(
-            (journey.submitBasisOfClaim(basisOfClaim), Redirect("disposal-method"))
+            (journey.submitBasisOfClaim(basisOfClaim), Redirect(routes.DisposalMethodController.show()))
           )
       )
   }

@@ -177,6 +177,8 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     case ClaimantType.User      => answers.userEoriNumber
   }
 
+  def getMethodOfDisposal: Option[MethodOfDisposal] = answers.methodOfDisposal
+
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
     */
