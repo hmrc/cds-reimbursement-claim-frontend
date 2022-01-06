@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtracto
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
@@ -145,7 +145,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
     }
 
   private def submitClaim(
-    completeClaim: CompleteClaim,
+    claim: C285Claim,
     fillingOutClaim: FillingOutClaim,
     signedInUserDetails: SignedInUserDetails,
     language: Lang
@@ -154,9 +154,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
   ): Future[SubmitClaimResult] =
     claimService
       .submitClaim(
-        SubmitClaimRequest(
+        C285ClaimRequest(
           fillingOutClaim.draftClaim.id,
-          completeClaim,
+          claim,
           signedInUserDetails
         ),
         language
@@ -196,14 +196,14 @@ class CheckYourAnswersAndSubmitController @Inject() (
     }
 
   private def withCompleteDraftClaim(
-    f: (FillingOutClaim, CompleteClaim) => Future[Result]
+    f: (FillingOutClaim, C285Claim) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.using({ case fillingOutClaim @ FillingOutClaim(_, signedInUserDetails, draftClaim: DraftClaim) =>
-      CompleteClaim
+      C285Claim
         .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
         .fold[Future[Result]](
           error => logAndDisplayError("could not make a complete claim") apply error,
-          completeClaim => f(fillingOutClaim, completeClaim)
+          c285Claim => f(fillingOutClaim, c285Claim)
         )
     })
 }

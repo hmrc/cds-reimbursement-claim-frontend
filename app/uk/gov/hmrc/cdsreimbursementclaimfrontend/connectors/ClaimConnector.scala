@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
@@ -35,7 +35,7 @@ import scala.util.control.NonFatal
 
 @ImplementedBy(classOf[DefaultClaimConnector])
 trait ClaimConnector {
-  def submitClaim(submitClaimRequest: SubmitClaimRequest)(implicit
+  def submitClaim(submitClaimRequest: C285ClaimRequest)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
 }
@@ -49,16 +49,16 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
   private val baseUrl: String        = servicesConfig.baseUrl("cds-reimbursement-claim")
   private val contextPath: String    =
     servicesConfig.getConfString("cds-reimbursement-claim.context-path", "cds-reimbursement-claim")
-  private val submitClaimUrl: String = s"$baseUrl$contextPath/claim"
+  private val submitClaimUrl: String = s"$baseUrl$contextPath/claims/c285"
 
-  override def submitClaim(submitClaimRequest: SubmitClaimRequest)(implicit
+  override def submitClaim(c285ClaimRequest: C285ClaimRequest)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](
       http
-        .POST[SubmitClaimRequest, HttpResponse](
+        .POST[C285ClaimRequest, HttpResponse](
           submitClaimUrl,
-          submitClaimRequest
+          c285ClaimRequest
         )
         .map(Right(_))
         .recover { case NonFatal(e) =>

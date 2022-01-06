@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
+
 import java.time.LocalDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
@@ -529,7 +530,6 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       checkIsDefined(_.answers.basisOfClaim, "missing basisOfClaim"),
       checkIsDefined(_.answers.detailsOfRejectedGoods, "missing detailsOfRejectedGoods"),
       checkIsDefined(_.answers.inspectionDate, "missing inspectionDate"),
-      checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
       checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
       checkIsDefined(_.answers.methodOfDisposal, "missing inspectionAddress"),
       check(_.isCompleteReimbursementClaims, "incomplete reimbursement claims"),

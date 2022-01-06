@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 
-object CompleteClaimGen {
-  import IdGen._
+import java.util.UUID
 
-  implicit lazy val arbitraryCompleteClaim: Typeclass[CompleteClaim] = gen[CompleteClaim]
+final case class C285ClaimRequest(
+  id: UUID,
+  claim: C285Claim,
+  signedInUserDetails: SignedInUserDetails
+)
+
+object C285ClaimRequest {
+  implicit val format: OFormat[C285ClaimRequest] = Json.format
 }

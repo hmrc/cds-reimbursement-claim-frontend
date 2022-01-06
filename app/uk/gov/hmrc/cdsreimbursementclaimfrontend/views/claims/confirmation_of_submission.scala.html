@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
             <h1 class="govuk-panel__title">@title</h1>
             <div class="govuk-panel__body">
                 <span>@messages(s"$key.reimbursement-amount")</span><br>
-                <strong>@{justSubmittedClaim.completeClaim.totalReimbursementAmount.toPoundSterlingString}</strong>
+                <strong>@{justSubmittedClaim.claim.totalReimbursementAmount.toPoundSterlingString}</strong>
             </div>
             <br>
             <div class="govuk-panel__body">

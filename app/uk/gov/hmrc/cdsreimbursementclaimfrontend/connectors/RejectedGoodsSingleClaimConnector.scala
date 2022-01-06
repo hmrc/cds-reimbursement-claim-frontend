@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,10 +86,10 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
       if (response.status === 200)
         response
           .parseJSON[Response]()
-          .fold(error => Future.failed(new Exception(error)), Future.successful(_))
+          .fold(error => Future.failed(Exception(error)), Future.successful)
       else
         Future.failed(
-          new Exception(s"Request to POST $claimUrl failed because of $response ${response.body}")
+          Exception(s"Request to POST $claimUrl failed because of $response ${response.body}")
         )
     )
 }

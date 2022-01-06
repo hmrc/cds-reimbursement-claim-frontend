@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmittedClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.SubmitClaimFailed
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
@@ -72,11 +72,11 @@ class CheckYourAnswersAndSubmitControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  def mockSubmitClaim(submitClaimRequest: SubmitClaimRequest)(
+  def mockSubmitClaim(submitClaimRequest: C285ClaimRequest)(
     response: Either[Error, SubmitClaimResponse]
-  ): CallHandler3[SubmitClaimRequest, Lang, HeaderCarrier, EitherT[Future, Error, SubmitClaimResponse]] =
+  ): CallHandler3[C285ClaimRequest, Lang, HeaderCarrier, EitherT[Future, Error, SubmitClaimResponse]] =
     (mockClaimService
-      .submitClaim(_: SubmitClaimRequest, _: Lang)(_: HeaderCarrier))
+      .submitClaim(_: C285ClaimRequest, _: Lang)(_: HeaderCarrier))
       .expects(submitClaimRequest, *, *)
       .returning(EitherT.fromEither[Future](response))
 
@@ -123,15 +123,15 @@ class CheckYourAnswersAndSubmitControllerSpec
         "show the confirmation page" in {
           val fillingOutClaim = sample[FillingOutClaim]
 
-          val completeClaim = CompleteClaim
+          val claim = C285Claim
             .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
             .value
 
           val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
 
-          val submitClaimRequest = SubmitClaimRequest(
+          val submitClaimRequest = C285ClaimRequest(
             fillingOutClaim.draftClaim.id,
-            completeClaim,
+            claim,
             fillingOutClaim.signedInUserDetails
           )
 
@@ -144,7 +144,7 @@ class CheckYourAnswersAndSubmitControllerSpec
               JustSubmittedClaim(
                 fillingOutClaim.ggCredId,
                 fillingOutClaim.signedInUserDetails,
-                completeClaim,
+                claim,
                 submitClaimResponse,
                 journeyBindable
               )
@@ -170,15 +170,15 @@ class CheckYourAnswersAndSubmitControllerSpec
         "show the submission error page" in {
           val fillingOutClaim = sample[FillingOutClaim]
 
-          val completeClaim = CompleteClaim
+          val claim = C285Claim
             .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
             .value
 
           val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
 
-          val submitClaimRequest = SubmitClaimRequest(
+          val submitClaimRequest = C285ClaimRequest(
             fillingOutClaim.draftClaim.id,
-            completeClaim,
+            claim,
             fillingOutClaim.signedInUserDetails
           )
 
@@ -237,7 +237,7 @@ class CheckYourAnswersAndSubmitControllerSpec
         "the claim has just been submitted" in {
           val fillingOutClaim = sample[FillingOutClaim]
 
-          val completeClaim = CompleteClaim
+          val claim = C285Claim
             .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
             .value
 
@@ -252,7 +252,7 @@ class CheckYourAnswersAndSubmitControllerSpec
               JustSubmittedClaim(
                 fillingOutClaim.ggCredId,
                 fillingOutClaim.signedInUserDetails,
-                completeClaim,
+                claim,
                 submitClaimResponse,
                 journeyBindable
               )
@@ -290,7 +290,7 @@ class CheckYourAnswersAndSubmitControllerSpec
       "the submission was a success but the session could not be updated" in {
         val fillingOutClaim = sample[FillingOutClaim]
 
-        val completeClaim = CompleteClaim
+        val claim = C285Claim
           .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
           .value
 
@@ -298,9 +298,9 @@ class CheckYourAnswersAndSubmitControllerSpec
 
         val session = SessionData(fillingOutClaim)
 
-        val submitClaimRequest = SubmitClaimRequest(
+        val submitClaimRequest = C285ClaimRequest(
           fillingOutClaim.draftClaim.id,
-          completeClaim,
+          claim,
           fillingOutClaim.signedInUserDetails
         )
 
@@ -311,7 +311,7 @@ class CheckYourAnswersAndSubmitControllerSpec
             JustSubmittedClaim(
               fillingOutClaim.ggCredId,
               fillingOutClaim.signedInUserDetails,
-              completeClaim,
+              claim,
               submitClaimResponse,
               journeyBindable
             )

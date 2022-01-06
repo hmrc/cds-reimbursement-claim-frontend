@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,10 @@ trait RejectedGoodsSingleJourneyTestData {
   val exampleInspectionAddress: InspectionAddress =
     InspectionAddress(
       addressLine1 = "1 Bar Road",
+      addressLine2 = "Lewisham",
+      city = "London",
       postalCode = "BA1 1FO",
+      countryCode = Country.uk.code,
       addressType = InspectionAddressType.Other
     )
 

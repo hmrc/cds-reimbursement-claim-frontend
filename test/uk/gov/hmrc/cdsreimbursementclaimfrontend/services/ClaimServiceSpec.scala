@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.BusinessCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationErrorResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -120,12 +120,12 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
       |""".stripMargin
   )
 
-  def mockSubmitClaim(submitClaimRequest: SubmitClaimRequest)(
+  def mockSubmitClaim(c285Claim: C285ClaimRequest)(
     response: Either[Error, HttpResponse]
-  ): CallHandler2[SubmitClaimRequest, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
+  ): CallHandler2[C285ClaimRequest, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
     (mockClaimConnector
-      .submitClaim(_: SubmitClaimRequest)(_: HeaderCarrier))
-      .expects(submitClaimRequest, *)
+      .submitClaim(_: C285ClaimRequest)(_: HeaderCarrier))
+      .expects(c285Claim, *)
       .returning(EitherT.fromEither[Future](response))
 
   def mockGetDisplayDeclaration(mrn: MRN)(
@@ -143,19 +143,19 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
       "return an error" when {
 
         "the http call fails" in {
-          val submitClaimRequest = sample[SubmitClaimRequest]
+          val submitClaimRequest = sample[C285ClaimRequest]
           mockSubmitClaim(submitClaimRequest)(Left(Error("boom!")))
           await(claimService.submitClaim(submitClaimRequest, language).value).isLeft shouldBe true
         }
 
         "the http call comes back with invalid json" in {
-          val submitClaimRequest = sample[SubmitClaimRequest]
+          val submitClaimRequest = sample[C285ClaimRequest]
           mockSubmitClaim(submitClaimRequest)(Right(HttpResponse(INTERNAL_SERVER_ERROR, "---")))
           await(claimService.submitClaim(submitClaimRequest, language).value).isLeft shouldBe true
         }
 
         "the http call comes back with a status other than 200" in {
-          val submitClaimRequest = sample[SubmitClaimRequest]
+          val submitClaimRequest = sample[C285ClaimRequest]
           mockSubmitClaim(submitClaimRequest)(Right(HttpResponse(INTERNAL_SERVER_ERROR, "{}")))
           await(claimService.submitClaim(submitClaimRequest, language).value).isLeft shouldBe true
         }
@@ -163,7 +163,7 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
       "return an ok response" when {
         "the http response came back with a 200 OK" in {
-          val submitClaimRequest = sample[SubmitClaimRequest]
+          val submitClaimRequest = sample[C285ClaimRequest]
           mockSubmitClaim(submitClaimRequest)(
             Right(HttpResponse(OK, okSubmitClaimResponse, Map[String, Seq[String]]()))
           )
