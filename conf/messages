@@ -489,6 +489,24 @@ enter-commodities-details.scheduled.hint=Explain why you would like to be reimbu
 enter-commodities-details.multiple.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
 
 #===================================================
+#  CONTACT DETAILS REJECTED GOODS
+#===================================================
+enter-contact-details-rejected-goods.change.title=Change contact details
+enter-contact-details-rejected-goods.add.title=Add contact details
+enter-contact-details-rejected-goods.h2=Enter your personal details
+enter-contact-details-rejected-goods.contact-name.label=Full name
+enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact Name
+enter-contact-details-rejected-goods.contact-name.error.maxLength=Enter a shorter name
+enter-contact-details-rejected-goods.contact-email.label=Email address
+enter-contact-details-rejected-goods.contact-email.error.required=Enter a contact email address
+enter-contact-details-rejected-goods.contact-email.invalid=Enter a valid email
+enter-contact-details-rejected-goods.contact-email.error.maxLength=Enter a shorter email
+enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optional)
+enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
+enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
+enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a valid phone number
+
+#===================================================
 #  REIMBURSEMENT PAGES
 #===================================================
 duty-type.uk-duty=UK Duty
