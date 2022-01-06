@@ -26,7 +26,7 @@ trait EnumerationFormat[T] {
   val values: Set[T]
 
   private final lazy val valueMap: Map[String, T] =
-    values.map(v => (v.toString(), v)).toMap
+    values.map(v => (v.toString, v)).toMap
 
   final def parse(key: String): Option[T] =
     valueMap.get(key)
@@ -35,9 +35,10 @@ trait EnumerationFormat[T] {
     value.toString
 
   final def tryParse(key: String): T =
-    valueMap
-      .get(key)
-      .getOrElse(throw new IllegalArgumentException(s"The [$key] is NOT a value of the expected enum class."))
+    valueMap.getOrElse(
+      key,
+      throw new IllegalArgumentException(s"The [$key] is NOT a value of the expected enum class.")
+    )
 
   final def hasKey(key: String): Boolean =
     valueMap.contains(key)
@@ -46,13 +47,12 @@ trait EnumerationFormat[T] {
 
   implicit final val format: Format[T] = SimpleStringFormat(
     key =>
-      valueMap
-        .get(key)
-        .getOrElse(
-          throw new IllegalArgumentException(
-            s"The [$key] is NOT a value of the expected enum class."
-          )
-        ),
+      valueMap.getOrElse(
+        key,
+        throw new IllegalArgumentException(
+          s"The [$key] is NOT a value of the expected enum class."
+        )
+      ),
     (value: T) => keyOf(value)
   )
 
