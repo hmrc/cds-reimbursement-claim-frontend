@@ -18,14 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
@@ -42,17 +40,18 @@ class DisposalMethodController @Inject() (
 
   private def postAction: Call = routes.DisposalMethodController.submit()
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val mrnContactDetailsForm: Form[MethodOfDisposal] = journey.getMethodOfDisposal
-      .map(Forms.methodOfDisposalForm.fill)
-      .getOrElse(Forms.methodOfDisposalForm)
-
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful(
-      Ok(enterOrChangeMethodOfDisposal(mrnContactDetailsForm, postAction))
+      Ok(
+        enterOrChangeMethodOfDisposal(
+          Forms.methodOfDisposalForm.withDefault(journey.answers.methodOfDisposal),
+          postAction
+        )
+      )
     )
   }
 
-  def submit(): Action[AnyContent] =
+  val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       Forms.methodOfDisposalForm
         .bindFromRequest()

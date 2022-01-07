@@ -189,8 +189,6 @@ final class RejectedGoodsSingleJourney private (
   ): Either[String, RejectedGoodsSingleJourney] =
     if (isFinalized) Left(RejectedGoodsSingleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
-  def getMethodOfDisposal: Option[MethodOfDisposal] = answers.methodOfDisposal
-
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
     */
