@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
+object CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
 
   def render(key: String, answer: CommodityDetailsAnswer)(implicit
     subKey: Option[String],

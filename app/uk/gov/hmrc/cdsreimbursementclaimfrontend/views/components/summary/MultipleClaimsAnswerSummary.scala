@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimbursementsAnswer)]] {
+object MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimbursementsAnswer)]] {
 
   def render(key: String, mrnsWithClaimsList: List[(MRN, ClaimedReimbursementsAnswer)])(implicit
     subKey: Option[String],

@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAns
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
+object ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
 
   def render(key: String, answer: DeclarantTypeAnswer)(implicit
     subKey: Option[String],

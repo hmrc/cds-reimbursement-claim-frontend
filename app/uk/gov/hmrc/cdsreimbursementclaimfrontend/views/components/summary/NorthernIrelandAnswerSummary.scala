@@ -28,7 +28,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
-class NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
+object NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
 
   def render(key: String, answer: YesNo)(implicit
     subKey: Option[String],

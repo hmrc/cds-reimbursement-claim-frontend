@@ -24,7 +24,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
@@ -39,22 +38,21 @@ class EnterContactDetailsController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController
     with Logging {
 
-  implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
-
   private def postAction: Call = routes.EnterContactDetailsController.submit()
 
-  def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => journey => userType =>
-    val mrnContactDetailsForm = journey
-      .getContactDetails(userType)
-      .map(Forms.rejectedGoodsContactDetailsForm.fill)
-      .getOrElse(Forms.rejectedGoodsContactDetailsForm)
+  val show: Action[AnyContent] =
+    actionReadJourneyAndUser { implicit request => journey => userType =>
+      Future.successful(
+        Ok(
+          enterOrChangeContactDetailsPage(
+            Forms.mrnContactDetailsForm.withDefault(journey.getContactDetails(userType)),
+            postAction
+          )
+        )
+      )
+    }
 
-    Future.successful(
-      Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, postAction))
-    )
-  }
-
-  def submit(): Action[AnyContent] =
+  val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       Forms.rejectedGoodsContactDetailsForm
         .bindFromRequest()
