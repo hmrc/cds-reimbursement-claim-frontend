@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,8 @@ class DisposalMethodController @Inject() (
           methodOfDisposal => {
             val updatedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
             Future.successful(
-              (updatedJourney, Redirect(Call("GET", "enter-rejected-goods-details")))
-            ) //TODO: replace in CDSR-1137
+              (updatedJourney, Redirect(Call("GET", "enter-rejected-goods-details"))) //TODO: replace in CDSR-1137
+            )
           }
         )
 
