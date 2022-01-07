@@ -48,4 +48,13 @@ object Forms {
       "enter-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
+
+  val rejectedGoodsContactDetailsForm: Form[MrnContactDetails] = Form(
+    mapping(
+      "enter-contact-details-rejected-goods.contact-name"         -> nonEmptyText(maxLength = 512),
+      "enter-contact-details-rejected-goods.contact-email"        -> Email.mappingMaxLength,
+      "enter-contact-details-rejected-goods.contact-phone-number" -> optional(PhoneNumber.mapping)
+    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
+  )
+
 }
