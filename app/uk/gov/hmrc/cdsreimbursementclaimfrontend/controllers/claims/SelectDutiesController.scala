@@ -125,6 +125,8 @@ class SelectDutiesController @Inject() (
 
 object SelectDutiesController {
 
+  val selectDutiesKey: String = "select-duties"
+
   final case class CmaEligibleAndDuties(
     isCmaEligible: Seq[Boolean],
     dutiesSelectedAnswer: Either[Error, DutiesSelectedAnswer]

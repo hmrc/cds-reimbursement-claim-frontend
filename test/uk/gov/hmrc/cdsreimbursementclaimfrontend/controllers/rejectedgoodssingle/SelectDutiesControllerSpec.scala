@@ -16,8 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import cats.{Functor, Id}
 import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
+import org.scalacheck.Gen
+import org.scalacheck.magnolia.gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -34,11 +37,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A80, A85, A90, A95}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -60,7 +70,7 @@ class SelectDutiesControllerSpec
   val controller: SelectDutiesController = instanceOf[SelectDutiesController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
-  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
+  implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
@@ -70,6 +80,12 @@ class SelectDutiesControllerSpec
       Some(checkBoxes.`val`())
     else
       None
+  }
+
+  def getHintText(document: Document, hintTextId: String) = {
+    val hintTextElement = document.select(s"div#$hintTextId")
+
+    if (hintTextElement.hasText) Some(hintTextElement.text()) else None
   }
 
   private val messagesKey: String = "select-duties"
@@ -82,6 +98,7 @@ class SelectDutiesControllerSpec
   )
 
   "Select Duties Controller" when {
+
     "Show select duties page" must {
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
@@ -99,21 +116,115 @@ class SelectDutiesControllerSpec
           hasConsigneeDetailsInACC14 = true
         ).sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(sessionToAmend)
+          mockGetSession(updatedSession)
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            doc
-              .select("main h1")
-              .text()          shouldBe messageFromMessageKey(s"$messagesKey.title")
             selectedValue(doc) shouldBe None
+          }
+        )
+      }
+    }
+
+
+    "Submit Select Duties page" must {
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "reject an empty duty selection" in {
+        val displayDeclaration = sample[DisplayDeclaration]
+        val journey = session.rejectedGoodsSingleJourney.get.submitDisplayDeclaration(displayDeclaration)
+        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          performAction(selectDutiesKey -> ""),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      //    "select valid tax codes when none have been selected before" in {
+      //      val journey = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
+      //      val displayDeclaration = sample[DisplayDeclaration]
+      //     val taxCodes = ???
+      //      val updatedJourney            = session.rejectedGoodsSingleJourney.get
+      //        .submitDisplayDeclaration(displayDeclaration)
+      //        .selectAndReplaceTaxCodeSetForReimbursement(taxCodes)
+      //      val updatedSession     = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney.getOrElse(fail("No rejected goods journey"))))
+      //
+      //      inSequence {
+      //        mockAuthWithNoRetrievals()
+      //        mockGetSession(session)
+      //        mockStoreSession(updatedSession)(Right(()))
+      //      }
+      //
+      //      checkIsRedirect(
+      //        performAction(selectDutiesKey -> "true"),
+      //        "enter-claim"
+      //      )
+      //
+      //    }
+
+    }
+
+    "have CMA Eligible flag/Duties hint text" should {
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
+
+      val taxCodes = List(A80, A85, A90, A95)
+      val testNdrcDetail = sample[NdrcDetails]
+
+      val ndrcs: List[NdrcDetails] = List(
+        testNdrcDetail.copy(taxType = A80.value, cmaEligible = Some("1")),
+        testNdrcDetail.copy(taxType = A85.value, cmaEligible = Some("1")),
+        testNdrcDetail.copy(taxType = A90.value, cmaEligible = Some("0")),
+        testNdrcDetail.copy(taxType = A95.value, cmaEligible = None)
+      )
+
+      val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
+      )
+
+      "Acc14 excise code where the CMA eligible flag is true" in {
+        val journey = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
+        val displayDeclaration = ???
+        val updatedJourney            = session.rejectedGoodsSingleJourney.get.submitDisplayDeclaration(displayDeclaration)
+
+        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        val hintText = Some("This duty is not eligible for CMA reimbursement")
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => {
+            getHintText(doc, "select-duties-item-hint") shouldBe None
+            getHintText(doc, "select-duties-2-item-hint") shouldBe None
+            getHintText(doc, "select-duties-3-item-hint") shouldBe hintText
+            getHintText(doc, "select-duties-4-item-hint") shouldBe hintText
           }
         )
       }
@@ -121,5 +232,4 @@ class SelectDutiesControllerSpec
 
     }
   }
-
 }
