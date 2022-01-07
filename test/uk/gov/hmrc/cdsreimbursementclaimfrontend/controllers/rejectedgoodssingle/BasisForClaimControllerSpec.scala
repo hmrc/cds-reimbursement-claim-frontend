@@ -183,7 +183,7 @@ class BasisForClaimControllerSpec
 
         checkIsRedirect(
           performAction(controller.formKey -> basisOfClaim.toString),
-          "disposal-method"
+           routes.DisposalMethodController.show()
         )
       }
     }
