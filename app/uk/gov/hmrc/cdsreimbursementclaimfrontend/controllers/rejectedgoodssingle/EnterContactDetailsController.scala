@@ -64,6 +64,5 @@ class EnterContactDetailsController @Inject() (
             Future.successful((updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())))
           }
         )
-
     }
 }
