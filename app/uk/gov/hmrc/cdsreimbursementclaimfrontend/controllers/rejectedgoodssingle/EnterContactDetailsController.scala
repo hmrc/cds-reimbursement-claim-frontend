@@ -46,8 +46,8 @@ class EnterContactDetailsController @Inject() (
   def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => journey => userType =>
     val mrnContactDetailsForm = journey
       .getContactDetails(userType)
-      .map(Forms.mrnContactDetailsForm.fill)
-      .getOrElse(Forms.mrnContactDetailsForm)
+      .map(Forms.rejectedGoodsContactDetailsForm.fill)
+      .getOrElse(Forms.rejectedGoodsContactDetailsForm)
 
     Future.successful(
       Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, postAction))
@@ -56,7 +56,7 @@ class EnterContactDetailsController @Inject() (
 
   def submit(): Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      Forms.mrnContactDetailsForm
+      Forms.rejectedGoodsContactDetailsForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
