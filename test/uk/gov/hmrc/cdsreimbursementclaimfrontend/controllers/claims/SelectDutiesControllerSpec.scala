@@ -233,6 +233,7 @@ class SelectDutiesControllerSpec
       "Acc14 excise code where the CMA eligible flag is true" in {
 
         val session = getSessionWithPreviousAnswer(None, sample[MRN], Some(acc14))._1
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)

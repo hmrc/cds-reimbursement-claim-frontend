@@ -19,3 +19,4 @@ GET          /rejected-goods/single/choose-basis-for-claim                      
 POST         /rejected-goods/single/choose-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.BasisForClaimController.submit()
 
 GET          /rejected-goods/single/select-duties                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectDutiesController.show()
+POST         /rejected-goods/single/select-duties                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectDutiesController.submit()

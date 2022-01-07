@@ -60,6 +60,39 @@ class SelectDutiesController @Inject() (
         }
     )
   }
+
+  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(journey)
+
+    cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
+      error => {
+        logger.warn("No Available duties: ", error)
+        Future.successful((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
+      },
+      dutiesAvailable =>
+        selectDutiesForm(dutiesAvailable)
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              Future.successful(
+                (
+                  journey,
+                  BadRequest(selectDutiesPage(formWithErrors, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible))
+                )
+              ),
+            dutiesSelected =>
+              Future.successful(
+                (
+                  journey
+                    .selectAndReplaceTaxCodeSetForReimbursement(dutiesSelected.toList.map(_.taxCode))
+                    .getOrElse(journey),
+                  Redirect("enter-claim")
+                )
+              )
+          )
+    )
+
+  }
 }
 
 object SelectDutiesController {
