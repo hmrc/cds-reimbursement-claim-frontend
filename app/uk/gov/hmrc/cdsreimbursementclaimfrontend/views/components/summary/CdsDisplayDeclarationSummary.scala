@@ -29,7 +29,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
-class CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
+object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
 
   def render(key: String, declaration: DisplayDeclaration)(implicit
     subKey: Option[String],

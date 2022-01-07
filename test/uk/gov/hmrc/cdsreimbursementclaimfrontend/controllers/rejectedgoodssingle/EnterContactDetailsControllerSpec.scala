@@ -199,7 +199,7 @@ class EnterContactDetailsControllerSpec
               "enter-contact-details-rejected-goods.contact-name"  -> name.toFullName,
               "enter-contact-details-rejected-goods.contact-email" -> email.value
             ),
-            routes.CheckClaimantDetailsController.show()
+            routes.CheckYourAnswersController.show()
           )
       }
     }

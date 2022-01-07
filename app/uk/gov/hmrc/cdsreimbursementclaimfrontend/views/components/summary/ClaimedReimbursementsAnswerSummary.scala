@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimburse
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursementsAnswer] {
+object ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursementsAnswer] {
 
   def render(key: String, reimbursements: ClaimedReimbursementsAnswer)(implicit
     subKey: Option[String],

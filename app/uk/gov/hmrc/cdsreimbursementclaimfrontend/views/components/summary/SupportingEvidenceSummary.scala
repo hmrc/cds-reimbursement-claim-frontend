@@ -27,7 +27,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer] {
+object SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer] {
 
   def render(key: String, answers: SupportingEvidencesAnswer)(implicit
     subKey: Option[String],

@@ -34,7 +34,7 @@ class CheckClaimantDetailsController @Inject() (
 
   implicit val subKey: Option[String] = None
 
-  def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
+  def show(): Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd      = routes.EnterContactDetailsController.show()
     val changeAddress = Call("GET", "lookup_address")
     val postAction    = Call("GET", "choose-basis-for-claim")

@@ -57,8 +57,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
   *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
   *  - [[RejectedGoodsSingleJourney.Outcome]] - final outcome of the journey to be sent to backend processing
   */
-final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingleJourney.Answers)
-    extends FluentSyntax[RejectedGoodsSingleJourney] {
+final class RejectedGoodsSingleJourney private (
+  val answers: RejectedGoodsSingleJourney.Answers,
+  val caseNumber: Option[String] = None
+) extends FluentSyntax[RejectedGoodsSingleJourney] {
 
   val ZERO: BigDecimal = BigDecimal("0")
 
@@ -112,15 +114,15 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
   }
 
   /** Check if the journey is ready to finalize, i.e. to get the output. */
-  def isComplete: Boolean =
+  def hasCompleteAnswers: Boolean =
     RejectedGoodsSingleJourney.validator.apply(this).isValid
 
   /** Check if all the selected duties have reimbursement amount provided. */
-  def isCompleteReimbursementClaims: Boolean =
+  def hasCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims.exists(_.forall(_._2.isDefined))
 
   /** Check is all the upoaded documents has document type selected. */
-  def isCompleteSupportingEvidences: Boolean =
+  def hasCompleteSupportingEvidences: Boolean =
     answers.supportingEvidences.exists(_.forall(_.documentType.isDefined))
 
   def getConsigneeEoriFromACC14: Option[Eori] =
@@ -177,115 +179,147 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     case ClaimantType.User      => answers.userEoriNumber
   }
 
+  def isFinalized: Boolean = caseNumber.isDefined
+
+  def whileJourneyIsAmendable(body: => RejectedGoodsSingleJourney): RejectedGoodsSingleJourney =
+    if (isFinalized) this else body
+
+  def whileJourneyIsAmendable(
+    body: => Either[String, RejectedGoodsSingleJourney]
+  ): Either[String, RejectedGoodsSingleJourney] =
+    if (isFinalized) Left(RejectedGoodsSingleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
+
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
     */
   def submitMovementReferenceNumber(mrn: MRN): RejectedGoodsSingleJourney =
-    answers.movementReferenceNumber match {
-      case Some(existing) if existing === mrn => this
-      case _                                  =>
-        new RejectedGoodsSingleJourney(
-          RejectedGoodsSingleJourney
-            .Answers(
-              userEoriNumber = answers.userEoriNumber,
-              movementReferenceNumber = Some(mrn)
-            )
-        )
+    whileJourneyIsAmendable {
+      answers.movementReferenceNumber match {
+        case Some(existing) if existing === mrn => this
+        case _                                  =>
+          new RejectedGoodsSingleJourney(
+            RejectedGoodsSingleJourney
+              .Answers(
+                userEoriNumber = answers.userEoriNumber,
+                movementReferenceNumber = Some(mrn)
+              )
+          )
+      }
     }
 
   /** Set the ACC14 declaration and reset all reimbursementClaims */
   def submitDisplayDeclaration(displayDeclaration: DisplayDeclaration): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(displayDeclaration = Some(displayDeclaration), reimbursementClaims = None)
-    )
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(displayDeclaration = Some(displayDeclaration), reimbursementClaims = None)
+      )
+    }
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
-    if (needsDeclarantAndConsigneeEoriSubmission)
-      if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
-        Right(
-          new RejectedGoodsSingleJourney(
-            answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+    whileJourneyIsAmendable {
+      if (needsDeclarantAndConsigneeEoriSubmission)
+        if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
+          Right(
+            new RejectedGoodsSingleJourney(
+              answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+            )
           )
-        )
-      else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
-    else Left("submitConsigneeEoriNumber.unexpected")
+        else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
+      else Left("submitConsigneeEoriNumber.unexpected")
+    }
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
-    if (needsDeclarantAndConsigneeEoriSubmission)
-      if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
-        Right(
-          new RejectedGoodsSingleJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
-        )
-      else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
-    else Left("submitDeclarantEoriNumber.unexpected")
+    whileJourneyIsAmendable {
+      if (needsDeclarantAndConsigneeEoriSubmission)
+        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+          Right(
+            new RejectedGoodsSingleJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+          )
+        else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+      else Left("submitDeclarantEoriNumber.unexpected")
+    }
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(contactDetails = contactDetails)
-    )
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(contactDetails = contactDetails)
+      )
+    }
 
   def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(contactAddress = Some(contactAddress))
-    )
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(contactAddress = Some(contactAddress))
+      )
+    }
 
   def submitBasisOfClaim(basisOfClaim: BasisOfRejectedGoodsClaim): RejectedGoodsSingleJourney =
-    basisOfClaim match {
-      case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
-        new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+    whileJourneyIsAmendable {
+      basisOfClaim match {
+        case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
+          new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
 
-      case _ =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(
-            basisOfClaim = Some(basisOfClaim),
-            basisOfClaimSpecialCircumstances = None
+        case _ =>
+          new RejectedGoodsSingleJourney(
+            answers.copy(
+              basisOfClaim = Some(basisOfClaim),
+              basisOfClaimSpecialCircumstances = None
+            )
           )
-        )
+      }
     }
 
   def submitBasisOfClaimSpecialCircumstancesDetails(
     basisOfClaimSpecialCircumstancesDetails: String
   ): Either[String, RejectedGoodsSingleJourney] =
-    answers.basisOfClaim match {
-      case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
-        Right(
-          new RejectedGoodsSingleJourney(
-            answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
+    whileJourneyIsAmendable {
+      answers.basisOfClaim match {
+        case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
+          Right(
+            new RejectedGoodsSingleJourney(
+              answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
+            )
           )
-        )
 
-      case _ => Left("basisOfClaim.not_matching")
+        case _ => Left("basisOfClaim.not_matching")
+      }
     }
 
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(methodOfDisposal = Some(methodOfDisposal))
-    )
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(methodOfDisposal = Some(methodOfDisposal))
+      )
+    }
 
   def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
-    )
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
+      )
+    }
 
   def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
-    answers.displayDeclaration match {
-      case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+    whileJourneyIsAmendable {
+      answers.displayDeclaration match {
+        case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
-      case Some(_) =>
-        val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
-        if (allTaxCodesExistInACC14) {
-          val newReimbursementClaims = answers.reimbursementClaims match {
-            case None                      =>
-              taxCodes.map(taxCode => (taxCode -> None)).toMap
+        case Some(_) =>
+          val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
+          if (allTaxCodesExistInACC14) {
+            val newReimbursementClaims = answers.reimbursementClaims match {
+              case None                      =>
+                taxCodes.map(taxCode => (taxCode -> None)).toMap
 
-            case Some(reimbursementClaims) =>
-              taxCodes.map { taxCode =>
-                taxCode -> reimbursementClaims.get(taxCode).flatten
-              }.toMap
-          }
-          Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
-        } else
-          Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
+              case Some(reimbursementClaims) =>
+                taxCodes.map { taxCode =>
+                  taxCode -> reimbursementClaims.get(taxCode).flatten
+                }.toMap
+            }
+            Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+          } else
+            Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
+      }
     }
 
   def isValidReimbursementAmount(reimbursementAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
@@ -295,121 +329,149 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     taxCode: TaxCode,
     reimbursementAmount: BigDecimal
   ): Either[String, RejectedGoodsSingleJourney] =
-    answers.displayDeclaration match {
-      case None =>
-        Left("submitAmountForReimbursement.missingDisplayDeclaration")
+    whileJourneyIsAmendable {
+      answers.displayDeclaration match {
+        case None =>
+          Left("submitAmountForReimbursement.missingDisplayDeclaration")
 
-      case Some(_) =>
-        getNdrcDetailsFor(taxCode) match {
-          case None =>
-            Left("submitAmountForReimbursement.taxCodeNotInACC14")
+        case Some(_) =>
+          getNdrcDetailsFor(taxCode) match {
+            case None =>
+              Left("submitAmountForReimbursement.taxCodeNotInACC14")
 
-          case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
-            if (getSelectedDuties.exists(_.contains(taxCode))) {
-              val newReimbursementClaims = answers.reimbursementClaims match {
-                case None                      => Map(taxCode -> Some(reimbursementAmount))
-                case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
-              }
-              Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
-            } else
-              Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
+            case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
+              if (getSelectedDuties.exists(_.contains(taxCode))) {
+                val newReimbursementClaims = answers.reimbursementClaims match {
+                  case None                      => Map(taxCode -> Some(reimbursementAmount))
+                  case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
+                }
+                Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+              } else
+                Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
 
-          case _ =>
-            Left("submitAmountForReimbursement.invalidReimbursementAmount")
-        }
+            case _ =>
+              Left("submitAmountForReimbursement.invalidReimbursementAmount")
+          }
+      }
     }
 
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionDate(inspectionDate: LocalDate): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(inspectionDate = Some(inspectionDate))
-    )
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(inspectionDate = Some(inspectionDate))
+      )
+    }
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(inspectionAddress = Some(inspectionAddress))
-    )
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(inspectionAddress = Some(inspectionAddress))
+      )
+    }
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsSingleJourney] =
-    if (needsBanksAccountDetailsAndTypeSubmission)
-      Right(
-        new RejectedGoodsSingleJourney(
-          answers.copy(bankAccountDetails = Some(bankAccountDetails))
+    whileJourneyIsAmendable {
+      if (needsBanksAccountDetailsAndTypeSubmission)
+        Right(
+          new RejectedGoodsSingleJourney(
+            answers.copy(bankAccountDetails = Some(bankAccountDetails))
+          )
         )
-      )
-    else Left("submitBankAccountDetails.unexpected")
+      else Left("submitBankAccountDetails.unexpected")
+    }
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsSingleJourney] =
-    if (needsBanksAccountDetailsAndTypeSubmission)
-      Right(
-        new RejectedGoodsSingleJourney(
-          answers.copy(bankAccountType = Some(bankAccountType))
+    whileJourneyIsAmendable {
+      if (needsBanksAccountDetailsAndTypeSubmission)
+        Right(
+          new RejectedGoodsSingleJourney(
+            answers.copy(bankAccountType = Some(bankAccountType))
+          )
         )
-      )
-    else Left("submitBankAccountType.unexpected")
+      else Left("submitBankAccountType.unexpected")
+    }
 
   def submitReimbursementMethod(
     reimbursementMethodAnswer: ReimbursementMethodAnswer
   ): Either[String, RejectedGoodsSingleJourney] =
-    if (isAllSelectedDutiesAreCMAEligible)
-      Right(
-        new RejectedGoodsSingleJourney(
-          answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
+    whileJourneyIsAmendable {
+      if (isAllSelectedDutiesAreCMAEligible)
+        Right(
+          new RejectedGoodsSingleJourney(
+            answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
+          )
         )
-      )
-    else
-      Left("submitReimbursementMethodAnswer.notCMAEligible")
+      else
+        Left("submitReimbursementMethodAnswer.notCMAEligible")
+    }
 
   def submitUploadedDocument(uploadedDocument: UploadDocument): RejectedGoodsSingleJourney =
-    answers.supportingEvidences match {
-      case Some(supportingEvidences)
-          if supportingEvidences.exists(_.uploadReference === uploadedDocument.uploadReference) =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(supportingEvidences = Some(supportingEvidences.map {
-            case d if d.uploadReference == uploadedDocument.uploadReference => uploadedDocument
-            case d                                                          => d
-          }))
-        )
+    whileJourneyIsAmendable {
+      answers.supportingEvidences match {
+        case Some(supportingEvidences)
+            if supportingEvidences.exists(_.uploadReference === uploadedDocument.uploadReference) =>
+          new RejectedGoodsSingleJourney(
+            answers.copy(supportingEvidences = Some(supportingEvidences.map {
+              case d if d.uploadReference == uploadedDocument.uploadReference => uploadedDocument
+              case d                                                          => d
+            }))
+          )
 
-      case Some(supportingEvidences) =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(supportingEvidences = Some(supportingEvidences :+ uploadedDocument))
-        )
+        case Some(supportingEvidences) =>
+          new RejectedGoodsSingleJourney(
+            answers.copy(supportingEvidences = Some(supportingEvidences :+ uploadedDocument))
+          )
 
-      case None =>
-        new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Seq(uploadedDocument))))
+        case None =>
+          new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Seq(uploadedDocument))))
+      }
     }
 
   def submitDocumentType(
     uploadReference: UploadReference,
     documentType: UploadDocumentType
   ): Either[String, RejectedGoodsSingleJourney] =
-    answers.supportingEvidences match {
-      case None                      => Left("submitDocumentType.missingSupportingEvidences")
-      case Some(supportingEvidences) =>
-        supportingEvidences.find(_.uploadReference === uploadReference) match {
-          case None    => Left("submitDocumentType.upscanReferenceNotFound")
-          case Some(_) =>
-            Right(
-              new RejectedGoodsSingleJourney(
-                answers.copy(supportingEvidences = Some(supportingEvidences.map {
-                  case d if d.uploadReference == uploadReference => d.copy(documentType = Some(documentType))
-                  case d                                         => d
-                }))
+    whileJourneyIsAmendable {
+      answers.supportingEvidences match {
+        case None                      => Left("submitDocumentType.missingSupportingEvidences")
+        case Some(supportingEvidences) =>
+          supportingEvidences.find(_.uploadReference === uploadReference) match {
+            case None    => Left("submitDocumentType.upscanReferenceNotFound")
+            case Some(_) =>
+              Right(
+                new RejectedGoodsSingleJourney(
+                  answers.copy(supportingEvidences = Some(supportingEvidences.map {
+                    case d if d.uploadReference == uploadReference => d.copy(documentType = Some(documentType))
+                    case d                                         => d
+                  }))
+                )
               )
-            )
-        }
+          }
+      }
+    }
+
+  def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsSingleJourney] =
+    whileJourneyIsAmendable {
+      RejectedGoodsSingleJourney.validator
+        .apply(this)
+        .toEither
+        .fold(
+          errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
+          _ => Right(new RejectedGoodsSingleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
+        )
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     if (obj.isInstanceOf[RejectedGoodsSingleJourney]) {
-      obj.asInstanceOf[RejectedGoodsSingleJourney].answers === this.answers
+      val that = obj.asInstanceOf[RejectedGoodsSingleJourney]
+      that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
 
   override def hashCode(): Int    = answers.hashCode
-  override def toString(): String = s"RejectedGoodsSingleJourney(${answers.toString()})"
+  override def toString(): String = s"RejectedGoodsSingleJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -519,42 +581,43 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
   )
 
   import com.github.arturopala.validator.Validator._
+  import RejectedGoodsSingleJourney.ValidationErrors._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   val validator: Validate[RejectedGoodsSingleJourney] =
     all(
-      checkIsDefined(_.answers.movementReferenceNumber, "missing movementReferenceNumber"),
-      checkIsDefined(_.answers.displayDeclaration, "missing displayDeclaration"),
-      checkIsDefined(_.answers.basisOfClaim, "missing basisOfClaim"),
-      checkIsDefined(_.answers.detailsOfRejectedGoods, "missing detailsOfRejectedGoods"),
-      checkIsDefined(_.answers.inspectionDate, "missing inspectionDate"),
-      checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
-      checkIsDefined(_.answers.methodOfDisposal, "missing inspectionAddress"),
-      check(_.isCompleteReimbursementClaims, "incomplete reimbursement claims"),
-      check(_.isCompleteSupportingEvidences, "incomplete supporting evidences"),
-      checkIsDefined(_.answers.contactDetails, "missing contactDetails"),
-      checkIsDefined(_.answers.contactAddress, "missing contactAddress"),
-      check(_.getTotalReimbursementAmount > 0, "total reimbursement amout must be greater than zero"),
+      checkIsDefined(_.answers.movementReferenceNumber, MISSING_MOVEMENT_REFERENCE_NUMBER),
+      checkIsDefined(_.answers.displayDeclaration, MISSING_DISPLAY_DECLARATION),
+      checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM),
+      checkIsDefined(_.answers.detailsOfRejectedGoods, MISSING_DETAILS_OF_REJECTED_GOODS),
+      checkIsDefined(_.answers.inspectionDate, MISSING_INSPECTION_DATE),
+      checkIsDefined(_.answers.inspectionAddress, MISSING_INSPECTION_ADDRESS),
+      checkIsDefined(_.answers.methodOfDisposal, MISSING_METHOD_OF_DISPOSAL),
+      check(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
+      check(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
+      checkIsDefined(_.answers.contactDetails, MISSING_CONTACT_DETAILS),
+      checkIsDefined(_.answers.contactAddress, MISSING_CONTACT_ADDRESS),
+      check(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
       whenTrue(
         _.needsDeclarantAndConsigneeEoriSubmission,
         all(
           checkIsDefined(
             _.answers.declarantEoriNumber,
-            "declarantEoriNumber must be provided if user's EORI is not matching those of ACC14 declarant or consignee"
+            DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED
           ),
           checkEquals(
             _.getDeclarantEoriFromACC14,
             _.answers.declarantEoriNumber,
-            "declarantEoriNumber must be equal to that of ACC14"
+            DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
           ),
           checkIsDefined(
             _.answers.consigneeEoriNumber,
-            "consigneeEoriNumber must be provided if user's EORI is not matching those of ACC14 declarant or consignee"
+            CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED
           ),
           checkEquals(
             _.getConsigneeEoriFromACC14,
             _.answers.consigneeEoriNumber,
-            "declarantEoriNumber must be equal to that of ACC14"
+            CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
           )
         )
       ),
@@ -563,11 +626,11 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
         all(
           checkIsEmpty(
             _.answers.declarantEoriNumber,
-            "declarantEoriNumber does not have to be provided if user's EORI is matching those of ACC14 declarant or consignee"
+            DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
           ),
           checkIsEmpty(
             _.answers.consigneeEoriNumber,
-            "consigneeEoriNumber does not have to be provided if user's EORI is matching those of ACC14 declarant or consignee"
+            CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
           )
         )
       ),
@@ -576,11 +639,11 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
         all(
           checkIsDefined(
             _.answers.bankAccountDetails,
-            "bankAccountDetails must be defined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
+            BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
           ),
           checkIsDefined(
             _.answers.bankAccountType,
-            "bankAccountType must be defined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
+            BANK_ACCOUNT_TYPE_MUST_BE_DEFINED
           )
         )
       ),
@@ -589,11 +652,11 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
         all(
           checkIsEmpty(
             _.answers.bankAccountDetails,
-            "bankAccountDetails must NOT be defined when reimbursementMethodAnswer is CurrentMonthAdjustment"
+            BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED
           ),
           checkIsEmpty(
             _.answers.bankAccountType,
-            "bankAccountType must NOT be defined when reimbursementMethodAnswer is CurrentMonthAdjustment"
+            BANK_ACCOUNT_TYPE_MUST_NOT_BE_DEFINED
           )
         )
       ),
@@ -601,28 +664,28 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
         _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances),
         checkIsDefined(
           _.answers.basisOfClaimSpecialCircumstances,
-          "basisOfClaimSpecialCircumstances must be defined when basisOfClaim value is SpecialCircumstances"
+          BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED
         )
       ),
       whenFalse(
         _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances),
         checkIsEmpty(
           _.answers.basisOfClaimSpecialCircumstances,
-          "basisOfClaimSpecialCircumstances must NOT be defined when basisOfClaim value is not SpecialCircumstances"
+          BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED
         )
       ),
       whenTrue(
         _.isAllSelectedDutiesAreCMAEligible,
         checkIsDefined(
           _.answers.reimbursementMethod,
-          "reimbursementMethodAnswer must be defined when all selected duties are CMA eligible"
+          REIMBURSEMENT_METHOD_MUST_BE_DEFINED
         )
       ),
       whenFalse(
         _.isAllSelectedDutiesAreCMAEligible,
         checkIsEmpty(
           _.answers.reimbursementMethod,
-          "reimbursementMethodAnswer must NOT be defined when not all of selected duties are CMA eligible"
+          REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
         )
       )
     )
@@ -650,13 +713,61 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     implicit val format: Format[Output] = Json.format[Output]
   }
 
+  import play.api.libs.functional.syntax._
+
   implicit val format: Format[RejectedGoodsSingleJourney] =
     Format(
-      Reads(Answers.format.reads(_).map(answers => new RejectedGoodsSingleJourney(answers))),
-      Writes(journey => Answers.format.writes(journey.answers))
+      ((JsPath \ "answers").read[Answers] and (JsPath \ "caseNumber").readNullable[String])(
+        new RejectedGoodsSingleJourney(_, _)
+      ),
+      ((JsPath \ "answers").write[Answers] and (JsPath \ "caseNumber").writeNullable[String])(journey =>
+        (journey.answers, journey.caseNumber)
+      )
     )
 
   implicit val equality: Eq[RejectedGoodsSingleJourney] =
     Eq.fromUniversalEquals[RejectedGoodsSingleJourney]
+
+  object ValidationErrors {
+    val JOURNEY_ALREADY_FINALIZED: String                                = "journeyAlreadyFinalized"
+    val MISSING_MOVEMENT_REFERENCE_NUMBER: String                        = "missingMovementReferenceNumber"
+    val MISSING_DISPLAY_DECLARATION: String                              = "missingDisplayDeclaration"
+    val MISSING_BASIS_OF_CLAIM: String                                   = "missingBasisOfClaim"
+    val MISSING_DETAILS_OF_REJECTED_GOODS: String                        = "missingDetailsOfRejectedGoods"
+    val MISSING_INSPECTION_DATE: String                                  = "missingInspectionDate"
+    val MISSING_INSPECTION_ADDRESS: String                               = "missingInspectionAddress"
+    val MISSING_METHOD_OF_DISPOSAL: String                               = "missingMethodOfDisposal"
+    val INCOMPLETE_REIMBURSEMENT_CLAIMS: String                          = "incompleteReimbursementClaims"
+    val INCOMPLETE_SUPPORTING_EVIDENCES: String                          = "incompleteSupportingEvidences"
+    val MISSING_CONTACT_DETAILS: String                                  = "missingContactDetails"
+    val MISSING_CONTACT_ADDRESS: String                                  = "missingContactAddress"
+    val TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO: String     = "totalReimbursementAmountMustBeGreaterThanZero"
+    val DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED: String                   =
+      "declarantEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"
+    val DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14: String     = "declarantEoriNumberMustBeEqualToThatOfACC14"
+    val CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED: String                   =
+      "consigneeEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"
+    val CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14: String     = "consigneeEoriNumberMustBeEqualToThatOfACC14"
+    val DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED: String       =
+      "declarantEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
+    val CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED: String       =
+      "consigneeEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
+    val BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED: String                     =
+      "bankAccountDetailsMustBeDefined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
+    val BANK_ACCOUNT_TYPE_MUST_BE_DEFINED: String                        =
+      "bankAccountTypeMustBeDefined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
+    val BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED: String                 =
+      "bankAccountDetailsMustNotBeDefined when reimbursementMethodAnswer is CurrentMonthAdjustment"
+    val BANK_ACCOUNT_TYPE_MUST_NOT_BE_DEFINED: String                    =
+      "bankAccountTypeMustNotBeDefined when reimbursementMethodAnswer is CurrentMonthAdjustment"
+    val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED: String     =
+      "basisOfClaimSpecialCircumstancesMustBeDefined when basisOfClaim value is SpecialCircumstances"
+    val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED: String =
+      "basisOfClaimSpecialCircumstancesMustNotBeDefined when basisOfClaim value is not SpecialCircumstances"
+    val REIMBURSEMENT_METHOD_MUST_BE_DEFINED: String                     =
+      "reimbursementMethodMustBeDefined when all selected duties are CMA eligible"
+    val REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED: String          =
+      "reimbursementMethodAnswerMustNotBeDefined when not all of selected duties are CMA eligible"
+  }
 
 }

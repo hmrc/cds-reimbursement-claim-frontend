@@ -62,7 +62,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
 
     "handling requests to submit claim" must {
       behave like connectorBehaviour(
-        mockPost(url, Seq.empty, c285ClaimRequest)(_),
+        mockPost(url, Seq("Accept-Language" -> "en"), c285ClaimRequest)(_),
         () => connector.submitClaim(c285ClaimRequest)
       )
     }

@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 import RejectedGoodsSingleJourneyGenerators._
+import play.api.libs.json.Json
 
 class RejectedGoodsSingleJourneyFormatSpec
     extends AnyWordSpec
@@ -76,11 +77,11 @@ class RejectedGoodsSingleJourneyFormatSpec
   "RejectedGoodsSingleJourney" should {
     "serialize journeys into a JSON format and back" in {
       validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString"}""",
+        s"""{"answers":{"userEoriNumber":"$exampleEoriAsString"}}""",
         RejectedGoodsSingleJourney.empty(exampleEori)
       )
       validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","movementReferenceNumber":"19GB03I52858027001"}""",
+        s"""{"answers":{"userEoriNumber":"$exampleEoriAsString","movementReferenceNumber":"19GB03I52858027001"}}""",
         RejectedGoodsSingleJourney.empty(exampleEori).submitMovementReferenceNumber(MRN("19GB03I52858027001"))
       )
     }
@@ -88,6 +89,17 @@ class RejectedGoodsSingleJourneyFormatSpec
     "serialize complete journey into a JSON format" in {
       forAll(completeJourneyGen) { journey =>
         validateCanReadAndWriteJson(journey)
+      }
+    }
+
+    "serialize finalized journey into a JSON format" in {
+      forAll(completeJourneyGen) { journey =>
+        val finalizedJourney    =
+          journey.finalizeJourneyWith("abc-123").getOrElse(fail("cannot finalize the test journey"))
+        validateCanReadAndWriteJson(finalizedJourney)
+        val deserializedJourney =
+          Json.parse(Json.stringify(Json.toJson(finalizedJourney))).as[RejectedGoodsSingleJourney]
+        deserializedJourney.caseNumber shouldBe Some("abc-123")
       }
     }
 

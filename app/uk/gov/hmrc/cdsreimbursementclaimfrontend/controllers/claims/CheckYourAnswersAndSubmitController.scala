@@ -174,7 +174,11 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   def confirmationOfSubmission(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withJustSubmittedClaim(claim => Ok(confirmationOfSubmissionPage(claim)))
+      withJustSubmittedClaim(claim =>
+        Ok(
+          confirmationOfSubmissionPage(claim.claim.totalReimbursementAmount, claim.submissionResponse.caseNumber, None)
+        )
+      )
     }
 
   private def withJustSubmittedClaim(

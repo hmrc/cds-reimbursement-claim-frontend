@@ -361,23 +361,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  FillingOutClaim(
-                    justSubmittedClaim.ggCredId,
-                    justSubmittedClaim.signedInUserDetails,
-                    DraftClaim.blank
-                  )
-                )
-              )
-            )(Right(()))
+            mockStoreSession(SessionData.empty)(Right(()))
           }
 
           val result = performAction()
           checkIsRedirect(
             result,
-            claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
+            routes.StartController.start()
           )
         }
 
@@ -388,17 +378,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  FillingOutClaim(
-                    justSubmittedClaim.ggCredId,
-                    justSubmittedClaim.signedInUserDetails,
-                    DraftClaim.blank
-                  )
-                )
-              )
-            )(Left(Error("boom!")))
+            mockStoreSession(SessionData.empty)(Left(Error("boom!")))
           }
 
           val result = performAction()
@@ -417,6 +397,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionData)
+            mockStoreSession(SessionData.empty)(Right(()))
           }
 
           val result = performAction()

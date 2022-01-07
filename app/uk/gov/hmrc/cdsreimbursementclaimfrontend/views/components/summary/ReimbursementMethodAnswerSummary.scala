@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMethodAnswer] {
+object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMethodAnswer] {
   def render(key: String, answer: ReimbursementMethodAnswer)(implicit
     subKey: Option[String],
     journey: JourneyBindable,
