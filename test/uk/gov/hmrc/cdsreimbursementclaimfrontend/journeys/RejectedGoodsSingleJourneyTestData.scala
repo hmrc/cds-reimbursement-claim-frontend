@@ -77,7 +77,10 @@ trait RejectedGoodsSingleJourneyTestData {
   val exampleInspectionAddress: InspectionAddress =
     InspectionAddress(
       addressLine1 = "1 Bar Road",
+      addressLine2 = "Lewisham",
+      city = "London",
       postalCode = "BA1 1FO",
+      countryCode = Country.uk.code,
       addressType = InspectionAddressType.Other
     )
 
