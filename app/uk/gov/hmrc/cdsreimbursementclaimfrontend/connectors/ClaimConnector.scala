@@ -58,7 +58,8 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
       http
         .POST[C285ClaimRequest, HttpResponse](
           submitClaimUrl,
-          c285ClaimRequest
+          c285ClaimRequest,
+          Seq("Accept-Language" -> "en")
         )
         .map(Right(_))
         .recover { case NonFatal(e) =>

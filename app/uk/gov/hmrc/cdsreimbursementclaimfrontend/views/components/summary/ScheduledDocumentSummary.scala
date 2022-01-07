@@ -24,7 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
+object ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
 
   def render(key: String, answer: ScheduledDocumentAnswer)(implicit
     subKey: Option[String],

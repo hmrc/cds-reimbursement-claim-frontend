@@ -22,26 +22,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 package object summary {
 
-  implicit val claimTypeSummary: ClaimTypeSummary                                 = new ClaimTypeSummary
-  implicit val basisOfClaimSummary: BasisOfClaimSummary                           = new BasisOfClaimSummary
-  implicit val bankAccountDetailsSummary: BankAccountDetailsSummary               = new BankAccountDetailsSummary
-  implicit val multipleClaimsAnswerSummary: MultipleClaimsAnswerSummary           = new MultipleClaimsAnswerSummary
-  implicit val mrnSummary: MovementReferenceNumberSummary                         = new MovementReferenceNumberSummary
-  implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
-  implicit val commodityDetailsSummary: CommodityDetailsSummary                   = new CommodityDetailsSummary
-  implicit val cdsDisplayDeclarationSummary: CdsDisplayDeclarationSummary         = new CdsDisplayDeclarationSummary
-  implicit val northernIrelandAnswerSummary: NorthernIrelandAnswerSummary         = new NorthernIrelandAnswerSummary
-  implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
-  implicit val reimbursementsSummary: DutyAndTaxCodeReimbursementSummary          = new DutyAndTaxCodeReimbursementSummary
-  implicit val claimedReimbursementsSummary: ClaimedReimbursementsAnswerSummary   = new ClaimedReimbursementsAnswerSummary
-  implicit val taxCodeReimbursementSummary: TaxCodeReimbursementSummary           = new TaxCodeReimbursementSummary
-  implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary               = new CdsClaimantDetailsSummary
-  implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
-  implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
-
-  implicit val claimantDetailsSummary: ClaimantDetailsSummary       = new ClaimantDetailsSummary
-  implicit val declarationDetailsSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
-
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
 
     def summary(key: String, subKey: Option[String])(implicit
@@ -57,15 +37,6 @@ package object summary {
       answerSummary: AnswerSummary[A],
       subKey: Option[String],
       journey: JourneyBindable,
-      messages: Messages
-    ): SummaryList =
-      answerSummary.render(key, answer)
-
-    def rejected_goods_summary(
-      key: String
-    )(implicit
-      answerSummary: RejectedGoodsAnswerSummary[A],
-      subKey: Option[String],
       messages: Messages
     ): SummaryList =
       answerSummary.render(key, answer)

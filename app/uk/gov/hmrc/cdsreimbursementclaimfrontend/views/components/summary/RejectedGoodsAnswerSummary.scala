@@ -17,6 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
+import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 trait RejectedGoodsAnswerSummary[A] {
@@ -24,4 +28,24 @@ trait RejectedGoodsAnswerSummary[A] {
     subKey: Option[String],
     messages: Messages
   ): SummaryList
+}
+
+object RejectedGoodsAnswerSummary {
+
+  def apply[A](key: String, subKey: Option[String], value: A)(implicit
+    answerSummary: RejectedGoodsAnswerSummary[A],
+    messages: Messages
+  ): SummaryList = answerSummary.render(key, value)(subKey, messages)
+
+  def apply[A](key: String, value: A)(implicit
+    answerSummary: RejectedGoodsAnswerSummary[A],
+    messages: Messages
+  ): SummaryList = apply(key, None, value)
+
+  implicit val claimantDetailsSummary: RejectedGoodsAnswerSummary[(MrnContactDetails, ContactAddress, Call, Call)] =
+    ClaimantDetailsSummary
+
+  implicit val declarationDetailsSummary: RejectedGoodsAnswerSummary[DisplayDeclaration] =
+    DisplayDeclarationSummary
+
 }

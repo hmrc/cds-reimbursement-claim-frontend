@@ -38,7 +38,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   val eoriNumberFormKey: String = "enter-declarant-eori-number"
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       val form = eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.declarantEoriNumber)
       Ok(
@@ -50,7 +50,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     }
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     eoriNumberForm(eoriNumberFormKey)
       .bindFromRequest()
       .fold(

@@ -52,29 +52,34 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
   /** [Config] Defines where to redirect when missing journey or missing session data after user has been authorized. */
   val startOfTheJourney: Call
 
-  private lazy val goToTheStartOfJourney: Future[Result] =
+  lazy val redirectToTheStartOfTheJourney: Future[Result] =
     Future.successful(Redirect(startOfTheJourney))
 
   /** [Config] Defines where to redirect when journey is already complete, a.k.a CYA page. */
   val checkYourAnswers: Call
+
+  /** [Config] Defines where to redirect when journey has been already finalized. */
+  val claimSubmissionConfirmation: Call
 
   /** [Config] Required feature flag or none. */
   val requiredFeature: Option[Feature]
 
   def getJourney(sessionData: SessionData): Option[Journey]
   def updateJourney(sessionData: SessionData, journey: Journey): SessionData
-  def isComplete(journey: Journey): Boolean
+  def hasCompleteAnswers(journey: Journey): Boolean
+  def isFinalized(journey: Journey): Boolean
 
   final override def controllerComponents: MessagesControllerComponents =
     jcc.controllerComponents
 
-  private def resultOrRedirectToCheckYourAnswersIfComplete(result: Result, journey: Journey): Future[Result] =
+  final def resultOrShortcut(result: Result, journey: Journey): Future[Result] =
     Future.successful(
-      if (isComplete(journey)) Redirect(checkYourAnswers)
+      if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
+      else if (hasCompleteAnswers(journey)) Redirect(checkYourAnswers)
       else result
     )
 
-  private def storeSessionIfChanged(sessionData: SessionData, modifiedSessionData: SessionData)(implicit
+  final def storeSessionIfChanged(sessionData: SessionData, modifiedSessionData: SessionData)(implicit
     hc: HeaderCarrier
   ): Future[Either[Error, Unit]] =
     if (modifiedSessionData === sessionData) Future.successful(Right(()))
@@ -88,21 +93,42 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
         Future.successful(
           request.sessionData
             .flatMap(getJourney)
-            .map(body)
+            .map(journey =>
+              if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
+              else body(journey)
+            )
             .getOrElse(Redirect(startOfTheJourney))
         )
       }
 
-  /** Simple GET action to show page based on the user data and journey state. */
-  final def simpleActionReadJourneyAndUser(
+  /** Async GET action to show page based on the user data and journey state. */
+  final def actionReadJourneyAndUser(
     body: Request[_] => Journey => RetrievedUserType => Future[Result]
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .async { implicit request =>
         getJourney(request.sessionData)
-          .map(journey => body(request)(journey)(request.authenticatedRequest.journeyUserType))
-          .getOrElse(goToTheStartOfJourney)
+          .map(journey =>
+            if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
+            else body(request)(journey)(request.authenticatedRequest.journeyUserType)
+          )
+          .getOrElse(redirectToTheStartOfTheJourney)
+      }
+
+  /** Simple GET action to show page based on the user data and journey state. */
+  final def simpleActionReadJourneyAndUser(
+    body: Journey => RetrievedUserType => Result
+  ): Action[AnyContent] =
+    jcc
+      .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
+      .apply { implicit request =>
+        getJourney(request.sessionData)
+          .map(journey =>
+            if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
+            else body(journey)(request.authenticatedRequest.journeyUserType)
+          )
+          .getOrElse(Redirect(startOfTheJourney))
       }
 
   /** Async GET action to show page based on the request and journey state. */
@@ -114,8 +140,11 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       .async { implicit request =>
         request.sessionData
           .flatMap(getJourney)
-          .map(body(request))
-          .getOrElse(goToTheStartOfJourney)
+          .map(journey =>
+            if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
+            else body(request)(journey)
+          )
+          .getOrElse(redirectToTheStartOfTheJourney)
       }
 
   /** Simple POST action to submit form and update journey. */
@@ -128,18 +157,21 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)
-              .map(body(request))
+              .map(journey =>
+                if (isFinalized(journey)) (journey, Redirect(claimSubmissionConfirmation))
+                else body(request)(journey)
+              )
               .map { case (modifiedJourney, result) =>
                 storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
-                      _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
+                      _ => resultOrShortcut(result, modifiedJourney)
                     )
                   )
               }
           )
-          .getOrElse(goToTheStartOfJourney)
+          .getOrElse(redirectToTheStartOfTheJourney)
       }
 
   /** Simple POST to submit form and update journey, can use current user data. */
@@ -150,17 +182,20 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .async { implicit request =>
         getJourney(request.sessionData)
-          .map(journey => body(request)(journey)(request.authenticatedRequest.journeyUserType))
+          .map(journey =>
+            if (isFinalized(journey)) (journey, Redirect(claimSubmissionConfirmation))
+            else body(request)(journey)(request.authenticatedRequest.journeyUserType)
+          )
           .map { case (modifiedJourney, result) =>
             storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
               .flatMap(
                 _.fold(
                   error => Future.failed(error.toException),
-                  _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
+                  _ => resultOrShortcut(result, modifiedJourney)
                 )
               )
           }
-          .getOrElse(goToTheStartOfJourney)
+          .getOrElse(redirectToTheStartOfTheJourney)
       }
 
   /** Async POST action to submit form and update journey. */
@@ -173,18 +208,21 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)
-              .map(body(request))
+              .map(journey =>
+                if (isFinalized(journey)) Future.successful((journey, Redirect(claimSubmissionConfirmation)))
+                else body(request)(journey)
+              )
               .map(_.flatMap { case (modifiedJourney, result) =>
                 storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
-                      _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
+                      _ => resultOrShortcut(result, modifiedJourney)
                     )
                   )
               })
           )
-          .getOrElse(goToTheStartOfJourney)
+          .getOrElse(redirectToTheStartOfTheJourney)
 
       }
 
@@ -196,22 +234,28 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .async { implicit request =>
         getJourney(request.sessionData)
-          .fold(goToTheStartOfJourney) { journey =>
-            body(request)(journey)(request.authenticatedRequest.journeyUserType)
-              .flatMap { case (modifiedJourney, result) =>
-                storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
-                  .flatMap(
-                    _.fold(
-                      error => Future.failed(error.toException),
-                      _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
+          .fold(redirectToTheStartOfTheJourney) { journey =>
+            if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
+            else
+              body(request)(journey)(request.authenticatedRequest.journeyUserType)
+                .flatMap { case (modifiedJourney, result) =>
+                  storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
+                    .flatMap(
+                      _.fold(
+                        error => Future.failed(error.toException),
+                        _ => resultOrShortcut(result, modifiedJourney)
+                      )
                     )
-                  )
-              }
+                }
           }
       }
 
   implicit class FormOps[A](val form: Form[A]) {
     def withDefault(optValue: Option[A]): Form[A] =
       optValue.map(form.fill).getOrElse(form)
+  }
+
+  implicit class Ops[A](val value: A) {
+    def asFuture: Future[A] = Future.successful(value)
   }
 }
