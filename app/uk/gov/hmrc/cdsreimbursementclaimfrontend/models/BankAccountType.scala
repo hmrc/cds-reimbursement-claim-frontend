@@ -16,22 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed abstract class BankAccountType(val value: Int) extends Product with Serializable
+sealed class BankAccountType(val value: Int)
 
-object BankAccountType {
+object BankAccountType extends EnumerationFormat[BankAccountType] {
 
-  case object BusinessBankAccount extends BankAccountType(0)
-  case object PersonalBankAccount extends BankAccountType(1)
+  case object Business extends BankAccountType(0)
+  case object Personal extends BankAccountType(1)
 
-  val allAccountTypes: List[BankAccountType]          = List(BusinessBankAccount, PersonalBankAccount)
-  val allAccountsIntToType: Map[Int, BankAccountType] = allAccountTypes.map(a => a.value -> a).toMap
-  val allAccountsTypeToInt: Map[BankAccountType, Int] = allAccountTypes.map(a => a -> a.value).toMap
-
-  implicit val format: OFormat[BankAccountType] = derived.oformat[BankAccountType]()
-
-  implicit val eq: Eq[BankAccountType] = Eq.fromUniversalEquals[BankAccountType]
+  val values: Set[BankAccountType] = Set(Business, Personal)
 }

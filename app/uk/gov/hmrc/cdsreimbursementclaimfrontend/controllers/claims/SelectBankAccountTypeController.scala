@@ -19,8 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Forms.mapping
-import play.api.data.Forms.number
 import play.api.data._
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -28,15 +26,13 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType.allAccountTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType.allAccountsIntToType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType.allAccountsTypeToInt
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -67,7 +63,7 @@ class SelectBankAccountTypeController @Inject() (
   def selectBankAccountType(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BankAccountType] { (_, answer, router) =>
-        val emptyForm  = SelectBankAccountTypeController.bankAccountTypeForm
+        val emptyForm  = Forms.bankAccountTypeForm
         val filledForm = answer.fold(emptyForm)(emptyForm.fill)
         Ok(selectBankAccountTypePage(filledForm, router.submitUrlForSelectBankAccountType()))
       }
@@ -76,7 +72,7 @@ class SelectBankAccountTypeController @Inject() (
   def selectBankAccountTypeSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BankAccountType] { (fillingOutClaim, _, router) =>
-        SelectBankAccountTypeController.bankAccountTypeForm
+        Forms.bankAccountTypeForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
@@ -100,20 +96,5 @@ class SelectBankAccountTypeController @Inject() (
           )
       }
     }
-
-}
-
-object SelectBankAccountTypeController {
-
-  val selectBankAccountTypeKey: String = "select-bank-account-type"
-
-  val bankAccountTypeForm: Form[BankAccountType] =
-    Form(
-      mapping(
-        selectBankAccountTypeKey -> number
-          .verifying("invalid", a => allAccountTypes.map(_.value).contains(a))
-          .transform[BankAccountType](allAccountsIntToType, allAccountsTypeToInt)
-      )(identity)(Some(_))
-    )
 
 }

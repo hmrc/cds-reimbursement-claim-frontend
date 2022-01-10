@@ -20,8 +20,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType.BusinessBankAccount
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType.PersonalBankAccount
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
@@ -58,15 +56,15 @@
             items = Seq(
                 RadioItem(
                     id = Some(s"$key-business-bank-account"),
-                    value = Some("0"),
+                    value = Some("Business"),
                     content = Text(messages(s"$key.business-bank-account")),
-                    checked = form.value.contains(BusinessBankAccount)
+                    checked = form.value.contains(BankAccountType.Business)
                 ),
                 RadioItem(
                     id = Some(s"$key-personal-bank-account"),
-                    value = Some("1"),
+                    value = Some("Personal"),
                     content = Text(messages(s"$key.personal-bank-account")),
-                    checked = form.value.contains(PersonalBankAccount)
+                    checked = form.value.contains(BankAccountType.Personal)
                 )
             )
         )

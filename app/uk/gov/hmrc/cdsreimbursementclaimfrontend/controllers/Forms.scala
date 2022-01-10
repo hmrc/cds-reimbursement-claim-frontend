@@ -22,11 +22,11 @@ import play.api.data.Forms.nonEmptyText
 import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 
 object Forms {
   def eoriNumberForm(key: String): Form[Eori] = Form(
@@ -54,20 +54,15 @@ object Forms {
   val methodOfDisposalForm: Form[MethodOfDisposal] =
     Form(
       mapping(
-        "select-method-of-disposal.rejected-goods" -> nonEmptyText
-          .verifying(MethodOfDisposal.values.map(keyOf).contains _)
-          .transform[MethodOfDisposal](
-            {
-              case "Export"                   => Export
-              case "PostalExport"             => PostalExport
-              case "DonationToCharity"        => DonationToCharity
-              case "PlacedInCustomsWarehouse" => PlacedInCustomsWarehouse
-              case "ExportInBaggage"          => ExportInBaggage
-              case "Destruction"              => Destruction
-            },
-            _.toString
-          )
-      )(identity)(Some(_))
+        "select-method-of-disposal.rejected-goods" -> nonEmptyText.verifying(MethodOfDisposal.keys.contains _)
+      )(MethodOfDisposal.tryParse)(md => Some(MethodOfDisposal.keyOf(md)))
+    )
+
+  val bankAccountTypeForm: Form[BankAccountType] =
+    Form(
+      mapping(
+        "select-bank-account-type" -> nonEmptyText.verifying(BankAccountType.keys.contains _)
+      )(BankAccountType.tryParse)(md => Some(BankAccountType.keyOf(md)))
     )
 
   val rejectedGoodsContactDetailsForm: Form[MrnContactDetails] = Form(
