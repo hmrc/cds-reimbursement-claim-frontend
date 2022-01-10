@@ -34,7 +34,8 @@ abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionCo
   final override val startOfTheJourney: Call =
     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
 
-  final override val checkYourAnswers: Call = routes.CheckClaimantDetailsController.show()
+  final override val checkYourAnswers: Call            = routes.CheckYourAnswersController.show()
+  final override val claimSubmissionConfirmation: Call = routes.CheckYourAnswersController.showConfirmation()
 
   final override def getJourney(sessionData: SessionData): Option[RejectedGoodsSingleJourney] =
     sessionData.rejectedGoodsSingleJourney
@@ -42,7 +43,10 @@ abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionCo
   final override def updateJourney(sessionData: SessionData, journey: RejectedGoodsSingleJourney): SessionData =
     sessionData.copy(rejectedGoodsSingleJourney = Some(journey))
 
-  final override def isComplete(journey: RejectedGoodsSingleJourney): Boolean =
-    journey.isComplete
+  final override def hasCompleteAnswers(journey: RejectedGoodsSingleJourney): Boolean =
+    journey.hasCompleteAnswers
+
+  final override def isFinalized(journey: RejectedGoodsSingleJourney): Boolean =
+    journey.isFinalized
 
 }

@@ -45,7 +45,7 @@ class SelectDutiesController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(journey)
 
     cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
@@ -61,7 +61,7 @@ class SelectDutiesController @Inject() (
     )
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(journey)
 
     cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(

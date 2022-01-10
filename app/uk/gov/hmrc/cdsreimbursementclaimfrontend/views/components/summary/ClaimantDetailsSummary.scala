@@ -32,7 +32,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
-class ClaimantDetailsSummary
+object ClaimantDetailsSummary
     extends RejectedGoodsAnswerSummary[
       (
         MrnContactDetails,

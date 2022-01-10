@@ -61,7 +61,7 @@ class StartController @Inject() (
     with Logging
     with SessionUpdates {
 
-  def start(): Action[AnyContent] =
+  val start: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
       (
         request.authenticatedRequest.journeyUserType,
@@ -74,42 +74,20 @@ class StartController @Inject() (
       }
     }
 
-  def startNewClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withJustSubmittedClaim { justSubmittedClaim =>
-      val result = for {
-        _ <- EitherT(
-               updateSession(sessionStore, request)(
-                 _.copy(
-                   journeyStatus = Some(
-                     FillingOutClaim(
-                       justSubmittedClaim.ggCredId,
-                       justSubmittedClaim.signedInUserDetails,
-                       DraftClaim.blank
-                     )
-                   )
-                 )
-               )
-             )
-      } yield ()
-
-      result.fold(
-        logAndDisplayError("could not initiate claim journey:"),
-        _ =>
-          Redirect(
-            controllers.claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
-          )
+  val startNewClaim: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    updateSession(sessionStore, request)(_ => SessionData.empty)
+      .map(
+        _.fold(
+          logAndDisplayError("could not reset the session"),
+          _ =>
+            Redirect(
+              controllers.routes.StartController.start()
+            )
+        )
       )
-    }
   }
 
-  private def withJustSubmittedClaim(
-    f: JustSubmittedClaim => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.using({ case justSubmittedClaim: JustSubmittedClaim =>
-      f(justSubmittedClaim)
-    })
-
-  def weOnlySupportGG(): Action[AnyContent] =
+  val weOnlySupportGG: Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       request.sessionData.flatMap(_.journeyStatus) match {
         case Some(NonGovernmentGatewayJourney) => Ok(weOnlySupportGGPage())
@@ -117,7 +95,7 @@ class StartController @Inject() (
       }
     }
 
-  def signOutAndRegisterForGG(): Action[AnyContent] =
+  val signOutAndRegisterForGG: Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       request.sessionData.flatMap(_.journeyStatus) match {
         case Some(NonGovernmentGatewayJourney) =>
@@ -126,7 +104,7 @@ class StartController @Inject() (
       }
     }
 
-  def signOutAndSignIn(): Action[AnyContent] =
+  val signOutAndSignIn: Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       request.sessionData.flatMap(_.journeyStatus) match {
         case Some(NonGovernmentGatewayJourney) =>
@@ -135,10 +113,10 @@ class StartController @Inject() (
       }
     }
 
-  def keepAlive(): Action[AnyContent] =
+  val keepAlive: Action[AnyContent] =
     authenticatedActionWithSessionData(_ => Ok(""))
 
-  def timedOut(): Action[AnyContent] =
+  val timedOut: Action[AnyContent] =
     Action(implicit request => Ok(timedOutPage()))
 
   private def handleSessionJourneyStatus(
@@ -192,8 +170,8 @@ class StartController @Inject() (
       s"User logged in with unsupported provider: ${nonGovernmentGatewayUser.authProvider}"
     )
 
-    updateSession(sessionStore, request)(
-      _.copy(
+    updateSession(sessionStore, request)(_ =>
+      SessionData.empty.copy(
         journeyStatus = Some(NonGovernmentGatewayJourney)
       )
     ).map {
@@ -216,8 +194,8 @@ class StartController @Inject() (
   ): Future[Result] = {
     val result = for {
       _ <- EitherT(
-             updateSession(sessionStore, request)(
-               _.copy(
+             updateSession(sessionStore, request)(_ =>
+               SessionData.empty.copy(
                  journeyStatus = Some(
                    FillingOutClaim(
                      ggCredId,

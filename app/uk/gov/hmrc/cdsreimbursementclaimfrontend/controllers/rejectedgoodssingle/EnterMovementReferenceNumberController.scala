@@ -53,7 +53,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   private val subKey = Some("rejected-goods.single")
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       Ok(
         enterMovementReferenceNumberPage(
@@ -65,7 +65,7 @@ class EnterMovementReferenceNumberController @Inject() (
     }
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     movementReferenceNumberForm
       .bindFromRequest()
       .fold(

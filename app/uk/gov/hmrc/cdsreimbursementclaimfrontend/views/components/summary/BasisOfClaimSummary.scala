@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class BasisOfClaimSummary extends AnswerSummary[BasisOfClaimAnswer] {
+object BasisOfClaimSummary extends AnswerSummary[BasisOfClaimAnswer] {
 
   def render(key: String, answer: BasisOfClaimAnswer)(implicit
     subKey: Option[String],

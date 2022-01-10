@@ -657,7 +657,6 @@ class EnterSingleClaimControllerSpec
           .map(details => Duty(TaxCode(details.taxType)))
           .flatMap(duty => DutiesSelectedAnswer(duty :: Nil))
       )
-      println(ndrcDetail)
       EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
 

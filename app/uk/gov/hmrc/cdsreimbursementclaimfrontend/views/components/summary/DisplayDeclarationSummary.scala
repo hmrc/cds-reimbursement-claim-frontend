@@ -28,7 +28,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
-class DisplayDeclarationSummary extends RejectedGoodsAnswerSummary[DisplayDeclaration] {
+object DisplayDeclarationSummary extends RejectedGoodsAnswerSummary[DisplayDeclaration] {
 
   def render(key: String, declaration: DisplayDeclaration)(implicit
     subKey: Option[String],

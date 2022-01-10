@@ -34,16 +34,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
-class BasisForClaimControllerSpec
+class DisposalMethodControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -57,25 +56,23 @@ class BasisForClaimControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: BasisForClaimController = instanceOf[BasisForClaimController]
+  val controller: DisposalMethodController = instanceOf[DisposalMethodController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
+  val session: SessionData = SessionData.empty.copy(
     rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
   )
 
-  "Enter Basis for claim Controller" when {
-    "Show Basis for claim page" must {
+  "Disposal Method Controller" when {
+    "Disposal Method page" must {
 
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -83,7 +80,8 @@ class BasisForClaimControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page on a new journey" in {
+      "display the page" in {
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -91,88 +89,42 @@ class BasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.rejected-goods.title"),
+          messageFromMessageKey("select-method-of-disposal.rejected-goods.title"),
           doc => {
             doc
-              .select("main p")
-              .text()               shouldBe messageFromMessageKey("select-basis-for-claim.rejected-goods.help-text")
+              .select("body > div > main > div > div > h1")
+              .text()               shouldBe messageFromMessageKey("select-method-of-disposal.rejected-goods.title")
             selectedRadioValue(doc) shouldBe None
           }
         )
       }
-
-      "display the page on a pre-existing journey" in forAll(buildCompleteJourneyGen()) { journey =>
-        whenever(journey.answers.basisOfClaim.isDefined) {
-          val basisOfClaims  = journey.answers.basisOfClaim.map(_.toString)
-          val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(sessionToAmend)
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("select-basis-for-claim.rejected-goods.title"),
-            doc => {
-              doc
-                .select("main p")
-                .text()               shouldBe messageFromMessageKey("select-basis-for-claim.rejected-goods.help-text")
-              selectedRadioValue(doc) shouldBe basisOfClaims
-            }
-          )
-        }
-      }
     }
 
-    "Submit Basis for claim page" must {
+    "Disposal Method page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
-      "reject an empty basis for claim" in {
+      "reject an empty disposal method" in {
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
 
         checkPageIsDisplayed(
-          performAction(controller.formKey -> ""),
-          messageFromMessageKey("select-basis-for-claim.rejected-goods.title"),
+          performAction("select-method-of-disposal.rejected-goods.error.unknown" -> ""),
+          messageFromMessageKey("select-method-of-disposal.rejected-goods.title"),
           doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey("select-basis-for-claim.rejected-goods.error.required"),
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "select-method-of-disposal.rejected-goods.error.required"
+            ),
           expectedStatus = BAD_REQUEST
         )
       }
 
-      "reject an invalid basis for claim" in forAll(alphaNumGenerator(20)) { invalidBasis =>
-        whenever(invalidBasis.nonEmpty && !BasisOfRejectedGoodsClaim.has(invalidBasis)) {
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          checkPageIsDisplayed(
-            performAction(controller.formKey -> invalidBasis),
-            messageFromMessageKey("select-basis-for-claim.rejected-goods.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "select-basis-for-claim.rejected-goods.error.required"
-              ),
-            expectedStatus = BAD_REQUEST
-          )
-        }
-      }
-
-      "submit a valid basis for claim" in forAll(Gen.oneOf(BasisOfRejectedGoodsClaim.values)) { basisOfClaim =>
+      "submit a valid disposal method" in forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
         val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val updatedJourney = journey.submitBasisOfClaim(basisOfClaim)
+        val updatedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
@@ -182,8 +134,8 @@ class BasisForClaimControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.formKey -> basisOfClaim.toString),
-          routes.DisposalMethodController.show()
+          performAction("select-method-of-disposal.rejected-goods" -> methodOfDisposal.toString),
+          "enter-rejected-goods-details"
         )
       }
     }

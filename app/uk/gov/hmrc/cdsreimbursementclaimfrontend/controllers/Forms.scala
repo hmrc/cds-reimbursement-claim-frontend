@@ -23,6 +23,8 @@ import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
 import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -36,7 +38,7 @@ object Forms {
   def eoriNumberForm(key: String): Form[Eori] = Form(
     mapping(
       key -> nonEmptyText(maxLength = 18)
-        .verifying("invalid.number", str => str.size > 18 || str.isEmpty || Eori(str).isValid)
+        .verifying("invalid.number", str => str.length > 18 || str.isEmpty || Eori(str).isValid)
     )(Eori.apply)(Eori.unapply)
   )
 
@@ -54,6 +56,34 @@ object Forms {
       "enter-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
+
+  val methodOfDisposalForm: Form[MethodOfDisposal] =
+    Form(
+      mapping(
+        "select-method-of-disposal.rejected-goods" -> nonEmptyText
+          .verifying(MethodOfDisposal.values.map(keyOf).contains _)
+          .transform[MethodOfDisposal](
+            {
+              case "Export"                   => Export
+              case "PostalExport"             => PostalExport
+              case "DonationToCharity"        => DonationToCharity
+              case "PlacedInCustomsWarehouse" => PlacedInCustomsWarehouse
+              case "ExportInBaggage"          => ExportInBaggage
+              case "Destruction"              => Destruction
+            },
+            _.toString
+          )
+      )(identity)(Some(_))
+    )
+
+  val rejectedGoodsContactDetailsForm: Form[MrnContactDetails] = Form(
+    mapping(
+      "enter-contact-details-rejected-goods.contact-name"         -> nonEmptyText(maxLength = 512),
+      "enter-contact-details-rejected-goods.contact-email"        -> Email.mappingMaxLength,
+      "enter-contact-details-rejected-goods.contact-phone-number" -> optional(PhoneNumber.mapping)
+    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
+  )
+
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(

@@ -477,6 +477,18 @@ select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circum
 select-basis-for-claim.rejected-goods.error.required=Select the basis for claim.
 
 #===================================================
+#  SELECT METHOD OF DISPOSAL PAGE
+#===================================================
+select-method-of-disposal.rejected-goods.title=How were your goods disposed of?
+select-method-of-disposal.rejected-goods.method.Export=Exported
+select-method-of-disposal.rejected-goods.method.PostalExport=Exported by post
+select-method-of-disposal.rejected-goods.method.DonationToCharity=Donated to charity
+select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Placed in customs warehouse
+select-method-of-disposal.rejected-goods.method.ExportInBaggage=Exported in baggage
+select-method-of-disposal.rejected-goods.method.Destruction=Destroyed
+select-method-of-disposal.rejected-goods.error.required=Select the method of disposal.
+
+#===================================================
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Tell us the reason for this claim

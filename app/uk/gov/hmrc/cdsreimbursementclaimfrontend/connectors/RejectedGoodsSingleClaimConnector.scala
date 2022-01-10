@@ -80,7 +80,8 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
       http
         .POST[Request, HttpResponse](
           claimUrl,
-          claimRequest
+          claimRequest,
+          Seq("Accept-Language" -> "en")
         )
     ).flatMap(response =>
       if (response.status === 200)

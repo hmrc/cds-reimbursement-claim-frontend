@@ -18,7 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+
+import scala.collection.SortedMap
 
 trait AnswerSummary[A] {
   def render(key: String, answer: A)(implicit
@@ -26,4 +34,37 @@ trait AnswerSummary[A] {
     journey: JourneyBindable,
     messages: Messages
   ): SummaryList
+}
+
+object AnswerSummary {
+
+  implicit val claimTypeSummary: AnswerSummary[DeclarantTypeAnswer]                                      = ClaimTypeSummary
+  implicit val basisOfClaimSummary: AnswerSummary[BasisOfClaimAnswer]                                    = BasisOfClaimSummary
+  implicit val bankAccountDetailsSummary: AnswerSummary[BankAccountDetails]                              = BankAccountDetailsSummary
+  implicit val multipleClaimsAnswerSummary: AnswerSummary[List[(MRN, ClaimedReimbursementsAnswer)]]      =
+    MultipleClaimsAnswerSummary
+  implicit val mrnSummary: AnswerSummary[MRN]                                                            = MovementReferenceNumberSummary
+  implicit val mrnsSummary: AnswerSummary[List[MRN]]                                                     = MovementReferenceNumbersSummary
+  implicit val commodityDetailsSummary: AnswerSummary[CommodityDetailsAnswer]                            = CommodityDetailsSummary
+  implicit val cdsDisplayDeclarationSummary: AnswerSummary[DisplayDeclaration]                           = CdsDisplayDeclarationSummary
+  implicit val northernIrelandAnswerSummary: AnswerSummary[YesNo]                                        = NorthernIrelandAnswerSummary
+  implicit val reimbursementMethodAnswerSummary: AnswerSummary[ReimbursementMethodAnswer]                =
+    ReimbursementMethodAnswerSummary
+  implicit val reimbursementsSummary: AnswerSummary[SelectedDutyTaxCodesReimbursementAnswer]             =
+    DutyAndTaxCodeReimbursementSummary
+  implicit val claimedReimbursementsSummary: AnswerSummary[ClaimedReimbursementsAnswer]                  =
+    ClaimedReimbursementsAnswerSummary
+  implicit val taxCodeReimbursementSummary: AnswerSummary[(DutyType, SortedMap[TaxCode, Reimbursement])] =
+    TaxCodeReimbursementSummary
+  implicit val cdsClaimantDetailsSummary: AnswerSummary[
+    (
+      NamePhoneEmail,
+      EstablishmentAddress,
+      Option[MrnContactDetails],
+      Option[ContactAddress]
+    )
+  ]                                                                                                      = CdsClaimantDetailsSummary
+  implicit val supportingEvidenceSummary: AnswerSummary[SupportingEvidencesAnswer]                       = SupportingEvidenceSummary
+  implicit val scheduledDocumentSummary: AnswerSummary[ScheduledDocumentAnswer]                          = ScheduledDocumentSummary
+
 }
