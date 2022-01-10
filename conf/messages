@@ -511,12 +511,12 @@ enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact
 enter-contact-details-rejected-goods.contact-name.error.maxLength=Enter a shorter name
 enter-contact-details-rejected-goods.contact-email.label=Email address
 enter-contact-details-rejected-goods.contact-email.error.required=Enter a contact email address
-enter-contact-details-rejected-goods.contact-email.invalid=Enter a valid email
+enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com.
 enter-contact-details-rejected-goods.contact-email.error.maxLength=Enter a shorter email
 enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optional)
 enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
 enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
-enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a valid phone number
+enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
 
 #===================================================
 #  REIMBURSEMENT PAGES
