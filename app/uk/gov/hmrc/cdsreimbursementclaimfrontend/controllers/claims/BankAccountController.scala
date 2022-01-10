@@ -141,7 +141,7 @@ class BankAccountController @Inject() (
                       val barsAccount =
                         BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
 
-                      if (bankAccount === BankAccountType.BusinessBankAccount) {
+                      if (bankAccount === BankAccountType.Business) {
                         claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
                       } else {
                         val postCode    = fillingOutClaim.draftClaim.extractEstablishmentAddress.flatMap(_.postalCode)

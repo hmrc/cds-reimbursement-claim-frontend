@@ -77,7 +77,7 @@ final case class C285Claim(
     }
 
   lazy val bankAccountType: String =
-    BankAccountType.allAccountTypes.map(_.value).toString()
+    BankAccountType.values.map(_.value).toString()
 
   def multipleReimbursementsTotal: BigDecimal =
     (claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList).flatMap(_.toList))

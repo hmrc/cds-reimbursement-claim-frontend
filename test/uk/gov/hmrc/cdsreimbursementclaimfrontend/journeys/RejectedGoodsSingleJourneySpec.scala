@@ -835,7 +835,7 @@ class RejectedGoodsSingleJourneySpec
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-          .flatMap(_.submitBankAccountType(BankAccountType.BusinessBankAccount))
+          .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
       journeyEither.isRight shouldBe true
     }
@@ -852,7 +852,7 @@ class RejectedGoodsSingleJourneySpec
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-          .flatMap(_.submitBankAccountType(BankAccountType.BusinessBankAccount))
+          .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
       journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
     }

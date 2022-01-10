@@ -169,7 +169,7 @@ class SelectBankAccountTypeControllerSpec
 
       "the user has answered this question before and chosen Business Account " in forAll(journeys) { journey =>
         val session =
-          getSessionWithPreviousAnswer(Some(BankAccountType.BusinessBankAccount), toTypeOfClaim(journey).some)
+          getSessionWithPreviousAnswer(Some(BankAccountType.Business), toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -188,7 +188,7 @@ class SelectBankAccountTypeControllerSpec
 
       "the user has answered this question before and chosen Personal Account " in forAll(journeys) { journey =>
         val session =
-          getSessionWithPreviousAnswer(Some(BankAccountType.PersonalBankAccount), toTypeOfClaim(journey).some)
+          getSessionWithPreviousAnswer(Some(BankAccountType.Personal), toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -209,7 +209,7 @@ class SelectBankAccountTypeControllerSpec
 
       "user chooses the Business Account option" in forAll(journeys) { journey =>
         val session        = getSessionWithPreviousAnswer(None, toTypeOfClaim(journey).some)
-        val updatedSession = updateSession(session, BankAccountType.BusinessBankAccount)
+        val updatedSession = updateSession(session, BankAccountType.Business)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -218,14 +218,14 @@ class SelectBankAccountTypeControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(SelectBankAccountTypeController.selectBankAccountTypeKey -> "0")),
+          performAction(journey, Seq("select-bank-account-type" -> "Business")),
           routes.BankAccountController.enterBankAccountDetails(journey)
         )
       }
 
       "user chooses the Personal Account option" in forAll(journeys) { journey =>
         val session        = getSessionWithPreviousAnswer(None, toTypeOfClaim(journey).some)
-        val updatedSession = updateSession(session, BankAccountType.PersonalBankAccount)
+        val updatedSession = updateSession(session, BankAccountType.Personal)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -234,15 +234,15 @@ class SelectBankAccountTypeControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(SelectBankAccountTypeController.selectBankAccountTypeKey -> "1")),
+          performAction(journey, Seq("select-bank-account-type" -> "Personal")),
           routes.BankAccountController.enterBankAccountDetails(journey)
         )
       }
 
       "the user amends their previous answer" in forAll(journeys) { journey =>
         val session        =
-          getSessionWithPreviousAnswer(Some(BankAccountType.BusinessBankAccount), toTypeOfClaim(journey).some)
-        val updatedSession = updateSession(session, BankAccountType.PersonalBankAccount)
+          getSessionWithPreviousAnswer(Some(BankAccountType.Business), toTypeOfClaim(journey).some)
+        val updatedSession = updateSession(session, BankAccountType.Personal)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -250,7 +250,7 @@ class SelectBankAccountTypeControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(SelectBankAccountTypeController.selectBankAccountTypeKey -> "1")),
+          performAction(journey, Seq("select-bank-account-type" -> "Personal")),
           routes.BankAccountController.enterBankAccountDetails(journey)
         )
       }
