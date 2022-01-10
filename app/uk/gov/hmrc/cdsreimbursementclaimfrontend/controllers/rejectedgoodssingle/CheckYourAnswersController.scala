@@ -50,7 +50,10 @@ class CheckYourAnswersController @Inject() (
     actionReadJourney { implicit request => journey =>
       journey.toOutput
         .fold(
-          errors => Redirect(routeForValidationErrors(errors)),
+          errors => {
+            logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+            Redirect(routeForValidationErrors(errors))
+          },
           output => Ok(checkYourAnswersPage(output, postAction))
         )
         .asFuture
@@ -63,7 +66,10 @@ class CheckYourAnswersController @Inject() (
       else
         journey.toOutput
           .fold(
-            errors => (journey, Redirect(routeForValidationErrors(errors))).asFuture,
+            errors => {
+              logger.warn(s"Claim not ready to submit because of ${errors.mkString(",")}")
+              (journey, Redirect(routeForValidationErrors(errors))).asFuture
+            },
             output =>
               rejectedGoodsSingleClaimConnector
                 .submitClaim(RejectedGoodsSingleClaimConnector.Request(output))
