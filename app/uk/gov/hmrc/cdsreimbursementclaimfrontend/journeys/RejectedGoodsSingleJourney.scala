@@ -48,6 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay private to protected integrity of the journey.
@@ -148,6 +149,20 @@ final class RejectedGoodsSingleJourney private (
 
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
+
+  def getAvailableDuties: Seq[(TaxCode, Boolean)] =
+    getNdrcDetails
+      .flatMap { ndrcs =>
+        val taxCodes = ndrcs
+          .map(ndrc =>
+            TaxCodes
+              .find(ndrc.taxType)
+              .map(taxCode => (taxCode, ndrc.isCmaEligible))
+          )
+          .collect { case Some(x) => x }
+        if (taxCodes.isEmpty) None else Some(taxCodes.toSeq)
+      }
+      .getOrElse(Seq.empty)
 
   def getSelectedDuties: Option[Seq[TaxCode]] =
     answers.reimbursementClaims.map(_.keys.toSeq)

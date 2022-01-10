@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Form
+import play.api.data.Forms.seq
 import play.api.data.Forms.list
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
@@ -33,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import play.api.data.Mapping
 
 object Forms {
   def eoriNumberForm(key: String): Form[Eori] = Form(
@@ -102,5 +104,25 @@ object Forms {
       ).verifying("error.required", _.nonEmpty)
     )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
   )
+
+  def taxCodeMapping(availableTaxCodes: Seq[TaxCode]): Mapping[TaxCode] =
+    nonEmptyText
+      .verifying(
+        "invalid tax code",
+        code => availableTaxCodes.exists(_.value === code)
+      )
+      .transform[TaxCode](
+        (x: String) => TaxCodes.findUnsafe(x),
+        (t: TaxCode) => t.value
+      )
+
+  def selectTaxCodesForm(availableTaxCodes: Seq[TaxCode]): Form[Seq[TaxCode]] = {
+    val taxCode = taxCodeMapping(availableTaxCodes)
+    Form(
+      mapping(
+        "select-duties" -> seq(taxCode).verifying("error.required", _.nonEmpty)
+      )(identity)(seq => Some(seq))
+    )
+  }
 
 }
