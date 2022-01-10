@@ -82,7 +82,8 @@ object Forms {
       "enter-contact-details-rejected-goods.contact-email"        -> Email.mappingMaxLength,
       "enter-contact-details-rejected-goods.contact-phone-number" -> optional(PhoneNumber.mapping)
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
-    
+  )
+
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
     mapping(

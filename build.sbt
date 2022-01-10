@@ -32,7 +32,8 @@ lazy val wartremoverSettings =
       Wart.Null,
       Wart.PublicInference,
       Wart.Equals,
-      Wart.GlobalExecutionContext
+      Wart.GlobalExecutionContext,
+      Wart.OptionPartial
     )
   )
 
