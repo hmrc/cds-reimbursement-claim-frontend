@@ -39,7 +39,7 @@ class CheckDeclarationDetailsController @Inject() (
 
   implicit val subKey: Option[String] = None
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.CheckDeclarationDetailsController.submit()
     Future.successful(
       journey.answers.displayDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
@@ -48,7 +48,7 @@ class CheckDeclarationDetailsController @Inject() (
     )
   }
 
-  def submit(): Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
     val postAction: Call = routes.CheckDeclarationDetailsController.submit()
     checkDeclarationDetailsAnswerForm
       .bindFromRequest()

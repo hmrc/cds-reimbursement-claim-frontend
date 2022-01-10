@@ -34,6 +34,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 import scala.util.Failure
+import org.scalamock.handlers.CallHandler
+import scala.concurrent.Future
 
 class RejectedGoodsSingleClaimConnectorSpec
     extends AnyWordSpec
@@ -84,39 +86,42 @@ class RejectedGoodsSingleClaimConnectorSpec
   val sampleRequest: RejectedGoodsSingleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                        = """{"caseNumber":"ABC123"}"""
 
+  val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
+    mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest) _
+
   "RejectedGoodsSingleClaimConnector" must {
     "have retries defined" in {
       connector.retryIntervals shouldBe Seq(FiniteDuration(10, "ms"), FiniteDuration(50, "ms"))
     }
 
     "return caseNumber when successful call" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
       await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
     }
 
     "throw exception when empty response" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(200, ""))).once()
+      givenServiceReturns(Some(HttpResponse(200, ""))).once()
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid response" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(200, """{"case":"ABC123"}"""))).once()
+      givenServiceReturns(Some(HttpResponse(200, """{"case":"ABC123"}"""))).once()
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid success response status" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(201, validResponseBody))).once()
+      givenServiceReturns(Some(HttpResponse(201, validResponseBody))).once()
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when 4xx response status" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(404, "case not found"))).once()
+      givenServiceReturns(Some(HttpResponse(404, "case not found"))).once()
       Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
         new RejectedGoodsSingleClaimConnector.Exception(
           "Request to POST http://host3:123/foo-claim/claims/rejected-goods-single failed because of HttpResponse status=404 case not found"
@@ -125,22 +130,22 @@ class RejectedGoodsSingleClaimConnectorSpec
     }
 
     "throw exception when 5xx response status in the third attempt" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(500, ""))).repeat(3)
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(200, validResponseBody))).never()
+      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(3)
+      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).never()
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "accept valid response in a second attempt" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(500, ""))).once()
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(Some(HttpResponse(500, ""))).once()
+      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
       await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
     }
 
     "accept valid response in a third attempt" in {
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(500, ""))).repeat(2)
-      mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
+      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
       await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
     }
 

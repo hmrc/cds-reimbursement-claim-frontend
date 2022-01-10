@@ -110,7 +110,7 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details.change.title")
+            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
           )
         }
       }
@@ -148,12 +148,12 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
+            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
           )
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details.change.title"),
+            messageFromMessageKey("enter-contact-details-rejected-goods.change.title"),
             doc => {
               getErrorSummary(doc) contains messageFromMessageKey(
                 "enter-your-contact-details.contact-name.error.required"
@@ -191,15 +191,15 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
+            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
           )
 
           checkIsRedirect(
             performAction(
-              "enter-contact-details.contact-name"  -> name.toFullName,
-              "enter-contact-details.contact-email" -> email.value
+              "enter-contact-details-rejected-goods.contact-name"  -> name.toFullName,
+              "enter-contact-details-rejected-goods.contact-email" -> email.value
             ),
-            routes.CheckClaimantDetailsController.show()
+            routes.CheckYourAnswersController.show()
           )
       }
     }

@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
+object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
 
   def render(key: String, mrns: List[MRN])(implicit
     subKey: Option[String],

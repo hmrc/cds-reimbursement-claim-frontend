@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
+object BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
 
   def render(key: String, bankAccountDetails: BankAccountDetails)(implicit
     subKey: Option[String],

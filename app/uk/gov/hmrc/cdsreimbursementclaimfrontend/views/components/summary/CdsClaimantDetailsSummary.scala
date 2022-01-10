@@ -30,7 +30,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class CdsClaimantDetailsSummary
+object CdsClaimantDetailsSummary
     extends AnswerSummary[
       (
         NamePhoneEmail,

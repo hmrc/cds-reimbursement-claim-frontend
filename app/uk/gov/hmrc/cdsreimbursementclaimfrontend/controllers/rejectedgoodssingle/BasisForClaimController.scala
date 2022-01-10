@@ -37,7 +37,7 @@ class BasisForClaimController @Inject() (
 
   val formKey: String = "select-basis-for-claim.rejected-goods"
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       val form = journey.answers.basisOfClaim.toList.foldLeft(basisOfRejectedGoodsClaimForm)((form, basisOfClaim) =>
         form.fill(basisOfClaim)
@@ -52,7 +52,7 @@ class BasisForClaimController @Inject() (
     }
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     basisOfRejectedGoodsClaimForm
       .bindFromRequest()
       .fold(
@@ -71,7 +71,7 @@ class BasisForClaimController @Inject() (
           ),
         basisOfClaim =>
           Future.successful(
-            (journey.submitBasisOfClaim(basisOfClaim), Redirect("disposal-method"))
+            (journey.submitBasisOfClaim(basisOfClaim), Redirect(routes.DisposalMethodController.show()))
           )
       )
   }

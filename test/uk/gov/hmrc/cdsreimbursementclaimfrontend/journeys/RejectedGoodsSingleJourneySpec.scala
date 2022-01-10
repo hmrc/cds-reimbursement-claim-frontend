@@ -25,9 +25,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+
 import RejectedGoodsSingleJourneyGenerators._
+import RejectedGoodsSingleJourney.ValidationErrors._
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class RejectedGoodsSingleJourneySpec
@@ -62,16 +64,18 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.getNdrcDetails                           shouldBe None
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
-      emptyJourney.isCompleteReimbursementClaims            shouldBe false
-      emptyJourney.isCompleteSupportingEvidences            shouldBe false
-      emptyJourney.isComplete                               shouldBe false
+      emptyJourney.hasCompleteReimbursementClaims           shouldBe false
+      emptyJourney.hasCompleteSupportingEvidences           shouldBe false
+      emptyJourney.hasCompleteAnswers                       shouldBe false
       emptyJourney.toOutput.isLeft                          shouldBe true
+      emptyJourney.isFinalized                              shouldBe false
     }
 
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
         RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Validated.Valid(())
-        journey.isComplete                                  shouldBe true
+        journey.hasCompleteAnswers                          shouldBe true
+        journey.isFinalized                                 shouldBe false
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
         output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
         output.claimantType             shouldBe journey.getClaimantType
@@ -89,23 +93,35 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
+    "finalize journey with caseNumber" in {
+      forAll(completeJourneyGen) { journey =>
+        journey.hasCompleteAnswers shouldBe true
+        journey.isFinalized        shouldBe false
+        val result          = journey.finalizeJourneyWith("foo-123-abc")
+        val modifiedJourney = result.getOrElse(fail(couldNotRetrieveJourney))
+        modifiedJourney.isFinalized                shouldBe true
+        modifiedJourney.finalizeJourneyWith("bar") shouldBe Left(JOURNEY_ALREADY_FINALIZED)
+      }
+    }
+
     "accept submission of a new MRN" in {
       forAll(IdGen.genMRN) { mrn =>
         val journey = emptyJourney.submitMovementReferenceNumber(mrn)
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
-        journey.isComplete                                    shouldBe false
-        journey.isCompleteReimbursementClaims                 shouldBe false
-        journey.isCompleteSupportingEvidences                 shouldBe false
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteReimbursementClaims                shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe false
+        journey.isFinalized                                   shouldBe false
       }
     }
 
     "accept change of the MRN" in {
       forAll(completeJourneyGen) { journey =>
         val modifiedJourney = journey.submitMovementReferenceNumber(exampleMrn)
-        modifiedJourney.answers.displayDeclaration    shouldBe empty
-        modifiedJourney.isComplete                    shouldBe false
-        modifiedJourney.isCompleteReimbursementClaims shouldBe false
-        modifiedJourney.isCompleteSupportingEvidences shouldBe false
+        modifiedJourney.answers.displayDeclaration     shouldBe empty
+        modifiedJourney.hasCompleteAnswers             shouldBe false
+        modifiedJourney.hasCompleteReimbursementClaims shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe false
       }
     }
 
@@ -113,10 +129,10 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val modifiedJourney = journey
           .submitMovementReferenceNumber(journey.answers.movementReferenceNumber.get)
-        modifiedJourney                               shouldBe journey
-        modifiedJourney.isComplete                    shouldBe true
-        modifiedJourney.isCompleteReimbursementClaims shouldBe true
-        modifiedJourney.isCompleteSupportingEvidences shouldBe true
+        modifiedJourney                                shouldBe journey
+        modifiedJourney.hasCompleteAnswers             shouldBe true
+        modifiedJourney.hasCompleteReimbursementClaims shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
       }
     }
 
@@ -128,9 +144,9 @@ class RejectedGoodsSingleJourneySpec
 
         journey.answers.movementReferenceNumber.contains(exampleMrn) shouldBe true
         journey.answers.displayDeclaration.contains(acc14)           shouldBe true
-        journey.isComplete                                           shouldBe false
-        journey.isCompleteReimbursementClaims                        shouldBe false
-        journey.isCompleteSupportingEvidences                        shouldBe false
+        journey.hasCompleteAnswers                                   shouldBe false
+        journey.hasCompleteReimbursementClaims                       shouldBe false
+        journey.hasCompleteSupportingEvidences                       shouldBe false
       }
     }
 
@@ -139,11 +155,11 @@ class RejectedGoodsSingleJourneySpec
         val modifiedJourney =
           journey
             .submitDisplayDeclaration(exampleDisplayDeclaration)
-        modifiedJourney.answers.displayDeclaration    shouldBe Some(exampleDisplayDeclaration)
-        modifiedJourney.answers.reimbursementClaims   shouldBe None
-        modifiedJourney.isComplete                    shouldBe false
-        modifiedJourney.isCompleteReimbursementClaims shouldBe false
-        modifiedJourney.isCompleteSupportingEvidences shouldBe true
+        modifiedJourney.answers.displayDeclaration     shouldBe Some(exampleDisplayDeclaration)
+        modifiedJourney.answers.reimbursementClaims    shouldBe None
+        modifiedJourney.hasCompleteAnswers             shouldBe false
+        modifiedJourney.hasCompleteReimbursementClaims shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
       }
     }
 
@@ -198,7 +214,7 @@ class RejectedGoodsSingleJourneySpec
       )
       forAll(journeyGen) { result =>
         val journey = result.getOrElse(fail("Journey building has failed."))
-        journey.isComplete shouldBe false
+        journey.hasCompleteAnswers shouldBe false
       }
     }
 
@@ -444,7 +460,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
         val modifiedJourney = journey.submitContactDetails(Some(contactDetails))
 
-        modifiedJourney.isComplete             shouldBe true
+        modifiedJourney.hasCompleteAnswers     shouldBe true
         modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)
       }
     }
@@ -461,7 +477,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, ContactAddressGen.genContactAddress) { (journey, contactAddress) =>
         val modifiedJourney = journey.submitContactAddress(contactAddress)
 
-        modifiedJourney.isComplete             shouldBe true
+        modifiedJourney.hasCompleteAnswers     shouldBe true
         modifiedJourney.answers.contactAddress shouldBe Some(contactAddress)
       }
     }
@@ -478,7 +494,7 @@ class RejectedGoodsSingleJourneySpec
         (journey, basisOfClaim) =>
           val modifiedJourney = journey.submitBasisOfClaim(basisOfClaim)
 
-          modifiedJourney.isComplete                   shouldBe true
+          modifiedJourney.hasCompleteAnswers           shouldBe true
           modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Right(basisOfClaim)
       }
     }
@@ -487,9 +503,9 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGenWithoutSpecialCircumstances) { journey =>
         val modifiedJourney = journey.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
-        modifiedJourney.isComplete                   shouldBe false
+        modifiedJourney.hasCompleteAnswers           shouldBe false
         modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Left(
-          "basisOfClaimSpecialCircumstances must be defined when basisOfClaim value is SpecialCircumstances" :: Nil
+          BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED :: Nil
         )
       }
     }
@@ -524,7 +540,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, Gen.oneOf(MethodOfDisposal.values)) { (journey, methodOfDisposal) =>
         val modifiedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
 
-        modifiedJourney.isComplete                       shouldBe true
+        modifiedJourney.hasCompleteAnswers               shouldBe true
         modifiedJourney.toOutput.map(_.methodOfDisposal) shouldBe Right(methodOfDisposal)
       }
     }
@@ -540,7 +556,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, Gen.asciiPrintableStr) { (journey, rejectedGoodsDetails) =>
         val modifiedJourney = journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails)
 
-        modifiedJourney.isComplete                             shouldBe true
+        modifiedJourney.hasCompleteAnswers                     shouldBe true
         modifiedJourney.toOutput.map(_.detailsOfRejectedGoods) shouldBe Right(rejectedGoodsDetails)
       }
     }
@@ -598,7 +614,7 @@ class RejectedGoodsSingleJourneySpec
         val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(journey.getSelectedDuties.get)
 
         val result = modifiedJourneyEither.getOrElse(fail(couldNotRetrieveJourney))
-        result.isComplete shouldBe true
+        result.hasCompleteAnswers shouldBe true
       }
     }
 
@@ -723,7 +739,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, DateGen.genDate) { (journey, inspectionDate) =>
         val modifiedJourney = journey.submitInspectionDate(inspectionDate)
 
-        modifiedJourney.isComplete                     shouldBe true
+        modifiedJourney.hasCompleteAnswers             shouldBe true
         modifiedJourney.toOutput.map(_.inspectionDate) shouldBe Right(inspectionDate)
 
       }
@@ -742,7 +758,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, InspectionAddressGen.genInspectionAddress) { (journey, inspectionAddress) =>
         val modifiedJourney = journey.submitInspectionAddress(inspectionAddress)
 
-        modifiedJourney.isComplete                        shouldBe true
+        modifiedJourney.hasCompleteAnswers                shouldBe true
         modifiedJourney.toOutput.map(_.inspectionAddress) shouldBe Right(inspectionAddress)
       }
     }

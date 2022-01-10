@@ -31,38 +31,45 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class EnterContactDetailsController @Inject() (
+class DisposalMethodController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterOrChangeContactDetailsPage: pages.enter_or_change_contact_details
+  enterOrChangeMethodOfDisposal: pages.enter_or_change_method_of_disposal
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController
     with Logging {
 
-  private def postAction: Call = routes.EnterContactDetailsController.submit()
+  private def postAction: Call = routes.DisposalMethodController.submit()
 
-  val show: Action[AnyContent] =
-    actionReadJourneyAndUser { implicit request => journey => userType =>
-      Future.successful(
-        Ok(
-          enterOrChangeContactDetailsPage(
-            Forms.mrnContactDetailsForm.withDefault(journey.getContactDetails(userType)),
-            postAction
-          )
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    Future.successful(
+      Ok(
+        enterOrChangeMethodOfDisposal(
+          Forms.methodOfDisposalForm.withDefault(journey.answers.methodOfDisposal),
+          postAction
         )
       )
-    }
+    )
+  }
 
   val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      Forms.rejectedGoodsContactDetailsForm
+      Forms.methodOfDisposalForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful((journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction)))),
-          contactDetails => {
-            val updatedJourney = journey.submitContactDetails(Some(contactDetails))
-            Future.successful((updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())))
+            Future.successful(
+              (
+                journey,
+                BadRequest(enterOrChangeMethodOfDisposal(formWithErrors, postAction))
+              )
+            ),
+          methodOfDisposal => {
+            val updatedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
+            Future.successful(
+              (updatedJourney, Redirect(Call("GET", "enter-rejected-goods-details"))) //TODO: replace in CDSR-1137
+            )
           }
         )
+
     }
 }
