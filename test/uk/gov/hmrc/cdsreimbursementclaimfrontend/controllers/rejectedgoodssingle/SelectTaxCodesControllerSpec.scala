@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import org.scalatest.BeforeAndAfterEach
@@ -38,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectTaxCodesController.selectTaxCodesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -69,12 +68,9 @@ class SelectTaxCodesControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private def selectedValues(doc: Document): Option[Seq[String]] = {
+  private def selectedValues(doc: Document): Seq[String] = {
     val checkBoxes: Elements = doc.select("div.govuk-checkboxes input[checked]")
-    if (checkBoxes.size() =!= 0)
-      Some(checkBoxes.eachAttr("value").asScala.toSeq)
-    else
-      None
+    checkBoxes.eachAttr("value").asScala.toSeq
   }
 
   def getHintText(document: Document, hintTextId: String) = {
@@ -123,32 +119,28 @@ class SelectTaxCodesControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => selectedValues(doc) shouldBe None
+          doc => selectedValues(doc) shouldBe empty
         )
       }
 
       "display the page when a tax code has already been selected before" in {
-        val journey = buildCompleteJourneyGen(
-          acc14DeclarantMatchesUserEori = false,
-          acc14ConsigneeMatchesUserEori = false,
-          hasConsigneeDetailsInACC14 = true
-        ).sample.getOrElse(fail("Journey building has failed."))
+        forAll(completeJourneyGen) { journey =>
+          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+          val selectedDuties: Seq[String] =
+            journey.getSelectedDuties.map(_.map(_.value)).getOrElse(Seq.empty)
 
-        val selectedDuties: Option[Seq[String]] =
-          journey.getSelectedDuties.map(_.map(_.value))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => selectedValues(doc) should contain theSameElementsAs selectedDuties
+          )
         }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => selectedValues(doc) shouldBe selectedDuties
-        )
       }
     }
 
