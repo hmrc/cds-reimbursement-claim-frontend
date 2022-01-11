@@ -489,6 +489,19 @@ select-method-of-disposal.rejected-goods.method.Destruction=Destroyed
 select-method-of-disposal.rejected-goods.error.required=Select the method of disposal.
 
 #===================================================
+#  ENTER REJECTED GOODS DETAILS PAGE
+#===================================================
+enter-rejected-goods-details.rejected-goods.title=Provide details of the rejected goods
+enter-rejected-goods-details.rejected-goods.help-text=Provide any information that may help process your claim.
+enter-rejected-goods-details.rejected-goods.p1=This can include:
+enter-rejected-goods-details.rejected-goods.bullet.1=what the goods are
+enter-rejected-goods-details.rejected-goods.bullet.2=the quantity of goods being claimed for
+enter-rejected-goods-details.rejected-goods.bullet.3=the value of the goods being claimed for
+enter-rejected-goods-details.rejected-goods.bullet.4=the reason for rejection
+enter-rejected-goods-details.rejected-goods.error.required=Enter details of rejected goods
+enter-rejected-goods-details.rejected-goods.error.maxLength=Details of rejected goods must be 500 characters or fewer
+
+#===================================================
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Tell us the reason for this claim
