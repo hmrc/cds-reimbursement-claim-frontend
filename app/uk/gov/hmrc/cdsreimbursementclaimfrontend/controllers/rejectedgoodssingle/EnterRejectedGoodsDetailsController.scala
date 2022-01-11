@@ -18,11 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterRejectedGoodsDetailsController @Inject() (
@@ -32,5 +33,17 @@ class EnterRejectedGoodsDetailsController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController {
 
   val formKey: String = "enter-rejected-goods-details.rejected-goods"
+
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    Future.successful {
+      val form = ???
+      val postAction: Call = ???
+      Ok(enterRejectedGoodsDetailsPage(form, postAction))
+    }
+  }
+
+  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+
+  }
 
 }
