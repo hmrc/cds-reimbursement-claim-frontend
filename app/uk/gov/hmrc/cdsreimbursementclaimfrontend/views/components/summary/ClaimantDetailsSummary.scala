@@ -33,7 +33,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
 object ClaimantDetailsSummary
-    extends RejectedGoodsAnswerSummary[
+    extends AnswerSummary[
       (
         MrnContactDetails,
         ContactAddress,
@@ -41,8 +41,13 @@ object ClaimantDetailsSummary
         Call
       )
     ] {
-  override def render(key: String, answer: (MrnContactDetails, ContactAddress, Call, Call))(implicit
+
+  override def render(
+    answer: (MrnContactDetails, ContactAddress, Call, Call),
+    key: String,
     subKey: Option[String],
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
   ): SummaryList = {
     val (contactDetails, contactAddress, changeContactDetailsCall, changeContactAddressCall) = answer

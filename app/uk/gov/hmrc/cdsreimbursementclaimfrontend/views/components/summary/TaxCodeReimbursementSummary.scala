@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
@@ -33,12 +32,17 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
 import scala.collection.SortedMap
+import play.api.mvc.Call
 
+/** routes.EnterScheduledClaimController.enterClaim(duty, taxCode) */
 object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[TaxCode, Reimbursement])] {
 
-  def render(key: String, answer: (DutyType, SortedMap[TaxCode, Reimbursement]))(implicit
+  override def render(
+    answer: (DutyType, SortedMap[TaxCode, Reimbursement]),
+    key: String,
     subKey: Option[String],
-    journey: JourneyBindable,
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
   ): SummaryList = {
     val duty                      = answer._1
@@ -56,7 +60,7 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterScheduledClaimController.enterClaim(duty, taxCode).url}",
+                  href = routes.EnterScheduledClaimController.enterClaim(duty, taxCode).url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))
                 )

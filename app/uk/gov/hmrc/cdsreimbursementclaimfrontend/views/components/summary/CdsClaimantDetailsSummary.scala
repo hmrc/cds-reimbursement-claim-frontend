@@ -19,8 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import cats.implicits.toFunctorFilterOps
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
@@ -29,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object CdsClaimantDetailsSummary
     extends AnswerSummary[
@@ -40,12 +39,12 @@ object CdsClaimantDetailsSummary
       )
     ] {
 
-  def render(
+  override def render(
+    answer: (NamePhoneEmail, EstablishmentAddress, Option[MrnContactDetails], Option[ContactAddress]),
     key: String,
-    answer: (NamePhoneEmail, EstablishmentAddress, Option[MrnContactDetails], Option[ContactAddress])
-  )(implicit
     subKey: Option[String],
-    journey: JourneyBindable,
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
   ): SummaryList = {
     val (cdsContact, cdsAddress, mrnContact, mrnAddress) = answer
@@ -59,13 +58,13 @@ object CdsClaimantDetailsSummary
     }
 
     def renderContactDetails(contactDetails: NamePhoneEmail, isAdditional: Boolean): SummaryListRow = {
-      val actions =
+      val actions = changeCallOpt.fold[Option[Actions]](None)(changeCall =>
         if (isAdditional)
           Some(
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.CheckContactDetailsMrnController.show(journey).url}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.change-hint.contact"))
                 )
@@ -73,6 +72,7 @@ object CdsClaimantDetailsSummary
             )
           )
         else None
+      )
 
       val data = List(
         contactDetails.name.map(Paragraph(_)),
@@ -88,13 +88,13 @@ object CdsClaimantDetailsSummary
     }
 
     def renderEstablishmentAddress(address: EstablishmentAddress, isAdditional: Boolean): SummaryListRow = {
-      val actions =
+      val actions = changeCallOpt.fold[Option[Actions]](None)(changeCall =>
         if (isAdditional)
           Some(
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.CheckContactDetailsMrnController.show(journey).url}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.change-hint.address"))
                 )
@@ -102,6 +102,7 @@ object CdsClaimantDetailsSummary
             )
           )
         else None
+      )
 
       val data = List(
         Some(Paragraph(address.addressLine1)),
@@ -122,11 +123,11 @@ object CdsClaimantDetailsSummary
       SummaryListRow(
         key = Key(Text(messages(s"$key.contact.additional"))),
         value = Value(Text(messages(s"generic.$additionalContactKey"))),
-        actions = Some(
+        actions = changeCallOpt.map(changeCall =>
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.CheckContactDetailsMrnController.show(journey).url}",
+                href = changeCall.url,
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.change-hint.contact"))
               )

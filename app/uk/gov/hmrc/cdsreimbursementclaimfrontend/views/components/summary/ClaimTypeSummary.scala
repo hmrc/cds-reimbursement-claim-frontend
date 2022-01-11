@@ -17,20 +17,17 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswers
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
 
-  def render(key: String, answer: DeclarantTypeAnswer)(implicit
-    subKey: Option[String],
-    journey: JourneyBindable,
-    messages: Messages
+  override def render(answer: DeclarantTypeAnswer, key: String, subKey: Option[String], changeCallOpt: Option[Call])(
+    implicit messages: Messages
   ): SummaryList =
     SummaryList(
       Seq(
@@ -39,11 +36,11 @@ object ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
           value = Value(
             Text(messages(s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswers.indexOf(answer)}"))
           ),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey).url}",
+                  href = s"${changeCall.url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.l0"))
                 )

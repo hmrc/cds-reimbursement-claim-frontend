@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
@@ -29,6 +30,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -46,10 +48,10 @@
 
 @mrnSummary = @{
     def leadMrnSummary(maybeLeadMrn: Option[MRN]): SummaryList =
-        maybeLeadMrn.fold(SummaryList())(_.summary(s"$key.reference-number"))
+        maybeLeadMrn.fold(SummaryList())(mrn => MovementReferenceNumberSummary(mrn, s"$key.reference-number", subKey,claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)))
 
     def multipleMrnsSummary(maybeLeadMrn: Option[MRN]): AssociatedMRNsAnswer => SummaryList = mrns =>
-        (maybeLeadMrn.toList ++ mrns.toList).summary(s"$key.reference-number")
+        MovementReferenceNumbersSummary(maybeLeadMrn.toList ++ mrns.toList, s"$key.reference-number", subKey,claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))
 
     claim.associatedMRNsAnswer.fold(leadMrnSummary(claim.movementReferenceNumber))(
         multipleMrnsSummary(claim.movementReferenceNumber)
@@ -58,7 +60,7 @@
 
 @cdsClaimantDetailsSummary = @{
     claim.extractEstablishmentAddress.map { cdsAddress =>
-        (claim.extractDetailsRegisteredWithCDS(verifiedEmail), cdsAddress, claim.mrnContactDetailsAnswer,claim.mrnContactAddressAnswer).summary(s"$key.claimant-details")
+        CdsClaimantDetailsSummary((claim.extractDetailsRegisteredWithCDS(verifiedEmail), cdsAddress, claim.mrnContactDetailsAnswer,claim.mrnContactAddressAnswer),s"$key.claimant-details",subKey,claimRoutes.CheckContactDetailsMrnController.show(journey))
     }
 }
 
@@ -71,17 +73,17 @@
 
     @claim.scheduledDocumentAnswer.map { scheduledDocument =>
         @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(scheduledDocument.summary(s"$key.scheduled-document"))
+        @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey,fileUploadRoutes.ScheduleOfMrnDocumentController.review()))
     }
 
     @claim.displayDeclaration.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(displayDeclaration.summary(s"$key.declaration-details").drop(2))
+        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details",subKey).rows.drop(2)))
     }
 
     @claim.declarantTypeAnswer.map { declarantType =>
         @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(declarantType.summary(s"$key.claimant-type"))
+        @summary(ClaimTypeSummary(declarantType,s"$key.claimant-type",subKey,claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey)))
     }
 
     @cdsClaimantDetailsSummary.map { cdsDetails =>
@@ -91,17 +93,17 @@
 
     @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
         @pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(whetherNorthernIrelandClaim.summary(s"$key.northern-ireland-claim"))
+        @summary(NorthernIrelandAnswerSummary(whetherNorthernIrelandClaim,s"$key.northern-ireland-claim",subKey,claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)))
     }
 
     @claim.basisOfClaimAnswer.map { basisOfClaim =>
         @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(basisOfClaim.summary(s"$key.basis"))
+        @summary(BasisOfClaimSummary(basisOfClaim,s"$key.basis",subKey,claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journey)))
     }
 
     @claim.commoditiesDetailsAnswer.map { commodity =>
         @pageHeading(messages(s"$key.commodity-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(commodity.summary(s"$key.commodities-details"))
+        @summary(CommodityDetailsSummary(commodity,s"$key.commodities-details",subKey,claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)))
     }
 
     @claim.claimedReimbursementsAnswer.map { reimbursement =>
@@ -109,30 +111,30 @@
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Individual) ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Scheduled)) {
             @pageHeading(messages(lang(s"$key.claim-calculation", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-            @summary(reimbursement.summary(s"$key.claim-calculation"))
+            @summary(ClaimedReimbursementsAnswerSummary(reimbursement,s"$key.claim-calculation",subKey, if (journey == JourneyBindable.Scheduled) claimRoutes.CheckScheduledClaimController.showReimbursements() else claimRoutes.EnterSingleClaimController.checkClaimSummary()))
         }
     }
 
     @if(claim.typeOfClaim.contains(TypeOfClaimAnswer.Multiple)) {
         @pageHeading(messages(s"$key.multiple-claim-totals.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(claim.multipleClaimsAnswer.summary(s"$key.claim-calculation"))
+        @summary(MultipleClaimsAnswerSummary(claim.multipleClaimsAnswer,s"$key.claim-calculation",subKey,claimRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag))
     }
 
     @claim.reimbursementMethodAnswer.map { rma =>
         @pageHeading(messages(s"$key.reimbursement-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(rma.summary(s"$key.reimbursement-method"))
+        @summary(ReimbursementMethodAnswerSummary(rma,s"$key.reimbursement-method",subKey,claimRoutes.ReimbursementMethodController.showReimbursementMethod()))
     }
 
     @claim.findNonEmptyBankAccountDetails.map { bankAccountDetails =>
         @if(!claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)) {
             @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-            @summary(bankAccountDetails.summary(s"$key.bank-details"))
+            @summary(BankAccountDetailsSummary(bankAccountDetails,s"$key.bank-details",subKey,claimRoutes.BankAccountController.checkBankAccountDetails(journey)))
         }
     }
 
     @claim.supportingEvidencesAnswer.map { evidences =>
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(evidences.summary(s"$key.attached-documents"))
+        @summary(SupportingEvidenceSummary(evidences,s"$key.attached-documents", subKey, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey)))
     }
 
     @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")

@@ -16,27 +16,23 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import cats.implicits.catsSyntaxEq
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursementsAnswer] {
 
-  def render(key: String, reimbursements: ClaimedReimbursementsAnswer)(implicit
+  override def render(
+    reimbursements: ClaimedReimbursementsAnswer,
+    key: String,
     subKey: Option[String],
-    journey: JourneyBindable,
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
   ): SummaryList = {
-
-    val amendCall =
-      if (journey === JourneyBindable.Scheduled)
-        claimsRoutes.CheckScheduledClaimController.showReimbursements()
-      else claimsRoutes.EnterSingleClaimController.checkClaimSummary()
 
     val individualClaimSummaries = DutyTypeSummary.buildFrom(reimbursements)
 
@@ -46,11 +42,11 @@ object ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimburse
           SummaryListRow(
             key = Key(Text(messages(s"$key.${summary.messageKey}"))),
             value = Value(Text(summary.total.toPoundSterlingString)),
-            actions = Some(
+            actions = changeCallOpt.map(changeCall =>
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = amendCall.url,
+                    href = changeCall.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.${summary.messageKey}"))
                   )
@@ -63,11 +59,11 @@ object ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimburse
           SummaryListRow(
             key = Key(Text(messages(s"$key.total"))),
             value = Value(Text(individualClaimSummaries.map(_.total).sum.toPoundSterlingString)),
-            actions = Some(
+            actions = changeCallOpt.map(changeCall =>
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = amendCall.url,
+                    href = changeCall.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.total"))
                   )

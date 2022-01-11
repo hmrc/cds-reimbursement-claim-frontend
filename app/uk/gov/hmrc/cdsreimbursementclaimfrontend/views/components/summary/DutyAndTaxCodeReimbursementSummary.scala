@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
@@ -25,14 +24,16 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import play.api.mvc.Call
 
 object DutyAndTaxCodeReimbursementSummary extends AnswerSummary[SelectedDutyTaxCodesReimbursementAnswer] {
 
-  def render(key: String, reimbursements: SelectedDutyTaxCodesReimbursementAnswer)(implicit
+  override def render(
+    reimbursements: SelectedDutyTaxCodesReimbursementAnswer,
+    key: String,
     subKey: Option[String],
-    journey: JourneyBindable,
-    messages: Messages
-  ): SummaryList =
+    changeCallOpt: Option[Call]
+  )(implicit messages: Messages): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(

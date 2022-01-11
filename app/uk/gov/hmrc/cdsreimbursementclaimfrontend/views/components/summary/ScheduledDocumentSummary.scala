@@ -17,18 +17,21 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
+/** routes.ScheduleOfMrnDocumentController.review() */
 object ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
 
-  def render(key: String, answer: ScheduledDocumentAnswer)(implicit
+  override def render(
+    answer: ScheduledDocumentAnswer,
+    key: String,
     subKey: Option[String],
-    journey: JourneyBindable,
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -36,11 +39,11 @@ object ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
         SummaryListRow(
           key = Key(Text(messages(s"$key.label"))),
           value = Value(Text(answer.uploadDocument.fileName)),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.ScheduleOfMrnDocumentController.review().url}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.label"))
                 )

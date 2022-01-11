@@ -94,7 +94,8 @@ class BankAccountController @Inject() (
                   bankAccountDetails,
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                     fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey)
-                  )
+                  ),
+                  routes.SelectBankAccountTypeController.selectBankAccountType(journey)
                 )
               )
             )

@@ -17,18 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object MovementReferenceNumberSummary extends AnswerSummary[MRN] {
 
-  def render(key: String, answer: MRN)(implicit
-    subKey: Option[String],
-    journey: JourneyBindable,
+  override def render(answer: MRN, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -36,11 +33,11 @@ object MovementReferenceNumberSummary extends AnswerSummary[MRN] {
         SummaryListRow(
           key = Key(Text(messages(lang(key, subKey, "label")))),
           value = Value(Text(answer.value)),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey).url}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(lang(key, subKey, "label")))
                 )

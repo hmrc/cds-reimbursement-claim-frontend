@@ -17,33 +17,33 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
+/** def changeCall =
+  *      if (key.contains(checkYourAnswersKey))
+  *        routes.BankAccountController.checkBankAccountDetails(journey)
+  *      else routes.SelectBankAccountTypeController.selectBankAccountType(journey)
+  */
 object BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
 
-  def render(key: String, bankAccountDetails: BankAccountDetails)(implicit
+  override def render(
+    bankAccountDetails: BankAccountDetails,
+    key: String,
     subKey: Option[String],
-    journey: JourneyBindable,
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
-  ): SummaryList = {
-
-    def changeCall =
-      if (key.contains(checkYourAnswersKey))
-        routes.BankAccountController.checkBankAccountDetails(journey)
-      else routes.SelectBankAccountTypeController.selectBankAccountType(journey)
-
+  ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.account-name.label"))),
           value = Value(Text(bankAccountDetails.accountName.value)),
           classes = "govuk-summary-list__row--no-border",
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
@@ -66,5 +66,4 @@ object BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
         )
       )
     )
-  }
 }

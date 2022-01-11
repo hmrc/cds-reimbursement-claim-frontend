@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.whetherDutiesCorrectForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
@@ -70,9 +69,8 @@ class CheckScheduledClaimController @Inject() (
 
   def showReimbursements(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
-      val routes: ReimbursementRoutes       = extractRoutes(fillingOutClaim.draftClaim, Scheduled)
-      implicit val journey: JourneyBindable = Scheduled
-      implicit val subKey: Option[String]   = routes.subKey
+      val routes: ReimbursementRoutes     = extractRoutes(fillingOutClaim.draftClaim, Scheduled)
+      implicit val subKey: Option[String] = routes.subKey
 
       def redirectToSelectDutiesPage: Future[Result] =
         Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
@@ -88,9 +86,8 @@ class CheckScheduledClaimController @Inject() (
 
   def submitReimbursements(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
-      val routes: ReimbursementRoutes       = extractRoutes(fillingOutClaim.draftClaim, Scheduled)
-      implicit val journey: JourneyBindable = Scheduled
-      implicit val subKey: Option[String]   = routes.subKey
+      val routes: ReimbursementRoutes     = extractRoutes(fillingOutClaim.draftClaim, Scheduled)
+      implicit val subKey: Option[String] = routes.subKey
       import routes._
 
       def selectDuties: Future[Result] =
