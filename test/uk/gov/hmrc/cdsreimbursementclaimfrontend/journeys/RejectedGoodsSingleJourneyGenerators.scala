@@ -169,7 +169,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(UploadDocumentType.values))
-      bankAccountType             <- Gen.oneOf(BankAccountType.allAccountTypes)
+      bankAccountType             <- Gen.oneOf(BankAccountType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {

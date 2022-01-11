@@ -47,10 +47,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
 import scala.concurrent.Future
 
+@SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class EnterContactDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
@@ -105,16 +106,24 @@ class EnterContactDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
+        forAll(buildCompleteJourneyGen(), genEmail, genName, individualGen) { (journey, email, name, individual) =>
           mockCompleteJourney(journey, email, name)
+          val contactDetails = journey.getContactDetails(individual)
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
+            messageFromMessageKey("enter-contact-details-rejected-goods.change.title"),
+            doc => {
+              doc
+                .select("form input[name='enter-contact-details-rejected-goods.contact-name']")
+                .`val`() shouldBe contactDetails.get.fullName
+              doc
+                .select("form input[name='enter-contact-details-rejected-goods.contact-email']")
+                .`val`() shouldBe contactDetails.get.emailAddress.value
+            }
           )
         }
       }
-
     }
 
     "Submit Basis for claim page" must {

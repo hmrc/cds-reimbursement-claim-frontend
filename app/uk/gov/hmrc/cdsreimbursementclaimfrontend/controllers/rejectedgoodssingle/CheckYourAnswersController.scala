@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
 
 import scala.concurrent.ExecutionContext
-import scala.util.control.NonFatal
 
 @Singleton
 class CheckYourAnswersController @Inject() (
@@ -50,7 +49,10 @@ class CheckYourAnswersController @Inject() (
     actionReadJourney { implicit request => journey =>
       journey.toOutput
         .fold(
-          errors => Redirect(routeForValidationErrors(errors)),
+          errors => {
+            logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+            Redirect(routeForValidationErrors(errors))
+          },
           output => Ok(checkYourAnswersPage(output, postAction))
         )
         .asFuture
@@ -63,17 +65,24 @@ class CheckYourAnswersController @Inject() (
       else
         journey.toOutput
           .fold(
-            errors => (journey, Redirect(routeForValidationErrors(errors))).asFuture,
+            errors => {
+              logger.warn(s"Claim not ready to submit because of ${errors.mkString(",")}")
+              (journey, Redirect(routeForValidationErrors(errors))).asFuture
+            },
             output =>
               rejectedGoodsSingleClaimConnector
                 .submitClaim(RejectedGoodsSingleClaimConnector.Request(output))
                 .map { response =>
+                  logger.info(
+                    s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
+                  )
                   (
                     journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
                     Redirect(showConfirmationAction)
                   )
                 }
-                .recover { case NonFatal(_) =>
+                .recover { case e =>
+                  logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
                   (journey, Ok(submitClaimFailedPage()))
                 }
           )

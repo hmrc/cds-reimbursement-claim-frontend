@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.syntax.eq._
+import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
@@ -30,7 +31,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import play.api.data.Form
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -74,7 +74,8 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   final def resultOrShortcut(result: Result, journey: Journey): Future[Result] =
     Future.successful(
-      if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
+      if (result.header.status =!= 303) result
+      else if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
       else if (hasCompleteAnswers(journey)) Redirect(checkYourAnswers)
       else result
     )

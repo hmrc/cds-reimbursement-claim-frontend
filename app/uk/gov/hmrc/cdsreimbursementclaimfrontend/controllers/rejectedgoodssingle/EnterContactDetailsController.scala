@@ -45,7 +45,7 @@ class EnterContactDetailsController @Inject() (
       Future.successful(
         Ok(
           enterOrChangeContactDetailsPage(
-            Forms.mrnContactDetailsForm.withDefault(journey.getContactDetails(userType)),
+            Forms.rejectedGoodsContactDetailsForm.withDefault(journey.getContactDetails(userType)),
             postAction
           )
         )
