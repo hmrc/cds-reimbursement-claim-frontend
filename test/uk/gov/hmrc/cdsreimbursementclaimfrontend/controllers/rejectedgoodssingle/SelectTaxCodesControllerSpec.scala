@@ -45,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
+import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 class SelectTaxCodesControllerSpec
@@ -70,8 +71,7 @@ class SelectTaxCodesControllerSpec
 
   private def selectedValues(doc: Document): Option[Seq[String]] = {
     val checkBoxes: Elements = doc.select("div.govuk-checkboxes input[checked]")
-    if (checkBoxes.size() =!= 0)
-      Option(Seq(checkBoxes.`val`()))
+    if (checkBoxes.size() =!= 0) Some(checkBoxes.eachAttr("value").asScala.toSeq)
     else
       None
   }
@@ -94,9 +94,9 @@ class SelectTaxCodesControllerSpec
     )
   )
 
-  "Select Duties Controller" when {
+  "Select Tax Codes Controller" when {
 
-    "Show select duties page" must {
+    "Show select tax codes page" must {
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
@@ -151,7 +151,7 @@ class SelectTaxCodesControllerSpec
       }
     }
 
-    "Submit Select Duties page" must {
+    "Submit select tax codes page" must {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
@@ -161,7 +161,7 @@ class SelectTaxCodesControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty duty selection" in {
+      "reject an empty tax code selection" in {
 
         val journey = RejectedGoodsSingleJourney
           .empty(exampleEori)
