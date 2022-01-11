@@ -22,12 +22,11 @@ import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
-import play.api.data.Form
-import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
@@ -41,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -161,24 +159,5 @@ object SelectDutiesController {
       )
     }
   }
-
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
-    mapping(
-      "select-duties" -> list(
-        mapping(
-          "" -> nonEmptyText
-            .verifying(
-              "invalid tax code",
-              code => allAvailableDuties.map(_.taxCode.value).exists(_ === code)
-            )
-            .transform[TaxCode](
-              (x: String) => TaxCodes.findUnsafe(x),
-              (t: TaxCode) => t.value
-            )
-        )(Duty.apply)(Duty.unapply)
-      ).verifying("error.required", _.nonEmpty)
-    )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
-  )
 
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
+import cats.syntax.eq._
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
@@ -25,7 +26,10 @@ final case class NdrcDetails(
   paymentMethod: String,
   paymentReference: String,
   cmaEligible: Option[String]
-)
+) {
+
+  def isCmaEligible: Boolean = cmaEligible.getOrElse("0") === "1"
+}
 
 object NdrcDetails {
   implicit val format: OFormat[NdrcDetails] = Json.format[NdrcDetails]

@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.{Functor, Id}
 import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
-import org.scalacheck.Gen
-import org.scalacheck.magnolia.gen
+import org.jsoup.select.Elements
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -38,22 +36,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectTaxCodesController.selectTaxCodesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A80, A85, A90, A95}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
-class SelectDutiesControllerSpec
+class SelectTaxCodesControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -67,17 +61,17 @@ class SelectDutiesControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: SelectDutiesController = instanceOf[SelectDutiesController]
+  val controller: SelectTaxCodesController = instanceOf[SelectTaxCodesController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
-  implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private def selectedValue(doc: Document): Option[String] = {
-    val checkBoxes = doc.select("div.govuk-checkboxes input[checked]")
+  private def selectedValues(doc: Document): Option[Seq[String]] = {
+    val checkBoxes: Elements = doc.select("div.govuk-checkboxes input[checked]")
     if (checkBoxes.size() =!= 0)
-      Some(checkBoxes.`val`())
+      Option(Seq(checkBoxes.`val`()))
     else
       None
   }
@@ -93,8 +87,11 @@ class SelectDutiesControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
+  val displayDeclaration = buildDisplayDeclaration(
+    dutyDetails = Seq(
+      (TaxCode.A80, BigDecimal("200.00"), true),
+      (TaxCode.A95, BigDecimal("171.05"), false)
+    )
   )
 
   "Select Duties Controller" when {
@@ -109,14 +106,13 @@ class SelectDutiesControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page" in {
-        val journey = buildCompleteJourneyGen(
-          acc14DeclarantMatchesUserEori = false,
-          acc14ConsigneeMatchesUserEori = false,
-          hasConsigneeDetailsInACC14 = true
-        ).sample.getOrElse(fail("Journey building has failed."))
+      "display the page the first time" in {
+        val journey = RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
 
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -126,13 +122,34 @@ class SelectDutiesControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => {
-            selectedValue(doc) shouldBe None
-          }
+          doc => selectedValues(doc) shouldBe None
+        )
+      }
+
+      "display the page when a tax code has already been selected before" in {
+        val journey = buildCompleteJourneyGen(
+          acc14DeclarantMatchesUserEori = false,
+          acc14ConsigneeMatchesUserEori = false,
+          hasConsigneeDetailsInACC14 = true
+        ).sample.getOrElse(fail("Journey building has failed."))
+
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        val selectedDuties: Option[Seq[String]] =
+          journey.getSelectedDuties.map(_.map(_.value))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => selectedValues(doc) shouldBe selectedDuties
         )
       }
     }
-
 
     "Submit Select Duties page" must {
       def performAction(data: (String, String)*): Future[Result] =
@@ -145,9 +162,13 @@ class SelectDutiesControllerSpec
       }
 
       "reject an empty duty selection" in {
-        val displayDeclaration = sample[DisplayDeclaration]
-        val journey = session.rejectedGoodsSingleJourney.get.submitDisplayDeclaration(displayDeclaration)
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        val journey = RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -162,53 +183,46 @@ class SelectDutiesControllerSpec
         )
       }
 
-      //    "select valid tax codes when none have been selected before" in {
-      //      val journey = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-      //      val displayDeclaration = sample[DisplayDeclaration]
-      //     val taxCodes = ???
-      //      val updatedJourney            = session.rejectedGoodsSingleJourney.get
-      //        .submitDisplayDeclaration(displayDeclaration)
-      //        .selectAndReplaceTaxCodeSetForReimbursement(taxCodes)
-      //      val updatedSession     = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney.getOrElse(fail("No rejected goods journey"))))
-      //
-      //      inSequence {
-      //        mockAuthWithNoRetrievals()
-      //        mockGetSession(session)
-      //        mockStoreSession(updatedSession)(Right(()))
-      //      }
-      //
-      //      checkIsRedirect(
-      //        performAction(selectDutiesKey -> "true"),
-      //        "enter-claim"
-      //      )
-      //
-      //    }
+      "select valid tax codes when none have been selected before" in {
+        def performAction(data: (String, String)*): Future[Result] =
+          controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+        val taxCodes: Seq[TaxCode] = Seq(TaxCode.A95)
+
+        val initialJourney = RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+        val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+
+        val updatedJourney = initialJourney.selectAndReplaceTaxCodeSetForReimbursement(taxCodes)
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(initialSession)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(s"$selectTaxCodesKey[]" -> TaxCode.A95.value),
+          "enter-claim" //FIXME
+        )
+
+      }
 
     }
 
     "have CMA Eligible flag/Duties hint text" should {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      val taxCodes = List(A80, A85, A90, A95)
-      val testNdrcDetail = sample[NdrcDetails]
-
-      val ndrcs: List[NdrcDetails] = List(
-        testNdrcDetail.copy(taxType = A80.value, cmaEligible = Some("1")),
-        testNdrcDetail.copy(taxType = A85.value, cmaEligible = Some("1")),
-        testNdrcDetail.copy(taxType = A90.value, cmaEligible = Some("0")),
-        testNdrcDetail.copy(taxType = A95.value, cmaEligible = None)
-      )
-
-      val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
-      )
-
       "Acc14 excise code where the CMA eligible flag is true" in {
-        val journey = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val displayDeclaration = ???
-        val updatedJourney            = session.rejectedGoodsSingleJourney.get.submitDisplayDeclaration(displayDeclaration)
+        val journey = RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
 
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -221,14 +235,11 @@ class SelectDutiesControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            getHintText(doc, "select-duties-item-hint") shouldBe None
-            getHintText(doc, "select-duties-2-item-hint") shouldBe None
-            getHintText(doc, "select-duties-3-item-hint") shouldBe hintText
-            getHintText(doc, "select-duties-4-item-hint") shouldBe hintText
+            getHintText(doc, "select-duties-item-hint")   shouldBe None
+            getHintText(doc, "select-duties-2-item-hint") shouldBe hintText
           }
         )
       }
-
 
     }
   }
