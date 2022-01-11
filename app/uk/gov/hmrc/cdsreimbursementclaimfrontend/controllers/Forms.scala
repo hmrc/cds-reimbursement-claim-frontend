@@ -16,16 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import cats.implicits.catsSyntaxEq
 import play.api.data.Form
+import play.api.data.Forms.seq
+import play.api.data.Forms.list
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
 import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 
 object Forms {
@@ -72,5 +80,44 @@ object Forms {
       "enter-contact-details-rejected-goods.contact-phone-number" -> optional(PhoneNumber.mapping)
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
+
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
+    mapping(
+      "select-duties" -> list(
+        mapping(
+          "" -> nonEmptyText
+            .verifying(
+              "invalid tax code",
+              code => allAvailableDuties.map(_.taxCode.value).exists(_ === code)
+            )
+            .transform[TaxCode](
+              (x: String) => TaxCodes.findUnsafe(x),
+              (t: TaxCode) => t.value
+            )
+        )(Duty.apply)(Duty.unapply)
+      ).verifying("error.required", _.nonEmpty)
+    )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
+  )
+
+  def taxCodeMapping(availableTaxCodes: Seq[TaxCode]): Mapping[TaxCode] =
+    nonEmptyText
+      .verifying(
+        "invalid tax code",
+        code => availableTaxCodes.exists(_.value === code)
+      )
+      .transform[TaxCode](
+        (x: String) => TaxCodes.findUnsafe(x),
+        (t: TaxCode) => t.value
+      )
+
+  def selectTaxCodesForm(availableTaxCodes: Seq[TaxCode]): Form[Seq[TaxCode]] = {
+    val taxCode = taxCodeMapping(availableTaxCodes)
+    Form(
+      mapping(
+        "select-duties" -> seq(taxCode).verifying("error.required", _.nonEmpty)
+      )(identity)(seq => Some(seq))
+    )
+  }
 
 }
