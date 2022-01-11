@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
 
 import scala.concurrent.ExecutionContext
-import scala.util.control.NonFatal
 
 @Singleton
 class CheckYourAnswersController @Inject() (
@@ -74,12 +73,16 @@ class CheckYourAnswersController @Inject() (
               rejectedGoodsSingleClaimConnector
                 .submitClaim(RejectedGoodsSingleClaimConnector.Request(output))
                 .map { response =>
+                  logger.info(
+                    s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
+                  )
                   (
                     journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
                     Redirect(showConfirmationAction)
                   )
                 }
-                .recover { case NonFatal(_) =>
+                .recover { case e =>
+                  logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
                   (journey, Ok(submitClaimFailedPage()))
                 }
           )
