@@ -17,30 +17,27 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object BasisOfClaimSummary extends AnswerSummary[BasisOfClaimAnswer] {
 
-  def render(key: String, answer: BasisOfClaimAnswer)(implicit
-    subKey: Option[String],
-    journey: JourneyBindable,
-    messages: Messages
+  override def render(answer: BasisOfClaimAnswer, key: String, subKey: Option[String], changeCallOpt: Option[Call])(
+    implicit messages: Messages
   ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.l0"))),
           value = Value(Text(messages(s"select-basis-for-claim.reason.d${BasisOfClaims.indexOf(answer)}"))),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = routes.SelectBasisForClaimController.selectBasisForClaim(journey).url,
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.l0"))
                 )

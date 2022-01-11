@@ -17,24 +17,21 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimbursementsAnswer)]] {
 
-  def render(key: String, mrnsWithClaimsList: List[(MRN, ClaimedReimbursementsAnswer)])(implicit
+  override def render(
+    mrnsWithClaimsList: List[(MRN, ClaimedReimbursementsAnswer)],
+    key: String,
     subKey: Option[String],
-    journey: JourneyBindable,
-    messages: Messages
-  ): SummaryList = {
-    val amendCall =
-      claimsRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag
+    changeCallOpt: Option[Call]
+  )(implicit messages: Messages): SummaryList = {
 
     val totalAmount: BigDecimal =
       mrnsWithClaimsList.flatMap(_._2.toList.map(_.claimAmount)).sum
@@ -45,11 +42,11 @@ object MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimb
           SummaryListRow(
             key = Key(Text(mrn.value)),
             value = Value(Text(claims.toList.map(_.claimAmount).sum.toPoundSterlingString)),
-            actions = Some(
+            actions = changeCallOpt.map(changeCall =>
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = amendCall.url,
+                    href = changeCall.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.duty.label", mrn.value))
                   )
@@ -62,11 +59,11 @@ object MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimb
           SummaryListRow(
             key = Key(Text(messages(s"$key.multiple.total"))),
             value = Value(Text(totalAmount.toPoundSterlingString)),
-            actions = Some(
+            actions = changeCallOpt.map(changeCall =>
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = amendCall.url,
+                    href = changeCall.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.multiple.total"))
                   )

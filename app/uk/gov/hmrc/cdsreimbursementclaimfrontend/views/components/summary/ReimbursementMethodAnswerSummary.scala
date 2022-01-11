@@ -17,17 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMethodAnswer] {
-  def render(key: String, answer: ReimbursementMethodAnswer)(implicit
+
+  override def render(
+    answer: ReimbursementMethodAnswer,
+    key: String,
     subKey: Option[String],
-    journey: JourneyBindable,
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
   ): SummaryList = {
     val label = messages(s"$key.label")
@@ -37,11 +40,11 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
         SummaryListRow(
           key = Key(Text(label)),
           value = Value(Text(messages(answerKey(key, answer)))),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.ReimbursementMethodController.showReimbursementMethod()}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(label)
                 )

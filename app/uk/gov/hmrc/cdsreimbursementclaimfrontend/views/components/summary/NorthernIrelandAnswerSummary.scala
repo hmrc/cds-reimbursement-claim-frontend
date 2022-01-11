@@ -17,8 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.govukfrontend.views.Aliases.ActionItem
 import uk.gov.hmrc.govukfrontend.views.Aliases.Key
@@ -27,12 +25,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
+import play.api.mvc.Call
 
 object NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
 
-  def render(key: String, answer: YesNo)(implicit
-    subKey: Option[String],
-    journey: JourneyBindable,
+  override def render(answer: YesNo, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -40,11 +37,11 @@ object NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
         SummaryListRow(
           key = Key(Text(messages(s"$key.label"))),
           value = Value(Text(answer.toString)),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey).url}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.label"))
                 )

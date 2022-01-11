@@ -23,7 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.RejectedGoodsAnswerSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.CdsDisplayDeclarationSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
@@ -55,7 +55,7 @@
 
   @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-    @summary(RejectedGoodsAnswerSummary(s"$checkYourAnswersKey.declaration-details",declaration))
+    @summary(CdsDisplayDeclarationSummary(declaration,s"$checkYourAnswersKey.declaration-details", subKey))
 
     @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h2")
 

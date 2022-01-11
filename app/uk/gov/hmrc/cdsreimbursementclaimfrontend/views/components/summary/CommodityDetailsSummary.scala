@@ -17,18 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import play.api.mvc.Call
 
 object CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
 
-  def render(key: String, answer: CommodityDetailsAnswer)(implicit
-    subKey: Option[String],
-    journey: JourneyBindable,
-    messages: Messages
+  override def render(answer: CommodityDetailsAnswer, key: String, subKey: Option[String], changeCallOpt: Option[Call])(
+    implicit messages: Messages
   ): SummaryList = {
     val label = messages(s"$key.label")
 
@@ -37,11 +34,11 @@ object CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
         SummaryListRow(
           key = Key(Text(label)),
           value = Value(Text(answer.value)),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey).url}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(label)
                 )

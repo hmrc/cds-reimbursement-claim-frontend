@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.RejectedGoodsAnswerSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantDetailsSummary
 
 @this(
         button: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -40,7 +40,7 @@
     @pageHeading(title)
 
     @summary(
-        RejectedGoodsAnswerSummary(key,(contactDetails, contactAddress, contactChange, addressChange))
+        ClaimantDetailsSummary((contactDetails, contactAddress, contactChange, addressChange), key, subKey)
     )
 
     @button("button.continue", href=Some(postAction.url))
