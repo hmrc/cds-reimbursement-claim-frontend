@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import java.time.Instant
 import java.time.LocalDateTime
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsOfRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
@@ -87,21 +88,23 @@ trait RejectedGoodsSingleJourneyTestData {
   val exampleInspectionDate: LocalDate =
     LocalDate.parse("2000-01-01")
 
-  val exampleBankAccountDetails =
+  val exampleBankAccountDetails                           =
     BankAccountDetails(
       accountName = AccountName("Foo Bar"),
       sortCode = SortCode("00000000"),
       accountNumber = AccountNumber("00000000")
     )
-
-  val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
+  val exampleRejectedGoodsDetails: DetailsOfRejectedGoods = DetailsOfRejectedGoods(
+    "Some example details for rejected goods"
+  )
+  val exampleSpecialCircumstancesDetails: String          = "Goods failed health and safety inspection"
 
   def tryBuildRejectedGoodsSingleJourney(
     userEoriNumber: Eori,
     mrn: MRN,
     displayDeclaration: DisplayDeclaration,
     basisOfClaim: BasisOfRejectedGoodsClaim,
-    detailsOfRejectedGoods: String,
+    detailsOfRejectedGoods: DetailsOfRejectedGoods,
     specialCircumstancesDetails: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,

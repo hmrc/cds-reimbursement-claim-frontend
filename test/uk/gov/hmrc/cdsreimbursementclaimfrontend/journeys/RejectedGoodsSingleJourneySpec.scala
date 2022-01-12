@@ -546,14 +546,14 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit details of rejected goods" in {
-      forAll(Gen.asciiPrintableStr) { rejectedGoodsDetails =>
+      forAll(exampleRejectedGoodsDetails) { rejectedGoodsDetails =>
         val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitDetailsOfRejectedGoods(rejectedGoodsDetails)
         journey.answers.detailsOfRejectedGoods shouldBe Some(rejectedGoodsDetails)
       }
     }
 
     "change details of rejected goods" in {
-      forAll(completeJourneyGen, Gen.asciiPrintableStr) { (journey, rejectedGoodsDetails) =>
+      forAll(completeJourneyGen, exampleRejectedGoodsDetails) { (journey, rejectedGoodsDetails) =>
         val modifiedJourney = journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails)
 
         modifiedJourney.hasCompleteAnswers                     shouldBe true

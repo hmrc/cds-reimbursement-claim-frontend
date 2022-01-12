@@ -18,12 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.mvc.{Action, AnyContent, Call}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class EnterRejectedGoodsDetailsController @Inject() (
@@ -32,18 +36,39 @@ class EnterRejectedGoodsDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val formKey: String = "enter-rejected-goods-details.rejected-goods"
+  val formKey: String          = "enter-rejected-goods-details.rejected-goods"
+  private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
-      val form = ???
-      val postAction: Call = ???
+      val form = enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods)
+
       Ok(enterRejectedGoodsDetailsPage(form, postAction))
     }
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-
+    Future.successful(
+      enterRejectedGoodsDetailsForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(
+                enterRejectedGoodsDetailsPage(
+                  formWithErrors,
+                  postAction
+                )
+              )
+            ),
+          rejectedGoodsDetails =>
+            (
+              journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
+              Redirect(routes.SelectTaxCodesController.show())
+            )
+        )
+    )
   }
 
 }

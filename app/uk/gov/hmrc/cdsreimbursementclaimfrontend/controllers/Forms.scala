@@ -23,9 +23,11 @@ import play.api.data.Forms.list
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
 import play.api.data.Forms.optional
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsOfRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -34,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import play.api.data.Mapping
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 
 object Forms {
   def eoriNumberForm(key: String): Form[Eori] = Form(
@@ -79,6 +80,12 @@ object Forms {
       "enter-contact-details-rejected-goods.contact-email"        -> Email.mappingMaxLength,
       "enter-contact-details-rejected-goods.contact-phone-number" -> optional(PhoneNumber.mapping)
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
+  )
+
+  val enterRejectedGoodsDetailsForm: Form[DetailsOfRejectedGoods] = Form(
+    mapping("enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500))(
+      DetailsOfRejectedGoods.apply
+    )(DetailsOfRejectedGoods.unapply)
   )
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))

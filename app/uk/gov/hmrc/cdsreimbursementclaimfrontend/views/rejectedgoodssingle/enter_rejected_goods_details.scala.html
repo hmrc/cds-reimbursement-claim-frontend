@@ -16,12 +16,44 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
-@import play.api.mvc.Call
 @import play.api.mvc.Request
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsOfRejectedGoods
 
-@this()
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+)
 
-@(form : Form[DetailsOfRejectedGoods], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[DetailsOfRejectedGoods], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
+@key = @{"enter-rejected-goods-details.rejected-goods"}
+@title = @{messages(s"$key.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+ @errorSummary(form.errors)
+
+ @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+  @textArea(
+   form = form,
+   id = key,
+   name = key,
+   isPageHeading = true,
+   label = s"$key.title",
+   labelClasses = Some("govuk-label govuk-label--xl"),
+   hint = Some(" "),
+   value = form(key).value,
+   maxLength = Some(500)
+  )
+
+  @submitButton("button.continue")
+ }
+}

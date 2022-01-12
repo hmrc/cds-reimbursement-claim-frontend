@@ -46,7 +46,7 @@ class DummyExampleController @Inject() (
   /** A pattern of a simple GET action to show page based on the journey state */
   val showDummyPage: Action[AnyContent] =
     simpleActionReadJourney { journey =>
-      journey.answers.detailsOfRejectedGoods match {
+      journey.answers.basisOfClaimSpecialCircumstances match {
         case Some(s) => Ok(dummyPage(dummyForm.fill(s)))
         case None    => Ok(dummyPage(dummyForm))
       }
@@ -55,7 +55,7 @@ class DummyExampleController @Inject() (
   /** A pattern of a GET action calling an API and then showing page based on the response and journey state */
   val callApiAndShowDummyPage: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
-      journey.answers.detailsOfRejectedGoods match {
+      journey.answers.basisOfClaimSpecialCircumstances match {
         case Some(_) => someApiCall.map(_ => Ok(landingPage()))
         case None    => someApiCall.map(_ => Ok(landingPage()))
       }
@@ -68,7 +68,7 @@ class DummyExampleController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => (journey, Ok(dummyPage(formWithErrors))),
-          s => (journey.submitDetailsOfRejectedGoods(s), Ok)
+          s => (journey.submitBasisOfClaimSpecialCircumstancesDetails(s).getOrElse(journey), Ok)
         )
     }
 
@@ -79,7 +79,10 @@ class DummyExampleController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful((journey, Ok(dummyPage(formWithErrors)))),
-          s1 => someApiCall.map(s2 => (journey.submitDetailsOfRejectedGoods(s1 + s2), Ok))
+          s1 =>
+            someApiCall.map(s2 =>
+              (journey.submitBasisOfClaimSpecialCircumstancesDetails(s1 + s2).getOrElse(journey), Ok)
+            )
         )
     }
 

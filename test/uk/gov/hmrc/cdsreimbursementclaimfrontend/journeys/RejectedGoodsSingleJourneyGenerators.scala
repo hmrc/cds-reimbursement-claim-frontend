@@ -202,7 +202,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         mrn,
         displayDeclaration,
         basisOfClaim,
-        "details of rejected goods",
+        detailsOfRejectedGoods = exampleRejectedGoodsDetails,
         "special circumstances details",
         exampleInspectionDate,
         exampleInspectionAddress,
