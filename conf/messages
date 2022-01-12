@@ -1079,6 +1079,33 @@ check-your-answers.claimant-details.additional.contact.address=Contact address
 check-your-answers.claimant-details.change-hint.contact=Contact details
 check-your-answers.claimant-details.change-hint.address=Contact address
 
+check-your-answers.contact-information.h2=Contact information for this claim
+check-your-answers.contact-information.contact-details=Contact details
+check-your-answers.contact-information.contact-address=Contact address
+check-your-answers.special-circumstances.h2=Special circumstances
+check-your-answers.special-circumstances.label=Any special circumstances relating to your claim
+check-your-answers.disposal-method.h2=Disposal method
+check-your-answers.disposal-method.l0=This is how the goods will be disposed of
+check-your-answers.details-rejected-goods.h2=Details of rejected goods
+check-your-answers.details-rejected-goods.label=These are the details of the rejected goods
+check-your-answers.repayment-method.h2=Repayment method
+check-your-answers.repayment-method.label=Method
+check-your-answers.repayment-method.cma=Current Month Adjustment (CMA)
+check-your-answers.repayment-method.bt=Bank account transfer
+check-your-answers.inspection.h2=Details of inspection
+check-your-answers.inspection.inspection-date=Inspection date
+check-your-answers.inspection.inspection-address=Inspection address
+check-your-answers.inspection.inspection-address-type=Inspection address type
+check-your-answers.claim-total.h2=Claim total
+check-your-answers.claim-total.total=Total
+
+#===================================================
+# IMPORTER ADDRESS TYPE
+#===================================================
+inspection-address.type.Other=Other address
+inspection-address.type.Importer=Importer address
+inspection-address.type.Declarant=Declarant address
+
 #===================================================
 # SUBMISSION ERROR PAGE
 #===================================================
