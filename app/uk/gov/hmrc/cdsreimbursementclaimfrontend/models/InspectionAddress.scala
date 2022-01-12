@@ -27,7 +27,10 @@ final case class InspectionAddress(
   countryCode: String,
   postalCode: String,
   addressType: InspectionAddressType
-)
+) {
+  def summaryAddress(sep: String): String =
+    Seq(addressLine1, addressLine2, city, postalCode).mkString(sep)
+}
 
 object InspectionAddress {
 

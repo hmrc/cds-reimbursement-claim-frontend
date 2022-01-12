@@ -56,7 +56,7 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
     )
   }
 
-  private def answerKey(key: String, answer: ReimbursementMethodAnswer): String = answer match {
+  def answerKey(key: String, answer: ReimbursementMethodAnswer): String = answer match {
     case CurrentMonthAdjustment => s"$key.cma"
     case BankAccountTransfer    => s"$key.bt"
   }
