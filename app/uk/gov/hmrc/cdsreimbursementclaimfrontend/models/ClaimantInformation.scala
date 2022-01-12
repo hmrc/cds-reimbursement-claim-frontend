@@ -29,7 +29,27 @@ final case class ClaimantInformation(
   fullName: String,
   establishmentAddress: ContactInformation,
   contactInformation: ContactInformation
-)
+) {
+
+  def summaryContact(sep: String): String = Seq(
+    Some(fullName),
+    contactInformation.emailAddress,
+    contactInformation.telephoneNumber
+  )
+    .collect { case Some(x) => x }
+    .mkString(sep)
+
+  def summaryAddress(sep: String): String =
+    Seq(
+      contactInformation.addressLine1,
+      contactInformation.addressLine2,
+      contactInformation.addressLine3,
+      contactInformation.postalCode,
+      contactInformation.countryCode
+    )
+      .collect { case Some(x) => x }
+      .mkString(sep)
+}
 
 object ClaimantInformation {
 
