@@ -34,7 +34,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import scala.collection.SortedMap
 import play.api.mvc.Call
 
-/** routes.EnterScheduledClaimController.enterClaim(duty, taxCode) */
 object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[TaxCode, Reimbursement])] {
 
   override def render(
