@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -35,8 +36,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
 class EnterRejectedGoodsDetailsControllerSpec
@@ -58,7 +61,8 @@ class EnterRejectedGoodsDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
+  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
+  private val messagesKey: String = "enter-rejected-goods-details.rejected-goods"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
@@ -72,30 +76,59 @@ class EnterRejectedGoodsDetailsControllerSpec
 
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
-
-      "do not find the page if rejected goods feature is disabled" in {
+      "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
 
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page on a new journey" in {
+      "display the page on a new journey" in forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
+        val journey = RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMethodOfDisposal(methodOfDisposal)
+
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(updatedSession)
         }
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"testString"),
-//          doc => {
-//            doc
-//              .select("main p")
-//              .text()               shouldBe messageFromMessageKey("enter-rejected-goods-details.rejected-goods.help-text")
-//          }
+          messageFromMessageKey(s"$messagesKey.title")
         )
       }
 
     }
+
+    "submit enter rejected goods details page" must {
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "reject empty details" in forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
+        val journey = RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMethodOfDisposal(methodOfDisposal)
+
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          performAction(controller.formKey -> ""),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$messagesKey.error.required"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+    }
   }
+
 }

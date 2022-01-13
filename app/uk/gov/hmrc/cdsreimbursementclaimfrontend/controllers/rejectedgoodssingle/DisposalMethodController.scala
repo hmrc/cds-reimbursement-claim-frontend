@@ -66,7 +66,10 @@ class DisposalMethodController @Inject() (
           methodOfDisposal => {
             val updatedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
             Future.successful(
-              (updatedJourney, Redirect(Call("GET", "enter-rejected-goods-details"))) //TODO: replace in CDSR-1137
+              (
+                updatedJourney,
+                Redirect(routes.EnterRejectedGoodsDetailsController.show())
+              )
             )
           }
         )

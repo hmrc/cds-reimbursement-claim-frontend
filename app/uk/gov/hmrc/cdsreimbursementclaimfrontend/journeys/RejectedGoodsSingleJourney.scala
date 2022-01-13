@@ -23,7 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsOfRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
@@ -308,7 +307,7 @@ final class RejectedGoodsSingleJourney private (
       )
     }
 
-  def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: DetailsOfRejectedGoods): RejectedGoodsSingleJourney =
+  def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
@@ -569,7 +568,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
     basisOfClaimSpecialCircumstances: Option[String] = None,
     methodOfDisposal: Option[MethodOfDisposal] = None,
-    detailsOfRejectedGoods: Option[DetailsOfRejectedGoods] = None,
+    detailsOfRejectedGoods: Option[String] = None,
     reimbursementClaims: Option[Map[TaxCode, Option[BigDecimal]]] = None,
     inspectionDate: Option[LocalDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
@@ -587,7 +586,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     basisOfClaim: BasisOfRejectedGoodsClaim,
     basisOfClaimSpecialCircumstances: Option[String],
     methodOfDisposal: MethodOfDisposal,
-    detailsOfRejectedGoods: DetailsOfRejectedGoods,
+    detailsOfRejectedGoods: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
     reimbursementClaims: Map[TaxCode, BigDecimal],

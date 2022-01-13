@@ -25,7 +25,6 @@ import play.api.data.Forms.nonEmptyText
 import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsOfRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
@@ -82,10 +81,8 @@ object Forms {
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
 
-  val enterRejectedGoodsDetailsForm: Form[DetailsOfRejectedGoods] = Form(
-    mapping("enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500))(
-      DetailsOfRejectedGoods.apply
-    )(DetailsOfRejectedGoods.unapply)
+  val enterRejectedGoodsDetailsForm: Form[String] = Form(
+    "enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500)
   )
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
