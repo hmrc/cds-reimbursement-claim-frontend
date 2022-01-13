@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -27,17 +26,17 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.defaultAwaitTimeout
-import play.api.test.Helpers.status
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
 import scala.concurrent.Future
 
 class EnterRejectedGoodsDetailsControllerSpec
@@ -59,24 +58,43 @@ class EnterRejectedGoodsDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
-  private val messagesKey: String = "enter-rejected-goods-details.rejected-goods"
+  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  "Enter Rejected Goods Details Controller" when {
+  val session: SessionData = SessionData.empty.copy(
+    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
+  )
 
+  "Enter Rejected Goods Details Controller" when {
     "Show enter rejected goods details page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] =
+        controller.show()(FakeRequest())
 
-      "not find the page if the rejected goods feature is disabled" in {
+      "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
 
         status(performAction()) shouldBe NOT_FOUND
       }
-      
+
+      "display the page on a new journey" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"testString"),
+//          doc => {
+//            doc
+//              .select("main p")
+//              .text()               shouldBe messageFromMessageKey("enter-rejected-goods-details.rejected-goods.help-text")
+//          }
+        )
+      }
 
     }
   }

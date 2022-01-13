@@ -71,8 +71,8 @@ class SelectTaxCodesControllerSpec
 
   private def selectedValues(doc: Document): Option[Seq[String]] = {
     val checkBoxes: Elements = doc.select("div.govuk-checkboxes input[checked]")
-    if (checkBoxes.size() =!= 0)
-      Some(checkBoxes.eachAttr("value").asScala.toSeq)
+    if (checkBoxes.size() =!= 0) Option(Seq(checkBoxes.`val`()))
+    //Some(checkBoxes.eachAttr("value").asScala.toSeq)
     else
       None
   }
