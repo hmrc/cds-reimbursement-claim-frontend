@@ -94,6 +94,7 @@ trait RejectedGoodsSingleJourneyTestData {
       accountNumber = AccountNumber("00000000")
     )
 
+  val exampleRejectedGoodsDetails: String        = "Some example details for rejected goods"
   val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
 
   def tryBuildRejectedGoodsSingleJourney(
