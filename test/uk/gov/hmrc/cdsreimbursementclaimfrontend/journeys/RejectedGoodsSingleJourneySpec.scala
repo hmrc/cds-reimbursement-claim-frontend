@@ -545,16 +545,6 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-    "submit basis of claim special circumstances details" in {
-      val journeyEither = RejectedGoodsSingleJourney
-        .empty(exampleEori)
-        .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-        .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
-
-      journeyEither.isRight shouldBe true
-
-    }
-
     "submit details of rejected goods" in {
       val journey = RejectedGoodsSingleJourney
         .empty(exampleEori)

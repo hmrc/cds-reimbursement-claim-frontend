@@ -65,8 +65,9 @@
    id = key,
    name = key,
    isPageHeading = false,
+   label = s"$key.label",
    labelClasses = Some("govuk-label govuk-label--xl"),
-   hint = Some(" "),
+   hint = None,
    value = form(key).value,
    maxLength = Some(500)
   )

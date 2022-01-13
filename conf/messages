@@ -498,6 +498,7 @@ enter-rejected-goods-details.rejected-goods.bullet.1=what the goods are
 enter-rejected-goods-details.rejected-goods.bullet.2=the quantity of goods being claimed for
 enter-rejected-goods-details.rejected-goods.bullet.3=the value of the goods being claimed for
 enter-rejected-goods-details.rejected-goods.bullet.4=the reason for rejection
+enter-rejected-goods-details.rejected-goods.label=
 enter-rejected-goods-details.rejected-goods.error.required=Enter details of rejected goods
 enter-rejected-goods-details.rejected-goods.error.maxLength=Details of rejected goods must be 500 characters or fewer
 

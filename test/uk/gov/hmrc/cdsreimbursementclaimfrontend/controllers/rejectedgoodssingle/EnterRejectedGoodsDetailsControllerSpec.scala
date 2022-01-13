@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -33,10 +32,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -71,27 +70,25 @@ class EnterRejectedGoodsDetailsControllerSpec
     rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
   )
 
-  "Enter Rejected Goods Details Controller" when {
-    "Show enter rejected goods details page" must {
+  "Enter Rejected Goods Details Controller" must {
 
+    "not find the page if rejected goods feature is disabled" in {
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
 
-        status(performAction()) shouldBe NOT_FOUND
-      }
+      featureSwitch.disable(Feature.RejectedGoods)
 
-      "display the page on a new journey" in forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
-        val journey = RejectedGoodsSingleJourney
-          .empty(exampleEori)
-          .submitMethodOfDisposal(methodOfDisposal)
+      status(performAction()) shouldBe NOT_FOUND
+    }
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+    "display the page" when {
+      def performAction(): Future[Result] =
+        controller.show()(FakeRequest())
 
+      "the user has not answered this question before" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(session)
         }
 
         checkPageIsDisplayed(
@@ -102,20 +99,38 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     }
 
-    "submit enter rejected goods details page" must {
+    "handle submit requests" must {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "reject empty details" in forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
-        val journey = RejectedGoodsSingleJourney
-          .empty(exampleEori)
-          .submitMethodOfDisposal(methodOfDisposal)
-
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+      "the user has entered some details" in {
+        val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
+        val updatedJourney = journey.submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
+        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(controller.formKey -> exampleRejectedGoodsDetails),
+          routes.SelectTaxCodesController.show()
+        )
+      }
+
+    }
+
+    "show an error summary" when {
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "the user submits empty details" in {
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
         }
 
         checkPageIsDisplayed(
@@ -127,6 +142,51 @@ class EnterRejectedGoodsDetailsControllerSpec
             ),
           expectedStatus = BAD_REQUEST
         )
+      }
+
+      "the user submits more than 500 characters" in {
+
+        val answer = List.fill(600)('c').mkString(" ")
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(controller.formKey -> answer),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$messagesKey.error.maxLength"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+    }
+  }
+
+  "Form Validation" must {
+    val form     = enterRejectedGoodsDetailsForm
+    val goodData = Map(
+      messagesKey -> "A box of biscuits"
+    )
+
+    "accept rejected goods details" in {
+      val errors = form.bind(goodData).errors
+      errors shouldBe Nil
+    }
+
+    "rejected goods details" should {
+
+      "Accept longest possible details" in {
+        val errors = form.bind(goodData.updated(messagesKey, List.fill(500)("a").mkString(""))).errors
+        errors shouldBe Nil
+      }
+      "Reject details when it's too long" in {
+        val errors = form.bind(goodData.updated(messagesKey, List.fill(501)("a").mkString(""))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
   }
