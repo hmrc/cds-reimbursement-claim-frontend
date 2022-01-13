@@ -477,6 +477,15 @@ select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circum
 select-basis-for-claim.rejected-goods.error.required=Select the basis for claim.
 
 #===================================================
+#  ENTER REJECTED GOODS DETAILS PAGE
+#===================================================
+enter-special-circumstances.rejected-goods.title=Enter any special circumstances
+enter-special-circumstances.rejected-goods.label=Enter any special circumstances
+enter-special-circumstances.rejected-goods.hint=Describe any special circumstances about your claim.
+enter-special-circumstances.rejected-goods.error.required=Enter special circumstances
+enter-special-circumstances.rejected-goods.error.maxLength=Special circumstances must be 500 characters or fewer
+
+#===================================================
 #  SELECT METHOD OF DISPOSAL PAGE
 #===================================================
 select-method-of-disposal.rejected-goods.title=Choose what you intend to do with the goods
