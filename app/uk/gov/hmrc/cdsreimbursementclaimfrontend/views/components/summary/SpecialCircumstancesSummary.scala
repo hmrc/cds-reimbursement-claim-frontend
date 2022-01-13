@@ -17,20 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
+import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import play.api.mvc.Call
 
-object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMethodAnswer] {
+object SpecialCircumstancesSummary extends AnswerSummary[String] {
 
-  override def render(
-    answer: ReimbursementMethodAnswer,
-    key: String,
-    subKey: Option[String],
-    changeCallOpt: Option[Call]
-  )(implicit
+  override def render(answer: String, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
     messages: Messages
   ): SummaryList = {
     val label = messages(s"$key.label")
@@ -39,7 +32,7 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
       List(
         SummaryListRow(
           key = Key(Text(label)),
-          value = Value(Text(messages(answerKey(key, answer)))),
+          value = Value(Text(answer)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
@@ -54,10 +47,5 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
         )
       )
     )
-  }
-
-  def answerKey(key: String, answer: ReimbursementMethodAnswer): String = answer match {
-    case CurrentMonthAdjustment => s"$key.cma"
-    case BankAccountTransfer    => s"$key.bt"
   }
 }

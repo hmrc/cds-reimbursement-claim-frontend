@@ -65,55 +65,6 @@ final class RejectedGoodsSingleJourney private (
 
   val ZERO: BigDecimal = BigDecimal("0")
 
-  def getContactDetails(retrievedUser: RetrievedUserType): Option[MrnContactDetails] = (
-    answers.contactDetails,
-    answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
-    answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
-    retrievedUser
-  ) match {
-    case (details @ Some(_), _, _, _)                                                                           =>
-      details
-    case (_, Some(consigneeContactDetails), _, _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
-      Some(
-        MrnContactDetails(
-          consigneeContactDetails.contactName.getOrElse(""),
-          Email(consigneeContactDetails.emailAddress.getOrElse("")),
-          consigneeContactDetails.telephone.map(PhoneNumber(_))
-        )
-      )
-    case (_, None, _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)     =>
-      Some(
-        MrnContactDetails(
-          individual.name.map(_.toFullName).getOrElse(""),
-          individual.email.getOrElse(Email("")),
-          None
-        )
-      )
-    case (_, _, Some(declarantContactDetails), _)                                                               =>
-      Some(
-        MrnContactDetails(
-          declarantContactDetails.contactName.getOrElse(""),
-          Email(declarantContactDetails.emailAddress.getOrElse("")),
-          declarantContactDetails.telephone.map(PhoneNumber(_))
-        )
-      )
-    case _                                                                                                      => None
-  }
-
-  def getAddressDetails: Option[ContactAddress] = (
-    answers.contactAddress,
-    answers.displayDeclaration.flatMap(_.getConsigneeDetails),
-    answers.displayDeclaration.map(_.getDeclarantDetails)
-  ) match {
-    case (contactAddress @ Some(_), _, _)                                                                =>
-      contactAddress
-    case (None, Some(consigneeDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
-      Some(consigneeDetails.establishmentAddress.toContactAddress)
-    case (None, _, Some(declarantDetails))                                                               =>
-      Some(declarantDetails.establishmentAddress.toContactAddress)
-    case _                                                                                               => None
-  }
-
   /** Check if the journey is ready to finalize, i.e. to get the output. */
   def hasCompleteAnswers: Boolean =
     RejectedGoodsSingleJourney.validator.apply(this).isValid
@@ -192,6 +143,70 @@ final class RejectedGoodsSingleJourney private (
     case ClaimantType.Consignee => getConsigneeEoriFromACC14.getOrElse(answers.userEoriNumber)
     case ClaimantType.Declarant => getDeclarantEoriFromACC14.getOrElse(answers.userEoriNumber)
     case ClaimantType.User      => answers.userEoriNumber
+  }
+
+  def getClaimantInformation: Option[ClaimantInformation] =
+    for {
+      contactDetails <- answers.contactDetails
+      contactAddress <- answers.contactAddress
+    } yield ClaimantInformation.from(
+      getClaimantEori,
+      getClaimantType match {
+        case ClaimantType.Consignee => answers.displayDeclaration.flatMap(_.getConsigneeDetails)
+        case ClaimantType.Declarant => answers.displayDeclaration.map(_.getDeclarantDetails)
+        case ClaimantType.User      => answers.displayDeclaration.map(_.getDeclarantDetails)
+      },
+      contactDetails,
+      contactAddress
+    )
+
+  def computeContactDetails(retrievedUser: RetrievedUserType): Option[MrnContactDetails] = (
+    answers.contactDetails,
+    answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
+    answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
+    retrievedUser
+  ) match {
+    case (details @ Some(_), _, _, _)                                                                           =>
+      details
+    case (_, Some(consigneeContactDetails), _, _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+      Some(
+        MrnContactDetails(
+          consigneeContactDetails.contactName.getOrElse(""),
+          Email(consigneeContactDetails.emailAddress.getOrElse("")),
+          consigneeContactDetails.telephone.map(PhoneNumber(_))
+        )
+      )
+    case (_, None, _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)     =>
+      Some(
+        MrnContactDetails(
+          individual.name.map(_.toFullName).getOrElse(""),
+          individual.email.getOrElse(Email("")),
+          None
+        )
+      )
+    case (_, _, Some(declarantContactDetails), _)                                                               =>
+      Some(
+        MrnContactDetails(
+          declarantContactDetails.contactName.getOrElse(""),
+          Email(declarantContactDetails.emailAddress.getOrElse("")),
+          declarantContactDetails.telephone.map(PhoneNumber(_))
+        )
+      )
+    case _                                                                                                      => None
+  }
+
+  def computeAddressDetails: Option[ContactAddress] = (
+    answers.contactAddress,
+    answers.displayDeclaration.flatMap(_.getConsigneeDetails),
+    answers.displayDeclaration.map(_.getDeclarantDetails)
+  ) match {
+    case (contactAddress @ Some(_), _, _)                                                                =>
+      contactAddress
+    case (None, Some(consigneeDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+      Some(consigneeDetails.establishmentAddress.toContactAddress)
+    case (None, _, Some(declarantDetails))                                                               =>
+      Some(declarantDetails.establishmentAddress.toContactAddress)
+    case _                                                                                               => None
   }
 
   def isFinalized: Boolean = caseNumber.isDefined
@@ -495,58 +510,35 @@ final class RejectedGoodsSingleJourney private (
       .apply(this)
       .toEither
       .flatMap(_ =>
-        answers match {
-          case RejectedGoodsSingleJourney.Answers(
-                _,
-                Some(mrn),
-                _,
-                _,
-                _,
-                Some(contactDetails),
-                Some(contactAddress),
-                Some(basisOfClaim),
-                basisOfClaimSpecialCircumstances,
-                Some(methodOfDisposal),
-                Some(detailsOfRejectedGoods),
-                _,
-                Some(inspectionDate),
-                Some(inspectionAddress),
-                bankAccountDetails,
-                _,
-                reimbursementMethod,
-                Some(supportingEvidences)
-              ) =>
-            Right(
-              RejectedGoodsSingleJourney.Output(
-                movementReferenceNumber = mrn,
-                claimantType = getClaimantType,
-                claimantInformation = ClaimantInformation
-                  .from(
-                    getClaimantEori,
-                    getClaimantType match {
-                      case ClaimantType.Consignee => answers.displayDeclaration.flatMap(_.getConsigneeDetails)
-                      case ClaimantType.Declarant => answers.displayDeclaration.map(_.getDeclarantDetails)
-                      case ClaimantType.User      => answers.displayDeclaration.map(_.getDeclarantDetails)
-                    },
-                    contactDetails,
-                    contactAddress
-                  ),
-                basisOfClaim = basisOfClaim,
-                methodOfDisposal = methodOfDisposal,
-                detailsOfRejectedGoods = detailsOfRejectedGoods,
-                inspectionDate = inspectionDate,
-                inspectionAddress = inspectionAddress,
-                reimbursementClaims = getReimbursementClaims,
-                supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
-                basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
-                reimbursementMethod = reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
-                bankAccountDetails = bankAccountDetails
-              )
-            )
-          case _ =>
-            Left(List("Unfortunately could not produce the output, please check if all answers are complete."))
-        }
+        (for {
+          mrn                    <- answers.movementReferenceNumber
+          basisOfClaim           <- answers.basisOfClaim
+          methodOfDisposal       <- answers.methodOfDisposal
+          detailsOfRejectedGoods <- answers.detailsOfRejectedGoods
+          inspectionDate         <- answers.inspectionDate
+          inspectionAddress      <- answers.inspectionAddress
+          supportingEvidences    <- answers.supportingEvidences
+          claimantInformation    <- getClaimantInformation
+        } yield RejectedGoodsSingleJourney.Output(
+          movementReferenceNumber = mrn,
+          claimantType = getClaimantType,
+          claimantInformation = claimantInformation,
+          basisOfClaim = basisOfClaim,
+          methodOfDisposal = methodOfDisposal,
+          detailsOfRejectedGoods = detailsOfRejectedGoods,
+          inspectionDate = inspectionDate,
+          inspectionAddress = inspectionAddress,
+          reimbursementClaims = getReimbursementClaims,
+          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
+          basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
+          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
+          bankAccountDetails = answers.bankAccountDetails
+        )).toRight(
+          List("Unfortunately could not produce the output, please check if all answers are complete.")
+        )
       )
+
+  def prettyPrint: String = Json.prettyPrint(Json.toJson(this))
 
 }
 

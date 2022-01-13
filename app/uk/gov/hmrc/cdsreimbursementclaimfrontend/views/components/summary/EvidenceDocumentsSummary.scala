@@ -17,36 +17,49 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
+import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 
-object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMethodAnswer] {
+object EvidenceDocumentsSummary extends AnswerSummary[Seq[EvidenceDocument]] {
 
   override def render(
-    answer: ReimbursementMethodAnswer,
+    answers: Seq[EvidenceDocument],
     key: String,
     subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
-  ): SummaryList = {
-    val label = messages(s"$key.label")
-
+  ): SummaryList =
     SummaryList(
-      List(
+      Seq(
         SummaryListRow(
-          key = Key(Text(label)),
-          value = Value(Text(messages(answerKey(key, answer)))),
+          key = Key(Text(messages(s"$key.label"))),
+          value = Value(
+            HtmlContent(
+              answers
+                .map(document =>
+                  Paragraph(
+                    document.fileName,
+                    messages(s"$supportingEvidenceKey.choose-document-type.document-type.${document.documentType}")
+                  ).toString
+                )
+                .toList
+                .mkString("")
+            )
+          ),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(label)
+                  visuallyHiddenText = Some(messages(s"$key.label"))
                 )
               )
             )
@@ -54,10 +67,4 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
         )
       )
     )
-  }
-
-  def answerKey(key: String, answer: ReimbursementMethodAnswer): String = answer match {
-    case CurrentMonthAdjustment => s"$key.cma"
-    case BankAccountTransfer    => s"$key.bt"
-  }
 }

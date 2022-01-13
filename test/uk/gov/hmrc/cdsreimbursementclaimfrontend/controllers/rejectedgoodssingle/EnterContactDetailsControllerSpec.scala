@@ -108,7 +108,7 @@ class EnterContactDetailsControllerSpec
       "display the page" in {
         forAll(buildCompleteJourneyGen(), genEmail, genName, individualGen) { (journey, email, name, individual) =>
           mockCompleteJourney(journey, email, name)
-          val contactDetails = journey.getContactDetails(individual)
+          val contactDetails = journey.computeContactDetails(individual)
 
           checkPageIsDisplayed(
             performAction(),

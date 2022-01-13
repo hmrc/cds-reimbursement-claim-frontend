@@ -17,36 +17,33 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
+import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import play.api.mvc.Call
 
-object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMethodAnswer] {
+object DisposalMethodSummary extends AnswerSummary[MethodOfDisposal] {
 
   override def render(
-    answer: ReimbursementMethodAnswer,
+    answer: MethodOfDisposal,
     key: String,
     subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
-  ): SummaryList = {
-    val label = messages(s"$key.label")
-
+  ): SummaryList =
     SummaryList(
-      List(
+      Seq(
         SummaryListRow(
-          key = Key(Text(label)),
-          value = Value(Text(messages(answerKey(key, answer)))),
+          key = Key(Text(messages(s"$key.l0"))),
+          value = Value(Text(messages(s"select-method-of-disposal.rejected-goods.method.$answer"))),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(label)
+                  visuallyHiddenText = Some(messages(s"$key.l0"))
                 )
               )
             )
@@ -54,10 +51,4 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
         )
       )
     )
-  }
-
-  def answerKey(key: String, answer: ReimbursementMethodAnswer): String = answer match {
-    case CurrentMonthAdjustment => s"$key.cma"
-    case BankAccountTransfer    => s"$key.bt"
-  }
 }

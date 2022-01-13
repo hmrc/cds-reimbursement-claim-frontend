@@ -26,10 +26,30 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 /** Comprehensive information about user filling out the claim. */
 final case class ClaimantInformation(
   eori: Eori,
-  fullName: Option[String],
+  fullName: String,
   establishmentAddress: ContactInformation,
   contactInformation: ContactInformation
-)
+) {
+
+  def summaryContact(sep: String): String = Seq(
+    Some(fullName),
+    contactInformation.emailAddress,
+    contactInformation.telephoneNumber
+  )
+    .collect { case Some(x) => x }
+    .mkString(sep)
+
+  def summaryAddress(sep: String): String =
+    Seq(
+      contactInformation.addressLine1,
+      contactInformation.addressLine2,
+      contactInformation.addressLine3,
+      contactInformation.postalCode,
+      contactInformation.countryCode
+    )
+      .collect { case Some(x) => x }
+      .mkString(sep)
+}
 
 object ClaimantInformation {
 
@@ -41,7 +61,7 @@ object ClaimantInformation {
   ): ClaimantInformation =
     ClaimantInformation(
       eori = claimantEoriNumber,
-      fullName = claimantDetails.map(_.legalName),
+      fullName = claimantDetails.map(_.legalName).getOrElse(""),
       establishmentAddress = ContactInformation(
         contactPerson = claimantDetails.map(_.legalName),
         addressLine1 = claimantDetails.map(_.establishmentAddress.addressLine1),

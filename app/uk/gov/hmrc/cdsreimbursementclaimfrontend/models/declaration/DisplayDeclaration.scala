@@ -24,6 +24,7 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -46,6 +47,9 @@ final case class DisplayDeclaration(
 
   def getNdrcDetailsFor(taxType: String): Option[NdrcDetails] =
     getNdrcDetailsList.flatMap(_.find(_.taxType === taxType))
+
+  def getAvailableTaxCodes: Seq[TaxCode] =
+    getNdrcDetailsList.map(_.map(d => TaxCode(d.taxType))).getOrElse(Seq.empty)
 
 }
 

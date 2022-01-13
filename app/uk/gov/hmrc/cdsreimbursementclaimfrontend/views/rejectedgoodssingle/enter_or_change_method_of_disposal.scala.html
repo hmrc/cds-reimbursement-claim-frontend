@@ -20,6 +20,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal._
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
@@ -39,7 +40,7 @@
 @title = @{messages(s"$key.title")}
 
 @radioItems = @{
-    MethodOfDisposal.values.map { methodOfDisposal: MethodOfDisposal =>
+    Seq(Export, PostalExport, DonationToCharity, PlacedInCustomsWarehouse, ExportInBaggage, Destruction).map { methodOfDisposal: MethodOfDisposal =>
         RadioItem(
             id = Some(s"$key-radio-$methodOfDisposal"),
             value = Some(methodOfDisposal.toString),
