@@ -24,7 +24,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfRejectedGoodsClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.DamagedBeforeClearance
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.Defective
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.NotInAccordanceWithContract
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -71,7 +76,15 @@ class BasisForClaimController @Inject() (
           ),
         basisOfClaim =>
           Future.successful(
-            (journey.submitBasisOfClaim(basisOfClaim), Redirect(routes.DisposalMethodController.show()))
+            (
+              journey.submitBasisOfClaim(basisOfClaim),
+              Redirect(basisOfClaim match {
+                case SpecialCircumstances        => routes.EnterSpecialCircumstancesController.show()
+                case DamagedBeforeClearance      => routes.DisposalMethodController.show()
+                case Defective                   => routes.DisposalMethodController.show()
+                case NotInAccordanceWithContract => routes.DisposalMethodController.show()
+              })
+            )
           )
       )
   }

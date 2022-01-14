@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -35,9 +36,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialCircumstancesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 
 import scala.concurrent.Future
 
@@ -103,9 +107,10 @@ class EnterSpecialCircumstancesControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "the user has entered some details" in {
+      "the user has entered details for the first time" in {
         val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
         val updatedJourney = journey
+          .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
           .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
           .getOrElse(fail("unable to get special circumstances"))
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -118,7 +123,7 @@ class EnterSpecialCircumstancesControllerSpec
 
         checkIsRedirect(
           performAction(controller.formKey -> exampleSpecialCircumstancesDetails),
-          routes.DisposalMethodController.show() 
+          routes.DisposalMethodController.show()
         )
       }
 
