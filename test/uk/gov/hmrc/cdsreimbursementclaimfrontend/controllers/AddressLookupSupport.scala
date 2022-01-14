@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import cats.data.EitherT
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -38,9 +38,9 @@ trait AddressLookupSupport { this: MockFactory =>
     eitherErrorOrUrl: Either[Error, URL]
   )(implicit
     ec: ExecutionContext
-  ): CallHandler2[AddressLookupRequest, HeaderCarrier, EitherT[Future, Error, URL]] =
+  ): CallHandler2[Call, HeaderCarrier, EitherT[Future, Error, URL]] =
     (addressLookupServiceMock
-      .initiate(_: AddressLookupRequest)(_: HeaderCarrier))
+      .startLookupRedirectingBackTo(_: Call)(_: HeaderCarrier))
       .expects(*, *)
       .returning(EitherT.fromEither[Future](eitherErrorOrUrl))
 

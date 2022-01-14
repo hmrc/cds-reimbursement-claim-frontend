@@ -18,12 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
+import com.typesafe.config.ConfigFactory
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.Configuration
 import play.api.http.Status.ACCEPTED
 import play.api.libs.json.JsError
 import play.api.libs.json.JsPath
@@ -31,6 +33,8 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsonValidationError
 import play.api.test.Helpers.LOCATION
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -40,6 +44,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,7 +62,26 @@ class AddressLookupServiceSpec
 
   val addressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
 
-  val addressLookupService = new DefaultAddressLookupService(addressLookupConnector)
+  private val config = Configuration(
+    ConfigFactory.parseString(
+      """
+        |microservice {
+        |  services {
+        |    address-lookup-frontend {
+        |      max-addresses-to-show = 15
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+    )
+  )
+
+  val servicesConfig = new ServicesConfig(config)
+
+  implicit val viewConfig: ViewConfig = new ViewConfig(config, servicesConfig)
+
+  val addressLookupService =
+    new DefaultAddressLookupService(addressLookupConnector, new AddressLookupConfig(servicesConfig))
 
   def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(
     response: Either[Error, HttpResponse]
@@ -86,7 +111,7 @@ class AddressLookupServiceSpec
           Right(HttpResponse(ACCEPTED, Json.obj(), headers = Map(LOCATION -> Seq(locationUrl.toString))))
         )
 
-        val response = await(addressLookupService.initiate(request).value)
+        val response = await(addressLookupService.startLookupRedirectingBackTo(request).value)
         response.isLeft should be(false)
       }
 
@@ -97,7 +122,7 @@ class AddressLookupServiceSpec
           Right(HttpResponse(INTERNAL_SERVER_ERROR, Json.obj().toString()))
         )
 
-        await(addressLookupService.initiate(request).value).left.value should be(
+        await(addressLookupService.startLookupRedirectingBackTo(request).value).left.value should be(
           Error("Request was not accepted by the address lookup service")
         )
       }
@@ -109,7 +134,7 @@ class AddressLookupServiceSpec
           Right(HttpResponse(ACCEPTED, Json.obj().toString()))
         )
 
-        await(addressLookupService.initiate(request).value).left.value should be(
+        await(addressLookupService.startLookupRedirectingBackTo(request).value).left.value should be(
           Error("Could not resolve address lookup redirect URL")
         )
       }
