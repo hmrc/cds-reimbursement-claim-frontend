@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import org.scalatest.BeforeAndAfterEach
@@ -26,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 
 class EnterSpecialCircumstancesControllerSpec
-  extends ControllerSpec
+    extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -83,13 +99,15 @@ class EnterSpecialCircumstancesControllerSpec
 
     }
 
-    "handle submit requests" must {
+    "handle submit requests" when {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user has entered some details" in {
         val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val updatedJourney = journey.submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
+        val updatedJourney = journey
+          .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
+          .getOrElse(fail("unable to get special circumstances"))
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
@@ -100,7 +118,7 @@ class EnterSpecialCircumstancesControllerSpec
 
         checkIsRedirect(
           performAction(controller.formKey -> exampleSpecialCircumstancesDetails),
-          routes.SelectTaxCodesController.show() //FIXME
+          routes.DisposalMethodController.show() 
         )
       }
 
@@ -176,4 +194,3 @@ class EnterSpecialCircumstancesControllerSpec
   }
 
 }
-

@@ -24,6 +24,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialCircumstancesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
 import scala.concurrent.ExecutionContext
@@ -64,8 +65,15 @@ class EnterSpecialCircumstancesController @Inject() (
             ),
           specialCircumstances =>
             (
-              journey.submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstances),
-              Redirect(routes.SelectTaxCodesController.show()) //FIXME
+              journey
+                .submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstances)
+                .fold(
+                  errors => {
+                    logger.error(s"unable to match basis of claim - $errors")
+                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  },
+                  updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show()))
+                )
             )
         )
     )
