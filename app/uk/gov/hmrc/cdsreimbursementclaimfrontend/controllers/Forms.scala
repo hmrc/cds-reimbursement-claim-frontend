@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Form
+import play.api.data.{Forms => dataForms}
 import play.api.data.Forms.seq
 import play.api.data.Forms.list
 import play.api.data.Forms.mapping
@@ -35,6 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumb
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.bigDecimalFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 
 object Forms {
   def eoriNumberForm(key: String): Form[Eori] = Form(
@@ -120,4 +123,16 @@ object Forms {
     )
   }
 
+  def claimAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
+    Form(
+      mapping(
+        s"$key.claim-amount" -> moneyMapping(
+          precision = 13,
+          scale = 2,
+          errorMsg = s"error.invalid-text",
+          allowZero = false,
+          zeroErrorMsg = Some(s"error.zero")
+        ).verifying("error.invalid-amount", amount => amount >= 0 && amount < paidAmount)
+      )(aaa => aaa)(aaa => Some(aaa))
+    )
 }
