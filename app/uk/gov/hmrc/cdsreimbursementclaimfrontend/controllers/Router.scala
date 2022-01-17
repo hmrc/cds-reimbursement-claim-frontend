@@ -103,7 +103,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
-    else claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
+    else claimRoutes.CheckContactDetailsMrnController.startAddressLookup(journeyBindable)
 
   def nextPageForSelectBankAccountType(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)

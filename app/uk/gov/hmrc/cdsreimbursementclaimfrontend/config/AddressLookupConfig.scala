@@ -29,12 +29,14 @@ class AddressLookupConfig @Inject() (config: ServicesConfig) {
 
   lazy val serviceUrl: URL = new URL(config.baseUrl(serviceName))
 
-  lazy val startLookupUrl: URL = combineUrl("init-endpoint")
+  lazy val addressesShowLimit: Int = config.getInt(s"microservice.services.$serviceName.max-addresses-to-show")
 
-  lazy val retrieveAddressUrl: URL = combineUrl("address-retrieve-endpoint")
+  lazy val startLookupUrl: URL = LookupAddressUrl("init-endpoint")
 
-  private def combineUrl(pathConfigKey: String): URL =
-    new URL(s"$serviceUrl${config.getString(s"microservice.services.$serviceName.$pathConfigKey")}")
+  lazy val retrieveAddressUrl: URL = LookupAddressUrl("address-retrieve-endpoint")
 
-  lazy val maxAddressesToShow: Int = config.getInt(s"microservice.services.$serviceName.max-addresses-to-show")
+  object LookupAddressUrl {
+    def apply(pathConfigKey: String): URL =
+      new URL(s"$serviceUrl${config.getString(s"microservice.services.$serviceName.$pathConfigKey")}")
+  }
 }

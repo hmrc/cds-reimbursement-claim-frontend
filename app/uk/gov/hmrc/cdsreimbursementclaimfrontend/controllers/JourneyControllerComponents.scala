@@ -37,7 +37,7 @@ import play.api.mvc.MessagesRequest
 
 @Singleton
 class JourneyControllerComponents @Inject() (
-  authenticatedAction: AuthenticatedAction,
+  val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
   sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
@@ -83,5 +83,4 @@ class JourneyControllerComponents @Inject() (
           .andThen(sessionDataActionWithRetrievedData)
 
     }
-
 }

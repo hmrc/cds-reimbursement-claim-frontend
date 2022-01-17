@@ -34,8 +34,8 @@ POST        /:journey/claimant-details/change-contact-details       uk.gov.hmrc.
 GET         /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/change-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.changeAddress(journey: JourneyBindable)
-GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.updateAddress(journey: JourneyBindable, id: Option[java.util.UUID] ?= None)
+GET         /:journey/claimant-details/lookup-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.startAddressLookup(journey: JourneyBindable)
+GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.updateAddress(journey: JourneyBindable, id: Option[UUID] ?= None)
 
 GET         /:journey/claimant-details/problem-with-address         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ProblemWithAddressController.problem(journey: JourneyBindable)
 
@@ -75,8 +75,8 @@ GET         /single/select-duties                                   uk.gov.hmrc.
 POST        /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
 
 GET         /single/start-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.startClaim()
-GET         /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaim(id : java.util.UUID)
-POST        /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaimSubmit(id: java.util.UUID)
+GET         /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaim(id: UUID)
+POST        /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaimSubmit(id: UUID)
 GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummary()
 POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummarySubmit()
 

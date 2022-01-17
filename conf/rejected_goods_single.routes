@@ -11,6 +11,8 @@ GET          /rejected-goods/single/check-declaration-details                   
 POST         /rejected-goods/single/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckDeclarationDetailsController.submit()
 
 GET          /rejected-goods/single/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.show()
+GET          /rejected-goods/single/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.startAddressLookup()
+GET          /rejected-goods/single/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.updateAddress(id: Option[UUID] ?= None)
 
 GET          /rejected-goods/single/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterContactDetailsController.show()
 POST         /rejected-goods/single/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterContactDetailsController.submit()
@@ -33,4 +35,3 @@ POST         /rejected-goods/single/select-duties                               
 GET          /rejected-goods/single/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.show()
 POST         /rejected-goods/single/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.submit()
 GET          /rejected-goods/single/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.showConfirmation()
-
