@@ -108,9 +108,10 @@ class EnterSpecialCircumstancesControllerSpec
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user has entered details for the first time" in {
-        val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val updatedJourney = journey
+        val journey        = RejectedGoodsSingleJourney.empty(exampleEori)
           .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+        val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedJourney = journey
           .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
           .getOrElse(fail("unable to get special circumstances"))
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
