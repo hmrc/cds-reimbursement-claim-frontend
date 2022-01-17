@@ -310,8 +310,7 @@ final class RejectedGoodsSingleJourney private (
               answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
             )
           )
-
-        case _ => Left("basisOfClaim.not_matching")
+        case _                                                    => Left("basisOfClaim.not_matching")
       }
     }
 

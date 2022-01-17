@@ -51,6 +51,10 @@ object Forms {
     )(BasisOfRejectedGoodsClaim.findUnsafe)(borgc => Option(borgc.toString))
   )
 
+  val enterSpecialCircumstancesForm: Form[String] = Form(
+    "enter-special-circumstances.rejected-goods" -> nonEmptyText(maxLength = 500)
+  )
+
   val mrnContactDetailsForm: Form[MrnContactDetails] = Form(
     mapping(
       "enter-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
