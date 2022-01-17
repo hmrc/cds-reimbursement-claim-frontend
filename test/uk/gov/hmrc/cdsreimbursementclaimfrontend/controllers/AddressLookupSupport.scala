@@ -34,7 +34,7 @@ trait AddressLookupSupport { this: MockFactory =>
 
   val addressLookupServiceMock: AddressLookupService = mock[AddressLookupService]
 
-  def mockAddressLookupInitiation(
+  def mockAddressLookup(
     eitherErrorOrUrl: Either[Error, URL]
   )(implicit
     ec: ExecutionContext

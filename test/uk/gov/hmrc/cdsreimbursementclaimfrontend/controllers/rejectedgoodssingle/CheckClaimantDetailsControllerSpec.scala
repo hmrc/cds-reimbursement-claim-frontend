@@ -32,18 +32,28 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
+import java.util.UUID
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
 
 class CheckClaimantDetailsControllerSpec
@@ -51,19 +61,23 @@ class CheckClaimantDetailsControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
+    with AddressLookupSupport
     with ScalaCheckPropertyChecks
     with RejectedGoodsSingleJourneyTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
 
   val controller: CheckClaimantDetailsController = instanceOf[CheckClaimantDetailsController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
+
+  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
@@ -131,5 +145,61 @@ class CheckClaimantDetailsControllerSpec
         }
       }
     }
+  }
+
+  "The address lookup" should {
+
+    "start successfully" in forAll(genUrl) { lookupUrl =>
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockAddressLookup(Right(lookupUrl))
+      }
+
+      checkIsRedirect(startAddressLookup(), lookupUrl.toString)
+    }
+
+    "fail to start if error response received from downstream ALF service" in {
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockAddressLookup(Left(Error("Request was not accepted")))
+      }
+
+      checkIsTechnicalErrorPage(startAddressLookup())
+    }
+
+    "update an address once complete" in forAll(genContactAddress) { address =>
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+        mockAddressRetrieve(Right(address))
+        mockStoreSession(Right(()))
+      }
+
+      checkIsRedirect(
+        updateAddress(Some(UUID.randomUUID())),
+        routes.CheckClaimantDetailsController.show()
+      )
+    }
+
+    "fail to update address once bad address lookup ID provided" in {
+      val addressId = UUID.randomUUID()
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+        mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
+      }
+
+      checkIsRedirect(
+        updateAddress(Some(addressId)),
+        baseRoutes.IneligibleController.ineligible()
+      )
+    }
+
+    def startAddressLookup(): Future[Result] =
+      controller.startAddressLookup(FakeRequest())
+
+    def updateAddress(maybeAddressId: Option[UUID]): Future[Result] =
+      controller.updateAddress(maybeAddressId)(FakeRequest())
   }
 }
