@@ -289,21 +289,7 @@ final class RejectedGoodsSingleJourney private (
         case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
           new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
 
-        case BasisOfRejectedGoodsClaim.DamagedBeforeClearance      =>
-          new RejectedGoodsSingleJourney(
-            answers.copy(
-              basisOfClaim = Some(basisOfClaim),
-              basisOfClaimSpecialCircumstances = None
-            )
-          )
-        case BasisOfRejectedGoodsClaim.Defective                   =>
-          new RejectedGoodsSingleJourney(
-            answers.copy(
-              basisOfClaim = Some(basisOfClaim),
-              basisOfClaimSpecialCircumstances = None
-            )
-          )
-        case BasisOfRejectedGoodsClaim.NotInAccordanceWithContract =>
+        case _ =>
           new RejectedGoodsSingleJourney(
             answers.copy(
               basisOfClaim = Some(basisOfClaim),
@@ -315,25 +301,18 @@ final class RejectedGoodsSingleJourney private (
 
   def submitBasisOfClaimSpecialCircumstancesDetails(
     basisOfClaimSpecialCircumstancesDetails: String
-  ): Either[String, RejectedGoodsSingleJourney] = {
-    println(
-      "$$$$$$$$$$$$$$$$" + basisOfClaimSpecialCircumstancesDetails + "$$$$$$$$$$$$$$$" + answers.basisOfClaim.toString
-    )
+  ): Either[String, RejectedGoodsSingleJourney] =
     whileJourneyIsAmendable {
       answers.basisOfClaim match {
-        case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances)        =>
+        case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
           Right(
             new RejectedGoodsSingleJourney(
               answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
             )
           )
-        case Some(BasisOfRejectedGoodsClaim.DamagedBeforeClearance)      => Left("basisOfClaim.not_matching")
-        case Some(BasisOfRejectedGoodsClaim.Defective)                   => Left("basisOfClaim.not_matching")
-        case Some(BasisOfRejectedGoodsClaim.NotInAccordanceWithContract) => Left("basisOfClaim.not_matching")
-        case None                                                        => Left("basisOfClaim.none")
+        case _                                                    => Left("basisOfClaim.not_matching")
       }
     }
-  }
 
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {

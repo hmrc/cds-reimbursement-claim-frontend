@@ -477,7 +477,7 @@ select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circum
 select-basis-for-claim.rejected-goods.error.required=Select the basis for claim.
 
 #===================================================
-#  ENTER REJECTED GOODS DETAILS PAGE
+#  ENTER SPECIAL CIRCUMSTANCES DETAILS PAGE
 #===================================================
 enter-special-circumstances.rejected-goods.title=Enter any special circumstances
 enter-special-circumstances.rejected-goods.label=Enter any special circumstances

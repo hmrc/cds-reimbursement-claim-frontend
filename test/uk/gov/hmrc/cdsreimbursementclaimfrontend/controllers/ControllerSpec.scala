@@ -211,12 +211,18 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def isCheckboxChecked(document: Document, fieldValue: String): Boolean =
     document.select(s"""input[value="$fieldValue"] """).hasAttr("checked")
 
+  import cats.instances.int._
+  import cats.syntax.eq._
+
   def selectedRadioValue(doc: Document): Option[String] = {
-    import cats.instances.int._
-    import cats.syntax.eq._
     val radioItems = doc.select("div.govuk-radios input[checked]")
     if (radioItems.size() =!= 0) Some(radioItems.`val`())
     else None
+  }
+
+  def selectedTextArea(doc: Document): Option[String] = {
+    val textArea = doc.select("textarea.govuk-textarea")
+    if (textArea.size() =!= 0) Some(textArea.`val`()) else None
   }
 
 }

@@ -104,6 +104,9 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
   val completeJourneyGenWithoutSpecialCircumstances =
     completeJourneyGen.suchThat(_.answers.basisOfClaimSpecialCircumstances.isEmpty)
 
+  val completeJourneyGenWithSpecialCircumstances =
+    completeJourneyGen.suchThat(_.answers.basisOfClaimSpecialCircumstances.isDefined)
+
   implicit val bigDecimalChoose = new Gen.Choose[BigDecimal] {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
       Gen.choose(1, 10000).map(i => (min + (i * ((max - min) / 10000))).round(min.mc))
@@ -201,7 +204,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         mrn,
         displayDeclaration,
         basisOfClaim,
-        detailsOfRejectedGoods = exampleRejectedGoodsDetails,
+        "rejected goods details",
         "special circumstances details",
         exampleInspectionDate,
         exampleInspectionAddress,

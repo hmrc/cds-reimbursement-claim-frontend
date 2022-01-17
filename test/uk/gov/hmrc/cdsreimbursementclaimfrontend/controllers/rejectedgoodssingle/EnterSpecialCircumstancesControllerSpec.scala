@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -35,13 +34,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialCircumstancesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyGenWithSpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 
 import scala.concurrent.Future
 
@@ -101,16 +99,35 @@ class EnterSpecialCircumstancesControllerSpec
         )
       }
 
+      "display the page on a pre-existing journey" in forAll(completeJourneyGenWithSpecialCircumstances) { journey =>
+        whenever(journey.answers.basisOfClaimSpecialCircumstances.isDefined) {
+          val basisOFClaimSpecialCircumstances = journey.answers.basisOfClaimSpecialCircumstances.map(_.toString)
+          val updatedSession                   = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => selectedTextArea(doc) shouldBe basisOFClaimSpecialCircumstances
+          )
+        }
+      }
+
     }
 
     "handle submit requests" when {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "the user has entered details for the first time" in {
-        val journey        = RejectedGoodsSingleJourney.empty(exampleEori)
+      "the user enters details for the first time" in {
+        val journey        = RejectedGoodsSingleJourney
+          .empty(exampleEori)
           .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-        val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        val session        = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
         val updatedJourney = journey
           .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
           .getOrElse(fail("unable to get special circumstances"))
