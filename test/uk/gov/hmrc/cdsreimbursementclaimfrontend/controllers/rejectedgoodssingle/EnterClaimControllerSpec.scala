@@ -8,6 +8,7 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Cookie
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -18,13 +19,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class EnterClaimControllerSpec
     extends ControllerSpec
@@ -66,57 +71,69 @@ class EnterClaimControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page on a new journey" in forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-        val drd = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
-        val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
-        val taxCode = TaxCode(ndrcDetails.taxType)
-        val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-        val amountPaid = BigDecimal(ndrcDetails.amount)
-        val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitDisplayDeclaration(updatedDd).selectAndReplaceTaxCodeSetForReimbursement(Seq(taxCode)).right.get
-        val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+      "display the page on a new journey" in forAll {
+        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
+          val drd                = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+          val updatedDd          = displayDeclaration.copy(displayResponseDetail = drd)
+          val taxCode            = TaxCode(ndrcDetails.taxType)
+          val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
+          val amountPaid         = BigDecimal(ndrcDetails.amount)
+          val journey            = RejectedGoodsSingleJourney
+            .empty(exampleEori)
+            .submitDisplayDeclaration(updatedDd)
+            .selectAndReplaceTaxCodeSetForReimbursement(Seq(taxCode))
+            .right
+            .get
+          val session            = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          val result = performAction()
+
+          checkPageIsDisplayed(
+            result,
+            messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
+            doc => {
+              doc
+                .select("p.govuk-inset-text")
+                .text()                                                shouldBe messageFromMessageKey("enter-claim.rejected-goods.single.inset-text")
+              doc.select("form p").text()                              shouldBe messageFromMessageKey(
+                "enter-claim.rejected-goods.single.paid-amount-label",
+                amountPaid.toPoundSterlingString
+              )
+              doc.select("#enter-claim.rejected-goods.single").`val`() shouldBe ""
+              doc.select("form").attr("action")                        shouldBe routes.EnterClaimController.submit().url
+            }
+          )
+
+          cookies(result).get(controller.taxCodeCookieName).map(_.value) shouldBe Some(ndrcDetails.taxType)
+      }
+    }
+
+    "Submit Enter Claim  page" must {
+
+      def performAction(taxCode: String, data: (String, String)*): Future[Result] =
+        controller.submit()(
+          FakeRequest().withFormUrlEncodedBody(data: _*).withCookies(Cookie(controller.taxCodeCookieName, taxCode))
+        )
+
+      "do not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction("A95")) shouldBe NOT_FOUND
+      }
+
+      "reject an empty Claim Amount" in {
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
 
         checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
-          doc => {
-            doc
-              .select("p.govuk-inset-text")
-              .text()                                                shouldBe messageFromMessageKey("enter-claim.rejected-goods.single.inset-text")
-            doc.select("form p").text()                              shouldBe messageFromMessageKey(
-              "enter-claim.rejected-goods.single.paid-amount-label",
-              amountPaid.toPoundSterlingString
-            )
-            doc.select("#enter-claim.rejected-goods.single").`val`() shouldBe ""
-            doc.select("form").attr("action")                        shouldBe routes.EnterClaimController.submit().url
-          }
-        )
-      }
-    }
-
-    "Submit Enter Claim  page" must {
-
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
-      "reject an empty Claim Amount" in {
-//        inSequence {
-//          mockAuthWithNoRetrievals()
-//          mockGetSession(session)
-//        }
-
-        checkPageIsDisplayed(
-          performAction("enter-claim.rejected-goods.single.claim-amount" -> ""),
+          performAction("A00", "enter-claim.rejected-goods.single.claim-amount" -> ""),
           messageFromMessageKey("enter-claim.rejected-goods.single.title", "A00", "Customs Duty"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -127,13 +144,13 @@ class EnterClaimControllerSpec
       }
 
       "reject a Claim Amount of 0" in {
-        //        inSequence {
-        //          mockAuthWithNoRetrievals()
-        //          mockGetSession(session)
-        //        }
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
 
         checkPageIsDisplayed(
-          performAction("enter-claim.rejected-goods.single.claim-amount" -> "0"),
+          performAction("A00", "enter-claim.rejected-goods.single.claim-amount" -> "0"),
           messageFromMessageKey("enter-claim.rejected-goods.single.title", "A00", "Customs Duty"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -144,13 +161,13 @@ class EnterClaimControllerSpec
       }
 
       "reject a Claim Amount that is higher than the amount paid" in {
-        //        inSequence {
-        //          mockAuthWithNoRetrievals()
-        //          mockGetSession(session)
-        //        }
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
 
         checkPageIsDisplayed(
-          performAction("enter-claim.rejected-goods.single.claim-amount" -> "1111"),
+          performAction("A00", "enter-claim.rejected-goods.single.claim-amount" -> "1111"),
           messageFromMessageKey("enter-claim.rejected-goods.single.title", "A00", "Customs Duty"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -161,13 +178,13 @@ class EnterClaimControllerSpec
       }
 
       "reject a Claim Amount that contains invalid characters" in {
-        //        inSequence {
-        //          mockAuthWithNoRetrievals()
-        //          mockGetSession(session)
-        //        }
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
 
         checkPageIsDisplayed(
-          performAction("enter-claim.rejected-goods.single.claim-amount" -> "invalid"),
+          performAction("A00", "enter-claim.rejected-goods.single.claim-amount" -> "invalid"),
           messageFromMessageKey("enter-claim.rejected-goods.single.title", "A00", "Customs Duty"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(

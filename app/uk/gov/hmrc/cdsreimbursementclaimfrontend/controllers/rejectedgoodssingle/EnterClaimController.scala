@@ -20,6 +20,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Cookie
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -35,25 +36,61 @@ class EnterClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val key = "enter-claim.rejected-goods.single"
+  val key               = "enter-claim.rejected-goods.single"
+  val taxCodeCookieName = "taxCode"
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getNextTaxCodeToClaim match {
+    journey.getNextNdrcDetailsToClaim match {
       case Some(ndrcDetails) =>
         val amountPaid = BigDecimal(ndrcDetails.amount)
-        val form = Forms.claimAmountForm(ndrcDetails.taxType, amountPaid)
-        Future.successful(Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, routes.EnterClaimController.submit())))
+        val form       = Forms.claimAmountForm(ndrcDetails.taxType, amountPaid)
+        Future.successful(
+          Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, routes.EnterClaimController.submit()))
+            .withCookies(Cookie(taxCodeCookieName, ndrcDetails.taxType))
+        )
     }
   }
 
-  def submit(): Action[AnyContent] = Action { implicit request =>
-    val form = Forms.claimAmountForm(key, 100)
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          BadRequest(enterClaim(formWithErrors, TaxCode.A00, 100, routes.EnterClaimController.submit())),
-        data => Ok(s"We got this data - $data")
-      )
+  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    request.cookies.get(taxCodeCookieName) match {
+      case Some(Cookie(_, taxCode, _, _, _, _, _, _)) =>
+        journey.getNdrcDetailsFor(TaxCode(taxCode)) match {
+          case Some(ndrcDetails) =>
+            val form = Forms.claimAmountForm(key, BigDecimal(ndrcDetails.amount))
+            form
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
+                  Future.successful(
+                    (
+                      journey,
+                      BadRequest(
+                        enterClaim(
+                          formWithErrors,
+                          TaxCode(ndrcDetails.taxType),
+                          BigDecimal(ndrcDetails.amount),
+                          routes.EnterClaimController.submit()
+                        )
+                      )
+                    )
+                  ),
+                reimbursementAmount =>
+                  Future.successful(journey.submitAmountForReimbursement(TaxCode(taxCode), reimbursementAmount) match {
+                    case Right(updatedJourney) =>
+                      (
+                        updatedJourney,
+                        if (journey.allReimbursementAmountEntered)
+                          Redirect("total_reimbursement")
+                        else
+                          Redirect(routes.EnterClaimController.show())
+                      )
+                  })
+              )
+        }
+      case None                                       =>
+        Future.successful(
+          (journey, Redirect(routes.EnterClaimController.show()))
+        )
+    }
   }
 }

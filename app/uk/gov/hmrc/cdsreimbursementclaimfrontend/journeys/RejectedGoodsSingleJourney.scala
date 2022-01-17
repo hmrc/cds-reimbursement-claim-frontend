@@ -128,11 +128,19 @@ final class RejectedGoodsSingleJourney private (
       .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
       .getOrElse(Map.empty)
 
-  def getNextTaxCodeToClaim: Option[NdrcDetails] = {
+  def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
     answers.reimbursementClaims
-      .map(_.collect { case (taxCode, None) => taxCode })
-      .flatMap(_.flatMap(getNdrcDetailsFor(_)).headOption)
-  }
+      .map(_.collect { case (taxCode, None) =>
+        taxCode
+      })
+      .toList
+      .flatten
+      .map(getNdrcDetailsFor)
+      .flatten(Option.option2Iterable)
+      .headOption
+
+  def allReimbursementAmountEntered: Boolean =
+    answers.reimbursementClaims.map(_.values.exists(_.isDefined)).getOrElse(false)
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
