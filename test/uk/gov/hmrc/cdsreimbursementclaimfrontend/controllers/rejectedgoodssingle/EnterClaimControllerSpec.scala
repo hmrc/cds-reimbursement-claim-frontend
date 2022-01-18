@@ -132,6 +132,53 @@ class EnterClaimControllerSpec
 
           cookies(result).get(controller.taxCodeCookieName).map(_.value) shouldBe Some(ndrcDetails.taxType)
       }
+
+      "redirect to the total reimbursement page is all reimbursements have been specified" in forAll {
+        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
+          whenever(BigDecimal(ndrcDetails.amount) > 12) {
+            val drd           = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+            val updatedDd     = displayDeclaration.copy(displayResponseDetail = drd)
+            val taxCode       = TaxCode(ndrcDetails.taxType)
+            val amountClaimed = BigDecimal(ndrcDetails.amount) - 10
+            val journey       = RejectedGoodsSingleJourney
+              .empty(exampleEori)
+              .submitDisplayDeclaration(updatedDd)
+              .selectAndReplaceTaxCodeSetForReimbursement(List(taxCode))
+              .right
+              .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
+              .right
+              .get
+            val session       = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+            }
+
+            checkIsRedirect(
+              performAction(),
+              "total_reimbursement"
+            )
+          }
+      }
+
+      "redirect to the select tax codes page if none have been specified" in forAll {
+        (displayDeclaration: DisplayDeclaration) =>
+          val journey = RejectedGoodsSingleJourney
+            .empty(exampleEori)
+            .submitDisplayDeclaration(displayDeclaration)
+          val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.SelectTaxCodesController.show()
+          )
+      }
     }
 
     "Submit Enter Claim  page" must {

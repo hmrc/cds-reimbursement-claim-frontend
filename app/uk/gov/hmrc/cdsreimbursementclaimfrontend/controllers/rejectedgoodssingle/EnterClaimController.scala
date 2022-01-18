@@ -43,13 +43,15 @@ class EnterClaimController @Inject() (
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getNextNdrcDetailsToClaim match {
-      case Some(ndrcDetails) =>
+      case Some(ndrcDetails)                              =>
         val amountPaid = BigDecimal(ndrcDetails.amount)
         val form       = Forms.claimAmountForm(ndrcDetails.taxType, amountPaid)
         Future.successful(
           Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction))
             .withCookies(Cookie(taxCodeCookieName, ndrcDetails.taxType))
         )
+      case None if journey.hasCompleteReimbursementClaims => Redirect("total_reimbursement").asFuture
+      case None                                           => Redirect(routes.SelectTaxCodesController.show()).asFuture
     }
   }
 
