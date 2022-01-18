@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import magnolia.Magnolia.gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
 import java.time.Instant
 import java.time.LocalDateTime
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
@@ -29,8 +29,10 @@ import java.time.Instant
 import java.time.LocalDateTime
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+
 import java.time.LocalDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress

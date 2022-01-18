@@ -20,67 +20,63 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfRejectedGoodsClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialCircumstancesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class BasisForClaimController @Inject() (
+class EnterSpecialCircumstancesController @Inject() (
   val jcc: JourneyControllerComponents,
-  basisForClaimPage: pages.select_basis_for_claim
+  enterSpecialCircumstancesPage: pages.enter_special_circumstances
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val formKey: String = "select-basis-for-claim.rejected-goods"
+  val formKey: String          = "enter-special-circumstances.rejected-goods"
+  private val postAction: Call = routes.EnterSpecialCircumstancesController.submit()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
-      val form = journey.answers.basisOfClaim.toList.foldLeft(basisOfRejectedGoodsClaimForm)((form, basisOfClaim) =>
-        form.fill(basisOfClaim)
-      )
-      Ok(
-        basisForClaimPage(
-          form,
-          BasisOfRejectedGoodsClaim.values,
-          routes.BasisForClaimController.submit()
-        )
-      )
+      val form = enterSpecialCircumstancesForm.withDefault(journey.answers.basisOfClaimSpecialCircumstances)
+
+      Ok(enterSpecialCircumstancesPage(form, postAction))
     }
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    basisOfRejectedGoodsClaimForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          Future.successful(
+    Future.successful(
+      enterSpecialCircumstancesForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
             (
               journey,
               BadRequest(
-                basisForClaimPage(
+                enterSpecialCircumstancesPage(
                   formWithErrors,
-                  BasisOfRejectedGoodsClaim.values,
-                  routes.BasisForClaimController.submit()
+                  postAction
                 )
               )
-            )
-          ),
-        basisOfClaim =>
-          Future.successful(
+            ),
+          specialCircumstances =>
             (
-              journey.submitBasisOfClaim(basisOfClaim),
-              Redirect(basisOfClaim match {
-                case SpecialCircumstances => routes.EnterSpecialCircumstancesController.show()
-                case _                    => routes.DisposalMethodController.show()
-              })
+              journey
+                .submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstances)
+                .fold(
+                  errors => {
+                    logger.error(s"unable to match basis of claim - $errors")
+                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  },
+                  updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show()))
+                )
             )
-          )
-      )
+        )
+    )
   }
+
 }

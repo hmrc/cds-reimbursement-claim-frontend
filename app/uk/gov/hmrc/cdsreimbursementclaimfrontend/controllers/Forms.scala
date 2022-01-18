@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Form
-import play.api.data.{Forms => dataForms}
 import play.api.data.Forms.seq
 import play.api.data.Forms.list
 import play.api.data.Forms.mapping
@@ -28,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -37,8 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import play.api.data.Mapping
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.bigDecimalFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 
 object Forms {
@@ -54,6 +50,10 @@ object Forms {
       "select-basis-for-claim.rejected-goods" -> nonEmptyText
         .verifying("error.required", basis => basis.isEmpty || BasisOfRejectedGoodsClaim.has(basis))
     )(BasisOfRejectedGoodsClaim.findUnsafe)(borgc => Option(borgc.toString))
+  )
+
+  val enterSpecialCircumstancesForm: Form[String] = Form(
+    "enter-special-circumstances.rejected-goods" -> nonEmptyText(maxLength = 500)
   )
 
   val mrnContactDetailsForm: Form[MrnContactDetails] = Form(

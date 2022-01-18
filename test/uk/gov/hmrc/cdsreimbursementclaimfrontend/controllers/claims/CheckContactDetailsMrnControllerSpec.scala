@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.Functor
 import cats.Id
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -31,17 +30,17 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -57,6 +56,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddres
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaCharGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
@@ -75,8 +75,7 @@ class CheckContactDetailsMrnControllerSpec
     with AuthSupport
     with SessionSupport
     with AddressLookupSupport
-    with BeforeAndAfterEach
-    with TableDrivenPropertyChecks {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -85,20 +84,13 @@ class CheckContactDetailsMrnControllerSpec
       bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
 
-  val featureSwitch = instanceOf[FeatureSwitchService]
+  private val featureSwitch = instanceOf[FeatureSwitchService]
   featureSwitch.enable(Feature.NorthernIreland)
 
   val controller: CheckContactDetailsMrnController = instanceOf[CheckContactDetailsMrnController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private val journeys = Table(
-    "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
-  )
 
   private def getSessionWithPreviousAnswer(
     displayDeclaration: Option[DisplayDeclaration],
@@ -133,7 +125,8 @@ class CheckContactDetailsMrnControllerSpec
       controller.addDetailsShow(journey)(FakeRequest())
 
     "redirect to the start of the journey" when {
-      "there is no journey status in the session" in forAll(journeys) { journey =>
+      "there is no journey status in the session" in {
+        val journey = sample[JourneyBindable]
         val session = getSessionWithPreviousAnswer(None, None, Some(toTypeOfClaim(journey)))._1
 
         inSequence {
@@ -149,7 +142,8 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "display the page" when {
-      "all mandatory data from Acc14 is available" in forAll(journeys) { journey =>
+      "all mandatory data from Acc14 is available" in {
+        val journey                    = sample[JourneyBindable]
         val acc14                      = genAcc14WithAddresses
         val mrnContactDetails          = sample[MrnContactDetails].copy(phoneNumber = Some(sample[PhoneNumber]))
         val mrnContactAddress          = sample[ContactAddress]
@@ -195,8 +189,9 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "not all mandatory data from Acc14 is available, page redirects" in forAll(journeys) { journey =>
-        val acc14 = genAcc14WithAddresses
+      "not all mandatory data from Acc14 is available, page redirects" in {
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithAddresses
 
         val (session, _) = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -218,8 +213,9 @@ class CheckContactDetailsMrnControllerSpec
 
       }
 
-      "not all mandatory data from Acc14 is available, no contact details are shown" in forAll(journeys) { journey =>
-        val acc14 = genAcc14WithAddresses
+      "not all mandatory data from Acc14 is available, no contact details are shown" in {
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithAddresses
 
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -260,7 +256,8 @@ class CheckContactDetailsMrnControllerSpec
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      "user chooses the Yes option" in forAll(journeys) { journey =>
+      "user chooses the Yes option" in {
+        val journey         = sample[JourneyBindable]
         val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -280,9 +277,11 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "user chooses the No option" in forAll(journeys) { journey =>
+      "user chooses the No option" in {
         featureSwitch.disable(Feature.NorthernIreland)
-        val acc14           = genAcc14WithAddresses
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithAddresses
+
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -301,7 +300,8 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "the user does not select an option" in forAll(journeys) { journey =>
+      "the user does not select an option" in {
+        val journey         = sample[JourneyBindable]
         val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -328,7 +328,8 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "an invalid option value is submitted" in forAll(journeys) { journey =>
+      "an invalid option value is submitted" in {
+        val journey         = sample[JourneyBindable]
         val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -363,8 +364,9 @@ class CheckContactDetailsMrnControllerSpec
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      "user chooses the Yes option" in forAll(journeys) { journey =>
+      "user chooses the Yes option" in {
         featureSwitch.disable(Feature.NorthernIreland)
+        val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -385,8 +387,9 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "user chooses the No option" in forAll(journeys) { journey =>
+      "user chooses the No option" in {
         val acc14   = genAcc14WithAddresses
+        val journey = sample[JourneyBindable]
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -406,8 +409,10 @@ class CheckContactDetailsMrnControllerSpec
           routes.CheckContactDetailsMrnController.addDetailsShow(journey)
         )
       }
-      "the user does not select an option" in forAll(journeys) { journey =>
+
+      "the user does not select an option" in {
         val acc14   = genAcc14WithAddresses
+        val journey = sample[JourneyBindable]
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -434,8 +439,9 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "an invalid option value is submitted" in forAll(journeys) { journey =>
+      "an invalid option value is submitted" in {
         val acc14   = genAcc14WithAddresses
+        val journey = sample[JourneyBindable]
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -467,9 +473,10 @@ class CheckContactDetailsMrnControllerSpec
       def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID]): Future[Result] =
         controller.updateAddress(journey, maybeAddressId)(FakeRequest())
 
-      "user chooses an address without a post code" in forAll(journeys) { journey =>
+      "user chooses an address without a post code" in {
         val id            = sample[UUID]
         val acc14         = genAcc14WithAddresses
+        val journey       = sample[JourneyBindable]
         val (session, _)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -489,7 +496,8 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "user chooses an address without an address line 1" in forAll(journeys) { journey =>
+      "user chooses an address without an address line 1" in {
+        val journey       = sample[JourneyBindable]
         val id            = sample[UUID]
         val acc14         = genAcc14WithAddresses
         val (session, _)  = getSessionWithPreviousAnswer(
@@ -627,36 +635,35 @@ class CheckContactDetailsMrnControllerSpec
 
   "The address lookup" should {
 
-    "start successfully" in forAll(journeys) { journey =>
+    "start successfully" in {
       val lookupUrl = sample[URL]
-      val session   = getSessionWithPreviousAnswer(None, None, Some(toTypeOfClaim(journey)))._1
+      val journey   = sample[JourneyBindable]
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
-        mockAddressLookupInitiation(Right(lookupUrl))
+        mockAddressLookup(Right(lookupUrl))
       }
 
       checkIsRedirect(
-        changeAddress(journey),
+        startAddressLookup(journey),
         lookupUrl.toString
       )
     }
 
-    "fail to start once error response received downstream ALF service" in forAll(journeys) { journey =>
-      val session = getSessionWithPreviousAnswer(None, None, Some(toTypeOfClaim(journey)))._1
+    "fail to start if error response is received from downstream ALF service" in {
+      val journey = sample[JourneyBindable]
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
-        mockAddressLookupInitiation(Left(Error("Request was not accepted")))
+        mockAddressLookup(Left(Error("Request was not accepted")))
       }
 
-      checkIsTechnicalErrorPage(changeAddress(journey))
+      checkIsTechnicalErrorPage(startAddressLookup(journey))
     }
 
-    "update an address once complete" in forAll(journeys) { journey =>
+    "update an address once complete" in {
       val id           = sample[UUID]
+      val journey      = sample[JourneyBindable]
       val address      = sample[ContactAddress]
       val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
@@ -678,9 +685,10 @@ class CheckContactDetailsMrnControllerSpec
       )
     }
 
-    "fail to update address once bad address lookup ID provided" in forAll(journeys) { journey =>
+    "fail to update address once bad address lookup ID provided" in {
       val id           = sample[UUID]
       val acc14        = genAcc14WithAddresses
+      val journey      = sample[JourneyBindable]
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
@@ -696,7 +704,8 @@ class CheckContactDetailsMrnControllerSpec
       checkIsTechnicalErrorPage(updateAddress(journey, Some(id)))
     }
 
-    "redirect to show page once address lookup ID is not provided" in forAll(journeys) { journey =>
+    "redirect to show page once address lookup ID is not provided" in {
+      val journey      = sample[JourneyBindable]
       val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
@@ -715,8 +724,8 @@ class CheckContactDetailsMrnControllerSpec
       )
     }
 
-    def changeAddress(journey: JourneyBindable): Future[Result] =
-      controller.changeAddress(journey)(FakeRequest())
+    def startAddressLookup(journey: JourneyBindable): Future[Result] =
+      controller.startAddressLookup(journey)(FakeRequest())
 
     def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID] = None): Future[Result] =
       controller.updateAddress(journey, maybeAddressId)(FakeRequest())

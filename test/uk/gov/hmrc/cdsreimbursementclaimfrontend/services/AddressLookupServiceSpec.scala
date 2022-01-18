@@ -24,22 +24,31 @@ import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.Configuration
+import play.api.Environment
 import play.api.http.Status.ACCEPTED
 import play.api.libs.json.JsError
 import play.api.libs.json.JsPath
 import play.api.libs.json.Json
 import play.api.libs.json.JsonValidationError
+import play.api.mvc.Call
 import play.api.test.Helpers.LOCATION
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -54,9 +63,35 @@ class AddressLookupServiceSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val addressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
+  private val config                  = Configuration.load(Environment.simple())
+  private val servicesConfig          = new ServicesConfig(config)
+  implicit val viewConfig: ViewConfig = new ViewConfig(config, servicesConfig)
 
-  val addressLookupService = new DefaultAddressLookupService(addressLookupConnector)
+  private val addressLookupConnector = mock[AddressLookupConnector]
+  private val addressLookupConfig    = new AddressLookupConfig(servicesConfig)
+  private val addressLookupService   = new DefaultAddressLookupService(addressLookupConnector, addressLookupConfig)
+
+  implicit val timeoutConfiguration: TimeoutConfig =
+    TimeoutConfig(
+      timeoutAmount = viewConfig.timeout,
+      timeoutUrl = baseRoutes.StartController.timedOut().url,
+      timeoutKeepAliveUrl = Some(viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl))
+    )
+
+  val addressUpdateCall: Call = Call("", "http://upate-contact-address")
+
+  val addressLookupRequest: AddressLookupRequest = AddressLookupRequest
+    .redirectBackTo(addressUpdateCall)
+    .signOutUserVia(viewConfig.signOutUrl)
+    .nameConsumerServiceAs("cds-reimbursement-claim")
+    .showMax(addressLookupConfig.addressesShowLimit)
+    .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
+    .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
+    .whetherSearchOnlyUkAddresses(true)
+    .whetherShowConfirmChangeText(true)
+    .whetherShowSearchAgainLink(true)
+    .whetherShowChangeLink(true)
+    .whetherShowBanner(true)
 
   def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(
     response: Either[Error, HttpResponse]
@@ -80,36 +115,31 @@ class AddressLookupServiceSpec
 
       "succeed receiving user redirect URL" in {
         val locationUrl = sample[URL]
-        val request     = sample[AddressLookupRequest]
 
-        mockInitiateAddressLookupResponse(request)(
+        mockInitiateAddressLookupResponse(addressLookupRequest)(
           Right(HttpResponse(ACCEPTED, Json.obj(), headers = Map(LOCATION -> Seq(locationUrl.toString))))
         )
 
-        val response = await(addressLookupService.initiate(request).value)
+        val response = await(addressLookupService.startLookupRedirectingBackTo(addressUpdateCall).value)
         response.isLeft should be(false)
       }
 
       "fail having no request accepted" in {
-        val request = sample[AddressLookupRequest]
-
-        mockInitiateAddressLookupResponse(request)(
+        mockInitiateAddressLookupResponse(addressLookupRequest)(
           Right(HttpResponse(INTERNAL_SERVER_ERROR, Json.obj().toString()))
         )
 
-        await(addressLookupService.initiate(request).value).left.value should be(
+        await(addressLookupService.startLookupRedirectingBackTo(addressUpdateCall).value).left.value should be(
           Error("Request was not accepted by the address lookup service")
         )
       }
 
       "fail having no location header provided" in {
-        val request = sample[AddressLookupRequest]
-
-        mockInitiateAddressLookupResponse(request)(
+        mockInitiateAddressLookupResponse(addressLookupRequest)(
           Right(HttpResponse(ACCEPTED, Json.obj().toString()))
         )
 
-        await(addressLookupService.initiate(request).value).left.value should be(
+        await(addressLookupService.startLookupRedirectingBackTo(addressUpdateCall).value).left.value should be(
           Error("Could not resolve address lookup redirect URL")
         )
       }
@@ -151,21 +181,21 @@ class AddressLookupServiceSpec
 
       "fail to deserialise" in {
         val addressJson = Json.parse("""{
-            |    "auditRef": "101ca9ed-8dab-4868-80e3-024642e33df7",
-            |    "address":
-            |    {
-            |        "lines":
-            |        [
-            |            "Buckingham Palace"
-            |        ],
-            |        "country":
-            |        {
-            |            "code": "GB",
-            |            "name": "United Kingdom"
-            |        },
-            |        "postcode": "SW1A 1AA"
-            |    }
-            |}""".stripMargin)
+                                       |    "auditRef": "101ca9ed-8dab-4868-80e3-024642e33df7",
+                                       |    "address":
+                                       |    {
+                                       |        "lines":
+                                       |        [
+                                       |            "Buckingham Palace"
+                                       |        ],
+                                       |        "country":
+                                       |        {
+                                       |            "code": "GB",
+                                       |            "name": "United Kingdom"
+                                       |        },
+                                       |        "postcode": "SW1A 1AA"
+                                       |    }
+                                       |}""".stripMargin)
 
         val path = JsPath \ "address" \ "lines"
         val err  = JsonValidationError("error.minLength", 2)

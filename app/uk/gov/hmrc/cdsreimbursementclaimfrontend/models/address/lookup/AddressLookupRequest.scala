@@ -44,19 +44,19 @@ object AddressLookupRequest {
     def signOutUserVia(signOutUrl: String): Builder =
       copy(options.copy(signOutHref = signOutUrl.some))
 
-    def searchUkAddressOnly(value: Boolean): Builder =
+    def whetherSearchOnlyUkAddresses(value: Boolean): Builder =
       copy(options.copy(ukMode = value.some))
 
-    def maximumShow(maxToShow: Int): Builder =
+    def showMax(maxToShow: Int): Builder =
       copy(options.copy(selectPageConfig = SelectPageConfig(proposalListLimit = maxToShow).some))
 
-    def showBanner(value: Boolean): Builder =
+    def whetherShowBanner(value: Boolean): Builder =
       copy(options.copy(showPhaseBanner = value.some))
 
     def withServicePhaseLink(phase: String): Builder =
       copy(options.copy(phaseFeedbackLink = phase.some))
 
-    def nameServiceAs(name: String): Builder =
+    def nameConsumerServiceAs(name: String): Builder =
       copy(options.copy(deskProServiceName = name.some))
 
     def makeAccessibilityFooterAvailableVia(link: String): Builder =
@@ -65,13 +65,13 @@ object AddressLookupRequest {
     def makePhaseFeedbackAvailableVia(link: String): Builder =
       copy(options.copy(phaseFeedbackLink = link.some))
 
-    def showSearchAgainLink(value: Boolean): Builder =
+    def whetherShowSearchAgainLink(value: Boolean): Builder =
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showSearchAgainLink = value.some)))
 
-    def showChangeLink(value: Boolean): Builder =
+    def whetherShowChangeLink(value: Boolean): Builder =
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showChangeLink = value.some)))
 
-    def showConfirmChangeText(value: Boolean): Builder =
+    def whetherShowConfirmChangeText(value: Boolean): Builder =
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showConfirmChangeText = value.some)))
   }
 

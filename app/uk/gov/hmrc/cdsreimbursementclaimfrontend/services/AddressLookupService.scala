@@ -30,45 +30,69 @@ import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.JsPath
 import play.api.libs.json.JsonValidationError
 import play.api.libs.json.Reads
+import play.api.libs.json.Reads.minLength
+import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpResponse
+
 import java.net.URL
 import java.util.UUID
-import play.api.libs.json.Reads.minLength
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultAddressLookupService])
 trait AddressLookupService {
 
-  def initiate(
-    request: AddressLookupRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL]
+  def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL]
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress]
 }
 
-class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(implicit
-  ec: ExecutionContext
+class DefaultAddressLookupService @Inject() (
+  connector: AddressLookupConnector,
+  addressLookupConfiguration: AddressLookupConfig
+)(implicit
+  ec: ExecutionContext,
+  viewConfig: ViewConfig
 ) extends AddressLookupService {
 
-  def initiate(
-    request: AddressLookupRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
+  implicit val addressLookupTimeoutConfiguration: TimeoutConfig =
+    TimeoutConfig(
+      timeoutAmount = viewConfig.timeout,
+      timeoutUrl = baseRoutes.StartController.timedOut().url,
+      timeoutKeepAliveUrl = Some(viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl))
+    )
 
-    def resolvingAddressLookupRedirectUrl(response: HttpResponse): Either[Error, URL] =
-      response.header(LOCATION).map(new URL(_)) toRight Error("Could not resolve address lookup redirect URL")
+  def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
+    val request =
+      AddressLookupRequest
+        .redirectBackTo(addressUpdateUrl)
+        .signOutUserVia(viewConfig.signOutUrl)
+        .nameConsumerServiceAs("cds-reimbursement-claim")
+        .showMax(addressLookupConfiguration.addressesShowLimit)
+        .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
+        .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
+        .whetherSearchOnlyUkAddresses(true)
+        .whetherShowConfirmChangeText(true)
+        .whetherShowSearchAgainLink(true)
+        .whetherShowChangeLink(true)
+        .whetherShowBanner(true)
 
     connector
       .initiate(request)
       .ensure(Error("Request was not accepted by the address lookup service"))(_.status === ACCEPTED)
-      .subflatMap(resolvingAddressLookupRedirectUrl)
+      .subflatMap(response =>
+        response.header(LOCATION).map(new URL(_)) toRight Error("Could not resolve address lookup redirect URL")
+      )
   }
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress] = {
@@ -108,4 +132,8 @@ object DefaultAddressLookupService {
         ContactAddress(line1, None, None, town, postcode, country)
     }
   )
+
+  def isInvalidAddressError(error: Error): Boolean =
+    error.message.contains("/address/postcode: error.path.missing") ||
+      error.message.contains("/address/lines: error.minLength")
 }

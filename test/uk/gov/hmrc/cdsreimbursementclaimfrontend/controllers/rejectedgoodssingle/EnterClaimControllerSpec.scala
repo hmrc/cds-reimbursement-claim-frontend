@@ -273,7 +273,10 @@ class EnterClaimControllerSpec
               mockGetSession(session)
             }
 
-            val result = performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString())
+            val result = performAction(
+              ndrcDetails.taxType,
+              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+            )
 
             checkIsRedirect(
               result,
@@ -300,7 +303,10 @@ class EnterClaimControllerSpec
               mockStoreSession(updatedSession)(Right(()))
             }
 
-            val result = performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString())
+            val result = performAction(
+              ndrcDetails.taxType,
+              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+            )
 
             checkIsRedirect(
               result,
@@ -327,7 +333,10 @@ class EnterClaimControllerSpec
               mockStoreSession(updatedSession)(Right(()))
             }
 
-            val result = performAction(ndrcDetails1.taxType, "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString())
+            val result = performAction(
+              ndrcDetails1.taxType,
+              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+            )
 
             checkIsRedirect(
               result,
