@@ -95,6 +95,6 @@ class EnterInspectionDateControllerSpec
       }
 
     }
-    
+
   }
 }
