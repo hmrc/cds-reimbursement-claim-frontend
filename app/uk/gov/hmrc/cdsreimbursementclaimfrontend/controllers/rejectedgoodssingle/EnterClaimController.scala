@@ -37,8 +37,8 @@ class EnterClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val key               = "enter-claim.rejected-goods.single"
-  val taxCodeCookieName = "taxCode"
+  val key: String               = "enter-claim.rejected-goods.single"
+  val taxCodeCookieName: String = "taxCode"
   val postAction: Call  = routes.EnterClaimController.submit()
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
