@@ -18,9 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Cookie
+import play.api.mvc.{Action, AnyContent, Call, Cookie, DiscardingCookie}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -38,6 +36,7 @@ class EnterClaimController @Inject() (
 
   val key               = "enter-claim.rejected-goods.single"
   val taxCodeCookieName = "taxCode"
+  val postAction: Call  = routes.EnterClaimController.submit()
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getNextNdrcDetailsToClaim match {
@@ -45,7 +44,7 @@ class EnterClaimController @Inject() (
         val amountPaid = BigDecimal(ndrcDetails.amount)
         val form       = Forms.claimAmountForm(ndrcDetails.taxType, amountPaid)
         Future.successful(
-          Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, routes.EnterClaimController.submit()))
+          Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction))
             .withCookies(Cookie(taxCodeCookieName, ndrcDetails.taxType))
         )
     }
@@ -69,23 +68,34 @@ class EnterClaimController @Inject() (
                           formWithErrors,
                           TaxCode(ndrcDetails.taxType),
                           BigDecimal(ndrcDetails.amount),
-                          routes.EnterClaimController.submit()
+                          postAction
                         )
                       )
                     )
                   ),
                 reimbursementAmount =>
-                  Future.successful(journey.submitAmountForReimbursement(TaxCode(taxCode), reimbursementAmount) match {
-                    case Right(updatedJourney) =>
-                      (
-                        updatedJourney,
-                        if (journey.allReimbursementAmountEntered)
-                          Redirect("total_reimbursement")
-                        else
-                          Redirect(routes.EnterClaimController.show())
+                  Future.successful(
+                    journey
+                      .submitAmountForReimbursement(TaxCode(taxCode), reimbursementAmount)
+                      .fold(
+                        error => {
+                          logger.error(s"Error submitting reimbursement claim amount - $error")
+                          (journey, Redirect(routes.EnterClaimController.show()))
+                        },
+                        updatedJourney =>
+                          (
+                            updatedJourney,
+                            if (updatedJourney.allReimbursementAmountEntered)
+                              Redirect("total_reimbursement") //TODO: Set the correct details
+                            else
+                              Redirect(routes.EnterClaimController.show())
+                          )
                       )
-                  })
+                  )
               )
+          case None              =>
+            logger.error(s"Attempting to claim a reimbursement before selecting an MRN")
+            Future.successful((journey, Redirect(routes.EnterMovementReferenceNumberController.show())))
         }
       case None                                       =>
         Future.successful(

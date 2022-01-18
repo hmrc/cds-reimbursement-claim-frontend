@@ -526,6 +526,7 @@ enter-claim.rejected-goods.single.claim-amount.error.required=Enter the claim am
 enter-claim.rejected-goods.single.claim-amount.error.invalid-text=Claim amount must be a number, like 30.
 enter-claim.rejected-goods.single.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid.
 enter-claim.rejected-goods.single.claim-amount.error.zero=Claim amount must be 0.01 or more
+enter-claim.rejected-goods.single.submitAmountForReimbursement.taxCodeNotSelectedYet=
 
 #===================================================
 #  CONTACT DETAILS REJECTED GOODS

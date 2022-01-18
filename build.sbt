@@ -79,6 +79,9 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
   )
   .settings(
+    dependencyOverrides += "org.jsoup" % "jsoup" %  AppDependencies.jsoupVersion
+  )
+  .settings(
     Compile / scalacOptions --= Seq("-Xfatal-warnings"),
     Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard")
   )
