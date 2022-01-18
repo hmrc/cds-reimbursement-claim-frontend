@@ -139,6 +139,6 @@ object Forms {
           allowZero = false,
           zeroErrorMsg = Some(s"error.zero")
         ).verifying("error.invalid-amount", amount => amount >= 0 && amount < paidAmount)
-      )(aaa => aaa)(aaa => Some(aaa))
+      )(amount => amount)(amount => Some(amount))
     )
 }
