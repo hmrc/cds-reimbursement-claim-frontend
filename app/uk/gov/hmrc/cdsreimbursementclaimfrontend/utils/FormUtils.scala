@@ -91,14 +91,20 @@ object FormUtils {
           }
     }
 
-  def moneyMapping(precision: Int, scale: Int, errorMsg: String, allowZero: Boolean = false): Mapping[BigDecimal] =
+  def moneyMapping(
+    precision: Int,
+    scale: Int,
+    errorMsg: String,
+    allowZero: Boolean = false,
+    zeroErrorMsg: Option[String] = None
+  ): Mapping[BigDecimal] =
     Forms
       .of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
       .verifying(
         Constraint[BigDecimal]((num: BigDecimal) =>
           num match {
             case n if n < 0   => Invalid(errorMsg)
-            case n if n === 0 => if (allowZero) Valid else Invalid(errorMsg)
+            case n if n === 0 => if (allowZero) Valid else Invalid(zeroErrorMsg.getOrElse(errorMsg))
             case _            => Valid
           }
         )

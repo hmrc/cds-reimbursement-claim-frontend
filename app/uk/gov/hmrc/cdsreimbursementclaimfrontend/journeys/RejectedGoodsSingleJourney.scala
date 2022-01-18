@@ -128,6 +128,13 @@ final class RejectedGoodsSingleJourney private (
       .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
       .getOrElse(Map.empty)
 
+  def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
+    answers.reimbursementClaims
+      .flatMap(
+        _.collectFirst { case (taxCode, None) => taxCode }
+          .flatMap(getNdrcDetailsFor)
+      )
+
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
 
