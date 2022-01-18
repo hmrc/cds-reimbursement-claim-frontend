@@ -139,9 +139,6 @@ final class RejectedGoodsSingleJourney private (
       .flatten(Option.option2Iterable)
       .headOption
 
-  def allReimbursementAmountEntered: Boolean =
-    answers.reimbursementClaims.map(_.values.forall(_.isDefined)).getOrElse(false)
-
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
 

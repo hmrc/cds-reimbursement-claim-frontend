@@ -900,10 +900,10 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-    "allReimbursementAmountEntered" when {
+    "hasCompleteReimbursementClaims" when {
       "return true if all claim amounts are present" in {
         forAll(completeJourneyGen) { journey =>
-          journey.allReimbursementAmountEntered shouldBe true
+          journey.hasCompleteReimbursementClaims shouldBe true
         }
       }
 
@@ -928,7 +928,7 @@ class RejectedGoodsSingleJourneySpec
               val journeyToTest  = ndrcDetails.dropRight(1).foldLeft(initialJourney) { case (journey, ndrcDetails) =>
                 journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), 1).right.get
               }
-              journeyToTest.allReimbursementAmountEntered shouldBe false
+              journeyToTest.hasCompleteReimbursementClaims shouldBe false
             }
         }
       }
@@ -948,7 +948,7 @@ class RejectedGoodsSingleJourneySpec
                 .empty(exampleEori)
                 .submitDisplayDeclaration(updatedDd)
 
-              journey.allReimbursementAmountEntered shouldBe false
+              journey.hasCompleteReimbursementClaims shouldBe false
             }
         }
       }

@@ -88,7 +88,7 @@ class EnterClaimController @Inject() (
                         updatedJourney =>
                           (
                             updatedJourney,
-                            if (updatedJourney.allReimbursementAmountEntered)
+                            if (updatedJourney.hasCompleteReimbursementClaims)
                               Redirect("total_reimbursement") //TODO: Set the correct details
                             else
                               Redirect(routes.EnterClaimController.show())
