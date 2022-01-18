@@ -70,6 +70,10 @@ object Forms {
       )(MethodOfDisposal.tryParse)(md => Some(MethodOfDisposal.keyOf(md)))
     )
 
+  val enterInspectionDateForm: Form[String] = Form(
+    "enter-inspection-date.rejected-goods" -> nonEmptyText(maxLength = 500) //FIXME
+  )
+
   val bankAccountTypeForm: Form[BankAccountType] =
     Form(
       mapping(
