@@ -37,10 +37,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
 class BasisForClaimControllerSpec
@@ -181,9 +183,14 @@ class BasisForClaimControllerSpec
           mockStoreSession(updatedSession)(Right(()))
         }
 
+        val checkBasisOfClaim = basisOfClaim match {
+          case SpecialCircumstances => routes.EnterSpecialCircumstancesController.show()
+          case _                    => routes.DisposalMethodController.show()
+        }
+
         checkIsRedirect(
           performAction(controller.formKey -> basisOfClaim.toString),
-          routes.DisposalMethodController.show()
+          checkBasisOfClaim
         )
       }
     }

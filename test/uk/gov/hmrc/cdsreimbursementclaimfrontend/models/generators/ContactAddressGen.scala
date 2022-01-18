@@ -24,6 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 
+import java.util.Locale
+
 object ContactAddressGen {
 
   lazy val genPostcode: Gen[String] = for {
@@ -34,30 +36,30 @@ object ContactAddressGen {
   lazy val genContactAddressOpt: Gen[Option[ContactAddress]] =
     Gen.option(arbitraryContactAddress.arbitrary)
 
-  lazy val genContactAddress = arbitraryContactAddress.arbitrary
+  lazy val genContactAddress: Gen[ContactAddress] =
+    for {
+      num      <- Gen.choose(1, 100)
+      street   <- genStringWithMaxSizeOfN(7)
+      district <- Gen.option(genStringWithMaxSizeOfN(5))
+      road     <- if (district.isDefined) Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
+      town     <- genStringWithMaxSizeOfN(10)
+      postcode <- genPostcode
+      country  <- genCountry
+    } yield ContactAddress(
+      line1 = s"$num $street",
+      line2 = district,
+      line3 = road,
+      line4 = town,
+      postcode = postcode,
+      country = country
+    )
 
-  lazy val genCountry: Gen[Country] =
-    Gen.oneOf("GB", "LV", "SE", "DE", "NL", "IR", "NO", "DM").map(Country(_))
+  lazy val genCountry: Gen[Country] = Gen
+    .oneOf(Locale.getISOCountries)
+    .map(Country(_))
 
   implicit lazy val arbitraryContactAddress: Typeclass[ContactAddress] =
-    Arbitrary(
-      for {
-        num      <- Gen.choose(1, 100)
-        street   <- genStringWithMaxSizeOfN(7)
-        district <- Gen.option(genStringWithMaxSizeOfN(5))
-        road     <- if (district.isDefined) Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
-        town     <- genStringWithMaxSizeOfN(10)
-        postcode <- genPostcode
-        country  <- genCountry
-      } yield ContactAddress(
-        line1 = s"$num $street",
-        line2 = district,
-        line3 = road,
-        line4 = town,
-        postcode = postcode,
-        country = country
-      )
-    )
+    Arbitrary(genContactAddress)
 
   implicit lazy val arbitraryAddressRequest: Typeclass[AddressLookupRequest] =
     gen[AddressLookupRequest]

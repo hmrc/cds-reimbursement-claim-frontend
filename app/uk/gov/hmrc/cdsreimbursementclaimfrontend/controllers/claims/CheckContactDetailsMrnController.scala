@@ -24,51 +24,44 @@ import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.data.FormError
 import play.api.i18n.Messages
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
+import play.api.mvc._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.isInvalidAddressError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @Singleton
 class CheckContactDetailsMrnController @Inject() (
   addressLookupService: AddressLookupService,
-  addressLookupConfig: AddressLookupConfig,
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -180,34 +173,14 @@ class CheckContactDetailsMrnController @Inject() (
       }
     }
 
-  def changeAddress(implicit journey: JourneyBindable): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      implicit val timeoutConfig: TimeoutConfig = TimeoutConfig(
-        timeoutAmount = viewConfig.timeout,
-        timeoutUrl = baseRoutes.StartController.timedOut().url,
-        timeoutKeepAliveUrl = viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl).some
-      )
-
-      val addressSearchRequest =
-        AddressLookupRequest
-          .redirectBackTo(routes.CheckContactDetailsMrnController.updateAddress(journey))
-          .signOutUserVia(viewConfig.signOutUrl)
-          .nameServiceAs("cds-reimbursement-claim")
-          .maximumShow(addressLookupConfig.maxAddressesToShow)
-          .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
-          .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
-          .searchUkAddressOnly(true)
-          .showConfirmChangeText(true)
-          .showSearchAgainLink(true)
-          .showChangeLink(true)
-          .showBanner(true)
-
-      val response = addressLookupService initiate addressSearchRequest
-
-      response.fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
+  def startAddressLookup(implicit journey: JourneyBindable): Action[AnyContent] =
+    Action.andThen(authenticatedAction).async { implicit request =>
+      addressLookupService
+        .startLookupRedirectingBackTo(routes.CheckContactDetailsMrnController.updateAddress(journey))
+        .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
 
-  def updateAddress(journey: JourneyBindable, maybeAddressLookupId: Option[UUID] = None): Action[AnyContent] =
+  def updateAddress(journey: JourneyBindable, addressIdentity: Option[UUID] = None): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (claim, _, _) =>
         def updateLookupAddress(id: UUID) =
@@ -217,18 +190,16 @@ class CheckContactDetailsMrnController @Inject() (
             result     <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = copyClaim.some)))
           } yield result
 
-        maybeAddressLookupId
+        addressIdentity
           .map(updateLookupAddress)
           .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
             {
-              case e @ Error(message, _, _)
-                  if message.contains("/address/postcode: error.path.missing") ||
-                    message.contains("/address/lines: error.minLength") =>
-                logger warn s"Error updating Address Lookup address: $e"
+              case error if isInvalidAddressError(error) =>
+                logger warn s"Error updating Address Lookup address: $error"
                 Redirect(routes.ProblemWithAddressController.problem(journey))
-              case e: Error =>
-                logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(e)
+              case error: Error                          =>
+                logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(error)
             },
             _ => Redirect(routes.CheckContactDetailsMrnController.show(journey))
           )

@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
@@ -48,7 +49,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay private to protected integrity of the journey.
@@ -310,8 +310,7 @@ final class RejectedGoodsSingleJourney private (
               answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
             )
           )
-
-        case _ => Left("basisOfClaim.not_matching")
+        case _                                                    => Left("basisOfClaim.not_matching")
       }
     }
 
