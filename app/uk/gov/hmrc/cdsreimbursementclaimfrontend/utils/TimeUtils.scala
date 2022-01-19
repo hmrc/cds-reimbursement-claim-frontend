@@ -63,7 +63,19 @@ object TimeUtils {
                 yearString
               ) :: Nil =>
             Right((dayString, monthString, yearString))
-          case _ => Left(FormError(dateKey, "error.required"))
+          case None :: Some(_) :: Some(_) :: Nil =>
+            Left(FormError(dateKey, "day.error.required"))
+          case Some(_) :: None :: Some(_) :: Nil =>
+            Left(FormError(dateKey, "month.error.required"))
+          case Some(_) :: Some(_) :: None :: Nil =>
+            Left(FormError(dateKey, "year.error.required"))
+          case Some(_) :: None :: None :: Nil    =>
+            Left(FormError(dateKey, "monthAndYear.error.required"))
+          case None :: Some(_) :: None :: Nil    =>
+            Left(FormError(dateKey, "dayAndYear.error.required"))
+          case None :: None :: Some(_) :: Nil    =>
+            Left(FormError(dateKey, "dayAndMonth.error.required"))
+          case _                                 => Left(FormError(dateKey, "error.required"))
         }
 
       def toValidInt(
