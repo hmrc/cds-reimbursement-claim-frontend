@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 
 class EnterInspectionDateControllerSpec
-  extends ControllerSpec
+    extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -82,8 +82,7 @@ class EnterInspectionDateControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in {
-      }
+      "display the page on a pre-existing journey" in {}
 
     }
 
@@ -91,8 +90,7 @@ class EnterInspectionDateControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "the user enters details for the first time" in {
-      }
+      "the user enters details for the first time" in {}
 
     }
 

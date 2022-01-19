@@ -18,17 +18,19 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import play.api.mvc.Call
+@import java.time.LocalDate
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        dateInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.date_input,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@(form: Form[LocalDate], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-inspection-date.rejected-goods"}
 @title = @{messages(s"$key.title")}
@@ -40,7 +42,13 @@
     @errorSummary(form.errors)
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-
+        @dateInput(
+            form = form,
+            legendContent = s"$key.label",
+            legendClasses = "govuk-fieldset__legend--s",
+            legendAsPageHeading = false,
+            id = key
+        )
 
         @submitButton("button.continue")
     }
