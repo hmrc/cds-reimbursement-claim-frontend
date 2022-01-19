@@ -41,7 +41,7 @@ class EnterInspectionDateController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
-      val form = enterInspectionDateForm.withDefault(journey.answers.inspectionDate) //FIXME
+      val form = enterInspectionDateForm.withDefault(journey.answers.inspectionDate)
       Ok(enterInspectionDatePage(form, postAction))
     }
   }
