@@ -18,7 +18,7 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import play.api.mvc.Call
-@import java.time.LocalDate
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
@@ -30,7 +30,7 @@
 )
 
 
-@(form: Form[LocalDate], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[InspectionDate], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-inspection-date.rejected-goods"}
 @title = @{messages(s"$key.title")}

@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
@@ -386,7 +387,7 @@ final class RejectedGoodsSingleJourney private (
 
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
-  def submitInspectionDate(inspectionDate: LocalDate): RejectedGoodsSingleJourney =
+  def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(inspectionDate = Some(inspectionDate))
@@ -561,7 +562,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     methodOfDisposal: Option[MethodOfDisposal] = None,
     detailsOfRejectedGoods: Option[String] = None,
     reimbursementClaims: Option[Map[TaxCode, Option[BigDecimal]]] = None,
-    inspectionDate: Option[LocalDate] = None,
+    inspectionDate: Option[InspectionDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
@@ -578,7 +579,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     basisOfClaimSpecialCircumstances: Option[String],
     methodOfDisposal: MethodOfDisposal,
     detailsOfRejectedGoods: String,
-    inspectionDate: LocalDate,
+    inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     reimbursementClaims: Map[TaxCode, BigDecimal],
     reimbursementMethod: ReimbursementMethodAnswer,

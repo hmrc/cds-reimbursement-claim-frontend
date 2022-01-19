@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -40,7 +41,7 @@ object InspectionDateAndAddressSummary {
     DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(Locale.UK)
 
   def apply(
-    inspectionDate: LocalDate,
+    inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     key: String,
     changeInspectionDateCall: Option[Call] = None,
@@ -97,7 +98,7 @@ object InspectionDateAndAddressSummary {
       Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.inspection-date"))),
-          value = Value(Text(inspectionDate.format(ukDateFormat))),
+          value = Value(Text(inspectionDate.value.toString)),
           actions = changeInspectionDateAction
         ),
         SummaryListRow(

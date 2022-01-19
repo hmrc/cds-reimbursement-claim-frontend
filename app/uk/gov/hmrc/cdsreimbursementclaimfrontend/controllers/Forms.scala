@@ -27,6 +27,7 @@ import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -74,35 +75,15 @@ object Forms {
       )(MethodOfDisposal.tryParse)(md => Some(MethodOfDisposal.keyOf(md)))
     )
 
-  //def sharesDisposalDateForm(
-  //    personalRepresentativeDetails: Option[PersonalRepresentativeDetails]
-  //  ): Form[ShareDisposalDate] = {
-  //    val key = "sharesDisposalDate"
-  //    Form(
-  //      mapping(
-  //        "" -> of(
-  //          TimeUtils.dateFormatter(
-  //            Some(LocalDate.now()),
-  //            None,
-  //            s"$key-day",
-  //            s"$key-month",
-  //            s"$key-year",
-  //            key,
-  //            List(TimeUtils.personalRepresentativeDateValidation(personalRepresentativeDetails, key))
-  //          )
-  //        )
-  //      )(ShareDisposalDate(_))(d => Some(d.value))
-  //    )
-  //  }
-
-  //FIXME add InspectionDate to models?
-  val enterInspectionDateForm: Form[LocalDate] = {
+  val enterInspectionDateForm: Form[InspectionDate] = {
     val key: String = "enter-inspection-date.rejected-goods"
-    mapping(
-      "" -> of(
-        TimeUtils.dateFormatter(None, s"$key.day", s"$key.month", s"$key.year", key)
-      )
-    )(identity)
+    Form(
+      mapping(
+        "" -> of(
+          TimeUtils.dateFormatter(None, s"$key.day", s"$key.month", s"$key.year", key)
+        )
+      )(InspectionDate(_))(d => Some(d.value))
+    )
   }
 
 //    val inspectionDateMapping = {
