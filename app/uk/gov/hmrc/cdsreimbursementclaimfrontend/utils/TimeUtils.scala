@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
+
+import cats.Order
+import cats.syntax.either._
+import cats.syntax.order._
+import configs.ConfigReader
+import play.api.data.FormError
+import play.api.data.format.Formatter
+import play.api.i18n.Messages
 
 import java.time.format.DateTimeFormatter
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
-import cats.syntax.either._
-import configs.ConfigReader
-import play.api.data.FormError
-import play.api.data.format.Formatter
 import scala.util.Try
 
 object TimeUtils {
@@ -45,9 +49,11 @@ object TimeUtils {
     dayKey: String,
     monthKey: String,
     yearKey: String,
-    dateKey: String
+    dateKey: String,
+    extraValidation: List[LocalDate => Either[FormError, Unit]] = List.empty
   ): Formatter[LocalDate] =
     new Formatter[LocalDate] {
+
       def dateFieldStringValues(
         data: Map[String, String]
       ): Either[FormError, (String, String, String)] =
@@ -57,30 +63,25 @@ object TimeUtils {
                 yearString
               ) :: Nil =>
             Right((dayString, monthString, yearString))
-          case None :: Some(_) :: Some(_) :: Nil =>
-            Left(FormError(dayKey, "error.required"))
-          case Some(_) :: None :: Some(_) :: Nil =>
-            Left(FormError(monthKey, "error.required"))
-          case Some(_) :: Some(_) :: None :: Nil =>
-            Left(FormError(yearKey, "error.required"))
-          case Some(_) :: None :: None :: Nil    =>
-            Left(FormError(monthKey, "error.monthAndYearRequired"))
-          case None :: Some(_) :: None :: Nil    =>
-            Left(FormError(dayKey, "error.dayAndYearRequired"))
-          case None :: None :: Some(_) :: Nil    =>
-            Left(FormError(dayKey, "error.dayAndMonthRequired"))
-          case _                                 => Left(FormError(dateKey, "error.required"))
+          case _ => Left(FormError(dateKey, "error.required"))
         }
 
       def toValidInt(
         key: String,
         stringValue: String,
-        maxValue: Option[Int]
+        maxValue: Option[Int],
+        minDigits: Int,
+        maxDigits: Int
       ): Either[FormError, Int] =
-        Either.fromOption(
-          Try(BigDecimal(stringValue).toIntExact).toOption.filter(i => i > 0 && maxValue.forall(i <= _)),
-          FormError(key, "error.invalid")
-        )
+        (stringValue.length >= minDigits && stringValue.length <= maxDigits) match {
+          case true  =>
+            Either.fromOption(
+              Try(BigDecimal(stringValue).toIntExact).toOption.filter(i => i > 0 && maxValue.forall(i <= _)),
+              FormError(key, "error.invalid")
+            )
+          case false =>
+            Left(FormError(key, "error.invalid"))
+        }
 
       override def bind(
         key: String,
@@ -88,9 +89,9 @@ object TimeUtils {
       ): Either[Seq[FormError], LocalDate] = {
         val result = for {
           dateFieldStrings <- dateFieldStringValues(data)
-          day ← toValidInt(dayKey, dateFieldStrings._1, Some(31))
-          month ← toValidInt(monthKey, dateFieldStrings._2, Some(12))
-          year ← toValidInt(yearKey, dateFieldStrings._3, None)
+          day ← toValidInt(dayKey, dateFieldStrings._1, Some(31), 1, 2)
+          month ← toValidInt(monthKey, dateFieldStrings._2, Some(12), 1, 2)
+          year ← toValidInt(yearKey, dateFieldStrings._3, None, 4, 4)
           date ← Either
                    .fromTry(Try(LocalDate.of(year, month, day)))
                    .leftMap(_ => FormError(dateKey, "error.invalid"))
@@ -99,7 +100,12 @@ object TimeUtils {
                        Left(FormError(dateKey, "error.tooFarInPast"))
                      else if (date.isBefore(minimumDate))
                        Left(FormError(dateKey, "error.before1900"))
-                     else Left(FormError(dateKey, "error.invalid"))
+                     else
+                       extraValidation
+                         .map(_(date))
+                         .find(_.isLeft)
+                         .getOrElse(Right(()))
+                         .map(_ => date)
                    )
         } yield date
 
@@ -114,4 +120,19 @@ object TimeUtils {
         )
 
     }
+
+  def govDisplayFormat(date: LocalDate)(implicit messages: Messages): String =
+    s"""${date.getDayOfMonth()} ${messages(
+      s"date.${date.getMonthValue()}"
+    )} ${date.getYear()}"""
+
+  def govShortDisplayFormat(
+    date: LocalDate
+  )(implicit messages: Messages): String =
+    s"""${date.getDayOfMonth()} ${messages(
+      s"date.short.${date.getMonthValue()}"
+    )} ${date.getYear()}"""
+
+  implicit val localDateOrder: Order[LocalDate] = Order.from(_ compareTo _)
+
 }
