@@ -170,7 +170,14 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       reimbursementMethod         <- Gen.oneOf(ReimbursementMethodAnswer.values)
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
-      documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(UploadDocumentType.values))
+      numberOfDocumentTypes       <- Gen.choose(1, 2)
+      documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.values))
+      supportingEvidences         <-
+        Gen
+          .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](
+            documentTypes.map(dt => Gen.choose(1, numberOfSupportingEvidences).map(n => (dt, n)))
+          )
+          .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
@@ -183,9 +190,6 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) =>
           (t, a, allDutiesCmaEligible)
         }
-
-      val supportingEvidences                    =
-        documentTypes.zipWithIndex.map { case (d, i) => (s"evidence-$i", d) }
 
       val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
