@@ -60,8 +60,7 @@ import java.time.LocalDate
   */
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
-  val caseNumber: Option[String] = None,
-  val nonce: Nonce = Nonce.random
+  val caseNumber: Option[String] = None
 ) extends FluentSyntax[RejectedGoodsSingleJourney] {
 
   val ZERO: BigDecimal = BigDecimal("0")
@@ -239,7 +238,8 @@ final class RejectedGoodsSingleJourney private (
             RejectedGoodsSingleJourney
               .Answers(
                 userEoriNumber = answers.userEoriNumber,
-                movementReferenceNumber = Some(mrn)
+                movementReferenceNumber = Some(mrn),
+                nonce = answers.nonce
               )
           )
       }
@@ -451,7 +451,7 @@ final class RejectedGoodsSingleJourney private (
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsSingleJourney] =
     whileJourneyIsAmendable {
-      if (this.nonce.equals(requestNonce)) {
+      if (answers.nonce.equals(requestNonce)) {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
           case uf                            => uf
@@ -549,6 +549,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
+    nonce: Nonce = Nonce.random,
     supportingEvidences: Seq[UploadedFile] = Seq.empty
   )
 
@@ -710,11 +711,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
   implicit val format: Format[RejectedGoodsSingleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "nonce").read[Nonce])(new RejectedGoodsSingleJourney(_, _, _)),
+        and (JsPath \ "caseNumber").readNullable[String])(new RejectedGoodsSingleJourney(_, _)),
       ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "caseNumber").writeNullable[String]
-        and (JsPath \ "nonce").write[Nonce])(journey => (journey.answers, journey.caseNumber, journey.nonce))
+        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
   implicit val equality: Eq[RejectedGoodsSingleJourney] =

@@ -131,7 +131,7 @@ trait RejectedGoodsSingleJourneyTestData {
     ): Either[String, RejectedGoodsSingleJourney] = {
       val (documentType, uploadedFiles) = documentTypeAndUploadedFiles
       val allUploadedFiles              = journey.answers.supportingEvidences ++ uploadedFiles
-      journey.receiveUploadedFiles(documentType, journey.nonce, allUploadedFiles)
+      journey.receiveUploadedFiles(documentType, journey.answers.nonce, allUploadedFiles)
     }
 
     RejectedGoodsSingleJourney

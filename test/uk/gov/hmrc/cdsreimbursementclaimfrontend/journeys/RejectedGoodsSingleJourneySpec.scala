@@ -102,6 +102,7 @@ class RejectedGoodsSingleJourneySpec
         val modifiedJourney = result.getOrElse(fail(couldNotRetrieveJourney))
         modifiedJourney.isFinalized                shouldBe true
         modifiedJourney.finalizeJourneyWith("bar") shouldBe Left(JOURNEY_ALREADY_FINALIZED)
+        println(journey.prettyPrint)
       }
     }
 
