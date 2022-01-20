@@ -46,6 +46,21 @@ object EvidenceDocument {
       documentType = uploadedDocument.documentType.getOrElse(UploadDocumentType.Other)
     )
 
+  def from(supportingEvidences: Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]): Seq[EvidenceDocument] =
+    supportingEvidences.toSeq.flatMap { case (documentType, (_, uploadedFiles)) =>
+      uploadedFiles.map { uploadedFile =>
+        EvidenceDocument(
+          checksum = uploadedFile.checksum,
+          downloadUrl = uploadedFile.downloadUrl,
+          fileName = uploadedFile.fileName,
+          fileMimeType = uploadedFile.fileMimeType,
+          size = uploadedFile.fileSize.getOrElse(0L),
+          uploadedOn = uploadedFile.uploadTimestamp.toLocalDateTime,
+          documentType = documentType
+        )
+      }
+    }
+
   implicit val equality: Eq[EvidenceDocument]   = Eq.fromUniversalEquals
   implicit val format: Format[EvidenceDocument] = Json.format
 

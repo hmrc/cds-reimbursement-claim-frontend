@@ -27,28 +27,28 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay private to protected integrity of the journey.
@@ -71,11 +71,14 @@ final class RejectedGoodsSingleJourney private (
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
-    answers.reimbursementClaims.exists(_.forall(_._2.isDefined))
+    answers.reimbursementClaims.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
 
-  /** Check is all the upoaded documents has document type selected. */
+  /** Check if at least one file has been uploaded. */
   def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.exists(_.forall(_.documentType.isDefined))
+    answers.supportingEvidences.map(_.map(_._2._2.size).sum).exists(_ > 0)
+
+  def getNonceAndUploadedFiles(documentType: UploadDocumentType): Option[(Nonce, Seq[UploadedFile])] =
+    answers.supportingEvidences.flatMap(_.get(documentType))
 
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
@@ -443,48 +446,43 @@ final class RejectedGoodsSingleJourney private (
         Left("submitReimbursementMethodAnswer.notCMAEligible")
     }
 
-  def submitUploadedDocument(uploadedDocument: UploadDocument): RejectedGoodsSingleJourney =
+  def submitDocumentType(documentType: UploadDocumentType): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {
-      answers.supportingEvidences match {
-        case Some(supportingEvidences)
-            if supportingEvidences.exists(_.uploadReference === uploadedDocument.uploadReference) =>
+      answers.supportingEvidences.flatMap(_.get(documentType)) match {
+        case Some(_) => this
+        case None    =>
           new RejectedGoodsSingleJourney(
-            answers.copy(supportingEvidences = Some(supportingEvidences.map {
-              case d if d.uploadReference == uploadedDocument.uploadReference => uploadedDocument
-              case d                                                          => d
-            }))
+            answers.copy(supportingEvidences =
+              answers.supportingEvidences
+                .orElse(Some(Map.empty[UploadDocumentType, (Nonce, Seq[UploadedFile])]))
+                .map(_ + ((documentType, (Nonce.random, Seq.empty))))
+            )
           )
-
-        case Some(supportingEvidences) =>
-          new RejectedGoodsSingleJourney(
-            answers.copy(supportingEvidences = Some(supportingEvidences :+ uploadedDocument))
-          )
-
-        case None =>
-          new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Seq(uploadedDocument))))
       }
     }
 
-  def submitDocumentType(
-    uploadReference: UploadReference,
-    documentType: UploadDocumentType
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def receiveUploadedFiles(
+    documentType: UploadDocumentType,
+    nonce: Nonce,
+    uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsSingleJourney] =
     whileJourneyIsAmendable {
-      answers.supportingEvidences match {
-        case None                      => Left("submitDocumentType.missingSupportingEvidences")
-        case Some(supportingEvidences) =>
-          supportingEvidences.find(_.uploadReference === uploadReference) match {
-            case None    => Left("submitDocumentType.upscanReferenceNotFound")
-            case Some(_) =>
-              Right(
-                new RejectedGoodsSingleJourney(
-                  answers.copy(supportingEvidences = Some(supportingEvidences.map {
-                    case d if d.uploadReference == uploadReference => d.copy(documentType = Some(documentType))
-                    case d                                         => d
-                  }))
-                )
+      answers.supportingEvidences.flatMap(_.get(documentType)) match {
+        case Some((existingNonce, _)) if existingNonce.equals(nonce) =>
+          Right(
+            new RejectedGoodsSingleJourney(
+              answers.copy(supportingEvidences =
+                answers.supportingEvidences
+                  .orElse(Some(Map.empty[UploadDocumentType, (Nonce, Seq[UploadedFile])]))
+                  .map(_ + ((documentType, (nonce, uploadedFiles))))
               )
-          }
+            )
+          )
+        case Some(_)                                                 =>
+          Left("receiveUploadedFiles.invalidNonce")
+        case None                                                    =>
+          Left("receiveUploadedFiles.uninitializedDocumentType")
       }
     }
 
@@ -535,7 +533,7 @@ final class RejectedGoodsSingleJourney private (
           inspectionDate = inspectionDate,
           inspectionAddress = inspectionAddress,
           reimbursementClaims = getReimbursementClaims,
-          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
+          supportingEvidences = EvidenceDocument.from(supportingEvidences),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
           bankAccountDetails = answers.bankAccountDetails
@@ -554,6 +552,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
   def empty(userEoriNumber: Eori): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(Answers(userEoriNumber))
 
+  type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
+  type SupportingEvidences = Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]
+
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
     userEoriNumber: Eori,
@@ -567,13 +568,13 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     basisOfClaimSpecialCircumstances: Option[String] = None,
     methodOfDisposal: Option[MethodOfDisposal] = None,
     detailsOfRejectedGoods: Option[String] = None,
-    reimbursementClaims: Option[Map[TaxCode, Option[BigDecimal]]] = None,
+    reimbursementClaims: Option[ReimbursementClaims] = None,
     inspectionDate: Option[LocalDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
-    supportingEvidences: Option[Seq[UploadDocument]] = None
+    supportingEvidences: Option[SupportingEvidences] = None
   )
 
   // Final minimal output of the journey we want to pass to the backend.
@@ -706,6 +707,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
   object Answers {
     implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
       MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
+
+    implicit lazy val mapFormat2: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
+      MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
 
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())

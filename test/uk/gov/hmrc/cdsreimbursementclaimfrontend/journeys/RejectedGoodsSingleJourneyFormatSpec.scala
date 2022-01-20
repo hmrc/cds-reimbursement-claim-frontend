@@ -26,6 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 import RejectedGoodsSingleJourneyGenerators._
 import play.api.libs.json.Json
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 
 class RejectedGoodsSingleJourneyFormatSpec
     extends AnyWordSpec
@@ -60,16 +62,14 @@ class RejectedGoodsSingleJourneyFormatSpec
         Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map()))
       )
 
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":[$uploadDocumentJson]}""",
+      validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          supportingEvidences = Some(Seq(uploadDocument))
+          supportingEvidences = Some(Map(UploadDocumentType.BillOfLading -> ((Nonce.random, Seq(uploadDocument)))))
         )
       )
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":[]}""",
-        Answers(userEoriNumber = exampleEori, supportingEvidences = Some(Seq.empty))
+      validateCanReadAndWriteJson(
+        Answers(userEoriNumber = exampleEori, supportingEvidences = Some(Map.empty))
       )
     }
   }
