@@ -1125,11 +1125,13 @@ check-your-answers.contact-information.change-hint.contact=Contact details
 check-your-answers.contact-information.change-hint.address=Contact address
 
 #===================================================
-# IMPORTER ADDRESS TYPE
+# INSPECTION ADDRESS TYPE
 #===================================================
 inspection-address.type.Other=Other address
 inspection-address.type.Importer=Importer address
 inspection-address.type.Declarant=Declarant address
+inspection-address.type.title=Choose an address for the inspection
+inspection-address.type.or=or
 
 #===================================================
 # SUBMISSION ERROR PAGE

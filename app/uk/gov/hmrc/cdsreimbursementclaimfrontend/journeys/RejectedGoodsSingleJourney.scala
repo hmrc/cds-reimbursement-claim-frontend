@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -80,8 +81,14 @@ final class RejectedGoodsSingleJourney private (
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
 
+  def getConsigneeContactDetailsFromACC14: Option[ContactDetails] =
+    answers.displayDeclaration.flatMap(_.getConsigneeDetails).flatMap(_.contactDetails)
+
   def getDeclarantEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.map(_.getDeclarantEori)
+
+  def getDeclarantContactDetailsFromACC14: Option[ContactDetails] =
+    answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
 
   /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
   def needsDeclarantAndConsigneeEoriSubmission: Boolean =

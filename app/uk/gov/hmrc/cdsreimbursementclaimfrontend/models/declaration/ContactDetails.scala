@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
+import cats.implicits.catsSyntaxApply
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
@@ -29,7 +30,14 @@ final case class ContactDetails(
   countryCode: Option[String],
   telephone: Option[String],
   emailAddress: Option[String]
-)
+) {
+  def showAddress: Option[String] =
+    addressLine1 *> postalCode *> Some(
+      Seq(addressLine1, addressLine2, addressLine3, addressLine4, postalCode)
+        .flatten(Option.option2Iterable)
+        .mkString(",")
+    )
+}
 
 object ContactDetails {
   implicit val format: OFormat[ContactDetails] = derived.oformat[ContactDetails]()

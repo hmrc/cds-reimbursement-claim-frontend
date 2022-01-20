@@ -49,4 +49,8 @@ object ClaimedReimbursementsAnswer {
 
   val validator: Validator[Id, ClaimedReimbursementsAnswer] = maybeClaimedReimbursements =>
     maybeClaimedReimbursements.toValidNel(MissingAnswerError("Claimed reimbursements"))
+
+  implicit class ClaimedReimbursementsOps(val claims: NonEmptyList[ClaimedReimbursement]) extends AnyVal {
+    def total: BigDecimal = claims.map(_.claimAmount).toList.sum
+  }
 }
