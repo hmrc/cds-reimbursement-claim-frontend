@@ -18,11 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.Order
 import cats.syntax.either._
-import cats.syntax.order._
 import configs.ConfigReader
 import play.api.data.FormError
 import play.api.data.format.Formatter
-import play.api.i18n.Messages
 
 import java.time.format.DateTimeFormatter
 import java.time.Clock
@@ -132,18 +130,6 @@ object TimeUtils {
         )
 
     }
-
-  def govDisplayFormat(date: LocalDate)(implicit messages: Messages): String =
-    s"""${date.getDayOfMonth()} ${messages(
-      s"date.${date.getMonthValue()}"
-    )} ${date.getYear()}"""
-
-  def govShortDisplayFormat(
-    date: LocalDate
-  )(implicit messages: Messages): String =
-    s"""${date.getDayOfMonth()} ${messages(
-      s"date.short.${date.getMonthValue()}"
-    )} ${date.getYear()}"""
 
   implicit val localDateOrder: Order[LocalDate] = Order.from(_ compareTo _)
 

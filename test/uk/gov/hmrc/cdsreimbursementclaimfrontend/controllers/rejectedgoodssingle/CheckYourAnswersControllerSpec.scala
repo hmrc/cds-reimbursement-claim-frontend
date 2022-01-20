@@ -113,7 +113,7 @@ class CheckYourAnswersControllerSpec
     summary("Method")                                      shouldBe messages(
       ReimbursementMethodAnswerSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
     )
-    summary("Inspection date")                             shouldBe claim.inspectionDate.format(InspectionDateAndAddressSummary.ukDateFormat)
+    summary("Inspection date")                             shouldBe claim.inspectionDate.value.toString
     summary("Inspection address type")                     shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )

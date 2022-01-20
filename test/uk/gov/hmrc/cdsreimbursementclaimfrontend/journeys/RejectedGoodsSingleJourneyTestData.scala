@@ -86,8 +86,8 @@ trait RejectedGoodsSingleJourneyTestData {
       addressType = InspectionAddressType.Other
     )
 
-  val exampleInspectionDate: LocalDate =
-    LocalDate.parse("2000-01-01")
+  val exampleInspectionDate: InspectionDate =
+    InspectionDate(LocalDate.parse("2000-01-01"))
 
   val exampleBankAccountDetails =
     BankAccountDetails(
@@ -106,7 +106,7 @@ trait RejectedGoodsSingleJourneyTestData {
     basisOfClaim: BasisOfRejectedGoodsClaim,
     detailsOfRejectedGoods: String,
     specialCircumstancesDetails: String,
-    inspectionDate: LocalDate,
+    inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],

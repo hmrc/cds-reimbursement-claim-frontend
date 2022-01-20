@@ -31,14 +31,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-
 object InspectionDateAndAddressSummary {
-
-  val ukDateFormat: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(Locale.UK)
 
   def apply(
     inspectionDate: InspectionDate,

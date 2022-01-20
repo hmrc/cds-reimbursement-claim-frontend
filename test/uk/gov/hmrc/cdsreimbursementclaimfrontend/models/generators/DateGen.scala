@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
+
 import java.time.LocalDate
 
 object DateGen {
@@ -26,11 +28,13 @@ object DateGen {
 
   lazy val genDate = arbitraryDate.arbitrary
 
-  def date: Gen[LocalDate] = {
+  def date: Gen[InspectionDate] = {
     val rangeStart  = LocalDate.now.minusMonths(6).toEpochDay
     val currentYear = LocalDate.now.getYear
     val rangeEnd    = LocalDate.of(currentYear, 12, 31).toEpochDay
-    Gen.choose(rangeStart, rangeEnd).map(t => LocalDate.ofEpochDay(t))
+    for {
+      date <- Gen.choose(rangeStart, rangeEnd).map(t => LocalDate.ofEpochDay(t))
+    } yield InspectionDate(date)
   }
 
 }

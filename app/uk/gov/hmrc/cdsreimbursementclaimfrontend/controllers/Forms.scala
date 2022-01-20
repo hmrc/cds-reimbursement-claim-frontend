@@ -41,8 +41,6 @@ import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 
-import java.time.LocalDate
-
 object Forms {
   def eoriNumberForm(key: String): Form[Eori] = Form(
     mapping(
@@ -87,20 +85,6 @@ object Forms {
       )(InspectionDate(_))(d => Some(d.value))
     )
   }
-
-//    val inspectionDateMapping = {
-//      mapping(
-//        "" -> of(
-//          TimeUtils.dateFormatter(
-//            None,
-//            "enter-inspection-date.rejected-goods.day",
-//            "enter-inspection-date.rejected-goods.month",
-//            "enter-inspection-date.rejected-goods.year",
-//            "enter-inspection-date.rejected-goods."
-//          )
-//        )
-//      )(identity)
-//    }
 
   val bankAccountTypeForm: Form[BankAccountType] =
     Form(
