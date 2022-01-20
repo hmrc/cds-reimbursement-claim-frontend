@@ -192,7 +192,7 @@ class SelectTaxCodesControllerSpec
 
           checkIsRedirect(
             performAction(selectedTaxCodes.map(taxCode => s"$selectTaxCodesKey[]" -> taxCode.value)),
-            "enter-claim"
+            routes.EnterClaimController.show()
           )
         }
       }

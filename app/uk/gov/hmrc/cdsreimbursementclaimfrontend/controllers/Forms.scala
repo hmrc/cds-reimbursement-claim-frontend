@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -37,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import play.api.data.Mapping
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 
 import java.time.LocalDate
@@ -158,4 +160,16 @@ object Forms {
     )
   }
 
+  def claimAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
+    Form(
+      mapping(
+        s"$key.claim-amount" -> moneyMapping(
+          precision = 13,
+          scale = 2,
+          errorMsg = s"error.invalid-text",
+          allowZero = false,
+          zeroErrorMsg = Some(s"error.zero")
+        ).verifying("error.invalid-amount", amount => amount >= 0 && amount < paidAmount)
+      )(amount => amount)(amount => Some(amount))
+    )
 }

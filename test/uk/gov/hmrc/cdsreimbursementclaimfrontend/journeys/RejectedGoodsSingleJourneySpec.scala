@@ -27,11 +27,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-
 import RejectedGoodsSingleJourneyGenerators._
 import RejectedGoodsSingleJourney.ValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 
-@SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+@SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.EitherProjectionPartial"))
 class RejectedGoodsSingleJourneySpec
     extends AnyWordSpec
     with ScalaCheckPropertyChecks
@@ -876,6 +877,81 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-  }
+    "getNextNdrcDetailsToClaim" when {
+      "return the next Ndrc Details to claim" in {
+        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
+          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
+            whenever(ndrcDetails.size > 1 && ndrcDetails.map(_.taxType).toSet.size == ndrcDetails.size) {
+              val taxCodes             = ndrcDetails.map(details => TaxCode(details.taxType))
+              val drd                  = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+              val updatedDd            = displayDeclaration.copy(displayResponseDetail = drd)
+              val journey              = RejectedGoodsSingleJourney
+                .empty(exampleEori)
+                .submitDisplayDeclaration(updatedDd)
+                .selectAndReplaceTaxCodeSetForReimbursement(taxCodes)
+                .right
+                .get
+              val claimedReimbursement = journey.answers.reimbursementClaims.get
+              val nextDetails          = journey.getNextNdrcDetailsToClaim.get
+              claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
+              // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it
+            }
+        }
+      }
+    }
 
+    "hasCompleteReimbursementClaims" when {
+      "return true if all claim amounts are present" in {
+        forAll(completeJourneyGen) { journey =>
+          journey.hasCompleteReimbursementClaims shouldBe true
+        }
+      }
+
+      "return false if at least one of the claimed tax code do not have a value specified" in {
+        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
+          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
+            whenever(
+              ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
+                .map(_.taxType)
+                .toSet
+                .size == ndrcDetails.size
+            ) {
+              val taxCodes       = ndrcDetails.map(details => TaxCode(details.taxType))
+              val drd            = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+              val updatedDd      = displayDeclaration.copy(displayResponseDetail = drd)
+              val initialJourney = RejectedGoodsSingleJourney
+                .empty(exampleEori)
+                .submitDisplayDeclaration(updatedDd)
+                .selectAndReplaceTaxCodeSetForReimbursement(taxCodes)
+                .right
+                .get
+              val journeyToTest  = ndrcDetails.dropRight(1).foldLeft(initialJourney) { case (journey, ndrcDetails) =>
+                journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), 1).right.get
+              }
+              journeyToTest.hasCompleteReimbursementClaims shouldBe false
+            }
+        }
+      }
+
+      "return false if no tax codes have been claimed yet" in {
+        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
+          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
+            whenever(
+              ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
+                .map(_.taxType)
+                .toSet
+                .size == ndrcDetails.size
+            ) {
+              val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+              val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
+              val journey   = RejectedGoodsSingleJourney
+                .empty(exampleEori)
+                .submitDisplayDeclaration(updatedDd)
+
+              journey.hasCompleteReimbursementClaims shouldBe false
+            }
+        }
+      }
+    }
+  }
 }
