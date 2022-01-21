@@ -32,29 +32,54 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
   case object SubstituteEntry extends UploadDocumentType
   case object Other extends UploadDocumentType
   case object ScheduleOfMRNs extends UploadDocumentType
+  case object CalculationWorksheet extends UploadDocumentType
+  case object DocumentaryProofFaultyOrNotWhatOrdered extends UploadDocumentType
+  case object ProofOfExportOrDestruction extends UploadDocumentType
+  case object ProofOfOrigin extends UploadDocumentType
+  case object AdditionalSupportingDocuments extends UploadDocumentType
+  case object LetterOfAuthority extends UploadDocumentType
 
-  override val values: Set[UploadDocumentType] = Set[UploadDocumentType](
-    AirWayBill,
-    BillOfLading,
-    CommercialInvoice,
-    CorrespondenceTrader,
-    ImportAndExportDeclaration,
-    PackingList,
-    ProofOfAuthority,
-    SubstituteEntry,
-    ScheduleOfMRNs,
-    Other
-  )
+  override val values: Set[UploadDocumentType] =
+    Set[UploadDocumentType](
+      AirWayBill,
+      BillOfLading,
+      CommercialInvoice,
+      CorrespondenceTrader,
+      ImportAndExportDeclaration,
+      PackingList,
+      ProofOfAuthority,
+      SubstituteEntry,
+      ScheduleOfMRNs,
+      Other,
+      CalculationWorksheet,
+      DocumentaryProofFaultyOrNotWhatOrdered,
+      ProofOfExportOrDestruction,
+      AdditionalSupportingDocuments,
+      LetterOfAuthority
+    )
 
-  val c285EvidenceTypes: Seq[UploadDocumentType] = Seq[UploadDocumentType](
-    AirWayBill,
-    BillOfLading,
-    CommercialInvoice,
-    CorrespondenceTrader,
-    ImportAndExportDeclaration,
-    PackingList,
-    ProofOfAuthority,
-    SubstituteEntry,
-    Other
-  )
+  val c285EvidenceTypes: Seq[UploadDocumentType] =
+    Seq[UploadDocumentType](
+      AirWayBill,
+      BillOfLading,
+      CommercialInvoice,
+      CorrespondenceTrader,
+      ImportAndExportDeclaration,
+      PackingList,
+      ProofOfAuthority,
+      SubstituteEntry,
+      Other
+    )
+
+  val rejectedGoodsSingleTypes: Seq[UploadDocumentType] =
+    Seq[UploadDocumentType](
+      AdditionalSupportingDocuments,
+      CalculationWorksheet,
+      CommercialInvoice,
+      CorrespondenceTrader,
+      DocumentaryProofFaultyOrNotWhatOrdered,
+      ImportAndExportDeclaration,
+      LetterOfAuthority,
+      ProofOfExportOrDestruction
+    )
 }
