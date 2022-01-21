@@ -37,12 +37,6 @@
 
 @(addresses: Seq[(InspectionAddressType, String)], form: Form[InspectionAddressType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-<style>
-    div.govuk-form-group {
-        margin-bottom: 2px !important;
-    }
-</style>
-
 @key = @{"inspection-address.type"}
 
 @title = @{messages(s"$key.title")}
