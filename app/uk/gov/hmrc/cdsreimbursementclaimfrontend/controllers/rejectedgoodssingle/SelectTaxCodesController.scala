@@ -73,7 +73,7 @@ class SelectTaxCodesController @Inject() (
               journey
                 .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
                 .getOrElse(journey),
-              Redirect("enter-claim") //FIXME
+              Redirect(routes.EnterClaimController.show())
             )
         )
     })

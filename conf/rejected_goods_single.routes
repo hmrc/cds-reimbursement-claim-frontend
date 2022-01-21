@@ -43,3 +43,6 @@ GET          /rejected-goods/single/inspection-address/update-address           
 GET          /rejected-goods/single/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.show()
 POST         /rejected-goods/single/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.submit()
 GET          /rejected-goods/single/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.showConfirmation()
+
+GET          /rejected-goods/single/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.show()
+POST         /rejected-goods/single/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.submit()
