@@ -17,11 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SnakeCase
 
 sealed trait UploadDocumentType
 
-object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with SnakeCase[UploadDocumentType] {
+object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
 
   case object AirWayBill extends UploadDocumentType
   case object BillOfLading extends UploadDocumentType
