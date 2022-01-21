@@ -35,7 +35,6 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
   case object CalculationWorksheet extends UploadDocumentType
   case object DocumentaryProofFaultyOrNotWhatOrdered extends UploadDocumentType
   case object ProofOfExportOrDestruction extends UploadDocumentType
-  case object ProofOfOrigin extends UploadDocumentType
   case object AdditionalSupportingDocuments extends UploadDocumentType
   case object LetterOfAuthority extends UploadDocumentType
 

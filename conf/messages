@@ -984,6 +984,22 @@ supporting-evidence.upload.details.hint.Other=If you have alternative supporting
 supporting-evidence.choose-document-type.document-type.ScheduleOfMRNs=Scheduled document
 supporting-evidence.upload.details.bullet.ScheduleOfMRNs=Scheduled document
 supporting-evidence.upload.details.hint.ScheduleOfMRNs=Scheduled document
+supporting-evidence.choose-document-type.document-type.AdditionalSupportingDocuments=Additional supporting documents
+supporting-evidence.upload.details.bullet.AdditionalSupportingDocuments=Additional supporting documents:
+supporting-evidence.upload.details.hint.AdditionalSupportingDocuments=Additional supporting documents
+supporting-evidence.choose-document-type.document-type.LetterOfAuthority=Letter of authority
+supporting-evidence.upload.details.bullet.LetterOfAuthority=Letter of authority:
+supporting-evidence.upload.details.hint.LetterOfAuthority=Letter of authority
+supporting-evidence.choose-document-type.document-type.ProofOfExportOrDestruction=Proof of export or destruction
+supporting-evidence.upload.details.bullet.ProofOfExportOrDestruction=Proof of export or destruction:
+supporting-evidence.upload.details.hint.ProofOfExportOrDestruction=Proof of export or destruction
+supporting-evidence.choose-document-type.document-type.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered
+supporting-evidence.upload.details.bullet.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof:
+supporting-evidence.upload.details.hint.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered
+supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calculation worksheet
+supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
+supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet
+
 supporting-evidence.error.invalid-document-type=Invalid supporting evidence document type
 
 #===================================================
