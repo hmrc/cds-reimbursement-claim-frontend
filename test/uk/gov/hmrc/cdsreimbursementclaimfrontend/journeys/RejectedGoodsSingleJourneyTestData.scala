@@ -16,29 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import magnolia.Magnolia.gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-
-import java.time.Instant
-import java.time.LocalDateTime
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-
-import java.time.Instant
-import java.time.LocalDateTime
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
-
-import java.time.LocalDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 trait RejectedGoodsSingleJourneyTestData {
