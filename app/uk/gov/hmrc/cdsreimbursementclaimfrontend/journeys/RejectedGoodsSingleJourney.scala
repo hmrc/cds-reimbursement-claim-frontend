@@ -74,12 +74,9 @@ final class RejectedGoodsSingleJourney private (
   def hasCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
 
-  /** Check if at least one file has been uploaded. */
   def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.map(_.map(_._2._2.size).sum).exists(_ > 0)
-
-  def getNonceAndUploadedFiles(documentType: UploadDocumentType): Option[(Nonce, Seq[UploadedFile])] =
-    answers.supportingEvidences.flatMap(_.get(documentType))
+    answers.supportingEvidences.nonEmpty &&
+      answers.supportingEvidences.forall(_.documentType.isDefined)
 
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
@@ -248,7 +245,8 @@ final class RejectedGoodsSingleJourney private (
             RejectedGoodsSingleJourney
               .Answers(
                 userEoriNumber = answers.userEoriNumber,
-                movementReferenceNumber = Some(mrn)
+                movementReferenceNumber = Some(mrn),
+                nonce = answers.nonce
               )
           )
       }
@@ -453,44 +451,22 @@ final class RejectedGoodsSingleJourney private (
         Left("submitReimbursementMethodAnswer.notCMAEligible")
     }
 
-  def submitDocumentType(documentType: UploadDocumentType): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
-      answers.supportingEvidences.flatMap(_.get(documentType)) match {
-        case Some(_) => this
-        case None    =>
-          new RejectedGoodsSingleJourney(
-            answers.copy(supportingEvidences =
-              answers.supportingEvidences
-                .orElse(Some(Map.empty[UploadDocumentType, (Nonce, Seq[UploadedFile])]))
-                .map(_ + ((documentType, (Nonce.random, Seq.empty))))
-            )
-          )
-      }
-    }
-
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: UploadDocumentType,
-    nonce: Nonce,
+    requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsSingleJourney] =
     whileJourneyIsAmendable {
-      answers.supportingEvidences.flatMap(_.get(documentType)) match {
-        case Some((existingNonce, _)) if existingNonce.equals(nonce) =>
-          Right(
-            new RejectedGoodsSingleJourney(
-              answers.copy(supportingEvidences =
-                answers.supportingEvidences
-                  .orElse(Some(Map.empty[UploadDocumentType, (Nonce, Seq[UploadedFile])]))
-                  .map(_ + ((documentType, (nonce, uploadedFiles))))
-              )
-            )
-          )
-        case Some(_)                                                 =>
-          Left("receiveUploadedFiles.invalidNonce")
-        case None                                                    =>
-          Left("receiveUploadedFiles.uninitializedDocumentType")
-      }
+      if (answers.nonce.equals(requestNonce)) {
+        val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
+          case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
+          case uf                            => uf
+        }
+        Right(
+          new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+        )
+      } else Left("receiveUploadedFiles.invalidNonce")
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsSingleJourney] =
@@ -528,7 +504,7 @@ final class RejectedGoodsSingleJourney private (
           detailsOfRejectedGoods <- answers.detailsOfRejectedGoods
           inspectionDate         <- answers.inspectionDate
           inspectionAddress      <- answers.inspectionAddress
-          supportingEvidences    <- answers.supportingEvidences
+          supportingEvidences     = answers.supportingEvidences
           claimantInformation    <- getClaimantInformation
         } yield RejectedGoodsSingleJourney.Output(
           movementReferenceNumber = mrn,
@@ -540,7 +516,7 @@ final class RejectedGoodsSingleJourney private (
           inspectionDate = inspectionDate,
           inspectionAddress = inspectionAddress,
           reimbursementClaims = getReimbursementClaims,
-          supportingEvidences = EvidenceDocument.from(supportingEvidences),
+          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
           bankAccountDetails = answers.bankAccountDetails
@@ -560,7 +536,6 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     new RejectedGoodsSingleJourney(Answers(userEoriNumber))
 
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
-  type SupportingEvidences = Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -581,7 +556,8 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
-    supportingEvidences: Option[SupportingEvidences] = None
+    nonce: Nonce = Nonce.random,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty
   )
 
   // Final minimal output of the journey we want to pass to the backend.
@@ -741,12 +717,10 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
 
   implicit val format: Format[RejectedGoodsSingleJourney] =
     Format(
-      ((JsPath \ "answers").read[Answers] and (JsPath \ "caseNumber").readNullable[String])(
-        new RejectedGoodsSingleJourney(_, _)
-      ),
-      ((JsPath \ "answers").write[Answers] and (JsPath \ "caseNumber").writeNullable[String])(journey =>
-        (journey.answers, journey.caseNumber)
-      )
+      ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "caseNumber").readNullable[String])(new RejectedGoodsSingleJourney(_, _)),
+      ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
   implicit val equality: Eq[RejectedGoodsSingleJourney] =

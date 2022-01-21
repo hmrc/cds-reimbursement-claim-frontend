@@ -129,12 +129,8 @@ trait RejectedGoodsSingleJourneyTestData {
       documentTypeAndUploadedFiles: (UploadDocumentType, Seq[UploadedFile])
     ): Either[String, RejectedGoodsSingleJourney] = {
       val (documentType, uploadedFiles) = documentTypeAndUploadedFiles
-      journey
-        .getNonceAndUploadedFiles(documentType)
-        .map(_._1)
-        .fold[Either[String, RejectedGoodsSingleJourney]](Left("documentType has not been submitted yet"))(nonce =>
-          journey.receiveUploadedFiles(documentType, nonce, uploadedFiles)
-        )
+      val allUploadedFiles              = journey.answers.supportingEvidences ++ uploadedFiles
+      journey.receiveUploadedFiles(documentType, journey.answers.nonce, allUploadedFiles)
     }
 
     RejectedGoodsSingleJourney
@@ -158,7 +154,6 @@ trait RejectedGoodsSingleJourneyTestData {
       .flatMapWhenDefined(reimbursementMethod)(_.submitReimbursementMethod _)
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
-      .mapEach(supportingEvidencesExpanded.keys, _.submitDocumentType _)
       .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)
   }
 
