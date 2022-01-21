@@ -21,10 +21,14 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -33,11 +37,38 @@
 
 @(addresses: Seq[(InspectionAddressType, String)], form: Form[InspectionAddressType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
+<style>
+    div.govuk-form-group {
+        margin-bottom: 2px !important;
+    }
+</style>
+
 @key = @{"inspection-address.type"}
 
 @title = @{messages(s"$key.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@acc14AddressRadioItems = @{
+    addresses.map { case (addressType, address) =>
+        RadioItem(
+            id = Some(s"$key-radio-$addressType"),
+            value = Some(addressType.toString),
+            content = Text(address),
+            hint = Some(Hint(content = Text(messages(s"$key.$addressType")))),
+            checked = false
+        )
+    }
+}
+
+@otherAddressRadioItems = @{
+    RadioItem(
+        id = Some(s"$key-radio-${InspectionAddressType.Other}"),
+        value = Some(InspectionAddressType.Other.toString),
+        content = Text(messages(s"$key.${InspectionAddressType.Other}")),
+        checked = false
+    ) :: Nil
+}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
@@ -47,8 +78,26 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.or")), Some("govuk-body"))
+        @radios(
+            form = form,
+            name = key,
+            legend = title,
+            legendAsHeading = false,
+            classes = "govuk-visually-hidden",
+            items = acc14AddressRadioItems
+        )
 
-        @submitButton("button.continue")
+        @paragraph(Html(messages(s"$key.or")), Some("govuk-body govuk-!-margin-bottom-2"))
+
+        @radios(
+            form = form,
+            name = key,
+            legend = title,
+            legendAsHeading = false,
+            classes = "govuk-visually-hidden",
+            items = otherAddressRadioItems
+        )
+
+        @submitButton("button.continue", classes = Some("govuk-!-margin-top-5"))
     }
 }

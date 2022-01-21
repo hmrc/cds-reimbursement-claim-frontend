@@ -20,6 +20,7 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 
 final case class InspectionAddress(
   addressLine1: String,
@@ -39,6 +40,7 @@ object InspectionAddress {
     Builder(inspectionAddressType)
 
   final case class Builder(inspectionAddressType: InspectionAddressType) extends AnyVal {
+
     def mapFrom(contactAddress: ContactAddress): InspectionAddress =
       InspectionAddress(
         addressLine1 = contactAddress.line1,
@@ -46,6 +48,16 @@ object InspectionAddress {
         city = contactAddress.line4,
         countryCode = contactAddress.country.code,
         postalCode = contactAddress.postcode,
+        addressType = inspectionAddressType
+      )
+
+    def mapFrom(contactDetails: ContactDetails): InspectionAddress =
+      InspectionAddress(
+        addressLine1 = contactDetails.addressLine1.getOrElse(""),
+        addressLine2 = contactDetails.addressLine2.getOrElse(""),
+        city = contactDetails.addressLine4.getOrElse(""),
+        countryCode = contactDetails.countryCode.getOrElse(""),
+        postalCode = contactDetails.postalCode.getOrElse(""),
         addressType = inspectionAddressType
       )
   }

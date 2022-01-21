@@ -16,19 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.data.EitherT
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.isInvalidAddressError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
@@ -37,55 +34,37 @@ import scala.concurrent.Future
 @Singleton
 class CheckClaimantDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  addressLookupService: AddressLookupService,
+  val addressLookupService: AddressLookupService,
   claimantDetailsPage: pages.check_claimant_details,
-  problemWithAddressPage: problem_with_address
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends RejectedGoodsSingleJourneyBaseController {
+  val problemWithAddressPage: problem_with_address
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
+    extends RejectedGoodsSingleJourneyBaseController
+    with AddressLookup[RejectedGoodsSingleJourney] {
 
   implicit val subKey: Option[String] = None
 
+  override val startAddressLookup: Call =
+    routes.CheckClaimantDetailsController.redirectToALF()
+
+  override val retrieveLookupAddress: Call =
+    routes.CheckClaimantDetailsController.retrieveAddressFromALF()
+
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-    val changeCd      = routes.EnterContactDetailsController.show()
-    val changeAddress = routes.CheckClaimantDetailsController.startAddressLookup()
-    val postAction    = routes.BasisForClaimController.show()
+    val changeCd   = routes.EnterContactDetailsController.show()
+    val postAction = routes.BasisForClaimController.show()
     Future.successful(
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
-        case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, changeAddress, postAction))
+        case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction))
         case _                    => Redirect(routes.EnterMovementReferenceNumberController.show())
       }
     )
   }
 
-  val startAddressLookup: Action[AnyContent] =
-    Action.andThen(jcc.authenticatedAction).async { implicit request =>
-      addressLookupService
-        .startLookupRedirectingBackTo(routes.CheckClaimantDetailsController.updateAddress())
-        .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
-    }
+  override def update(journey: RejectedGoodsSingleJourney): ContactAddress => RejectedGoodsSingleJourney =
+    journey.submitContactAddress
 
-  def updateAddress(addressIdentity: Option[UUID] = None): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      addressIdentity
-        .map(
-          addressLookupService
-            .retrieveUserAddress(_)
-            .map(journey.submitContactAddress)
-        )
-        .getOrElse(EitherT.rightT[Future, Error](journey))
-        .fold(
-          error => {
-            logger warn s"Error updating Address Lookup address: $error"
-            (
-              journey,
-              if (isInvalidAddressError(error))
-                Ok(problemWithAddressPage(routes.CheckClaimantDetailsController.startAddressLookup()))
-              else Redirect(baseRoutes.IneligibleController.ineligible())
-            )
-          },
-          journey => (journey, Redirect(routes.CheckClaimantDetailsController.show()))
-        )
-    }
+  override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
+    (journey, Redirect(routes.CheckClaimantDetailsController.show()))
 }
 
 object CheckClaimantDetailsController {

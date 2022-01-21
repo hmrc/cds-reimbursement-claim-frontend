@@ -34,8 +34,8 @@ POST        /:journey/claimant-details/change-contact-details       uk.gov.hmrc.
 GET         /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/lookup-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.startAddressLookup(journey: JourneyBindable)
-GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.updateAddress(journey: JourneyBindable, id: Option[UUID] ?= None)
+GET         /:journey/claimant-details/lookup-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.redirectToALF(journey: JourneyBindable)
+GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.retrieveAddressFromALF(journey: JourneyBindable, id: Option[UUID] ?= None)
 
 GET         /:journey/claimant-details/problem-with-address         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ProblemWithAddressController.problem(journey: JourneyBindable)
 

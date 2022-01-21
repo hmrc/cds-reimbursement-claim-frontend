@@ -142,7 +142,7 @@ class ClaimantDetailsHelper @Inject() () {
           "govuk-link",
           List(
             ActionItem(
-              href = s"${routes.CheckContactDetailsMrnController.startAddressLookup(journey).url}",
+              href = s"${routes.CheckContactDetailsMrnController.redirectToALF(journey).url}",
               content = Text(messages("claimant-details.change")),
               visuallyHiddenText = Some(messages(s"$key.contact.address"))
             )

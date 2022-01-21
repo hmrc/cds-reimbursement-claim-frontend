@@ -17,32 +17,30 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import cats.Monad
-import cats.data.EitherT
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.inspectionAddressTypeForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Importer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.isInvalidAddressError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -52,21 +50,28 @@ class ChooseInspectionAddressTypeController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val jcc: JourneyControllerComponents,
-  addressLookupService: AddressLookupService,
+  val addressLookupService: AddressLookupService,
   inspectionAddressPage: pages.choose_inspection_address_type,
-  problemWithAddressPage: problem_with_address
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
-    extends RejectedGoodsSingleJourneyBaseController {
+  val problemWithAddressPage: problem_with_address
+)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
+    extends RejectedGoodsSingleJourneyBaseController
+    with AddressLookup[RejectedGoodsSingleJourney] {
 
-  private val showAddressLookupPage   = routes.ChooseInspectionAddressTypeController.redirectToALF()
-  private val submitInspectionAddress = routes.ChooseInspectionAddressTypeController.submit()
+  val applyChoice: Call =
+    routes.ChooseInspectionAddressTypeController.submit()
+
+  override val startAddressLookup: Call =
+    routes.ChooseInspectionAddressTypeController.redirectToALF()
+
+  override val retrieveLookupAddress: Call =
+    routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Monad[Future].map(populateAddresses(journey).asFuture)({
       case Nil =>
-        Redirect(showAddressLookupPage)
+        Redirect(startAddressLookup)
       case xs  =>
-        Ok(inspectionAddressPage(xs, inspectionAddressTypeForm, submitInspectionAddress))
+        Ok(inspectionAddressPage(xs, inspectionAddressTypeForm, applyChoice))
     })
   }
 
@@ -74,55 +79,43 @@ class ChooseInspectionAddressTypeController @Inject() (
     inspectionAddressTypeForm
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          (
-            journey,
-            BadRequest(inspectionAddressPage(populateAddresses(journey), formWithErrors, submitInspectionAddress))
-          ).asFuture,
-        { case Other =>
-          (journey, Redirect(showAddressLookupPage)).asFuture
+        errors =>
+          (journey, BadRequest(inspectionAddressPage(populateAddresses(journey), errors, applyChoice))).asFuture,
+        {
+          case Other     =>
+            (journey, Redirect(startAddressLookup)).asFuture
+          case Declarant =>
+            journey.getDeclarantContactDetailsFromACC14
+              .map {
+                InspectionAddress.ofType(Declarant).mapFrom(_) |>
+                  journey.submitInspectionAddress |>
+                  redirectToTheNextPage
+              }
+              .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
+              .asFuture
+          case Importer  =>
+            journey.getConsigneeContactDetailsFromACC14
+              .map {
+                InspectionAddress.ofType(Importer).mapFrom(_) |>
+                  journey.submitInspectionAddress |>
+                  redirectToTheNextPage
+              }
+              .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
+              .asFuture
         }
       )
   }
 
-  val redirectToALF: Action[AnyContent] =
-    Action.andThen(jcc.authenticatedAction).async { implicit request =>
-      addressLookupService
-        .startLookupRedirectingBackTo(routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF())
-        .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
-    }
+  override def update(journey: RejectedGoodsSingleJourney): ContactAddress => RejectedGoodsSingleJourney =
+    InspectionAddress.ofType(Other).mapFrom(_) |> journey.submitInspectionAddress
 
-  def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      maybeID
-        .map { id =>
-          addressLookupService
-            .retrieveUserAddress(id)
-            .map(InspectionAddress.ofType(Other).mapFrom(_))
-        }
-        .getOrElse(EitherT.leftT[Future, InspectionAddress](Error("The address lookup ID is missing")))
-        .fold(
-          error => {
-            logger warn s"Error retrieving lookup address: $error"
-            val errorPage =
-              if (isInvalidAddressError(error))
-                Ok(problemWithAddressPage(showAddressLookupPage))
-              else Redirect(baseRoutes.IneligibleController.ineligible())
-            (journey, errorPage)
-          },
-          updateJourney(journey).andThen(redirect)
-        )
-    }
+  override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
+    if (journey.isAllSelectedDutiesAreCMAEligible)
+      (journey, Redirect(Call("", "/choose-repayment-method")))
+    else (journey, Redirect(Call("", "/check-bank-details")))
 
   private def populateAddresses(journey: RejectedGoodsSingleJourney) = Seq(
     journey.getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer  -> _),
     journey.getDeclarantContactDetailsFromACC14.flatMap(_.showAddress).map(Declarant -> _)
   ).flatten(Option.option2Iterable)
-
-  private def updateJourney(journey: RejectedGoodsSingleJourney): InspectionAddress => RejectedGoodsSingleJourney =
-    address => journey.submitInspectionAddress(address)
-
-  private val redirect: RejectedGoodsSingleJourney => (RejectedGoodsSingleJourney, Result) =
-    journey => ??? //if (journey.isAllSelectedDutiesAreCMAEligible)
-
 }

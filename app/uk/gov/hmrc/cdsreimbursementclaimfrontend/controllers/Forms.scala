@@ -130,7 +130,7 @@ object Forms {
     Form(
       "inspection-address.type" ->
         nonEmptyText
-          .verifying("invalid inspection address type", s => InspectionAddressType.hasKey(s))
+          .verifying("error.invalid", s => InspectionAddressType.hasKey(s))
           .transform[InspectionAddressType](InspectionAddressType.tryParse, _.toString)
     )
 }
