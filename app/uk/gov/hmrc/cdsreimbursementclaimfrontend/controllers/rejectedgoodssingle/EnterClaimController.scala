@@ -39,7 +39,7 @@ class EnterClaimController @Inject() (
 
   val key: String               = "enter-claim.rejected-goods.single"
   val taxCodeCookieName: String = "taxCode"
-  val postAction: Call  = routes.EnterClaimController.submit()
+  val postAction: Call          = routes.EnterClaimController.submit()
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getNextNdrcDetailsToClaim match {
