@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 class UploadDocumentTypeFormatSpec extends AnyWordSpec with JsonFormatTest with Matchers {

@@ -118,7 +118,7 @@ final class RejectedGoodsSingleJourney private (
               .map(taxCode => (taxCode, ndrc.isCmaEligible))
           )
           .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes.toSeq)
+        if (taxCodes.isEmpty) None else Some(taxCodes)
       }
       .getOrElse(Seq.empty)
 
@@ -128,7 +128,7 @@ final class RejectedGoodsSingleJourney private (
   def isAllSelectedDutiesAreCMAEligible: Boolean =
     answers.reimbursementClaims
       .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
-      .exists(_.forall(_.cmaEligible.isDefined))
+      .exists(_.forall(_.isCmaEligible))
 
   def getReimbursementClaims: Map[TaxCode, BigDecimal] =
     answers.reimbursementClaims
@@ -353,7 +353,7 @@ final class RejectedGoodsSingleJourney private (
           if (allTaxCodesExistInACC14) {
             val newReimbursementClaims = answers.reimbursementClaims match {
               case None                      =>
-                taxCodes.map(taxCode => (taxCode -> None)).toMap
+                taxCodes.map(taxCode => taxCode -> None).toMap
 
               case Some(reimbursementClaims) =>
                 taxCodes.map { taxCode =>

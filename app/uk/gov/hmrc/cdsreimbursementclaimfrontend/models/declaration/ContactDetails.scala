@@ -36,7 +36,7 @@ final case class ContactDetails(
     addressLine1 *> postalCode *> Some(
       Seq(addressLine1, addressLine2, addressLine3, addressLine4, postalCode)
         .flatten(Option.option2Iterable)
-        .mkString(",")
+        .mkString(", ")
     )
 }
 

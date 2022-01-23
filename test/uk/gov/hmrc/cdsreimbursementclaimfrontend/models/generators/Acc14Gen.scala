@@ -51,29 +51,29 @@ object Acc14Gen {
 
   lazy val genContactDetails: Gen[ContactDetails] =
     for {
-      contactName  <- Gen.option(genStringWithMaxSizeOfN(7))
-      addressLine1 <- Gen.option(Gen.posNum[Int].map(num => s"$num ${genStringWithMaxSizeOfN(7)}"))
+      contactName  <- genStringWithMaxSizeOfN(7)
+      addressLine1 <- Gen.posNum[Int].flatMap(num => genStringWithMaxSizeOfN(7).map(s => s"$num $s"))
       addressLine2 <- Gen.option(genStringWithMaxSizeOfN(10))
       addressLine3 <- Gen.option(genStringWithMaxSizeOfN(10))
       addressLine4 <- Gen.option(genStringWithMaxSizeOfN(10))
-      postalCode   <- Gen.option(genPostcode)
+      postalCode   <- genPostcode
       countryCode  <- Gen.option(genCountry.map(_.code))
       telephone    <- Gen.option(genUkPhoneNumber.map(_.value))
-      emailAddress <- Gen.option(genEmail.map(_.value))
+      emailAddress <- genEmail.map(_.value)
     } yield ContactDetails(
-      contactName,
-      addressLine1,
+      Some(contactName),
+      Some(addressLine1),
       addressLine2,
       addressLine3,
       addressLine4,
-      postalCode,
+      Some(postalCode),
       countryCode,
       telephone,
-      emailAddress
+      Some(emailAddress)
     )
 
   implicit lazy val arbitraryContactDetails: Typeclass[ContactDetails] =
-    gen[ContactDetails]
+    Arbitrary(genContactDetails)
 
   lazy val genEstablishmentAddress: Gen[EstablishmentAddress] =
     for {
@@ -92,7 +92,7 @@ object Acc14Gen {
     )
 
   implicit lazy val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] =
-    gen[EstablishmentAddress]
+    Arbitrary(genEstablishmentAddress)
 
   lazy val genAcc14WithAddresses: DisplayDeclaration = {
     val contactDetails       =
