@@ -92,8 +92,8 @@ class EnterClaimControllerSpec
   "Enter Claim Controller" when {
     "Enter Claim page" must {
 
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+      def performAction(taxCode: Option[TaxCode] = None): Future[Result] =
+        controller.showInner(taxCode)(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -120,13 +120,13 @@ class EnterClaimControllerSpec
             doc => {
               doc
                 .select("p.govuk-inset-text")
-                .text()                                                shouldBe messageFromMessageKey("enter-claim.rejected-goods.single.inset-text")
-              doc.select("form p").text()                              shouldBe messageFromMessageKey(
+                .text()                                                                          shouldBe messageFromMessageKey("enter-claim.rejected-goods.single.inset-text")
+              doc.select("form p").text()                                                        shouldBe messageFromMessageKey(
                 "enter-claim.rejected-goods.single.paid-amount-label",
                 amountPaid.toPoundSterlingString
               )
-              doc.select("#enter-claim.rejected-goods.single").`val`() shouldBe ""
-              doc.select("form").attr("action")                        shouldBe routes.EnterClaimController.submit().url
+              doc.select("input[name='enter-claim.rejected-goods.single.claim-amount']").`val`() shouldBe ""
+              doc.select("form").attr("action")                                                  shouldBe routes.EnterClaimController.submit().url
             }
           )
 
@@ -157,8 +157,56 @@ class EnterClaimControllerSpec
 
             checkIsRedirect(
               performAction(),
-              "total_reimbursement"
+              routes.CheckClaimDetailsController.show()
             )
+          }
+      }
+
+      "display the page when trying to amend a specific tax code" in forAll {
+        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
+          whenever(BigDecimal(ndrcDetails.amount) > 12) {
+            val drd                = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+            val updatedDd          = displayDeclaration.copy(displayResponseDetail = drd)
+            val taxCode            = TaxCode(ndrcDetails.taxType)
+            val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
+            val amountPaid         = BigDecimal(ndrcDetails.amount)
+            val amountClaimed      = BigDecimal(ndrcDetails.amount) - 10
+            val journey            = RejectedGoodsSingleJourney
+              .empty(exampleEori)
+              .submitDisplayDeclaration(updatedDd)
+              .selectAndReplaceTaxCodeSetForReimbursement(List(taxCode))
+              .right
+              .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
+              .right
+              .get
+            val session            = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+            }
+
+            val result = performAction(Some(taxCode))
+
+            checkPageIsDisplayed(
+              result,
+              messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
+              doc => {
+                doc
+                  .select("p.govuk-inset-text")
+                  .text()                         shouldBe messageFromMessageKey("enter-claim.rejected-goods.single.inset-text")
+                doc.select("form p").text()       shouldBe messageFromMessageKey(
+                  "enter-claim.rejected-goods.single.paid-amount-label",
+                  amountPaid.toPoundSterlingString
+                )
+                doc
+                  .select("input[name='enter-claim.rejected-goods.single.claim-amount']")
+                  .`val`()                        shouldBe f"$amountClaimed%1.2f"
+                doc.select("form").attr("action") shouldBe routes.EnterClaimController.submit().url
+              }
+            )
+
+            cookies(result).get(controller.taxCodeCookieName).map(_.value) shouldBe Some(ndrcDetails.taxType)
           }
       }
 
@@ -357,7 +405,7 @@ class EnterClaimControllerSpec
 
             checkIsRedirect(
               result,
-              "total_reimbursement"
+              routes.CheckClaimDetailsController.show()
             )
 
             cookies(result).get(controller.taxCodeCookieName) shouldBe None
