@@ -132,7 +132,7 @@ object Forms {
       "inspection-address.type" ->
         nonEmptyText
           .verifying("error.invalid", s => InspectionAddressType.hasKey(s))
-          .transform[InspectionAddressType](InspectionAddressType.tryParse, _.toString)
+          .transform[InspectionAddressType](InspectionAddressType.tryParse, InspectionAddressType.keyOf)
     )
 
   def claimAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =

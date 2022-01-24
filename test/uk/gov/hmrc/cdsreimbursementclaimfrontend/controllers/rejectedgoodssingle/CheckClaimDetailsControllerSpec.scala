@@ -88,7 +88,7 @@ class CheckClaimDetailsControllerSpec
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>
-          val session  = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+          val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()
