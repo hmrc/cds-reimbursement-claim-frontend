@@ -61,7 +61,7 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.answers.methodOfDisposal                 shouldBe None
       emptyJourney.answers.reimbursementClaims              shouldBe None
       emptyJourney.answers.reimbursementMethod              shouldBe None
-      emptyJourney.answers.supportingEvidences              shouldBe None
+      emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
       emptyJourney.getNdrcDetails                           shouldBe None
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
@@ -88,7 +88,7 @@ class RejectedGoodsSingleJourneySpec
         output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
           .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
         output.reimbursementClaims      shouldBe journey.getReimbursementClaims
-        output.supportingEvidences      shouldBe journey.answers.supportingEvidences.get.map(EvidenceDocument.from)
+        output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
       }

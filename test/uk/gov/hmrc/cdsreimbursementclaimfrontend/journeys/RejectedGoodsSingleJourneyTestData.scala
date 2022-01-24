@@ -16,29 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import magnolia.Magnolia.gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-
-import java.time.Instant
-import java.time.LocalDateTime
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-
-import java.time.Instant
-import java.time.LocalDateTime
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
-
-import java.time.LocalDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 trait RejectedGoodsSingleJourneyTestData {
@@ -56,8 +49,7 @@ trait RejectedGoodsSingleJourneyTestData {
 
   val emptyJourney = RejectedGoodsSingleJourney.empty(exampleEori)
 
-  val uploadDocument     = buildUploadDocument("foo")
-  val uploadDocumentJson = buildUploadDocumentJson("foo")
+  val uploadDocument = buildUploadDocument("foo")
 
   val exampleContactDetails: MrnContactDetails =
     MrnContactDetails(
@@ -110,7 +102,7 @@ trait RejectedGoodsSingleJourneyTestData {
     inspectionAddress: InspectionAddress,
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
-    supportingEvidences: Seq[(String, UploadDocumentType)],
+    supportingEvidences: Map[UploadDocumentType, Int],
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
@@ -119,29 +111,28 @@ trait RejectedGoodsSingleJourneyTestData {
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None
   ): Either[String, RejectedGoodsSingleJourney] = {
-    val taxCodes: Seq[TaxCode]                                                       =
+    val taxCodes: Seq[TaxCode]                                      =
       reimbursementClaims.map(_._1)
-    val taxCodesWithReimbursementAmount: Seq[(TaxCode, BigDecimal)]                  =
+    val taxCodesWithReimbursementAmount: Seq[(TaxCode, BigDecimal)] =
       reimbursementClaims.map(e => (e._1, e._2))
-    val uploadedDocuments: Seq[UploadDocument]                                       =
-      supportingEvidences.map(_._1).map(buildUploadDocument)
-    val upscanReferencesWithDocumentType: Seq[(UploadReference, UploadDocumentType)] =
-      uploadedDocuments.map(_.uploadReference).zip(supportingEvidences.map(_._2))
+
+    val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]] =
+      supportingEvidences.map { case (documentType, size) =>
+        (documentType, (0 until size).map(i => buildUploadDocument(s"$i")))
+      }
 
     def submitAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
       taxCodesWithReimbursementAmount: (TaxCode, BigDecimal)
     ): Either[String, RejectedGoodsSingleJourney] =
       journey.submitAmountForReimbursement(taxCodesWithReimbursementAmount._1, taxCodesWithReimbursementAmount._2)
 
-    def submitUploadedDocument(journey: RejectedGoodsSingleJourney)(
-      uploadDocument: UploadDocument
-    ): RejectedGoodsSingleJourney =
-      journey.submitUploadedDocument(uploadDocument)
-
-    def submitDocumentType(journey: RejectedGoodsSingleJourney)(
-      uploadReferenceWithDocumentType: (UploadReference, UploadDocumentType)
-    ): Either[String, RejectedGoodsSingleJourney] =
-      journey.submitDocumentType(uploadReferenceWithDocumentType._1, uploadReferenceWithDocumentType._2)
+    def receiveUploadedFiles(journey: RejectedGoodsSingleJourney)(
+      documentTypeAndUploadedFiles: (UploadDocumentType, Seq[UploadedFile])
+    ): Either[String, RejectedGoodsSingleJourney] = {
+      val (documentType, uploadedFiles) = documentTypeAndUploadedFiles
+      val allUploadedFiles              = journey.answers.supportingEvidences ++ uploadedFiles
+      journey.receiveUploadedFiles(documentType, journey.answers.nonce, allUploadedFiles)
+    }
 
     RejectedGoodsSingleJourney
       .empty(userEoriNumber)
@@ -164,8 +155,7 @@ trait RejectedGoodsSingleJourneyTestData {
       .flatMapWhenDefined(reimbursementMethod)(_.submitReimbursementMethod _)
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
-      .mapEach(uploadedDocuments, submitUploadedDocument)
-      .flatMapEach(upscanReferencesWithDocumentType, submitDocumentType)
+      .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)
   }
 
   def buildDisplayDeclaration(
@@ -230,58 +220,14 @@ trait RejectedGoodsSingleJourneyTestData {
     }
   }
 
-  def buildUploadDocument(id: String) = UploadDocument(
-    uploadReference = UploadReference(s"upload-reference-$id"),
-    upscanUploadMeta = UpscanUploadMeta(
-      reference = s"reference-$id",
-      uploadRequest = UploadRequest(
-        href = s"upload-request-ref-$id",
-        fields = Map("field-a" -> s"a-$id", "field-b" -> s"b-$id")
-      )
-    ),
-    uploadedOn = LocalDateTime.parse("2007-12-03T10:15:30"),
-    upscanSuccess = UpscanCallBack.UpscanSuccess(
-      reference = s"upscan-reference-$id",
-      fileStatus = s"upscan-file-status-$id",
-      downloadUrl = s"upscan-download-url-$id",
-      uploadDetails = UpscanCallBack.UploadDetails(
-        fileName = s"file-name-$id",
-        fileMimeType = s"application/$id",
-        uploadTimestamp = Instant.ofEpochMilli(0L),
-        checksum = "A" * 64,
-        size = 1L
-      )
-    ),
+  def buildUploadDocument(id: String) = UploadedFile(
+    upscanReference = s"upscan-reference-$id",
     fileName = s"file-name-$id",
-    documentType = None
+    downloadUrl = s"download-url-$id",
+    uploadTimestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneId.of("Europe/London")),
+    checksum = "A" * 64,
+    fileMimeType = s"application/$id",
+    fileSize = Some(12345)
   )
-
-  def buildUploadDocumentJson(id: String): String =
-    s"""{"uploadReference": "upload-reference-$id",
-      |    "upscanUploadMeta": {
-      |        "reference": "reference-$id",
-      |        "uploadRequest": {
-      |            "href": "upload-request-ref-$id",
-      |            "fields": {
-      |                "field-a": "a-$id",
-      |                "field-b": "b-$id"
-      |            }
-      |        }
-      |    },
-      |    "uploadedOn": "2007-12-03T10:15:30",
-      |    "upscanSuccess": {
-      |        "reference": "upscan-reference-$id",
-      |        "fileStatus": "upscan-file-status-$id",
-      |        "downloadUrl": "upscan-download-url-$id",
-      |        "uploadDetails": {
-      |            "fileName": "file-name-$id",
-      |            "fileMimeType": "application/$id",
-      |            "uploadTimestamp": "1970-01-01T00:00:00Z",
-      |            "checksum": "${"A" * 64}",
-      |            "size": 1
-      |        }
-      |    },
-      |    "fileName": "file-name-$id"
-      |}""".stripMargin
 
 }
