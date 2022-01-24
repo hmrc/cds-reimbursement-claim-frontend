@@ -538,6 +538,18 @@ enter-claim.rejected-goods.single.claim-amount.error.zero=Claim amount must be 0
 enter-claim.rejected-goods.single.submitAmountForReimbursement.taxCodeNotSelectedYet=
 
 #===================================================
+#  CHECK CLAIM REJECTED GOODS - SINGLE
+#===================================================
+check-claim.rejected-goods.single.title=Check the claim total for the MRN
+check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
+check-claim.rejected-goods.single.mrn.label=MRN: {0}
+check-claim.rejected-goods.single.total=Repayment for this MRN
+check-claim.rejected-goods.single.are-duties-correct=Are these duties correct?
+check-claim.rejected-goods.single.yes=Yes
+check-claim.rejected-goods.single.no=No, select different duties
+check-claim.rejected-goods.single.error.invalid=Select Yes if these duties are correct.
+
+#===================================================
 #  CONTACT DETAILS REJECTED GOODS
 #===================================================
 enter-contact-details-rejected-goods.change.title=Change contact details

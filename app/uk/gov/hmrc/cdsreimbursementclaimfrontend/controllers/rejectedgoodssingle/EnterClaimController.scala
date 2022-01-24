@@ -22,10 +22,13 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Cookie
+import play.api.mvc.Request
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -41,18 +44,37 @@ class EnterClaimController @Inject() (
   val taxCodeCookieName: String = "taxCode"
   val postAction: Call          = routes.EnterClaimController.submit()
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getNextNdrcDetailsToClaim match {
-      case Some(ndrcDetails)                              =>
-        val amountPaid = BigDecimal(ndrcDetails.amount)
-        val form       = Forms.claimAmountForm(ndrcDetails.taxType, amountPaid)
-        Future.successful(
-          Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction))
-            .withCookies(Cookie(taxCodeCookieName, ndrcDetails.taxType))
-        )
-      case None if journey.hasCompleteReimbursementClaims => Redirect("total_reimbursement").asFuture
-      case None                                           => Redirect(routes.SelectTaxCodesController.show()).asFuture
+  def show(): Action[AnyContent] = showInner(None)
+
+  def showAmend(taxCode: TaxCode): Action[AnyContent] = showInner(Some(taxCode))
+
+  def showInner(taxCode: Option[TaxCode]): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    (
+      taxCode,
+      taxCode.flatMap(code => journey.getNdrcDetailsFor(code)),
+      journey.getNextNdrcDetailsToClaim
+    ) match {
+      case (_, Some(_), Some(_))                                                        =>
+        Redirect(routes.EnterClaimController.show()).asFuture
+      case (_, _, Some(ndrcDetails))                                                    =>
+        displayFormFor(ndrcDetails)
+      case (Some(code), Some(ndrcDetails), _) if journey.hasCompleteReimbursementClaims =>
+        displayFormFor(ndrcDetails, journey.getReimbursementClaims.get(code))
+      case (_, _, None) if journey.hasCompleteReimbursementClaims                       =>
+        Redirect(routes.CheckClaimDetailsController.show()).asFuture
+      case (_, _, None)                                                                 =>
+        Redirect(routes.SelectTaxCodesController.show()).asFuture
     }
+  }
+
+  private def displayFormFor(ndrcDetails: NdrcDetails, claimedAmount: Option[BigDecimal] = None)(implicit
+    request: Request[_]
+  ): Future[Result] = {
+    val amountPaid = BigDecimal(ndrcDetails.amount)
+    val form       = Forms.claimAmountForm(key, amountPaid).withDefault(claimedAmount)
+    Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction))
+      .withCookies(Cookie(taxCodeCookieName, ndrcDetails.taxType))
+      .asFuture
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -91,7 +113,7 @@ class EnterClaimController @Inject() (
                           (
                             updatedJourney,
                             if (updatedJourney.hasCompleteReimbursementClaims)
-                              Redirect("total_reimbursement") //TODO: Set the correct details
+                              Redirect(routes.CheckClaimDetailsController.show())
                             else
                               Redirect(routes.EnterClaimController.show())
                           )

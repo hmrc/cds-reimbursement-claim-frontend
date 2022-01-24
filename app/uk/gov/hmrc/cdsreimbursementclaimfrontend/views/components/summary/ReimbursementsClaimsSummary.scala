@@ -43,7 +43,7 @@ object ReimbursementsClaimsSummary extends AnswerSummary[Seq[(TaxCode, BigDecima
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = changeCall.url,
+                    href = s"${changeCall.url}/${taxCode.value}",
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
                   )
@@ -55,18 +55,7 @@ object ReimbursementsClaimsSummary extends AnswerSummary[Seq[(TaxCode, BigDecima
         Seq(
           SummaryListRow(
             key = Key(Text(messages(s"$key.total"))),
-            value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString)),
-            actions = changeCallOpt.map(changeCall =>
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.total"))
-                  )
-                )
-              )
-            )
+            value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString))
           )
         )
     )
