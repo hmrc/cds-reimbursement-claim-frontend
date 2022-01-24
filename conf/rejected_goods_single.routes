@@ -40,4 +40,8 @@ POST         /rejected-goods/single/submit-claim                                
 GET          /rejected-goods/single/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.showConfirmation()
 
 GET          /rejected-goods/single/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.show()
+GET          /rejected-goods/single/enter-claim/:taxCode                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.showAmend(taxCode: TaxCode)
 POST         /rejected-goods/single/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.submit()
+
+GET          /rejected-goods/single/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.show()
+POST         /rejected-goods/single/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.submit()
