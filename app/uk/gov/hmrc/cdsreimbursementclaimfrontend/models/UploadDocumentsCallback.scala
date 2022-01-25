@@ -16,28 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Format
-import play.api.libs.json.Json
-import java.time.ZonedDateTime
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import play.api.libs.json.Json
+import play.api.libs.json.Format
 
-/** DTO between upload-documents-frontend and this microservice.
-  * Do NOT rename fields!
-  */
-final case class UploadedFile(
-  upscanReference: String,
-  downloadUrl: String,
-  uploadTimestamp: ZonedDateTime,
-  checksum: String,
-  fileName: String,
-  fileMimeType: String,
-  fileSize: Option[Long],
-  cargo: Option[UploadDocumentType] = None,
-  description: Option[String] = None
+final case class UploadDocumentsCallback(
+  nonce: Nonce,
+  uploadedFiles: Seq[UploadedFile],
+  cargo: UploadDocumentType
 ) {
-  def documentType: Option[UploadDocumentType] = cargo
+  def documentType: UploadDocumentType = cargo
 }
 
-object UploadedFile {
-  implicit val formats: Format[UploadedFile] = Json.format[UploadedFile]
+object UploadDocumentsCallback {
+  implicit val format: Format[UploadDocumentsCallback] = Json.format[UploadDocumentsCallback]
 }

@@ -37,9 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -463,6 +463,11 @@ final class RejectedGoodsSingleJourney private[journeys] (
         Left("submitReimbursementMethodAnswer.notCMAEligible")
     }
 
+  def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsSingleJourney =
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(answers.copy(selectedDocumentType = Some(documentType)))
+    }
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: UploadDocumentType,
@@ -479,6 +484,11 @@ final class RejectedGoodsSingleJourney private[journeys] (
           new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
         )
       } else Left("receiveUploadedFiles.invalidNonce")
+    }
+
+  def submitCheckYourAnswersAndChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(answers.copy(checkYourAnswersAndChangeMode = enabled))
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsSingleJourney] =
@@ -545,12 +555,13 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
 
   /** A starting point to build new instance of the journey. */
   def empty(userEoriNumber: Eori): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(Answers(userEoriNumber))
+    new RejectedGoodsSingleJourney(Answers(userEoriNumber = userEoriNumber))
 
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
+    nonce: Nonce = Nonce.random,
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
@@ -568,8 +579,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
-    nonce: Nonce = Nonce.random,
-    supportingEvidences: Seq[UploadedFile] = Seq.empty
+    selectedDocumentType: Option[UploadDocumentType] = None,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    checkYourAnswersAndChangeMode: Boolean = false
   )
 
   // Final minimal output of the journey we want to pass to the backend.

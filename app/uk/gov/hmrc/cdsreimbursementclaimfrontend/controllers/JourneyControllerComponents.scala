@@ -18,22 +18,25 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.Configuration
 import play.api.mvc.ActionBuilder
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.MessagesRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.FeatureSwitchProtectedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.FeatureSwitchProtectedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import scala.concurrent.ExecutionContext
-import play.api.mvc.MessagesRequest
 
 @Singleton
 class JourneyControllerComponents @Inject() (
@@ -44,7 +47,9 @@ class JourneyControllerComponents @Inject() (
   val controllerComponents: MessagesControllerComponents,
   val sessionCache: SessionCache,
   featureSwitchService: FeatureSwitchService,
-  val errorHandler: ErrorHandler
+  val errorHandler: ErrorHandler,
+  val configuration: Configuration,
+  val servicesConfig: ServicesConfig
 )(implicit ec: ExecutionContext) {
 
   final val actionBuilder: ActionBuilder[MessagesRequest, AnyContent] =
@@ -52,18 +57,19 @@ class JourneyControllerComponents @Inject() (
       .compose(controllerComponents.actionBuilder)
 
   final def authenticatedActionWithSessionData(
-    featureOpt: Option[Feature]
+    featureOpt: Option[Feature],
+    isCallback: Boolean = false
   ): ActionBuilder[RequestWithSessionData, AnyContent] =
     featureOpt match {
       case Some(feature) =>
         actionBuilder
           .andThen(new FeatureSwitchProtectedAction(feature, featureSwitchService, errorHandler))
-          .andThen(authenticatedAction)
+          .andThen(authenticatedAction.readHeadersFromRequestOnly(isCallback))
           .andThen(sessionDataAction)
 
       case None =>
         actionBuilder
-          .andThen(authenticatedAction)
+          .andThen(authenticatedAction.readHeadersFromRequestOnly(isCallback))
           .andThen(sessionDataAction)
     }
 

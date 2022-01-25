@@ -39,7 +39,7 @@ class RejectedGoodsSingleJourneyFormatSpec
 
   "RejectedGoodsSingleJourney.Answers" should {
     "serialize into a JSON format and back" in {
-      validateCanReadAndWriteJson(Answers(exampleEori))
+      validateCanReadAndWriteJson(Answers(userEoriNumber = exampleEori))
       validateCanReadAndWriteJson(
         Answers(userEoriNumber = exampleEori, movementReferenceNumber = Some(MRN("19GB03I52858027001")))
       )

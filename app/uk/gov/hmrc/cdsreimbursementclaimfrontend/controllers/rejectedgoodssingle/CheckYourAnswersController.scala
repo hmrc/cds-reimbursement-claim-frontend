@@ -46,19 +46,25 @@ class CheckYourAnswersController @Inject() (
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
 
   val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadWriteJourney { implicit request => journey =>
       journey.toOutput
         .fold(
           errors => {
             logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
-            Redirect(routeForValidationErrors(errors))
+            (
+              journey.submitCheckYourAnswersAndChangeMode(false),
+              Redirect(routeForValidationErrors(errors))
+            )
           },
           output =>
-            Ok(
-              checkYourAnswersPage(
-                output,
-                journey.answers.displayDeclaration,
-                postAction
+            (
+              journey.submitCheckYourAnswersAndChangeMode(true),
+              Ok(
+                checkYourAnswersPage(
+                  output,
+                  journey.answers.displayDeclaration,
+                  postAction
+                )
               )
             )
         )
@@ -104,7 +110,7 @@ class CheckYourAnswersController @Inject() (
           .map(journey =>
             (journey.caseNumber match {
               case Some(caseNumber) => Ok(confirmationOfSubmissionPage(journey.getTotalReimbursementAmount, caseNumber))
-              case None             => Redirect(routes.CheckYourAnswersController.show())
+              case None             => Redirect(checkYourAnswers)
             }).asFuture
           )
           .getOrElse(redirectToTheStartOfTheJourney)

@@ -1244,6 +1244,22 @@ choose-claim-type.error.required=Select if you are claiming reimbursement of imp
 choose-claim-type.error.unknown=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
 
 #===================================================
+#  CHOOSE FILE TYPE - PAGE
+#===================================================
+choose-file-type.title=Choose the type of supporting documents you are uploading
+choose-file-type.help-text=You can upload multiple documents of the same type on the next page. This will help us to process your claim more efficiently.
+choose-file-type.file-type.AdditionalSupportingDocuments=Additional supporting documents
+choose-file-type.file-type.CalculationWorksheet=Calculation worksheet
+choose-file-type.file-type.CommercialInvoice=Commercial invoice
+choose-file-type.file-type.CorrespondenceTrader=Correspondence between trader and agent
+choose-file-type.file-type.DocumentaryProofFaultyOrNotWhatOrdered=	Documentary proof that the goods are faulty or not what you ordered
+choose-file-type.file-type.ImportAndExportDeclaration=Import and export declaration
+choose-file-type.file-type.LetterOfAuthority=Letter of authority
+choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
+choose-file-type.file-type.none=I have no more documents to upload
+choose-file-type.error.required=Choose a file type to support your claim
+
+#===================================================
 #  COUNTRIES - START
 #===================================================
 countryCode.placeholder=Select country

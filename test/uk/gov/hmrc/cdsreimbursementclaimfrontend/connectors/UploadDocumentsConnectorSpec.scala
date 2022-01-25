@@ -28,6 +28,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -71,7 +72,12 @@ class UploadDocumentsConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new UploadDocumentsConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new UploadDocumentsConnectorImpl(
+      mockHttp,
+      new UploadDocumentsConfig(new ServicesConfig(config), config),
+      config,
+      actorSystem
+    )
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -81,7 +87,7 @@ class UploadDocumentsConnectorSpec
     UploadDocumentsSessionConfig(
       continueUrl = "/foo",
       backlinkUrl = "/bar",
-      resultPostUrl = "/baz",
+      callbackUrl = "/baz",
       nonce = Nonce.random,
       cargo = UploadDocumentType.LetterOfAuthority
     )
@@ -100,14 +106,20 @@ class UploadDocumentsConnectorSpec
       )
     ) _
 
+  val responseHeaders: Map[String, Seq[String]] =
+    Map("Location" -> Seq("http://foo.bar/zoo"))
+
+  val expectedResponse: Some[String]            =
+    Some("http://foo.bar/zoo")
+
   "UploadDocumentsConnector" must {
     "have retries defined" in {
-      connector.retryIntervals shouldBe Seq(FiniteDuration(15, "ms"), FiniteDuration(30, "ms"))
+      connector.uploadDocumentsConfig.retryIntervals shouldBe Seq(FiniteDuration(15, "ms"), FiniteDuration(30, "ms"))
     }
 
     "return caseNumber when successful call" in {
-      givenServiceReturns(Some(HttpResponse(201, ""))).once()
-      await(connector.initialize(initializationRequest)) should be(())
+      givenServiceReturns(Some(HttpResponse(201, "", responseHeaders))).once()
+      await(connector.initialize(initializationRequest)) shouldBe expectedResponse
     }
 
     "throw exception when invalid success response status" in {
@@ -134,14 +146,14 @@ class UploadDocumentsConnectorSpec
 
     "accept valid response in a second attempt" in {
       givenServiceReturns(Some(HttpResponse(500, ""))).once()
-      givenServiceReturns(Some(HttpResponse(201, ""))).once()
-      await(connector.initialize(initializationRequest)) should be(())
+      givenServiceReturns(Some(HttpResponse(201, "", responseHeaders))).once()
+      await(connector.initialize(initializationRequest)) shouldBe expectedResponse
     }
 
     "accept valid response in a third attempt" in {
       givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
-      givenServiceReturns(Some(HttpResponse(201, ""))).once()
-      await(connector.initialize(initializationRequest)) should be(())
+      givenServiceReturns(Some(HttpResponse(201, "", responseHeaders))).once()
+      await(connector.initialize(initializationRequest)) shouldBe expectedResponse
     }
 
   }

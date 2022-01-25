@@ -25,7 +25,7 @@ trait RejectedGoodsSingleJourneyRouter {
 
   def routeForValidationError(error: String): Call =
     error match {
-      case JOURNEY_ALREADY_FINALIZED                                => undefined
+      case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation()
       case MISSING_MOVEMENT_REFERENCE_NUMBER                        => routes.EnterMovementReferenceNumberController.show()
       case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.show()
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show()
@@ -34,7 +34,7 @@ trait RejectedGoodsSingleJourneyRouter {
       case MISSING_INSPECTION_ADDRESS                               => undefined
       case MISSING_METHOD_OF_DISPOSAL                               => undefined
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
-      case INCOMPLETE_SUPPORTING_EVIDENCES                          => undefined
+      case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show()
       case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show()
       case MISSING_CONTACT_ADDRESS                                  => undefined
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => undefined

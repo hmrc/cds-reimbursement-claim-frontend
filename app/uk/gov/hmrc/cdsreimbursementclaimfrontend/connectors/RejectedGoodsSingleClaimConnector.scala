@@ -71,7 +71,7 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
   val contextPath: String                 =
     servicesConfig.getConfString("cds-reimbursement-claim.context-path", "cds-reimbursement-claim")
   val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-single"
-  val retryIntervals: Seq[FiniteDuration] = getConfIntervals("cds-reimbursement-claim", configuration)
+  val retryIntervals: Seq[FiniteDuration] = Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
   override def submitClaim(claimRequest: Request)(implicit
     hc: HeaderCarrier

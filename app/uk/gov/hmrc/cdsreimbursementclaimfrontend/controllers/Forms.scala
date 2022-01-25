@@ -48,6 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumb
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 object Forms {
 
@@ -219,5 +220,23 @@ object Forms {
             }
           )
       )(identity)(Some(_))
+  val none: String = "none"
+
+  def chooseFileTypeForm(
+    availableFileTypes: Set[UploadDocumentType]
+  ): Form[Option[UploadDocumentType]] =
+    Form(
+      mapping(
+        "choose-file-type" -> nonEmptyText
+          .verifying(
+            "choose-file-type.error.invalid-file-type",
+            key =>
+              key === none || UploadDocumentType.parse(key).map(v => availableFileTypes.contains(v)).getOrElse(false)
+          )
+          .transform[Option[UploadDocumentType]](
+            (key: String) => if (key === none) None else UploadDocumentType.parse(key),
+            (value: Option[UploadDocumentType]) => value.map(UploadDocumentType.keyOf).getOrElse(none)
+          )
+      )(identity)(x => Some(x))
     )
 }

@@ -21,12 +21,12 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 final case class UploadDocumentsSessionConfig(
-  serviceId: Option[String] = None,
-  nonce: Nonce,
-  continueUrl: String,
-  backlinkUrl: String,
-  resultPostUrl: String,
-  cargo: UploadDocumentType
+  nonce: Nonce, // unique secret shared by the host and upload microservices
+  continueUrl: String, // url to continue after uploading the files
+  backlinkUrl: String, // backlink url
+  callbackUrl: String, // url where to post uploaded files
+  cargo: UploadDocumentType, // type of the document to assign to the newly added files
+  serviceId: Option[String] = None // client ID used by upscan configuration
 )
 
 object UploadDocumentsSessionConfig {
