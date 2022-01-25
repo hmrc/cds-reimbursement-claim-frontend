@@ -412,6 +412,36 @@ class EnterClaimControllerSpec
           }
       }
 
+      "accept claim amount, for the full amount, when only a single claim is present and move on to total reimbursement page" in forAll {
+        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
+          whenever(ndrcDetails.amount.toInt > 11) {
+            val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
+            val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
+            val amountToClaim  = BigDecimal(ndrcDetails.amount)
+            val updatedJourney =
+              journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).right.get
+            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+              mockStoreSession(updatedSession)(Right(()))
+            }
+
+            val result = performAction(
+              ndrcDetails.taxType,
+              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+            )
+
+            checkIsRedirect(
+              result,
+              routes.CheckClaimDetailsController.show()
+            )
+
+            cookies(result).get(controller.taxCodeCookieName) shouldBe None
+          }
+      }
+
       "accept claim amount when multiple claim is present and not all have been claimed" in forAll {
         (ndrcDetails1: NdrcDetails, ndrcDetails2: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
           whenever(ndrcDetails1.amount.toInt > 11 && ndrcDetails1.taxType =!= ndrcDetails2.taxType) {

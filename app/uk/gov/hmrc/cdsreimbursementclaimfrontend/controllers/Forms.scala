@@ -143,7 +143,7 @@ object Forms {
           scale = 2,
           errorMsg = s"error.invalid-text",
           zeroErrorMsg = Some(s"error.zero")
-        ).verifying("error.invalid-amount", amount => amount >= 0 && amount < paidAmount)
+        ).verifying("error.invalid-amount", amount => amount >= 0 && amount <= paidAmount)
       )(amount => amount)(amount => Some(amount))
     )
 }
