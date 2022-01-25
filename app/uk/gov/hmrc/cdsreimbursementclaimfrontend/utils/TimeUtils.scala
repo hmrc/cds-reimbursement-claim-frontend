@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.Order
+import cats.implicits.catsSyntaxEq
 import cats.syntax.either._
 import configs.ConfigReader
 import play.api.data.FormError
@@ -43,7 +44,6 @@ object TimeUtils {
   def now(): LocalDateTime = LocalDateTime.now(clock)
 
   def dateFormatter(
-    minimumDateInclusive: Option[LocalDate],
     dayKey: String,
     monthKey: String,
     yearKey: String,
@@ -77,7 +77,6 @@ object TimeUtils {
         }
 
       def toValidInt(
-        key: String,
         stringValue: String,
         maxValue: Option[Int],
         minDigits: Int,
@@ -87,10 +86,10 @@ object TimeUtils {
           case true  =>
             Either.fromOption(
               Try(BigDecimal(stringValue).toIntExact).toOption.filter(i => i > 0 && maxValue.forall(i <= _)),
-              FormError(key, "error.invalid")
+              FormError(dateKey, "error.invalid")
             )
           case false =>
-            Left(FormError(key, "error.invalid"))
+            Left(FormError(dateKey, "error.invalid"))
         }
 
       override def bind(
@@ -99,16 +98,14 @@ object TimeUtils {
       ): Either[Seq[FormError], LocalDate] = {
         val result = for {
           dateFieldStrings <- dateFieldStringValues(data)
-          day ← toValidInt(dayKey, dateFieldStrings._1, Some(31), 1, 2)
-          month ← toValidInt(monthKey, dateFieldStrings._2, Some(12), 1, 2)
-          year ← toValidInt(yearKey, dateFieldStrings._3, None, 4, 4)
+          day ← toValidInt(dateFieldStrings._1, Some(31), 1, 2)
+          month ← toValidInt(dateFieldStrings._2, Some(12), 1, 2)
+          year ← toValidInt(dateFieldStrings._3, None, 4, 4)
           date ← Either
                    .fromTry(Try(LocalDate.of(year, month, day)))
                    .leftMap(_ => FormError(dateKey, "error.invalid"))
                    .flatMap(date =>
-                     if (minimumDateInclusive.exists(_.isAfter(date)))
-                       Left(FormError(dateKey, "error.tooFarInPast"))
-                     else if (date.isBefore(minimumDate))
+                     if (date.isBefore(minimumDate))
                        Left(FormError(dateKey, "error.before1900"))
                      else
                        extraValidation

@@ -80,7 +80,7 @@ object Forms {
     Form(
       mapping(
         "" -> of(
-          TimeUtils.dateFormatter(None, s"$key.day", s"$key.month", s"$key.year", key)
+          TimeUtils.dateFormatter(s"$key.day", s"$key.month", s"$key.year", key)
         )
       )(InspectionDate(_))(d => Some(d.value))
     )
