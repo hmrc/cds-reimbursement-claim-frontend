@@ -64,7 +64,10 @@ class EnterInspectionDateController @Inject() (
           date =>
             (
               journey.submitInspectionDate(date),
-              Redirect("inspection-address") //FIXME
+              if (journey.needsDeclarantOrConsigneeContactDetails) Redirect("inspection-address/choose-type")
+              else {
+                Redirect("inspection-address/.../lookup")
+              }
             )
         )
     )

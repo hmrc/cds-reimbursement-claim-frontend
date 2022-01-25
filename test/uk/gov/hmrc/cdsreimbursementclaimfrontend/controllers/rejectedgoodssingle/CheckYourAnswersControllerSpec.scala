@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.InspectionDateAndAddressSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementMethodAnswerSummary
 
 import scala.collection.JavaConverters._

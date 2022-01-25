@@ -34,6 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -84,10 +86,24 @@ final class RejectedGoodsSingleJourney private (
   def getDeclarantEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.map(_.getDeclarantEori)
 
+  def isConsigneeContactDetailsFromAcc14: Boolean =
+    answers.displayDeclaration
+      .map(_.getConsigneeDetails.flatMap(_.contactDetails))
+      .isDefined && answers.displayDeclaration.map(_.getConsigneeDetails.map(_.establishmentAddress)).isDefined
+
+  def isDeclarantContactDetailsFromAcc14: Boolean =
+    answers.displayDeclaration
+      .map(_.getDeclarantDetails)
+      .flatMap(_.contactDetails)
+      .isDefined && answers.displayDeclaration.map(_.getDeclarantDetails).map(_.establishmentAddress).isDefined
+
   /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
   def needsDeclarantAndConsigneeEoriSubmission: Boolean =
     !(getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
       getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+
+  def needsDeclarantOrConsigneeContactDetails: Boolean =
+    isConsigneeContactDetailsFromAcc14 || isDeclarantContactDetailsFromAcc14
 
   def needsBanksAccountDetailsAndTypeSubmission: Boolean =
     answers.reimbursementMethod.isEmpty ||
