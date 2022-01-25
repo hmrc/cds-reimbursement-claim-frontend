@@ -48,7 +48,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.isInvalidAddressError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -173,14 +172,14 @@ class CheckContactDetailsMrnController @Inject() (
       }
     }
 
-  def startAddressLookup(implicit journey: JourneyBindable): Action[AnyContent] =
+  def redirectToALF(implicit journey: JourneyBindable): Action[AnyContent] =
     Action.andThen(authenticatedAction).async { implicit request =>
       addressLookupService
-        .startLookupRedirectingBackTo(routes.CheckContactDetailsMrnController.updateAddress(journey))
+        .startLookupRedirectingBackTo(routes.CheckContactDetailsMrnController.retrieveAddressFromALF(journey))
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
 
-  def updateAddress(journey: JourneyBindable, addressIdentity: Option[UUID] = None): Action[AnyContent] =
+  def retrieveAddressFromALF(journey: JourneyBindable, addressIdentity: Option[UUID] = None): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (claim, _, _) =>
         def updateLookupAddress(id: UUID) =
@@ -195,11 +194,13 @@ class CheckContactDetailsMrnController @Inject() (
           .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
             {
-              case error if isInvalidAddressError(error) =>
-                logger warn s"Error updating Address Lookup address: $error"
+              case e @ Error(message, _, _)
+                  if message.contains("/address/postcode: error.path.missing") ||
+                    message.contains("/address/lines: error.minLength") =>
+                logger warn s"Error updating Address Lookup address: $e"
                 Redirect(routes.ProblemWithAddressController.problem(journey))
-              case error: Error                          =>
-                logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(error)
+              case e: Error =>
+                logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(e)
             },
             _ => Redirect(routes.CheckContactDetailsMrnController.show(journey))
           )

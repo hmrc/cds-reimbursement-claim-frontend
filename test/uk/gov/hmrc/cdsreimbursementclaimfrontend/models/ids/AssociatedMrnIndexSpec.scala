@@ -59,7 +59,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
     "contain `st` postfix" in {
       forAll { n: Int =>
         whenever(n > 1) {
-          val index = n.truncateToEndWith(1)
+          val index = n.truncateToEndWithPrecision(1)
           AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("st")
         }
       }
@@ -69,7 +69,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Displaying ordinal numeral for the number ending with 2" should {
     "contain `nd` postfix" in {
       forAll { n: Int =>
-        val index = n.truncateToEndWith(2)
+        val index = n.truncateToEndWithPrecision(2)
         AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("nd")
       }
     }
@@ -78,7 +78,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Displaying ordinal numeral for the number ending with 3" should {
     "contain `rd` postfix" in {
       forAll { n: Int =>
-        val index = n.truncateToEndWith(3)
+        val index = n.truncateToEndWithPrecision(3)
         AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("rd")
       }
     }
@@ -104,7 +104,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 object AssociatedMrnIndexSpec {
 
   implicit class IntegerOps(val n: Int) extends AnyVal {
-    def truncateToEndWith(x: Int): Int =
+    def truncateToEndWithPrecision(x: Int): Int =
       (n / 10) * 10 + (if (n >= 0) x else -x)
   }
 

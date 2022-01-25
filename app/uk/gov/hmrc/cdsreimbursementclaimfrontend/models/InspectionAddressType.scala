@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed trait InspectionAddressType
+sealed trait InspectionAddressType extends Product with Serializable
 
 object InspectionAddressType extends EnumerationFormat[InspectionAddressType] {
 

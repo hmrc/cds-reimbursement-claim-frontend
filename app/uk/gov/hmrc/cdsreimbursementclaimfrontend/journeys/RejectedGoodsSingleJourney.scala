@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -80,8 +81,14 @@ final class RejectedGoodsSingleJourney private (
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
 
+  def getConsigneeContactDetailsFromACC14: Option[ContactDetails] =
+    answers.displayDeclaration.flatMap(_.getConsigneeDetails).flatMap(_.contactDetails)
+
   def getDeclarantEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.map(_.getDeclarantEori)
+
+  def getDeclarantContactDetailsFromACC14: Option[ContactDetails] =
+    answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
 
   /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
   def needsDeclarantAndConsigneeEoriSubmission: Boolean =
@@ -111,7 +118,7 @@ final class RejectedGoodsSingleJourney private (
               .map(taxCode => (taxCode, ndrc.isCmaEligible))
           )
           .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes.toSeq)
+        if (taxCodes.isEmpty) None else Some(taxCodes)
       }
       .getOrElse(Seq.empty)
 
@@ -121,7 +128,7 @@ final class RejectedGoodsSingleJourney private (
   def isAllSelectedDutiesAreCMAEligible: Boolean =
     answers.reimbursementClaims
       .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
-      .exists(_.forall(_.cmaEligible.isDefined))
+      .exists(_.forall(_.isCmaEligible))
 
   def getReimbursementClaims: Map[TaxCode, BigDecimal] =
     answers.reimbursementClaims
@@ -346,7 +353,7 @@ final class RejectedGoodsSingleJourney private (
           if (allTaxCodesExistInACC14) {
             val newReimbursementClaims = answers.reimbursementClaims match {
               case None                      =>
-                taxCodes.map(taxCode => (taxCode -> None)).toMap
+                taxCodes.map(taxCode => taxCode -> None).toMap
 
               case Some(reimbursementClaims) =>
                 taxCodes.map { taxCode =>

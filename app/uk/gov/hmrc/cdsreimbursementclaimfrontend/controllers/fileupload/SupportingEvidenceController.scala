@@ -341,7 +341,7 @@ object SupportingEvidenceController {
         chooseDocumentTypeDataKey -> nonEmptyText
           .verifying(
             "supporting-evidence.error.invalid-document-type",
-            key => UploadDocumentType.parse(key).map(v => documentTypeList.contains(v)).getOrElse(false)
+            key => UploadDocumentType.parse(key).exists(v => documentTypeList.contains(v))
           )
           .transform[UploadDocumentType](UploadDocumentType.tryParse, UploadDocumentType.keyOf)
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
