@@ -19,13 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 import RejectedGoodsSingleJourneyGenerators._
-import play.api.libs.json.Json
 
 class RejectedGoodsSingleJourneyFormatSpec
     extends AnyWordSpec
@@ -39,49 +39,41 @@ class RejectedGoodsSingleJourneyFormatSpec
 
   "RejectedGoodsSingleJourney.Answers" should {
     "serialize into a JSON format and back" in {
-      validateJsonFormat(s"""{"userEoriNumber":"$exampleEoriAsString"}""", Answers(exampleEori))
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","movementReferenceNumber":"19GB03I52858027001"}""",
+      validateCanReadAndWriteJson(Answers(exampleEori))
+      validateCanReadAndWriteJson(
         Answers(userEoriNumber = exampleEori, movementReferenceNumber = Some(MRN("19GB03I52858027001")))
       )
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","reimbursementClaims":{"A00":"12.99"}}""",
+      validateCanReadAndWriteJson(
         Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")))))
       )
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","reimbursementClaims":{"A00":"12.99","A40":null}}""",
+      validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
           reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
         )
       )
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","reimbursementClaims":{}}""",
+      validateCanReadAndWriteJson(
         Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map()))
       )
 
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":[$uploadDocumentJson]}""",
+      validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          supportingEvidences = Some(Seq(uploadDocument))
+          supportingEvidences = Seq(uploadDocument)
         )
       )
-      validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":[]}""",
-        Answers(userEoriNumber = exampleEori, supportingEvidences = Some(Seq.empty))
+      validateCanReadAndWriteJson(
+        Answers(userEoriNumber = exampleEori, supportingEvidences = Seq.empty)
       )
     }
   }
 
   "RejectedGoodsSingleJourney" should {
     "serialize journeys into a JSON format and back" in {
-      validateJsonFormat(
-        s"""{"answers":{"userEoriNumber":"$exampleEoriAsString"}}""",
+      validateCanReadAndWriteJson(
         RejectedGoodsSingleJourney.empty(exampleEori)
       )
-      validateJsonFormat(
-        s"""{"answers":{"userEoriNumber":"$exampleEoriAsString","movementReferenceNumber":"19GB03I52858027001"}}""",
+      validateCanReadAndWriteJson(
         RejectedGoodsSingleJourney.empty(exampleEori).submitMovementReferenceNumber(MRN("19GB03I52858027001"))
       )
     }

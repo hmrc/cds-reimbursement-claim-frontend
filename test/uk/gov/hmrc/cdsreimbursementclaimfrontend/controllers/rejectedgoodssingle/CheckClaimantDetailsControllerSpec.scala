@@ -176,7 +176,7 @@ class CheckClaimantDetailsControllerSpec
       }
 
       checkIsRedirect(
-        updateAddress(Some(UUID.randomUUID())),
+        retrieveAddress(Some(UUID.randomUUID())),
         routes.CheckClaimantDetailsController.show()
       )
     }
@@ -191,15 +191,15 @@ class CheckClaimantDetailsControllerSpec
       }
 
       checkIsRedirect(
-        updateAddress(Some(addressId)),
+        retrieveAddress(Some(addressId)),
         baseRoutes.IneligibleController.ineligible()
       )
     }
 
     def startAddressLookup(): Future[Result] =
-      controller.startAddressLookup(FakeRequest())
+      controller.redirectToALF(FakeRequest())
 
-    def updateAddress(maybeAddressId: Option[UUID]): Future[Result] =
-      controller.updateAddress(maybeAddressId)(FakeRequest())
+    def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
+      controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
   }
 }

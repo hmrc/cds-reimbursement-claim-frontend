@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.data.NonEmptyList
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement.PaymentMethod
@@ -71,31 +70,6 @@ object ClaimedReimbursement {
   object PaymentReference {
     lazy val notApplicable: String = "n/a"
     lazy val unknown: String       = "unknown"
-  }
-
-  // TODO: Remove - the only usage is ClaimSummaryHelper which is obsolete.
-  // The check claim page for the single journey has a new design and please use DutyTypeSummary which has 100% better optimised lookup
-  implicit class ListClaimOps(val claims: NonEmptyList[ClaimedReimbursement]) extends AnyVal {
-
-    def total: BigDecimal = claims.map(_.claimAmount).toList.sum
-
-    def isUkClaim(claim: ClaimedReimbursement): Boolean     = TaxCodes.UK.contains(claim.taxCode)
-    def isEuClaim(claim: ClaimedReimbursement): Boolean     = TaxCodes.EU.contains(claim.taxCode)
-    def isExciseClaim(claim: ClaimedReimbursement): Boolean = TaxCodes.excise.contains(claim.taxCode)
-
-    def ukClaims(claims: NonEmptyList[ClaimedReimbursement]): List[ClaimedReimbursement]     =
-      claims.filter(claim => isUkClaim(claim))
-    def euClaims(claims: NonEmptyList[ClaimedReimbursement]): List[ClaimedReimbursement]     =
-      claims.filter(claim => isEuClaim(claim))
-    def exciseClaims(claims: NonEmptyList[ClaimedReimbursement]): List[ClaimedReimbursement] =
-      claims.filter(claim => isExciseClaim(claim))
-
-    def ukClaimTotal: BigDecimal = claims.filter(claim => isUkClaim(claim)).map(_.claimAmount).sum
-
-    def containsUkClaim(claims: NonEmptyList[ClaimedReimbursement]): Boolean     = ukClaims(claims).nonEmpty
-    def containsEuClaim(claims: NonEmptyList[ClaimedReimbursement]): Boolean     = euClaims(claims).nonEmpty
-    def containsExciseClaim(claims: NonEmptyList[ClaimedReimbursement]): Boolean = exciseClaims(claims).nonEmpty
-
   }
 
   implicit val format: OFormat[ClaimedReimbursement] = Json.format[ClaimedReimbursement]

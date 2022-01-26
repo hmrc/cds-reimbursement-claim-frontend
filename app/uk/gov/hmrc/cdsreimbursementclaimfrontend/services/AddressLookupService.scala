@@ -132,8 +132,4 @@ object DefaultAddressLookupService {
         ContactAddress(line1, None, None, town, postcode, country)
     }
   )
-
-  def isInvalidAddressError(error: Error): Boolean =
-    error.message.contains("/address/postcode: error.path.missing") ||
-      error.message.contains("/address/lines: error.minLength")
 }

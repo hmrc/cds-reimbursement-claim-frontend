@@ -1,0 +1,97 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+
+@this(
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+)
+
+@(addresses: Seq[(InspectionAddressType, String)], form: Form[InspectionAddressType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"inspection-address.type"}
+
+@title = @{messages(s"$key.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@acc14AddressRadioItems = @{
+    addresses.map { case (addressType, address) =>
+        RadioItem(
+            id = Some(s"$key-radio-$addressType"),
+            value = Some(addressType.toString),
+            content = Text(address),
+            hint = Some(Hint(content = Text(messages(s"$key.$addressType")))),
+            checked = false
+        )
+    }
+}
+
+@otherAddressRadioItems = @{
+    RadioItem(
+        id = Some(s"$key-radio-${InspectionAddressType.Other}"),
+        value = Some(InspectionAddressType.Other.toString),
+        content = Text(messages(s"$key.${InspectionAddressType.Other}")),
+        checked = false
+    ) :: Nil
+}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @pageHeading(title)
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @radios(
+            form = form,
+            name = key,
+            legend = title,
+            legendAsHeading = false,
+            classes = "govuk-visually-hidden",
+            items = acc14AddressRadioItems
+        )
+
+        @paragraph(Html(messages(s"$key.or")), Some("govuk-body govuk-!-margin-bottom-2"))
+
+        @radios(
+            form = form,
+            name = key,
+            legend = title,
+            legendAsHeading = false,
+            classes = "govuk-visually-hidden",
+            items = otherAddressRadioItems
+        )
+
+        @submitButton("button.continue", classes = Some("govuk-!-margin-top-5"))
+    }
+}

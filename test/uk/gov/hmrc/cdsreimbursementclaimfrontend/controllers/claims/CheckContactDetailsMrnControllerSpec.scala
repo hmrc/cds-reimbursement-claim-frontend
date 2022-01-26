@@ -471,7 +471,7 @@ class CheckContactDetailsMrnControllerSpec
 
     "Redirect to the problem page" when {
       def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID]): Future[Result] =
-        controller.updateAddress(journey, maybeAddressId)(FakeRequest())
+        controller.retrieveAddressFromALF(journey, maybeAddressId)(FakeRequest())
 
       "user chooses an address without a post code" in {
         val id            = sample[UUID]
@@ -680,7 +680,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       checkIsRedirect(
-        updateAddress(journey, Some(id)),
+        retrieveLookupAddress(journey, Some(id)),
         routes.CheckContactDetailsMrnController.show(journey)
       )
     }
@@ -701,7 +701,7 @@ class CheckContactDetailsMrnControllerSpec
         mockAddressRetrieve(Left(Error(s"No address found for $id")))
       }
 
-      checkIsTechnicalErrorPage(updateAddress(journey, Some(id)))
+      checkIsTechnicalErrorPage(retrieveLookupAddress(journey, Some(id)))
     }
 
     "redirect to show page once address lookup ID is not provided" in {
@@ -719,15 +719,15 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       checkIsRedirect(
-        updateAddress(journey),
+        retrieveLookupAddress(journey),
         routes.CheckContactDetailsMrnController.show(journey)
       )
     }
 
     def startAddressLookup(journey: JourneyBindable): Future[Result] =
-      controller.startAddressLookup(journey)(FakeRequest())
+      controller.redirectToALF(journey)(FakeRequest())
 
-    def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID] = None): Future[Result] =
-      controller.updateAddress(journey, maybeAddressId)(FakeRequest())
+    def retrieveLookupAddress(journey: JourneyBindable, maybeAddressId: Option[UUID] = None): Future[Result] =
+      controller.retrieveAddressFromALF(journey, maybeAddressId)(FakeRequest())
   }
 }

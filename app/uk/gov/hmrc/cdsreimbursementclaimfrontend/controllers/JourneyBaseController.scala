@@ -258,5 +258,6 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   implicit class Ops[A](val value: A) {
     def asFuture: Future[A] = Future.successful(value)
+    def |>[B](f: A => B): B = f(value)
   }
 }

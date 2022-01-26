@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import cats.Functor
+import cats.Id
+import org.scalacheck.magnolia.gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -35,12 +38,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.genDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaCharGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -167,10 +178,15 @@ class EnterInspectionDateControllerSpec
         displayDeclarationGen,
         genDate
       ) { (displayDeclaration, date) =>
-        val initialJourney = RejectedGoodsSingleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
+        val address: EstablishmentAddress = sample[EstablishmentAddress].copy(postalCode = Some("BN16 1A9"))
+        val declarant                     = sample[DeclarantDetails].copy(establishmentAddress = address)
+        val consignee                     = sample[ConsigneeDetails].copy(establishmentAddress = address)
+
+        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail
+          .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
+        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+
+        val initialJourney = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
         val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
         val updatedJourney = initialJourney.submitInspectionDate(date)
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -187,21 +203,31 @@ class EnterInspectionDateControllerSpec
             s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
             s"${controller.formKey}.year"  -> date.value.getYear.toString
           ),
-          "inspection-address/choose-type"
+          routes.ChooseInspectionAddressTypeController.show()
         )
       }
 
       "the user enters a date for the first time and Acc14 hasn't returned any contact details" in forAll(
-        genDate
-      ) { date =>
-        val journey = RejectedGoodsSingleJourney.empty(exampleEori)
+        genDate,
+        displayDeclarationGen
+      ) { (date, displayDeclaration) =>
+        val address: EstablishmentAddress = sample[EstablishmentAddress].copy(postalCode = None)
+        val declarant                     = sample[DeclarantDetails].copy(contactDetails = None, establishmentAddress = address)
+        val consignee                     = sample[ConsigneeDetails].copy(contactDetails = None, establishmentAddress = address)
 
-        val updatedJourney = journey.submitInspectionDate(date)
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail
+          .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
+        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+
+        val journey = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
+
+        val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedJourney  = journey.submitInspectionDate(date)
+        val updatedSession  = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(requiredSession)
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -211,10 +237,9 @@ class EnterInspectionDateControllerSpec
             s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
             s"${controller.formKey}.year"  -> date.value.getYear.toString
           ),
-          "inspection-address/.../lookup"
+          routes.ChooseInspectionAddressTypeController.redirectToALF()
         )
       }
-
     }
 
     "show an error summary" when {

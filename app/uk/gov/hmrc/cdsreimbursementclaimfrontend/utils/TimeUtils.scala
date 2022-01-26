@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.Order
-import cats.implicits.catsSyntaxEq
 import cats.syntax.either._
 import configs.ConfigReader
 import play.api.data.FormError

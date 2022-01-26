@@ -17,7 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
+import play.api.data.Forms._
 import play.api.data.Form
+import play.api.data.Mapping
 import play.api.data.Forms.mapping
 import play.api.data.Forms.of
 import play.api.data.Forms.seq
@@ -27,9 +29,10 @@ import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -37,11 +40,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 
 object Forms {
+
   def eoriNumberForm(key: String): Form[Eori] = Form(
     mapping(
       key -> nonEmptyText(maxLength = 18)
@@ -144,6 +147,14 @@ object Forms {
     )
   }
 
+  val inspectionAddressTypeForm: Form[InspectionAddressType] =
+    Form(
+      "inspection-address.type" ->
+        nonEmptyText
+          .verifying("error.invalid", s => InspectionAddressType.hasKey(s))
+          .transform[InspectionAddressType](InspectionAddressType.tryParse, InspectionAddressType.keyOf)
+    )
+
   def claimAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
     Form(
       mapping(
@@ -151,7 +162,6 @@ object Forms {
           precision = 13,
           scale = 2,
           errorMsg = s"error.invalid-text",
-          allowZero = false,
           zeroErrorMsg = Some(s"error.zero")
         ).verifying("error.invalid-amount", amount => amount >= 0 && amount < paidAmount)
       )(amount => amount)(amount => Some(amount))

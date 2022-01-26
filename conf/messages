@@ -538,6 +538,18 @@ enter-claim.rejected-goods.single.claim-amount.error.zero=Claim amount must be 0
 enter-claim.rejected-goods.single.submitAmountForReimbursement.taxCodeNotSelectedYet=
 
 #===================================================
+#  CHECK CLAIM REJECTED GOODS - SINGLE
+#===================================================
+check-claim.rejected-goods.single.title=Check the claim total for the MRN
+check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
+check-claim.rejected-goods.single.mrn.label=MRN: {0}
+check-claim.rejected-goods.single.total=Repayment for this MRN
+check-claim.rejected-goods.single.are-duties-correct=Are these duties correct?
+check-claim.rejected-goods.single.yes=Yes
+check-claim.rejected-goods.single.no=No, select different duties
+check-claim.rejected-goods.single.error.invalid=Select Yes if these duties are correct.
+
+#===================================================
 #  CONTACT DETAILS REJECTED GOODS
 #===================================================
 enter-contact-details-rejected-goods.change.title=Change contact details
@@ -1001,6 +1013,22 @@ supporting-evidence.upload.details.hint.Other=If you have alternative supporting
 supporting-evidence.choose-document-type.document-type.ScheduleOfMRNs=Scheduled document
 supporting-evidence.upload.details.bullet.ScheduleOfMRNs=Scheduled document
 supporting-evidence.upload.details.hint.ScheduleOfMRNs=Scheduled document
+supporting-evidence.choose-document-type.document-type.AdditionalSupportingDocuments=Additional supporting documents
+supporting-evidence.upload.details.bullet.AdditionalSupportingDocuments=Additional supporting documents:
+supporting-evidence.upload.details.hint.AdditionalSupportingDocuments=Additional supporting documents
+supporting-evidence.choose-document-type.document-type.LetterOfAuthority=Letter of authority
+supporting-evidence.upload.details.bullet.LetterOfAuthority=Letter of authority:
+supporting-evidence.upload.details.hint.LetterOfAuthority=Letter of authority
+supporting-evidence.choose-document-type.document-type.ProofOfExportOrDestruction=Proof of export or destruction
+supporting-evidence.upload.details.bullet.ProofOfExportOrDestruction=Proof of export or destruction:
+supporting-evidence.upload.details.hint.ProofOfExportOrDestruction=Proof of export or destruction
+supporting-evidence.choose-document-type.document-type.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered
+supporting-evidence.upload.details.bullet.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof:
+supporting-evidence.upload.details.hint.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered
+supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calculation worksheet
+supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
+supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet
+
 supporting-evidence.error.invalid-document-type=Invalid supporting evidence document type
 
 #===================================================
@@ -1156,11 +1184,14 @@ check-your-answers.contact-information.change-hint.contact=Contact details
 check-your-answers.contact-information.change-hint.address=Contact address
 
 #===================================================
-# IMPORTER ADDRESS TYPE
+# INSPECTION ADDRESS TYPE
 #===================================================
 inspection-address.type.Other=Other address
 inspection-address.type.Importer=Importer address
 inspection-address.type.Declarant=Declarant address
+inspection-address.type.title=Choose an address for the inspection
+inspection-address.type.or=&nbsp;&nbsp;&nbsp;or
+inspection-address.type.error.required=Choose the address where the goods can be inspected
 
 #===================================================
 # SUBMISSION ERROR PAGE

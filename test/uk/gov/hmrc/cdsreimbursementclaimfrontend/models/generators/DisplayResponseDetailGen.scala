@@ -44,8 +44,8 @@ object DisplayResponseDetailGen {
     eori                 <- genEori.map(_.value)
     legalName            <- genStringWithMaxSizeOfN(10)
     establishmentAddress <- genEstablishmentAddress
-    contactDetails       <- Gen.option(genContactDetails)
-  } yield ConsigneeDetails(eori, legalName, establishmentAddress, contactDetails)
+    contactDetails       <- genContactDetails
+  } yield ConsigneeDetails(eori, legalName, establishmentAddress, Some(contactDetails))
 
   lazy val genBankAccountDetails: Gen[BankAccountDetails] =
     for {

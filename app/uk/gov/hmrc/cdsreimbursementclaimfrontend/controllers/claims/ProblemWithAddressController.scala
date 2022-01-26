@@ -35,7 +35,7 @@ class ProblemWithAddressController @Inject() (
     extends FrontendController(cc) {
 
   def problem(journey: JourneyBindable): Action[AnyContent] = Action { implicit request =>
-    val postAction: Call = routes.CheckContactDetailsMrnController.startAddressLookup(journey)
+    val postAction: Call = routes.CheckContactDetailsMrnController.redirectToALF(journey)
     Ok(problemWithAddressPage(postAction))
   }
 }
