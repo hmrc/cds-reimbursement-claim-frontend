@@ -105,7 +105,7 @@ final class RejectedGoodsSingleJourney private (
       getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
 
   def needsDeclarantAndConsigneePostCode: Boolean =
-    !isConsigneePostCodeFromAcc14.getOrElse(false) || !isDeclarantPostCodeFromAcc14.getOrElse(false)
+    !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)
 
   def needsBanksAccountDetailsAndTypeSubmission: Boolean =
     answers.reimbursementMethod.isEmpty ||
