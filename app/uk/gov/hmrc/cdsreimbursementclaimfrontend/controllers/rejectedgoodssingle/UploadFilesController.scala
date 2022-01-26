@@ -40,12 +40,15 @@ class UploadFilesController @Inject() (
 )(implicit val ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val selfUrl: String = jcc.servicesConfig.getString("self.url")
+  final val selfUrl: String = jcc.servicesConfig.getString("self.url")
 
-  val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
-  val callbackAction: Call               = routes.UploadFilesController.submit()
+  final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
+  final val callbackAction: Call               = routes.UploadFilesController.submit()
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final def documentTypeDescription(dt: UploadDocumentType)(implicit request: Request[_]): String =
+    implicitly[Messages].apply(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
+
+  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.selectedDocumentType match {
       case None =>
         Redirect(selectDocumentTypePageAction).asFuture
@@ -66,17 +69,11 @@ class UploadFilesController @Inject() (
                   continueUrl = continueUrl,
                   backlinkUrl = continueUrl,
                   callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-                  cargo = documentType
+                  cargo = documentType,
+                  newFileDescription = Some(documentTypeDescription(documentType))
                 ),
                 journey.answers.supportingEvidences
-                  .map(file =>
-                    file
-                      .copy(description =
-                        file.documentType.map(dt =>
-                          implicitly[Messages].apply(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
-                        )
-                      )
-                  )
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
               )
           )
           .map {
@@ -91,7 +88,7 @@ class UploadFilesController @Inject() (
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
-  val submit: Action[AnyContent] = simpleActionReadWriteJourney(
+  final val submit: Action[AnyContent] = simpleActionReadWriteJourney(
     { implicit request => journey =>
       request.asInstanceOf[Request[AnyContent]].body.asJson.map(_.as[UploadDocumentsCallback]) match {
         case None =>

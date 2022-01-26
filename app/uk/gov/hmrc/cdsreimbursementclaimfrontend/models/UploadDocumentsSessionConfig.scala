@@ -26,7 +26,8 @@ final case class UploadDocumentsSessionConfig(
   backlinkUrl: String, // backlink url
   callbackUrl: String, // url where to post uploaded files
   cargo: UploadDocumentType, // type of the document to assign to the newly added files
-  serviceId: Option[String] = None // client ID used by upscan configuration
+  serviceId: Option[String] = None, // client ID used by upscan configuration
+  newFileDescription: Option[String] = None // description of the new file added
 )
 
 object UploadDocumentsSessionConfig {
