@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -90,10 +91,21 @@ final class RejectedGoodsSingleJourney private (
   def getDeclarantContactDetailsFromACC14: Option[ContactDetails] =
     answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
 
+  def isConsigneePostCodeFromAcc14: Option[Boolean] =
+    answers.displayDeclaration.map(
+      _.getConsigneeDetails.map(_.establishmentAddress.postalCode.isEmpty).getOrElse(false)
+    )
+
+  def isDeclarantPostCodeFromAcc14: Option[Boolean] =
+    answers.displayDeclaration.map(_.getDeclarantDetails).map(_.establishmentAddress.postalCode.isEmpty)
+
   /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
   def needsDeclarantAndConsigneeEoriSubmission: Boolean =
     !(getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
       getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+
+  def needsDeclarantAndConsigneePostCode: Boolean =
+    !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)
 
   def needsBanksAccountDetailsAndTypeSubmission: Boolean =
     answers.reimbursementMethod.isEmpty ||
@@ -401,7 +413,7 @@ final class RejectedGoodsSingleJourney private (
 
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
-  def submitInspectionDate(inspectionDate: LocalDate): RejectedGoodsSingleJourney =
+  def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(inspectionDate = Some(inspectionDate))
@@ -551,7 +563,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     methodOfDisposal: Option[MethodOfDisposal] = None,
     detailsOfRejectedGoods: Option[String] = None,
     reimbursementClaims: Option[ReimbursementClaims] = None,
-    inspectionDate: Option[LocalDate] = None,
+    inspectionDate: Option[InspectionDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
@@ -569,7 +581,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     basisOfClaimSpecialCircumstances: Option[String],
     methodOfDisposal: MethodOfDisposal,
     detailsOfRejectedGoods: String,
-    inspectionDate: LocalDate,
+    inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     reimbursementClaims: Map[TaxCode, BigDecimal],
     reimbursementMethod: ReimbursementMethodAnswer,

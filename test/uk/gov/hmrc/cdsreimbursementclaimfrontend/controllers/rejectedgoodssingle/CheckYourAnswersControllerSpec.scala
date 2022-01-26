@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.InspectionDateAndAddressSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementMethodAnswerSummary
 
 import scala.collection.JavaConverters._
@@ -113,7 +112,7 @@ class CheckYourAnswersControllerSpec
     summary("Method")                                      shouldBe messages(
       ReimbursementMethodAnswerSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
     )
-    summary("Inspection date")                             shouldBe claim.inspectionDate.format(InspectionDateAndAddressSummary.ukDateFormat)
+    summary("Inspection date")                             shouldBe claim.inspectionDate.value.toString
     summary("Inspection address type")                     shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )
