@@ -220,6 +220,8 @@ object Forms {
             }
           )
       )(identity)(Some(_))
+    )
+
   val none: String = "none"
 
   def chooseFileTypeForm(
