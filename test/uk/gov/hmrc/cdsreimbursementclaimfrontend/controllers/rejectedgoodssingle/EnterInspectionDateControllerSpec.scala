@@ -156,9 +156,15 @@ class EnterInspectionDateControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "day")   shouldBe Some(inspectionDate.get.value.getDayOfMonth.toString)
-            selectedInputBox(doc, "month") shouldBe Some(inspectionDate.get.value.getMonthValue.toString)
-            selectedInputBox(doc, "year")  shouldBe Some(inspectionDate.get.value.getYear.toString)
+            selectedInputBox(doc, "enter-inspection-date.rejected-goods.day")   shouldBe Some(
+              inspectionDate.get.value.getDayOfMonth.toString
+            )
+            selectedInputBox(doc, "enter-inspection-date.rejected-goods.month") shouldBe Some(
+              inspectionDate.get.value.getMonthValue.toString
+            )
+            selectedInputBox(doc, "enter-inspection-date.rejected-goods.year")  shouldBe Some(
+              inspectionDate.get.value.getYear.toString
+            )
           }
         )
       }

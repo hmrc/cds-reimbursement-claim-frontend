@@ -232,8 +232,8 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     checkBoxes.eachAttr("value").asScala.toSeq
   }
 
-  def selectedInputBox(doc: Document, inputValue: String): Option[String] = {
-    val inputString: String = s"input.govuk-input[name='enter-inspection-date.rejected-goods.$inputValue']"
+  def selectedInputBox(doc: Document, inputName: String): Option[String] = {
+    val inputString: String = s"input.govuk-input[name='$inputName']"
     val input               = doc.select(inputString)
     if (input.size() =!= 0) Some(input.`val`()) else None
   }
