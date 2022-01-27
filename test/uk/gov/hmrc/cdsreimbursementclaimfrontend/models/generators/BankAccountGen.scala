@@ -22,6 +22,7 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 
 object BankAccountGen {
@@ -62,4 +63,7 @@ object BankAccountGen {
 
   implicit lazy val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
     Arbitrary(genBankAccountDetails)
+
+  implicit lazy val arbitraryBankAccountType: Typeclass[BankAccountType] =
+    gen[BankAccountType]
 }

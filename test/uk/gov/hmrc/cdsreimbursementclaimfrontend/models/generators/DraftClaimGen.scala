@@ -23,6 +23,7 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
@@ -37,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.YesNoGen.arbi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.genScheduledDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
@@ -52,7 +52,7 @@ object DraftClaimGen {
       maybeContactDetails         <- genMrnContactDetailsOpt
       maybeContactAddressAnswer   <- genContactAddressOpt
       bankAccountDetailsAnswer    <- arbitraryBankAccountDetailsGen.arbitrary
-      bankAccountTypeAnswer       <- gen[BankAccountType].arbitrary
+      bankAccountTypeAnswer       <- arbitraryBankAccountType.arbitrary
       basisOfClaimAnswer          <- arbitraryBasisOfClaimAnswer.arbitrary
       supportingEvidencesAnswer   <- arbitrarySupportingEvidenceAnswer.arbitrary
       dutiesSelectedAnswer        <- arbitraryDutiesSelectedAnswerGen.arbitrary

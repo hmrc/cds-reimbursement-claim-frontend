@@ -1,0 +1,72 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+
+@this(
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+)
+
+@(form: Form[BankAccountType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"select-bank-account-type"}
+@title = @{messages(s"$key.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @radios(
+            form = form,
+            name = key,
+            legend = title,
+            legendAsHeading = true,
+            classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8",
+            inline = false,
+            items = Seq(
+                RadioItem(
+                    id = Some(s"$key-business-bank-account"),
+                    value = Some("Business"),
+                    content = Text(messages(s"$key.business-bank-account")),
+                    checked = form.value.contains(BankAccountType.Business)
+                ),
+                RadioItem(
+                    id = Some(s"$key-personal-bank-account"),
+                    value = Some("Personal"),
+                    content = Text(messages(s"$key.personal-bank-account")),
+                    checked = form.value.contains(BankAccountType.Personal)
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+    }
+}
