@@ -30,6 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object IdGen {
 
+  lazy val genCaseNumber: Gen[String] =
+    Gen.listOfN(25, Gen.numChar).map(_.mkString(""))
+
   lazy val genAssociatedMrnIndex: Gen[AssociatedMrnIndex] = Gen
     .chooseNum(0, 100)
     .map(AssociatedMrnIndex.fromListIndex)
