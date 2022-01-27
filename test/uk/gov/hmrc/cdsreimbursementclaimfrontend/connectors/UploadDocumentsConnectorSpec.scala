@@ -94,6 +94,7 @@ class UploadDocumentsConnectorSpec
       continueWhenFullUrl = "/ful",
       maximumNumberOfFiles = 5,
       initialNumberOfEmptyRows = 1,
+      maximumFileSizeBytes = 10L * 1024L * 1024L,
       content = UploadDocumentsSessionConfig.Content(
         serviceName = "service.title",
         title = "choose-files.rejected-goods.title",

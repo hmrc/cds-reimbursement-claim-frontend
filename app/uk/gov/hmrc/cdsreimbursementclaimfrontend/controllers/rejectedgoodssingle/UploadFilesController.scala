@@ -94,6 +94,7 @@ class UploadFilesController @Inject() (
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 3,
+      maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
       cargo = documentType,
       newFileDescription = documentTypeDescription(documentType),
       content = uploadDocumentsContent(documentType)

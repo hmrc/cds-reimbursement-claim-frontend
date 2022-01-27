@@ -1264,8 +1264,8 @@ choose-file-type.error.required=Choose a file type to support your claim
 #===================================================
 choose-files.rejected-goods.title=Upload supporting documents
 choose-files.rejected-goods.p1=Upload {0}. 
-choose-files.rejected-goods.p2=The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
-choose-files.rejected-goods.p3=A maximum of 10 file can be uploaded at one time.
+choose-files.rejected-goods.p2=The documents can be up to a maximum of {0} size per file. Valid file format: JPG, PNG, PDF.
+choose-files.rejected-goods.p3=A maximum of {0} file can be uploaded at one time.
 
 #===================================================
 #  COUNTRIES - START
