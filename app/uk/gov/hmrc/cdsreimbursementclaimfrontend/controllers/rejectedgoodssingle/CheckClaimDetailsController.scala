@@ -78,7 +78,7 @@ class CheckClaimDetailsController @Inject() (
                 )
               ).asFuture,
             {
-              case Yes => Redirect("enter-inspection-date").asFuture
+              case Yes => Redirect(routes.EnterInspectionDateController.show()).asFuture
               case No  => Redirect(routes.SelectTaxCodesController.show()).asFuture
             }
           )

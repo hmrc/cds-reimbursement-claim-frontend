@@ -31,6 +31,7 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
@@ -41,8 +42,12 @@
 
 @key = @{"check-claim.rejected-goods.single"}
 @title = @{messages(s"$key.title")}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title")) {
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
     @pageHeading(title)
 
     @paragraph(Html(messages(s"$key.label")), Some("govuk-body"))
