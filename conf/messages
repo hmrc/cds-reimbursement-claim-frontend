@@ -550,6 +550,15 @@ check-claim.rejected-goods.single.no=No, select different duties
 check-claim.rejected-goods.single.error.invalid=Select Yes if these duties are correct.
 
 #===================================================
+#  CHOOSE REPAYMENT METHOD REJECTED GOODS - SINGLE
+#===================================================
+choose-payment-method.rejected-goods.single.title=Choose repayment method
+choose-payment-method.rejected-goods.single.cma=Current Month Adjustment (CMA)
+choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
+choose-payment-method.rejected-goods.single.error.required=Choose if you would like to be repaid via Current Month Adjustment (CMA) or via Bank Account Transfer.
+choose-payment-method.rejected-goods.single.error.number=Choose if you would like to be repaid via Current Month Adjustment (CMA) or via Bank Account Transfer.
+
+#===================================================
 #  CONTACT DETAILS REJECTED GOODS
 #===================================================
 enter-contact-details-rejected-goods.change.title=Change contact details

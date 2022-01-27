@@ -28,7 +28,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -145,5 +148,22 @@ object Forms {
           zeroErrorMsg = Some(s"error.zero")
         ).verifying("error.invalid-amount", amount => amount >= 0 && amount <= paidAmount)
       )(amount => amount)(amount => Some(amount))
+    )
+
+  def reimbursementMethodForm(reimbursementMethodKey: String): Form[ReimbursementMethodAnswer] =
+    Form(
+      mapping(
+        reimbursementMethodKey -> number
+          .verifying("error.invalid", a => a === 0 || a === 1)
+          .transform[ReimbursementMethodAnswer](
+            value =>
+              if (value === 0) CurrentMonthAdjustment
+              else BankAccountTransfer,
+            {
+              case CurrentMonthAdjustment => 0
+              case BankAccountTransfer    => 1
+            }
+          )
+      )(identity)(Some(_))
     )
 }
