@@ -229,7 +229,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             submitAddress("inspection-address.type" -> InspectionAddressType.Importer.toString),
-            "/choose-repayment-method"
+            routes.ChooseRepaymentMethodController.show()
           )
         }
       }

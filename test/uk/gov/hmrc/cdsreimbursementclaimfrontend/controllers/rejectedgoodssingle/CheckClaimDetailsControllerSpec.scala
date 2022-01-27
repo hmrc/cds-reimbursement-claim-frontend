@@ -70,13 +70,23 @@ class CheckClaimDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
+  private val session = SessionData.empty.copy(
+    rejectedGoodsSingleJourney = Some(
+      RejectedGoodsSingleJourney
+        .empty(exampleEori)
+    )
+  )
+
+  private val sessionWithMRN = SessionData.empty.copy(
+    rejectedGoodsSingleJourney = Some(
+      RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumber(exampleMrn)
+    )
   )
 
   "Check Claim Details Controller" when {
-    "Check Claim Details page" must {
-
+    "Show Check Claim Details page" must {
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
 
@@ -100,6 +110,58 @@ class CheckClaimDetailsControllerSpec
             messageFromMessageKey("check-claim.rejected-goods.single.title")
           )
         }
+      }
+    }
+
+    "Submit Enter Claim  page" must {
+
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(
+          FakeRequest().withFormUrlEncodedBody(data: _*)
+        )
+
+      "do not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "reject an empty response" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionWithMRN)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("check-claim.rejected-goods.single.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("check-claim.rejected-goods.single.error.invalid"),
+          BAD_REQUEST
+        )
+      }
+
+      "accept YES response and redirect to enter inspection date page" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionWithMRN)
+        }
+
+        checkIsRedirect(
+          performAction(controller.checkClaimDetailsKey -> "true"),
+          routes.EnterInspectionDateController.show()
+        )
+      }
+
+      "accept NO response and redirect to enter inspection date page" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionWithMRN)
+        }
+
+        checkIsRedirect(
+          performAction(controller.checkClaimDetailsKey -> "false"),
+          routes.SelectTaxCodesController.show()
+        )
       }
     }
   }
