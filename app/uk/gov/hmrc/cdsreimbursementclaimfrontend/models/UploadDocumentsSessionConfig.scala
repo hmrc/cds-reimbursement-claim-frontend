@@ -26,8 +26,11 @@ final case class UploadDocumentsSessionConfig(
   serviceId: Option[String] = None, // client ID used by upscan configuration
   nonce: Nonce, // unique secret shared by the host and upload microservices
   continueUrl: String, // url to continue after uploading the files
+  continueWhenFullUrl: String, // url to continue after all possible files has been uploaded
   backlinkUrl: String, // backlink url
   callbackUrl: String, // url where to post uploaded files
+  maximumNumberOfFiles: Int,
+  initialNumberOfEmptyRows: Int, // number of empty 'choose file' rows to display
   cargo: UploadDocumentType, // type of the document to assign to the newly added files
   newFileDescription: String, // description of the new file added
   content: Content

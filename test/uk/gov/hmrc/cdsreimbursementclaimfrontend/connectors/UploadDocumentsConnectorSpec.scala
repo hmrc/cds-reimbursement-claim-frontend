@@ -91,6 +91,9 @@ class UploadDocumentsConnectorSpec
       nonce = Nonce.random,
       cargo = UploadDocumentType.LetterOfAuthority,
       newFileDescription = "New file",
+      continueWhenFullUrl = "/ful",
+      maximumNumberOfFiles = 5,
+      initialNumberOfEmptyRows = 1,
       content = UploadDocumentsSessionConfig.Content(
         serviceName = "service.title",
         title = "choose-files.rejected-goods.title",

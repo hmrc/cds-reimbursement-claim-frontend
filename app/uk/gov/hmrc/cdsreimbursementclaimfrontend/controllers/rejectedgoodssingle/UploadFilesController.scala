@@ -34,12 +34,15 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 
 @Singleton
 class UploadFilesController @Inject() (
   val jcc: JourneyControllerComponents,
   uploadDocumentsConnector: UploadDocumentsConnector,
   uploadDocumentsConfig: UploadDocumentsConfig,
+  fileUploadConfig: FileUploadConfig,
   upload_files_description: upload_files_description
 )(implicit val ec: ExecutionContext, appConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
@@ -79,6 +82,23 @@ class UploadFilesController @Inject() (
     )
   }
 
+  final def uploadDocumentsSessionConfig(nonce: Nonce, documentType: UploadDocumentType, continueUrl: String)(implicit
+    request: Request[_],
+    messages: Messages
+  ): UploadDocumentsSessionConfig =
+    UploadDocumentsSessionConfig(
+      nonce = nonce,
+      continueUrl = continueUrl,
+      continueWhenFullUrl = selfUrl + checkYourAnswers.url,
+      backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
+      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
+      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
+      initialNumberOfEmptyRows = 3,
+      cargo = documentType,
+      newFileDescription = documentTypeDescription(documentType),
+      content = uploadDocumentsContent(documentType)
+    )
+
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.selectedDocumentType match {
       case None =>
@@ -95,15 +115,7 @@ class UploadFilesController @Inject() (
           .initialize(
             UploadDocumentsConnector
               .Request(
-                UploadDocumentsSessionConfig(
-                  nonce = journey.answers.nonce,
-                  continueUrl = continueUrl,
-                  backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
-                  callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-                  cargo = documentType,
-                  newFileDescription = documentTypeDescription(documentType),
-                  content = uploadDocumentsContent(documentType)
-                ),
+                uploadDocumentsSessionConfig(journey.answers.nonce, documentType, continueUrl),
                 journey.answers.supportingEvidences
                   .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
               )
