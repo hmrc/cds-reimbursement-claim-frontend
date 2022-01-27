@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -43,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 class SelectTaxCodesControllerSpec
