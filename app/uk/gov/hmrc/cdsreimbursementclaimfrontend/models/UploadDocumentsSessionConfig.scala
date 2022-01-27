@@ -20,17 +20,42 @@ import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
+import UploadDocumentsSessionConfig._
+
 final case class UploadDocumentsSessionConfig(
+  serviceId: Option[String] = None, // client ID used by upscan configuration
   nonce: Nonce, // unique secret shared by the host and upload microservices
   continueUrl: String, // url to continue after uploading the files
   backlinkUrl: String, // backlink url
   callbackUrl: String, // url where to post uploaded files
   cargo: UploadDocumentType, // type of the document to assign to the newly added files
-  serviceId: Option[String] = None, // client ID used by upscan configuration
-  newFileDescription: Option[String] = None // description of the new file added
+  newFileDescription: String, // description of the new file added
+  content: Content
 )
 
 object UploadDocumentsSessionConfig {
-  implicit val formats: Format[UploadDocumentsSessionConfig] =
+
+  final case class Content(
+    serviceName: String,
+    title: String,
+    descriptionHtml: String,
+    serviceUrl: String,
+    accessibilityStatementUrl: String,
+    phaseBanner: String,
+    phaseBannerUrl: String,
+    signOutUrl: String,
+    timedOutUrl: String,
+    keepAliveUrl: String,
+    timeoutSeconds: Int,
+    countdownSeconds: Int,
+    showLanguageSelection: Boolean,
+    pageTitleClasses: String
+  )
+
+  object Content {
+    implicit val format: Format[Content] = Json.format[Content]
+  }
+
+  implicit val format: Format[UploadDocumentsSessionConfig] =
     Json.format[UploadDocumentsSessionConfig]
 }

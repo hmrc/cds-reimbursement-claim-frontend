@@ -89,7 +89,24 @@ class UploadDocumentsConnectorSpec
       backlinkUrl = "/bar",
       callbackUrl = "/baz",
       nonce = Nonce.random,
-      cargo = UploadDocumentType.LetterOfAuthority
+      cargo = UploadDocumentType.LetterOfAuthority,
+      newFileDescription = "New file",
+      content = UploadDocumentsSessionConfig.Content(
+        serviceName = "service.title",
+        title = "choose-files.rejected-goods.title",
+        descriptionHtml = "descriptionHtml",
+        serviceUrl = "homePageUrl",
+        accessibilityStatementUrl = "accessibilityStatementUrl",
+        phaseBanner = "alpha",
+        phaseBannerUrl = "serviceFeedBackUrl",
+        signOutUrl = "signOutUrl",
+        timedOutUrl = "ggTimedOutUrl",
+        keepAliveUrl = "ggKeepAliveUrl",
+        timeoutSeconds = 900,
+        countdownSeconds = 120,
+        showLanguageSelection = false,
+        pageTitleClasses = "govuk-heading-xl"
+      )
     )
 
   val initializationRequest: UploadDocumentsConnector.Request =

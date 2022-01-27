@@ -16,28 +16,32 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Request
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoodssingle.upload_files_description
 
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import play.api.i18n.Messages
 
 @Singleton
 class UploadFilesController @Inject() (
   val jcc: JourneyControllerComponents,
   uploadDocumentsConnector: UploadDocumentsConnector,
-  uploadDocumentsConfig: UploadDocumentsConfig
-)(implicit val ec: ExecutionContext)
+  uploadDocumentsConfig: UploadDocumentsConfig,
+  upload_files_description: upload_files_description
+)(implicit val ec: ExecutionContext, appConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   final val selfUrl: String = jcc.servicesConfig.getString("self.url")
@@ -45,8 +49,35 @@ class UploadFilesController @Inject() (
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
   final val callbackAction: Call               = routes.UploadFilesController.submit()
 
-  final def documentTypeDescription(dt: UploadDocumentType)(implicit request: Request[_]): String =
-    implicitly[Messages].apply(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
+  final def documentTypeDescription(dt: UploadDocumentType)(implicit messages: Messages): String =
+    messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
+
+  final def uploadDocumentsContent(dt: UploadDocumentType)(implicit
+    request: Request[_],
+    messages: Messages
+  ): UploadDocumentsSessionConfig.Content = {
+    val descriptionHtml = upload_files_description(
+      "choose-files.rejected-goods",
+      documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
+    ).body
+
+    UploadDocumentsSessionConfig.Content(
+      serviceName = messages("service.title"),
+      title = messages("choose-files.rejected-goods.title"),
+      descriptionHtml = descriptionHtml,
+      serviceUrl = appConfig.homePageUrl,
+      accessibilityStatementUrl = appConfig.accessibilityStatementUrl,
+      phaseBanner = "alpha",
+      phaseBannerUrl = appConfig.serviceFeedBackUrl,
+      signOutUrl = appConfig.signOutUrl,
+      timedOutUrl = appConfig.ggTimedOutUrl,
+      keepAliveUrl = appConfig.ggKeepAliveUrl,
+      timeoutSeconds = appConfig.ggTimeoutSeconds.toInt,
+      countdownSeconds = appConfig.ggCountdownSeconds.toInt,
+      showLanguageSelection = appConfig.enableLanguageSwitching,
+      pageTitleClasses = "govuk-heading-xl"
+    )
+  }
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.selectedDocumentType match {
@@ -67,10 +98,11 @@ class UploadFilesController @Inject() (
                 UploadDocumentsSessionConfig(
                   nonce = journey.answers.nonce,
                   continueUrl = continueUrl,
-                  backlinkUrl = continueUrl,
+                  backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
                   callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
                   cargo = documentType,
-                  newFileDescription = Some(documentTypeDescription(documentType))
+                  newFileDescription = documentTypeDescription(documentType),
+                  content = uploadDocumentsContent(documentType)
                 ),
                 journey.answers.supportingEvidences
                   .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
@@ -97,7 +129,11 @@ class UploadFilesController @Inject() (
 
         case Some(callback) =>
           journey
-            .receiveUploadedFiles(callback.documentType, callback.nonce, callback.uploadedFiles)
+            .receiveUploadedFiles(
+              callback.documentType,
+              callback.nonce,
+              callback.uploadedFiles.map(_.copy(description = None))
+            )
             .fold(
               error => (journey, BadRequest(error)),
               modifiedJourney => (modifiedJourney, NoContent)

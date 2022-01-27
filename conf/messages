@@ -1260,6 +1260,14 @@ choose-file-type.file-type.none=I have no more documents to upload
 choose-file-type.error.required=Choose a file type to support your claim
 
 #===================================================
+#  CHOOSE FILES - PAGE
+#===================================================
+choose-files.rejected-goods.title=Upload supporting documents
+choose-files.rejected-goods.p1=Upload {0}. 
+choose-files.rejected-goods.p2=The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
+choose-files.rejected-goods.p3=A maximum of 10 file can be uploaded at one time.
+
+#===================================================
 #  COUNTRIES - START
 #===================================================
 countryCode.placeholder=Select country
