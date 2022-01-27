@@ -21,9 +21,6 @@ import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
-import play.api.data.Forms._
-import play.api.data.Form
-import play.api.data.Mapping
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -34,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -42,13 +39,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -193,38 +187,4 @@ class BankAccountController @Inject() (
         }
       }
     }
-}
-
-object BankAccountController {
-
-  val accountNumberMapping: Mapping[AccountNumber] =
-    nonEmptyText
-      .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
-      .verifying("error.length", str => AccountNumber.hasValidLength(str))
-      .verifying("error.invalid", str => AccountNumber.isValid(str))
-      .transform[AccountNumber](
-        s => {
-          val paddedNumber = s.reverse.padTo(8, '0').reverse
-          AccountNumber(paddedNumber)
-        },
-        _.value
-      )
-
-  val sortCodeMapping: Mapping[SortCode] =
-    nonEmptyText
-      .transform[SortCode](s => SortCode(s.replaceAll("[-( )]+", "")), _.value)
-      .verifying("invalid", e => SortCode.isValid(e.value))
-
-  val accountNameMapping: Mapping[AccountName] =
-    nonEmptyText(maxLength = 40)
-      .transform[AccountName](s => AccountName(s.trim()), _.value)
-      .verifying("invalid", e => AccountName.isValid(e.value))
-
-  val enterBankDetailsForm: Form[BankAccountDetails] = Form(
-    mapping(
-      "enter-bank-details.account-name"   -> accountNameMapping,
-      "enter-bank-details.sort-code"      -> sortCodeMapping,
-      "enter-bank-details.account-number" -> accountNumberMapping
-    )(BankAccountDetails.apply)(BankAccountDetails.unapply)
-  )
 }

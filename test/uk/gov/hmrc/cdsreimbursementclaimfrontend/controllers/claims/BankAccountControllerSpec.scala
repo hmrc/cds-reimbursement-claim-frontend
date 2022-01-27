@@ -31,6 +31,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -258,7 +259,7 @@ class BankAccountControllerSpec
           mockStoreSession(updatedSession)(Right(()))
           mockBusinessReputation(Right(businessResponse))
         }
-        val form               = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val form               = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result             = controller.enterBankAccountDetailsSubmit(journey)(request)
 
@@ -271,7 +272,7 @@ class BankAccountControllerSpec
         val answers         = Business
         val (session, _, _) =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form            = BankAccountController.enterBankDetailsForm.fill(Business).data.toSeq
+        val form            = enterBankDetailsForm.fill(Business).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
@@ -303,7 +304,7 @@ class BankAccountControllerSpec
         val answers         = Business
         val (session, _, _) =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form            = BankAccountController.enterBankDetailsForm.fill(Business).data.toSeq
+        val form            = enterBankDetailsForm.fill(Business).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
         val accountNumberWithSortCodeIsValidCases = Seq(Indeterminate, ReputationResponse.Error)
@@ -338,7 +339,7 @@ class BankAccountControllerSpec
         val answers         = Business
         val (session, _, _) =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form            = BankAccountController.enterBankDetailsForm.fill(Business).data.toSeq
+        val form            = enterBankDetailsForm.fill(Business).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
         val businessResponse =
@@ -366,7 +367,7 @@ class BankAccountControllerSpec
         val answers            = Business
         val (session, _, _)    =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form               = BankAccountController.enterBankDetailsForm.fill(Business).data.toSeq
+        val form               = enterBankDetailsForm.fill(Business).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), None)
 
@@ -404,7 +405,7 @@ class BankAccountControllerSpec
           mockGetSession(session)
           mockBusinessReputation(Right(businessResponse))
         }
-        val form             = BankAccountController.enterBankDetailsForm.fill(Business).data.toSeq
+        val form             = enterBankDetailsForm.fill(Business).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
         val doc              = Jsoup.parse(contentAsString(result))
@@ -430,7 +431,7 @@ class BankAccountControllerSpec
           mockBusinessReputation(Left(errorResponse))
         }
 
-        val form    = BankAccountController.enterBankDetailsForm.fill(Business).data.toSeq
+        val form    = enterBankDetailsForm.fill(Business).data.toSeq
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
 
@@ -460,7 +461,7 @@ class BankAccountControllerSpec
           mockPersonalReputation(Right(personalResponse))
         }
 
-        val form    = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val form    = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
 
@@ -473,7 +474,7 @@ class BankAccountControllerSpec
         val answers            = Personal
         val (session, _, _)    =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form               = BankAccountController.enterBankDetailsForm.fill(Personal).data.toSeq
+        val form               = enterBankDetailsForm.fill(Personal).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
 
@@ -504,7 +505,7 @@ class BankAccountControllerSpec
         val answers                               = Personal
         val (session, _, _)                       =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form                                  = BankAccountController.enterBankDetailsForm.fill(Personal).data.toSeq
+        val form                                  = enterBankDetailsForm.fill(Personal).data.toSeq
         val request                               = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountNumberWithSortCodeIsValidCases = Seq(Indeterminate, ReputationResponse.Error)
         val accountExistsCases                    = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
@@ -538,7 +539,7 @@ class BankAccountControllerSpec
         val answers         = Personal
         val (session, _, _) =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form            = BankAccountController.enterBankDetailsForm.fill(Personal).data.toSeq
+        val form            = enterBankDetailsForm.fill(Personal).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
         val personalResponse =
@@ -567,7 +568,7 @@ class BankAccountControllerSpec
         val answers            = Personal
         val (session, _, _)    =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val form               = BankAccountController.enterBankDetailsForm.fill(Personal).data.toSeq
+        val form               = enterBankDetailsForm.fill(Personal).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), None)
 
@@ -604,7 +605,7 @@ class BankAccountControllerSpec
           mockGetSession(session)
           mockPersonalReputation(Right(personalResponse))
         }
-        val form             = BankAccountController.enterBankDetailsForm.fill(Personal).data.toSeq
+        val form             = enterBankDetailsForm.fill(Personal).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
         val doc              = Jsoup.parse(contentAsString(result))
@@ -630,7 +631,7 @@ class BankAccountControllerSpec
           mockPersonalReputation(Left(errorResponse))
         }
 
-        val form    = BankAccountController.enterBankDetailsForm.fill(Personal).data.toSeq
+        val form    = enterBankDetailsForm.fill(Personal).data.toSeq
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
 
@@ -641,7 +642,7 @@ class BankAccountControllerSpec
   }
 
   "Form Validation" must {
-    val form          = BankAccountController.enterBankDetailsForm
+    val form          = enterBankDetailsForm
     val accountName   = "enter-bank-details.account-name"
     val isBusiness    = "enter-bank-details.is-business-account"
     val sortCode      = "enter-bank-details.sort-code"
