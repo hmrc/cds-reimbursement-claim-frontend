@@ -66,11 +66,6 @@ class SelectTaxCodesControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private def selectedValues(doc: Document): Seq[String] = {
-    val checkBoxes: Elements = doc.select("div.govuk-checkboxes input[checked]")
-    checkBoxes.eachAttr("value").asScala.toSeq
-  }
-
   def getHintText(document: Document, hintTextId: String) = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
@@ -110,7 +105,7 @@ class SelectTaxCodesControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => selectedValues(doc) shouldBe empty
+          doc => selectedCheckBox(doc) shouldBe empty
         )
       }
 
@@ -129,7 +124,7 @@ class SelectTaxCodesControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => selectedValues(doc) should contain theSameElementsAs selectedDuties
+            doc => selectedCheckBox(doc) should contain theSameElementsAs selectedDuties
           )
         }
       }

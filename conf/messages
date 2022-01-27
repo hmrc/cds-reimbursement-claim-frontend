@@ -878,6 +878,23 @@ check-claim-timed-out.p2=To access the claim for reimbursement of import duties 
 check-claim-timed-out.button=Sign in
 
 #===================================================
+#  ENTER INSPECTION DATE PAGE
+#===================================================
+enter-inspection-date.rejected-goods.title=Tell us when the goods will be available until for inspection
+enter-inspection-date.rejected-goods.help-text=HMRC may want to inspect your goods to process your claim. You must allow at least 2 full working days between submitting this claim and returning or disposing of your goods.
+enter-inspection-date.rejected-goods.label=Enter inspection date
+enter-inspection-date.rejected-goods.hint=Tell us the date your goods will be made available for inspection until. For example, 26 6 2020.
+enter-inspection-date.rejected-goods.error.required=Enter your inspection date
+enter-inspection-date.rejected-goods.day.error.required=Inspection date must include a day
+enter-inspection-date.rejected-goods.month.error.required=Inspection date must include a month
+enter-inspection-date.rejected-goods.year.error.required=Inspection date must include a year
+enter-inspection-date.rejected-goods.monthAndYear.error.required=Inspection date must include a month and a year
+enter-inspection-date.rejected-goods.dayAndYear.error.required=Inspection date must include a day and a year
+enter-inspection-date.rejected-goods.dayAndMonth.error.required=Inspection date must include a day and a month
+enter-inspection-date.rejected-goods.error.invalid=Inspection date must be a real date
+enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a real date 1900
+
+#===================================================
 #  ENTER LEAD MRN OR ENTRY NUMBER PLACEHOLDER PAGE
 #===================================================
 enter-lead-mrn-or-entry-number.title=What is your lead MRN or entry number?

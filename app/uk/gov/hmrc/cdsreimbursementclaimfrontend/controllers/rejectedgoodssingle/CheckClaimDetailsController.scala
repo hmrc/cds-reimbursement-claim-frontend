@@ -20,6 +20,7 @@ import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -81,6 +82,8 @@ class CheckClaimDetailsController @Inject() (
               case No  => Redirect(routes.SelectTaxCodesController.show()).asFuture
             }
           )
+      case None      =>
+        Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
     }
   }
 }

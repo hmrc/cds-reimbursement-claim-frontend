@@ -20,10 +20,18 @@ import cats.implicits.catsSyntaxEq
 import play.api.data.Forms._
 import play.api.data.Form
 import play.api.data.Mapping
+import play.api.data.Forms.mapping
+import play.api.data.Forms.of
+import play.api.data.Forms.seq
+import play.api.data.Forms.list
+import play.api.data.Forms.nonEmptyText
+import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -36,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 
 object Forms {
 
@@ -71,6 +80,17 @@ object Forms {
         "select-method-of-disposal.rejected-goods" -> nonEmptyText.verifying(MethodOfDisposal.keys.contains _)
       )(MethodOfDisposal.tryParse)(md => Some(MethodOfDisposal.keyOf(md)))
     )
+
+  val enterInspectionDateForm: Form[InspectionDate] = {
+    val key: String = "enter-inspection-date.rejected-goods"
+    Form(
+      mapping(
+        "" -> of(
+          TimeUtils.dateFormatter(s"$key.day", s"$key.month", s"$key.year", key)
+        )
+      )(InspectionDate(_))(d => Some(d.value))
+    )
+  }
 
   val bankAccountTypeForm: Form[BankAccountType] =
     Form(

@@ -22,6 +22,7 @@ import com.google.inject.Singleton
 import com.typesafe.config.ConfigFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
@@ -39,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.Metrics
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.MockMetrics
 
+import scala.collection.JavaConverters._
 import java.net.URLEncoder
 import scala.concurrent.Future
 import scala.reflect.ClassTag
@@ -225,4 +227,19 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     if (textArea.size() =!= 0) Some(textArea.`val`()) else None
   }
 
+  def selectedCheckBox(doc: Document): Seq[String] = {
+    val checkBoxes: Elements = doc.select("div.govuk-checkboxes input[checked]")
+    checkBoxes.eachAttr("value").asScala.toSeq
+  }
+
+  def selectedInputBox(doc: Document, inputValue: String): Option[String] = {
+    val inputString: String = s"input.govuk-input[name='enter-inspection-date.rejected-goods.$inputValue']"
+    val input               = doc.select(inputString)
+    if (input.size() =!= 0) Some(input.`val`()) else None
+  }
+
+  def selectedInput(doc: Document): Option[String] = {
+    val input = doc.select(s"input.govuk-input[checked]")
+    if (input.size() =!= 0) Some(input.`val`()) else None
+  }
 }
