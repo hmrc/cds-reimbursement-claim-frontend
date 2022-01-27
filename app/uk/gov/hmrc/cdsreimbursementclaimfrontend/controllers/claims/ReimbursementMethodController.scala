@@ -17,22 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
-import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.number
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursementMethodForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.reimbursementMethodForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.reimbursementMethodKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -40,13 +37,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtracto
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -65,17 +60,19 @@ class ReimbursementMethodController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[ReimbursementMethodAnswer] = _.reimbursementMethodAnswer
 
+  private val form = reimbursementMethodForm(reimbursementMethodKey)
+
   def showReimbursementMethod(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ReimbursementMethodAnswer] { (_, answers) =>
-        val filledForm = answers.fold(reimbursementMethodForm)(reimbursementMethodForm.fill)
+        val filledForm = answers.fold(form)(form.fill)
         Future.successful(Ok(selectReimbursementMethod(filledForm)))
       }
     }
 
   def submitReimbursementMethod(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementMethodAnswer] { (fillingOutClaim, _) =>
-      ReimbursementMethodController.reimbursementMethodForm
+      form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(selectReimbursementMethod(formWithErrors))),
@@ -107,21 +104,4 @@ class ReimbursementMethodController @Inject() (
 object ReimbursementMethodController {
 
   val reimbursementMethodKey: String = "reimbursement-method"
-
-  val reimbursementMethodForm: Form[ReimbursementMethodAnswer] =
-    Form(
-      mapping(
-        reimbursementMethodKey -> number
-          .verifying("error.invalid", a => a === 0 || a === 1)
-          .transform[ReimbursementMethodAnswer](
-            value =>
-              if (value === 0) CurrentMonthAdjustment
-              else BankAccountTransfer,
-            {
-              case CurrentMonthAdjustment => 0
-              case BankAccountTransfer    => 1
-            }
-          )
-      )(identity)(Some(_))
-    )
 }
