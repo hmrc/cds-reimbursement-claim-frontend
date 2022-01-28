@@ -50,7 +50,7 @@ trait UploadDocumentsConnector {
     hc: HeaderCarrier
   ): Future[Response]
 
-  /** Wipes-out upload-documents-frontend session statex with related file information,
+  /** Wipes-out upload-documents-frontend session state with related file information,
     * prevents futher file preview. Upscan uploads remain intact.
     */
   def wipeOut(implicit hc: HeaderCarrier): Future[Unit]
