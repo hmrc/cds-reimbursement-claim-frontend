@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
@@ -74,34 +73,6 @@ class EnterInspectionDateControllerSpec
 
   def performAction(): Future[Result] =
     controller.show()(FakeRequest())
-
-  def test(
-    sessionData: SessionData,
-    expectedTitleKey: String,
-    expectedPrepopulatedValue: Option[InspectionDate]
-  ): Unit = {
-    inSequence {
-      mockAuthWithNoRetrievals()
-      mockGetSession(sessionData)
-    }
-
-    checkPageIsDisplayed(
-      performAction(),
-      messageFromMessageKey(expectedTitleKey),
-      doc =>
-        expectedPrepopulatedValue.foreach { inspectionDate =>
-          doc
-            .select("#enter-contact-details-rejected-goods.day")
-            .attr("value") shouldBe inspectionDate.value.getDayOfMonth.toString
-          doc
-            .select("#enter-contact-details-rejected-goods.$inputValue.month")
-            .attr("value") shouldBe inspectionDate.value.getMonthValue.toString
-          doc
-            .select("#enter-contact-details-rejected-goods.$inputValue.year")
-            .attr("value") shouldBe inspectionDate.value.getYear.toString
-        }
-    )
-  }
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
