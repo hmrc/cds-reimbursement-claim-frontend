@@ -51,42 +51,42 @@
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details",subKey).rows.drop(2)))
+        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
     } 
 
     @pageHeading(messages(s"$key.contact-information.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.EnterContactDetailsController.show(), Call("GET", "lookup_address")))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.EnterContactDetailsController.show(), routes.CheckClaimantDetailsController.redirectToALF()))
 
     @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim,s"$key.basis",subKey, routes.BasisForClaimController.show()))
+    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim,s"$key.basis", subKey, routes.BasisForClaimController.show()))
 
     @claim.basisOfClaimSpecialCircumstances.map { specialCircumstances =>
         @pageHeading(messages(s"$key.special-circumstances.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SpecialCircumstancesSummary(specialCircumstances,s"$key.special-circumstances",subKey))
+        @summary(SpecialCircumstancesSummary(specialCircumstances,s"$key.special-circumstances", subKey))
     }
 
     @pageHeading(messages(s"$key.disposal-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"$key.disposal-method",subKey, routes.DisposalMethodController.show()))
+    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"$key.disposal-method", subKey, routes.DisposalMethodController.show()))
 
     @pageHeading(messages(s"$key.details-rejected-goods.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods,s"$key.details-rejected-goods",subKey))
+    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey))
     
     @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ReimbursementsClaimsSummary(claim.reimbursementClaims.toSeq,s"$key.claim-total",subKey))
+    @summary(ReimbursementsClaimsSummary(claim.reimbursementClaims.toSeq, s"$key.claim-total", subKey))
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(InspectionDateAndAddressSummary(claim.inspectionDate,claim.inspectionAddress,s"$key.inspection"))
+    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
     
     @pageHeading(messages(s"$key.repayment-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod,s"$key.repayment-method",subKey))
+    @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod,s"$key.repayment-method", subKey))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(BankAccountDetailsSummary(bankAccountDetails,s"$key.bank-details",subKey))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey))
     }
     
     @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", subKey))
+    @summary(EvidenceDocumentsSummary(claim.supportingEvidences, s"$key.attached-documents", subKey))
 
     @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))

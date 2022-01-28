@@ -37,48 +37,33 @@ object InspectionDateAndAddressSummary {
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     key: String,
-    changeInspectionDateCall: Option[Call] = None,
-    changeInspectionAddressCall: Option[Call] = None,
-    changeInspectionAddressTypeCall: Option[Call] = None
+    changeInspectionDateCall: Call,
+    changeInspectionAddressTypeCall: Call
   )(implicit
     messages: Messages
   ): SummaryList = {
 
-    val changeInspectionDateAction = changeInspectionDateCall.map(call =>
+    val changeInspectionDateAction =
       Actions(
         items = Seq(
           ActionItem(
-            href = s"${call.url}",
+            href = s"${changeInspectionDateCall.url}",
             content = Text(messages("cya.change")),
-            visuallyHiddenText = Some(messages(s"$key.change-hint.inspection-date"))
+            visuallyHiddenText = Some(messages(s"$key.inspection-date"))
           )
         )
       )
-    )
 
-    val changeInspectionAddressAction = changeInspectionAddressCall.map(call =>
+    val changeInspectionAddressTypeAction =
       Actions(
         items = Seq(
           ActionItem(
-            href = s"${call.url}",
+            href = s"${changeInspectionAddressTypeCall.url}",
             content = Text(messages("cya.change")),
-            visuallyHiddenText = Some(messages(s"$key.change-hint.inspection-address"))
+            visuallyHiddenText = Some(messages(s"$key.inspection-address-type"))
           )
         )
       )
-    )
-
-    val changeInspectionAddressTypeAction = changeInspectionAddressTypeCall.map(call =>
-      Actions(
-        items = Seq(
-          ActionItem(
-            href = s"${call.url}",
-            content = Text(messages("cya.change")),
-            visuallyHiddenText = Some(messages(s"$key.change-hint.inspection-address-type"))
-          )
-        )
-      )
-    )
 
     val addressData = List(
       Paragraph(inspectionAddress.addressLine1),
@@ -92,17 +77,16 @@ object InspectionDateAndAddressSummary {
         SummaryListRow(
           key = Key(Text(messages(s"$key.inspection-date"))),
           value = Value(Text(inspectionDate.value.toString)),
-          actions = changeInspectionDateAction
+          actions = Some(changeInspectionDateAction)
         ),
         SummaryListRow(
           key = Key(Text(messages(s"$key.inspection-address-type"))),
           value = Value(Text(messages(s"inspection-address.type.${inspectionAddress.addressType}"))),
-          actions = changeInspectionAddressTypeAction
+          actions = Some(changeInspectionAddressTypeAction)
         ),
         SummaryListRow(
           key = Key(Text(messages(s"$key.inspection-address"))),
-          value = Value(HtmlContent(HtmlFormat.fill(addressData))),
-          actions = changeInspectionAddressAction
+          value = Value(HtmlContent(HtmlFormat.fill(addressData)))
         )
       )
     )
