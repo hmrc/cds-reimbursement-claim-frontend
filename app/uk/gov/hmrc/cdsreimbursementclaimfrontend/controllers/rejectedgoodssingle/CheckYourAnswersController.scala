@@ -23,10 +23,11 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
 import scala.concurrent.ExecutionContext
 
@@ -34,6 +35,7 @@ import scala.concurrent.ExecutionContext
 class CheckYourAnswersController @Inject() (
   val jcc: JourneyControllerComponents,
   rejectedGoodsSingleClaimConnector: RejectedGoodsSingleClaimConnector,
+  uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: pages.check_your_answers,
   confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
   submitClaimFailedPage: claimPages.submit_claim_error
@@ -89,14 +91,17 @@ class CheckYourAnswersController @Inject() (
             output =>
               rejectedGoodsSingleClaimConnector
                 .submitClaim(RejectedGoodsSingleClaimConnector.Request(output))
-                .map { response =>
+                .flatMap { response =>
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
                   )
-                  (
-                    journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
-                    Redirect(showConfirmationAction)
-                  )
+                  uploadDocumentsConnector.wipeOut
+                    .map(_ =>
+                      (
+                        journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
+                        Redirect(showConfirmationAction)
+                      )
+                    )
                 }
                 .recover { case e =>
                   logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
