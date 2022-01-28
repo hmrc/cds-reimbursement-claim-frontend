@@ -78,7 +78,8 @@ class UploadFilesController @Inject() (
       timeoutSeconds = appConfig.ggTimeoutSeconds.toInt,
       countdownSeconds = appConfig.ggCountdownSeconds.toInt,
       showLanguageSelection = appConfig.enableLanguageSwitching,
-      pageTitleClasses = "govuk-heading-xl"
+      pageTitleClasses = "govuk-heading-xl",
+      allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types")
     )
   }
 
@@ -95,6 +96,8 @@ class UploadFilesController @Inject() (
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 3,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
+      allowedContentTypes = "application/pdf,image/jpeg,image/png",
+      allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
       cargo = documentType,
       newFileDescription = documentTypeDescription(documentType),
       content = uploadDocumentsContent(documentType)

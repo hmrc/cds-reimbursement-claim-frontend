@@ -32,6 +32,8 @@ final case class UploadDocumentsSessionConfig(
   maximumNumberOfFiles: Int, // maximum number of files to upload
   initialNumberOfEmptyRows: Int, // number of empty 'choose file' rows to display
   maximumFileSizeBytes: Long, // maximum size of a single file upload
+  allowedContentTypes: String, // a list of allowed file types (i.e. MIME types),
+  allowedFileExtensions: String, // file picker filter hint, see: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept
   cargo: UploadDocumentType, // type of the document to assign to the newly added files
   newFileDescription: String, // description of the new file added
   content: Content
@@ -53,7 +55,8 @@ object UploadDocumentsSessionConfig {
     timeoutSeconds: Int,
     countdownSeconds: Int,
     showLanguageSelection: Boolean,
-    pageTitleClasses: String
+    pageTitleClasses: String,
+    allowedFilesTypesHint: String
   )
 
   object Content {

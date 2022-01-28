@@ -95,6 +95,8 @@ class UploadDocumentsConnectorSpec
       maximumNumberOfFiles = 5,
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = 10L * 1024L * 1024L,
+      allowedContentTypes = "image/png",
+      allowedFileExtensions = "*.png",
       content = UploadDocumentsSessionConfig.Content(
         serviceName = "service.title",
         title = "choose-files.rejected-goods.title",
@@ -109,7 +111,8 @@ class UploadDocumentsConnectorSpec
         timeoutSeconds = 900,
         countdownSeconds = 120,
         showLanguageSelection = false,
-        pageTitleClasses = "govuk-heading-xl"
+        pageTitleClasses = "govuk-heading-xl",
+        allowedFilesTypesHint = "PNG"
       )
     )
 
