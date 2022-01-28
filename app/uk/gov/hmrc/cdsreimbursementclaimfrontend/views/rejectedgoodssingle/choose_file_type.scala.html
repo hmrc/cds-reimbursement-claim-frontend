@@ -96,7 +96,8 @@
                         content = Text(messages(if(hasExistingUploads) s"$key.file-type.none.more" else s"$key.file-type.none")),
                         checked = form(s"$key").value.exists(_.contains("none"))
                     )
-                ) 
+                ),
+                hideError = true
             )
 
             @submitButton("button.continue")

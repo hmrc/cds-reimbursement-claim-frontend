@@ -47,7 +47,9 @@ class CheckYourAnswersController @Inject() (
 
   val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      journey.toOutput
+      journey
+        .submitCheckYourAnswersChangeMode(true)
+        .toOutput
         .fold(
           errors => {
             logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
@@ -76,7 +78,9 @@ class CheckYourAnswersController @Inject() (
       if (journey.isFinalized)
         (journey, Redirect(showConfirmationAction)).asFuture
       else
-        journey.toOutput
+        journey
+          .submitCheckYourAnswersChangeMode(true)
+          .toOutput
           .fold(
             errors => {
               logger.warn(s"Claim not ready to submit because of ${errors.mkString(",")}")
