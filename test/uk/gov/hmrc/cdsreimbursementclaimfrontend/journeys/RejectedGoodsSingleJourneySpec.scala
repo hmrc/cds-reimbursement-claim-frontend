@@ -68,7 +68,7 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
       emptyJourney.hasCompleteReimbursementClaims           shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences           shouldBe true
+      emptyJourney.hasCompleteSupportingEvidences           shouldBe false
       emptyJourney.hasCompleteAnswers                       shouldBe false
       emptyJourney.toOutput.isLeft                          shouldBe true
       emptyJourney.isFinalized                              shouldBe false
@@ -78,9 +78,13 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen) { journey =>
         RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Validated.Valid(())
         journey.answers.checkYourAnswersChangeMode          shouldBe true
+        journey.hasCompleteReimbursementClaims              shouldBe true
+        journey.hasCompleteSupportingEvidences              shouldBe true
         journey.hasCompleteAnswers                          shouldBe true
         journey.isFinalized                                 shouldBe false
+
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
+
         output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
         output.claimantType             shouldBe journey.getClaimantType
         output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
@@ -99,12 +103,17 @@ class RejectedGoodsSingleJourneySpec
 
     "finalize journey with caseNumber" in {
       forAll(completeJourneyGen) { journey =>
-        journey.hasCompleteAnswers shouldBe true
-        journey.isFinalized        shouldBe false
+        journey.hasCompleteReimbursementClaims shouldBe true
+        journey.hasCompleteSupportingEvidences shouldBe true
+        journey.hasCompleteAnswers             shouldBe true
+        journey.isFinalized                    shouldBe false
         val result          = journey.finalizeJourneyWith("foo-123-abc")
         val modifiedJourney = result.getOrElse(fail(couldNotRetrieveJourney))
-        modifiedJourney.isFinalized                shouldBe true
-        modifiedJourney.finalizeJourneyWith("bar") shouldBe Left(JOURNEY_ALREADY_FINALIZED)
+        modifiedJourney.isFinalized                    shouldBe true
+        modifiedJourney.hasCompleteReimbursementClaims shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        modifiedJourney.hasCompleteAnswers             shouldBe true
+        modifiedJourney.finalizeJourneyWith("bar")     shouldBe Left(JOURNEY_ALREADY_FINALIZED)
       }
     }
 
@@ -114,7 +123,7 @@ class RejectedGoodsSingleJourneySpec
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteReimbursementClaims                shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.isFinalized                                   shouldBe false
       }
     }
@@ -125,7 +134,7 @@ class RejectedGoodsSingleJourneySpec
         modifiedJourney.answers.displayDeclaration     shouldBe empty
         modifiedJourney.hasCompleteAnswers             shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe false
       }
     }
 
@@ -150,7 +159,7 @@ class RejectedGoodsSingleJourneySpec
         journey.answers.displayDeclaration.contains(acc14)           shouldBe true
         journey.hasCompleteAnswers                                   shouldBe false
         journey.hasCompleteReimbursementClaims                       shouldBe false
-        journey.hasCompleteSupportingEvidences                       shouldBe true
+        journey.hasCompleteSupportingEvidences                       shouldBe false
       }
     }
 

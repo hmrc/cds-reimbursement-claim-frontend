@@ -76,7 +76,8 @@ final class RejectedGoodsSingleJourney private[journeys] (
     answers.reimbursementClaims.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
 
   def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.forall(_.documentType.isDefined)
+    answers.checkYourAnswersChangeMode &&
+      answers.supportingEvidences.forall(_.documentType.isDefined)
 
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
