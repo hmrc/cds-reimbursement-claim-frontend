@@ -26,14 +26,17 @@ import play.api.data.Forms.seq
 import play.api.data.Forms.list
 import play.api.data.Forms.nonEmptyText
 import play.api.data.Forms.optional
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
@@ -98,6 +101,37 @@ object Forms {
         "select-bank-account-type" -> nonEmptyText.verifying(BankAccountType.keys.contains _)
       )(BankAccountType.tryParse)(md => Some(BankAccountType.keyOf(md)))
     )
+
+  val accountNumberMapping: Mapping[AccountNumber] =
+    nonEmptyText
+      .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
+      .verifying("error.length", str => AccountNumber.hasValidLength(str))
+      .verifying("error.invalid", str => AccountNumber.isValid(str))
+      .transform[AccountNumber](
+        s => {
+          val paddedNumber = s.reverse.padTo(8, '0').reverse
+          AccountNumber(paddedNumber)
+        },
+        _.value
+      )
+
+  val sortCodeMapping: Mapping[SortCode] =
+    nonEmptyText
+      .transform[SortCode](s => SortCode(s.replaceAll("[-( )]+", "")), _.value)
+      .verifying("invalid", e => SortCode.isValid(e.value))
+
+  val accountNameMapping: Mapping[AccountName] =
+    nonEmptyText(maxLength = 40)
+      .transform[AccountName](s => AccountName(s.trim()), _.value)
+      .verifying("invalid", e => AccountName.isValid(e.value))
+
+  val enterBankDetailsForm: Form[BankAccountDetails] = Form(
+    mapping(
+      "enter-bank-details.account-name"   -> accountNameMapping,
+      "enter-bank-details.sort-code"      -> sortCodeMapping,
+      "enter-bank-details.account-number" -> accountNumberMapping
+    )(BankAccountDetails.apply)(BankAccountDetails.unapply)
+  )
 
   val rejectedGoodsContactDetailsForm: Form[MrnContactDetails] = Form(
     mapping(
