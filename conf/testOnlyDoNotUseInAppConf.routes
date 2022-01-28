@@ -18,4 +18,5 @@ GET        /claim-for-reimbursement-of-import-duties/test-only/feature/:featureN
 
 
 GET        /claim-for-reimbursement-of-import-duties/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.show
++nocsrf
 POST        /claim-for-reimbursement-of-import-duties/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.submit
