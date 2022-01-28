@@ -68,7 +68,7 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
       emptyJourney.hasCompleteReimbursementClaims           shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences           shouldBe false
+      emptyJourney.hasCompleteSupportingEvidences           shouldBe true
       emptyJourney.hasCompleteAnswers                       shouldBe false
       emptyJourney.toOutput.isLeft                          shouldBe true
       emptyJourney.isFinalized                              shouldBe false
@@ -77,6 +77,7 @@ class RejectedGoodsSingleJourneySpec
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
         RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Validated.Valid(())
+        journey.answers.checkYourAnswersChangeMode          shouldBe true
         journey.hasCompleteAnswers                          shouldBe true
         journey.isFinalized                                 shouldBe false
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
@@ -113,7 +114,7 @@ class RejectedGoodsSingleJourneySpec
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteReimbursementClaims                shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
         journey.isFinalized                                   shouldBe false
       }
     }
@@ -124,7 +125,7 @@ class RejectedGoodsSingleJourneySpec
         modifiedJourney.answers.displayDeclaration     shouldBe empty
         modifiedJourney.hasCompleteAnswers             shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
       }
     }
 
@@ -149,7 +150,7 @@ class RejectedGoodsSingleJourneySpec
         journey.answers.displayDeclaration.contains(acc14)           shouldBe true
         journey.hasCompleteAnswers                                   shouldBe false
         journey.hasCompleteReimbursementClaims                       shouldBe false
-        journey.hasCompleteSupportingEvidences                       shouldBe false
+        journey.hasCompleteSupportingEvidences                       shouldBe true
       }
     }
 
