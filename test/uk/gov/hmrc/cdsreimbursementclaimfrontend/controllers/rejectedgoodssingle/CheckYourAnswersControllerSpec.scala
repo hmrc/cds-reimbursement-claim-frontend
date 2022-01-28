@@ -228,7 +228,7 @@ class CheckYourAnswersControllerSpec
         }
       }
 
-      "show failure page if submisison fails" in {
+      "show failure page if submission fails" in {
         forAll(completeJourneyGen) { journey =>
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
           val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
