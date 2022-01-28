@@ -892,7 +892,7 @@ enter-inspection-date.rejected-goods.monthAndYear.error.required=Inspection date
 enter-inspection-date.rejected-goods.dayAndYear.error.required=Inspection date must include a day and a year
 enter-inspection-date.rejected-goods.dayAndMonth.error.required=Inspection date must include a day and a month
 enter-inspection-date.rejected-goods.error.invalid=Inspection date must be a real date
-enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a real date 1900
+enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a real date
 
 #===================================================
 #  ENTER LEAD MRN OR ENTRY NUMBER PLACEHOLDER PAGE
