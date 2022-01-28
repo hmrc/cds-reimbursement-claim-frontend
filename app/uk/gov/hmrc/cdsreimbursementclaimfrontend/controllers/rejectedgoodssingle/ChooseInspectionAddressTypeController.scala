@@ -112,7 +112,7 @@ class ChooseInspectionAddressTypeController @Inject() (
   override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
     if (journey.isAllSelectedDutiesAreCMAEligible)
       (journey, Redirect(routes.ChooseRepaymentMethodController.show()))
-    else (journey, Redirect(Call("", "/check-bank-details")))
+    else (journey, Redirect(routes.CheckBankDetailsController.show()))
 
   private def populateAddresses(journey: RejectedGoodsSingleJourney) = Seq(
     journey.getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer  -> _),

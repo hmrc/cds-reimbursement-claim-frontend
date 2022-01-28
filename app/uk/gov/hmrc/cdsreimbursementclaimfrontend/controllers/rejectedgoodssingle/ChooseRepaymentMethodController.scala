@@ -53,7 +53,7 @@ class ChooseRepaymentMethodController @Inject() (
             case (Right(updatedJourney), CurrentMonthAdjustment) =>
               (updatedJourney, Redirect(chooseFileTypeAction)).asFuture
             case (Right(updatedJourney), BankAccountTransfer)    =>
-              (updatedJourney, Redirect("check-these-bank-details-are-correct")).asFuture
+              (updatedJourney, Redirect(routes.CheckBankDetailsController.show())).asFuture
             case (Left(errorMessage), _)                         =>
               logger.error(s"We failed to choose the repayment method - $errorMessage")
               (journey, Redirect(routes.CheckYourAnswersController.show())).asFuture

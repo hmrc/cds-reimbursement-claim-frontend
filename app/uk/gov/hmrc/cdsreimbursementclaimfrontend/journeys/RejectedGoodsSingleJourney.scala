@@ -117,6 +117,13 @@ final class RejectedGoodsSingleJourney private (
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
 
+  def getBankAccountDetails: Option[BankAccountDetails] =
+    Stream(
+      answers.bankAccountDetails,
+      answers.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
+      answers.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
+    ).find(_.nonEmpty).flatten
+
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 

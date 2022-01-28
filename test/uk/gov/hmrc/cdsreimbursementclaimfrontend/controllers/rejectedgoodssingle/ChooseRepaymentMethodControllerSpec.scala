@@ -244,7 +244,7 @@ class ChooseRepaymentMethodControllerSpec
 
             checkIsRedirect(
               performAction(formKey -> "1"),
-              "check-these-bank-details-are-correct"
+              routes.CheckBankDetailsController.show()
             )
           }
         }
