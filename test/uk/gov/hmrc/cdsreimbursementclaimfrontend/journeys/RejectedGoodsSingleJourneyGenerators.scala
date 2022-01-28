@@ -101,11 +101,19 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       completeJourneyNotCMAEligibleGen
     )
 
-  val completeJourneyGenWithoutSpecialCircumstances =
-    completeJourneyGen.suchThat(_.answers.basisOfClaimSpecialCircumstances.isEmpty)
+  val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsSingleJourney] =
+    completeJourneyGen.map(journey =>
+      new RejectedGoodsSingleJourney(
+        journey.answers.copy(basisOfClaimSpecialCircumstances = None)
+      )
+    )
 
-  val completeJourneyGenWithSpecialCircumstances =
-    completeJourneyGen.suchThat(_.answers.basisOfClaimSpecialCircumstances.isDefined)
+  val completeJourneyGenWithSpecialCircumstances: Gen[RejectedGoodsSingleJourney] = for {
+    journey                          <- completeJourneyGen
+    basisOfClaimSpecialCircumstances <- genStringWithMaxSizeOfN(500)
+  } yield new RejectedGoodsSingleJourney(
+    journey.answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances))
+  )
 
   implicit val bigDecimalChoose = new Gen.Choose[BigDecimal] {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
@@ -263,7 +271,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
     } yield {
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, cmaEligible) }
-      buildDisplayDeclaration(id.toString(), declarantEORI, Some(consigneeEORI), paidDuties)
+      buildDisplayDeclaration(id.toString, declarantEORI, Some(consigneeEORI), paidDuties)
     }
 
 }

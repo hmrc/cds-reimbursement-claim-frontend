@@ -30,23 +30,22 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementMethodAnswerSummary
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
-import uk.gov.hmrc.http.HeaderCarrier
-import org.scalacheck.Gen
 
 class CheckYourAnswersControllerSpec
     extends ControllerSpec
@@ -122,7 +121,7 @@ class CheckYourAnswersControllerSpec
       summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString
     }
 
-    summary("Total") shouldBe claim.reimbursementClaims.map(_._2).sum.toPoundSterlingString
+    summary("Total") shouldBe claim.reimbursementClaims.values.sum.toPoundSterlingString
 
     claim.bankAccountDetails.foreach { value =>
       headers                          should contain("Bank details")
@@ -229,7 +228,7 @@ class CheckYourAnswersControllerSpec
         }
       }
 
-      "show failure page if submisison fails" in {
+      "show failure page if submission fails" in {
         forAll(completeJourneyGen) { journey =>
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
           val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -258,7 +257,7 @@ class CheckYourAnswersControllerSpec
       }
 
       "display the page if journey has been finalized" in {
-        forAll(completeJourneyGen, Gen.asciiPrintableStr.map(_.take(20))) { (journey, caseNumber) =>
+        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
           val updatedSession =
             SessionData.empty.copy(rejectedGoodsSingleJourney = journey.finalizeJourneyWith(caseNumber).toOption)
           inSequence {

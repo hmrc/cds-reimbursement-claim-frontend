@@ -60,7 +60,7 @@ import java.time.LocalDate
   *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
   *  - [[RejectedGoodsSingleJourney.Outcome]] - final outcome of the journey to be sent to backend processing
   */
-final class RejectedGoodsSingleJourney private (
+final class RejectedGoodsSingleJourney private[journeys] (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends FluentSyntax[RejectedGoodsSingleJourney] {
@@ -93,7 +93,7 @@ final class RejectedGoodsSingleJourney private (
 
   def isConsigneePostCodeFromAcc14: Option[Boolean] =
     answers.displayDeclaration.map(
-      _.getConsigneeDetails.map(_.establishmentAddress.postalCode.isEmpty).getOrElse(false)
+      _.getConsigneeDetails.exists(_.establishmentAddress.postalCode.isEmpty)
     )
 
   def isDeclarantPostCodeFromAcc14: Option[Boolean] =
