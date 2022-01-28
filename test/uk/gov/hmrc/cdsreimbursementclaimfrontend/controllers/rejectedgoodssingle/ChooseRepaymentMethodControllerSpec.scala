@@ -128,7 +128,7 @@ class ChooseRepaymentMethodControllerSpec
 
           val expectedCheckedKey = journey.answers.reimbursementMethod match {
             case Some(CurrentMonthAdjustment) => "input[value=0]"
-            case Some(BankAccountTransfer)    => "input[value=1]"
+            case _                            => "input[value=1]"
           }
 
           inSequence {
@@ -222,7 +222,7 @@ class ChooseRepaymentMethodControllerSpec
 
             checkIsRedirect(
               performAction(formKey -> "0"),
-              "upload-supporting-evidence"
+              routes.ChooseFileTypeController.show()
             )
           }
         }

@@ -37,13 +37,13 @@ POST         /rejected-goods/single/select-duties                               
 
 GET          /rejected-goods/single/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.show()
 POST         /rejected-goods/single/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.submit()
+
 GET          /rejected-goods/single/inspection-address/lookup-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.redirectToALF()
 GET          /rejected-goods/single/inspection-address/update-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 
 GET          /rejected-goods/single/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterInspectionDateController.show()
 POST         /rejected-goods/single/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterInspectionDateController.submit()
 
-GET          /rejected-goods/single/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.show()
 POST         /rejected-goods/single/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.submit()
 GET          /rejected-goods/single/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.showConfirmation()
 
@@ -62,3 +62,12 @@ POST         /rejected-goods/single/bank-account-type                           
 
 GET          /rejected-goods/single/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterBankAccountDetailsController.show()
 POST         /rejected-goods/single/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterBankAccountDetailsController.submit()
+
+GET          /rejected-goods/single/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseFileTypeController.show()
+POST         /rejected-goods/single/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseFileTypeController.submit()
+
+GET          /rejected-goods/single/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.UploadFilesController.show()
++nocsrf
+POST         /rejected-goods/single/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.UploadFilesController.submit()
+
+GET          /rejected-goods/single/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.show()

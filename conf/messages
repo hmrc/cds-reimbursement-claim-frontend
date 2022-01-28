@@ -1152,6 +1152,7 @@ check-your-answers.claim-calculation.multiple.total=Total
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded
+check-your-answers.attached-documents.empty=No documents attached
 check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.claimant-details.h2=Contact information for this claim
@@ -1199,7 +1200,7 @@ inspection-address.type.Other=Other address
 inspection-address.type.Importer=Importer address
 inspection-address.type.Declarant=Declarant address
 inspection-address.type.title=Choose an address for the inspection
-inspection-address.type.or=&nbsp;&nbsp;&nbsp;or
+inspection-address.type.or=or
 inspection-address.type.error.required=Choose the address where the goods can be inspected
 
 #===================================================
@@ -1242,6 +1243,33 @@ choose-claim-type.ce1179.title=Repayment or remission of import duties and VAT o
 choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
 choose-claim-type.error.required=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
 choose-claim-type.error.unknown=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
+
+#===================================================
+#  CHOOSE FILE TYPE - PAGE
+#===================================================
+choose-file-type.title=Choose the type of supporting documents you are uploading
+choose-file-type.help-text=You can upload multiple documents of the same type on the next page. This will help us to process your claim more efficiently.
+choose-file-type.file-type.AdditionalSupportingDocuments=Additional supporting documents
+choose-file-type.file-type.CalculationWorksheet=Calculation worksheet
+choose-file-type.file-type.CommercialInvoice=Commercial invoice
+choose-file-type.file-type.CorrespondenceTrader=Correspondence between trader and agent
+choose-file-type.file-type.DocumentaryProofFaultyOrNotWhatOrdered=	Documentary proof that the goods are faulty or not what you ordered
+choose-file-type.file-type.ImportAndExportDeclaration=Import and export declaration
+choose-file-type.file-type.LetterOfAuthority=Letter of authority
+choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
+choose-file-type.file-type.none.more=I have no more documents to upload
+choose-file-type.file-type.none=I have no documents to upload
+choose-file-type.error.required=Choose a file type to support your claim
+choose-file-type.or=or
+
+#===================================================
+#  CHOOSE FILES - PAGE
+#===================================================
+choose-files.rejected-goods.title=Upload supporting documents
+choose-files.rejected-goods.p1=Upload {0}. 
+choose-files.rejected-goods.p2=The documents can be up to a maximum of {0} size per file. Valid file format: JPG, PNG, PDF.
+choose-files.rejected-goods.p3=A maximum of {0} file can be uploaded at one time.
+choose-files.rejected-goods.allowed-file-types=JPG, PNG, or PDF
 
 #===================================================
 #  COUNTRIES - START

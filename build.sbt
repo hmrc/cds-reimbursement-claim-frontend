@@ -80,11 +80,7 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
   )
   .settings(
-    dependencyOverrides += "org.jsoup" % "jsoup" %  AppDependencies.jsoupVersion
-  )
-  .settings(
-    Compile / scalacOptions --= Seq("-Xfatal-warnings"),
-    Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard")
+    dependencyOverrides += "org.jsoup" % "jsoup" % AppDependencies.jsoupVersion
   )
   .settings(Test / resourceDirectories += baseDirectory.value / "conf" / "resources")
   .settings(publishingSettings: _*)
@@ -96,6 +92,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s")
   .settings(Compile / doc / sources := Seq.empty)
+  .settings(scalacOptions --= Seq("-Xfatal-warnings"))
+  .settings(Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"))
 
 lazy val welshTranslation = taskKey[Unit]("Generate Welsh Translations'")
 

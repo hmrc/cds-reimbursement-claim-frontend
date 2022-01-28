@@ -52,4 +52,27 @@ class AuthenticatedAction @Inject() (
     auth.authorised()(Future.successful(Right(AuthenticatedRequest(request))))
   }
 
+  final def readHeadersFromRequestOnly(onlyRequest: Boolean): AuthenticatedAction =
+    if (onlyRequest)
+      new AuthenticatedAction(
+        authConnector,
+        config,
+        errorHandler,
+        sessionStore
+      ) {
+        override def authorisedFunction[A](
+          auth: AuthorisedFunctions,
+          request: MessagesRequest[A]
+        ): Future[Either[Result, AuthenticatedRequest[A]]] = {
+          implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+          auth.authorised()(Future.successful(Right(AuthenticatedRequest(request))))
+        }
+      }
+    else
+      this
+
+}
+
+object AuthenticatedAction {
+  final case class OnlyRequest(val value: Boolean) extends AnyVal
 }

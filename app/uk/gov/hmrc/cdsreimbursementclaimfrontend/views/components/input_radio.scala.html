@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Text,Empty}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
@@ -35,7 +35,8 @@
     legendAsHeading: Boolean = true,
     hintKey: Option[String] = None,
     classes: String = "govuk-fieldset__legend--m",
-    inline: Boolean = false
+    inline: Boolean = false,
+    hideError: Boolean = false
 )(implicit messages: Messages)
 
 @govukRadios(Radios(
@@ -52,5 +53,5 @@
         content = Text(messages(hint))
     )},
     items = items,
-    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"${name}.${err.message}", err.args:_*))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else Text(messages(s"${name}.${err.message}", err.args:_*)))))
 ))

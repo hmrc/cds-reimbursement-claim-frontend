@@ -81,7 +81,7 @@
             items = acc14AddressRadioItems
         )
 
-        @paragraph(Html(messages(s"$key.or")), Some("govuk-body govuk-!-margin-bottom-2"))
+        <div class="govuk-radios__divider govuk-!-margin-bottom-5">@messages(s"$key.or")</div>
 
         @radios(
             form = form,
@@ -89,7 +89,8 @@
             legend = title,
             legendAsHeading = false,
             classes = "govuk-visually-hidden",
-            items = otherAddressRadioItems
+            items = otherAddressRadioItems,
+            hideError = true
         )
 
         @submitButton("button.continue", classes = Some("govuk-!-margin-top-5"))

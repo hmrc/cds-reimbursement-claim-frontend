@@ -72,11 +72,11 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
   final override def controllerComponents: MessagesControllerComponents =
     jcc.controllerComponents
 
-  final def resultOrShortcut(result: Result, journey: Journey): Future[Result] =
+  final def resultOrShortcut(result: Result, journey: Journey, fastForwardToCYAEnabled: Boolean): Future[Result] =
     Future.successful(
       if (result.header.status =!= 303) result
       else if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
-      else if (hasCompleteAnswers(journey)) Redirect(checkYourAnswers)
+      else if (fastForwardToCYAEnabled && hasCompleteAnswers(journey)) Redirect(checkYourAnswers)
       else result
     )
 
@@ -150,10 +150,12 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Simple POST action to submit form and update journey. */
   final def simpleActionReadWriteJourney(
-    body: Request[_] => Journey => (Journey, Result)
+    body: Request[_] => Journey => (Journey, Result),
+    isCallback: Boolean = false,
+    fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
-      .authenticatedActionWithSessionData(requiredFeature)
+      .authenticatedActionWithSessionData(requiredFeature, isCallback)
       .async { implicit request =>
         request.sessionData
           .flatMap(sessionData =>
@@ -167,7 +169,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
-                      _ => resultOrShortcut(result, modifiedJourney)
+                      _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
                     )
                   )
               }
@@ -177,7 +179,8 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Simple POST to submit form and update journey, can use current user data. */
   final def simpleActionReadWriteJourneyAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => (Journey, Result)
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => (Journey, Result),
+    fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -192,7 +195,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
               .flatMap(
                 _.fold(
                   error => Future.failed(error.toException),
-                  _ => resultOrShortcut(result, modifiedJourney)
+                  _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
                 )
               )
           }
@@ -201,7 +204,8 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Async POST action to submit form and update journey. */
   final def actionReadWriteJourney(
-    body: Request[_] => Journey => Future[(Journey, Result)]
+    body: Request[_] => Journey => Future[(Journey, Result)],
+    fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
@@ -218,7 +222,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
-                      _ => resultOrShortcut(result, modifiedJourney)
+                      _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
                     )
                   )
               })
@@ -229,7 +233,8 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Async POST action to submit form and update journey, can use current user data. */
   final def actionReadWriteJourneyAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => Future[(Journey, Result)]
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => Future[(Journey, Result)],
+    fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -244,7 +249,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
                     .flatMap(
                       _.fold(
                         error => Future.failed(error.toException),
-                        _ => resultOrShortcut(result, modifiedJourney)
+                        _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
                       )
                     )
                 }

@@ -71,10 +71,12 @@ trait Retries {
     loop(intervals)(Mdc.mdcData)(block)
   }
 
+}
+
+object Retries {
   def getConfIntervals(serviceKey: String, configuration: Configuration): Seq[FiniteDuration] =
     configuration
       .getOptional[Seq[String]](s"microservice.services.$serviceKey.retryIntervals")
       .map(_.map(Duration.create).map(d => FiniteDuration(d.length, d.unit)))
       .getOrElse(Seq.empty)
-
 }

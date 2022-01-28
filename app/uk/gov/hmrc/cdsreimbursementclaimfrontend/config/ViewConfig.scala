@@ -36,7 +36,9 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val cy: String            = "cy"
   val defaultLanguage: Lang = Lang(en)
 
-  val homePageUrl: String = getString("home-page")
+  val selfBaseUrl: String = getString("self.url")
+
+  val homePageUrl: String = selfBaseUrl + getString("home-page")
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
@@ -50,15 +52,15 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
     servicesConfig.getDuration("gg.countdown").toSeconds
 
   val ggKeepAliveUrl: String =
-    "/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController.keepAlive().url
+    s"$selfBaseUrl/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController.keepAlive().url
 
   val ggTimedOutUrl: String =
-    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
+    signOutUrl + s"?continue=$selfBaseUrl/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
       .timedOut()
       .url
 
   val ggSignOut: String =
-    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
+    signOutUrl + s"?continue=$selfBaseUrl/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
       .start()
       .url
 
@@ -125,8 +127,6 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
 
   lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
-
-  val selfBaseUrl: String = getString("self.url")
 
   def buildCompleteSelfUrl(call: Call): String = buildCompleteSelfUrl(call.url)
 

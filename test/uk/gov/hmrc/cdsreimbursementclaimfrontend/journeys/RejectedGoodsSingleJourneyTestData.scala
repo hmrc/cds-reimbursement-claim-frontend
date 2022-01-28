@@ -155,6 +155,7 @@ trait RejectedGoodsSingleJourneyTestData {
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)
+      .map(_.submitCheckYourAnswersChangeMode(true))
   }
 
   def buildDisplayDeclaration(

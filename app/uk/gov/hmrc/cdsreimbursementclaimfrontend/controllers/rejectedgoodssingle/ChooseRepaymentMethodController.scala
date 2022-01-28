@@ -34,8 +34,9 @@ class ChooseRepaymentMethodController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  private val form       = reimbursementMethodForm("choose-payment-method.rejected-goods.single")
-  private val postAction = routes.ChooseRepaymentMethodController.submit()
+  private val form                 = reimbursementMethodForm("choose-payment-method.rejected-goods.single")
+  private val postAction           = routes.ChooseRepaymentMethodController.submit()
+  private val chooseFileTypeAction = routes.ChooseFileTypeController.show()
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val filledForm = form.withDefault(journey.answers.reimbursementMethod)
@@ -50,7 +51,7 @@ class ChooseRepaymentMethodController @Inject() (
         repaymentMethod =>
           (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
             case (Right(updatedJourney), CurrentMonthAdjustment) =>
-              (updatedJourney, Redirect("upload-supporting-evidence")).asFuture
+              (updatedJourney, Redirect(chooseFileTypeAction)).asFuture
             case (Right(updatedJourney), BankAccountTransfer)    =>
               (updatedJourney, Redirect("check-these-bank-details-are-correct")).asFuture
             case (Left(errorMessage), _)                         =>

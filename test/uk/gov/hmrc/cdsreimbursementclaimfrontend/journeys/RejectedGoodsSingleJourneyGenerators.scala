@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import views.html.defaultpages.error
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
@@ -101,19 +102,18 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       completeJourneyNotCMAEligibleGen
     )
 
-  val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsSingleJourney] =
-    completeJourneyGen.map(journey =>
-      new RejectedGoodsSingleJourney(
-        journey.answers.copy(basisOfClaimSpecialCircumstances = None)
-      )
-    )
+  val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsSingleJourney] = for {
+    journey      <- completeJourneyGen
+    basisOfClaim <- Gen.oneOf(BasisOfRejectedGoodsClaim.values - BasisOfRejectedGoodsClaim.SpecialCircumstances)
+  } yield journey.submitBasisOfClaim(basisOfClaim)
 
   val completeJourneyGenWithSpecialCircumstances: Gen[RejectedGoodsSingleJourney] = for {
     journey                          <- completeJourneyGen
     basisOfClaimSpecialCircumstances <- genStringWithMaxSizeOfN(500)
-  } yield new RejectedGoodsSingleJourney(
-    journey.answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances))
-  )
+  } yield journey
+    .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+    .submitBasisOfClaimSpecialCircumstancesDetails(basisOfClaimSpecialCircumstances)
+    .fold(error => throw new Exception(error), identity)
 
   implicit val bigDecimalChoose = new Gen.Choose[BigDecimal] {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =

@@ -61,7 +61,9 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.answers.methodOfDisposal                 shouldBe None
       emptyJourney.answers.reimbursementClaims              shouldBe None
       emptyJourney.answers.reimbursementMethod              shouldBe None
+      emptyJourney.answers.selectedDocumentType             shouldBe None
       emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
+      emptyJourney.answers.checkYourAnswersChangeMode       shouldBe false
       emptyJourney.getNdrcDetails                           shouldBe None
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
@@ -75,9 +77,14 @@ class RejectedGoodsSingleJourneySpec
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
         RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Validated.Valid(())
+        journey.answers.checkYourAnswersChangeMode          shouldBe true
+        journey.hasCompleteReimbursementClaims              shouldBe true
+        journey.hasCompleteSupportingEvidences              shouldBe true
         journey.hasCompleteAnswers                          shouldBe true
         journey.isFinalized                                 shouldBe false
+
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
+
         output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
         output.claimantType             shouldBe journey.getClaimantType
         output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
@@ -96,12 +103,17 @@ class RejectedGoodsSingleJourneySpec
 
     "finalize journey with caseNumber" in {
       forAll(completeJourneyGen) { journey =>
-        journey.hasCompleteAnswers shouldBe true
-        journey.isFinalized        shouldBe false
+        journey.hasCompleteReimbursementClaims shouldBe true
+        journey.hasCompleteSupportingEvidences shouldBe true
+        journey.hasCompleteAnswers             shouldBe true
+        journey.isFinalized                    shouldBe false
         val result          = journey.finalizeJourneyWith("foo-123-abc")
         val modifiedJourney = result.getOrElse(fail(couldNotRetrieveJourney))
-        modifiedJourney.isFinalized                shouldBe true
-        modifiedJourney.finalizeJourneyWith("bar") shouldBe Left(JOURNEY_ALREADY_FINALIZED)
+        modifiedJourney.isFinalized                    shouldBe true
+        modifiedJourney.hasCompleteReimbursementClaims shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        modifiedJourney.hasCompleteAnswers             shouldBe true
+        modifiedJourney.finalizeJourneyWith("bar")     shouldBe Left(JOURNEY_ALREADY_FINALIZED)
       }
     }
 
