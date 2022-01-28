@@ -92,6 +92,7 @@ class UploadDocumentsConnectorSpec
       cargo = UploadDocumentType.LetterOfAuthority,
       newFileDescription = "New file",
       continueWhenFullUrl = "/ful",
+      minimumNumberOfFiles = 0,
       maximumNumberOfFiles = 5,
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = 10L * 1024L * 1024L,

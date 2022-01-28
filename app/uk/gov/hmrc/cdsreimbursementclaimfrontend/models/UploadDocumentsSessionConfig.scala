@@ -29,6 +29,7 @@ final case class UploadDocumentsSessionConfig(
   continueWhenFullUrl: String, // url to continue after all possible files has been uploaded
   backlinkUrl: String, // backlink url
   callbackUrl: String, // url where to post uploaded files
+  minimumNumberOfFiles: Int, // minimum number of files to upload
   maximumNumberOfFiles: Int, // maximum number of files to upload
   initialNumberOfEmptyRows: Int, // number of empty 'choose file' rows to display
   maximumFileSizeBytes: Long, // maximum size of a single file upload

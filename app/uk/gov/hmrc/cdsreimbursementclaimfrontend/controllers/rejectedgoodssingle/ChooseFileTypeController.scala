@@ -46,8 +46,15 @@ class ChooseFileTypeController @Inject() (
   val form: Form[Option[UploadDocumentType]] =
     Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(chooseFileTypePage(form, availableDocumentTypes, submitAction)).asFuture
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    Ok(
+      chooseFileTypePage(
+        form,
+        availableDocumentTypes,
+        journey.answers.supportingEvidences.nonEmpty,
+        submitAction
+      )
+    ).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
@@ -58,7 +65,12 @@ class ChooseFileTypeController @Inject() (
             (
               journey,
               BadRequest(
-                chooseFileTypePage(formWithErrors, availableDocumentTypes, submitAction)
+                chooseFileTypePage(
+                  formWithErrors,
+                  availableDocumentTypes,
+                  journey.answers.supportingEvidences.nonEmpty,
+                  submitAction
+                )
               )
             ),
           {

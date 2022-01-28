@@ -93,6 +93,7 @@ class UploadFilesController @Inject() (
       continueWhenFullUrl = selfUrl + checkYourAnswers.url,
       backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
+      minimumNumberOfFiles = 0, // user can skip uploading the file
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 3,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
@@ -110,7 +111,7 @@ class UploadFilesController @Inject() (
 
       case Some(documentType) =>
         val continueUrl =
-          if (journey.answers.checkYourAnswersAndChangeMode)
+          if (journey.answers.checkYourAnswersChangeMode)
             selfUrl + checkYourAnswers.url
           else
             selfUrl + selectDocumentTypePageAction.url

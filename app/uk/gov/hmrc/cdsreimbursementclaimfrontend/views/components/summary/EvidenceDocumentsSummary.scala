@@ -39,19 +39,22 @@ object EvidenceDocumentsSummary extends AnswerSummary[Seq[EvidenceDocument]] {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.label"))),
+          key = Key(Text(if (answers.isEmpty) "" else messages(s"$key.label"))),
           value = Value(
-            HtmlContent(
-              answers
-                .map(document =>
-                  Paragraph(
-                    document.fileName,
-                    messages(s"$supportingEvidenceKey.choose-document-type.document-type.${document.documentType}")
-                  ).toString
-                )
-                .toList
-                .mkString("")
-            )
+            if (answers.isEmpty)
+              Text(messages(s"$key.empty"))
+            else
+              HtmlContent(
+                answers
+                  .map(document =>
+                    Paragraph(
+                      document.fileName,
+                      messages(s"$supportingEvidenceKey.choose-document-type.document-type.${document.documentType}")
+                    ).toString
+                  )
+                  .toList
+                  .mkString("")
+              )
           ),
           actions = changeCallOpt.map(changeCall =>
             Actions(

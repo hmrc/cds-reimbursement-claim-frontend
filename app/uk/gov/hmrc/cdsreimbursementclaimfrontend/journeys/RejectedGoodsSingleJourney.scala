@@ -76,8 +76,7 @@ final class RejectedGoodsSingleJourney private[journeys] (
     answers.reimbursementClaims.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
 
   def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.nonEmpty &&
-      answers.supportingEvidences.forall(_.documentType.isDefined)
+    answers.supportingEvidences.forall(_.documentType.isDefined)
 
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
@@ -486,9 +485,9 @@ final class RejectedGoodsSingleJourney private[journeys] (
       } else Left("receiveUploadedFiles.invalidNonce")
     }
 
-  def submitCheckYourAnswersAndChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
+  def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {
-      new RejectedGoodsSingleJourney(answers.copy(checkYourAnswersAndChangeMode = enabled))
+      new RejectedGoodsSingleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsSingleJourney] =
@@ -581,7 +580,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersAndChangeMode: Boolean = false
+    checkYourAnswersChangeMode: Boolean = false
   )
 
   // Final minimal output of the journey we want to pass to the backend.

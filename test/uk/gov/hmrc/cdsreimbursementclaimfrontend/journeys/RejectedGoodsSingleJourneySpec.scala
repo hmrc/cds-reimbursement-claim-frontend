@@ -63,7 +63,7 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.answers.reimbursementMethod              shouldBe None
       emptyJourney.answers.selectedDocumentType             shouldBe None
       emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
-      emptyJourney.answers.checkYourAnswersAndChangeMode    shouldBe false
+      emptyJourney.answers.checkYourAnswersChangeMode       shouldBe false
       emptyJourney.getNdrcDetails                           shouldBe None
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false

@@ -39,7 +39,7 @@
     dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[Option[UploadDocumentType]], availableFileTypes: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[Option[UploadDocumentType]], availableFileTypes: Seq[UploadDocumentType], hasExistingUploads: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"choose-file-type"}
     @title = @{messages(s"$key.title")}
@@ -55,14 +55,7 @@
                 content = Text(messages(s"$key.file-type.$fileTypeKey")),
                 checked = form(s"$key").value.exists(_.contains(fileTypeKey))
             )
-        } ++ Seq(
-            RadioItem(
-                id = Some(s"$key.file-type.none"),
-                value = Some("none"),
-                content = Text(messages(s"$key.file-type.none")),
-                checked = form(s"$key").value.exists(_.contains("none"))
-            )
-        )   
+        }  
     }
 
     @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
@@ -84,6 +77,26 @@
                 classes = "govuk-visually-hidden",
                 inline = false,
                 items = radioItems
+            )
+
+            <div class="govuk-radios__divider govuk-!-margin-bottom-5">@messages(s"$key.or")</div>
+
+            @radios(
+                form = form,
+                name = key,
+                legend = title,
+                legendAsHeading = false,
+                hintKey = None,
+                classes = "govuk-visually-hidden",
+                inline = false,
+                items = Seq(
+                    RadioItem(
+                        id = Some(s"$key.file-type.none"),
+                        value = Some("none"),
+                        content = Text(messages(if(hasExistingUploads) s"$key.file-type.none.more" else s"$key.file-type.none")),
+                        checked = form(s"$key").value.exists(_.contains("none"))
+                    )
+                ) 
             )
 
             @submitButton("button.continue")

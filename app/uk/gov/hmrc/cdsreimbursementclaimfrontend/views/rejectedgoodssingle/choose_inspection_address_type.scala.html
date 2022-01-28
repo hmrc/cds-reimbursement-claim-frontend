@@ -81,7 +81,7 @@
             items = acc14AddressRadioItems
         )
 
-        @paragraph(Html(messages(s"$key.or")), Some("govuk-body govuk-!-margin-bottom-2"))
+        <div class="govuk-radios__divider govuk-!-margin-bottom-5">@messages(s"$key.or")</div>
 
         @radios(
             form = form,

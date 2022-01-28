@@ -52,13 +52,13 @@ class CheckYourAnswersController @Inject() (
           errors => {
             logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
             (
-              journey.submitCheckYourAnswersAndChangeMode(false),
+              journey.submitCheckYourAnswersChangeMode(false),
               Redirect(routeForValidationErrors(errors))
             )
           },
           output =>
             (
-              journey.submitCheckYourAnswersAndChangeMode(true),
+              journey.submitCheckYourAnswersChangeMode(true),
               Ok(
                 checkYourAnswersPage(
                   output,
