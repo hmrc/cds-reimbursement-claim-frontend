@@ -1200,7 +1200,7 @@ inspection-address.type.Other=Other address
 inspection-address.type.Importer=Importer address
 inspection-address.type.Declarant=Declarant address
 inspection-address.type.title=Choose an address for the inspection
-inspection-address.type.or=&nbsp;&nbsp;&nbsp;or
+inspection-address.type.or=or
 inspection-address.type.error.required=Choose the address where the goods can be inspected
 
 #===================================================
