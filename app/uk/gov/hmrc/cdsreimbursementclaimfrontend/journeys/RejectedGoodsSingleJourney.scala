@@ -53,14 +53,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import java.time.LocalDate
 
 /** An encapsulated C&E1179 single MRN journey logic.
-  * The constructor of this class MUST stay private to protected integrity of the journey.
+  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
   *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
   *  - [[RejectedGoodsSingleJourney.Outcome]] - final outcome of the journey to be sent to backend processing
   */
-final class RejectedGoodsSingleJourney private[journeys] (
+final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends FluentSyntax[RejectedGoodsSingleJourney] {
