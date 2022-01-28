@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import views.html.defaultpages.error
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {

@@ -33,7 +33,8 @@ final case class UploadedFile(
   fileMimeType: String,
   fileSize: Option[Long],
   cargo: Option[UploadDocumentType] = None,
-  description: Option[String] = None
+  description: Option[String] = None,
+  previewUrl: Option[String] = None
 ) {
   def documentType: Option[UploadDocumentType] = cargo
 }
