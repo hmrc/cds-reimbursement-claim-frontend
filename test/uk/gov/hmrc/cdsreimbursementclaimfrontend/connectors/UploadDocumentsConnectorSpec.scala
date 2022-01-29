@@ -126,8 +126,7 @@ class UploadDocumentsConnectorSpec
       expectedInitializationUrl,
       Seq.empty,
       UploadDocumentsConnector.Request(
-        uploadDocumentsParameters
-          .copy(serviceId = Some("foo-123-frontend")),
+        uploadDocumentsParameters,
         Seq.empty
       )
     ) _

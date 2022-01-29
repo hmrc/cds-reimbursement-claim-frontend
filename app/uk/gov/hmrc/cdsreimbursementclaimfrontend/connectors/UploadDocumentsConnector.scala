@@ -83,23 +83,20 @@ class UploadDocumentsConnectorImpl @Inject() (
 
   override def initialize(request: Request)(implicit
     hc: HeaderCarrier
-  ): Future[Response] = {
-    val requestWithServiceId = request.copy(config = request.config.copy(serviceId = Some(serviceId)))
+  ): Future[Response] =
     retry(uploadDocumentsConfig.retryIntervals: _*)(shouldRetry, retryReason)(
       http
-        .POST[Request, HttpResponse](uploadDocumentsConfig.initializationUrl, requestWithServiceId)
+        .POST[Request, HttpResponse](uploadDocumentsConfig.initializationUrl, request)
     ).flatMap[Response](response =>
       if (response.status === 201)
         Future.successful(response.header(HeaderNames.LOCATION))
       else
         Future.failed(
           new Exception(
-            s"Request to POST ${uploadDocumentsConfig.initializationUrl} with payload ${Json
-              .stringify(Json.toJson(requestWithServiceId))} failed because of $response ${response.body.take(1024)}"
+            s"Request to POST ${uploadDocumentsConfig.initializationUrl} failed because of $response ${response.body.take(1024)}"
           )
         )
     )
-  }
 
   override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
     retry(uploadDocumentsConfig.retryIntervals: _*)(shouldRetry, retryReason)(
