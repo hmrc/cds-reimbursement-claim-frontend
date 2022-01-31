@@ -20,7 +20,6 @@ import cats.syntax.all._
 import com.google.inject.Inject
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.bankAccountTypeForm
@@ -59,7 +58,7 @@ class ChooseBankAccountTypeController @Inject() (
           bankAccountType =>
             journey
               .submitBankAccountType(bankAccountType)
-              .map((_, Redirect(Call("", "/enter-bank-account-details"))))
+              .map((_, Redirect(routes.EnterBankAccountDetailsController.show())))
               .valueOr { error =>
                 logger warn error
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
