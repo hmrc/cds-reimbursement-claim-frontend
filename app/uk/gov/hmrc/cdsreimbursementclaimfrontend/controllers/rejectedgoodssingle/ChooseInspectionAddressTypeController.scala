@@ -71,46 +71,57 @@ class ChooseInspectionAddressTypeController @Inject() (
       case Nil =>
         Redirect(startAddressLookup)
       case xs  =>
-        Ok(inspectionAddressPage(xs, inspectionAddressTypeForm, applyChoice))
+        Ok(
+          inspectionAddressPage(
+            xs,
+            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
+            applyChoice
+          )
+        )
     })
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    inspectionAddressTypeForm
-      .bindFromRequest()
-      .fold(
-        errors =>
-          (journey, BadRequest(inspectionAddressPage(populateAddresses(journey), errors, applyChoice))).asFuture,
-        {
-          case Other     =>
-            (journey, Redirect(startAddressLookup)).asFuture
-          case Declarant =>
-            journey.getDeclarantContactDetailsFromACC14
-              .map {
-                InspectionAddress.ofType(Declarant).mapFrom(_) |>
-                  journey.submitInspectionAddress |>
-                  redirectToTheNextPage
-              }
-              .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
-              .asFuture
-          case Importer  =>
-            journey.getConsigneeContactDetailsFromACC14
-              .map {
-                InspectionAddress.ofType(Importer).mapFrom(_) |>
-                  journey.submitInspectionAddress |>
-                  redirectToTheNextPage
-              }
-              .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
-              .asFuture
-        }
-      )
-  }
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      inspectionAddressTypeForm
+        .bindFromRequest()
+        .fold(
+          errors =>
+            (journey, BadRequest(inspectionAddressPage(populateAddresses(journey), errors, applyChoice))).asFuture,
+          {
+            case Other     =>
+              (journey, Redirect(startAddressLookup)).asFuture
+            case Declarant =>
+              journey.getDeclarantContactDetailsFromACC14
+                .map {
+                  InspectionAddress.ofType(Declarant).mapFrom(_) |>
+                    journey.submitInspectionAddress |>
+                    redirectToTheNextPage
+                }
+                .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
+                .asFuture
+            case Importer  =>
+              journey.getConsigneeContactDetailsFromACC14
+                .map {
+                  InspectionAddress.ofType(Importer).mapFrom(_) |>
+                    journey.submitInspectionAddress |>
+                    redirectToTheNextPage
+                }
+                .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
+                .asFuture
+          }
+        )
+    },
+    fastForwardToCYAEnabled = false
+  )
 
   override def update(journey: RejectedGoodsSingleJourney): ContactAddress => RejectedGoodsSingleJourney =
     InspectionAddress.ofType(Other).mapFrom(_) |> journey.submitInspectionAddress
 
   override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
-    if (journey.isAllSelectedDutiesAreCMAEligible)
+    if (journey.hasCompleteAnswers)
+      (journey, Redirect(checkYourAnswers))
+    else if (journey.isAllSelectedDutiesAreCMAEligible)
       (journey, Redirect(routes.ChooseRepaymentMethodController.show()))
     else (journey, Redirect(routes.CheckBankDetailsController.show()))
 

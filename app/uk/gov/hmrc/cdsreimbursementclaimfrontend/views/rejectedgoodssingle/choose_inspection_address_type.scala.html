@@ -18,7 +18,6 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
 @import play.api.mvc.Request
-@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
@@ -50,7 +49,7 @@
             value = Some(addressType.toString),
             content = Text(address),
             hint = Some(Hint(content = Text(messages(s"$key.$addressType")))),
-            checked = false
+            checked = form.data.exists(_._2 == InspectionAddressType.keyOf(addressType))
         )
     }
 }
@@ -60,7 +59,7 @@
         id = Some(s"$key-radio-${InspectionAddressType.Other}"),
         value = Some(InspectionAddressType.Other.toString),
         content = Text(messages(s"$key.${InspectionAddressType.Other}")),
-        checked = false
+        checked = form.data.exists(_._2 == InspectionAddressType.keyOf(InspectionAddressType.Other))
     ) :: Nil
 }
 
