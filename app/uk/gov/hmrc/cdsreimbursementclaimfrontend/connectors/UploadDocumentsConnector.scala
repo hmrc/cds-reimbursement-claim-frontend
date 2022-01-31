@@ -21,6 +21,7 @@ import cats.syntax.eq._
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import play.api.Configuration
+import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Format
 import play.api.libs.json.Json
@@ -42,9 +43,17 @@ import UploadDocumentsConnector._
 @ImplementedBy(classOf[UploadDocumentsConnectorImpl])
 trait UploadDocumentsConnector {
 
+  /** Initializes upload-documents-frontend session.
+    * Might be called multiple times to re-initialize.
+    */
   def initialize(request: Request)(implicit
     hc: HeaderCarrier
   ): Future[Response]
+
+  /** Wipes-out upload-documents-frontend session state with related file information,
+    * prevents futher file preview. Upscan uploads remain intact.
+    */
+  def wipeOut(implicit hc: HeaderCarrier): Future[Unit]
 }
 
 object UploadDocumentsConnector {
@@ -74,21 +83,32 @@ class UploadDocumentsConnectorImpl @Inject() (
 
   override def initialize(request: Request)(implicit
     hc: HeaderCarrier
-  ): Future[Response] = {
-    val requestWithServiceId = request.copy(config = request.config.copy(serviceId = Some(serviceId)))
+  ): Future[Response] =
     retry(uploadDocumentsConfig.retryIntervals: _*)(shouldRetry, retryReason)(
       http
-        .POST[Request, HttpResponse](uploadDocumentsConfig.initializationUrl, requestWithServiceId)
+        .POST[Request, HttpResponse](uploadDocumentsConfig.initializationUrl, request)
     ).flatMap[Response](response =>
       if (response.status === 201)
         Future.successful(response.header(HeaderNames.LOCATION))
       else
         Future.failed(
           new Exception(
-            s"Request to POST ${uploadDocumentsConfig.initializationUrl} with payload ${Json
-              .stringify(Json.toJson(requestWithServiceId))} failed because of $response ${response.body.take(1024)}"
+            s"Request to POST ${uploadDocumentsConfig.initializationUrl} failed because of $response ${response.body.take(1024)}"
           )
         )
     )
-  }
+
+  override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
+    retry(uploadDocumentsConfig.retryIntervals: _*)(shouldRetry, retryReason)(
+      http
+        .POST[String, HttpResponse](uploadDocumentsConfig.wipeOutUrl, "")
+    ).map[Unit](response =>
+      if (response.status === 204) ()
+      else {
+        Logger(getClass).error(
+          s"Request to POST ${uploadDocumentsConfig.wipeOutUrl} failed because of $response ${response.body.take(1024)}"
+        )
+        ()
+      }
+    )
 }

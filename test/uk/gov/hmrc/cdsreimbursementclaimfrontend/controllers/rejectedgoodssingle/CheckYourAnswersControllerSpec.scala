@@ -31,6 +31,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -54,7 +55,8 @@ class CheckYourAnswersControllerSpec
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks {
 
-  val mockConnector: RejectedGoodsSingleClaimConnector = mock[RejectedGoodsSingleClaimConnector]
+  val mockConnector: RejectedGoodsSingleClaimConnector       = mock[RejectedGoodsSingleClaimConnector]
+  val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
 
   def mockSubmitClaim(submitClaimRequest: RejectedGoodsSingleClaimConnector.Request)(
     response: Future[RejectedGoodsSingleClaimConnector.Response]
@@ -64,11 +66,18 @@ class CheckYourAnswersControllerSpec
       .expects(submitClaimRequest, *)
       .returning(response)
 
+  def mockWipeOutCall() =
+    (mockUploadDocumentsConnector
+      .wipeOut(_: HeaderCarrier))
+      .expects(*)
+      .returning(Future.successful(()))
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[RejectedGoodsSingleClaimConnector].toInstance(mockConnector)
+      bind[RejectedGoodsSingleClaimConnector].toInstance(mockConnector),
+      bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
     )
 
   val controller: CheckYourAnswersController = instanceOf[CheckYourAnswersController]
@@ -217,6 +226,7 @@ class CheckYourAnswersControllerSpec
             mockSubmitClaim(RejectedGoodsSingleClaimConnector.Request(claim))(
               Future.successful(RejectedGoodsSingleClaimConnector.Response("foo-123-abc"))
             )
+            mockWipeOutCall()
             mockStoreSession(
               updatedSession.copy(rejectedGoodsSingleJourney =
                 journey.finalizeJourneyWith("foo-123-abc").toOption.orElse(Some(journey))

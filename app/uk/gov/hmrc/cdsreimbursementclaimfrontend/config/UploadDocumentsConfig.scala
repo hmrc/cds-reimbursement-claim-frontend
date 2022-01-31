@@ -42,4 +42,6 @@ class UploadDocumentsConfig @Inject() (servicesConfig: ServicesConfig, configura
     Retries.getConfIntervals("upload-documents-frontend", configuration)
 
   lazy val initializationUrl: String = s"$baseUrl$contextPath/initialize"
+
+  lazy val wipeOutUrl: String = s"$baseUrl$contextPath/wipe-out"
 }

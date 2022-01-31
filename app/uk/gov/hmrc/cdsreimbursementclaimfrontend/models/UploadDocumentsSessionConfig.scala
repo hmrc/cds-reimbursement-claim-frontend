@@ -23,7 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import UploadDocumentsSessionConfig._
 
 final case class UploadDocumentsSessionConfig(
-  serviceId: Option[String] = None, // client ID used by upscan configuration
   nonce: Nonce, // unique secret shared by the host and upload microservices
   continueUrl: String, // url to continue after uploading the files
   continueWhenFullUrl: String, // url to continue after all possible files has been uploaded

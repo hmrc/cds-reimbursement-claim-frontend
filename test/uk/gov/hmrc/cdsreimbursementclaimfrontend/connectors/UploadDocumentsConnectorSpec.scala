@@ -25,10 +25,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -81,7 +81,8 @@ class UploadDocumentsConnectorSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val expectedUrl = "http://host3:124/foo-upload/initialize"
+  val expectedInitializationUrl = "http://host3:124/foo-upload/initialize"
+  val expectedWipeOutUrl        = "http://host3:124/foo-upload/wipe-out"
 
   val uploadDocumentsParameters: UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
@@ -120,15 +121,21 @@ class UploadDocumentsConnectorSpec
   val initializationRequest: UploadDocumentsConnector.Request =
     UploadDocumentsConnector.Request(uploadDocumentsParameters, Seq.empty)
 
-  val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
+  val givenInitializationCallReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
     mockPost(
-      expectedUrl,
+      expectedInitializationUrl,
       Seq.empty,
       UploadDocumentsConnector.Request(
-        uploadDocumentsParameters
-          .copy(serviceId = Some("foo-123-frontend")),
+        uploadDocumentsParameters,
         Seq.empty
       )
+    ) _
+
+  val givenWipeOutCallReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
+    mockPost(
+      expectedWipeOutUrl,
+      Seq.empty,
+      ""
     ) _
 
   val responseHeaders: Map[String, Seq[String]] =
@@ -143,42 +150,57 @@ class UploadDocumentsConnectorSpec
     }
 
     "return caseNumber when successful call" in {
-      givenServiceReturns(Some(HttpResponse(201, "", responseHeaders))).once()
+      givenInitializationCallReturns(Some(HttpResponse(201, "", responseHeaders))).once()
       await(connector.initialize(initializationRequest)) shouldBe expectedResponse
     }
 
     "throw exception when invalid success response status" in {
-      givenServiceReturns(Some(HttpResponse(200, ""))).once()
+      givenInitializationCallReturns(Some(HttpResponse(200, ""))).once()
       a[Exception] shouldBe thrownBy {
         await(connector.initialize(initializationRequest))
       }
     }
 
     "throw exception when 4xx response status" in {
-      givenServiceReturns(Some(HttpResponse(404, "case not found"))).once()
+      givenInitializationCallReturns(Some(HttpResponse(404, "case not found"))).once()
       a[Exception] shouldBe thrownBy {
         await(connector.initialize(initializationRequest))
       }
     }
 
     "throw exception when 5xx response status in the third attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(3)
-      givenServiceReturns(Some(HttpResponse(200, ""))).never()
+      givenInitializationCallReturns(Some(HttpResponse(500, ""))).repeat(3)
+      givenInitializationCallReturns(Some(HttpResponse(200, ""))).never()
       a[Exception] shouldBe thrownBy {
         await(connector.initialize(initializationRequest))
       }
     }
 
     "accept valid response in a second attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).once()
-      givenServiceReturns(Some(HttpResponse(201, "", responseHeaders))).once()
+      givenInitializationCallReturns(Some(HttpResponse(500, ""))).once()
+      givenInitializationCallReturns(Some(HttpResponse(201, "", responseHeaders))).once()
       await(connector.initialize(initializationRequest)) shouldBe expectedResponse
     }
 
     "accept valid response in a third attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
-      givenServiceReturns(Some(HttpResponse(201, "", responseHeaders))).once()
+      givenInitializationCallReturns(Some(HttpResponse(500, ""))).repeat(2)
+      givenInitializationCallReturns(Some(HttpResponse(201, "", responseHeaders))).once()
       await(connector.initialize(initializationRequest)) shouldBe expectedResponse
+    }
+
+    "successfully call wipe-out endpoint" in {
+      givenWipeOutCallReturns(Some(HttpResponse(204, "", responseHeaders))).once()
+      await(connector.wipeOut) shouldBe (())
+    }
+
+    "do not break on error when calling wipe-out endpoint" in {
+      givenWipeOutCallReturns(Some(HttpResponse(466, "", responseHeaders))).once()
+      await(connector.wipeOut) shouldBe (())
+    }
+
+    "retry wipe-out call" in {
+      givenWipeOutCallReturns(Some(HttpResponse(501, "", responseHeaders))).repeat(3)
+      await(connector.wipeOut) shouldBe (())
     }
 
   }
