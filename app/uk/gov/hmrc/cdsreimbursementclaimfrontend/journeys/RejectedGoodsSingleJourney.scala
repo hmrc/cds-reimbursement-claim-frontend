@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
@@ -192,6 +193,9 @@ final class RejectedGoodsSingleJourney private (
       contactDetails,
       contactAddress
     )
+
+  def getInspectionAddressType: Option[InspectionAddressType] =
+    answers.inspectionAddress.map(_.addressType)
 
   def computeContactDetails(retrievedUser: RetrievedUserType): Option[MrnContactDetails] = (
     answers.contactDetails,
