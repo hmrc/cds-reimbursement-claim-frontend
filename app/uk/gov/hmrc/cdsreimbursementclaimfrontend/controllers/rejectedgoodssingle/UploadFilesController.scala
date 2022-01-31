@@ -52,8 +52,26 @@ class UploadFilesController @Inject() (
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
   final val callbackAction: Call               = routes.UploadFilesController.submit()
 
-  final def documentTypeDescription(dt: UploadDocumentType)(implicit messages: Messages): String =
-    messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
+  final def uploadDocumentsSessionConfig(nonce: Nonce, documentType: UploadDocumentType, continueUrl: String)(implicit
+    request: Request[_],
+    messages: Messages
+  ): UploadDocumentsSessionConfig =
+    UploadDocumentsSessionConfig(
+      nonce = nonce,
+      continueUrl = continueUrl,
+      continueWhenFullUrl = selfUrl + checkYourAnswers.url,
+      backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
+      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
+      minimumNumberOfFiles = 0, // user can skip uploading the file
+      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
+      initialNumberOfEmptyRows = 3,
+      maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
+      allowedContentTypes = "application/pdf,image/jpeg,image/png",
+      allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
+      cargo = documentType,
+      newFileDescription = documentTypeDescription(documentType),
+      content = uploadDocumentsContent(documentType)
+    )
 
   final def uploadDocumentsContent(dt: UploadDocumentType)(implicit
     request: Request[_],
@@ -83,26 +101,8 @@ class UploadFilesController @Inject() (
     )
   }
 
-  final def uploadDocumentsSessionConfig(nonce: Nonce, documentType: UploadDocumentType, continueUrl: String)(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig =
-    UploadDocumentsSessionConfig(
-      nonce = nonce,
-      continueUrl = continueUrl,
-      continueWhenFullUrl = selfUrl + checkYourAnswers.url,
-      backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
-      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-      minimumNumberOfFiles = 0, // user can skip uploading the file
-      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
-      initialNumberOfEmptyRows = 3,
-      maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
-      allowedContentTypes = "application/pdf,image/jpeg,image/png",
-      allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
-      cargo = documentType,
-      newFileDescription = documentTypeDescription(documentType),
-      content = uploadDocumentsContent(documentType)
-    )
+  final def documentTypeDescription(dt: UploadDocumentType)(implicit messages: Messages): String =
+    messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.selectedDocumentType match {
