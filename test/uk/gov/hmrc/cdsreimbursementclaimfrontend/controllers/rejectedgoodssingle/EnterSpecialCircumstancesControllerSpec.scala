@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -34,8 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialCircumstancesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyGenWithSpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyGenWithSpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -49,7 +51,8 @@ class EnterSpecialCircumstancesControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with RejectedGoodsSingleJourneyTestData
+    with EitherValues {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -72,21 +75,19 @@ class EnterSpecialCircumstancesControllerSpec
     rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
   )
 
+  def showPage(): Future[Result] =
+    controller.show()(FakeRequest())
+
+  def submitSpecialCircumstances(data: (String, String)*): Future[Result] =
+    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
   "Enter Special Circumstances Controller" must {
-
     "not find the page if rejected goods feature is disabled" in {
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
-
       featureSwitch.disable(Feature.RejectedGoods)
-
-      status(performAction()) shouldBe NOT_FOUND
+      status(showPage()) shouldBe NOT_FOUND
     }
 
     "display the page" when {
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
-
       "the user has not answered this question before" in {
         inSequence {
           mockAuthWithNoRetrievals()
@@ -94,7 +95,7 @@ class EnterSpecialCircumstancesControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          showPage(),
           messageFromMessageKey(s"$messagesKey.title")
         )
       }
@@ -110,7 +111,7 @@ class EnterSpecialCircumstancesControllerSpec
           }
 
           checkPageIsDisplayed(
-            performAction(),
+            showPage(),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => selectedTextArea(doc) shouldBe basisOFClaimSpecialCircumstances
           )
@@ -120,9 +121,6 @@ class EnterSpecialCircumstancesControllerSpec
     }
 
     "handle submit requests" when {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
       "the user enters details for the first time" in {
         val journey        = RejectedGoodsSingleJourney
           .empty(exampleEori)
@@ -140,17 +138,39 @@ class EnterSpecialCircumstancesControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.formKey -> exampleSpecialCircumstancesDetails),
+          submitSpecialCircumstances(controller.formKey -> exampleSpecialCircumstancesDetails),
           routes.DisposalMethodController.show()
         )
       }
 
     }
 
-    "show an error summary" when {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+    "redirect to CYA page" when {
+      "journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
+        val sessionWitJourney = session.copy(rejectedGoodsSingleJourney =
+          Some(journey.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances))
+        )
 
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionWitJourney)
+          mockStoreSession(
+            sessionWitJourney.copy(rejectedGoodsSingleJourney =
+              sessionWitJourney.rejectedGoodsSingleJourney.map(
+                _.submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails).value
+              )
+            )
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          submitSpecialCircumstances(controller.formKey -> exampleSpecialCircumstancesDetails),
+          routes.CheckYourAnswersController.show()
+        )
+      }
+    }
+
+    "show an error summary" when {
       "the user submits empty details" in {
 
         inSequence {
@@ -159,7 +179,7 @@ class EnterSpecialCircumstancesControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(controller.formKey -> ""),
+          submitSpecialCircumstances(controller.formKey -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -179,7 +199,7 @@ class EnterSpecialCircumstancesControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(controller.formKey -> answer),
+          submitSpecialCircumstances(controller.formKey -> answer),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
