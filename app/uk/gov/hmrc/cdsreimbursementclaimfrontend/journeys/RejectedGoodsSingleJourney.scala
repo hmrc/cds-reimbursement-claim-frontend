@@ -205,11 +205,13 @@ final class RejectedGoodsSingleJourney private (
   ) match {
     case (details @ Some(_), _, _, _)                                                                           =>
       details
-    case (_, Some(consigneeContactDetails), _, _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+    case (_, Some(consigneeContactDetails), _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
       Some(
         MrnContactDetails(
           consigneeContactDetails.contactName.getOrElse(""),
-          Email(consigneeContactDetails.emailAddress.getOrElse("")),
+          consigneeContactDetails.emailAddress
+            .fold(individual.email.getOrElse(Email("")))
+            (address => Email(address)),
           consigneeContactDetails.telephone.map(PhoneNumber(_))
         )
       )
@@ -221,11 +223,13 @@ final class RejectedGoodsSingleJourney private (
           None
         )
       )
-    case (_, _, Some(declarantContactDetails), _)                                                               =>
+    case (_, _, Some(declarantContactDetails), individual: Individual)                                                               =>
       Some(
         MrnContactDetails(
           declarantContactDetails.contactName.getOrElse(""),
-          Email(declarantContactDetails.emailAddress.getOrElse("")),
+          declarantContactDetails.emailAddress
+            .fold(individual.email.getOrElse(Email("")))
+            (address=>Email(address)),
           declarantContactDetails.telephone.map(PhoneNumber(_))
         )
       )
