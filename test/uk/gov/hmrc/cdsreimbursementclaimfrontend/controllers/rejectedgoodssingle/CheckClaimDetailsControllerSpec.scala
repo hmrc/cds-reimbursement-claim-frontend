@@ -70,13 +70,6 @@ class CheckClaimDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(
-      RejectedGoodsSingleJourney
-        .empty(exampleEori)
-    )
-  )
-
   private val sessionWithMRN = SessionData.empty.copy(
     rejectedGoodsSingleJourney = Some(
       RejectedGoodsSingleJourney
