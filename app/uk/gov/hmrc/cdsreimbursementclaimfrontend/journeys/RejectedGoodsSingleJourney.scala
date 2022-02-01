@@ -203,19 +203,19 @@ final class RejectedGoodsSingleJourney private (
     answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
     retrievedUser
   ) match {
-    case (details @ Some(_), _, _, _)                                                                           =>
+    case (details @ Some(_), _, _, _)                                                                       =>
       details
-    case (_, Some(consigneeContactDetails), _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+    case (_, Some(consigneeContactDetails), _, individual: Individual)
+        if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
       Some(
         MrnContactDetails(
           consigneeContactDetails.contactName.getOrElse(""),
           consigneeContactDetails.emailAddress
-            .fold(individual.email.getOrElse(Email("")))
-            (address => Email(address)),
+            .fold(individual.email.getOrElse(Email("")))(address => Email(address)),
           consigneeContactDetails.telephone.map(PhoneNumber(_))
         )
       )
-    case (_, None, _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)     =>
+    case (_, None, _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
       Some(
         MrnContactDetails(
           individual.name.map(_.toFullName).getOrElse(""),
@@ -223,17 +223,16 @@ final class RejectedGoodsSingleJourney private (
           None
         )
       )
-    case (_, _, Some(declarantContactDetails), individual: Individual)                                                               =>
+    case (_, _, Some(declarantContactDetails), individual: Individual)                                      =>
       Some(
         MrnContactDetails(
           declarantContactDetails.contactName.getOrElse(""),
           declarantContactDetails.emailAddress
-            .fold(individual.email.getOrElse(Email("")))
-            (address=>Email(address)),
+            .fold(individual.email.getOrElse(Email("")))(address => Email(address)),
           declarantContactDetails.telephone.map(PhoneNumber(_))
         )
       )
-    case _                                                                                                      => None
+    case _                                                                                                  => None
   }
 
   def computeAddressDetails: Option[ContactAddress] = (
