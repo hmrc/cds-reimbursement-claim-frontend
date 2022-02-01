@@ -51,11 +51,25 @@ class CheckClaimantDetailsController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd   = routes.EnterContactDetailsController.show()
-    val postAction = routes.BasisForClaimController.show()
+    val postAction = routes.CheckClaimantDetailsController.submit()
     Future.successful(
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
         case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction))
         case _                    => Redirect(routes.EnterMovementReferenceNumberController.show())
+      }
+    )
+  }
+
+  val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { implicit request => journey => retrievedUserType =>
+    Future.successful(
+      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
+        case (Some(cd), Some(ca)) =>
+          (
+            journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
+            Redirect(routes.BasisForClaimController.show())
+          )
+        case _                    =>
+          (journey, Redirect(routes.EnterMovementReferenceNumberController.show()))
       }
     )
   }

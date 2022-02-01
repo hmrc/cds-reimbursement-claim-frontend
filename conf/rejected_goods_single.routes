@@ -11,6 +11,7 @@ GET          /rejected-goods/single/check-declaration-details                   
 POST         /rejected-goods/single/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckDeclarationDetailsController.submit()
 
 GET          /rejected-goods/single/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.show()
+POST         /rejected-goods/single/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.submit()
 GET          /rejected-goods/single/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.redirectToALF()
 GET          /rejected-goods/single/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 
