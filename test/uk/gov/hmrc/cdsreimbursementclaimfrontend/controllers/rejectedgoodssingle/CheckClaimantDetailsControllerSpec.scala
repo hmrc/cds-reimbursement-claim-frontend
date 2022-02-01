@@ -148,7 +148,7 @@ class CheckClaimantDetailsControllerSpec
       }
     }
 
-    "Submit Check Claimant Detials page" must {
+    "Submit Check Claimant Details page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(
