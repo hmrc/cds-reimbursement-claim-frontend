@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import scala.concurrent.ExecutionContext
 

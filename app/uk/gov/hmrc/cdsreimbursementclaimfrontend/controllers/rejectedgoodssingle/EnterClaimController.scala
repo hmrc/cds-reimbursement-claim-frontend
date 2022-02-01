@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
