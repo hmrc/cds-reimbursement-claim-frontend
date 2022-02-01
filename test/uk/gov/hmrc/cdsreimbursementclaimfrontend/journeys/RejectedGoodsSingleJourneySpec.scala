@@ -32,7 +32,6 @@ import RejectedGoodsSingleJourney.ValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 
-@SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.EitherProjectionPartial"))
 class RejectedGoodsSingleJourneySpec
     extends AnyWordSpec
     with ScalaCheckPropertyChecks

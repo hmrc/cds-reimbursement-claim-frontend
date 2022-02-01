@@ -35,7 +35,9 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
       "Only allow English" in {
         val application = new GuiceApplicationBuilder()
           .configure(
-            "enable-language-switching" -> false
+            "enable-language-switching" -> false,
+            "metrics.enabled"           -> false,
+            "auditing.enabled"          -> false
           )
           .build()
 
@@ -51,7 +53,9 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
       "Reject Welsh" in {
         val application = new GuiceApplicationBuilder()
           .configure(
-            "enable-language-switching" -> false
+            "enable-language-switching" -> false,
+            "metrics.enabled"           -> false,
+            "auditing.enabled"          -> false
           )
           .build()
 
@@ -70,7 +74,9 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
       "Switch to English when requested" in {
         val application = new GuiceApplicationBuilder()
           .configure(
-            "enable-language-switching" -> true
+            "enable-language-switching" -> true,
+            "metrics.enabled"           -> false,
+            "auditing.enabled"          -> false
           )
           .build()
 
@@ -86,7 +92,9 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
       "Switch to Welsh when requested" in {
         val application = new GuiceApplicationBuilder()
           .configure(
-            "enable-language-switching" -> true
+            "enable-language-switching" -> true,
+            "metrics.enabled"           -> false,
+            "auditing.enabled"          -> false
           )
           .build()
 
