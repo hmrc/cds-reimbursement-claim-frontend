@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSuppor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -255,6 +256,33 @@ class ChooseInspectionAddressTypeControllerSpec
         retrieveAddress(Some(UUID.randomUUID())),
         routes.CheckBankDetailsController.show()
       )
+    }
+
+    "redirect to CYA page" when {
+      "journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
+        val sessionWitJourney = session.copy(rejectedGoodsSingleJourney = journey.some)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionWitJourney)
+          mockStoreSession(
+            sessionWitJourney.copy(rejectedGoodsSingleJourney =
+              sessionWitJourney.rejectedGoodsSingleJourney.map(
+                _.submitInspectionAddress(
+                  InspectionAddress
+                    .ofType(InspectionAddressType.Declarant)
+                    .mapFrom(journey.getDeclarantContactDetailsFromACC14.value)
+                )
+              )
+            )
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
+          routes.CheckYourAnswersController.show()
+        )
+      }
     }
   }
 }
