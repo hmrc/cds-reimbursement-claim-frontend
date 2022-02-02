@@ -607,13 +607,24 @@ final class RejectedGoodsMultipleJourney private (
     reimbursementMethodAnswer: ReimbursementMethodAnswer
   ): Either[String, RejectedGoodsMultipleJourney] =
     whileJourneyIsAmendable {
-      if (isAllSelectedDutiesAreCMAEligible)
-        Right(
-          new RejectedGoodsMultipleJourney(
-            answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
+      if (isAllSelectedDutiesAreCMAEligible) {
+        if (reimbursementMethodAnswer === ReimbursementMethodAnswer.CurrentMonthAdjustment)
+          Right(
+            new RejectedGoodsMultipleJourney(
+              answers.copy(
+                reimbursementMethod = Some(reimbursementMethodAnswer),
+                bankAccountDetails = None,
+                bankAccountType = None
+              )
+            )
           )
-        )
-      else
+        else
+          Right(
+            new RejectedGoodsMultipleJourney(
+              answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
+            )
+          )
+      } else
         Left("submitReimbursementMethodAnswer.notCMAEligible")
     }
 

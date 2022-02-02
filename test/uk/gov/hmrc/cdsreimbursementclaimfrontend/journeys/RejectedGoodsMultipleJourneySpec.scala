@@ -1033,6 +1033,19 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
     }
 
+    "change reimbursementMethod to CMA in a complete journey with all duties CMA eligible" in {
+      forAll(completeJourneyCMAEligibleGen) { journey =>
+        whenever(journey.needsBanksAccountDetailsAndTypeSubmission) {
+          val modifiedJourney =
+            journey
+              .submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment)
+              .getOrFail
+
+          modifiedJourney.hasCompleteAnswers shouldBe true
+        }
+      }
+    }
+
     "change bankAccountDetails in a complete journey with all duties CMA eligible" in {
       forAll(completeJourneyCMAEligibleGen) { journey =>
         val journeyEither =
