@@ -47,13 +47,6 @@ class CheckBankDetailsControllerSpec
     with TableDrivenPropertyChecks
     with MockFactory {
 
-  private val journeys = Table(
-    "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
-  )
-
   val claimService: ClaimService = mock[ClaimService]
 
   lazy val controller: CheckBankDetailsController = instanceOf[CheckBankDetailsController]
@@ -81,7 +74,7 @@ class CheckBankDetailsControllerSpec
 
     "Check Bank Account Details" should {
 
-      "Redirect when MaskedBankDetails is empty" in forAll(journeys) { _ =>
+      "Redirect when MaskedBankDetails is empty" in {
         val maskedBankDetails = BankDetails(None, None)
         val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
 
@@ -97,7 +90,7 @@ class CheckBankDetailsControllerSpec
 
       }
 
-      "Redirect when MaskedBankDetails is None" in forAll(journeys) { _ =>
+      "Redirect when MaskedBankDetails is None" in {
         val session = sessionWithMaskedBankDetails(None)
 
         inSequence {
@@ -110,7 +103,7 @@ class CheckBankDetailsControllerSpec
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
       }
 
-      "Ok when MaskedBankDetails has consigneeBankDetails" in forAll(journeys) { _ =>
+      "Ok when MaskedBankDetails has consigneeBankDetails" in {
         val consigneeDetails  = sample[BankAccountDetails]
         val maskedBankDetails = BankDetails(Some(consigneeDetails), None)
         val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
@@ -123,7 +116,7 @@ class CheckBankDetailsControllerSpec
         status(result) shouldBe OK
       }
 
-      "Ok when MaskedBankDetails has declarantBankDetails" in forAll(journeys) { _ =>
+      "Ok when MaskedBankDetails has declarantBankDetails" in {
         val declarantBankDetails = sample[BankAccountDetails]
         val maskedBankDetails    = BankDetails(None, Some(declarantBankDetails))
         val session              = sessionWithMaskedBankDetails(Some(maskedBankDetails))

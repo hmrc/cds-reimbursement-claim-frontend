@@ -45,8 +45,8 @@ class ChooseBankAccountTypeController @Inject() (
     ).asFuture
   }
 
-  val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
       bankAccountTypeForm
         .bindFromRequest()
         .fold(
@@ -65,5 +65,7 @@ class ChooseBankAccountTypeController @Inject() (
               }
               .asFuture
         )
-    }
+    },
+    fastForwardToCYAEnabled = false
+  )
 }
