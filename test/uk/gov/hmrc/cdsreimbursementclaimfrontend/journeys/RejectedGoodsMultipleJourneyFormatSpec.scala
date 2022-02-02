@@ -20,35 +20,48 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
-import RejectedGoodsSingleJourneyGenerators._
+import RejectedGoodsMultipleJourneyGenerators._
 
-class RejectedGoodsSingleJourneyFormatSpec
+class RejectedGoodsMultipleJourneyFormatSpec
     extends AnyWordSpec
     with JsonFormatTest
     with Matchers
-    with ScalaCheckPropertyChecks {
+    with ScalaCheckPropertyChecks
+    with RejectedGoodsMultipleJourneyTestData {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)
 
-  "RejectedGoodsSingleJourney.Answers" should {
+  "RejectedGoodsMultipleJourney.Answers" should {
     "serialize into a JSON format and back" in {
       validateCanReadAndWriteJson(Answers(userEoriNumber = exampleEori))
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, movementReferenceNumber = Some(MRN("19GB03I52858027001")))
-      )
-      validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")))))
+        Answers(
+          userEoriNumber = exampleEori,
+          movementReferenceNumbers = Some(Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002")))
+        )
       )
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
+          reimbursementClaims = Some(
+            Map(
+              MRN("19GB03I52858027001") -> Map(TaxCode.A00 -> Some(BigDecimal("12.99"))),
+              MRN("19GB03I52858027002") -> Map(TaxCode.A00 -> None, TaxCode.A20 -> Some(BigDecimal("1.01")))
+            )
+          )
+        )
+      )
+      validateCanReadAndWriteJson(
+        Answers(
+          userEoriNumber = exampleEori,
+          reimbursementClaims =
+            Some(Map(MRN("19GB03I52858027001") -> Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None)))
         )
       )
       validateCanReadAndWriteJson(
@@ -67,13 +80,20 @@ class RejectedGoodsSingleJourneyFormatSpec
     }
   }
 
-  "RejectedGoodsSingleJourney" should {
+  "RejectedGoodsMultipleJourney" should {
     "serialize journeys into a JSON format and back" in {
       validateCanReadAndWriteJson(
-        RejectedGoodsSingleJourney.empty(exampleEori)
+        RejectedGoodsMultipleJourney.empty(exampleEori)
       )
       validateCanReadAndWriteJson(
-        RejectedGoodsSingleJourney.empty(exampleEori).submitMovementReferenceNumber(MRN("19GB03I52858027001"))
+        RejectedGoodsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDisplayDeclaration(
+            0,
+            MRN("19GB03I52858027001"),
+            buildDisplayDeclaration("19GB03I52858027001")
+          )
+          .getOrElse(fail("Journey creation has failed"))
       )
     }
 
@@ -89,7 +109,7 @@ class RejectedGoodsSingleJourneyFormatSpec
           journey.finalizeJourneyWith("abc-123").getOrElse(fail("cannot finalize the test journey"))
         validateCanReadAndWriteJson(finalizedJourney)
         val deserializedJourney =
-          Json.parse(Json.stringify(Json.toJson(finalizedJourney))).as[RejectedGoodsSingleJourney]
+          Json.parse(Json.stringify(Json.toJson(finalizedJourney))).as[RejectedGoodsMultipleJourney]
         deserializedJourney.caseNumber shouldBe Some("abc-123")
       }
     }

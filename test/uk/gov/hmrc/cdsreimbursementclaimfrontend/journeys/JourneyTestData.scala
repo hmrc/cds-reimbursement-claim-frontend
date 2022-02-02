@@ -32,7 +32,16 @@ import java.time.ZonedDateTime
 
 trait JourneyTestData {
 
-  val couldNotRetrieveJourney: String = "Journey construction in the test has failed but shouldn't"
+  implicit class EitherOps[A](val either: Either[String, A]) {
+    def getOrFail(implicit pos: org.scalactic.source.Position): A =
+      either.fold(
+        error =>
+          throw new Exception(
+            s"Journey construction in ${pos.fileName}:${pos.lineNumber} has failed because of $error"
+          ),
+        identity
+      )
+  }
 
   val exampleEori: Eori           = IdGen.genEori.sample.get
   val anotherExampleEori: Eori    = IdGen.genEori.sample.get
@@ -86,7 +95,7 @@ trait JourneyTestData {
   val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
 
   def buildDisplayDeclaration(
-    id: String = "foo",
+    id: String = exampleMrnAsString,
     declarantEORI: Eori = exampleEori,
     consigneeEORI: Option[Eori] = None,
     dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty,
@@ -122,7 +131,7 @@ trait JourneyTestData {
 
     DisplayDeclaration {
       DisplayResponseDetail(
-        declarationId = s"declaration-$id",
+        declarationId = id,
         acceptanceDate = "2021-10-11",
         declarantReferenceNumber = None,
         securityReason = None,

@@ -51,6 +51,11 @@ final case class DisplayDeclaration(
   def getAvailableTaxCodes: Seq[TaxCode] =
     getNdrcDetailsList.map(_.map(d => TaxCode(d.taxType))).getOrElse(Seq.empty)
 
+  def getDeclarationId: String = displayResponseDetail.declarationId
+
+  def withDeclarationId(declarationId: String): DisplayDeclaration =
+    copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
+
 }
 
 object DisplayDeclaration {
