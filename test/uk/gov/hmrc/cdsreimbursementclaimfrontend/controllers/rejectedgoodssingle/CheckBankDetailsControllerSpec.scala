@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import org.scalacheck.magnolia.gen
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalatest.OptionValues
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
@@ -27,13 +27,12 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -44,8 +43,9 @@ class CheckBankDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with TableDrivenPropertyChecks
-    with MockFactory {
+    with ScalaCheckPropertyChecks
+    with MockFactory
+    with OptionValues {
 
   val claimService: ClaimService = mock[ClaimService]
 
@@ -57,6 +57,9 @@ class CheckBankDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(claimService)
     )
+
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 1)
 
   private def sessionWithMaskedBankDetails(maybeMaskedBankDetails: Option[BankDetails]): SessionData = {
     val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
@@ -103,30 +106,30 @@ class CheckBankDetailsControllerSpec
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
       }
 
-      "Ok when MaskedBankDetails has consigneeBankDetails" in {
-        val consigneeDetails  = sample[BankAccountDetails]
-        val maskedBankDetails = BankDetails(Some(consigneeDetails), None)
-        val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-        val request           = FakeRequest()
-        val result            = controller.show()(request)
-        status(result) shouldBe OK
+      "Ok when MaskedBankDetails has consigneeBankDetails" in forAll(genMaskedBankAccountDetails) {
+        consigneeDetails: BankAccountDetails =>
+          val maskedBankDetails = BankDetails(Some(consigneeDetails), None)
+          val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+          val request           = FakeRequest()
+          val result            = controller.show()(request)
+          status(result) shouldBe OK
       }
 
-      "Ok when MaskedBankDetails has declarantBankDetails" in {
-        val declarantBankDetails = sample[BankAccountDetails]
-        val maskedBankDetails    = BankDetails(None, Some(declarantBankDetails))
-        val session              = sessionWithMaskedBankDetails(Some(maskedBankDetails))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-        val request              = FakeRequest()
-        val result               = controller.show()(request)
-        status(result) shouldBe OK
+      "Ok when MaskedBankDetails has declarantBankDetails" in forAll(genMaskedBankAccountDetails) {
+        declarantBankDetails: BankAccountDetails =>
+          val maskedBankDetails = BankDetails(None, Some(declarantBankDetails))
+          val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+          val request           = FakeRequest()
+          val result            = controller.show()(request)
+          status(result) shouldBe OK
       }
     }
   }
