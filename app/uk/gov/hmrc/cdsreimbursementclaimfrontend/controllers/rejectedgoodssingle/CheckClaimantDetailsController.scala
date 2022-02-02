@@ -60,7 +60,7 @@ class CheckClaimantDetailsController @Inject() (
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { implicit request => journey => retrievedUserType =>
+  val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { _ => journey => retrievedUserType =>
     Future.successful(
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
         case (Some(cd), Some(ca)) =>
