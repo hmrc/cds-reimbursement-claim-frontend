@@ -208,7 +208,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "submit a valid MRN and user is declarant" in forAll { (mrn: MRN) =>
         val journey                       = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val displayDeclaration            = sample[DisplayDeclaration]
+        val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
         val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
           declarantEORI = journey.answers.userEoriNumber.value
         )
@@ -216,7 +216,9 @@ class EnterMovementReferenceNumberControllerSpec
           displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val updatedJourney                =
-          journey.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
+          journey
+            .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+            .getOrFail
         val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
@@ -236,7 +238,7 @@ class EnterMovementReferenceNumberControllerSpec
         (mrn: MRN, declarant: Eori, consignee: Eori) =>
           whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
             val journey            = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-            val displayDeclaration = sample[DisplayDeclaration]
+            val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
             val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
             val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
 
@@ -247,7 +249,9 @@ class EnterMovementReferenceNumberControllerSpec
             val updatedDisplayDeclaration     =
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val updatedJourney                =
-              journey.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
+              journey
+                .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+                .getOrFail
             val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
             inSequence {

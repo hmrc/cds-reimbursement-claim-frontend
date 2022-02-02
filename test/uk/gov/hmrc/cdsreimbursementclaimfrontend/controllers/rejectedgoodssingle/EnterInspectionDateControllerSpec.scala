@@ -150,7 +150,10 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val initialJourney = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
+        val initialJourney =
+          emptyJourney
+            .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .getOrFail
         val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
         val updatedJourney = initialJourney.submitInspectionDate(date)
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -183,7 +186,10 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val journey = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .getOrFail
 
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
         val updatedJourney  = journey.submitInspectionDate(date)

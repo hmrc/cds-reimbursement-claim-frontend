@@ -155,7 +155,6 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
     submitBankAccountType: Boolean = true
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
     for {
-      id                          <- Gen.uuid
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
@@ -195,7 +194,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
 
       val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
-          id.toString(),
+          mrn.value,
           declarantEORI,
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
           paidDuties,

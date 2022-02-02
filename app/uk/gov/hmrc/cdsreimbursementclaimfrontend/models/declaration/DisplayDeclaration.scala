@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Missi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -51,7 +52,7 @@ final case class DisplayDeclaration(
   def getAvailableTaxCodes: Seq[TaxCode] =
     getNdrcDetailsList.map(_.map(d => TaxCode(d.taxType))).getOrElse(Seq.empty)
 
-  def getDeclarationId: String = displayResponseDetail.declarationId
+  def getMRN: MRN = MRN(displayResponseDetail.declarationId)
 
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))

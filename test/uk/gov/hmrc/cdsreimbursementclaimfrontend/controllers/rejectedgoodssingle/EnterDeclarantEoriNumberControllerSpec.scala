@@ -184,13 +184,15 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
         val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val displayDeclaration            = sample[DisplayDeclaration]
+        val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
         val declarantDetails              = sample[DeclarantDetails].copy(declarantEORI = eori.value)
         val updatedDisplayResponseDetails =
           displayDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val journey                       =
-          initialJourney.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
+          initialJourney
+            .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+            .getOrFail
         val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
         val updatedJourney                = journey.submitDeclarantEoriNumber(eori).getOrElse(fail("Unable to update eori"))
         val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -211,7 +213,7 @@ class EnterDeclarantEoriNumberControllerSpec
         (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori) =>
           whenever(enteredDeclarantEori =!= wantedDeclarant) {
             val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-            val displayDeclaration            = sample[DisplayDeclaration]
+            val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
             val updatedDeclarantDetails       =
               displayDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
             val updatedDisplayResponseDetails =
@@ -219,7 +221,9 @@ class EnterDeclarantEoriNumberControllerSpec
             val updatedDisplayDeclaration     =
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val journey                       =
-              initialJourney.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
+              initialJourney
+                .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+                .getOrFail
             val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
             inSequence {

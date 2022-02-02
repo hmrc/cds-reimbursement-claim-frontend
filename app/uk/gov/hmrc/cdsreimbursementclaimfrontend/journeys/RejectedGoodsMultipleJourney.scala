@@ -106,7 +106,7 @@ final class RejectedGoodsMultipleJourney private (
   def getDisplayDeclarationFor(mrn: MRN): Option[DisplayDeclaration] =
     for {
       declarations <- answers.displayDeclarations
-      declaration  <- declarations.find(_.getDeclarationId === mrn.value)
+      declaration  <- declarations.find(_.getMRN === mrn)
     } yield declaration
 
   def getReimbursementClaimsFor(mrn: MRN): Option[Map[TaxCode, Option[BigDecimal]]] =
@@ -299,6 +299,12 @@ final class RejectedGoodsMultipleJourney private (
     if (isFinalized) Left(RejectedGoodsMultipleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
   def submitMovementReferenceNumberAndDisplayDeclaration(
+    mrn: MRN,
+    displayDeclaration: DisplayDeclaration
+  ): Either[String, RejectedGoodsMultipleJourney] =
+    submitMovementReferenceNumberAndDisplayDeclaration(0, mrn, displayDeclaration)
+
+  def submitMovementReferenceNumberAndDisplayDeclaration(
     index: Int,
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
@@ -308,9 +314,9 @@ final class RejectedGoodsMultipleJourney private (
         Left("submitMovementReferenceNumber.negativeIndex")
       else if (index > countOfMovementReferenceNumbers)
         Left("submitMovementReferenceNumber.invalidIndex")
-      else if (mrn.value =!= displayDeclaration.displayResponseDetail.declarationId)
+      else if (mrn =!= displayDeclaration.getMRN)
         Left(
-          s"submitMovementReferenceNumber.wrongDisplayDeclaration"
+          s"submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
       else
         getNthMovementReferenceNumber(index) match {

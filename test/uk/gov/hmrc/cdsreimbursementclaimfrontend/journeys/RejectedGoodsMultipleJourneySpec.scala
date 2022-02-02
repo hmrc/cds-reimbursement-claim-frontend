@@ -120,7 +120,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
     "accept submission of a lead MRN and DisplayDeclaration" in {
       forAll(mrnWithDisplayDeclarationGen) { case (mrn, displayDeclaration) =>
         val journey = emptyJourney
-          .submitMovementReferenceNumberAndDisplayDeclaration(0, mrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDisplayDeclaration(mrn, displayDeclaration)
           .getOrFail
         journey.getLeadMovementReferenceNumber shouldBe Some(mrn)
         journey.getLeadDisplayDeclaration      shouldBe Some(displayDeclaration)
@@ -128,6 +128,15 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         journey.hasCompleteReimbursementClaims shouldBe false
         journey.hasCompleteSupportingEvidences shouldBe false
         journey.isFinalized                    shouldBe false
+      }
+    }
+
+    "decline submission of a wrong display declaration" in {
+      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+        val journeyEither = emptyJourney
+          .submitMovementReferenceNumberAndDisplayDeclaration(mrn, decl.withDeclarationId("foo"))
+
+        journeyEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
       }
     }
 

@@ -130,7 +130,11 @@ class ChooseInspectionAddressTypeControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(
-              session.copy(rejectedGoodsSingleJourney = emptyJourney.submitDisplayDeclaration(displayDeclaration).some)
+              session.copy(rejectedGoodsSingleJourney =
+                emptyJourney
+                  .submitMovementReferenceNumberAndDisplayDeclaration(displayDeclaration.getMRN, displayDeclaration)
+                  .toOption
+              )
             )
           }
 
@@ -164,8 +168,11 @@ class ChooseInspectionAddressTypeControllerSpec
         forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
           val journey =
             emptyJourney
-              .submitDisplayDeclaration(declarantContactDetailsLens.set(declaration)(contactDetails.some))
-              .some
+              .submitMovementReferenceNumberAndDisplayDeclaration(
+                declaration.getMRN,
+                declarantContactDetailsLens.set(declaration)(contactDetails.some)
+              )
+              .toOption
 
           val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
 
@@ -203,10 +210,9 @@ class ChooseInspectionAddressTypeControllerSpec
 
           val journey =
             emptyJourney
-              .submitDisplayDeclaration(updatedDeclaration)
-              .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType)))
-              .value
-              .some
+              .submitMovementReferenceNumberAndDisplayDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
+              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
+              .toOption
 
           val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
 

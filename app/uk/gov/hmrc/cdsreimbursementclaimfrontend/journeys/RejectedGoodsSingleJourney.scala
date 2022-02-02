@@ -260,30 +260,36 @@ final class RejectedGoodsSingleJourney private (
     if (isFinalized) Left(RejectedGoodsSingleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
   /** Reset the journey with the new MRN
-    * or keep existing journey if submitted the same MRN as before.
+    * or keep existing journey if submitted the same MRN and declaration as before.
     */
-  def submitMovementReferenceNumber(mrn: MRN): RejectedGoodsSingleJourney =
+  def submitMovementReferenceNumberAndDisplayDeclaration(
+    mrn: MRN,
+    displayDeclaration: DisplayDeclaration
+  ): Either[String, RejectedGoodsSingleJourney] =
     whileJourneyIsAmendable {
       answers.movementReferenceNumber match {
-        case Some(existing) if existing === mrn => this
-        case _                                  =>
-          new RejectedGoodsSingleJourney(
-            RejectedGoodsSingleJourney
-              .Answers(
-                userEoriNumber = answers.userEoriNumber,
-                movementReferenceNumber = Some(mrn),
-                nonce = answers.nonce
+        case Some(existingMrn)
+            if existingMrn === mrn &&
+              answers.displayDeclaration.contains(displayDeclaration) =>
+          Right(this)
+        case _ =>
+          if (mrn =!= displayDeclaration.getMRN)
+            Left(
+              s"submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+            )
+          else
+            Right(
+              new RejectedGoodsSingleJourney(
+                RejectedGoodsSingleJourney
+                  .Answers(
+                    userEoriNumber = answers.userEoriNumber,
+                    movementReferenceNumber = Some(mrn),
+                    displayDeclaration = Some(displayDeclaration),
+                    nonce = answers.nonce
+                  )
               )
-          )
+            )
       }
-    }
-
-  /** Set the ACC14 declaration and reset all reimbursementClaims */
-  def submitDisplayDeclaration(displayDeclaration: DisplayDeclaration): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
-      new RejectedGoodsSingleJourney(
-        answers.copy(displayDeclaration = Some(displayDeclaration), reimbursementClaims = None)
-      )
     }
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =

@@ -183,16 +183,19 @@ class EnterImporterEoriNumberControllerSpec
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
         val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val displayDeclaration            = sample[DisplayDeclaration]
+        val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
         val consigneeDetails              = sample[ConsigneeDetails].copy(consigneeEORI = eori.value)
         val updatedDisplayResponseDetails =
           displayDeclaration.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails))
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val journey                       =
-          initialJourney.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
-        val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
-        val updatedJourney                = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
-        val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+          initialJourney
+            .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+            .getOrFail
+
+        val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedJourney  = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
+        val updatedSession  = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -210,7 +213,7 @@ class EnterImporterEoriNumberControllerSpec
         (mrn: MRN, enteredConsigneeEori: Eori, wantedConsignee: Eori) =>
           whenever(enteredConsigneeEori =!= wantedConsignee) {
             val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-            val displayDeclaration            = sample[DisplayDeclaration]
+            val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
             val updatedConsigneDetails        =
               displayDeclaration.getConsigneeDetails.map(_.copy(consigneeEORI = wantedConsignee.value))
             val updatedDisplayResponseDetails =
@@ -218,7 +221,9 @@ class EnterImporterEoriNumberControllerSpec
             val updatedDisplayDeclaration     =
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val journey                       =
-              initialJourney.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
+              initialJourney
+                .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+                .getOrFail
             val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
             inSequence {

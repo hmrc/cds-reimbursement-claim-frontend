@@ -112,10 +112,8 @@ class EnterMovementReferenceNumberController @Inject() (
   ): EitherT[Future, Error, RejectedGoodsSingleJourney] =
     maybeAcc14 match {
       case Some(acc14) =>
-        EitherT.rightT(
-          journey
-            .submitMovementReferenceNumber(mrn)
-            .submitDisplayDeclaration(acc14)
+        EitherT.fromEither[Future](
+          journey.submitMovementReferenceNumberAndDisplayDeclaration(mrn, acc14).left.map(Error.apply(_))
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))

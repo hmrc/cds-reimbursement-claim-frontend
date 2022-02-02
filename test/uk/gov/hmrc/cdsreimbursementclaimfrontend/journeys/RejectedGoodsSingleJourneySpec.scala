@@ -24,13 +24,13 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import RejectedGoodsSingleJourneyGenerators._
-import RejectedGoodsSingleJourney.ValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+
+import RejectedGoodsSingleJourneyGenerators._
+import RejectedGoodsSingleJourney.ValidationErrors._
 
 class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
@@ -113,8 +113,10 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
     }
 
     "accept submission of a new MRN" in {
-      forAll(IdGen.genMRN) { mrn =>
-        val journey = emptyJourney.submitMovementReferenceNumber(mrn)
+      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+        val journey = emptyJourney
+          .submitMovementReferenceNumberAndDisplayDeclaration(mrn, decl)
+          .getOrFail
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteReimbursementClaims                shouldBe false
@@ -123,10 +125,22 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       }
     }
 
+    "decline submission of a wrong display declaration" in {
+      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+        val journeyEither = emptyJourney
+          .submitMovementReferenceNumberAndDisplayDeclaration(mrn, decl.withDeclarationId("foo"))
+
+        journeyEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
+      }
+    }
+
     "accept change of the MRN" in {
-      forAll(completeJourneyGen) { journey =>
-        val modifiedJourney = journey.submitMovementReferenceNumber(exampleMrn)
-        modifiedJourney.answers.displayDeclaration     shouldBe empty
+      forAll(completeJourneyGen, displayDeclarationGen) { (journey, decl) =>
+        val decl2           = decl.withDeclarationId(exampleMrnAsString)
+        val modifiedJourney = journey
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, decl2)
+          .getOrFail
+        modifiedJourney.answers.displayDeclaration     shouldBe Some(decl2)
         modifiedJourney.hasCompleteAnswers             shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims shouldBe false
         modifiedJourney.hasCompleteSupportingEvidences shouldBe false
@@ -136,7 +150,11 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
     "accept submission of the same MRN" in {
       forAll(completeJourneyGen) { journey =>
         val modifiedJourney = journey
-          .submitMovementReferenceNumber(journey.answers.movementReferenceNumber.get)
+          .submitMovementReferenceNumberAndDisplayDeclaration(
+            journey.answers.movementReferenceNumber.get,
+            journey.answers.displayDeclaration.get
+          )
+          .getOrFail
         modifiedJourney                                shouldBe journey
         modifiedJourney.hasCompleteAnswers             shouldBe true
         modifiedJourney.hasCompleteReimbursementClaims shouldBe true
@@ -147,14 +165,17 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
     "accept submission of a new ACC14 data" in {
       forAll(displayDeclarationGen) { acc14 =>
         val journey = emptyJourney
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(acc14)
+          .submitMovementReferenceNumberAndDisplayDeclaration(
+            exampleMrn,
+            acc14.withDeclarationId(exampleMrnAsString)
+          )
+          .getOrFail
 
-        journey.answers.movementReferenceNumber.contains(exampleMrn) shouldBe true
-        journey.answers.displayDeclaration.contains(acc14)           shouldBe true
-        journey.hasCompleteAnswers                                   shouldBe false
-        journey.hasCompleteReimbursementClaims                       shouldBe false
-        journey.hasCompleteSupportingEvidences                       shouldBe false
+        journey.answers.movementReferenceNumber.contains(exampleMrn)                             shouldBe true
+        journey.answers.displayDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
+        journey.hasCompleteAnswers                                                               shouldBe false
+        journey.hasCompleteReimbursementClaims                                                   shouldBe false
+        journey.hasCompleteSupportingEvidences                                                   shouldBe false
       }
     }
 
@@ -162,12 +183,17 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       forAll(completeJourneyGen) { journey =>
         val modifiedJourney =
           journey
-            .submitDisplayDeclaration(exampleDisplayDeclaration)
-        modifiedJourney.answers.displayDeclaration     shouldBe Some(exampleDisplayDeclaration)
-        modifiedJourney.answers.reimbursementClaims    shouldBe None
-        modifiedJourney.hasCompleteAnswers             shouldBe false
-        modifiedJourney.hasCompleteReimbursementClaims shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+            .submitMovementReferenceNumberAndDisplayDeclaration(
+              exampleMrn,
+              exampleDisplayDeclaration
+            )
+            .getOrFail
+        modifiedJourney.answers.movementReferenceNumber shouldBe Some(exampleMrn)
+        modifiedJourney.answers.displayDeclaration      shouldBe Some(exampleDisplayDeclaration)
+        modifiedJourney.answers.reimbursementClaims     shouldBe None
+        modifiedJourney.hasCompleteAnswers              shouldBe false
+        modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
       }
     }
 
@@ -177,8 +203,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journey            =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe true
       journey.getClaimantType                          shouldBe ClaimantType.User
@@ -191,8 +217,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journey            =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
       journey.getClaimantType                          shouldBe ClaimantType.Declarant
@@ -205,8 +231,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journey            =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
       journey.getClaimantType                          shouldBe ClaimantType.Consignee
@@ -232,9 +258,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither      =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
-          .submitConsigneeEoriNumber(anotherExampleEori)
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
 
       journeyEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
     }
@@ -245,9 +270,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither      =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
-          .submitConsigneeEoriNumber(yetAnotherExampleEori)
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
 
       journeyEither shouldBe Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
     }
@@ -258,9 +282,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither      =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
-          .submitDeclarantEoriNumber(anotherExampleEori)
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
       journeyEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
     }
@@ -271,9 +294,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither      =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclaration)
-          .submitDeclarantEoriNumber(yetAnotherExampleEori)
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
 
       journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     }
@@ -582,8 +604,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       )
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitDisplayDeclaration(displayDeclaration)
-        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
 
       journeyEither.isRight shouldBe true
     }
@@ -598,8 +620,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       )
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitDisplayDeclaration(displayDeclaration)
-        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       journeyEither.getOrFail.getSelectedDuties shouldBe Some(Seq(TaxCode.A00))
 
@@ -618,8 +640,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       )
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitDisplayDeclaration(displayDeclaration)
-        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A80))
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A80)))
 
       journeyEither.isRight shouldBe false
     }
@@ -657,8 +679,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitDisplayDeclaration(displayDeclaration)
-        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("5.00")))
 
       journeyEither.isRight shouldBe true
@@ -670,8 +692,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       )
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitDisplayDeclaration(displayDeclaration)
-        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitAmountForReimbursement(TaxCode.A80, BigDecimal("5.00")))
 
       journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
@@ -681,8 +703,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val declaration        = RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitDisplayDeclaration(displayDeclaration)
-        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       val journeyEitherTestZero     = declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
       val journeyEitherTestNegative =
@@ -699,8 +721,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitDisplayDeclaration(displayDeclaration)
-        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitAmountForReimbursement(TaxCode.A80, BigDecimal("0.00")))
 
       journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
@@ -784,9 +806,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither                    =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclarationAllCMAEligible)
-          .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
 
@@ -799,9 +820,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither                    =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclarationNotCMAEligible)
-          .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
 
@@ -814,9 +834,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither                    =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclarationAllCMAEligible)
-          .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
 
@@ -829,9 +848,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither                    =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclarationNotCMAEligible)
-          .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
 
@@ -844,9 +862,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither                    =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclarationAllCMAEligible)
-          .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
@@ -861,9 +878,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       val journeyEither                    =
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitDisplayDeclaration(displayDeclarationAllCMAEligible)
-          .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
@@ -900,8 +916,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
               val updatedDd            = displayDeclaration.copy(displayResponseDetail = drd)
               val journey              = RejectedGoodsSingleJourney
                 .empty(exampleEori)
-                .submitDisplayDeclaration(updatedDd)
-                .selectAndReplaceTaxCodeSetForReimbursement(taxCodes)
+                .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, updatedDd)
+                .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
                 .getOrFail
               val claimedReimbursement = journey.answers.reimbursementClaims.get
               val nextDetails          = journey.getNextNdrcDetailsToClaim.get
@@ -933,8 +949,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
               val updatedDd      = displayDeclaration.copy(displayResponseDetail = drd)
               val initialJourney = RejectedGoodsSingleJourney
                 .empty(exampleEori)
-                .submitDisplayDeclaration(updatedDd)
-                .selectAndReplaceTaxCodeSetForReimbursement(taxCodes)
+                .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, updatedDd)
+                .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
                 .getOrFail
               val journeyToTest  = ndrcDetails.dropRight(1).foldLeft(initialJourney) { case (journey, ndrcDetails) =>
                 journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), 1).getOrFail
@@ -957,7 +973,8 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
               val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
               val journey   = RejectedGoodsSingleJourney
                 .empty(exampleEori)
-                .submitDisplayDeclaration(updatedDd)
+                .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, updatedDd)
+                .getOrFail
 
               journey.hasCompleteReimbursementClaims shouldBe false
             }

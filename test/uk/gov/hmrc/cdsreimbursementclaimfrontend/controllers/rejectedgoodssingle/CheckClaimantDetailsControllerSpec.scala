@@ -165,9 +165,11 @@ class CheckClaimantDetailsControllerSpec
           (displayDeclaration, email, name, contactDeatils, address) =>
             val journey = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitDisplayDeclaration(displayDeclaration)
-              .submitContactDetails(Some(contactDeatils))
-              .submitContactAddress(address)
+              .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+              .map(_.submitContactDetails(Some(contactDeatils)))
+              .map(_.submitContactAddress(address))
+              .getOrFail
+
             val session = SessionData.empty.copy(
               rejectedGoodsSingleJourney = Some(journey)
             )
@@ -204,7 +206,8 @@ class CheckClaimantDetailsControllerSpec
             val displayDeclaration = initialDisplayDeclaration.copy(displayResponseDetail = drd)
             val journey            = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitDisplayDeclaration(displayDeclaration)
+              .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+              .getOrFail
             val session            = SessionData.empty.copy(
               rejectedGoodsSingleJourney = Some(journey)
             )
@@ -242,7 +245,8 @@ class CheckClaimantDetailsControllerSpec
           ) {
             val journey = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitDisplayDeclaration(displayDeclaration)
+              .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+              .getOrFail
             val session = SessionData.empty.copy(
               rejectedGoodsSingleJourney = Some(journey)
             )

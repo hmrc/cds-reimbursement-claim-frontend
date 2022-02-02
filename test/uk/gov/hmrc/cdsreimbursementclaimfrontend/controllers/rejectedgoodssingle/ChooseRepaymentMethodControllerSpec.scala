@@ -84,10 +84,9 @@ class ChooseRepaymentMethodControllerSpec
     val taxCode   = ndrcDetails.map(details => TaxCode(details.taxType))
     val journey   = RejectedGoodsSingleJourney
       .empty(exampleEori)
-      .submitDisplayDeclaration(updatedDd)
-      .selectAndReplaceTaxCodeSetForReimbursement(taxCode)
-      .right
-      .get
+      .submitMovementReferenceNumberAndDisplayDeclaration(updatedDd.getMRN, updatedDd)
+      .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCode))
+      .getOrFail
     SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
   }
 

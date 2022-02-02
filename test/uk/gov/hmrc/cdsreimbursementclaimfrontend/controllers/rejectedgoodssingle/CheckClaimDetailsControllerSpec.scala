@@ -73,7 +73,8 @@ class CheckClaimDetailsControllerSpec
     rejectedGoodsSingleJourney = Some(
       RejectedGoodsSingleJourney
         .empty(exampleEori)
-        .submitMovementReferenceNumber(exampleMrn)
+        .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .getOrFail
     )
   )
 

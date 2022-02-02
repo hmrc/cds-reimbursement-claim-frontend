@@ -134,8 +134,8 @@ class ChooseBankAccountTypeControllerSpec
             mockGetSession(
               session.copy(
                 rejectedGoodsSingleJourney = emptyJourney
-                  .submitDisplayDeclaration(updatedDeclaration)
-                  .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType)))
+                  .submitMovementReferenceNumberAndDisplayDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
+                  .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
                   .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
                   .toOption
               )
