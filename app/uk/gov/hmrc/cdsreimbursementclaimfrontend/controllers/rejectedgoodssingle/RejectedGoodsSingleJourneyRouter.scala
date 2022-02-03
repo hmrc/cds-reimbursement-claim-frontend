@@ -45,9 +45,7 @@ trait RejectedGoodsSingleJourneyRouter {
       case DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => undefined
-      case BANK_ACCOUNT_TYPE_MUST_BE_DEFINED                        => undefined
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
-      case BANK_ACCOUNT_TYPE_MUST_NOT_BE_DEFINED                    => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED     => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
       case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => undefined

@@ -1035,7 +1035,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
 
     "change reimbursementMethod to CMA in a complete journey with all duties CMA eligible" in {
       forAll(completeJourneyCMAEligibleGen) { journey =>
-        whenever(journey.needsBanksAccountDetailsAndTypeSubmission) {
+        whenever(journey.needsBanksAccountDetailsSubmission) {
           val modifiedJourney =
             journey
               .submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment)
@@ -1051,7 +1051,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         val journeyEither =
           journey.submitBankAccountDetails(exampleBankAccountDetails)
 
-        journeyEither.isRight shouldBe journey.needsBanksAccountDetailsAndTypeSubmission
+        journeyEither.isRight shouldBe journey.needsBanksAccountDetailsSubmission
       }
     }
 

@@ -145,7 +145,7 @@ final class RejectedGoodsMultipleJourney private (
   def needsDeclarantAndConsigneePostCode: Boolean =
     !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)
 
-  def needsBanksAccountDetailsAndTypeSubmission: Boolean =
+  def needsBanksAccountDetailsSubmission: Boolean =
     answers.reimbursementMethod.isEmpty ||
       answers.reimbursementMethod.contains(ReimbursementMethodAnswer.BankAccountTransfer)
 
@@ -583,7 +583,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsMultipleJourney] =
     whileJourneyIsAmendable {
-      if (needsBanksAccountDetailsAndTypeSubmission)
+      if (needsBanksAccountDetailsSubmission)
         Right(
           new RejectedGoodsMultipleJourney(
             answers.copy(bankAccountDetails = Some(bankAccountDetails))
@@ -594,7 +594,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsMultipleJourney] =
     whileJourneyIsAmendable {
-      if (needsBanksAccountDetailsAndTypeSubmission)
+      if (needsBanksAccountDetailsSubmission)
         Right(
           new RejectedGoodsMultipleJourney(
             answers.copy(bankAccountType = Some(bankAccountType))
@@ -821,28 +821,20 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
         )
       ),
       whenTrue(
-        _.needsBanksAccountDetailsAndTypeSubmission,
+        _.needsBanksAccountDetailsSubmission,
         all(
           checkIsDefined(
             _.answers.bankAccountDetails,
             BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
-          ),
-          checkIsDefined(
-            _.answers.bankAccountType,
-            BANK_ACCOUNT_TYPE_MUST_BE_DEFINED
           )
         )
       ),
       whenFalse(
-        _.needsBanksAccountDetailsAndTypeSubmission,
+        _.needsBanksAccountDetailsSubmission,
         all(
           checkIsEmpty(
             _.answers.bankAccountDetails,
             BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED
-          ),
-          checkIsEmpty(
-            _.answers.bankAccountType,
-            BANK_ACCOUNT_TYPE_MUST_NOT_BE_DEFINED
           )
         )
       ),
@@ -947,12 +939,8 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
       "consigneeEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
     val BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED: String                     =
       "bankAccountDetailsMustBeDefined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
-    val BANK_ACCOUNT_TYPE_MUST_BE_DEFINED: String                        =
-      "bankAccountTypeMustBeDefined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
     val BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED: String                 =
       "bankAccountDetailsMustNotBeDefined when reimbursementMethodAnswer is CurrentMonthAdjustment"
-    val BANK_ACCOUNT_TYPE_MUST_NOT_BE_DEFINED: String                    =
-      "bankAccountTypeMustNotBeDefined when reimbursementMethodAnswer is CurrentMonthAdjustment"
     val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED: String     =
       "basisOfClaimSpecialCircumstancesMustBeDefined when basisOfClaim value is SpecialCircumstances"
     val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED: String =
