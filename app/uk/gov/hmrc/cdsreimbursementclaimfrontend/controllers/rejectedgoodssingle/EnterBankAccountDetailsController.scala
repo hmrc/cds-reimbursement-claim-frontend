@@ -48,37 +48,39 @@ class EnterBankAccountDetailsController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    Future.successful(
-      enterBankDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                enterBankAccountDetailsPage(
-                  formWithErrors,
-                  postAction
-                )
-              )
-            ),
-          bankAccountDetails =>
-            journey
-              .submitBankAccountDetails(bankAccountDetails)
-              .fold(
-                errors => {
-                  logger.error(s"unable to get bank account details - $errors")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                },
-                updatedJourney =>
-                  (
-                    updatedJourney,
-                    Redirect(routes.CheckBankDetailsController.show())
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      Future.successful(
+        enterBankDetailsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(
+                  enterBankAccountDetailsPage(
+                    formWithErrors,
+                    postAction
                   )
-              )
-        )
-    )
-  }
-
+                )
+              ),
+            bankAccountDetails =>
+              journey
+                .submitBankAccountDetails(bankAccountDetails)
+                .fold(
+                  errors => {
+                    logger.error(s"unable to get bank account details - $errors")
+                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  },
+                  updatedJourney =>
+                    (
+                      updatedJourney,
+                      Redirect(routes.CheckBankDetailsController.show())
+                    )
+                )
+          )
+      )
+    },
+    fastForwardToCYAEnabled = false
+  )
 }

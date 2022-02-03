@@ -20,7 +20,9 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genEstablishmentAddress
@@ -58,6 +60,9 @@ object DisplayResponseDetailGen {
       accountNumber
     )
 
+  lazy val genMaskedBankAccountDetails: Gen[BankAccountDetails] =
+    genBankAccountDetails.map(mask)
+
   lazy val genBankDetails: Gen[BankDetails] =
     for {
       consigneeBankDetails <- Gen.option(genBankAccountDetails)
@@ -65,6 +70,22 @@ object DisplayResponseDetailGen {
     } yield BankDetails(
       consigneeBankDetails = consigneeBankDetails,
       declarantBankDetails = declarantBankDetails
+    )
+
+  def mask(bankAccountDetails: BankAccountDetails): BankAccountDetails = {
+    def hideAllExceptTwoLast(value: String): String =
+      s"Ends with ${value.substring(value.length - 2)}"
+
+    bankAccountDetails.copy(
+      sortCode = SortCode(hideAllExceptTwoLast(bankAccountDetails.sortCode.value)),
+      accountNumber = AccountNumber(hideAllExceptTwoLast(bankAccountDetails.accountNumber.value))
+    )
+  }
+
+  def mask(bankDetails: BankDetails): BankDetails =
+    BankDetails(
+      consigneeBankDetails = bankDetails.consigneeBankDetails.map(mask),
+      declarantBankDetails = bankDetails.declarantBankDetails.map(mask)
     )
 
   lazy val genDisplayResponseDetail: Gen[DisplayResponseDetail] =
@@ -80,7 +101,7 @@ object DisplayResponseDetailGen {
       consigneeDetails         <- Gen.option(genConsigneeDetails)
       accountDetails           <- Gen.option(Gen.nonEmptyListOf(genAccountDetails))
       bankDetails              <- Gen.option(genBankDetails)
-      maskedBankDetails        <- Gen.option(genBankDetails)
+      maskedBankDetails        <- Gen.const(bankDetails.map(mask))
       ndrcDetails              <- Gen.option(Gen.nonEmptyListOf(genNdrcDetails))
     } yield DisplayResponseDetail(
       declarationId = declarationId,

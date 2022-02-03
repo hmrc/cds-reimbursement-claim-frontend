@@ -38,11 +38,10 @@ class CheckBankDetailsController @Inject() (
   def show(): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       val bankAccountTypeRoute = routes.ChooseBankAccountTypeController.show()
-      // when the journey has come from the CYA page from the choose-repayment-type page and the user has previously select CMA
-      // the journey is not complete because the bank details and bank account type have not been chosen, this happens on submitting the page
-      //val continueActionCall   = if (journey.hasCompleteAnswers) checkYourAnswers else routes.ChooseFileTypeController.show()
-
-      val continueActionCall = routes.ChooseFileTypeController.show()
+      val continueRoute        =
+        if (journey.hasCompleteAnswers)
+          checkYourAnswers
+        else routes.ChooseFileTypeController.show()
 
       journey.getBankAccountDetails
         .map { bankAccountDetails: BankAccountDetails =>
@@ -50,14 +49,14 @@ class CheckBankDetailsController @Inject() (
             Ok(
               checkBankAccountDetailsPage(
                 bankAccountDetails,
-                continueActionCall,
+                continueRoute,
                 bankAccountTypeRoute
               )
             )
           )
         }
         .getOrElse {
-          (Redirect(bankAccountTypeRoute)).asFuture
+          Future.successful(Redirect(bankAccountTypeRoute))
         }
     }
 }
