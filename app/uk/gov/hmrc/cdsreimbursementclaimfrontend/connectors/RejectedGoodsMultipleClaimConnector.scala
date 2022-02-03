@@ -22,7 +22,7 @@ import com.google.inject.Inject
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 @Singleton
-class RejectedGoodsSingleClaimConnector @Inject() (
+class RejectedGoodsMultipleClaimConnector @Inject() (
   http: HttpClient,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
@@ -45,12 +45,12 @@ class RejectedGoodsSingleClaimConnector @Inject() (
   ec: ExecutionContext
 ) extends Retries {
 
-  import RejectedGoodsSingleClaimConnector._
+  import RejectedGoodsMultipleClaimConnector._
 
   lazy val baseUrl: String                     = servicesConfig.baseUrl("cds-reimbursement-claim")
   lazy val contextPath: String                 =
     servicesConfig.getConfString("cds-reimbursement-claim.context-path", "cds-reimbursement-claim")
-  lazy val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-single"
+  lazy val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-multiple"
   lazy val retryIntervals: Seq[FiniteDuration] = Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
   def submitClaim(claimRequest: Request)(implicit
@@ -75,9 +75,9 @@ class RejectedGoodsSingleClaimConnector @Inject() (
     )
 }
 
-object RejectedGoodsSingleClaimConnector {
+object RejectedGoodsMultipleClaimConnector {
 
-  final case class Request(claim: RejectedGoodsSingleJourney.Output)
+  final case class Request(claim: RejectedGoodsMultipleJourney.Output)
   final case class Response(caseNumber: String)
   final case class Exception(msg: String) extends scala.RuntimeException(msg)
 

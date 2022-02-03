@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyCMAEligibleGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -54,8 +54,7 @@ class ChooseRepaymentMethodControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -85,10 +84,9 @@ class ChooseRepaymentMethodControllerSpec
     val taxCode   = ndrcDetails.map(details => TaxCode(details.taxType))
     val journey   = RejectedGoodsSingleJourney
       .empty(exampleEori)
-      .submitDisplayDeclaration(updatedDd)
-      .selectAndReplaceTaxCodeSetForReimbursement(taxCode)
-      .right
-      .get
+      .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
+      .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCode))
+      .getOrFail
     SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
   }
 

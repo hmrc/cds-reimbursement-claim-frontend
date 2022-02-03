@@ -34,7 +34,7 @@ lazy val wartremoverSettings =
       Wart.Equals,
       Wart.GlobalExecutionContext,
       Wart.OptionPartial,
-      Wart.EitherProjectionPartial,
+      Wart.TraversableOps,
       Wart.Throw
     )
   )

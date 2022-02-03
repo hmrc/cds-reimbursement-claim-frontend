@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
@@ -63,8 +63,7 @@ class CheckClaimantDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with AddressLookupSupport
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -166,9 +165,11 @@ class CheckClaimantDetailsControllerSpec
           (displayDeclaration, email, name, contactDeatils, address) =>
             val journey = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitDisplayDeclaration(displayDeclaration)
-              .submitContactDetails(Some(contactDeatils))
-              .submitContactAddress(address)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .map(_.submitContactDetails(Some(contactDeatils)))
+              .map(_.submitContactAddress(address))
+              .getOrFail
+
             val session = SessionData.empty.copy(
               rejectedGoodsSingleJourney = Some(journey)
             )
@@ -205,7 +206,8 @@ class CheckClaimantDetailsControllerSpec
             val displayDeclaration = initialDisplayDeclaration.copy(displayResponseDetail = drd)
             val journey            = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitDisplayDeclaration(displayDeclaration)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .getOrFail
             val session            = SessionData.empty.copy(
               rejectedGoodsSingleJourney = Some(journey)
             )
@@ -243,7 +245,8 @@ class CheckClaimantDetailsControllerSpec
           ) {
             val journey = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitDisplayDeclaration(displayDeclaration)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .getOrFail
             val session = SessionData.empty.copy(
               rejectedGoodsSingleJourney = Some(journey)
             )
