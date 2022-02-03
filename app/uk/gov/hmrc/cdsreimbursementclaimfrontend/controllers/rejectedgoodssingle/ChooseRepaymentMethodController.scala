@@ -52,7 +52,7 @@ class ChooseRepaymentMethodController @Inject() (
           repaymentMethod =>
             (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
               case (Right(updatedJourney), CurrentMonthAdjustment) =>
-                if (journey.hasCompleteAnswers) (journey, Redirect(checkYourAnswers))
+                if (journey.hasCompleteAnswers) (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(chooseFileTypeAction))
               case (Right(updatedJourney), BankAccountTransfer)    =>
                 (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
