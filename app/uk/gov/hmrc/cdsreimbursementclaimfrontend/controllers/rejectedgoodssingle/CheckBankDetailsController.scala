@@ -38,6 +38,10 @@ class CheckBankDetailsController @Inject() (
   def show(): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       val bankAccountTypeRoute = routes.ChooseBankAccountTypeController.show()
+      val continueRoute        =
+        if (journey.hasCompleteAnswers)
+          checkYourAnswers
+        else routes.ChooseFileTypeController.show()
 
       journey.getBankAccountDetails
         .map { bankAccountDetails: BankAccountDetails =>
@@ -45,7 +49,7 @@ class CheckBankDetailsController @Inject() (
             Ok(
               checkBankAccountDetailsPage(
                 bankAccountDetails,
-                routes.ChooseFileTypeController.show(),
+                continueRoute,
                 bankAccountTypeRoute
               )
             )

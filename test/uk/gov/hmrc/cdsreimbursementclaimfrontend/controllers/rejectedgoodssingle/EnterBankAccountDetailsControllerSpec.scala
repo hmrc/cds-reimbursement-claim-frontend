@@ -151,7 +151,7 @@ class EnterBankAccountDetailsControllerSpec
             s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
             s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
           ),
-          "/claim-for-reimbursement-of-import-duties/rejected-goods/single/check-these-bank-details-are-correct"
+          routes.CheckBankDetailsController.show()
         )
 
       }
