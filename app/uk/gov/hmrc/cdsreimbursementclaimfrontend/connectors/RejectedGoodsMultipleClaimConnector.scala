@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import akka.actor.ActorSystem
 import cats.syntax.eq._
-import com.google.inject.ImplementedBy
 import com.google.inject.Inject
+import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
@@ -34,46 +34,26 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import play.api.Configuration
-
-@ImplementedBy(classOf[RejectedGoodsMultipleClaimConnectorImpl])
-trait RejectedGoodsMultipleClaimConnector {
-
-  def submitClaim(claimRequest: RejectedGoodsMultipleClaimConnector.Request)(implicit
-    hc: HeaderCarrier
-  ): Future[RejectedGoodsMultipleClaimConnector.Response]
-}
-
-object RejectedGoodsMultipleClaimConnector {
-
-  final case class Request(claim: RejectedGoodsMultipleJourney.Output)
-  final case class Response(caseNumber: String)
-  final case class Exception(msg: String) extends scala.RuntimeException(msg)
-
-  implicit val requestFormat: Format[Request]   = Json.format[Request]
-  implicit val responseFormat: Format[Response] = Json.format[Response]
-}
 
 @Singleton
-class RejectedGoodsMultipleClaimConnectorImpl @Inject() (
+class RejectedGoodsMultipleClaimConnector @Inject() (
   http: HttpClient,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
 )(implicit
   ec: ExecutionContext
-) extends RejectedGoodsMultipleClaimConnector
-    with Retries {
+) extends Retries {
 
   import RejectedGoodsMultipleClaimConnector._
 
-  val baseUrl: String                     = servicesConfig.baseUrl("cds-reimbursement-claim")
-  val contextPath: String                 =
+  lazy val baseUrl: String                     = servicesConfig.baseUrl("cds-reimbursement-claim")
+  lazy val contextPath: String                 =
     servicesConfig.getConfString("cds-reimbursement-claim.context-path", "cds-reimbursement-claim")
-  val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-multiple"
-  val retryIntervals: Seq[FiniteDuration] = Retries.getConfIntervals("cds-reimbursement-claim", configuration)
+  lazy val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-multiple"
+  lazy val retryIntervals: Seq[FiniteDuration] = Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
-  override def submitClaim(claimRequest: Request)(implicit
+  def submitClaim(claimRequest: Request)(implicit
     hc: HeaderCarrier
   ): Future[Response] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
@@ -93,4 +73,14 @@ class RejectedGoodsMultipleClaimConnectorImpl @Inject() (
           Exception(s"Request to POST $claimUrl failed because of $response ${response.body}")
         )
     )
+}
+
+object RejectedGoodsMultipleClaimConnector {
+
+  final case class Request(claim: RejectedGoodsMultipleJourney.Output)
+  final case class Response(caseNumber: String)
+  final case class Exception(msg: String) extends scala.RuntimeException(msg)
+
+  implicit val requestFormat: Format[Request]   = Json.format[Request]
+  implicit val responseFormat: Format[Response] = Json.format[Response]
 }
