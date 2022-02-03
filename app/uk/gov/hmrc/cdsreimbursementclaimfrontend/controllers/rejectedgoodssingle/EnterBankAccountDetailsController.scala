@@ -74,9 +74,7 @@ class EnterBankAccountDetailsController @Inject() (
                 updatedJourney =>
                   (
                     updatedJourney,
-                    Redirect(
-                      "/claim-for-reimbursement-of-import-duties/rejected-goods/single/check-these-bank-details-are-correct"
-                    )
+                    Redirect(routes.CheckBankDetailsController.show())
                   )
               )
         )

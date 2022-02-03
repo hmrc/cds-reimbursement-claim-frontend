@@ -125,6 +125,11 @@ final class RejectedGoodsSingleJourney private (
       answers.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
     ).find(_.nonEmpty).flatten
 
+  def getBankAccountType: Option[BankAccountType] = Stream(
+    answers.bankAccountType,
+    ??? // bank account type from ACC14?
+  ).find(_.nonEmpty).flatten
+
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
@@ -464,13 +469,34 @@ final class RejectedGoodsSingleJourney private (
     reimbursementMethodAnswer: ReimbursementMethodAnswer
   ): Either[String, RejectedGoodsSingleJourney] =
     whileJourneyIsAmendable {
-      if (isAllSelectedDutiesAreCMAEligible)
+      if (isAllSelectedDutiesAreCMAEligible) {
+        if (hasCompleteAnswers && (reimbursementMethodAnswer === ReimbursementMethodAnswer.CurrentMonthAdjustment)) {
+          Right(
+            new RejectedGoodsSingleJourney(
+              answers.copy(
+                bankAccountDetails = None,
+                bankAccountType = None,
+                reimbursementMethod = Some(reimbursementMethodAnswer)
+              )
+            )
+          )
+        } else if (hasCompleteAnswers && reimbursementMethodAnswer === ReimbursementMethodAnswer.BankAccountTransfer) {
+          Right(
+            new RejectedGoodsSingleJourney(
+              answers.copy(
+                bankAccountDetails = getBankAccountDetails,
+                bankAccountType = None,
+                reimbursementMethod = Some(reimbursementMethodAnswer)
+              )
+            )
+          )
+        }
         Right(
           new RejectedGoodsSingleJourney(
             answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
           )
         )
-      else
+      } else
         Left("submitReimbursementMethodAnswer.notCMAEligible")
     }
 

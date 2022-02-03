@@ -20,11 +20,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursementMethodForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -51,13 +54,17 @@ class ChooseRepaymentMethodController @Inject() (
         repaymentMethod =>
           (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
             case (Right(updatedJourney), CurrentMonthAdjustment) =>
-              (updatedJourney, Redirect(chooseFileTypeAction)).asFuture
+              if (journey.hasCompleteAnswers) {
+                (updatedJourney, Redirect(checkYourAnswers)).asFuture
+              } else
+                (updatedJourney, Redirect(chooseFileTypeAction)).asFuture
             case (Right(updatedJourney), BankAccountTransfer)    =>
               (updatedJourney, Redirect(routes.CheckBankDetailsController.show())).asFuture
             case (Left(errorMessage), _)                         =>
               logger.error(s"We failed to choose the repayment method - $errorMessage")
-              (journey, Redirect(routes.CheckYourAnswersController.show())).asFuture
+              (journey, Redirect(checkYourAnswers)).asFuture
           }
       )
   }
+
 }
