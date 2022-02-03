@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyWithMatchingUserEoriAndCMAEligibleGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -65,8 +65,7 @@ class EnterMovementReferenceNumberControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   val mockClaimService: ClaimService = mock[ClaimService]
 
@@ -209,7 +208,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "submit a valid MRN and user is declarant" in forAll { (mrn: MRN) =>
         val journey                       = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val displayDeclaration            = sample[DisplayDeclaration]
+        val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
         val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
           declarantEORI = journey.answers.userEoriNumber.value
         )
@@ -217,7 +216,9 @@ class EnterMovementReferenceNumberControllerSpec
           displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val updatedJourney                =
-          journey.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
+          journey
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+            .getOrFail
         val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
@@ -237,7 +238,7 @@ class EnterMovementReferenceNumberControllerSpec
         (mrn: MRN, declarant: Eori, consignee: Eori) =>
           whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
             val journey            = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-            val displayDeclaration = sample[DisplayDeclaration]
+            val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
             val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
             val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
 
@@ -248,7 +249,9 @@ class EnterMovementReferenceNumberControllerSpec
             val updatedDisplayDeclaration     =
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val updatedJourney                =
-              journey.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
+              journey
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+                .getOrFail
             val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
             inSequence {

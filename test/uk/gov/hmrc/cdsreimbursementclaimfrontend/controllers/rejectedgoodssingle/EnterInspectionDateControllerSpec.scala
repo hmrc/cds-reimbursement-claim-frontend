@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspecti
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.displayDeclarationGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
@@ -54,8 +54,7 @@ class EnterInspectionDateControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -151,7 +150,10 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val initialJourney = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
+        val initialJourney =
+          emptyJourney
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .getOrFail
         val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
         val updatedJourney = initialJourney.submitInspectionDate(date)
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -184,7 +186,10 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val journey = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .getOrFail
 
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
         val updatedJourney  = journey.submitInspectionDate(date)

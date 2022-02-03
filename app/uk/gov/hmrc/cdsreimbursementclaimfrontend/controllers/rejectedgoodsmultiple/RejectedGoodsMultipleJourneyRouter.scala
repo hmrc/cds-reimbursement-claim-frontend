@@ -14,34 +14,36 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.ValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.ValidationErrors._
 
-trait RejectedGoodsSingleJourneyRouter {
+trait RejectedGoodsMultipleJourneyRouter {
 
-  private val undefined: Call = routes.EnterMovementReferenceNumberController.show()
+  private val undefined: Call = routes.WorkInProgressController.show()
 
   def routeForValidationError(error: String): Call =
     error match {
       case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation()
-      case MISSING_MOVEMENT_REFERENCE_NUMBER                        => routes.EnterMovementReferenceNumberController.show()
-      case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.show()
-      case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show()
+      case MISSING_MOVEMENT_REFERENCE_NUMBER                        => undefined //routes.EnterMovementReferenceNumberController.show()
+      case MISSING_DISPLAY_DECLARATION                              => undefined //routes.EnterMovementReferenceNumberController.show()
+      case MISSING_BASIS_OF_CLAIM                                   => undefined //routes.BasisForClaimController.show()
       case MISSING_DETAILS_OF_REJECTED_GOODS                        => undefined
       case MISSING_INSPECTION_DATE                                  => undefined
       case MISSING_INSPECTION_ADDRESS                               => undefined
       case MISSING_METHOD_OF_DISPOSAL                               => undefined
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
-      case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show()
-      case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show()
+      case INCOMPLETE_SUPPORTING_EVIDENCES                          => undefined //routes.ChooseFileTypeController.show()
+      case MISSING_CONTACT_DETAILS                                  => undefined //routes.EnterContactDetailsController.show()
       case MISSING_CONTACT_ADDRESS                                  => undefined
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => undefined
-      case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterDeclarantEoriNumberController.show()
-      case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterDeclarantEoriNumberController.show()
-      case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterImporterEoriNumberController.show()
-      case CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterImporterEoriNumberController.show()
+      case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined //routes.EnterDeclarantEoriNumberController.show()
+      case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     =>
+        undefined //routes.EnterDeclarantEoriNumberController.show()
+      case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined //routes.EnterImporterEoriNumberController.show()
+      case CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     =>
+        undefined //routes.EnterImporterEoriNumberController.show()
       case DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => undefined

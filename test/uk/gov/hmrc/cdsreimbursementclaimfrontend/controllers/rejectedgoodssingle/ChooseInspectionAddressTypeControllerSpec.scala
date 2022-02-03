@@ -36,8 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSuppor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
@@ -65,7 +64,6 @@ class ChooseInspectionAddressTypeControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData
     with AddressLookupSupport
     with OptionValues
     with EitherValues {
@@ -132,7 +130,11 @@ class ChooseInspectionAddressTypeControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(
-              session.copy(rejectedGoodsSingleJourney = emptyJourney.submitDisplayDeclaration(displayDeclaration).some)
+              session.copy(rejectedGoodsSingleJourney =
+                emptyJourney
+                  .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+                  .toOption
+              )
             )
           }
 
@@ -166,8 +168,11 @@ class ChooseInspectionAddressTypeControllerSpec
         forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
           val journey =
             emptyJourney
-              .submitDisplayDeclaration(declarantContactDetailsLens.set(declaration)(contactDetails.some))
-              .some
+              .submitMovementReferenceNumberAndDeclaration(
+                declaration.getMRN,
+                declarantContactDetailsLens.set(declaration)(contactDetails.some)
+              )
+              .toOption
 
           val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
 
@@ -205,10 +210,9 @@ class ChooseInspectionAddressTypeControllerSpec
 
           val journey =
             emptyJourney
-              .submitDisplayDeclaration(updatedDeclaration)
-              .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType)))
-              .value
-              .some
+              .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
+              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
+              .toOption
 
           val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
 

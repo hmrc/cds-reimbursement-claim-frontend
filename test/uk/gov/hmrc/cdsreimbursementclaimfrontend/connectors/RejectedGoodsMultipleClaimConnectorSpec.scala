@@ -23,7 +23,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
@@ -37,7 +37,7 @@ import scala.util.Failure
 import org.scalamock.handlers.CallHandler
 import scala.concurrent.Future
 
-class RejectedGoodsSingleClaimConnectorSpec
+class RejectedGoodsMultipleClaimConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
@@ -65,57 +65,57 @@ class RejectedGoodsSingleClaimConnectorSpec
     )
   )
 
-  val actorSystem = ActorSystem("test-RejectedGoodsSingleClaimConnector")
+  val actorSystem = ActorSystem("test-RejectedGoodsMultipleClaimConnector")
 
   override protected def afterAll(): Unit =
     actorSystem.terminate()
 
   val connector =
-    new RejectedGoodsSingleClaimConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new RejectedGoodsMultipleClaimConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-single"
+  val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-multiple"
 
   val requestGen = for {
-    journey <- RejectedGoodsSingleJourneyGenerators.completeJourneyGen
-  } yield RejectedGoodsSingleClaimConnector.Request(
+    journey <- RejectedGoodsMultipleJourneyGenerators.completeJourneyGen
+  } yield RejectedGoodsMultipleClaimConnector.Request(
     journey.toOutput.getOrElse(fail("Could not generate journey output!"))
   )
 
-  val sampleRequest: RejectedGoodsSingleClaimConnector.Request = sample(requestGen)
-  val validResponseBody                                        = """{"caseNumber":"ABC123"}"""
+  val sampleRequest: RejectedGoodsMultipleClaimConnector.Request = sample(requestGen)
+  val validResponseBody                                          = """{"caseNumber":"ABC123"}"""
 
   val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
     mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest) _
 
-  "RejectedGoodsSingleClaimConnector" must {
+  "RejectedGoodsMultipleClaimConnector" must {
     "have retries defined" in {
       connector.retryIntervals shouldBe Seq(FiniteDuration(10, "ms"), FiniteDuration(50, "ms"))
     }
 
     "return caseNumber when successful call" in {
       givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
     }
 
     "throw exception when empty response" in {
       givenServiceReturns(Some(HttpResponse(200, ""))).once()
-      a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
+      a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid response" in {
       givenServiceReturns(Some(HttpResponse(200, """{"case":"ABC123"}"""))).once()
-      a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
+      a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid success response status" in {
       givenServiceReturns(Some(HttpResponse(201, validResponseBody))).once()
-      a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
+      a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
@@ -123,8 +123,8 @@ class RejectedGoodsSingleClaimConnectorSpec
     "throw exception when 4xx response status" in {
       givenServiceReturns(Some(HttpResponse(404, "case not found"))).once()
       Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
-        new RejectedGoodsSingleClaimConnector.Exception(
-          "Request to POST http://host3:123/foo-claim/claims/rejected-goods-single failed because of HttpResponse status=404 case not found"
+        new RejectedGoodsMultipleClaimConnector.Exception(
+          "Request to POST http://host3:123/foo-claim/claims/rejected-goods-multiple failed because of HttpResponse status=404 case not found"
         )
       )
     }
@@ -132,7 +132,7 @@ class RejectedGoodsSingleClaimConnectorSpec
     "throw exception when 5xx response status in the third attempt" in {
       givenServiceReturns(Some(HttpResponse(500, ""))).repeat(3)
       givenServiceReturns(Some(HttpResponse(200, validResponseBody))).never()
-      a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
+      a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
@@ -140,13 +140,13 @@ class RejectedGoodsSingleClaimConnectorSpec
     "accept valid response in a second attempt" in {
       givenServiceReturns(Some(HttpResponse(500, ""))).once()
       givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
     }
 
     "accept valid response in a third attempt" in {
       givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
       givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
     }
 
   }

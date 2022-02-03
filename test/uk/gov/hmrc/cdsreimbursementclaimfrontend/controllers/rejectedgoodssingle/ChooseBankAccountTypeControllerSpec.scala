@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
@@ -55,8 +55,7 @@ class ChooseBankAccountTypeControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -135,8 +134,8 @@ class ChooseBankAccountTypeControllerSpec
             mockGetSession(
               session.copy(
                 rejectedGoodsSingleJourney = emptyJourney
-                  .submitDisplayDeclaration(updatedDeclaration)
-                  .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType)))
+                  .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
+                  .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
                   .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
                   .toOption
               )

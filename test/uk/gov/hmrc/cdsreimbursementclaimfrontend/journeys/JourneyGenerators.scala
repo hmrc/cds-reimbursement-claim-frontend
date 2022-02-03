@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 trait JourneyGenerators extends JourneyTestData {
 
@@ -29,7 +30,11 @@ trait JourneyGenerators extends JourneyTestData {
       Gen.choose(1, 10000).map(i => (min + (i * ((max - min) / 10000))).round(min.mc))
   }
 
-  val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
+  val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
+    IdGen.genMRN
+      .flatMap(mrn => displayDeclarationGen.map(d => mrn -> d.withDeclarationId(mrn.value)))
+
+  val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration]    =
     buildDisplayDeclarationGen(cmaEligible = true)
 
   val displayDeclarationNotCMAEligibleGen: Gen[DisplayDeclaration] =
@@ -46,7 +51,6 @@ trait JourneyGenerators extends JourneyTestData {
 
   def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
     for {
-      id               <- Gen.uuid
       declarantEORI    <- IdGen.genEori
       consigneeEORI    <- IdGen.genEori
       numberOfTaxCodes <- Gen.choose(1, 5)
@@ -55,7 +59,7 @@ trait JourneyGenerators extends JourneyTestData {
     } yield {
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, cmaEligible) }
-      buildDisplayDeclaration(id.toString, declarantEORI, Some(consigneeEORI), paidDuties)
+      buildDisplayDeclaration(exampleMrnAsString, declarantEORI, Some(consigneeEORI), paidDuties)
     }
 
 }

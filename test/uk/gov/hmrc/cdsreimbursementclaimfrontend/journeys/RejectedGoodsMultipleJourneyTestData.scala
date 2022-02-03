@@ -23,22 +23,22 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
-trait RejectedGoodsSingleJourneyTestData extends JourneyTestData {
+trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
 
-  val emptyJourney: RejectedGoodsSingleJourney =
-    RejectedGoodsSingleJourney.empty(exampleEori)
+  val emptyJourney: RejectedGoodsMultipleJourney =
+    RejectedGoodsMultipleJourney.empty(exampleEori)
 
-  def tryBuildRejectedGoodsSingleJourney(
+  def tryBuildRejectedGoodsMultipleJourney(
     userEoriNumber: Eori,
-    mrn: MRN,
-    displayDeclaration: DisplayDeclaration,
+    mrns: Seq[MRN],
+    displayDeclarations: Seq[DisplayDeclaration],
     basisOfClaim: BasisOfRejectedGoodsClaim,
     detailsOfRejectedGoods: String,
     specialCircumstancesDetails: String,
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     methodOfDisposal: MethodOfDisposal,
-    reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
+    reimbursementClaims: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])],
     supportingEvidences: Map[UploadDocumentType, Int],
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     consigneeEoriNumber: Option[Eori] = None,
@@ -47,33 +47,48 @@ trait RejectedGoodsSingleJourneyTestData extends JourneyTestData {
     contactAddress: Option[ContactAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None
-  ): Either[String, RejectedGoodsSingleJourney] = {
-    val taxCodes: Seq[TaxCode]                                      =
-      reimbursementClaims.map(_._1)
-    val taxCodesWithReimbursementAmount: Seq[(TaxCode, BigDecimal)] =
-      reimbursementClaims.map(e => (e._1, e._2))
+  ): Either[String, RejectedGoodsMultipleJourney] = {
 
-    val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]] =
+    val mrnsWithDisplayDeclaration: Seq[(Int, MRN, DisplayDeclaration)]          =
+      mrns.zip(displayDeclarations).zipWithIndex.map { case ((mrn, acc14), index) => (index, mrn, acc14) }
+
+    val mrnsWithTaxCodes: Seq[(MRN, Seq[TaxCode])]                               =
+      reimbursementClaims.map { case (mrn, rc) => mrn -> rc.map(_._1) }
+
+    val mrnsWithTaxCodesWithReimbursementAmount: Seq[(MRN, TaxCode, BigDecimal)] =
+      reimbursementClaims.flatMap { case (mrn, rc) => rc.map(c => (mrn, c._1, c._2)) }
+
+    val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]]  =
       supportingEvidences.map { case (documentType, size) =>
         (documentType, (0 until size).map(i => buildUploadDocument(s"$i")))
       }
 
-    def submitAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
-      taxCodesWithReimbursementAmount: (TaxCode, BigDecimal)
-    ): Either[String, RejectedGoodsSingleJourney] =
-      journey.submitAmountForReimbursement(taxCodesWithReimbursementAmount._1, taxCodesWithReimbursementAmount._2)
+    def submitAmountForReimbursement(journey: RejectedGoodsMultipleJourney)(
+      data: (MRN, TaxCode, BigDecimal)
+    ): Either[String, RejectedGoodsMultipleJourney] =
+      journey.submitAmountForReimbursement(data._1, data._2, data._3)
 
-    def receiveUploadedFiles(journey: RejectedGoodsSingleJourney)(
+    def receiveUploadedFiles(journey: RejectedGoodsMultipleJourney)(
       documentTypeAndUploadedFiles: (UploadDocumentType, Seq[UploadedFile])
-    ): Either[String, RejectedGoodsSingleJourney] = {
+    ): Either[String, RejectedGoodsMultipleJourney] = {
       val (documentType, uploadedFiles) = documentTypeAndUploadedFiles
       val allUploadedFiles              = journey.answers.supportingEvidences ++ uploadedFiles
       journey.receiveUploadedFiles(documentType, journey.answers.nonce, allUploadedFiles)
     }
 
-    RejectedGoodsSingleJourney
+    def submitMovementReferenceNumberAndDeclaration(journey: RejectedGoodsMultipleJourney)(
+      data: (Int, MRN, DisplayDeclaration)
+    ): Either[String, RejectedGoodsMultipleJourney] =
+      journey.submitMovementReferenceNumberAndDeclaration(data._1, data._2, data._3)
+
+    def selectAndReplaceTaxCodeSetForReimbursement(journey: RejectedGoodsMultipleJourney)(
+      data: (MRN, Seq[TaxCode])
+    ): Either[String, RejectedGoodsMultipleJourney] =
+      journey.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
+
+    RejectedGoodsMultipleJourney
       .empty(userEoriNumber)
-      .submitMovementReferenceNumberAndDeclaration(mrn, displayDeclaration)
+      .flatMapEach(mrnsWithDisplayDeclaration, submitMovementReferenceNumberAndDeclaration)
       .tryWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))
@@ -84,8 +99,8 @@ trait RejectedGoodsSingleJourneyTestData extends JourneyTestData {
       )
       .map(_.submitMethodOfDisposal(methodOfDisposal))
       .map(_.submitDetailsOfRejectedGoods(detailsOfRejectedGoods))
-      .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
-      .flatMapEach(taxCodesWithReimbursementAmount, submitAmountForReimbursement)
+      .flatMapEach(mrnsWithTaxCodes, selectAndReplaceTaxCodeSetForReimbursement)
+      .flatMapEach(mrnsWithTaxCodesWithReimbursementAmount, submitAmountForReimbursement)
       .map(_.submitInspectionDate(inspectionDate))
       .map(_.submitInspectionAddress(inspectionAddress))
       .flatMapWhenDefined(reimbursementMethod)(_.submitReimbursementMethod _)
