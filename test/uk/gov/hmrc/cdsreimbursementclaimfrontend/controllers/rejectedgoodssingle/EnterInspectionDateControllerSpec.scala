@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspecti
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.displayDeclarationGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
@@ -54,8 +54,7 @@ class EnterInspectionDateControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -71,8 +70,11 @@ class EnterInspectionDateControllerSpec
   private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-inspection-date.rejected-goods"
 
-  def performAction(): Future[Result] =
+  def showPage(): Future[Result] =
     controller.show()(FakeRequest())
+
+  def submitInspectionDate(data: (String, String)*): Future[Result] =
+    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
@@ -84,18 +86,12 @@ class EnterInspectionDateControllerSpec
   "Enter Inspection Date Controller" must {
 
     "not find the page if rejected goods feature is disabled" in {
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
-
       featureSwitch.disable(Feature.RejectedGoods)
 
-      status(performAction()) shouldBe NOT_FOUND
+      status(showPage()) shouldBe NOT_FOUND
     }
 
     "display the page" when {
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
-
       "the user has not answered this question before" in {
         inSequence {
           mockAuthWithNoRetrievals()
@@ -103,7 +99,7 @@ class EnterInspectionDateControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          showPage(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             doc
@@ -124,7 +120,7 @@ class EnterInspectionDateControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          showPage(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             selectedInputBox(doc, "enter-inspection-date.rejected-goods.day")   shouldBe Some(
@@ -142,9 +138,6 @@ class EnterInspectionDateControllerSpec
     }
 
     "handle submit requests" when {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
       "the user enters a date for the first time and Acc14 has returned contact details for the importer or declarant" in forAll(
         displayDeclarationGen,
         genDate
@@ -157,7 +150,10 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val initialJourney = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
+        val initialJourney =
+          emptyJourney
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .getOrFail
         val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
         val updatedJourney = initialJourney.submitInspectionDate(date)
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -169,7 +165,7 @@ class EnterInspectionDateControllerSpec
         }
 
         checkIsRedirect(
-          performAction(
+          submitInspectionDate(
             s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
             s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
             s"${controller.formKey}.year"  -> date.value.getYear.toString
@@ -190,7 +186,10 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val journey = emptyJourney.submitDisplayDeclaration(updatedDisplayDeclaration)
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .getOrFail
 
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
         val updatedJourney  = journey.submitInspectionDate(date)
@@ -203,7 +202,7 @@ class EnterInspectionDateControllerSpec
         }
 
         checkIsRedirect(
-          performAction(
+          submitInspectionDate(
             s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
             s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
             s"${controller.formKey}.year"  -> date.value.getYear.toString
@@ -214,9 +213,6 @@ class EnterInspectionDateControllerSpec
     }
 
     "show an error summary" when {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
       "the user submits an empty date" in {
         inSequence {
           mockAuthWithNoRetrievals()
@@ -224,13 +220,35 @@ class EnterInspectionDateControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          submitInspectionDate(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               s"$messagesKey.error.required"
             ),
           expectedStatus = BAD_REQUEST
+        )
+      }
+    }
+
+    "redirect to CYA page" when {
+      "journey is complete" in forAll(buildCompleteJourneyGen(), genDate) { (journey, date) =>
+        val journeyWithInspectionDate = journey.submitInspectionDate(date)
+        val sessionWithInspectionDate = session.copy(rejectedGoodsSingleJourney = Some(journeyWithInspectionDate))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(rejectedGoodsSingleJourney = Some(journey)))
+          mockStoreSession(sessionWithInspectionDate)(Right(()))
+        }
+
+        checkIsRedirect(
+          submitInspectionDate(
+            s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
+            s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
+            s"${controller.formKey}.year"  -> date.value.getYear.toString
+          ),
+          routes.CheckYourAnswersController.show()
         )
       }
     }

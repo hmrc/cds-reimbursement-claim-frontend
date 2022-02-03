@@ -114,7 +114,9 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
           ConfigFactory.parseString(
             """
               | metrics.jvm = false
+              | metrics.enabled = false
               | metrics.logback = false
+              | auditing.enabled = false
               | microservice.upscan-initiate.upscan-store.expiry-time = 1
           """.stripMargin
           )

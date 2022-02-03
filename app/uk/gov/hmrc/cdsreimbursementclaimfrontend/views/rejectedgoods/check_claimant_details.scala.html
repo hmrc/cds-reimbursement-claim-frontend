@@ -27,6 +27,7 @@
         button: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout
 )
 
@@ -43,5 +44,7 @@
         ClaimantDetailsSummary((contactDetails, contactAddress, contactChange, addressChange), key, subKey)
     )
 
-    @button("button.continue", href=Some(postAction.url))
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @button("button.continue")
+    }
 }

@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -34,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -48,7 +49,7 @@ class DisposalMethodControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with OptionValues {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -137,6 +138,25 @@ class DisposalMethodControllerSpec
           performAction("select-method-of-disposal.rejected-goods" -> methodOfDisposal.toString),
           routes.EnterRejectedGoodsDetailsController.show()
         )
+      }
+
+      "redirect to CYA page" when {
+        "journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
+          val sessionWitJourney = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(sessionWitJourney)
+          }
+
+          checkIsRedirect(
+            performAction(
+              "select-method-of-disposal.rejected-goods" ->
+                journey.answers.methodOfDisposal.map(_.toString).value
+            ),
+            routes.CheckYourAnswersController.show()
+          )
+        }
       }
     }
   }

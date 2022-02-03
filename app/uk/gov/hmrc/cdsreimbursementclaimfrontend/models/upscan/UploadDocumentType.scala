@@ -81,4 +81,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
       LetterOfAuthority,
       ProofOfExportOrDestruction
     )
+
+  val rejectedGoodsMultipleTypes: Seq[UploadDocumentType] =
+    rejectedGoodsSingleTypes
 }

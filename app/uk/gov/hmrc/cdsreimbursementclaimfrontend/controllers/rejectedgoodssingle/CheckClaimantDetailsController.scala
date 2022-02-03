@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,11 +51,25 @@ class CheckClaimantDetailsController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd   = routes.EnterContactDetailsController.show()
-    val postAction = routes.BasisForClaimController.show()
+    val postAction = routes.CheckClaimantDetailsController.submit()
     Future.successful(
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
         case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction))
         case _                    => Redirect(routes.EnterMovementReferenceNumberController.show())
+      }
+    )
+  }
+
+  val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { _ => journey => retrievedUserType =>
+    Future.successful(
+      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
+        case (Some(cd), Some(ca)) =>
+          (
+            journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
+            Redirect(routes.BasisForClaimController.show())
+          )
+        case _                    =>
+          (journey, Redirect(routes.EnterMovementReferenceNumberController.show()))
       }
     )
   }

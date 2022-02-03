@@ -70,7 +70,10 @@ class CheckBankDetailsControllerSpec
     val displayDeclaration    = sample[DisplayDeclaration].copy(displayResponseDetail = displayResponseDetail)
 
     val rejectedGoodsSingleJourney: RejectedGoodsSingleJourney =
-      RejectedGoodsSingleJourney.empty(sample[Eori]).submitDisplayDeclaration(displayDeclaration)
+      RejectedGoodsSingleJourney
+        .empty(sample[Eori])
+        .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+        .getOrElse(fail())
 
     SessionData.empty.copy(
       rejectedGoodsSingleJourney = Some(rejectedGoodsSingleJourney)

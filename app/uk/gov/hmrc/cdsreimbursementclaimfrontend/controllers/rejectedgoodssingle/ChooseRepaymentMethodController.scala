@@ -26,8 +26,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
+<<<<<<< HEAD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
+=======
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+>>>>>>> master
 import scala.concurrent.ExecutionContext
 
 @Singleton

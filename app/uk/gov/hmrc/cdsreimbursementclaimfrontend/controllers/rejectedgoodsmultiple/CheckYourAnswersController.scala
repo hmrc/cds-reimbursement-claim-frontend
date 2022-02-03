@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -22,7 +22,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsMultipleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -34,15 +34,15 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CheckYourAnswersController @Inject() (
   val jcc: JourneyControllerComponents,
-  rejectedGoodsSingleClaimConnector: RejectedGoodsSingleClaimConnector,
+  rejectedGoodsMultipleClaimConnector: RejectedGoodsMultipleClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
-  checkYourAnswersPage: pages.check_your_answers_single,
+  checkYourAnswersPage: pages.check_your_answers_multiple,
   confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
   submitClaimFailedPage: claimPages.submit_claim_error
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsMultipleJourneyBaseController
     with Logging
-    with RejectedGoodsSingleJourneyRouter {
+    with RejectedGoodsMultipleJourneyRouter {
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit()
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
@@ -66,7 +66,7 @@ class CheckYourAnswersController @Inject() (
               Ok(
                 checkYourAnswersPage(
                   output,
-                  journey.answers.displayDeclaration,
+                  journey.getLeadDisplayDeclaration,
                   postAction
                 )
               )
@@ -89,11 +89,11 @@ class CheckYourAnswersController @Inject() (
               (journey, Redirect(routeForValidationErrors(errors))).asFuture
             },
             output =>
-              rejectedGoodsSingleClaimConnector
-                .submitClaim(RejectedGoodsSingleClaimConnector.Request(output))
+              rejectedGoodsMultipleClaimConnector
+                .submitClaim(RejectedGoodsMultipleClaimConnector.Request(output))
                 .flatMap { response =>
                   logger.info(
-                    s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
+                    s"Successful submit of claim for ${output.movementReferenceNumbers.mkString(",")} with case number ${response.caseNumber}."
                   )
                   uploadDocumentsConnector.wipeOut
                     .map(_ =>
@@ -104,7 +104,9 @@ class CheckYourAnswersController @Inject() (
                     )
                 }
                 .recover { case e =>
-                  logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
+                  logger.error(
+                    s"Failed to submit claim for ${output.movementReferenceNumbers.mkString(",")} because of $e."
+                  )
                   (journey, Ok(submitClaimFailedPage()))
                 }
           )

@@ -38,20 +38,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
 import java.util.UUID
+import cats.implicits.catsSyntaxEq
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
@@ -62,8 +63,7 @@ class CheckClaimantDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with AddressLookupSupport
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsSingleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -84,12 +84,12 @@ class CheckClaimantDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
+  private val session = SessionData.empty.copy(
     rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
   )
 
   "Check Claimant Details Controller" when {
-    "Check Claimant Details page" must {
+    "Show Check Claimant Details page" must {
 
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
@@ -120,7 +120,8 @@ class CheckClaimantDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claimant-details.title")
+            messageFromMessageKey("check-claimant-details.title"),
+            doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit().url
           )
         }
       }
@@ -142,6 +143,133 @@ class CheckClaimantDetailsControllerSpec
             performAction(),
             routes.EnterMovementReferenceNumberController.show()
           )
+        }
+      }
+    }
+
+    "Submit Check Claimant Details page" must {
+
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(
+          FakeRequest().withFormUrlEncodedBody(data: _*)
+        )
+
+      "do not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "redirect to the basis for claims page and do not update the contact/address details if they are already present" in {
+        forAll(displayDeclarationGen, genEmail, genName, genMrnContactDetails, genContactAddress) {
+          (displayDeclaration, email, name, contactDeatils, address) =>
+            val journey = RejectedGoodsSingleJourney
+              .empty(exampleEori)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .map(_.submitContactDetails(Some(contactDeatils)))
+              .map(_.submitContactAddress(address))
+              .getOrFail
+
+            val session = SessionData.empty.copy(
+              rejectedGoodsSingleJourney = Some(journey)
+            )
+
+            inSequence {
+              mockAuthWithAllRetrievals(
+                Some(AffinityGroup.Individual),
+                Some(email.value),
+                Set(
+                  Enrolment(EoriEnrolment.key)
+                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+                ),
+                Some(Credentials("id", "GovernmentGateway")),
+                Some(Name(name.name, name.lastName))
+              )
+              mockGetSession(session)
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.BasisForClaimController.show()
+            )
+        }
+      }
+
+      "redirect to the basis for claims page and update the contact/address details if the journey does not already contain them." in {
+        forAll(displayDeclarationGen, genEmail, genName, individualGen, genConsigneeDetails, genDeclarantDetails) {
+          (initialDisplayDeclaration, email, name, individual, consignee, declarant) =>
+            val eori               = exampleEori
+            val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
+              declarantDetails = declarant.copy(declarantEORI = eori.value),
+              consigneeDetails = Some(consignee.copy(consigneeEORI = eori.value))
+            )
+            val displayDeclaration = initialDisplayDeclaration.copy(displayResponseDetail = drd)
+            val journey            = RejectedGoodsSingleJourney
+              .empty(exampleEori)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .getOrFail
+            val session            = SessionData.empty.copy(
+              rejectedGoodsSingleJourney = Some(journey)
+            )
+
+            val expectedContactDetails = journey.computeContactDetails(individual)
+            val expectedAddress        = journey.computeAddressDetails.get
+            val expectedJourney        =
+              journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
+            val updatedSession         = session.copy(rejectedGoodsSingleJourney = Some(expectedJourney))
+
+            inSequence {
+              mockAuthWithAllRetrievals(
+                Some(AffinityGroup.Individual),
+                Some(email.value),
+                Set(Enrolment(EoriEnrolment.key).withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)),
+                Some(Credentials("id", "GovernmentGateway")),
+                Some(Name(name.name, name.lastName))
+              )
+              mockGetSession(session)
+              mockStoreSession(updatedSession)(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.BasisForClaimController.show()
+            )
+        }
+      }
+
+      "redirect to the enter MRN page if no contact details present" in {
+        forAll(displayDeclarationGen, genEmail, genName) { (displayDeclaration, email, name) =>
+          whenever(
+            displayDeclaration.getConsigneeDetails.get.consigneeEORI =!= exampleEori.value &&
+              displayDeclaration.getDeclarantDetails.declarantEORI =!= exampleEori.value
+          ) {
+            val journey = RejectedGoodsSingleJourney
+              .empty(exampleEori)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .getOrFail
+            val session = SessionData.empty.copy(
+              rejectedGoodsSingleJourney = Some(journey)
+            )
+
+            inSequence {
+              mockAuthWithAllRetrievals(
+                Some(AffinityGroup.Individual),
+                Some(email.value),
+                Set(
+                  Enrolment(EoriEnrolment.key)
+                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+                ),
+                Some(Credentials("id", "GovernmentGateway")),
+                Some(Name(name.name, name.lastName))
+              )
+              mockGetSession(session)
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.EnterMovementReferenceNumberController.show()
+            )
+          }
         }
       }
     }
