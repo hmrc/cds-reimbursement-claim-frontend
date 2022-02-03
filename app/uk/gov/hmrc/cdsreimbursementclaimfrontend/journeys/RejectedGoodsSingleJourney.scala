@@ -483,45 +483,19 @@ final class RejectedGoodsSingleJourney private (
             new RejectedGoodsSingleJourney(
               answers.copy(
                 reimbursementMethod = Some(reimbursementMethodAnswer),
-                bankAccountDetails = None,
-                bankAccountType = None
+                bankAccountDetails = None
               )
             )
           )
         else
           Right(
             new RejectedGoodsSingleJourney(
-              answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
-            )
-          )
-      } else
-      if (isAllSelectedDutiesAreCMAEligible) {
-        if (hasCompleteAnswers && (reimbursementMethodAnswer === ReimbursementMethodAnswer.CurrentMonthAdjustment)) {
-          Right(
-            new RejectedGoodsSingleJourney(
               answers.copy(
-                bankAccountDetails = None,
-                bankAccountType = None,
-                reimbursementMethod = Some(reimbursementMethodAnswer)
+                reimbursementMethod = Some(reimbursementMethodAnswer),
+                bankAccountDetails = getBankAccountDetails
               )
             )
           )
-        } else if (hasCompleteAnswers && reimbursementMethodAnswer === ReimbursementMethodAnswer.BankAccountTransfer) {
-          Right(
-            new RejectedGoodsSingleJourney(
-              answers.copy(
-                bankAccountDetails = getBankAccountDetails,
-                bankAccountType = None,
-                reimbursementMethod = Some(reimbursementMethodAnswer)
-              )
-            )
-          )
-        }
-        Right(
-          new RejectedGoodsSingleJourney(
-            answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
-          )
-        )
       } else
         Left("submitReimbursementMethodAnswer.notCMAEligible")
     }

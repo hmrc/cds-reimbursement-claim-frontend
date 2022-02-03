@@ -39,8 +39,7 @@ class CheckBankDetailsController @Inject() (
     actionReadJourney { implicit request => journey =>
       val bankAccountTypeRoute = routes.ChooseBankAccountTypeController.show()
       val continueRoute        =
-        if (journey.hasCompleteAnswers)
-          checkYourAnswers
+        if (journey.hasCompleteAnswers) checkYourAnswers
         else routes.ChooseFileTypeController.show()
 
       journey.getBankAccountDetails

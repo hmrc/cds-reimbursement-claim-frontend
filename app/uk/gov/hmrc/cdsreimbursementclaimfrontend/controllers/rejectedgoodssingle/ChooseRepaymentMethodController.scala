@@ -20,18 +20,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursementMethodForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
-<<<<<<< HEAD
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
-
-=======
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
->>>>>>> master
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -50,25 +43,27 @@ class ChooseRepaymentMethodController @Inject() (
     Ok(chooseReimbursementMethod(filledForm, postAction)).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => (journey, BadRequest(chooseReimbursementMethod(formWithErrors, postAction))).asFuture,
-        repaymentMethod =>
-          (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
-            case (Right(updatedJourney), CurrentMonthAdjustment) =>
-              if (journey.hasCompleteAnswers) {
-                (updatedJourney, Redirect(checkYourAnswers)).asFuture
-              } else
-                (updatedJourney, Redirect(chooseFileTypeAction)).asFuture
-            case (Right(updatedJourney), BankAccountTransfer)    =>
-              (updatedJourney, Redirect(routes.CheckBankDetailsController.show())).asFuture
-            case (Left(errorMessage), _)                         =>
-              logger.error(s"We failed to choose the repayment method - $errorMessage")
-              (journey, Redirect(checkYourAnswers)).asFuture
-          }
-      )
-  }
+  def submit(): Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => (journey, BadRequest(chooseReimbursementMethod(formWithErrors, postAction))),
+          repaymentMethod =>
+            (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
+              case (Right(updatedJourney), CurrentMonthAdjustment) =>
+                if (journey.hasCompleteAnswers) (journey, Redirect(checkYourAnswers))
+                else (updatedJourney, Redirect(chooseFileTypeAction))
+              case (Right(updatedJourney), BankAccountTransfer)    =>
+                (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
+              case (Left(errorMessage), _)                         =>
+                logger.error(s"We failed to choose the repayment method - $errorMessage")
+                (journey, Redirect(checkYourAnswers))
+            }
+        )
+        .asFuture
+    },
+    fastForwardToCYAEnabled = false
+  )
 
 }

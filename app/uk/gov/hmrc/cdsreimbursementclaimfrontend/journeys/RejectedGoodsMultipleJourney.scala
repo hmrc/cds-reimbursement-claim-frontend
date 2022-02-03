@@ -621,7 +621,8 @@ final class RejectedGoodsMultipleJourney private (
         else
           Right(
             new RejectedGoodsMultipleJourney(
-              answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
+              answers
+                .copy(reimbursementMethod = Some(reimbursementMethodAnswer), bankAccountDetails = getBankAccountDetails)
             )
           )
       } else
