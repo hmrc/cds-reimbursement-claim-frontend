@@ -128,7 +128,7 @@ class CheckDeclarationDetailsControllerSpec
       "reject an empty Yes/No answer" in {
         val displayDeclaration = sample[DisplayDeclaration]
         val journey            = session.rejectedGoodsSingleJourney.get
-          .submitMovementReferenceNumberAndDisplayDeclaration(displayDeclaration.getMRN, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
         val sessionToAmend     = session.copy(rejectedGoodsSingleJourney = Some(journey))
 

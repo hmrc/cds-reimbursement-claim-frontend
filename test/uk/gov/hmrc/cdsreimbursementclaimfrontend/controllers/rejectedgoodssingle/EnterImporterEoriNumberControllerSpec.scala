@@ -190,7 +190,7 @@ class EnterImporterEoriNumberControllerSpec
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val journey                       =
           initialJourney
-            .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
             .getOrFail
 
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -222,7 +222,7 @@ class EnterImporterEoriNumberControllerSpec
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val journey                       =
               initialJourney
-                .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
             val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
 

@@ -75,7 +75,7 @@ class RejectedGoodsSingleJourneyFormatSpec
       validateCanReadAndWriteJson(
         RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDisplayDeclaration(
+          .submitMovementReferenceNumberAndDeclaration(
             MRN("19GB03I52858027001"),
             exampleDisplayDeclaration.withDeclarationId("19GB03I52858027001")
           )

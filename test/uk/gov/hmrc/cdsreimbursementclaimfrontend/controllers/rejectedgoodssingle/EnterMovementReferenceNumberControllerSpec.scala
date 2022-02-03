@@ -217,7 +217,7 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val updatedJourney                =
           journey
-            .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
             .getOrFail
         val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
@@ -250,7 +250,7 @@ class EnterMovementReferenceNumberControllerSpec
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val updatedJourney                =
               journey
-                .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
             val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 

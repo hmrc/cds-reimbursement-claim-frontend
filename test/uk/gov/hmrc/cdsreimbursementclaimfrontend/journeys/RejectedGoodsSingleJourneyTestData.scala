@@ -73,7 +73,7 @@ trait RejectedGoodsSingleJourneyTestData extends JourneyTestData {
 
     RejectedGoodsSingleJourney
       .empty(userEoriNumber)
-      .submitMovementReferenceNumberAndDisplayDeclaration(mrn, displayDeclaration)
+      .submitMovementReferenceNumberAndDeclaration(mrn, displayDeclaration)
       .tryWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))

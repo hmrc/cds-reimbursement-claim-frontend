@@ -72,7 +72,7 @@ class CheckBankDetailsControllerSpec
     val rejectedGoodsSingleJourney: RejectedGoodsSingleJourney =
       RejectedGoodsSingleJourney
         .empty(sample[Eori])
-        .submitMovementReferenceNumberAndDisplayDeclaration(displayDeclaration.getMRN, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
         .getOrElse(fail())
 
     SessionData.empty.copy(

@@ -152,7 +152,7 @@ class EnterInspectionDateControllerSpec
 
         val initialJourney =
           emptyJourney
-            .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
             .getOrFail
         val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
         val updatedJourney = initialJourney.submitInspectionDate(date)
@@ -188,7 +188,7 @@ class EnterInspectionDateControllerSpec
 
         val journey =
           emptyJourney
-            .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
             .getOrFail
 
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(journey))

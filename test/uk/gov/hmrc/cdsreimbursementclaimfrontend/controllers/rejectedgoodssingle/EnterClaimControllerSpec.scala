@@ -81,7 +81,7 @@ class EnterClaimControllerSpec
     val taxCode   = ndrcDetails.map(details => TaxCode(details.taxType))
     val journey   = RejectedGoodsSingleJourney
       .empty(exampleEori)
-      .submitMovementReferenceNumberAndDisplayDeclaration(updatedDd.getMRN, updatedDd)
+      .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCode))
       .getOrFail
     SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -140,7 +140,7 @@ class EnterClaimControllerSpec
             val amountClaimed = BigDecimal(ndrcDetails.amount) - 10
             val journey       = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitMovementReferenceNumberAndDisplayDeclaration(updatedDd.getMRN, updatedDd)
+              .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(List(taxCode)))
               .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
               .getOrFail
@@ -169,7 +169,7 @@ class EnterClaimControllerSpec
             val amountClaimed      = BigDecimal(ndrcDetails.amount) - 10
             val journey            = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitMovementReferenceNumberAndDisplayDeclaration(updatedDd.getMRN, updatedDd)
+              .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(List(taxCode)))
               .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
               .getOrFail
@@ -208,7 +208,7 @@ class EnterClaimControllerSpec
         (displayDeclaration: DisplayDeclaration) =>
           val journey = RejectedGoodsSingleJourney
             .empty(exampleEori)
-            .submitMovementReferenceNumberAndDisplayDeclaration(displayDeclaration.getMRN, displayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
             .getOrFail
           val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
@@ -331,7 +331,7 @@ class EnterClaimControllerSpec
             val updatedDd     = displayDeclaration.copy(displayResponseDetail = drd)
             val journey       = RejectedGoodsSingleJourney
               .empty(exampleEori)
-              .submitMovementReferenceNumberAndDisplayDeclaration(updatedDd.getMRN, updatedDd)
+              .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
               .getOrFail
             val session       = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
             val amountToClaim = BigDecimal(ndrcDetails1.amount) - 10

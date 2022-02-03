@@ -76,10 +76,10 @@ trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
       journey.receiveUploadedFiles(documentType, journey.answers.nonce, allUploadedFiles)
     }
 
-    def submitMovementReferenceNumberAndDisplayDeclaration(journey: RejectedGoodsMultipleJourney)(
+    def submitMovementReferenceNumberAndDeclaration(journey: RejectedGoodsMultipleJourney)(
       data: (Int, MRN, DisplayDeclaration)
     ): Either[String, RejectedGoodsMultipleJourney] =
-      journey.submitMovementReferenceNumberAndDisplayDeclaration(data._1, data._2, data._3)
+      journey.submitMovementReferenceNumberAndDeclaration(data._1, data._2, data._3)
 
     def selectAndReplaceTaxCodeSetForReimbursement(journey: RejectedGoodsMultipleJourney)(
       data: (MRN, Seq[TaxCode])
@@ -88,7 +88,7 @@ trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
 
     RejectedGoodsMultipleJourney
       .empty(userEoriNumber)
-      .flatMapEach(mrnsWithDisplayDeclaration, submitMovementReferenceNumberAndDisplayDeclaration)
+      .flatMapEach(mrnsWithDisplayDeclaration, submitMovementReferenceNumberAndDeclaration)
       .tryWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))

@@ -191,7 +191,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val journey                       =
           initialJourney
-            .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
             .getOrFail
         val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
         val updatedJourney                = journey.submitDeclarantEoriNumber(eori).getOrElse(fail("Unable to update eori"))
@@ -222,7 +222,7 @@ class EnterDeclarantEoriNumberControllerSpec
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val journey                       =
               initialJourney
-                .submitMovementReferenceNumberAndDisplayDeclaration(mrn, updatedDisplayDeclaration)
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
             val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
 

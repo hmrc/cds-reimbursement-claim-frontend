@@ -35,7 +35,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
 
   def incompleteJourneyWithMrnsGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
     def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) =
-      journey.submitMovementReferenceNumberAndDisplayDeclaration(data._2, data._1._1, data._1._2)
+      journey.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
 
     Gen.listOfN(n, mrnWithDisplayDeclarationGen).map { data =>
       val dataWithIndex = data.zipWithIndex

@@ -259,10 +259,10 @@ final class RejectedGoodsSingleJourney private (
   ): Either[String, RejectedGoodsSingleJourney] =
     if (isFinalized) Left(RejectedGoodsSingleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
-  /** Reset the journey with the new MRN
+  /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
-  def submitMovementReferenceNumberAndDisplayDeclaration(
+  def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
   ): Either[String, RejectedGoodsSingleJourney] =

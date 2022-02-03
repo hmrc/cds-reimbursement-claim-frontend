@@ -90,7 +90,7 @@ class SelectTaxCodesControllerSpec
       "display the page the first time" in {
         val journey = RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
         val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -142,7 +142,7 @@ class SelectTaxCodesControllerSpec
 
         val journey = RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
         val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -164,7 +164,7 @@ class SelectTaxCodesControllerSpec
         forAll(displayDeclarationGen) { displayDeclaration =>
           val initialJourney = RejectedGoodsSingleJourney
             .empty(exampleEori)
-            .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
             .getOrFail
 
           val availableTaxCodes = displayDeclaration.getAvailableTaxCodes
@@ -206,7 +206,7 @@ class SelectTaxCodesControllerSpec
 
         val journey = RejectedGoodsSingleJourney
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
           .getOrFail
 
         val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))

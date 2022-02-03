@@ -298,13 +298,13 @@ final class RejectedGoodsMultipleJourney private (
   ): Either[String, RejectedGoodsMultipleJourney] =
     if (isFinalized) Left(RejectedGoodsMultipleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
-  def submitMovementReferenceNumberAndDisplayDeclaration(
+  def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
   ): Either[String, RejectedGoodsMultipleJourney] =
-    submitMovementReferenceNumberAndDisplayDeclaration(0, mrn, displayDeclaration)
+    submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
 
-  def submitMovementReferenceNumberAndDisplayDeclaration(
+  def submitMovementReferenceNumberAndDeclaration(
     index: Int,
     mrn: MRN,
     displayDeclaration: DisplayDeclaration

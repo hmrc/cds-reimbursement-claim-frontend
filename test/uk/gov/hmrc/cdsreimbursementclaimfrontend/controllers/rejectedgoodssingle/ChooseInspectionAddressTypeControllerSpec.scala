@@ -132,7 +132,7 @@ class ChooseInspectionAddressTypeControllerSpec
             mockGetSession(
               session.copy(rejectedGoodsSingleJourney =
                 emptyJourney
-                  .submitMovementReferenceNumberAndDisplayDeclaration(displayDeclaration.getMRN, displayDeclaration)
+                  .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
                   .toOption
               )
             )
@@ -168,7 +168,7 @@ class ChooseInspectionAddressTypeControllerSpec
         forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
           val journey =
             emptyJourney
-              .submitMovementReferenceNumberAndDisplayDeclaration(
+              .submitMovementReferenceNumberAndDeclaration(
                 declaration.getMRN,
                 declarantContactDetailsLens.set(declaration)(contactDetails.some)
               )
@@ -210,7 +210,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           val journey =
             emptyJourney
-              .submitMovementReferenceNumberAndDisplayDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
+              .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
               .toOption
 

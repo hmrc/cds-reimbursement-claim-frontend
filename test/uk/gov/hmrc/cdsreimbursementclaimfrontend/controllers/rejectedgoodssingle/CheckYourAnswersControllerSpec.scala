@@ -180,7 +180,7 @@ class CheckYourAnswersControllerSpec
         val journey =
           RejectedGoodsSingleJourney
             .empty(exampleEori)
-            .submitMovementReferenceNumberAndDisplayDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
