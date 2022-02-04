@@ -66,6 +66,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   def getJourney(sessionData: SessionData): Option[Journey]
   def updateJourney(sessionData: SessionData, journey: Journey): SessionData
+  def userHasSeenCYAPage(journey: Journey): Boolean
   def hasCompleteAnswers(journey: Journey): Boolean
   def isFinalized(journey: Journey): Boolean
 
@@ -76,7 +77,8 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
     Future.successful(
       if (result.header.status =!= 303) result
       else if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
-      else if (fastForwardToCYAEnabled && hasCompleteAnswers(journey)) Redirect(checkYourAnswers)
+      else if (userHasSeenCYAPage(journey) && fastForwardToCYAEnabled && hasCompleteAnswers(journey))
+        Redirect(checkYourAnswers)
       else result
     )
 
