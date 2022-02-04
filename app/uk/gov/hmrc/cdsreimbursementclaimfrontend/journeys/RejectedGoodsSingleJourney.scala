@@ -483,15 +483,17 @@ final class RejectedGoodsSingleJourney private (
             new RejectedGoodsSingleJourney(
               answers.copy(
                 reimbursementMethod = Some(reimbursementMethodAnswer),
-                bankAccountDetails = None,
-                bankAccountType = None
+                bankAccountDetails = None
               )
             )
           )
         else
           Right(
             new RejectedGoodsSingleJourney(
-              answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
+              answers.copy(
+                reimbursementMethod = Some(reimbursementMethodAnswer),
+                bankAccountDetails = getBankAccountDetails
+              )
             )
           )
       } else
