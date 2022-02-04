@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import cats.implicits.catsSyntaxEq
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
@@ -25,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -55,7 +58,9 @@ class ChooseRepaymentMethodController @Inject() (
                 if (journey.hasCompleteAnswers) (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(chooseFileTypeAction))
               case (Right(updatedJourney), BankAccountTransfer)    =>
-                (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
+                if (journey.hasCompleteAnswers && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
+                  (updatedJourney, Redirect(checkYourAnswers))
+                else (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
               case (Left(errorMessage), _)                         =>
                 logger.error(s"We failed to choose the repayment method - $errorMessage")
                 (journey, Redirect(checkYourAnswers))
