@@ -140,18 +140,33 @@ trait CheckCDSDetails {
               address.line1
             )
           ),
-          address.line2.map { line =>
+          (address.line2, address.line3) match {
+            case (Some(firstLine), Some(secondLine)) => Some(
+              (
+                messages(s"$checkYourAnswersKey.claimant-details.additional.contact.address"),
+                s"$firstLine, $secondLine"
+              )
+            )
+            case (None, Some(line)) => Some(
+              (
+                messages(s"$checkYourAnswersKey.claimant-details.additional.contact.address"),
+                line
+              )
+            )
+            case (Some(line), None) => Some(
+              (
+                messages(s"$checkYourAnswersKey.claimant-details.additional.contact.address"),
+                line
+              )
+            )
+            case _ => None
+          },
+          Some(
             (
               messages(s"$checkYourAnswersKey.claimant-details.additional.contact.address"),
-              line
+              address.line4
             )
-          },
-          address.line3.map { line =>
-            (
-              messages(s"$checkYourAnswersKey.claimant-details.additional.contact.address"),
-              line
-            )
-          },
+          ),
           Some(
             (
               messages(s"$checkYourAnswersKey.claimant-details.additional.contact.address"),
