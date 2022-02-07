@@ -46,8 +46,8 @@
 
     @pageHeading(title)
 
-    @pageHeading(messages(lang(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
-    @summary(MovementReferenceNumberSummary(claim.movementReferenceNumbers.head, s"$key.reference-number", subKey))
+    @pageHeading(messages(lang(s"$key.reference-number.multiple", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @summary(MovementReferenceNumberSequenceSummary(claim.movementReferenceNumbers, s"$key.reference-number.rejectedgoodsmultiple", subKey, None))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
