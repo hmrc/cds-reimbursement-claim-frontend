@@ -28,6 +28,7 @@ import play.api.http.Status.ACCEPTED
 import play.api.http.Status.OK
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.JsPath
+import play.api.libs.json.Json
 import play.api.libs.json.JsonValidationError
 import play.api.libs.json.Reads
 import play.api.libs.json.Reads.minLength
@@ -42,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.net.URL
@@ -63,17 +65,18 @@ class DefaultAddressLookupService @Inject() (
 )(implicit
   ec: ExecutionContext,
   viewConfig: ViewConfig
-) extends AddressLookupService {
+) extends AddressLookupService
+    with Logging {
 
   implicit val addressLookupTimeoutConfiguration: TimeoutConfig =
     TimeoutConfig(
       timeoutAmount = viewConfig.timeout,
       timeoutUrl = baseRoutes.StartController.timedOut().url,
-      timeoutKeepAliveUrl = Some(viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl))
+      timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
   def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
-    val request =
+    val request: AddressLookupRequest =
       AddressLookupRequest
         .redirectBackTo(addressUpdateUrl)
         .signOutUserVia(viewConfig.signOutUrl)
@@ -87,12 +90,19 @@ class DefaultAddressLookupService @Inject() (
         .whetherShowChangeLink(true)
         .whetherShowBanner(true)
 
+    logger.debug(s"Making ALF call sending payload:\n${Json.prettyPrint(Json.toJson(request))}")
+
     connector
       .initiate(request)
-      .ensure(Error("Request was not accepted by the address lookup service"))(_.status === ACCEPTED)
-      .subflatMap(response =>
-        response.header(LOCATION).map(new URL(_)) toRight Error("Could not resolve address lookup redirect URL")
-      )
+      .subflatMap { response =>
+        logger.debug(s"Received ALF response with status ${response.status} and body '${response.body}'")
+        if (response.status === ACCEPTED)
+          response
+            .header(LOCATION)
+            .map(new URL(_))
+            .toRight(Error("The ALF user redirect URL is missing in the header"))
+        else Left(Error("The request was refused by ALF"))
+      }
   }
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress] = {
