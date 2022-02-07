@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 
@@ -30,4 +30,14 @@ object RetrievedUserTypeGen {
     eori     <- genEori
     name     <- genName
   } yield RetrievedUserType.Individual(ggCredId, Some(email), eori, Some(name))
+
+  lazy val organisationGen: Gen[Organisation] = for {
+    ggCredId <- genGGCredId
+    email    <- genEmail
+    eori     <- genEori
+    name     <- genName
+  } yield RetrievedUserType.Organisation(ggCredId, Some(email), eori, Some(name))
+
+  lazy val authenticatedUserGen: Gen[RetrievedUserType] =
+    Gen.oneOf[RetrievedUserType](individualGen, organisationGen)
 }

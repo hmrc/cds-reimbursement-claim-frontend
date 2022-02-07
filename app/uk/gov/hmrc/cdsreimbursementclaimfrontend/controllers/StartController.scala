@@ -154,8 +154,8 @@ class StartController @Inject() (
       case RetrievedUserType.Individual(ggCredId, email, eori, name) =>
         handleSignedInUser(ggCredId, eori, email, name)
 
-      case RetrievedUserType.Organisation(ggCredId, eori, name) =>
-        handleSignedInUser(ggCredId, eori, None, name)
+      case RetrievedUserType.Organisation(ggCredId, email, eori, name) =>
+        handleSignedInUser(ggCredId, eori, email, name)
 
       case u: RetrievedUserType.NonGovernmentGatewayRetrievedUser =>
         handleNonGovernmentGatewayUser(u)

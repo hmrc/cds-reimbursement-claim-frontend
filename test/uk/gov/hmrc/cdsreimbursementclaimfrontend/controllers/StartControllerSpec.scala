@@ -227,6 +227,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
             AuthenticatedRequestWithRetrievedData(
               RetrievedUserType.Organisation(
                 GGCredId("gg-cred-id"),
+                Some(Email("email")),
                 Eori("AB12345678901234Z"),
                 Some(Name(Some("John Smith"), Some("Smith")))
               ),
