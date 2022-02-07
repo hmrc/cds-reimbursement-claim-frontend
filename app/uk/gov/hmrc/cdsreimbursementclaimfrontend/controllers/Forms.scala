@@ -26,19 +26,7 @@ import play.api.data.Forms.seq
 import play.api.data.Forms.list
 import play.api.data.Forms.nonEmptyText
 import play.api.data.Forms.optional
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNumber, BankAccountDetails, BankAccountType, BasisOfRejectedGoodsClaim, Duty, InspectionAddressType, InspectionDate, MethodOfDisposal, MrnContactDetails, RejectedGoodsJourneyType, SortCode, TaxCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
@@ -58,6 +46,13 @@ object Forms {
         .verifying("invalid.number", str => str.length > 18 || str.isEmpty || Eori(str).isValid)
     )(Eori.apply)(Eori.unapply)
   )
+
+   val chooseHowManyMrnsForm: Form[RejectedGoodsJourneyType] = Form(
+      mapping(
+        "rejected-goods.choose-how-many-mrns" -> nonEmptyText
+          .verifying("error.required", journey => journey.isEmpty || RejectedGoodsJourneyType.has(journey))
+      )(RejectedGoodsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
+    )
 
   val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
     mapping(
