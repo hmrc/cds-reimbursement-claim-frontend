@@ -75,7 +75,7 @@ class AddressLookupServiceSpec
     TimeoutConfig(
       timeoutAmount = viewConfig.timeout,
       timeoutUrl = baseRoutes.StartController.timedOut().url,
-      timeoutKeepAliveUrl = Some(viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl))
+      timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
   val addressUpdateCall: Call = Call("", "http://upate-contact-address")
@@ -130,7 +130,7 @@ class AddressLookupServiceSpec
         )
 
         await(addressLookupService.startLookupRedirectingBackTo(addressUpdateCall).value).left.value should be(
-          Error("Request was not accepted by the address lookup service")
+          Error("The request was refused by ALF")
         )
       }
 
@@ -140,7 +140,7 @@ class AddressLookupServiceSpec
         )
 
         await(addressLookupService.startLookupRedirectingBackTo(addressUpdateCall).value).left.value should be(
-          Error("Could not resolve address lookup redirect URL")
+          Error("The ALF user redirect URL is missing in the header")
         )
       }
     }
