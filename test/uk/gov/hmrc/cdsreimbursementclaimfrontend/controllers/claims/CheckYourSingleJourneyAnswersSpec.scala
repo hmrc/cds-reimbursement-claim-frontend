@@ -200,11 +200,11 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
     ),
     (
       messages(s"$checkYourAnswersKey.bank-details.sort-code.label"),
-      bankAccountDetails.sortCode.value
+      bankAccountDetails.sortCode.masked
     ),
     (
       messages(s"$checkYourAnswersKey.bank-details.account-number.label"),
-      bankAccountDetails.accountNumber.value
+      bankAccountDetails.accountNumber.masked
     )
   )
 }

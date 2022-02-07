@@ -57,6 +57,9 @@ final case class DisplayDeclaration(
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
 
+  def withBankDetails(bankDetails: Option[BankDetails]): DisplayDeclaration =
+    copy(displayResponseDetail = displayResponseDetail.copy(bankDetails = bankDetails))
+
 }
 
 object DisplayDeclaration {

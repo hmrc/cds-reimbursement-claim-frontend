@@ -155,7 +155,7 @@ final class RejectedGoodsMultipleJourney private (
   def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
 
-  def getBankAccountDetails: Option[BankAccountDetails] =
+  def computeBankAccountDetails: Option[BankAccountDetails] =
     Stream(
       answers.bankAccountDetails,
       getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
@@ -622,7 +622,10 @@ final class RejectedGoodsMultipleJourney private (
           Right(
             new RejectedGoodsMultipleJourney(
               answers
-                .copy(reimbursementMethod = Some(reimbursementMethodAnswer), bankAccountDetails = getBankAccountDetails)
+                .copy(
+                  reimbursementMethod = Some(reimbursementMethodAnswer),
+                  bankAccountDetails = computeBankAccountDetails
+                )
             )
           )
       } else

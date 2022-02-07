@@ -16,21 +16,26 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import cats.data.Validated.Valid
 import cats.data.Validated.invalidNel
 import cats.syntax.all._
-import cats.Eq
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.IncorrectAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
+import play.api.i18n.Messages
 
 final case class BankAccountDetails(
   accountName: AccountName,
   sortCode: SortCode,
   accountNumber: AccountNumber
-)
+) {
+
+  def masked(implicit messages: Messages): BankAccountDetails =
+    BankAccountDetails(accountName, SortCode(sortCode.masked), AccountNumber(accountNumber.masked))
+}
 
 object BankAccountDetails {
 

@@ -118,11 +118,11 @@ final class RejectedGoodsSingleJourney private (
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
 
-  def getBankAccountDetails: Option[BankAccountDetails] =
+  def computeBankAccountDetails: Option[BankAccountDetails] =
     Stream(
       answers.bankAccountDetails,
-      answers.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
-      answers.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
+      answers.displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
+      answers.displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
     ).find(_.nonEmpty).flatten
 
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
@@ -492,7 +492,7 @@ final class RejectedGoodsSingleJourney private (
             new RejectedGoodsSingleJourney(
               answers.copy(
                 reimbursementMethod = Some(reimbursementMethodAnswer),
-                bankAccountDetails = getBankAccountDetails
+                bankAccountDetails = computeBankAccountDetails
               )
             )
           )

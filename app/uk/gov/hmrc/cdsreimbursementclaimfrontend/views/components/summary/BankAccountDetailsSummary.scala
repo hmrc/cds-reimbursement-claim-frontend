@@ -22,11 +22,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
-/** def changeCall =
-  *      if (key.contains(checkYourAnswersKey))
-  *        routes.BankAccountController.checkBankAccountDetails(journey)
-  *      else routes.SelectBankAccountTypeController.selectBankAccountType(journey)
-  */
 object BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
 
   override def render(
@@ -57,12 +52,12 @@ object BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
         ),
         SummaryListRow(
           key = Key(Text(messages(s"$key.sort-code.label"))),
-          value = Value(Text(bankAccountDetails.sortCode.value)),
+          value = Value(Text(bankAccountDetails.sortCode.masked)),
           classes = "govuk-summary-list__row--no-border"
         ),
         SummaryListRow(
           key = Key(Text(messages(s"$key.account-number.label"))),
-          value = Value(Text(bankAccountDetails.accountNumber.value))
+          value = Value(Text(bankAccountDetails.accountNumber.masked))
         )
       )
     )

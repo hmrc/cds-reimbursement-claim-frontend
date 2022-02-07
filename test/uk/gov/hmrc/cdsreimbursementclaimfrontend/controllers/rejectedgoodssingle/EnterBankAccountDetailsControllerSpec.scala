@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -30,7 +29,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
@@ -46,11 +45,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 
 class EnterBankAccountDetailsControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -102,8 +100,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "the user has answered this question before" in forAll(completeJourneyNotCMAEligibleGen) { journey =>
-        val bankAccountDetails = journey.answers.bankAccountDetails
-        val updatedSession     = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -114,13 +111,9 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-details.account-name")   shouldBe Some(
-              bankAccountDetails.get.accountName.value
-            )
-            selectedInputBox(doc, "enter-bank-details.sort-code")      shouldBe Some(bankAccountDetails.get.sortCode.value)
-            selectedInputBox(doc, "enter-bank-details.account-number") shouldBe Some(
-              bankAccountDetails.get.accountNumber.value
-            )
+            selectedInputBox(doc, "enter-bank-details.account-name")   shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-details.sort-code")      shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-details.account-number") shouldBe Some("")
           }
         )
 

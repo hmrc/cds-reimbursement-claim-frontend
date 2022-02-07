@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckBankDetailsController @Inject() (
@@ -36,26 +35,40 @@ class CheckBankDetailsController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController {
 
   def show(): Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadWriteJourney { implicit request => journey =>
       val bankAccountTypeRoute = routes.ChooseBankAccountTypeController.show()
-      val continueRoute        =
-        if (journey.hasCompleteAnswers) checkYourAnswers
-        else routes.ChooseFileTypeController.show()
+      val continueRoute        = routes.ChooseFileTypeController.show()
 
-      journey.getBankAccountDetails
+      journey.computeBankAccountDetails
         .map { bankAccountDetails: BankAccountDetails =>
-          Future.successful(
-            Ok(
-              checkBankAccountDetailsPage(
-                bankAccountDetails,
-                continueRoute,
+          journey
+            .submitBankAccountDetails(bankAccountDetails)
+            .fold(
+              _ => (journey, Redirect(continueRoute)),
+              journeyWithBankDetails =>
+                (
+                  journeyWithBankDetails,
+                  Ok(
+                    checkBankAccountDetailsPage(
+                      bankAccountDetails.masked,
+                      continueRoute,
+                      bankAccountTypeRoute
+                    )
+                  )
+                )
+            )
+        }
+        .getOrElse {
+          (
+            journey,
+            Redirect(
+              if (journey.needsBanksAccountDetailsSubmission)
                 bankAccountTypeRoute
-              )
+              else
+                continueRoute
             )
           )
         }
-        .getOrElse {
-          Future.successful(Redirect(bankAccountTypeRoute))
-        }
+        .asFuture
     }
 }
