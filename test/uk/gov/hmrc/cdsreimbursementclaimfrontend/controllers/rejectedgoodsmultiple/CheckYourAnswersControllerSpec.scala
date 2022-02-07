@@ -103,11 +103,27 @@ class CheckYourAnswersControllerSpec
     summaryValues      should not be empty
     summaryKeys.size shouldBe summaryValues.size
 
-    headers should contain allOf ("Movement Reference Number (MRN)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Repayment method", "Supporting documents", "Now send your application")
+    headers should contain allOf ("Movement Reference Numbers (MRNs)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Repayment method", "Supporting documents", "Now send your application")
 
-    summaryKeys should contain allOf ("MRN", "Contact details", "Contact address", "This is the basis behind the claim", "This is how the goods will be disposed of", "These are the details of the rejected goods", "Total", "Inspection date", "Inspection address type", "Inspection address", "Method", "Uploaded")
+    val mrnKeys: Seq[String] =
+      (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber.label(i).capitalize} MRN")
 
-    summary("MRN")                                         shouldBe claim.movementReferenceNumbers.head.value
+    summaryKeys should contain allOf ("Contact details", "Contact address", (mrnKeys ++ Seq(
+      "This is the basis behind the claim",
+      "This is how the goods will be disposed of",
+      "These are the details of the rejected goods",
+      "Total",
+      "Inspection date",
+      "Inspection address type",
+      "Inspection address",
+      "Method",
+      "Uploaded"
+    )): _*)
+
+    mrnKeys.zip(claim.movementReferenceNumbers).foreach { case (key, mrn) =>
+      summary(key) shouldBe mrn.value
+    }
+
     summary("Contact details")                             shouldBe s"${claim.claimantInformation.summaryContact(" ")}"
     summary("Contact address")                             shouldBe s"${claim.claimantInformation.summaryAddress(" ")}"
     summary("This is the basis behind the claim")          shouldBe messages(
@@ -126,11 +142,11 @@ class CheckYourAnswersControllerSpec
     )
     summary("Inspection address")                          shouldBe claim.inspectionAddress.summaryAddress(" ")
 
-    // claim.reimbursementClaims.foreach { case (taxCode, amount) =>
-    //   summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString
-    // }
+    claim.reimbursementClaims.foreach { case (mrn, claims) =>
+      summary(mrn.value) shouldBe claims.values.sum.toPoundSterlingString
+    }
 
-    //summary("Total") shouldBe claim.reimbursementClaims.values.sum.toPoundSterlingString
+    summary("Total") shouldBe claim.reimbursementClaims.values.map(_.values.sum).sum.toPoundSterlingString
 
     claim.bankAccountDetails.foreach { value =>
       headers                          should contain("Bank details")

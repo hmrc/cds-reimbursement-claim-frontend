@@ -21,7 +21,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,7 +36,7 @@
 @(form: Form[MRN], subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number"}
-@title = @{messages(lang(key, subKey, "title"))}
+@title = @{messages(combine(key, subKey, "title"))}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -48,13 +48,13 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(lang(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
         @inputText(
             form = form,
             id = key,
             name = key,
-            label = lang(key, subKey, "enter-mrn.label").head,
+            label = combine(key, subKey, "enter-mrn.label").head,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(s"$key.help")

@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
@@ -46,8 +46,8 @@
 
     @pageHeading(title)
 
-    @pageHeading(messages(lang(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
-    @summary(MovementReferenceNumberSummary(claim.movementReferenceNumbers.head, s"$key.reference-number", subKey))
+    @pageHeading(messages(combine(s"$key.reference-number.multiple", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"$key.reference-number.rejectedgoodsmultiple", subKey, None))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
@@ -72,11 +72,11 @@
     @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey))
     
     @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ReimbursementsClaimsSummary(Seq.empty, s"$key.claim-total", subKey))
+    @summary(ReimbursementsClaimsSummary.multiple(claim.reimbursementClaims, s"$key.claim-total"))
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.WorkInProgressController.show(), routes.WorkInProgressController.show()))
-    
+
     @pageHeading(messages(s"$key.repayment-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod,s"$key.repayment-method", subKey))
 

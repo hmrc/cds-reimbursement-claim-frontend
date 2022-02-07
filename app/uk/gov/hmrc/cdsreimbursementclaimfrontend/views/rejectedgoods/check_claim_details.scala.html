@@ -54,7 +54,7 @@
 
     @pageHeading(messages(s"$key.mrn.label", mrn.value), "govuk-heading-m", "h2")
 
-    @summary(ReimbursementsClaimsSummary(claims, key, changeLink))
+    @summary(ReimbursementsClaimsSummary.single(claims, key, Some(changeLink)))
 
     @formWithCSRF(submitLink, 'novalidate -> "novalidate") {
         @radios(
