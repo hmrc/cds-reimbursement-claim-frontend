@@ -142,11 +142,11 @@ class CheckYourAnswersControllerSpec
     )
     summary("Inspection address")                          shouldBe claim.inspectionAddress.summaryAddress(" ")
 
-    // claim.reimbursementClaims.foreach { case (taxCode, amount) =>
-    //   summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString
-    // }
+    claim.reimbursementClaims.foreach { case (mrn, claims) =>
+      summary(mrn.value) shouldBe claims.values.sum.toPoundSterlingString
+    }
 
-    //summary("Total") shouldBe claim.reimbursementClaims.values.sum.toPoundSterlingString
+    summary("Total") shouldBe claim.reimbursementClaims.values.map(_.values.sum).sum.toPoundSterlingString
 
     claim.bankAccountDetails.foreach { value =>
       headers                          should contain("Bank details")

@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
@@ -46,8 +46,8 @@
 
     @pageHeading(title)
 
-    @pageHeading(messages(lang(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
-    @summary(MovementReferenceNumberSummary(claim.movementReferenceNumber, s"$key.reference-number", subKey, routes.EnterMovementReferenceNumberController.show()))
+    @pageHeading(messages(combine(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
@@ -72,7 +72,7 @@
     @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
     
     @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ReimbursementsClaimsSummary(claim.reimbursementClaims.toSeq, s"$key.claim-total", subKey))
+    @summary(ReimbursementsClaimsSummary.single(claim.reimbursementClaims.toSeq, s"$key.claim-total"))
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))

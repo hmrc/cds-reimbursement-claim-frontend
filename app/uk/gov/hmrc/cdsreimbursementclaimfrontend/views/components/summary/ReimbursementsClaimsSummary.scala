@@ -22,14 +22,14 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
-object ReimbursementsClaimsSummary extends AnswerSummary[Seq[(TaxCode, BigDecimal)]] {
+object ReimbursementsClaimsSummary {
 
-  override def render(
+  def single(
     reimbursementClaims: Seq[(TaxCode, BigDecimal)],
     key: String,
-    subKey: Option[String],
-    changeCallOpt: Option[Call]
+    changeCallOpt: Option[Call] = None
   )(implicit
     messages: Messages
   ): SummaryList =
@@ -59,4 +59,54 @@ object ReimbursementsClaimsSummary extends AnswerSummary[Seq[(TaxCode, BigDecima
           )
         )
     )
+
+  def multiple(
+    reimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]],
+    key: String,
+    changeCallOpt: Option[Call] = None
+  )(implicit
+    messages: Messages
+  ): SummaryList = {
+    val totalAmount: BigDecimal =
+      reimbursementClaims.flatMap(_._2.map(_._2)).sum
+
+    SummaryList(rows =
+      reimbursementClaims.toSeq
+        .map { case (mrn, claims) =>
+          SummaryListRow(
+            key = Key(Text(mrn.value)),
+            value = Value(Text(claims.map(_._2).sum.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.duty.label", mrn.value))
+                  )
+                )
+              )
+            ),
+            classes = "summary-key-mrn"
+          )
+        } ++
+        Seq(
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.multiple.total"))),
+            value = Value(Text(totalAmount.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.multiple.total"))
+                  )
+                )
+              )
+            )
+          )
+        )
+    )
+  }
 }

@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,7 +36,7 @@
 @(form: Form[MRN], refNumberKey: Option[String], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-duplicate-movement-reference-number"}
-@title = @{messages(lang(key, refNumberKey, "title"))}
+@title = @{messages(combine(key, refNumberKey, "title"))}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -48,16 +48,16 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(lang(key, refNumberKey, "help-text"))), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(combine(key, refNumberKey, "help-text"))), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
         @inputText(
             form = form,
             id = key,
             name = key,
-            label = lang(key, refNumberKey, "input-title").head,
+            label = combine(key, refNumberKey, "input-title").head,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
-            hint = lang(key, refNumberKey, "help").headOption
+            hint = combine(key, refNumberKey, "help").headOption
         )
 
         @submitButton("button.continue")

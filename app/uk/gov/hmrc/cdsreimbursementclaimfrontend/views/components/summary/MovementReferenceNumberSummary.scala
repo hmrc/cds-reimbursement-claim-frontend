@@ -18,20 +18,21 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper.combine
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 
-object MovementReferenceNumberSummary extends AnswerSummary[MRN] {
+object MovementReferenceNumberSummary {
 
-  override def render(answer: MRN, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
+  def single(answer: MRN, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(lang(key, subKey, "label")))),
+          key = Key(Text(messages(combine(key, subKey, "label")))),
           value = Value(Text(answer.value)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
@@ -39,12 +40,35 @@ object MovementReferenceNumberSummary extends AnswerSummary[MRN] {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(lang(key, subKey, "label")))
+                  visuallyHiddenText = Some(messages(combine(key, subKey, "label")))
                 )
               )
             )
           )
         )
       )
+    )
+
+  def multiple(mrns: Seq[MRN], key: String, subKey: Option[String], changeCallOpt: Option[Int => Call])(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      mrns.zipWithIndex.map { case (mrn, index) =>
+        SummaryListRow(
+          key = Key(Text(messages(combine(key, subKey, "label"), OrdinalNumber.label(index + 1).capitalize))),
+          value = Value(Text(mrn.value)),
+          actions = changeCallOpt.map(changeCallFx =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCallFx(index).url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(combine(key, subKey, "label"), OrdinalNumber.label(index)))
+                )
+              )
+            )
+          )
+        )
+      }
     )
 }

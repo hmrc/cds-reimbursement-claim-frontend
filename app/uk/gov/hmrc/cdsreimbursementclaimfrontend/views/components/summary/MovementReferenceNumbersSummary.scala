@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.LeadMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper.combine
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
@@ -35,7 +35,7 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
 
     def toLeadMrnSummary: LeadMrn => SummaryListRow = leadMrn =>
       SummaryListRow(
-        key = Key(Text(messages(lang(key, subKey, "label")))),
+        key = Key(Text(messages(combine(key, subKey, "label")))),
         value = Value(Text(leadMrn.value)),
         actions = changeCallOpt.map(changeCall =>
           Actions(items =
