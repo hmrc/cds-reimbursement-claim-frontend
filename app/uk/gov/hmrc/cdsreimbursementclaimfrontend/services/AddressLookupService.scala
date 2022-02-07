@@ -114,15 +114,20 @@ class DefaultAddressLookupService @Inject() (
           .mkString("Error parsing address lookup response:", "; ", "")
       )
 
+    logger.debug(s"Retrieving ALF user address by ID: ${addressId.toString}")
+
     connector
       .retrieveAddress(addressId)
       .ensure(Error(s"Cannot retrieve an address by ID $addressId"))(_.status === OK)
-      .subflatMap(
-        _.json
-          .validate[ContactAddress](addressLookupResponseReads)
-          .asEither
-          .leftMap(formatErrors)
-      )
+      .subflatMap { response =>
+        logger.debug(s"Received ALF response with status ${response.status} and body '${response.body}'")
+        if (response.status === OK)
+          response.json
+            .validate[ContactAddress](addressLookupResponseReads)
+            .asEither
+            .leftMap(formatErrors)
+        else Left(Error("Failed to retrieve ALF address"))
+      }
   }
 }
 
