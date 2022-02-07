@@ -76,7 +76,7 @@ class DefaultAddressLookupService @Inject() (
     )
 
   def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
-    val request =
+    val request: AddressLookupRequest =
       AddressLookupRequest
         .redirectBackTo(addressUpdateUrl)
         .signOutUserVia(viewConfig.signOutUrl)
