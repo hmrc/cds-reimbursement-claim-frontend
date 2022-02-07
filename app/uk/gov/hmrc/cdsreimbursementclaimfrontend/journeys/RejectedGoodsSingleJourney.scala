@@ -259,6 +259,22 @@ final class RejectedGoodsSingleJourney private (
   ): Either[String, RejectedGoodsSingleJourney] =
     if (isFinalized) Left(RejectedGoodsSingleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
+  //def submitBasisOfClaim(basisOfClaim: BasisOfRejectedGoodsClaim): RejectedGoodsSingleJourney =
+  //    whileJourneyIsAmendable {
+  //      basisOfClaim match {
+  //        case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
+  //          new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+  //
+  //        case _ =>
+  //          new RejectedGoodsSingleJourney(
+  //            answers.copy(
+  //              basisOfClaim = Some(basisOfClaim),
+  //              basisOfClaimSpecialCircumstances = None
+  //            )
+  //          )
+  //      }
+  //    }
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */

@@ -1,3 +1,6 @@
+GET          /rejected-goods/choose-how-many-mrns                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseHowManyMrnsController.show()
+POST         /rejected-goods/choose-how-many-mrns                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseHowManyMrnsController.submit()
+
 GET          /rejected-goods/single/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterMovementReferenceNumberController.show()
 POST         /rejected-goods/single/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterMovementReferenceNumberController.submit()
 
