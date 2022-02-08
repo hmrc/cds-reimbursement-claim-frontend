@@ -913,6 +913,8 @@ bank-details.sort-code.label=Sort code
 bank-details.account-number.label=Account number
 bank-details.change=Change
 bank-details.different-details-link=<a href="{0}" class="govuk-link">Enter different bank details</a>
+sort-code.mask=Ending with {0}
+account-number.mask=Ending with {0}
 
 #===================================================
 #  SELECT BANK ACCOUNT TYPE PAGE

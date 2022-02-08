@@ -20,8 +20,13 @@ import play.api.libs.functional.syntax.toInvariantFunctorOps
 import play.api.libs.json.Format
 
 import java.util.function.Predicate
+import play.api.i18n.Messages
 
-final case class SortCode(value: String) extends AnyVal
+final case class SortCode(value: String) extends AnyVal {
+
+  def masked(implicit messages: Messages): String =
+    messages("sort-code.mask", value.takeRight(2))
+}
 
 object SortCode {
 

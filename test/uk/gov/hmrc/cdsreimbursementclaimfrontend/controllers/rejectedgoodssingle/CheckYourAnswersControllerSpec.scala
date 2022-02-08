@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -33,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
@@ -49,11 +48,10 @@ import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   val mockConnector: RejectedGoodsSingleClaimConnector       = mock[RejectedGoodsSingleClaimConnector]
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
@@ -136,6 +134,8 @@ class CheckYourAnswersControllerSpec
       headers                          should contain("Bank details")
       summaryKeys                      should contain allOf ("Name on the account", "Sort code", "Account number")
       summary("Name on the account") shouldBe value.accountName.value
+      summary("Sort code")           shouldBe value.sortCode.masked
+      summary("Account number")      shouldBe value.accountNumber.masked
     }
 
     claim.basisOfClaimSpecialCircumstances.foreach { value =>

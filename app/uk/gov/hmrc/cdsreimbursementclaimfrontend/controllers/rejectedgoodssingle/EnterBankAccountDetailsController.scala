@@ -40,10 +40,9 @@ class EnterBankAccountDetailsController @Inject() (
   val formKey: String          = "enter-bank-details"
   private val postAction: Call = routes.EnterBankAccountDetailsController.submit()
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Future.successful {
-      val form = enterBankDetailsForm.withDefault(journey.answers.bankAccountDetails)
-
+      val form = enterBankDetailsForm
       Ok(enterBankAccountDetailsPage(form, postAction))
     }
   }

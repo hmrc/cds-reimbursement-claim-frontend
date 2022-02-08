@@ -46,6 +46,7 @@ import scala.concurrent.Future
 import scala.reflect.ClassTag
 import org.scalactic.source.Position
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 @Singleton
 class TestMessagesApi(
@@ -244,4 +245,16 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     val input = doc.select(s"input.govuk-input[checked]")
     if (input.size() =!= 0) Some(input.`val`()) else None
   }
+
+  def summaryKeyValueMap(doc: Document): Map[String, String] = {
+    val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+    val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+    summaryKeys.asScala.zip(summaryValues.asScala).toMap
+  }
+}
+
+trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks {
+
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 100)
 }
