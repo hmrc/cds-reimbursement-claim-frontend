@@ -22,7 +22,7 @@ sealed trait RejectedGoodsJourneyType
 
 object RejectedGoodsJourneyType extends EnumerationFormat[RejectedGoodsJourneyType] {
 
-  case object Single extends RejectedGoodsJourneyType
+  case object Individual extends RejectedGoodsJourneyType
   case object Multiple extends RejectedGoodsJourneyType
   case object Scheduled extends RejectedGoodsJourneyType
 

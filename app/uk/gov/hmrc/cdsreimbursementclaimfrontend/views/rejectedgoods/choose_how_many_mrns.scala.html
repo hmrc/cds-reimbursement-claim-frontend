@@ -22,7 +22,11 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -34,21 +38,11 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
+
 @(form: Form[RejectedGoodsJourneyType], journeyTypes: Set[RejectedGoodsJourneyType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"rejected-goods.how-many-mrns"}
+@key = @{"rejected-goods.choose-how-many-mrns"}
 @title = @{messages(s"$key.title")}
-
-@radioItems = @{
-    journeyTypes.map { journey =>
-        RadioItem(
-            id = Some(s"$key-radio-$journey"),
-            value = Some(journey.toString),
-            content = Text(messages(s"$key.reason.$journey")),
-            checked = form.value.contains(journey)
-        )
-    }.toList
-}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -58,7 +52,9 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
+
+    @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -67,10 +63,32 @@
             name = key,
             legend = title,
             legendAsHeading = false,
+            hintKey = None,
             classes = "govuk-visually-hidden",
-            items = radioItems
+            items = Seq(
+                RadioItem(
+                    id = Some(s"$key.individual"),
+                    value = Some(Individual.toString),
+                    content = Text(messages(s"$key.individual.title")),
+                    checked = form.value.contains(Individual)
+                ),
+                RadioItem(
+                    id = Some(s"$key.multiple"),
+                    value = Some(Multiple.toString),
+                    content = Text(messages(s"$key.multiple.title")),
+                    checked = form.value.contains(Multiple)
+                ),
+                RadioItem(
+                    id = Some(s"$key.scheduled"),
+                    value = Some(Scheduled.toString),
+                    content = Text(messages(s"$key.scheduled.title")),
+                    hint = Some(Hint(content = Text(messages(s"$key.scheduled.hint")))),
+                    checked = form.value.contains(Scheduled)
+                )
+            )
         )
 
         @submitButton("button.continue")
+
     }
 }
