@@ -18,32 +18,32 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.OptionValues
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import play.api.i18n.MessagesImpl
+import play.api.i18n.Lang
 
 class CheckBankDetailsControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckPropertyChecks
     with MockFactory
     with OptionValues {
 
@@ -61,28 +61,54 @@ class CheckBankDetailsControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)
 
-  private def sessionWithMaskedBankDetails(maybeMaskedBankDetails: Option[BankDetails]): SessionData = {
-    val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
-    val displayDeclaration    = sample[DisplayDeclaration].copy(displayResponseDetail = displayResponseDetail)
+  private def sessionWithBankDetailsInACC14(maybeBankDetails: Option[BankDetails]): SessionData = {
+    val displayDeclaration: DisplayDeclaration =
+      displayDeclarationGen.sample.get.withBankDetails(maybeBankDetails)
 
     val rejectedGoodsSingleJourney: RejectedGoodsSingleJourney =
       RejectedGoodsSingleJourney
         .empty(sample[Eori])
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-        .getOrElse(fail())
+        .getOrFail
 
     SessionData.empty.copy(
       rejectedGoodsSingleJourney = Some(rejectedGoodsSingleJourney)
     )
   }
 
+  private def sessionWithBankDetailsNotNeeded(): SessionData = {
+    val displayDeclaration: DisplayDeclaration =
+      displayDeclarationCMAEligibleGen.sample.get
+
+    val rejectedGoodsSingleJourney: RejectedGoodsSingleJourney =
+      RejectedGoodsSingleJourney
+        .empty(sample[Eori])
+        .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(displayDeclaration.getAvailableTaxCodes.take(1)))
+        .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
+        .getOrFail
+
+    SessionData.empty.copy(
+      rejectedGoodsSingleJourney = Some(rejectedGoodsSingleJourney)
+    )
+  }
+
+  private def sessionWithBankDetailsStored(
+    session: SessionData,
+    bankAccountDetails: BankAccountDetails
+  ): SessionData =
+    session.copy(rejectedGoodsSingleJourney =
+      session.rejectedGoodsSingleJourney
+        .flatMap(_.submitBankAccountDetails(bankAccountDetails).toOption)
+    )
+
   "Check Bank Details Controller" when {
 
     "Check Bank Account Details" should {
 
-      "Redirect when MaskedBankDetails is empty" in {
-        val maskedBankDetails = BankDetails(None, None)
-        val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+      "Redirect when BankDetails is empty and required" in {
+        val bankDetails = BankDetails(None, None)
+        val session     = sessionWithBankDetailsInACC14(Some(bankDetails))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -96,8 +122,8 @@ class CheckBankDetailsControllerSpec
 
       }
 
-      "Redirect when MaskedBankDetails is None" in {
-        val session = sessionWithMaskedBankDetails(None)
+      "Redirect when BankDetails is None and required" in {
+        val session = sessionWithBankDetailsInACC14(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -109,30 +135,91 @@ class CheckBankDetailsControllerSpec
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
       }
 
-      "Ok when MaskedBankDetails has consigneeBankDetails" in forAll(genMaskedBankAccountDetails) {
-        consigneeDetails: BankAccountDetails =>
-          val maskedBankDetails = BankDetails(Some(consigneeDetails), None)
-          val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+      "Redirect when BankDetails are not required" in {
+        val session = sessionWithBankDetailsNotNeeded()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        val request = FakeRequest()
+        val result  = controller.show()(request)
+        checkIsRedirect(result, routes.ChooseFileTypeController.show())
+      }
+
+      "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {
+        consigneeBankDetails: BankAccountDetails =>
+          val bankDetails     = BankDetails(Some(consigneeBankDetails), None)
+          val session         = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val modifiedSession = sessionWithBankDetailsStored(session, consigneeBankDetails)
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
+            mockStoreSession(modifiedSession)(Right(()))
           }
-          val request           = FakeRequest()
-          val result            = controller.show()(request)
-          status(result) shouldBe OK
+          val request         = FakeRequest()
+          val result          = controller.show()(request)
+
+          checkPageIsDisplayed(
+            result,
+            messageFromMessageKey(s"bank-details.title"),
+            doc =>
+              summaryKeyValueMap(doc) shouldBe Map(
+                "Name on the account" -> consigneeBankDetails.accountName.value,
+                "Sort code"           -> consigneeBankDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
+                "Account number"      -> consigneeBankDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
+              )
+          )
       }
 
-      "Ok when MaskedBankDetails has declarantBankDetails" in forAll(genMaskedBankAccountDetails) {
+      "Ok when BankDetails has declarantBankDetails" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
-          val maskedBankDetails = BankDetails(None, Some(declarantBankDetails))
-          val session           = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+          val bankDetails     = BankDetails(None, Some(declarantBankDetails))
+          val session         = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val modifiedSession = sessionWithBankDetailsStored(session, declarantBankDetails)
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
+            mockStoreSession(modifiedSession)(Right(()))
           }
-          val request           = FakeRequest()
-          val result            = controller.show()(request)
-          status(result) shouldBe OK
+          val request         = FakeRequest()
+          val result          = controller.show()(request)
+
+          checkPageIsDisplayed(
+            result,
+            messageFromMessageKey(s"bank-details.title"),
+            doc =>
+              summaryKeyValueMap(doc) shouldBe Map(
+                "Name on the account" -> declarantBankDetails.accountName.value,
+                "Sort code"           -> declarantBankDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
+                "Account number"      -> declarantBankDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
+              )
+          )
+      }
+
+      "Ok when in change mode" in forAll(
+        buildCompleteJourneyGen(reimbursementMethod = Some(ReimbursementMethodAnswer.BankAccountTransfer))
+      ) { journey =>
+        val session            = SessionData(journey)
+        val bankAccountDetails = journey.answers.bankAccountDetails.get
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val request            = FakeRequest()
+        val result             = controller.show()(request)
+
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey(s"bank-details.title"),
+          doc =>
+            summaryKeyValueMap(doc) shouldBe Map(
+              "Name on the account" -> bankAccountDetails.accountName.value,
+              "Sort code"           -> bankAccountDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
+              "Account number"      -> bankAccountDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
+            )
+        )
       }
     }
   }

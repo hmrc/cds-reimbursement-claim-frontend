@@ -185,6 +185,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           RetrievedUserType
             .Organisation(
               GGCredId("id"),
+              Some(Email("email")),
               eori,
               None
             )

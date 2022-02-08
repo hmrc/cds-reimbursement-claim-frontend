@@ -27,7 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
@@ -48,7 +48,7 @@
 
 @mrnSummary = @{
     def leadMrnSummary(maybeLeadMrn: Option[MRN]): SummaryList =
-        maybeLeadMrn.fold(SummaryList())(mrn => MovementReferenceNumberSummary(mrn, s"$key.reference-number", subKey,claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)))
+        maybeLeadMrn.fold(SummaryList())(mrn => MovementReferenceNumberSummary.single(mrn, s"$key.reference-number", subKey,Some(claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))))
 
     def multipleMrnsSummary(maybeLeadMrn: Option[MRN]): AssociatedMRNsAnswer => SummaryList = mrns =>
         MovementReferenceNumbersSummary(maybeLeadMrn.toList ++ mrns.toList, s"$key.reference-number", subKey,claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))
@@ -68,7 +68,7 @@
 
     @pageHeading(title)
 
-    @pageHeading(messages(lang(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @pageHeading(messages(combine(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
     @summary(mrnSummary)
 
     @claim.scheduledDocumentAnswer.map { scheduledDocument =>
@@ -110,7 +110,7 @@
         @if(claim.typeOfClaim.isEmpty ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Individual) ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Scheduled)) {
-            @pageHeading(messages(lang(s"$key.claim-calculation", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @pageHeading(messages(combine(s"$key.claim-calculation", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
             @summary(ClaimedReimbursementsAnswerSummary(reimbursement,s"$key.claim-calculation",subKey, if (journey == JourneyBindable.Scheduled) claimRoutes.CheckScheduledClaimController.showReimbursements() else claimRoutes.EnterSingleClaimController.checkClaimSummary()))
         }
     }

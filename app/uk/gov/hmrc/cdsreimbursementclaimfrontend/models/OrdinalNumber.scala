@@ -16,28 +16,23 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
-
-import java.util.function.Predicate
+import cats.syntax.eq._
 import play.api.i18n.Messages
 
-final case class AccountNumber(value: String) extends AnyVal {
+/** This is an I18N-aware replacement for [[OrdinalNumeral]] */
+object OrdinalNumber {
 
-  def masked(implicit messages: Messages): String =
-    messages("account-number.mask", value.takeRight(4))
-}
-
-object AccountNumber {
-
-  private val regex: Predicate[String] = "^\\d+$".r.pattern.asPredicate()
-
-  def hasValidLength(value: String): Boolean =
-    value.length >= 6 && value.length <= 8
-
-  def isValid(value: String): Boolean =
-    regex.test(value)
-
-  implicit val accountNumberFormat: Format[AccountNumber] =
-    SimpleStringFormat(AccountNumber(_), _.value)
+  def label(index: Int)(implicit messages: Messages): String = {
+    val i     = Math.abs(index)
+    val key   = s"ordinal.label.$i"
+    val label = messages(key)
+    if (label === key) { // if there is no ordinal for number
+      val key    = s"ordinal.suffix.${if (i > 9 && i < 20) "1x" else i % 10}"
+      val suffix = messages(key)
+      if (suffix === key) // if there is no suffix for number
+        s"$i"
+      else
+        s"$i$suffix"
+    } else label
+  }
 }

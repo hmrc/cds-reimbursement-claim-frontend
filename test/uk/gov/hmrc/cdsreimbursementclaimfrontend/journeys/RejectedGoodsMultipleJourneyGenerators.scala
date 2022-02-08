@@ -140,6 +140,9 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     submitConsigneeDetails: Boolean = true,
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     minNumberOfMRNs: Int = 2,
     maxSize: Int = 5
   ): Gen[RejectedGoodsMultipleJourney] =
@@ -151,6 +154,9 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
       submitConsigneeDetails = submitConsigneeDetails,
       submitContactDetails = submitContactDetails,
       submitContactAddress = submitContactAddress,
+      submitBankAccountDetails = submitBankAccountDetails,
+      submitBankAccountType = submitBankAccountType,
+      reimbursementMethod = reimbursementMethod,
       minNumberOfMRNs = minNumberOfMRNs,
       maxSize = maxSize
     ).map(
@@ -188,6 +194,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     minNumberOfMRNs: Int = 2,
     maxSize: Int = 5
   ): Gen[Either[String, RejectedGoodsMultipleJourney]] =
@@ -200,7 +207,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
       taxCodesWithAmounts <- Gen.sequence(mrns.map(_ => taxCodesAndAmountsGen(maxSize))).map(_.asScala)
       basisOfClaim        <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal    <- Gen.oneOf(MethodOfDisposal.values)
-      reimbursementMethod <- Gen.oneOf(ReimbursementMethodAnswer.values)
+      reimbursementMethod <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethodAnswer.values))
 
       numberOfSupportingEvidences <- Gen.choose(1, maxSize)
       numberOfDocumentTypes       <- Gen.choose(1, maxSize - 1)

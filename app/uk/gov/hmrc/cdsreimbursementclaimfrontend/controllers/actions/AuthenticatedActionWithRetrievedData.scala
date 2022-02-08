@@ -94,7 +94,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
             case Some(AffinityGroup.Organisation) =>
               handleIndividualOrOrganisation(
                 Left(AffinityGroup.Organisation),
-                None,
+                maybeEmail,
                 enrolments,
                 ggCredId,
                 name,
@@ -172,7 +172,8 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
       } else {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType.Organisation(ggCredId, eori, models.contactdetails.Name.fromGGName(name)),
+          RetrievedUserType
+            .Organisation(ggCredId, maybeEmail.map(Email(_)), eori, models.contactdetails.Name.fromGGName(name)),
           Some(userType),
           request
         )

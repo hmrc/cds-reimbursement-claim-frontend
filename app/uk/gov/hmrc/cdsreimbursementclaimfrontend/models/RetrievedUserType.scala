@@ -22,7 +22,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 
-sealed trait RetrievedUserType extends Product with Serializable
+sealed trait RetrievedUserType {
+  def name: Option[Name]
+  def email: Option[Email]
+}
 
 object RetrievedUserType {
 
@@ -35,11 +38,15 @@ object RetrievedUserType {
 
   final case class Organisation(
     ggCredId: GGCredId,
+    email: Option[Email],
     eori: Eori,
     name: Option[Name]
   ) extends RetrievedUserType
 
-  final case class NonGovernmentGatewayRetrievedUser(authProvider: String) extends RetrievedUserType
+  final case class NonGovernmentGatewayRetrievedUser(authProvider: String) extends RetrievedUserType {
+    override val name: Option[Name]   = None
+    override val email: Option[Email] = None
+  }
 
   object NonGovernmentGatewayRetrievedUser {
     implicit val format: OFormat[NonGovernmentGatewayRetrievedUser] = Json.format[NonGovernmentGatewayRetrievedUser]

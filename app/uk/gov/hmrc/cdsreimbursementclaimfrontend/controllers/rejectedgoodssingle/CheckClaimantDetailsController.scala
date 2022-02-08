@@ -50,12 +50,18 @@ class CheckClaimantDetailsController @Inject() (
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-    val changeCd   = routes.EnterContactDetailsController.show()
-    val postAction = routes.CheckClaimantDetailsController.submit()
+    val changeCd                                   = routes.EnterContactDetailsController.show()
+    val postAction                                 = routes.CheckClaimantDetailsController.submit()
+    val (maybeContactDetails, maybeAddressDetails) =
+      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
     Future.successful(
-      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
+      (maybeContactDetails, maybeAddressDetails) match {
         case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction))
-        case _                    => Redirect(routes.EnterMovementReferenceNumberController.show())
+        case _                    =>
+          logger.warn(
+            s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
+          )
+          Redirect(routes.EnterMovementReferenceNumberController.show())
       }
     )
   }

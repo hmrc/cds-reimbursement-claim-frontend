@@ -20,7 +20,7 @@ import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper.combine
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -45,7 +45,7 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
         value = Value()
       ).some,
       SummaryListRow(
-        key = Key(Text(messages(lang(key, subKey, "mrn-label")))),
+        key = Key(Text(messages(combine(key, subKey, "mrn-label")))),
         value = Value(Text(declaration.displayResponseDetail.declarationId))
       ).some,
       SummaryListRow(

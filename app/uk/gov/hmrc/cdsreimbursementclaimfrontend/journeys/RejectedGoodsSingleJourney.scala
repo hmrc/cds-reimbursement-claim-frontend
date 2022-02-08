@@ -119,11 +119,11 @@ final class RejectedGoodsSingleJourney private (
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
 
-  def getBankAccountDetails: Option[BankAccountDetails] =
+  def computeBankAccountDetails: Option[BankAccountDetails] =
     Stream(
       answers.bankAccountDetails,
-      answers.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
-      answers.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
+      answers.displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
+      answers.displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
     ).find(_.nonEmpty).flatten
 
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
@@ -204,36 +204,35 @@ final class RejectedGoodsSingleJourney private (
     answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
     retrievedUser
   ) match {
-    case (details @ Some(_), _, _, _)                                                                       =>
+    case (details @ Some(_), _, _, _)                                                                              =>
       details
-    case (_, Some(consigneeContactDetails), _, individual: Individual)
-        if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+    case (_, Some(consigneeContactDetails), _, user) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
       Some(
         MrnContactDetails(
           consigneeContactDetails.contactName.getOrElse(""),
           consigneeContactDetails.emailAddress
-            .fold(individual.email.getOrElse(Email("")))(address => Email(address)),
+            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
           consigneeContactDetails.telephone.map(PhoneNumber(_))
         )
       )
-    case (_, None, _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+    case (_, None, _, user) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)                          =>
       Some(
         MrnContactDetails(
-          individual.name.map(_.toFullName).getOrElse(""),
-          individual.email.getOrElse(Email("")),
+          user.name.map(_.toFullName).getOrElse(""),
+          user.email.getOrElse(Email("")),
           None
         )
       )
-    case (_, _, Some(declarantContactDetails), individual: Individual)                                      =>
+    case (_, _, Some(declarantContactDetails), user)                                                               =>
       Some(
         MrnContactDetails(
           declarantContactDetails.contactName.getOrElse(""),
           declarantContactDetails.emailAddress
-            .fold(individual.email.getOrElse(Email("")))(address => Email(address)),
+            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
           declarantContactDetails.telephone.map(PhoneNumber(_))
         )
       )
-    case _                                                                                                  => None
+    case _                                                                                                         => None
   }
 
   def computeAddressDetails: Option[ContactAddress] = (
@@ -493,7 +492,7 @@ final class RejectedGoodsSingleJourney private (
             new RejectedGoodsSingleJourney(
               answers.copy(
                 reimbursementMethod = Some(reimbursementMethodAnswer),
-                bankAccountDetails = getBankAccountDetails
+                bankAccountDetails = computeBankAccountDetails
               )
             )
           )

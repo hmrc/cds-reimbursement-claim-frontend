@@ -20,7 +20,6 @@ import cats.implicits.catsSyntaxOptionId
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.EitherValues
 import org.scalatest.OptionValues
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -34,7 +33,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -59,11 +58,10 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class ChooseInspectionAddressTypeControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
     with AddressLookupSupport
     with OptionValues
     with EitherValues {
@@ -87,9 +85,6 @@ class ChooseInspectionAddressTypeControllerSpec
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   override def beforeEach(): Unit = featureSwitch enable Feature.RejectedGoods
-
-  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 1)
 
   implicit val ec: ExecutionContext = ExecutionContext.global
 
@@ -263,29 +258,31 @@ class ChooseInspectionAddressTypeControllerSpec
     }
 
     "redirect to CYA page" when {
-      "journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
-        val sessionWitJourney = session.copy(rejectedGoodsSingleJourney = journey.some)
+      "journey is complete" in forAll(completeJourneyGen) { journey =>
+        whenever(journey.getDeclarantContactDetailsFromACC14.isDefined) {
+          val sessionWithJourney = SessionData(journey)
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(sessionWitJourney)
-          mockStoreSession(
-            sessionWitJourney.copy(rejectedGoodsSingleJourney =
-              sessionWitJourney.rejectedGoodsSingleJourney.map(
-                _.submitInspectionAddress(
-                  InspectionAddress
-                    .ofType(InspectionAddressType.Declarant)
-                    .mapFrom(journey.getDeclarantContactDetailsFromACC14.value)
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(sessionWithJourney)
+            mockStoreSession(
+              sessionWithJourney.copy(rejectedGoodsSingleJourney =
+                sessionWithJourney.rejectedGoodsSingleJourney.map(
+                  _.submitInspectionAddress(
+                    InspectionAddress
+                      .ofType(InspectionAddressType.Declarant)
+                      .mapFrom(journey.getDeclarantContactDetailsFromACC14.value)
+                  )
                 )
               )
-            )
-          )(Right(()))
-        }
+            )(Right(()))
+          }
 
-        checkIsRedirect(
-          submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
-          routes.CheckYourAnswersController.show()
-        )
+          checkIsRedirect(
+            submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
+            routes.CheckYourAnswersController.show()
+          )
+        }
       }
     }
   }

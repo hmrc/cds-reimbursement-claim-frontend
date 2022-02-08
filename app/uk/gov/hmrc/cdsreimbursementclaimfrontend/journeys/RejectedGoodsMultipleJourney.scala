@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
@@ -155,7 +154,7 @@ final class RejectedGoodsMultipleJourney private (
   def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
 
-  def getBankAccountDetails: Option[BankAccountDetails] =
+  def computeBankAccountDetails: Option[BankAccountDetails] =
     Stream(
       answers.bankAccountDetails,
       getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
@@ -242,36 +241,35 @@ final class RejectedGoodsMultipleJourney private (
     getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
     retrievedUser
   ) match {
-    case (details @ Some(_), _, _, _)                                                                       =>
+    case (details @ Some(_), _, _, _)                                                                              =>
       details
-    case (_, Some(consigneeContactDetails), _, individual: Individual)
-        if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+    case (_, Some(consigneeContactDetails), _, user) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
       Some(
         MrnContactDetails(
           consigneeContactDetails.contactName.getOrElse(""),
           consigneeContactDetails.emailAddress
-            .fold(individual.email.getOrElse(Email("")))(address => Email(address)),
+            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
           consigneeContactDetails.telephone.map(PhoneNumber(_))
         )
       )
-    case (_, None, _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+    case (_, None, _, user) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)                          =>
       Some(
         MrnContactDetails(
-          individual.name.map(_.toFullName).getOrElse(""),
-          individual.email.getOrElse(Email("")),
+          user.name.map(_.toFullName).getOrElse(""),
+          user.email.getOrElse(Email("")),
           None
         )
       )
-    case (_, _, Some(declarantContactDetails), individual: Individual)                                      =>
+    case (_, _, Some(declarantContactDetails), user)                                                               =>
       Some(
         MrnContactDetails(
           declarantContactDetails.contactName.getOrElse(""),
           declarantContactDetails.emailAddress
-            .fold(individual.email.getOrElse(Email("")))(address => Email(address)),
+            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
           declarantContactDetails.telephone.map(PhoneNumber(_))
         )
       )
-    case _                                                                                                  => None
+    case _                                                                                                         => None
   }
 
   def computeAddressDetails: Option[ContactAddress] = (
@@ -622,7 +620,10 @@ final class RejectedGoodsMultipleJourney private (
           Right(
             new RejectedGoodsMultipleJourney(
               answers
-                .copy(reimbursementMethod = Some(reimbursementMethodAnswer), bankAccountDetails = getBankAccountDetails)
+                .copy(
+                  reimbursementMethod = Some(reimbursementMethodAnswer),
+                  bankAccountDetails = computeBankAccountDetails
+                )
             )
           )
       } else

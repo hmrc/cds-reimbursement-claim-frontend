@@ -20,11 +20,7 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
@@ -35,9 +31,7 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
-)
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
 
 @(form: Form[Option[UploadDocumentType]], availableFileTypes: Seq[UploadDocumentType], hasExistingUploads: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 

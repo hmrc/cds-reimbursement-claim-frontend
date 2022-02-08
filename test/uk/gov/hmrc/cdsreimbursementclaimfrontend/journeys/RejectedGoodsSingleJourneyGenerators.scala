@@ -122,7 +122,10 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
     hasConsigneeDetailsInACC14: Boolean = true,
     submitConsigneeDetails: Boolean = true,
     submitContactDetails: Boolean = true,
-    submitContactAddress: Boolean = true
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    reimbursementMethod: Option[ReimbursementMethodAnswer] = None
   ): Gen[RejectedGoodsSingleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -131,7 +134,10 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
       hasConsigneeDetailsInACC14,
       submitConsigneeDetails = submitConsigneeDetails,
       submitContactDetails = submitContactDetails,
-      submitContactAddress = submitContactAddress
+      submitContactAddress = submitContactAddress,
+      submitBankAccountType = submitBankAccountType,
+      submitBankAccountDetails = submitBankAccountDetails,
+      reimbursementMethod = reimbursementMethod
     ).map(
       _.fold(
         error =>
@@ -152,7 +158,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true
+    submitBankAccountType: Boolean = true,
+    reimbursementMethod: Option[ReimbursementMethodAnswer] = None
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -168,7 +175,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
         )
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
-      reimbursementMethod         <- Gen.oneOf(ReimbursementMethodAnswer.values)
+      reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethodAnswer.values))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
