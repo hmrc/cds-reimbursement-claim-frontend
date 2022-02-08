@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -79,39 +79,14 @@ class ChooseHowManyMrnsController @Inject() (
           Future
             .successful(BadRequest(chooseHowManyMrnsPage(formWithErrors, RejectedGoodsJourneyType.values, postAction))),
         {
-
-          case Single    =>
-            val singleRoute = rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show()
-            rejectedGoods(sessionStore, request, singleRoute)
-          case Multiple  =>
-            val multipleRoute = rejectedGoodsMultipleRoutes.WorkInProgressController.show()
-            rejectedGoods(sessionStore, request, multipleRoute)
-          case Scheduled =>
-            val scheduledRoute = rejectedGoodsMultipleRoutes.WorkInProgressController.show() // FIXME
-            rejectedGoods(sessionStore, request, scheduledRoute)
+          case Individual =>
+            Future.successful(Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show()))
+          case Multiple   =>
+            Future.successful(Redirect("/rejected-goods/multiple/enter-movement-reference-number"))
+          case Scheduled  =>
+            Future.successful(Redirect("/rejected-goods/scheduled/enter-movement-reference-number"))
 
         }
       )
   }
-
-  private def rejectedGoods(
-    sessionStore: SessionCache,
-    request: RequestWithSessionData[_],
-    route: Call
-  )(implicit hc: HeaderCarrier): Future[Result] =
-    (request.sessionData, request.signedInUserDetails) match {
-      case (Some(sessionData), Some(user)) if sessionData.rejectedGoodsSingleJourney.isEmpty   =>
-        updateSession(sessionStore, request)(
-          _.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(user.eori)))
-        ).map(_ => Redirect(route))
-      case (Some(sessionData), Some(user)) if sessionData.rejectedGoodsMultipleJourney.isEmpty =>
-        updateSession(sessionStore, request)(
-          _.copy(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(user.eori)))
-        ).map { _ =>
-          Redirect(route)
-        }
-      case _                                                                                   =>
-        Future.successful(Redirect(route))
-    }
-
 }

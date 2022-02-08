@@ -26,7 +26,7 @@ object RejectedGoodsJourneyType extends EnumerationFormat[RejectedGoodsJourneyTy
   case object Multiple extends RejectedGoodsJourneyType
   case object Scheduled extends RejectedGoodsJourneyType
 
-  override val values: Set[RejectedGoodsJourneyType] = Set(Single, Multiple, Scheduled)
+  override val values: Set[RejectedGoodsJourneyType] = Set(Individual, Multiple, Scheduled)
 
   private[models] val rejectedGoodsJourneyTypeStringMap: Map[String, RejectedGoodsJourneyType] =
     values.map(a => a.toString -> a).toMap
