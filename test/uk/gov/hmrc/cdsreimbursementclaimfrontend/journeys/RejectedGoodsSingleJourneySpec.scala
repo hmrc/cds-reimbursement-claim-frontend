@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 
 import RejectedGoodsSingleJourneyGenerators._
@@ -302,7 +302,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
 
     "get contact details" should {
       "return the specified details if they have been entered" in {
-        forAll(completeJourneyGen, individualGen) { (journey, signedInUser) =>
+        forAll(completeJourneyGen, authenticatedUserGen) { (journey, signedInUser) =>
           whenever(journey.answers.contactDetails.isDefined) {
             val result = journey.computeContactDetails(signedInUser)
             result shouldBe journey.answers.contactDetails
@@ -317,7 +317,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
             acc14DeclarantMatchesUserEori = false,
             submitContactDetails = false
           ),
-          individualGen
+          authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
             journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isDefined
@@ -343,7 +343,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
             submitConsigneeDetails = false,
             submitContactDetails = false
           ),
-          individualGen
+          authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
             journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined &&
@@ -369,7 +369,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
             submitConsigneeDetails = true,
             submitContactDetails = false
           ),
-          individualGen
+          authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
             journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
@@ -395,7 +395,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
             submitConsigneeDetails = true,
             submitContactDetails = false
           ),
-          individualGen
+          authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
             journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
