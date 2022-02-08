@@ -144,6 +144,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     minNumberOfMRNs: Int = 2,
+    maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5
   ): Gen[RejectedGoodsMultipleJourney] =
     buildJourneyGen(
@@ -158,6 +159,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
       submitBankAccountType = submitBankAccountType,
       reimbursementMethod = reimbursementMethod,
       minNumberOfMRNs = minNumberOfMRNs,
+      maxNumberOfMRNs = maxNumberOfMRNs,
       maxSize = maxSize
     ).map(
       _.fold(
@@ -196,11 +198,12 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     minNumberOfMRNs: Int = 2,
+    maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5
   ): Gen[Either[String, RejectedGoodsMultipleJourney]] =
     for {
       userEoriNumber      <- IdGen.genEori
-      numberOfMRNs        <- Gen.choose(minNumberOfMRNs, 3 * minNumberOfMRNs)
+      numberOfMRNs        <- Gen.choose(minNumberOfMRNs, Math.max(minNumberOfMRNs, maxNumberOfMRNs))
       mrns                <- Gen.listOfN(numberOfMRNs, IdGen.genMRN)
       declarantEORI       <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI       <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori

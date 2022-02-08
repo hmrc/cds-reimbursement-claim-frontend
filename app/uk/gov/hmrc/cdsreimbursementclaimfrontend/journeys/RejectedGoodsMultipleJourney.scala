@@ -377,9 +377,11 @@ final class RejectedGoodsMultipleJourney private (
   def removeMovementReferenceNumberAndDisplayDeclaration(mrn: MRN): Either[String, RejectedGoodsMultipleJourney] =
     whileJourneyIsAmendable {
       getIndexOfMovementReferenceNumber(mrn) match {
-        case None        => Left("removeMovementReferenceNumberAndDisplayDeclaration.notFound")
-        case Some(0)     => Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveLeadMRN")
-        case Some(index) =>
+        case None                                             => Left("removeMovementReferenceNumberAndDisplayDeclaration.notFound")
+        case Some(0)                                          => Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveFirstMRN")
+        case Some(1) if countOfMovementReferenceNumbers === 2 =>
+          Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveSecondMRN")
+        case Some(index)                                      =>
           Right(
             new RejectedGoodsMultipleJourney(
               answers.copy(
@@ -774,7 +776,8 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   val validator: Validate[RejectedGoodsMultipleJourney] =
     all(
-      check(_.answers.movementReferenceNumbers.exists(_.nonEmpty), MISSING_MOVEMENT_REFERENCE_NUMBER),
+      check(_.answers.movementReferenceNumbers.exists(_.nonEmpty), MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
+      check(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
       check(_.answers.displayDeclarations.exists(_.nonEmpty), MISSING_DISPLAY_DECLARATION),
       checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM),
       checkIsDefined(_.answers.detailsOfRejectedGoods, MISSING_DETAILS_OF_REJECTED_GOODS),
@@ -917,7 +920,8 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
 
   object ValidationErrors {
     val JOURNEY_ALREADY_FINALIZED: String                                = "journeyAlreadyFinalized"
-    val MISSING_MOVEMENT_REFERENCE_NUMBER: String                        = "missingMovementReferenceNumber"
+    val MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER: String                  = "missingFirstMovementReferenceNumber"
+    val MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER: String                 = "missingSecondMovementReferenceNumber"
     val MISSING_DISPLAY_DECLARATION: String                              = "missingDisplayDeclaration"
     val MISSING_BASIS_OF_CLAIM: String                                   = "missingBasisOfClaim"
     val MISSING_DETAILS_OF_REJECTED_GOODS: String                        = "missingDetailsOfRejectedGoods"

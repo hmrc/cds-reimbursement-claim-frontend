@@ -247,12 +247,12 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
           .removeMovementReferenceNumberAndDisplayDeclaration(
             journey.getLeadMovementReferenceNumber.get
           )
-        modifiedJourneyEither shouldBe Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveLeadMRN")
+        modifiedJourneyEither shouldBe Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveFirstMRN")
       }
     }
 
     "accept removal of non-lead MRN" in {
-      forAll(completeJourneyGen) { journey =>
+      forAll(buildCompleteJourneyGen(minNumberOfMRNs = 3)) { journey =>
         journey.answers.movementReferenceNumbers.get.drop(1).foreach { mrn =>
           val modifiedJourney = journey
             .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
@@ -261,6 +261,16 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
           modifiedJourney.hasCompleteAnswers             shouldBe true
           modifiedJourney.hasCompleteReimbursementClaims shouldBe true
           modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        }
+      }
+    }
+
+    "decline removal of second MRN if only two" in {
+      forAll(buildCompleteJourneyGen(minNumberOfMRNs = 2, maxNumberOfMRNs = 2)) { journey =>
+        journey.answers.movementReferenceNumbers.get.drop(1).foreach { mrn =>
+          journey
+            .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+            .expectFailure("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveSecondMRN")
         }
       }
     }

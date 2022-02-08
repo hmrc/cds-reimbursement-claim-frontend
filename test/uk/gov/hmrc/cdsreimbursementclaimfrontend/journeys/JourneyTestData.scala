@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
@@ -40,6 +41,20 @@ trait JourneyTestData {
             s"Journey construction in ${pos.fileName}:${pos.lineNumber} has failed because of $error"
           ),
         identity
+      )
+
+    def expectFailure(expectedError: String)(implicit pos: org.scalactic.source.Position): Unit =
+      either.fold(
+        error =>
+          if (error === expectedError) ()
+          else
+            throw new Exception(
+              s"Journey construction in ${pos.fileName}:${pos.lineNumber} has failed as expected, but error was different: $error"
+            ),
+        _ =>
+          throw new Exception(
+            s"Expected failure but journey construction succeeded in ${pos.fileName}:${pos.lineNumber}"
+          )
       )
   }
 
