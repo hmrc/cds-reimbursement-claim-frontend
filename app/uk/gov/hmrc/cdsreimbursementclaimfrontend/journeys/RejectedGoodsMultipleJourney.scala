@@ -78,8 +78,7 @@ final class RejectedGoodsMultipleJourney private (
     )
 
   def hasCompleteSupportingEvidences: Boolean =
-    answers.checkYourAnswersChangeMode &&
-      answers.supportingEvidences.forall(_.documentType.isDefined)
+    answers.supportingEvidences.forall(_.documentType.isDefined)
 
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumbers.flatMap(_.headOption)
@@ -657,14 +656,18 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
     whileJourneyIsAmendable {
-      new RejectedGoodsMultipleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+      RejectedGoodsMultipleJourney.validator
+        .apply(this)
+        .fold(
+          _ => this,
+          _ => new RejectedGoodsMultipleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+        )
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsMultipleJourney] =
     whileJourneyIsAmendable {
       RejectedGoodsMultipleJourney.validator
         .apply(this)
-        .toEither
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
           _ => Right(new RejectedGoodsMultipleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
@@ -777,7 +780,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
   val validator: Validate[RejectedGoodsMultipleJourney] =
     all(
       check(_.answers.movementReferenceNumbers.exists(_.nonEmpty), MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
-      check(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
+      check(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER),
       check(_.answers.displayDeclarations.exists(_.nonEmpty), MISSING_DISPLAY_DECLARATION),
       checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM),
       checkIsDefined(_.answers.detailsOfRejectedGoods, MISSING_DETAILS_OF_REJECTED_GOODS),

@@ -67,7 +67,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       emptyJourney.getTotalReimbursementAmount              shouldBe BigDecimal("0.00")
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
       emptyJourney.hasCompleteReimbursementClaims           shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences           shouldBe false
+      emptyJourney.hasCompleteSupportingEvidences           shouldBe true
       emptyJourney.hasCompleteAnswers                       shouldBe false
       emptyJourney.toOutput.isLeft                          shouldBe true
       emptyJourney.isFinalized                              shouldBe false
@@ -101,6 +101,19 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
+    "check incompleteness if less than two MRNs" in {
+      forAll(buildCompleteJourneyGen(minNumberOfMRNs = 1, maxNumberOfMRNs = 1)) { journey =>
+        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Validated.Invalid(
+          List(MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
+        )
+        journey.answers.checkYourAnswersChangeMode            shouldBe false
+        journey.hasCompleteReimbursementClaims                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.isFinalized                                   shouldBe false
+      }
+    }
+
     "finalize journey with caseNumber" in {
       forAll(completeJourneyGen) { journey =>
         journey.hasCompleteReimbursementClaims shouldBe true
@@ -126,7 +139,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         journey.getLeadDisplayDeclaration      shouldBe Some(displayDeclaration)
         journey.hasCompleteAnswers             shouldBe false
         journey.hasCompleteReimbursementClaims shouldBe false
-        journey.hasCompleteSupportingEvidences shouldBe false
+        journey.hasCompleteSupportingEvidences shouldBe true
         journey.isFinalized                    shouldBe false
       }
     }
@@ -157,7 +170,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         journey.countOfMovementReferenceNumbers shouldBe 11
         journey.hasCompleteAnswers              shouldBe false
         journey.hasCompleteReimbursementClaims  shouldBe false
-        journey.hasCompleteSupportingEvidences  shouldBe false
+        journey.hasCompleteSupportingEvidences  shouldBe true
         journey.isFinalized                     shouldBe false
       }
     }
@@ -181,7 +194,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         modifiedJourney.getLeadDisplayDeclaration       shouldBe Some(displayDeclaration)
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
         modifiedJourney.answers.reimbursementClaims     shouldBe None
         modifiedJourney.answers.inspectionAddress       shouldBe None
         modifiedJourney.answers.inspectionDate          shouldBe None

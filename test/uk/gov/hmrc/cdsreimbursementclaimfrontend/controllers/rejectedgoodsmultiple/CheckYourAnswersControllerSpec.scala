@@ -96,10 +96,13 @@ class CheckYourAnswersControllerSpec
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summary       = summaryKeys.asScala.zip(summaryValues.asScala).toMap
 
-    headers            should not be empty
-    summaryKeys        should not be empty
-    summaryValues      should not be empty
-    summaryKeys.size shouldBe summaryValues.size
+    headers              should not be empty
+    summaryKeys          should not be empty
+    summaryValues        should not be empty
+    if (claim.supportingEvidences.isEmpty)
+      summaryKeys.size shouldBe (summaryValues.size - 1)
+    else
+      summaryKeys.size shouldBe summaryValues.size
 
     headers should contain allOf ("Movement Reference Numbers (MRNs)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Repayment method", "Supporting documents", "Now send your application")
 
@@ -114,9 +117,8 @@ class CheckYourAnswersControllerSpec
       "Inspection date",
       "Inspection address type",
       "Inspection address",
-      "Method",
-      "Uploaded"
-    )): _*)
+      "Method"
+    ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded"))): _*)
 
     mrnKeys.zip(claim.movementReferenceNumbers).foreach { case (key, mrn) =>
       summary(key) shouldBe mrn.value
