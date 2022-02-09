@@ -144,7 +144,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
         val result = performAction(Seq(dataKey -> RejectedGoods.toString))
         checkIsRedirect(
           result,
-          rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show()
+          rejectedGoodsSingleRoutes.ChooseHowManyMrnsController.show()
         )
       }
 

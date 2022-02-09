@@ -83,11 +83,13 @@ class ChooseHowManyMrnsController @Inject() (
         {
           case Individual =>
             val individualRoute: Call = rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show()
-            rejectedGoods(sessionStore, request, individualRoute)
+            rejectedGoods(sessionStore, request, individualRoute, Individual.toString)
           case Multiple   =>
-            Future.successful(Redirect("/rejected-goods/multiple/enter-movement-reference-number"))
-          case _          =>
-            Future.successful(Redirect("/rejected-goods/scheduled/enter-movement-reference-number"))
+            val multipleRoute: Call = rejectedGoodsMultipleRoutes.WorkInProgressController.show()
+            rejectedGoods(sessionStore, request, multipleRoute, Multiple.toString)
+          case Scheduled  =>
+            val multipleRoute: Call = rejectedGoodsMultipleRoutes.WorkInProgressController.show() //FIXME
+            rejectedGoods(sessionStore, request, multipleRoute, Scheduled.toString)
 
         }
       )
@@ -96,20 +98,21 @@ class ChooseHowManyMrnsController @Inject() (
   private def rejectedGoods(
     sessionStore: SessionCache,
     request: RequestWithSessionData[_],
-    route: Call
+    route: Call,
+    journeyType: String
   )(implicit hc: HeaderCarrier): Future[Result] =
     (request.sessionData, request.signedInUserDetails) match {
-      case (Some(sessionData), Some(user)) if sessionData.rejectedGoodsSingleJourney.isDefined   =>
-        logger.error("&&&&&&&&&&&&& ********  Individual")
+      case (Some(sessionData), Some(user))
+          if sessionData.rejectedGoodsSingleJourney.isEmpty || journeyType.contains("Individual") =>
         updateSession(sessionStore, request)(
           _.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(user.eori)))
         ).map(_ => Redirect(route))
-      case (Some(sessionData), Some(user)) if sessionData.rejectedGoodsMultipleJourney.isDefined =>
-        logger.error("&&&&&&&&&&&&& ********  Multiple")
+      case (Some(sessionData), Some(user))
+          if sessionData.rejectedGoodsMultipleJourney.isEmpty || journeyType.contains("Multiple") =>
         updateSession(sessionStore, request)(
           _.copy(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(user.eori)))
-        ).map(_ => Redirect("/rejected-goods/multiple/enter-movement-reference-number"))
-      case _                                                                                     =>
-        Future.successful(Redirect("/rejected-goods/scheduled/enter-movement-reference-number"))
+        ).map(_ => Redirect(route))
+      case _ =>
+        Future.successful(Redirect(route))
     }
 }
