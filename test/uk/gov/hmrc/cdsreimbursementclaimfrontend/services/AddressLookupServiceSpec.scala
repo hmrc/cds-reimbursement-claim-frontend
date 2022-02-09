@@ -37,7 +37,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
@@ -74,14 +73,14 @@ class AddressLookupServiceSpec
   implicit val timeoutConfiguration: TimeoutConfig =
     TimeoutConfig(
       timeoutAmount = viewConfig.timeout,
-      timeoutUrl = baseRoutes.StartController.timedOut().url,
+      timeoutUrl = viewConfig.weSignedYouOutPageUrl,
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
-  val addressUpdateCall: Call = Call("", "http://upate-contact-address")
+  val addressUpdateCall: Call = Call("", "/update-contact-address")
 
   val addressLookupRequest: AddressLookupRequest = AddressLookupRequest
-    .redirectBackTo(addressUpdateCall)
+    .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateCall.url}")
     .signOutUserVia(viewConfig.signOutUrl)
     .nameConsumerServiceAs("cds-reimbursement-claim")
     .showMax(addressLookupConfig.addressesShowLimit)
