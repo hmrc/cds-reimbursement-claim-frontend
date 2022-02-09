@@ -27,7 +27,6 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.chooseHowManyMrnsForm
@@ -53,7 +52,6 @@ import scala.concurrent.Future
 
 @Singleton
 class ChooseHowManyMrnsController @Inject() (
-  val jcc: JourneyControllerComponents,
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -65,7 +63,7 @@ class ChooseHowManyMrnsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  val formKey: String                      = "rejected-goods.choose-how-many-mrns"
+  val dataKey: String                      = "rejected-goods.choose-how-many-mrns"
   val form: Form[RejectedGoodsJourneyType] = chooseHowManyMrnsForm
   private val postAction: Call             = routes.ChooseHowManyMrnsController.submit()
 
