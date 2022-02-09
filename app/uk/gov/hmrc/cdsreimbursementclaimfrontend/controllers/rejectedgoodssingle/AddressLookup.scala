@@ -55,26 +55,29 @@ trait AddressLookup[Journey] { self: JourneyBaseController[Journey] =>
     }
 
   def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      maybeID
-        .map(addressLookupService.retrieveUserAddress)
-        .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
-        .fold(
-          error => {
-            logger warn s"Error retrieving lookup address: $error"
-            (
-              journey,
-              if (
-                error.message.contains("/address/postcode: error.path.missing") || error.message
-                  .contains("/address/lines: error.minLength")
+    actionReadWriteJourney(
+      { implicit request => journey =>
+        maybeID
+          .map(addressLookupService.retrieveUserAddress)
+          .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
+          .fold(
+            error => {
+              logger warn s"Error retrieving lookup address: $error"
+              (
+                journey,
+                if (
+                  error.message.contains("/address/postcode: error.path.missing") || error.message
+                    .contains("/address/lines: error.minLength")
+                )
+                  Ok(problemWithAddressPage(startAddressLookup))
+                else Redirect(baseRoutes.IneligibleController.ineligible())
               )
-                Ok(problemWithAddressPage(startAddressLookup))
-              else Redirect(baseRoutes.IneligibleController.ineligible())
-            )
-          },
-          update(journey) andThen redirectToTheNextPage
-        )
-    }
+            },
+            update(journey) andThen redirectToTheNextPage
+          )
+      },
+      fastForwardToCYAEnabled = false
+    )
 
   def update(journey: Journey): ContactAddress => Journey
 

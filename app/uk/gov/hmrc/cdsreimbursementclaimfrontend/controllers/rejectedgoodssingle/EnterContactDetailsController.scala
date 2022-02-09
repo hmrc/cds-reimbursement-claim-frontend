@@ -53,16 +53,19 @@ class EnterContactDetailsController @Inject() (
     }
 
   val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      Forms.rejectedGoodsContactDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful((journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction)))),
-          contactDetails => {
-            val updatedJourney = journey.submitContactDetails(Some(contactDetails))
-            Future.successful((updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())))
-          }
-        )
-    }
+    actionReadWriteJourney(
+      { implicit request => journey =>
+        Forms.rejectedGoodsContactDetailsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              Future.successful((journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction)))),
+            contactDetails => {
+              val updatedJourney = journey.submitContactDetails(Some(contactDetails))
+              Future.successful((updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())))
+            }
+          )
+      },
+      fastForwardToCYAEnabled = false
+    )
 }
