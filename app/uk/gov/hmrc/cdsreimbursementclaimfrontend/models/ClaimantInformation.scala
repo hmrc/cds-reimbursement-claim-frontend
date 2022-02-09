@@ -32,7 +32,7 @@ final case class ClaimantInformation(
 ) {
 
   def summaryContact(sep: String): String = Seq(
-    Some(fullName),
+    Some(contactInformation.contactPerson.getOrElse(fullName)),
     contactInformation.emailAddress,
     contactInformation.telephoneNumber
   )
