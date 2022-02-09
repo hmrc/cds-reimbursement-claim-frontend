@@ -96,14 +96,20 @@ class CheckYourAnswersControllerSpec
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summary       = summaryKeys.asScala.zip(summaryValues.asScala).toMap
 
-    headers            should not be empty
-    summaryKeys        should not be empty
-    summaryValues      should not be empty
-    summaryKeys.size shouldBe summaryValues.size
+    headers              should not be empty
+    summaryKeys          should not be empty
+    summaryValues        should not be empty
+    if (claim.supportingEvidences.isEmpty)
+      summaryKeys.size shouldBe (summaryValues.size - 1)
+    else
+      summaryKeys.size shouldBe summaryValues.size
 
     headers should contain allOf ("Movement Reference Number (MRN)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Repayment method", "Supporting documents", "Now send your application")
 
-    summaryKeys should contain allOf ("MRN", "Contact details", "Contact address", "This is the basis behind the claim", "This is how the goods will be disposed of", "These are the details of the rejected goods", "Total", "Inspection date", "Inspection address type", "Inspection address", "Method", "Uploaded")
+    if (claim.supportingEvidences.isEmpty)
+      summaryKeys should contain allOf ("MRN", "Contact details", "Contact address", "This is the basis behind the claim", "This is how the goods will be disposed of", "These are the details of the rejected goods", "Total", "Inspection date", "Inspection address type", "Inspection address", "Method")
+    else
+      summaryKeys should contain allOf ("MRN", "Contact details", "Contact address", "This is the basis behind the claim", "This is how the goods will be disposed of", "These are the details of the rejected goods", "Total", "Inspection date", "Inspection address type", "Inspection address", "Method", "Uploaded")
 
     summary("MRN")                                         shouldBe claim.movementReferenceNumber.value
     summary("Contact details")                             shouldBe s"${claim.claimantInformation.summaryContact(" ")}"

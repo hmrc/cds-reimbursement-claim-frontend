@@ -63,7 +63,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
       emptyJourney.hasCompleteReimbursementClaims           shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences           shouldBe false
+      emptyJourney.hasCompleteSupportingEvidences           shouldBe true
       emptyJourney.hasCompleteAnswers                       shouldBe false
       emptyJourney.toOutput.isLeft                          shouldBe true
       emptyJourney.isFinalized                              shouldBe false
@@ -120,7 +120,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteReimbursementClaims                shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
         journey.isFinalized                                   shouldBe false
       }
     }
@@ -143,7 +143,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
         modifiedJourney.answers.displayDeclaration     shouldBe Some(decl2)
         modifiedJourney.hasCompleteAnswers             shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
       }
     }
 
@@ -175,7 +175,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
         journey.answers.displayDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
         journey.hasCompleteAnswers                                                               shouldBe false
         journey.hasCompleteReimbursementClaims                                                   shouldBe false
-        journey.hasCompleteSupportingEvidences                                                   shouldBe false
+        journey.hasCompleteSupportingEvidences                                                   shouldBe true
       }
     }
 
@@ -193,7 +193,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
         modifiedJourney.answers.reimbursementClaims     shouldBe None
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
       }
     }
 

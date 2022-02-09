@@ -76,8 +76,7 @@ final class RejectedGoodsSingleJourney private (
     answers.reimbursementClaims.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
 
   def hasCompleteSupportingEvidences: Boolean =
-    answers.checkYourAnswersChangeMode &&
-      answers.supportingEvidences.forall(_.documentType.isDefined)
+    answers.supportingEvidences.forall(_.documentType.isDefined)
 
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
@@ -523,7 +522,12 @@ final class RejectedGoodsSingleJourney private (
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {
-      new RejectedGoodsSingleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+      RejectedGoodsSingleJourney.validator
+        .apply(this)
+        .fold(
+          _ => this,
+          _ => new RejectedGoodsSingleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+        )
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsSingleJourney] =
