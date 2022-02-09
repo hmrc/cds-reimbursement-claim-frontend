@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -60,8 +59,7 @@ class ChooseHowManyMrnsController @Inject() (
     extends FrontendController(cc)
     with SessionDataExtractor
     with WithAuthAndSessionDataAction
-    with SessionUpdates
-    with Logging {
+    with SessionUpdates {
 
   val dataKey: String                      = "rejected-goods.choose-how-many-mrns"
   val form: Form[RejectedGoodsJourneyType] = chooseHowManyMrnsForm
@@ -86,8 +84,8 @@ class ChooseHowManyMrnsController @Inject() (
             val multipleRoute: Call = rejectedGoodsMultipleRoutes.WorkInProgressController.show()
             rejectedGoods(sessionStore, request, multipleRoute, Multiple.toString)
           case Scheduled  =>
-            val multipleRoute: Call = rejectedGoodsMultipleRoutes.WorkInProgressController.show() //FIXME
-            rejectedGoods(sessionStore, request, multipleRoute, Scheduled.toString)
+            val scheduledRoute: Call = rejectedGoodsMultipleRoutes.WorkInProgressController.show() //FIXME
+            rejectedGoods(sessionStore, request, scheduledRoute, Scheduled.toString)
 
         }
       )
