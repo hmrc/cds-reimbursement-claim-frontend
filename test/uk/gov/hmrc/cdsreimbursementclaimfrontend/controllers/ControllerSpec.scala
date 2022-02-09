@@ -219,6 +219,12 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   import cats.instances.int._
   import cats.syntax.eq._
 
+  def radioItems(doc: Document): Seq[(String, String)] = {
+    val labels = doc.select("div.govuk-radios label").eachText()
+    val values = doc.select("div.govuk-radios input").eachAttr("value")
+    labels.asScala.zip(values.asScala)
+  }
+
   def selectedRadioValue(doc: Document): Option[String] = {
     val radioItems = doc.select("div.govuk-radios input[checked]")
     if (radioItems.size() =!= 0) Some(radioItems.`val`())
@@ -251,6 +257,9 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     summaryKeys.asScala.zip(summaryValues.asScala).toMap
   }
+
+  def hasContinueButton(doc: Document) =
+    doc.select(s"button.govuk-button").text() shouldBe "Continue"
 }
 
 trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks {
