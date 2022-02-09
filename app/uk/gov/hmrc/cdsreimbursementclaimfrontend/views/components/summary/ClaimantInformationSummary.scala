@@ -43,7 +43,7 @@ object ClaimantInformationSummary {
   ): SummaryList = {
     val contactInformation = claimantInformation.contactInformation
     val contactData        = List(
-      Some(Paragraph(claimantInformation.fullName)),
+      Some(Paragraph(contactInformation.contactPerson.getOrElse(claimantInformation.fullName))),
       Some(Paragraph(contactInformation.emailAddress.getOrElse(""))),
       contactInformation.telephoneNumber.map(n => Paragraph(n))
     ).flattenOption
