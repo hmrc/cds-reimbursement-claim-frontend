@@ -55,10 +55,10 @@
     } 
 
     @pageHeading(messages(s"$key.contact-information.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.EnterContactDetailsController.show(), routes.CheckClaimantDetailsController.redirectToALF()))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.CheckClaimantDetailsController.show(), routes.CheckClaimantDetailsController.show()))
 
     @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim,s"$key.basis", subKey, routes.BasisForClaimController.show()))
+    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"$key.basis", subKey, routes.BasisForClaimController.show()))
 
     @claim.basisOfClaimSpecialCircumstances.map { specialCircumstances =>
         @pageHeading(messages(s"$key.special-circumstances.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
