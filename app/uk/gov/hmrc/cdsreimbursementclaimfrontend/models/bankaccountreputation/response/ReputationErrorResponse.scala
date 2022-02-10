@@ -18,9 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.r
 
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 
 final case class ReputationErrorResponse(code: String, desc: String) {
-  def toCommonResponse(): CommonBarsResponse = CommonBarsResponse(ReputationResponse.No, None, Some(this))
+  def toCommonResponse(): BankAccountReputation =
+    bankaccountreputation.BankAccountReputation(ReputationResponse.No, None, Some(this))
 
 }
 
