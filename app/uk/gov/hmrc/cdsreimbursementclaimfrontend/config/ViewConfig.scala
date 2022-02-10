@@ -64,6 +64,9 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .start()
       .url
 
+  val weSignedYouOutPageUrl: String =
+    s"$selfBaseUrl/claim-for-reimbursement-of-import-duties${baseRoutes.StartController.timedOut().url}"
+
   val serviceFeedBackUrl: String = {
     val baseUrl = config.get[String]("microservice.services.feedback.url")
     val path    = config.get[String]("microservice.services.feedback.source")
@@ -127,10 +130,6 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
 
   lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
-
-  def buildCompleteSelfUrl(call: Call): String = buildCompleteSelfUrl(call.url)
-
-  def buildCompleteSelfUrl(path: String): String = s"$selfBaseUrl$path"
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 

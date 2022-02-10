@@ -19,8 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.SelectPageConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 
@@ -31,10 +29,10 @@ final case class AddressLookupRequest(
 
 object AddressLookupRequest {
 
-  def redirectBackTo(call: Call)(implicit viewConfig: ViewConfig, timeoutConfig: TimeoutConfig): Builder =
+  def redirectBackTo(continueUrl: String)(implicit timeoutConfig: TimeoutConfig): Builder =
     Builder(
       AddressLookupOptions(
-        continueUrl = viewConfig.buildCompleteSelfUrl(call),
+        continueUrl = continueUrl,
         timeoutConfig = timeoutConfig
       )
     )
