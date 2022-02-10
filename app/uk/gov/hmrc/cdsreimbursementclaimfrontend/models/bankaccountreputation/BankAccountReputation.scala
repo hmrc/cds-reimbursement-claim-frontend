@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
 
-final case class CommonBarsResponse(
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationErrorResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
+
+final case class BankAccountReputation(
   accountNumberWithSortCodeIsValid: ReputationResponse,
   accountExists: Option[ReputationResponse] = None,
   otherError: Option[ReputationErrorResponse] = None

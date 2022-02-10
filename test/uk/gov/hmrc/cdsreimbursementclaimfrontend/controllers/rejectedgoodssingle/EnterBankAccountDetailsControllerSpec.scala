@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import cats.data.EitherT
+import cats.implicits._
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -23,6 +26,7 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Request
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -34,14 +38,25 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.arbitraryBankAccountReputation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.genReputationResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.genBankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
+import uk.gov.hmrc.http.HeaderCarrier
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnterBankAccountDetailsControllerSpec
@@ -50,16 +65,42 @@ class EnterBankAccountDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach {
 
+  val mockClaimService = mock[ClaimService]
+
+  def mockBusinessReputation(
+    bankAccountDetails: BankAccountDetails,
+    response: Either[Error, BankAccountReputation]
+  ) =
+    (mockClaimService
+      .getBusinessAccountReputation(_: BankAccountDetails)(_: HeaderCarrier))
+      .expects(bankAccountDetails, *)
+      .returning(EitherT.fromEither[Future](response))
+      .once()
+
+  def mockPersonalReputation(
+    bankAccountDetails: BankAccountDetails,
+    postCode: Option[String],
+    response: Either[Error, BankAccountReputation]
+  ) =
+    (mockClaimService
+      .getPersonalAccountReputation(_: BankAccountDetails, _: Option[String])(_: HeaderCarrier))
+      .expects(bankAccountDetails, postCode, *)
+      .returning(EitherT.fromEither[Future](response))
+      .once()
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[ClaimService].toInstance(mockClaimService)
     )
 
   val controller: EnterBankAccountDetailsController = instanceOf[EnterBankAccountDetailsController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
+
+  implicit val request: Request[_] = FakeRequest()
 
   private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-bank-details"
@@ -121,11 +162,330 @@ class EnterBankAccountDetailsControllerSpec
 
     }
 
+    "validate bank account details" when {
+      "redirect to choose bank account type page if no bank account type present in session" in forAll(
+        genBankAccountDetails
+      ) { bankDetails =>
+        checkIsRedirect(
+          controller.validateBankAccountDetails(None, bankDetails, None),
+          routes.ChooseBankAccountTypeController.show()
+        )
+      }
+
+      "personal account" must {
+        "redirect to the check bank accounts page if a personal account that exists with a valid sort code is specified" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode)
+        ) { (bankDetails, postCode) =>
+          val personalResponse =
+            bankaccountreputation.BankAccountReputation(
+              accountNumberWithSortCodeIsValid = Yes,
+              accountExists = Some(Yes),
+              otherError = None
+            )
+
+          inSequence(
+            mockPersonalReputation(bankDetails, postCode, Right(personalResponse))
+          )
+
+          checkIsRedirect(
+            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankDetails, postCode),
+            routes.CheckBankDetailsController.show()
+          )
+        }
+
+        "show the bank account details page if there is an error response" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          arbitraryBankAccountReputation.arbitrary
+        ) { (bankAccountDetails, postCode, genericResponse) =>
+          val expectedResponse = genericResponse.copy(
+            otherError = Some(ReputationErrorResponse("account-does-not-exist", "error"))
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the account exists field is error" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode)
+        ) { (bankAccountDetails, postCode) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(ReputationResponse.Error),
+            otherError = None
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the sort code is invalid" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, possibleResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = ReputationResponse.No,
+            accountExists = Some(possibleResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the sort code is anything other than yes or no" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.oneOf(Inapplicable, Indeterminate, ReputationResponse.Error),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, sortCodeResponse, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = sortCodeResponse,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the account number is not valid" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+        ) { (bankAccountDetails, postCode, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = accountResponse,
+            otherError = None
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+            BAD_REQUEST
+          )
+        }
+
+      }
+
+      "business account" must {
+        "redirect to the check bank accounts page if a business account that exists with a valid sort code is specified" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode)
+        ) { (bankDetails, postCode) =>
+          val personalResponse =
+            bankaccountreputation.BankAccountReputation(
+              accountNumberWithSortCodeIsValid = Yes,
+              accountExists = Some(Yes),
+              otherError = None
+            )
+
+          inSequence(
+            mockBusinessReputation(bankDetails, Right(personalResponse))
+          )
+
+          checkIsRedirect(
+            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankDetails, postCode),
+            routes.CheckBankDetailsController.show()
+          )
+        }
+
+        "show the bank account details page if there is an error response" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          arbitraryBankAccountReputation.arbitrary
+        ) { (bankAccountDetails, postCode, genericResponse) =>
+          val expectedResponse = genericResponse.copy(
+            otherError = Some(ReputationErrorResponse("account-does-not-exist", "error"))
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the account exists field is error" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode)
+        ) { (bankAccountDetails, postCode) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(ReputationResponse.Error),
+            otherError = None
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the sort code is invalid" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, possibleResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = ReputationResponse.No,
+            accountExists = Some(possibleResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the sort code is anything other than yes or no" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.oneOf(Inapplicable, Indeterminate, ReputationResponse.Error),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, sortCodeResponse, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = sortCodeResponse,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the account number is not valid" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+        ) { (bankAccountDetails, postCode, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = accountResponse,
+            otherError = None
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+            BAD_REQUEST
+          )
+        }
+      }
+    }
+
     "handle submit requests" when {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
+        val initialJourney  =
+          RejectedGoodsSingleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
+        val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+
+        val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
+        val updatedSession             = session.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
+        val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
+          accountNumberWithSortCodeIsValid = Yes,
+          accountExists = Some(Yes),
+          otherError = None
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(requiredSession)
+          mockPersonalReputation(bankDetails, None, Right(expectedSuccessfulResponse))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(
+            s"${controller.formKey}.account-name"   -> bankDetails.accountName.value,
+            s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
+            s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
+          ),
+          routes.CheckBankDetailsController.show()
+        )
+
+      }
+
+      "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
         val initialJourney  = RejectedGoodsSingleJourney.empty(exampleEori)
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
 
@@ -144,13 +504,10 @@ class EnterBankAccountDetailsControllerSpec
             s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
             s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
           ),
-          routes.CheckBankDetailsController.show()
+          routes.ChooseBankAccountTypeController.show()
         )
-
       }
-
     }
-
   }
 
   "Form Validation" must {

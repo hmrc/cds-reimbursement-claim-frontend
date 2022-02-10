@@ -37,12 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.CommonBarsResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationErrorResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -60,10 +57,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.BadGatewayException
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -81,19 +78,19 @@ class BankAccountControllerSpec
     JourneyBindable.Scheduled
   )
 
-  val claimService = mock[ClaimService]
+  private val claimService = mock[ClaimService]
 
-  def mockBusinessReputation(response: Either[Error, CommonBarsResponse]) =
+  private def mockBusinessReputation(response: Either[Error, BankAccountReputation]) =
     (claimService
-      .getBusinessAccountReputation(_: BarsBusinessAssessRequest)(_: HeaderCarrier))
+      .getBusinessAccountReputation(_: BankAccountDetails)(_: HeaderCarrier))
       .expects(*, *)
       .returning(EitherT.fromEither[Future](response))
       .once()
 
-  def mockPersonalReputation(response: Either[Error, CommonBarsResponse]) =
+  private def mockPersonalReputation(response: Either[Error, BankAccountReputation]) =
     (claimService
-      .getPersonalAccountReputation(_: BarsPersonalAssessRequest)(_: HeaderCarrier))
-      .expects(*, *)
+      .getPersonalAccountReputation(_: BankAccountDetails, _: Option[String])(_: HeaderCarrier))
+      .expects(*, *, *)
       .returning(EitherT.fromEither[Future](response))
       .once()
 
@@ -247,7 +244,11 @@ class BankAccountControllerSpec
         journeys
       ) { journey =>
         val businessResponse   =
-          CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
+          BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(Yes),
+            otherError = None
+          )
         val answers            = Business
         val (session, _, _)    =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
@@ -279,7 +280,7 @@ class BankAccountControllerSpec
 
         accountExistsCases.foreach { accountExists =>
           val businessResponse =
-            CommonBarsResponse(
+            BankAccountReputation(
               accountNumberWithSortCodeIsValid = No,
               accountExists = accountExists,
               otherError = None
@@ -313,7 +314,7 @@ class BankAccountControllerSpec
         accountNumberWithSortCodeIsValidCases.foreach(accountNumberWithSortCodeIsValid =>
           accountExistsCases.foreach { accountExists =>
             val businessResponse =
-              CommonBarsResponse(
+              BankAccountReputation(
                 accountNumberWithSortCodeIsValid = accountNumberWithSortCodeIsValid,
                 accountExists = accountExists,
                 otherError = None
@@ -343,7 +344,7 @@ class BankAccountControllerSpec
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
         val businessResponse =
-          CommonBarsResponse(
+          BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
             accountExists = Some(ReputationResponse.Error),
             otherError = None
@@ -373,7 +374,11 @@ class BankAccountControllerSpec
 
         accountExistsCases.foreach { accountExists =>
           val businessResponse =
-            CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = accountExists, otherError = None)
+            BankAccountReputation(
+              accountNumberWithSortCodeIsValid = Yes,
+              accountExists = accountExists,
+              otherError = None
+            )
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
@@ -392,7 +397,7 @@ class BankAccountControllerSpec
       "Fail when the Bank Account Number is invalid" in forAll(journeys) { journey =>
         val errorResponse    =
           ReputationErrorResponse(code = "INVALID_ACCOUNT_NUMBER", desc = "123456: invalid account number")
-        val businessResponse = CommonBarsResponse(
+        val businessResponse = BankAccountReputation(
           accountNumberWithSortCodeIsValid = Yes,
           accountExists = Some(Yes),
           otherError = Some(errorResponse)
@@ -448,7 +453,11 @@ class BankAccountControllerSpec
         journeys
       ) { journey =>
         val personalResponse   =
-          CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
+          BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(Yes),
+            otherError = None
+          )
         val answers            = Personal
         val (session, _, _)    =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
@@ -480,7 +489,7 @@ class BankAccountControllerSpec
 
         accountExistsCases.foreach { accountExists =>
           val personalResponse =
-            CommonBarsResponse(
+            BankAccountReputation(
               accountNumberWithSortCodeIsValid = No,
               accountExists = accountExists,
               otherError = None
@@ -513,7 +522,7 @@ class BankAccountControllerSpec
         accountNumberWithSortCodeIsValidCases.foreach(accountNumberWithSortCodeIsValid =>
           accountExistsCases.foreach { accountExists =>
             val personalResponse =
-              CommonBarsResponse(
+              BankAccountReputation(
                 accountNumberWithSortCodeIsValid = accountNumberWithSortCodeIsValid,
                 accountExists = accountExists,
                 otherError = None
@@ -543,7 +552,7 @@ class BankAccountControllerSpec
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
         val personalResponse =
-          CommonBarsResponse(
+          BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
             accountExists = Some(ReputationResponse.Error),
             otherError = None
@@ -574,7 +583,11 @@ class BankAccountControllerSpec
 
         accountExistsCases.foreach { accountExists =>
           val personalResponse =
-            CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = accountExists, otherError = None)
+            BankAccountReputation(
+              accountNumberWithSortCodeIsValid = Yes,
+              accountExists = accountExists,
+              otherError = None
+            )
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
@@ -592,7 +605,7 @@ class BankAccountControllerSpec
 
       "Fail when the Sort Code is invalid" in forAll(journeys) { journey =>
         val errorResponse    = ReputationErrorResponse(code = "INVALID_SORTCODE", desc = "1234: invalid sortcode")
-        val personalResponse = CommonBarsResponse(
+        val personalResponse = BankAccountReputation(
           accountNumberWithSortCodeIsValid = Yes,
           accountExists = Some(Yes),
           otherError = Some(errorResponse)
