@@ -30,9 +30,14 @@ import play.api.libs.json.Reads
 import play.api.libs.json.Writes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsAccount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsSubject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
@@ -42,7 +47,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -56,12 +60,13 @@ trait ClaimService {
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
 
   def getBusinessAccountReputation(
-    barsRequest: BarsBusinessAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse]
+    bankAccountDetails: BankAccountDetails
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation]
 
   def getPersonalAccountReputation(
-    barsRequest: BarsPersonalAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse]
+    bankAccountDetails: BankAccountDetails,
+    postCode: Option[String]
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation]
 
 }
 
@@ -107,25 +112,35 @@ class DefaultClaimService @Inject() (
       }
 
   def getBusinessAccountReputation(
-    barsRequest: BarsBusinessAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse] =
+    bankAccountDetails: BankAccountDetails
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation] = {
+    val barsAccount = BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
+    val barsRequest = BarsBusinessAssessRequest(barsAccount, None)
     getReputation[BarsBusinessAssessRequest, BusinessCompleteResponse](
       barsRequest,
       cdsReimbursementClaimConnector.getBusinessReputation
     )
+  }
 
-  def getPersonalAccountReputation(
-    barsRequest: BarsPersonalAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse] =
+  override def getPersonalAccountReputation(
+    bankAccountDetails: BankAccountDetails,
+    postCode: Option[String]
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation] = {
+    val barsAccount = BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
+    val address     = BarsAddress(Nil, None, postCode)
+    val accountName = Some(bankAccountDetails.accountName.value)
+    val subject     = BarsSubject(None, accountName, None, None, None, address)
+    val request     = BarsPersonalAssessRequest(barsAccount, subject)
     getReputation[BarsPersonalAssessRequest, PersonalCompleteResponse](
-      barsRequest,
+      request,
       cdsReimbursementClaimConnector.getPersonalReputation
     )
+  }
 
   def getReputation[I, O <: ReputationResult](data: I, method: JsValue => EitherT[Future, Error, HttpResponse])(implicit
     writes: Writes[I],
     read: Reads[O]
-  ): EitherT[Future, Error, CommonBarsResponse] =
+  ): EitherT[Future, Error, BankAccountReputation] =
     method(Json.toJson(data))
       .subflatMap { response =>
         response.status match {

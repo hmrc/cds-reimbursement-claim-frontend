@@ -16,17 +16,27 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import org.scalacheck.Gen
 import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsSubject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.BusinessCompleteResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.CommonBarsResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationErrorResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 
 object BankAccountReputationGen {
+
+  lazy val genReputationResponse: Gen[ReputationResponse] = Gen.oneOf(
+    ReputationResponse.Yes,
+    ReputationResponse.No,
+    ReputationResponse.Inapplicable,
+    ReputationResponse.Indeterminate,
+    ReputationResponse.Error
+  )
 
   implicit lazy val arbitraryAddress: Typeclass[BarsAddress] =
     gen[BarsAddress]
@@ -49,6 +59,6 @@ object BankAccountReputationGen {
   implicit lazy val arbitraryReputationErrorResponse: Typeclass[ReputationErrorResponse] =
     gen[ReputationErrorResponse]
 
-  implicit lazy val arbitraryCommonBarsResponse: Typeclass[CommonBarsResponse] =
-    gen[CommonBarsResponse]
+  implicit lazy val arbitraryBankAccountReputation: Typeclass[BankAccountReputation] =
+    gen[BankAccountReputation]
 }

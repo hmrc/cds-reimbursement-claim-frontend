@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
@@ -133,17 +132,11 @@ class BankAccountController @Inject() (
                                             .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                                             .leftMap((_: Unit) => Error("could not update session"))
                     reputationResponse <- {
-                      val barsAccount =
-                        BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-
                       if (bankAccount === BankAccountType.Business) {
-                        claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
+                        claimService.getBusinessAccountReputation(bankAccountDetails)
                       } else {
-                        val postCode    = fillingOutClaim.draftClaim.extractEstablishmentAddress.flatMap(_.postalCode)
-                        val address     = BarsAddress(Nil, None, postCode)
-                        val accountName = Some(bankAccountDetails.accountName.value)
-                        val subject     = BarsSubject(None, accountName, None, None, None, address)
-                        claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
+                        val postCode = fillingOutClaim.draftClaim.extractEstablishmentAddress.flatMap(_.postalCode)
+                        claimService.getPersonalAccountReputation(bankAccountDetails, postCode)
                       }
                     }
                   } yield reputationResponse).fold(

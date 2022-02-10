@@ -18,9 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.r
 
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 
 sealed trait ReputationResult {
-  def toCommonResponse(): CommonBarsResponse
+  def toCommonResponse(): BankAccountReputation
 }
 
 final case class BusinessCompleteResponse(
@@ -33,7 +34,8 @@ final case class BusinessCompleteResponse(
   nonStandardAccountDetailsRequiredForBacs: Option[ReputationResponse] = None,
   sortCodeBankName: Option[String] = None
 ) extends ReputationResult {
-  def toCommonResponse(): CommonBarsResponse = CommonBarsResponse(accountNumberWithSortCodeIsValid, accountExists, None)
+  def toCommonResponse(): BankAccountReputation =
+    BankAccountReputation(accountNumberWithSortCodeIsValid, accountExists, None)
 }
 
 object BusinessCompleteResponse {
@@ -51,7 +53,8 @@ final case class PersonalCompleteResponse(
   nonStandardAccountDetailsRequiredForBacs: Option[ReputationResponse] = None,
   sortCodeBankName: Option[String] = None
 ) extends ReputationResult {
-  def toCommonResponse(): CommonBarsResponse = CommonBarsResponse(accountNumberWithSortCodeIsValid, accountExists, None)
+  def toCommonResponse(): BankAccountReputation =
+    BankAccountReputation(accountNumberWithSortCodeIsValid, accountExists, None)
 }
 
 object PersonalCompleteResponse {
