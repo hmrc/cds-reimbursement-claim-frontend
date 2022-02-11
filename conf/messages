@@ -155,12 +155,15 @@ check-eori-details.error.invalid=Select yes if details are correct
 #  SELECT NUMBER OF CLAIMS PAGE
 #===================================================
 select-number-of-claims.title=Choose how many MRNs you want to submit in this claim
-select-number-of-claims.p1=A Movement Reference Number (MRN) is issued when an import is declared. The MRN is an 18-digit number that can be found in the import acceptance notification.
-select-number-of-claims.p2=Multiple MRNs must all be from the same importer and have the same reason for overpayment.
+select-number-of-claims.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
+select-number-of-claims.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+select-number-of-claims.inset.title=Entering Multiple MRNs
+select-number-of-claims.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
 select-number-of-claims.individual.title=Enter one MRN
 select-number-of-claims.multiple.title=Enter multiple MRNs
+select-number-of-claims.multiple.hint=Manually enter details for each MRN
 select-number-of-claims.scheduled.title=Upload multiple MRNs
-select-number-of-claims.scheduled.hint=Upload a list of MRNs, their duties and paid amounts.
+select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all MRNs
 select-number-of-claims.error.required=Choose how many MRNs you want to submit in this claim.
 select-number-of-claims.invalid=Choose how many MRNs you want to submit in this claim.
 
