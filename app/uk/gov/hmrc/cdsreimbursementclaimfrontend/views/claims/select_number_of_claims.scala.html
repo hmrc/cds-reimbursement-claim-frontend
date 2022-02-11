@@ -33,13 +33,19 @@
  radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+ insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
 @(form: Form[TypeOfClaimAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"select-number-of-claims"}
     @title = @{messages(s"$key.title")}
+
+    @inset = {
+        @pageHeading(messages(s"$key.inset.title"), classes = "govuk-heading-s", level = "h2")
+        @paragraph(Html(messages(s"$key.inset.paragraph")))
+    }
 
     @postAction = @{routes.SelectTypeOfClaimController.submit}
 
@@ -54,6 +60,10 @@
         @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 
         @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
+
+
+@insetText(content = HtmlContent(inset))
+
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -75,6 +85,7 @@
                         id = Some(s"$key-bulk"),
                         value = Some("1"),
                         content = Text(messages(s"$key.multiple.title")),
+                        hint = Some(Hint(content = Text(messages(s"$key.multiple.hint")))),
                         checked = form.value.contains(Multiple)
                     ),
                     RadioItem(
