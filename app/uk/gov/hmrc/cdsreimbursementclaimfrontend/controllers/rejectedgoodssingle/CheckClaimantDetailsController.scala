@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,7 +40,7 @@ class CheckClaimantDetailsController @Inject() (
   val problemWithAddressPage: problem_with_address
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
-    with AddressLookup[RejectedGoodsSingleJourney] {
+    with AddressLookupMixin[RejectedGoodsSingleJourney] {
 
   implicit val subKey: Option[String] = None
 

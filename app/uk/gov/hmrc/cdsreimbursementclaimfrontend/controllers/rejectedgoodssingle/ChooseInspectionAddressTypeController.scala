@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -55,7 +56,7 @@ class ChooseInspectionAddressTypeController @Inject() (
   val problemWithAddressPage: problem_with_address
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
-    with AddressLookup[RejectedGoodsSingleJourney] {
+    with AddressLookupMixin[RejectedGoodsSingleJourney] {
 
   val applyChoice: Call =
     routes.ChooseInspectionAddressTypeController.submit()

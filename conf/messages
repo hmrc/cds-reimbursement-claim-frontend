@@ -1265,6 +1265,7 @@ choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
 choose-file-type.error.required=Choose a file type to support your claim
 choose-file-type.or=or
+choose-file-type.choose-file-type.error.invalid-file-type=Invalid type of supporting documents
 
 #===================================================
 #  CHOOSE FILES - PAGE
