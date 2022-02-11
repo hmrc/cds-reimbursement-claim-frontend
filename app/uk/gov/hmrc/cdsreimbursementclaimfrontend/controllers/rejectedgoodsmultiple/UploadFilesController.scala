@@ -83,7 +83,11 @@ class UploadFilesController @Inject() (
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   final val submit: Action[AnyContent] = simpleActionReadWriteJourney(
     { implicit request => journey =>
-      request.asInstanceOf[Request[AnyContent]].body.asJson.map(_.as[UploadDocumentsCallback]) match {
+      request
+        .asInstanceOf[Request[AnyContent]]
+        .body
+        .asJson
+        .flatMap(_.asOpt[UploadDocumentsCallback]) match {
         case None =>
           logger.warn("missing or invalid callback payload")
           (journey, BadRequest("missing or invalid callback payload"))

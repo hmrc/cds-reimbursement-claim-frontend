@@ -94,7 +94,5 @@
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
     }
-
-    @Html(s"<!--${Json.prettyPrint(Json.toJson(claim))}-->")
 }
 

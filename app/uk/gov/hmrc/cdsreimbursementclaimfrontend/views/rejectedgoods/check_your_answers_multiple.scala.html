@@ -86,7 +86,7 @@
     }
     
     @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", subKey))
+    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", subKey, routes.ChooseFileTypeController.show()))
 
     @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
@@ -94,7 +94,5 @@
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
     }
-
-    @Html(s"<!--${Json.prettyPrint(Json.toJson(claim))}-->")
 }
 
