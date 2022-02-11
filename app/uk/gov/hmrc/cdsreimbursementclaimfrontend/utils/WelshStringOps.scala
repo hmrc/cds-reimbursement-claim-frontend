@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 import cats.instances.int._
 import cats.instances.string._
 import cats.syntax.eq._
-import org.apache.commons.lang3.StringUtils
 
 import java.util.Locale
 
@@ -77,7 +76,8 @@ object WelshStringOps {
       }
 
     private def clean(code: String): String =
-      StringUtils.stripAccents(code.toLowerCase(Locale.UK).stripPrefix(YR).filter(s => s.isLetter || s.isWhitespace))
+      org.apache.commons.lang3.StringUtils
+        .stripAccents(code.toLowerCase(Locale.UK).stripPrefix(YR).filter(s => s.isLetter || s.isWhitespace))
 
     @scala.annotation.tailrec
     private def toCharacterValues(str: String, acc: List[Int]): List[Int] =
