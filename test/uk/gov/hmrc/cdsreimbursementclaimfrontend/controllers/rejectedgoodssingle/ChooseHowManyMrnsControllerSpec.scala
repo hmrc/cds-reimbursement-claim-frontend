@@ -46,12 +46,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Feature, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
 
@@ -141,12 +146,14 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (single route) EnterMovementReferenceNumber page when user chooses Individual" in {
 
-     val updatedSession = getSessionWithPreviousAnswer.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(eoriExample)))
+        val updatedSession = getSessionWithPreviousAnswer.copy(rejectedGoodsSingleJourney =
+          Some(RejectedGoodsSingleJourney.empty(eoriExample))
+        )
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(getSessionWithPreviousAnswer)
-        mockStoreSession(updatedSession)(Right(()))
+          mockStoreSession(updatedSession)(Right(()))
         }
 
         val result = performAction(Seq(controller.dataKey -> Individual.toString))
