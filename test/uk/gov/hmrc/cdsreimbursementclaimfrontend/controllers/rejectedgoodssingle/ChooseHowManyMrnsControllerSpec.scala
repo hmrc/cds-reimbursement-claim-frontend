@@ -40,11 +40,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultip
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Feature, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
 
@@ -87,6 +94,18 @@ class ChooseHowManyMrnsControllerSpec
 
   private val formKey = "rejected-goods.choose-how-many-mrns"
 
+  private val eoriExample = exampleEori
+
+  private val getSessionWithPreviousAnswer: SessionData = {
+    val draftC285Claim      = DraftClaim.blank
+    val ggCredId            = sample[GGCredId]
+    val email               = sample[Email]
+    val eori                = eoriExample
+    val signedInUserDetails = SignedInUserDetails(Some(email), eori, email, ContactName("Anima Amina"))
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    SessionData.empty.copy(journeyStatus = Some(journey))
+  }
+
   "ChooseHowManyMrnsController" must {
 
     def performAction(): Future[Result] = controller.show()(FakeRequest())
@@ -122,9 +141,12 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (single route) EnterMovementReferenceNumber page when user chooses Individual" in {
 
+     val updatedSession = getSessionWithPreviousAnswer.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(eoriExample)))
+
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData.empty)
+          mockGetSession(getSessionWithPreviousAnswer)
+        mockStoreSession(updatedSession)(Right(()))
         }
 
         val result = performAction(Seq(controller.dataKey -> Individual.toString))
@@ -143,7 +165,7 @@ class ChooseHowManyMrnsControllerSpec
       }
 
       //FIXME change to scheduled route
-      "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
+      "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
 
         inSequence {
           mockAuthWithNoRetrievals()

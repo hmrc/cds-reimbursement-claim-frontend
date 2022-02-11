@@ -24,23 +24,18 @@ import play.api.data.Forms.text
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectGoodsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectGoodsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -75,27 +70,10 @@ class ChooseClaimTypeController @Inject() (
         },
         {
           case C285          => Future.successful(Redirect(claimRoutes.SelectTypeOfClaimController.show()))
-          case RejectedGoods => rejectedGoods(sessionStore, request)
+          case RejectedGoods => Future.successful(Redirect(rejectGoodsSingleRoutes.ChooseHowManyMrnsController.show()))
         }
       )
   }
-
-  private def rejectedGoods(
-    sessionStore: SessionCache,
-    request: RequestWithSessionData[_]
-  )(implicit hc: HeaderCarrier): Future[Result] =
-    (request.sessionData, request.signedInUserDetails) match {
-      case (Some(sessionData), Some(user)) if sessionData.rejectedGoodsSingleJourney.isEmpty   =>
-        updateSession(sessionStore, request)(
-          _.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(user.eori)))
-        ).map(_ => Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
-      case (Some(sessionData), Some(user)) if sessionData.rejectedGoodsMultipleJourney.isEmpty =>
-        updateSession(sessionStore, request)(
-          _.copy(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(user.eori)))
-        ).map(_ => Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
-      case _                                                                                   =>
-        Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
-    }
 }
 
 object ChooseClaimTypeController {
