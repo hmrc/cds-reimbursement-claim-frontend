@@ -14,55 +14,49 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods
 
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalatest.BeforeAndAfterEach
+import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.http.Status.BAD_REQUEST
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectedGoodsSingleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.{routes => rejectedGoodsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.{routes => rejectedGoodsMultipleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectedGoodsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import collection.JavaConverters._
+import play.api.mvc.Call
 
 class ChooseHowManyMrnsControllerSpec
     extends ControllerSpec
@@ -79,14 +73,17 @@ class ChooseHowManyMrnsControllerSpec
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
   implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]
 
-  val authenticatedAction: AuthenticatedAction    = instanceOf[AuthenticatedAction]
-  val sessionDataAction: SessionDataAction        = instanceOf[SessionDataAction]
+  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData =
+    instanceOf[AuthenticatedActionWithRetrievedData]
+  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData     =
+    instanceOf[SessionDataActionWithRetrievedData]
+
   val chooseHowManyMrnsPage: choose_how_many_mrns = instanceOf[choose_how_many_mrns]
 
   val controller: ChooseHowManyMrnsController =
     new ChooseHowManyMrnsController(
-      authenticatedAction,
-      sessionDataAction,
+      authenticatedActionWithRetrievedData,
+      sessionDataActionWithRetrievedData,
       mockSessionCache,
       chooseHowManyMrnsPage
     )
@@ -101,23 +98,13 @@ class ChooseHowManyMrnsControllerSpec
 
   private val eoriExample = exampleEori
 
-  private val getSessionWithPreviousAnswer: SessionData = {
-    val draftC285Claim      = DraftClaim.blank
-    val ggCredId            = sample[GGCredId]
-    val email               = sample[Email]
-    val eori                = eoriExample
-    val signedInUserDetails = SignedInUserDetails(Some(email), eori, email, ContactName("Anima Amina"))
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    SessionData.empty.copy(journeyStatus = Some(journey))
-  }
-
   "ChooseHowManyMrnsController" must {
 
     def performAction(): Future[Result] = controller.show()(FakeRequest())
 
     "display the page" in {
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithEoriEnrolmentRetrievals(exampleEori)
         mockGetSession(SessionData.empty)
       }
 
@@ -146,13 +133,11 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (single route) EnterMovementReferenceNumber page when user chooses Individual" in {
 
-        val updatedSession = getSessionWithPreviousAnswer.copy(rejectedGoodsSingleJourney =
-          Some(RejectedGoodsSingleJourney.empty(eoriExample))
-        )
+        val updatedSession = SessionData(RejectedGoodsSingleJourney.empty(eoriExample, Nonce.Any))
 
         inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(getSessionWithPreviousAnswer)
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetSession(SessionData.empty)
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -160,11 +145,15 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show())
       }
 
+      //FIXME change to multiple route
       "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {
 
+        val updatedSession = SessionData(RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any))
+
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
+          mockStoreSession(updatedSession)(Right(()))
         }
 
         val result = performAction(Seq(controller.dataKey -> Multiple.toString))
@@ -175,17 +164,17 @@ class ChooseHowManyMrnsControllerSpec
       "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
         val result = performAction(Seq(controller.dataKey -> Scheduled.toString))
-        checkIsRedirect(result, rejectedGoodsMultipleRoutes.WorkInProgressController.show())
+        checkIsRedirect(result, Call("GET", "/scheduled"))
       }
 
       "Show error message when no data selected" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
         }
 

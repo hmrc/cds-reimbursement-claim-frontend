@@ -26,19 +26,18 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectGoodsSingleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
@@ -47,7 +46,7 @@ class ChooseClaimTypeController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   chooseClaimTypePage: pages.choose_claim_type
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents)
+)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
@@ -70,7 +69,7 @@ class ChooseClaimTypeController @Inject() (
         },
         {
           case C285          => Future.successful(Redirect(claimRoutes.SelectTypeOfClaimController.show()))
-          case RejectedGoods => Future.successful(Redirect(rejectGoodsSingleRoutes.ChooseHowManyMrnsController.show()))
+          case RejectedGoods => Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
         }
       )
   }

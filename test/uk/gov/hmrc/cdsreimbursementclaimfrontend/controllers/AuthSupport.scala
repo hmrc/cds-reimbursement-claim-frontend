@@ -29,6 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 trait AuthSupport {
   this: ControllerSpec with SessionSupport =>
@@ -88,7 +89,7 @@ trait AuthSupport {
       Some(retrievedName)
     )
 
-  def mockAuthWithEoriEnrolmentRetrievals(): Any =
+  def mockAuthWithEoriEnrolmentRetrievals(eori: Eori = Eori("AB12345678901234Z")): Any =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
       None,
@@ -98,7 +99,7 @@ trait AuthSupport {
           Seq(
             EnrolmentIdentifier(
               EoriEnrolment.eoriEnrolmentIdentifier,
-              "AB12345678901234Z"
+              eori.value
             )
           ),
           ""
