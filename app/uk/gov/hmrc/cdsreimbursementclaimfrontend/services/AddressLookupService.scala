@@ -36,7 +36,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
@@ -68,17 +67,17 @@ class DefaultAddressLookupService @Inject() (
 ) extends AddressLookupService
     with Logging {
 
-  implicit val addressLookupTimeoutConfiguration: TimeoutConfig =
+  implicit val timeoutConfiguration: TimeoutConfig =
     TimeoutConfig(
       timeoutAmount = viewConfig.timeout,
-      timeoutUrl = baseRoutes.StartController.timedOut().url,
+      timeoutUrl = viewConfig.weSignedYouOutPageUrl,
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
   def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
     val request: AddressLookupRequest =
       AddressLookupRequest
-        .redirectBackTo(addressUpdateUrl)
+        .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateUrl.url}")
         .signOutUserVia(viewConfig.signOutUrl)
         .nameConsumerServiceAs("cds-reimbursement-claim")
         .showMax(addressLookupConfiguration.addressesShowLimit)
