@@ -161,7 +161,7 @@ rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.hint=Upload a list of MRNs, their duties and paid amounts.
-rejected-goods.choose-how-many-mrns.error.required=Choose how many MRNs you want to submit in this claim.
+rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 
 #===================================================
 #  SELECT NUMBER OF CLAIMS PAGE
