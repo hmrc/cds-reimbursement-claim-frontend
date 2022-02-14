@@ -17,34 +17,22 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import cats.data.EitherT
-import cats.syntax.all._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -66,7 +54,6 @@ class RejectedGoodsMultipleEnterMRNController @Inject() (
     with SessionUpdates
     with Logging {
 
-  import cats.data.EitherT._
   implicit val dataExtractor: DraftClaim => Option[MRN] = _.movementReferenceNumber
 
   def enterJourneyMrn(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
@@ -97,7 +84,6 @@ class RejectedGoodsMultipleEnterMRNController @Inject() (
             )
           ),
         mrnNumber => {
-
           val isSameAsPrevious =
             journey.answers.movementReferenceNumbers.map(mrnSeq => mrnSeq).exists(_.contains(mrnNumber))
 
@@ -136,9 +122,11 @@ class RejectedGoodsMultipleEnterMRNController @Inject() (
 
   private def redirectLocation(journey: RejectedGoodsMultipleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
-      Redirect(Call("GET", "enter-importer-eori-number"))
+      Redirect(routes.EnterDeclarantEoriNumberController.show())
     } else {
-      Redirect(Call("GET", "get-declaration-details"))
+      Redirect(
+        routes.WorkInProgressController.show() //TODO: "Update multiple/check-declaration-details route"))
+      )
     }
 
 }

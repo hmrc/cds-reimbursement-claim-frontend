@@ -35,7 +35,7 @@
 
 @(form: Form[MRN], subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-movement-reference-number"}
+@key = @{"enter-movement-reference-number.rejected-goods"}
 @title = @{messages(combine(key, subKey, "title"))}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -48,7 +48,11 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(combine(key, subKey, "help-text1"))), Some("govuk-body govuk-!-margin-bottom-6"))
+
+        @paragraph(Html(messages(combine(key, subKey, "help-text2"), viewConfig.mrnGuideUrl)), Some("govuk-body"))
+
+        @paragraph(Html(messages(combine(key, subKey, "help-text3"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
         @inputText(
             form = form,
@@ -57,7 +61,7 @@
             label = combine(key, subKey, "enter-mrn.label").head,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
-            hint = Some(s"$key.help")
+            hint = Some(combine(key, subKey, "help").head)
         )
 
         @submitButton("button.continue")
