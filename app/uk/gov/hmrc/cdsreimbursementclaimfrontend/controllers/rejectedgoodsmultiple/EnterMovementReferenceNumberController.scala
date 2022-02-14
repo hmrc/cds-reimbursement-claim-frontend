@@ -19,17 +19,20 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmulti
 import cats.data.EitherT
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -44,7 +47,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class RejectedGoodsMultipleEnterMRNController @Inject() (
+class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
@@ -56,7 +59,7 @@ class RejectedGoodsMultipleEnterMRNController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[MRN] = _.movementReferenceNumber
 
-  def enterJourneyMrn(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       val emptyForm = movementReferenceNumberForm
       val form      = journey.getLeadMovementReferenceNumber.fold(emptyForm)(emptyForm.fill)
@@ -65,7 +68,7 @@ class RejectedGoodsMultipleEnterMRNController @Inject() (
         enterMovementReferenceNumberPage(
           form,
           router.subKey,
-          routes.RejectedGoodsMultipleEnterMRNController.enterMrnSubmit()
+          routes.EnterMovementReferenceNumberController.enterMrnSubmit()
         )
       )
     }
@@ -80,7 +83,7 @@ class RejectedGoodsMultipleEnterMRNController @Inject() (
             enterMovementReferenceNumberPage(
               formWithErrors,
               ReimbursementRoutes(JourneyBindable.Multiple).subKey,
-              routes.RejectedGoodsMultipleEnterMRNController.enterMrnSubmit()
+              routes.EnterMovementReferenceNumberController.enterMrnSubmit()
             )
           ),
         mrnNumber => {
@@ -129,4 +132,22 @@ class RejectedGoodsMultipleEnterMRNController @Inject() (
       )
     }
 
+}
+
+object EnterMovementReferenceNumberController {
+
+  val enterMovementReferenceNumberKey: String = "enter-movement-reference-number.rejected-goods"
+
+  val movementReferenceNumberForm: Form[MRN] =
+    Form(
+      mapping(
+        enterMovementReferenceNumberKey ->
+          nonEmptyText
+            .verifying(
+              "invalid.number",
+              str => str.isEmpty || MRN(str).isValid
+            )
+            .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
 }
