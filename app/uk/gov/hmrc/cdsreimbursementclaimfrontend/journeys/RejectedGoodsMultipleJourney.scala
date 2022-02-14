@@ -726,8 +726,8 @@ final class RejectedGoodsMultipleJourney private (
 object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori): RejectedGoodsMultipleJourney =
-    new RejectedGoodsMultipleJourney(Answers(userEoriNumber = userEoriNumber))
+  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsMultipleJourney =
+    new RejectedGoodsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
 

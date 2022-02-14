@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 sealed trait RetrievedUserType {
   def name: Option[Name]
   def email: Option[Email]
+  def eoriOpt: Option[Eori] = None
 }
 
 object RetrievedUserType {
@@ -34,14 +35,18 @@ object RetrievedUserType {
     email: Option[Email],
     eori: Eori,
     name: Option[Name]
-  ) extends RetrievedUserType
+  ) extends RetrievedUserType {
+    override def eoriOpt: Option[Eori] = Some(eori)
+  }
 
   final case class Organisation(
     ggCredId: GGCredId,
     email: Option[Email],
     eori: Eori,
     name: Option[Name]
-  ) extends RetrievedUserType
+  ) extends RetrievedUserType {
+    override def eoriOpt: Option[Eori] = Some(eori)
+  }
 
   final case class NonGovernmentGatewayRetrievedUser(authProvider: String) extends RetrievedUserType {
     override val name: Option[Name]   = None
