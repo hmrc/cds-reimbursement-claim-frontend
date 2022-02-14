@@ -22,6 +22,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeOrDeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
 
 /** Comprehensive information about user filling out the claim. */
 final case class ClaimantInformation(
@@ -76,20 +77,20 @@ object ClaimantInformation {
         countryCode = claimantDetails.map(_.establishmentAddress.countryCode),
         telephoneNumber = None,
         faxNumber = None,
-        emailAddress = Some(contactDetails.emailAddress.value)
+        emailAddress = contactDetails.emailAddress.value.asSomeIfNonEmpty
       ),
       contactInformation = ContactInformation(
-        contactPerson = Option(contactDetails.fullName),
-        addressLine1 = Option(contactAddress.line1),
+        contactPerson = contactDetails.fullName.asSomeIfNonEmpty,
+        addressLine1 = contactAddress.line1.asSomeIfNonEmpty,
         addressLine2 = contactAddress.line2,
         addressLine3 = contactAddress.line3,
-        street = concat(Option(contactAddress.line1), contactAddress.line2),
-        city = Option(contactAddress.line4),
-        countryCode = Option(contactAddress.country.code),
-        postalCode = Option(contactAddress.postcode),
+        street = concat(contactAddress.line1.asSomeIfNonEmpty, contactAddress.line2),
+        city = contactAddress.line4.asSomeIfNonEmpty,
+        countryCode = contactAddress.country.code.asSomeIfNonEmpty,
+        postalCode = contactAddress.postcode.asSomeIfNonEmpty,
         telephoneNumber = contactDetails.phoneNumber.map(_.value),
         faxNumber = None,
-        emailAddress = Some(contactDetails.emailAddress.value)
+        emailAddress = contactDetails.emailAddress.value.asSomeIfNonEmpty
       )
     )
 

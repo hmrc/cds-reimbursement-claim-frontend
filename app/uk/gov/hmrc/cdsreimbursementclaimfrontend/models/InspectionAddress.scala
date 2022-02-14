@@ -21,6 +21,7 @@ import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
 
 final case class InspectionAddress(
   addressLine1: String,
@@ -44,8 +45,8 @@ object InspectionAddress {
     def mapFrom(contactAddress: ContactAddress): InspectionAddress =
       InspectionAddress(
         addressLine1 = contactAddress.line1,
-        addressLine2 = contactAddress.line2.getOrElse(""),
-        city = contactAddress.line4,
+        addressLine2 = contactAddress.line2.getOrElse(" "),
+        city = contactAddress.line4.asSomeIfNonEmpty.orElse(contactAddress.line3).getOrElse(""),
         countryCode = contactAddress.country.code,
         postalCode = contactAddress.postcode,
         addressType = inspectionAddressType
@@ -54,8 +55,8 @@ object InspectionAddress {
     def mapFrom(contactDetails: ContactDetails): InspectionAddress =
       InspectionAddress(
         addressLine1 = contactDetails.addressLine1.getOrElse(""),
-        addressLine2 = contactDetails.addressLine2.getOrElse(""),
-        city = contactDetails.addressLine4.getOrElse(""),
+        addressLine2 = contactDetails.addressLine2.getOrElse(" "),
+        city = contactDetails.addressLine4.orElse(contactDetails.addressLine3).getOrElse(""),
         countryCode = contactDetails.countryCode.getOrElse(""),
         postalCode = contactDetails.postalCode.getOrElse(""),
         addressType = inspectionAddressType

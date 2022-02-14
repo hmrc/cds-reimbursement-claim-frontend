@@ -38,7 +38,8 @@
 @title = @{messages(s"$key.title")}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = false) {
-    @pageHeading(title)
+
+ @pageHeading(title)
 
  @formWithCSRF(claimRoutes.ChooseClaimTypeController.submit(), 'novalidate -> "novalidate") {
 

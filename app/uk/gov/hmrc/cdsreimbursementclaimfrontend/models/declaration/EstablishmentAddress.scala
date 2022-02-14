@@ -21,6 +21,7 @@ import cats.implicits.catsSyntaxEq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
 
 final case class EstablishmentAddress(
   addressLine1: String,
@@ -33,8 +34,8 @@ final case class EstablishmentAddress(
     ContactAddress(
       addressLine1,
       addressLine2,
-      addressLine3,
-      "",
+      None,
+      addressLine3.getOrElse(""),
       postalCode.getOrElse(""),
       Country(countryCode)
     )
@@ -56,8 +57,8 @@ object EstablishmentAddress {
     EstablishmentAddress(
       contactAddress.line1,
       combineAddressLines(contactAddress.line2, contactAddress.line3),
-      Some(contactAddress.line4),
-      Some(contactAddress.postcode),
+      contactAddress.line4.asSomeIfNonEmpty,
+      contactAddress.postcode.asSomeIfNonEmpty,
       contactAddress.country.code
     )
 }

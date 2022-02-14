@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.UploadFilesMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_files_description
 
@@ -37,13 +37,13 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class UploadFilesController @Inject() (
   val jcc: JourneyControllerComponents,
-  uploadDocumentsConnector: UploadDocumentsConnector,
+  val uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
   val upload_files_description: upload_files_description
 )(implicit val ec: ExecutionContext, val appConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController
-    with UploadFilesMixin[RejectedGoodsSingleJourney] {
+    extends RejectedGoodsMultipleJourneyBaseController
+    with UploadFilesMixin[RejectedGoodsMultipleJourney] {
 
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
   final val callbackAction: Call               = routes.UploadFilesController.submit()

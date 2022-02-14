@@ -2,6 +2,7 @@
 ->          /claim-for-reimbursement-of-import-duties                   app.Routes
 ->          /claim-for-reimbursement-of-import-duties                   claims.Routes
 ->          /claim-for-reimbursement-of-import-duties                   file_upload.Routes
+->          /claim-for-reimbursement-of-import-duties                   rejected_goods.Routes
 ->          /claim-for-reimbursement-of-import-duties                   rejected_goods_single.Routes
 ->          /claim-for-reimbursement-of-import-duties                   rejected_goods_multiple.Routes
 ->          /                                                           health.Routes

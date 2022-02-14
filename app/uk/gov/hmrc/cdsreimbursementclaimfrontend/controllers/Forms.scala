@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -57,6 +58,13 @@ object Forms {
       key -> nonEmptyText(maxLength = 18)
         .verifying("invalid.number", str => str.length > 18 || str.isEmpty || Eori(str).isValid)
     )(Eori.apply)(Eori.unapply)
+  )
+
+  val chooseHowManyMrnsForm: Form[RejectedGoodsJourneyType] = Form(
+    mapping(
+      "rejected-goods.choose-how-many-mrns" -> nonEmptyText
+        .verifying("error.required", journey => journey.isEmpty || RejectedGoodsJourneyType.has(journey))
+    )(RejectedGoodsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
   )
 
   val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
