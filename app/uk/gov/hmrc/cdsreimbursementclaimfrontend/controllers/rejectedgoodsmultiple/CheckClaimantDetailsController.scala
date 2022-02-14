@@ -51,37 +51,38 @@ class CheckClaimantDetailsController @Inject() (
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-    val changeCd                                   = routes.WorkInProgressController.show() // FIXME: routes.EnterContactDetailsController.show()
+    val changeCd: Call                             =
+      routes.CheckClaimantDetailsController.show() // FIXME: routes.EnterContactDetailsController.show()
     val postAction                                 = routes.CheckClaimantDetailsController.submit()
     val (maybeContactDetails, maybeAddressDetails) =
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
-    Future.successful(
-      (maybeContactDetails, maybeAddressDetails) match {
-        case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction))
-        case _                    =>
-          logger.warn(
-            s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
-          )
-          Redirect(routes.WorkInProgressController.show()) //FIXME: routes.EnterMovementReferenceNumberController.show()
-      }
-    )
+    (maybeContactDetails, maybeAddressDetails) match {
+      case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)).asFuture
+      case _                    =>
+        logger.warn(
+          s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
+        )
+        Redirect(
+          "/enter-movement-reference-number"
+        ).asFuture //FIXME: routes.EnterMovementReferenceNumberController.show()
+    }
+
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { _ => journey => retrievedUserType =>
-    Future.successful(
-      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
-        case (Some(cd), Some(ca)) =>
-          (
-            journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
-            Redirect(routes.WorkInProgressController.show()) //FIXME: routes.BasisForClaimController.show()
-          )
-        case _                    =>
-          (
-            journey,
-            Redirect(routes.WorkInProgressController.show())
-          ) //FIXME routes.EnterMovementReferenceNumberController.show()
-      }
-    )
+    (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
+      case (Some(cd), Some(ca)) =>
+        (
+          journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
+          Redirect("/choose-basis-for-claim") //FIXME: routes.BasisForClaimController.show()
+        ).asFuture
+      case _                    =>
+        (
+          journey,
+          Redirect("/enter-movement-reference-number")
+        ).asFuture //FIXME routes.EnterMovementReferenceNumberController.show()
+    }
+
   }
 
   override def update(journey: RejectedGoodsMultipleJourney): ContactAddress => RejectedGoodsMultipleJourney =
