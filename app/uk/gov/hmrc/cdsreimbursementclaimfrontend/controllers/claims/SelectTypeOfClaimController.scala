@@ -24,25 +24,33 @@ import play.api.data.Forms.mapping
 import play.api.data.Forms.number
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number_of_claims
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectGoodsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.{routes => rejectGoodsMultipleRoutes}
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
@@ -96,13 +104,41 @@ class SelectTypeOfClaimController @Inject() (
                     case TypeOfClaimAnswer.Multiple   => JourneyBindable.Multiple
                     case TypeOfClaimAnswer.Scheduled  => JourneyBindable.Scheduled
                   }
-                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
+
+                  if (request.sessionData.exists(_.isRejectedGoods)) {
+                    Redirect(rejectedGoods(sessionStore, request, typeOfClaimAnswer, redirectUrl))
+                  } else {
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
+                  }
                 }
               )
           }
         )
     }
   }
+
+  private def rejectedGoods(
+    sessionStore: SessionCache,
+    request: RequestWithSessionData[_],
+    typeOfClaimAnswer: TypeOfClaimAnswer,
+    redirectUrl: JourneyBindable
+  )(implicit hc: HeaderCarrier): Call =
+    (request.sessionData, request.signedInUserDetails) match {
+      case (_, Some(user)) =>
+        typeOfClaimAnswer match {
+          case Individual | Scheduled =>
+            val _ = updateSession(sessionStore, request)(
+              _.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(user.eori)))
+            )
+            rejectGoodsSingleRoutes.EnterMovementReferenceNumberController.show()
+          case Multiple               =>
+            val _ = updateSession(sessionStore, request)(
+              _.copy(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(user.eori)))
+            )
+            rejectGoodsMultipleRoutes.RejectedGoodsMultipleEnterMRNController.enterJourneyMrn()
+        }
+      case _               => rejectGoodsSingleRoutes.EnterMovementReferenceNumberController.show()
+    }
 
 }
 
