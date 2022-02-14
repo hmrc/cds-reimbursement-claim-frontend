@@ -100,10 +100,11 @@ class ChooseHowManyMrnsController @Inject() (
                      updateSession(sessionStore, request)(_ => SessionData(RejectedGoodsMultipleJourney.empty(eori)))
                    else
                      Future.successful(Right(())))
-                    .map(_ => Redirect(rejectedGoodsMultipleRoutes.WorkInProgressController.show())) //FIXME
+                    .map(_ =>
+                      Redirect(rejectedGoodsMultipleRoutes.RejectedGoodsMultipleEnterMRNController.enterJourneyMrn())
+                    )
 
-                case Scheduled => //FIXME
-                  Future.successful(Redirect(Call("GET", "/scheduled"))) //FIXME
+                case Scheduled => Future.successful(Redirect(Call("GET", "/scheduled"))) //FIXME
 
               }
             )
