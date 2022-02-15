@@ -141,7 +141,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            "/enter-movement-reference-number" //FIXME: routes.EnterMovementReferenceNumberController.show()
+            routes.EnterMovementReferenceNumberController.show()
           )
         }
       }
@@ -267,7 +267,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              "/enter-movement-reference-number" //FIXME: routes.EnterMovementReferenceNumberController.show()
+              routes.EnterMovementReferenceNumberController.show()
             )
           }
         }
