@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import org.scalatest.BeforeAndAfterEach
@@ -42,7 +58,7 @@ import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
 
 class CheckClaimantDetailsControllerSpec
-  extends ControllerSpec
+    extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -69,7 +85,7 @@ class CheckClaimantDetailsControllerSpec
     featureSwitch.enable(Feature.RejectedGoods)
 
   private val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
+    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
   )
 
   "Check Claimant Details Controller" when {
@@ -125,7 +141,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.EnterMovementReferenceNumberController.show() //FIXME
+            "/enter-movement-reference-number" //FIXME: routes.EnterMovementReferenceNumberController.show()
           )
         }
       }
@@ -174,7 +190,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show() //FIXME
+              "/choose-basis-for-claim" //FIXME: routes.BasisForClaimController.show()
             )
         }
       }
@@ -216,7 +232,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show()  //FIXME
+              "/choose-basis-for-claim" //FIXME: routes.BasisForClaimController.show()
             )
         }
       }
@@ -251,7 +267,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.EnterMovementReferenceNumberController.show()  //FIXME
+              "/enter-movement-reference-number" //FIXME: routes.EnterMovementReferenceNumberController.show()
             )
           }
         }
