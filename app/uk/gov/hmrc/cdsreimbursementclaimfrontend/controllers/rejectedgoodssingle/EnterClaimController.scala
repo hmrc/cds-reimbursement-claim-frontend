@@ -77,57 +77,60 @@ class EnterClaimController @Inject() (
       .asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    request.cookies.get(taxCodeCookieName) match {
-      case Some(Cookie(_, taxCode, _, _, _, _, _, _)) =>
-        journey.getNdrcDetailsFor(TaxCode(taxCode)) match {
-          case Some(ndrcDetails) =>
-            val form = Forms.claimAmountForm(key, BigDecimal(ndrcDetails.amount))
-            form
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  Future.successful(
-                    (
-                      journey,
-                      BadRequest(
-                        enterClaim(
-                          formWithErrors,
-                          TaxCode(ndrcDetails.taxType),
-                          BigDecimal(ndrcDetails.amount),
-                          postAction
+  def submit(): Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      request.cookies.get(taxCodeCookieName) match {
+        case Some(Cookie(_, taxCode, _, _, _, _, _, _)) =>
+          journey.getNdrcDetailsFor(TaxCode(taxCode)) match {
+            case Some(ndrcDetails) =>
+              val form = Forms.claimAmountForm(key, BigDecimal(ndrcDetails.amount))
+              form
+                .bindFromRequest()
+                .fold(
+                  formWithErrors =>
+                    Future.successful(
+                      (
+                        journey,
+                        BadRequest(
+                          enterClaim(
+                            formWithErrors,
+                            TaxCode(ndrcDetails.taxType),
+                            BigDecimal(ndrcDetails.amount),
+                            postAction
+                          )
                         )
                       )
+                    ),
+                  reimbursementAmount =>
+                    Future.successful(
+                      journey
+                        .submitAmountForReimbursement(TaxCode(taxCode), reimbursementAmount)
+                        .fold(
+                          error => {
+                            logger.error(s"Error submitting reimbursement claim amount - $error")
+                            (journey, Redirect(routes.EnterClaimController.show()))
+                          },
+                          updatedJourney =>
+                            (
+                              updatedJourney,
+                              if (updatedJourney.hasCompleteReimbursementClaims)
+                                Redirect(routes.CheckClaimDetailsController.show())
+                              else
+                                Redirect(routes.EnterClaimController.show())
+                            )
+                        )
                     )
-                  ),
-                reimbursementAmount =>
-                  Future.successful(
-                    journey
-                      .submitAmountForReimbursement(TaxCode(taxCode), reimbursementAmount)
-                      .fold(
-                        error => {
-                          logger.error(s"Error submitting reimbursement claim amount - $error")
-                          (journey, Redirect(routes.EnterClaimController.show()))
-                        },
-                        updatedJourney =>
-                          (
-                            updatedJourney,
-                            if (updatedJourney.hasCompleteReimbursementClaims)
-                              Redirect(routes.CheckClaimDetailsController.show())
-                            else
-                              Redirect(routes.EnterClaimController.show())
-                          )
-                      )
-                  )
-              )
-          case None              =>
-            logger.error(s"Attempting to claim a reimbursement before selecting an MRN")
-            Future.successful((journey, Redirect(routes.EnterMovementReferenceNumberController.show())))
-        }
-      case None                                       =>
-        Future.successful(
-          (journey, Redirect(routes.EnterClaimController.show()))
-        )
-    }
-  }
+                )
+            case None              =>
+              logger.error(s"Attempting to claim a reimbursement before selecting an MRN")
+              Future.successful((journey, Redirect(routes.EnterMovementReferenceNumberController.show())))
+          }
+        case None                                       =>
+          Future.successful(
+            (journey, Redirect(routes.EnterClaimController.show()))
+          )
+      }
+    },
+    fastForwardToCYAEnabled = false
+  )
 }
