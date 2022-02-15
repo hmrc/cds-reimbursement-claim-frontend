@@ -1279,7 +1279,7 @@ choose-file-type.file-type.LetterOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
-choose-file-type.error.required=Choose a file type to support your claim
+choose-file-type.error.required=Choose the type of file you are uploading
 choose-file-type.or=or
 choose-file-type.choose-file-type.error.invalid-file-type=Invalid type of supporting documents
 
