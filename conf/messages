@@ -140,10 +140,9 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 #  CHECK EORI DETAILS PAGE
 #===================================================
-check-eori-details.title=Check the EORI associated with the Government Gateway Name is correct
-check-eori-details.paragraph=More information about <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Economic Operators Registration and Identification numbers (EORI) (opens in new tab)</a>.
+check-eori-details.title=Check these EORI details are correct
 check-eori-details.eori-number.label=EORI
-check-eori-details.name.label=Government Gateway Name
+check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
