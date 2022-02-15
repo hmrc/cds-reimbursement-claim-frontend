@@ -200,6 +200,15 @@ enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 
 enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.single.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.rejected-goods.invalid.number=Enter a movement reference number in the correct format
+enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number
+enter-movement-reference-number.rejected-goods.multiple.title=Enter the first MRN
+enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
+enter-movement-reference-number.rejected-goods.multiple.help-text3=The first MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter first MRN
+enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001.
 
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
