@@ -726,8 +726,6 @@ reimbursement-method.error.required=Select if you would like to be reimbursed vi
 #===================================================
 select-duties.title=Select the duties you want to claim for
 select-duties.duty.hint=This duty is not eligible for CMA reimbursement
-select-duties.help-text.1=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for.
-select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
 select-duties.error.required=Choose at least one duty to claim against
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
@@ -806,8 +804,7 @@ select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a ga
 select-duties.duty.99D=Electricity
 
 multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
-multiple-select-duties.help-text.1=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for.
-multiple-select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
+multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: {0}
 
 #===================================================
 #  ENTER SINGLE CLAIM PAGE
