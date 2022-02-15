@@ -99,7 +99,9 @@ class EnterMovementReferenceNumberController @Inject() (
                       },
                       redirectLocation
                     )
-                case None        => Redirect(baseRoutes.IneligibleController.ineligible())
+                case None        =>
+                  logger.error(s"Display Declaration details not found")
+                  Redirect(baseRoutes.IneligibleController.ineligible())
               }
             )
       )
