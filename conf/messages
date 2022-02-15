@@ -183,18 +183,21 @@ select-number-of-claims.invalid=Choose how many MRNs you want to submit in this 
 #  ENTER MRN PAGE
 #===================================================
 enter-movement-reference-number.title=Enter the MRN
+enter-movement-reference-number.details.heading=Finding your MRN
+enter-movement-reference-number.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-movement-reference-number.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number
 enter-movement-reference-number.error.required=Enter a movement reference number
 enter-movement-reference-number.multiple.title=Enter the lead MRN
-enter-movement-reference-number.multiple.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.scheduled.title=Enter the lead MRN
-enter-movement-reference-number.scheduled.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
+enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.single.help-text=The MRN can be found in the import acceptance notification.
 enter-movement-reference-number.rejected-goods.invalid.number=Enter a movement reference number in the correct format
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number

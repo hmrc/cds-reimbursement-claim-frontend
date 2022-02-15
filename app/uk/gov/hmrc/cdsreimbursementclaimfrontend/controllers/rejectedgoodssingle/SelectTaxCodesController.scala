@@ -53,32 +53,34 @@ class SelectTaxCodesController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-    Future.successful(if (availableDuties.isEmpty) {
-      logger.warn("No available duties")
-      (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-    } else {
-      val form = selectTaxCodesForm(availableDuties.map(_._1))
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, postAction))
-            ),
-          taxCodesSelected =>
-            (
-              journey
-                .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
-                .getOrElse(journey),
-              Redirect(routes.EnterClaimController.show())
-            )
-        )
-    })
-
-  }
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
+      Future.successful(if (availableDuties.isEmpty) {
+        logger.warn("No available duties")
+        (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+      } else {
+        val form = selectTaxCodesForm(availableDuties.map(_._1))
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, postAction))
+              ),
+            taxCodesSelected =>
+              (
+                journey
+                  .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
+                  .getOrElse(journey),
+                Redirect(routes.EnterClaimController.show())
+              )
+          )
+      })
+    },
+    fastForwardToCYAEnabled = false
+  )
 }
 
 object SelectTaxCodesController {
