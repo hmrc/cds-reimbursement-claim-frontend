@@ -145,7 +145,6 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show())
       }
 
-      //FIXME change to multiple route
       "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {
 
         val updatedSession = SessionData(RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any))
@@ -157,7 +156,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq(controller.dataKey -> Multiple.toString))
-        checkIsRedirect(result, rejectedGoodsMultipleRoutes.WorkInProgressController.show())
+        checkIsRedirect(result, rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.show())
       }
 
       //FIXME change to scheduled route

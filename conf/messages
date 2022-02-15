@@ -140,9 +140,10 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 #  CHECK EORI DETAILS PAGE
 #===================================================
-check-eori-details.title=Check these EORI details are correct
+check-eori-details.title=Check the EORI associated with the Government Gateway Name is correct
+check-eori-details.paragraph=More information about <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Economic Operators Registration and Identification numbers (EORI) (opens in new tab)</a>.
 check-eori-details.eori-number.label=EORI
-check-eori-details.name.label=Name
+check-eori-details.name.label=Government Gateway Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
@@ -161,7 +162,7 @@ rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.hint=Upload a list of MRNs, their duties and paid amounts.
-rejected-goods.choose-how-many-mrns.error.required=Choose how many MRNs you want to submit in this claim.
+rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 
 #===================================================
 #  SELECT NUMBER OF CLAIMS PAGE
@@ -183,19 +184,31 @@ select-number-of-claims.invalid=Choose how many MRNs you want to submit in this 
 #  ENTER MRN PAGE
 #===================================================
 enter-movement-reference-number.title=Enter the MRN
+enter-movement-reference-number.details.heading=Finding your MRN
+enter-movement-reference-number.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-movement-reference-number.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number
 enter-movement-reference-number.error.required=Enter a movement reference number
 enter-movement-reference-number.multiple.title=Enter the lead MRN
-enter-movement-reference-number.multiple.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.scheduled.title=Enter the lead MRN
-enter-movement-reference-number.scheduled.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
+
 enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
+enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.single.help-text=The MRN can be found in the import acceptance notification.
+enter-movement-reference-number.rejected-goods.invalid.number=Enter a movement reference number in the correct format
+enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number
+enter-movement-reference-number.rejected-goods.multiple.title=Enter the first MRN
+enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
+enter-movement-reference-number.rejected-goods.multiple.help-text3=The first MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter first MRN
+enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001.
 
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
@@ -400,6 +413,12 @@ check-declaration-details.error.invalid=Select yes if you wish to continue with 
 check-declaration-details.error.number=Select yes if you wish to continue with this MRN.
 check-declaration-details.error.required=Select yes if you wish to continue with this MRN.
 check-declaration-details.scheduled.mrn-number.label=Lead MRN
+
+#===================================================
+#  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
+#===================================================
+check-declaration-details.multiple.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the CDS team (opens in new tab)</a>
+
 
 #===================================================
 #  CLAIM NORTHERN IRELAND PAGE
@@ -724,8 +743,6 @@ reimbursement-method.error.required=Select if you would like to be reimbursed vi
 #===================================================
 select-duties.title=Select the duties you want to claim for
 select-duties.duty.hint=This duty is not eligible for CMA reimbursement
-select-duties.help-text.1=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for.
-select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
 select-duties.error.required=Choose at least one duty to claim against
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
@@ -804,8 +821,7 @@ select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a ga
 select-duties.duty.99D=Electricity
 
 multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
-multiple-select-duties.help-text.1=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for.
-multiple-select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
+multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: {0}
 
 #===================================================
 #  ENTER SINGLE CLAIM PAGE
@@ -1112,6 +1128,8 @@ check-your-answers.declaration-details.multiple.mrn-label=Lead MRN
 check-your-answers.declaration-details.scheduled.mrn-label=Lead MRN
 check-your-answers.declaration-details.import-date-label=Import date
 check-your-answers.declaration-details.paid-charges-label=Duties and VAT paid
+check-your-answers.declaration-details.paid-duties-charges-label=Duties paid
+check-your-answers.declaration-details.paid-vat-charges-label=VAT paid
 check-your-answers.declaration-details.importer-name-label=Importer name
 check-your-answers.declaration-details.importer-email-label=Importer email
 check-your-answers.declaration-details.importer-telephone-label=Importer telephone
@@ -1278,7 +1296,7 @@ choose-file-type.file-type.LetterOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
-choose-file-type.error.required=Choose a file type to support your claim
+choose-file-type.error.required=Choose the type of file you are uploading
 choose-file-type.or=or
 choose-file-type.choose-file-type.error.invalid-file-type=Invalid type of supporting documents
 

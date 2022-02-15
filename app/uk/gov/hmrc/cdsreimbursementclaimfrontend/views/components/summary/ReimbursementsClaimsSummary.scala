@@ -29,7 +29,7 @@ object ReimbursementsClaimsSummary {
   def single(
     reimbursementClaims: Seq[(TaxCode, BigDecimal)],
     key: String,
-    changeCallOpt: Option[Call] = None
+    changeCall: Call
   )(implicit
     messages: Messages
   ): SummaryList =
@@ -39,7 +39,7 @@ object ReimbursementsClaimsSummary {
           SummaryListRow(
             key = Key(Text(messages(s"tax-code.${taxCode.value}"))),
             value = Value(Text(amount.toPoundSterlingString)),
-            actions = changeCallOpt.map(changeCall =>
+            actions = Some(
               Actions(
                 items = Seq(
                   ActionItem(
@@ -51,13 +51,12 @@ object ReimbursementsClaimsSummary {
               )
             )
           )
-        } ++
-        Seq(
-          SummaryListRow(
-            key = Key(Text(messages(s"$key.total"))),
-            value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString))
-          )
+        } ++ Seq(
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.total"))),
+          value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString))
         )
+      )
     )
 
   def multiple(
@@ -68,14 +67,14 @@ object ReimbursementsClaimsSummary {
     messages: Messages
   ): SummaryList = {
     val totalAmount: BigDecimal =
-      reimbursementClaims.flatMap(_._2.map(_._2)).sum
+      reimbursementClaims.flatMap(_._2.values).sum
 
     SummaryList(rows =
       reimbursementClaims.toSeq
         .map { case (mrn, claims) =>
           SummaryListRow(
             key = Key(Text(mrn.value)),
-            value = Value(Text(claims.map(_._2).sum.toPoundSterlingString)),
+            value = Value(Text(claims.values.sum.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
                 items = Seq(
