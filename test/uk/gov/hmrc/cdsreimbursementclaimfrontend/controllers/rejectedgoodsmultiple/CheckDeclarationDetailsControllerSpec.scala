@@ -156,7 +156,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(checkDeclarationDetailsKey -> "true"),
-          "/enter-movement-reference-number/2"
+          routes.WorkInProgressController.show()
         )
       }
 
@@ -168,7 +168,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(checkDeclarationDetailsKey -> "false"),
-          "enter-movement-reference-number"
+          routes.EnterMovementReferenceNumberController.show()
         )
       }
     }

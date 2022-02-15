@@ -112,7 +112,7 @@ class EnterMovementReferenceNumberController @Inject() (
       Redirect(routes.EnterDeclarantEoriNumberController.show())
     } else {
       Redirect(
-        routes.WorkInProgressController.show() //TODO: "Update multiple/check-declaration-details route"))
+        routes.CheckDeclarationDetailsController.show()
       )
     }
 

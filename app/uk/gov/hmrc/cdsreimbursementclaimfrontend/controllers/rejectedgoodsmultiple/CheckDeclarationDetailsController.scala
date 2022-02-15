@@ -55,9 +55,6 @@ class CheckDeclarationDetailsController @Inject() (
       .asFuture
   }
 
-  /*
-
-   */
   def submit(): Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
     checkDeclarationDetailsAnswerForm
       .bindFromRequest()
@@ -82,8 +79,9 @@ class CheckDeclarationDetailsController @Inject() (
           (
             journey,
             Redirect(answer match {
-              case Yes => "/enter-movement-reference-number/2"
-              case No  => "enter-movement-reference-number"
+              case Yes =>
+                routes.WorkInProgressController.show() //TODO: "/enter-movement-reference-number/2" Requires CDSR-1349
+              case No  => routes.EnterMovementReferenceNumberController.show()
             })
           )
       )
