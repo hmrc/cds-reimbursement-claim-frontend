@@ -402,6 +402,12 @@ check-declaration-details.error.required=Select yes if you wish to continue with
 check-declaration-details.scheduled.mrn-number.label=Lead MRN
 
 #===================================================
+#  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
+#===================================================
+check-declaration-details.multiple.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the CDS team (opens in new tab)</a>
+
+
+#===================================================
 #  CLAIM NORTHERN IRELAND PAGE
 #===================================================
 claim-northern-ireland.title=Were your goods imported to or moved through Northern Ireland?
@@ -1112,6 +1118,8 @@ check-your-answers.declaration-details.multiple.mrn-label=Lead MRN
 check-your-answers.declaration-details.scheduled.mrn-label=Lead MRN
 check-your-answers.declaration-details.import-date-label=Import date
 check-your-answers.declaration-details.paid-charges-label=Duties and VAT paid
+check-your-answers.declaration-details.paid-duties-charges-label=Duties paid
+check-your-answers.declaration-details.paid-vat-charges-label=VAT paid
 check-your-answers.declaration-details.importer-name-label=Importer name
 check-your-answers.declaration-details.importer-email-label=Importer email
 check-your-answers.declaration-details.importer-telephone-label=Importer telephone
