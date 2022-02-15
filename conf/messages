@@ -197,6 +197,7 @@ enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.scheduled.title=Enter the lead MRN
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
+
 enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 

@@ -118,9 +118,6 @@ class EnterMovementReferenceNumberControllerSpec
           performAction(),
           messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.title"),
           doc => {
-            doc
-              .select("form p.govuk-body")
-              .text()                                              shouldBe messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.help-text")
             doc.select("#enter-movement-reference-number").`val`() shouldBe ""
             doc.select("form").attr("action")                      shouldBe routes.EnterMovementReferenceNumberController.submit().url
           }
@@ -142,12 +139,7 @@ class EnterMovementReferenceNumberControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.title"),
-          doc => {
-            doc
-              .select("form p.govuk-body")
-              .text()                                              shouldBe messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.help-text")
-            doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
-          }
+          doc => doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
         )
       }
     }
