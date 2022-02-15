@@ -57,8 +57,6 @@ class EnterMovementReferenceNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftClaim => Option[MRN] = _.movementReferenceNumber
-
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       val emptyForm = movementReferenceNumberForm
@@ -87,8 +85,7 @@ class EnterMovementReferenceNumberController @Inject() (
             )
           ),
         mrnNumber => {
-          val isSameAsPrevious =
-            journey.answers.movementReferenceNumbers.map(mrnSeq => mrnSeq).exists(_.contains(mrnNumber))
+          val isSameAsPrevious = journey.answers.movementReferenceNumbers.exists(_.contains(mrnNumber))
 
           if (isSameAsPrevious && journey.hasCompleteAnswers)
             Future.successful(Redirect(routes.CheckYourAnswersController.show()))
