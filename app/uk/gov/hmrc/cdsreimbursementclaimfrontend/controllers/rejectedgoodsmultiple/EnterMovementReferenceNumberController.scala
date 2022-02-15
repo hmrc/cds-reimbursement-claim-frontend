@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import cats.data.EitherT
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -24,7 +23,6 @@ import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -35,8 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -51,7 +47,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
     with SessionDataExtractor
     with SessionUpdates
@@ -84,41 +80,30 @@ class EnterMovementReferenceNumberController @Inject() (
               routes.EnterMovementReferenceNumberController.enterMrnSubmit()
             )
           ),
-        mrnNumber => {
-          val isSameAsPrevious = journey.answers.movementReferenceNumbers.exists(_.contains(mrnNumber))
-
-          if (isSameAsPrevious && journey.hasCompleteAnswers)
-            Future.successful(Redirect(routes.CheckYourAnswersController.show()))
-          else {
-            for {
-              maybeAcc14    <-
-                claimService.getDisplayDeclaration(mrnNumber).leftMap(_ => Error("Could not get declaration"))
-              updateJourney <- updateJourney(journey, mrnNumber, maybeAcc14)
-            } yield updateJourney
-          }.fold(
-            errors => {
-              logger.error(s"Unable to record $mrnNumber", errors.toException)
-              Redirect(baseRoutes.IneligibleController.ineligible())
-            },
-            updatedJourney => redirectLocation(updatedJourney)
-          )
-        }
+        mrnNumber =>
+          claimService
+            .getDisplayDeclaration(mrnNumber)
+            .fold(
+              errors => {
+                logger.error(s"Unable to record $mrnNumber", errors.toException)
+                Redirect(baseRoutes.IneligibleController.ineligible())
+              },
+              {
+                case Some(acc14) =>
+                  journey
+                    .submitMovementReferenceNumberAndDeclaration(mrnNumber, acc14)
+                    .fold(
+                      error => {
+                        logger.error(s"Unable to update journey [$error]")
+                        Redirect(baseRoutes.IneligibleController.ineligible())
+                      },
+                      redirectLocation
+                    )
+                case None        => Redirect(baseRoutes.IneligibleController.ineligible())
+              }
+            )
       )
   }
-
-  private def updateJourney(
-    journey: RejectedGoodsMultipleJourney,
-    mrn: MRN,
-    maybeAcc14: Option[DisplayDeclaration]
-  ): EitherT[Future, Error, RejectedGoodsMultipleJourney] =
-    maybeAcc14 match {
-      case Some(acc14) =>
-        EitherT.fromEither[Future](
-          journey.submitMovementReferenceNumberAndDeclaration(mrn, acc14).left.map(Error.apply(_))
-        )
-      case _           =>
-        EitherT.leftT(Error("could not unbox display declaration"))
-    }
 
   private def redirectLocation(journey: RejectedGoodsMultipleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
