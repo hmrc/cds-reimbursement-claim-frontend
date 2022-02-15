@@ -89,6 +89,8 @@ object TaxCodes {
     NI99D
   )
 
+  val vatTaxCodes: Seq[TaxCode] = List(B00, B05)
+
   val all: Seq[TaxCode] = UK ++ EU ++ excise
 
   private[models] val taxCodesStringMap: Map[String, TaxCode] =

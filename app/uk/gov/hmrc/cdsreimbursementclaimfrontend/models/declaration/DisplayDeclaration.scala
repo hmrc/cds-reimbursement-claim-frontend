@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Missi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 final case class DisplayDeclaration(
@@ -70,6 +71,24 @@ object DisplayDeclaration {
   // TODO: not good code, most of this needed to be mapped when parsing from JSON
   // Same as devs must know about some workaround extension class import which not always the case
   implicit class DisplayDeclarationOps(val displayDeclaration: DisplayDeclaration) extends AnyVal {
+
+    def totalVatPaidCharges: BigDecimal =
+      BigDecimal(
+        displayDeclaration.displayResponseDetail.ndrcDetails
+          .map(
+            _.filter(ndrc => TaxCodes.vatTaxCodes.contains(TaxCode(ndrc.taxType)))
+          )
+          .fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
+      )
+
+    def totalDutiesPaidCharges: BigDecimal =
+      BigDecimal(
+        displayDeclaration.displayResponseDetail.ndrcDetails
+          .map(
+            _.filterNot(ndrc => TaxCodes.vatTaxCodes.contains(TaxCode(ndrc.taxType)))
+          )
+          .fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
+      )
 
     def totalPaidCharges: BigDecimal =
       BigDecimal(
