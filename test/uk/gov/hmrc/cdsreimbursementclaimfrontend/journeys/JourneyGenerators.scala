@@ -53,8 +53,8 @@ trait JourneyGenerators extends JourneyTestData {
     for {
       declarantEORI    <- IdGen.genEori
       consigneeEORI    <- IdGen.genEori
-      numberOfTaxCodes <- Gen.choose(1, 5)
-      taxCodes         <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
+      numberOfTaxCodes <- Gen.choose(2, 5)
+      taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
       paidAmounts      <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
     } yield {
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =

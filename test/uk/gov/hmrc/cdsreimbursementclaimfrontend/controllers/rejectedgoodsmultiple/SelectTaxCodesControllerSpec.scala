@@ -85,7 +85,7 @@ class SelectTaxCodesControllerSpec
 
   "SelectTaxCodesController" when {
 
-    "Show duities selection for the first MRN" must {
+    "Show duties selection for the first MRN" must {
 
       def performAction(): Future[Result] = controller.showFirst()(FakeRequest())
 
@@ -231,6 +231,92 @@ class SelectTaxCodesControllerSpec
           }
         }
       }
+    }
+
+    "Submit duties selection" must {
+
+      def performAction(index: Int, selectedTaxCodes: Seq[TaxCode]): Future[Result] =
+        controller.submit(index)(
+          FakeRequest()
+            .withFormUrlEncodedBody(selectedTaxCodes.map(taxCode => s"$messagesKey[]" -> taxCode.value): _*)
+        )
+
+      "fail if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+        status(performAction(1, Seq.empty)) shouldBe NOT_FOUND
+      }
+
+      "redirect to enter first claim for the MRN when no duty selected before" in {
+        forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, index) =>
+            val displayedTaxCodes: Seq[TaxCode] =
+              journey.getAvailableDuties(mrn).map(_._1)
+
+            val selectedTaxCodes: Seq[TaxCode] =
+              displayedTaxCodes.take(Math.max(1, displayedTaxCodes.size / 2))
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+              mockStoreSession(
+                SessionData(
+                  journey
+                    .selectAndReplaceTaxCodeSetForReimbursement(mrn, selectedTaxCodes)
+                    .getOrFail
+                )
+              )(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(index + 1, selectedTaxCodes),
+              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${index + 1}/${selectedTaxCodes.head.value}"
+            )
+          }
+        }
+      }
+
+      "redirect to enter first claim for the MRN when the same duties already selected" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrnsWithTaxCodesSelection) =>
+          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((_, selectedTaxCodes), index) =>
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            checkIsRedirect(
+              performAction(index + 1, selectedTaxCodes),
+              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${index + 1}/${selectedTaxCodes.head.value}"
+            )
+          }
+        }
+      }
+
+      "redirect to enter first claim for the MRN when some duties already selected" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrnsWithTaxCodesSelection) =>
+          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((mrn, selectedTaxCodes), index) =>
+            val newSelectedTaxCodes: Seq[TaxCode] = selectedTaxCodes.drop(1)
+            if (newSelectedTaxCodes.nonEmpty) {
+              inSequence {
+                mockAuthWithNoRetrievals()
+                mockGetSession(SessionData(journey))
+                mockStoreSession(
+                  SessionData(
+                    journey
+                      .selectAndReplaceTaxCodeSetForReimbursement(mrn, newSelectedTaxCodes)
+                      .getOrFail
+                  )
+                )(Right(()))
+              }
+
+              checkIsRedirect(
+                performAction(index + 1, newSelectedTaxCodes),
+                s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${index + 1}/${newSelectedTaxCodes.head.value}"
+              )
+            }
+          }
+        }
+      }
+
     }
   }
 
