@@ -587,6 +587,9 @@ check-claim.rejected-goods.are-duties-correct=Are these duties correct?
 check-claim.rejected-goods.yes=Yes
 check-claim.rejected-goods.no=No, select different duties
 check-claim.rejected-goods.error.invalid=Select Yes if these duties are correct.
+check-claim.rejected-goods.multiple.duty.label={0} MRN: {1}
+check-claim.rejected-goods.multiple.overall-total.header=Total
+check-claim.rejected-goods.multiple.overall-total.label=Total repayment
 
 #===================================================
 #  CHOOSE REPAYMENT METHOD REJECTED GOODS - SINGLE

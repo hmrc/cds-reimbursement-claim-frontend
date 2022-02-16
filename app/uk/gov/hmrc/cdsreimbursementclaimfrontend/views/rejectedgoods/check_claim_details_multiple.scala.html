@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementsClaimsSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -52,7 +53,13 @@
 
     @paragraph(Html(messages(s"$key.multiple.label")), Some("govuk-body"))
 
-    @summary(ReimbursementsClaimsSummary.multipleFull(claims, key, enterClaimAction))
+    @for((mrn, index, claim) <- claims){
+        @pageHeading(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value), "govuk-heading-m", "h2")
+        @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_)))
+    }
+
+    @pageHeading(messages(s"$key.multiple.overall-total.header"), "govuk-heading-m", "h2")
+    @summary(ReimbursementsClaimsSummary.multipleOverallTotalRow(claims, key))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(

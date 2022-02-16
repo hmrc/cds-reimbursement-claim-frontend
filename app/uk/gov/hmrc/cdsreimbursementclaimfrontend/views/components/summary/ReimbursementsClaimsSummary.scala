@@ -101,17 +101,19 @@ object ReimbursementsClaimsSummary {
       )
     )
 
-  def multipleFull(
+  def multipleOverallTotalRow(
     reimbursementClaims: Seq[(MRN, Int, Map[TaxCode, BigDecimal])],
-    key: String,
-    enterClaimAction: (Int, TaxCode) => Call
+    key: String
   )(implicit
     messages: Messages
   ): SummaryList = SummaryList(
-    reimbursementClaims
-      .flatMap { case (mrn, index, claims) =>
-        singleFull(claims.toSeq, key, enterClaimAction(index, _)).rows
-      }
+    Seq(
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.multiple.overall-total.label"))),
+        value = Value(Text(reimbursementClaims.flatMap(_._3.values).sum.toPoundSterlingString))
+      )
+    ),
+    "govuk-!-margin-bottom-9"
   )
 
   def multipleForCYA(
