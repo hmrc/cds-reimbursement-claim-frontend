@@ -92,7 +92,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
               },
               {
-                case Some(acc14: DisplayDeclaration) =>
+                case Some(acc14) =>
                   journey
                     .submitMovementReferenceNumberAndDeclaration(mrnNumber, acc14)
                     .fold(
