@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
@@ -68,25 +67,28 @@ class EnterMovementReferenceNumberController @Inject() (
     }
   }
 
-  def enterMrnSubmit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def enterMrnSubmit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     movementReferenceNumberForm
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          BadRequest(
-            enterMovementReferenceNumberPage(
-              formWithErrors,
-              ReimbursementRoutes(JourneyBindable.Multiple).subKey,
-              routes.EnterMovementReferenceNumberController.enterMrnSubmit()
+          (
+            journey,
+            BadRequest(
+              enterMovementReferenceNumberPage(
+                formWithErrors,
+                ReimbursementRoutes(JourneyBindable.Multiple).subKey,
+                routes.EnterMovementReferenceNumberController.enterMrnSubmit()
+              )
             )
-          ),
+          ).asFuture,
         mrnNumber =>
           claimService
             .getDisplayDeclaration(mrnNumber)
             .fold(
               errors => {
                 logger.error(s"Unable to record $mrnNumber", errors.toException)
-                Redirect(baseRoutes.IneligibleController.ineligible())
+                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
               },
               {
                 case Some(acc14) =>
@@ -95,13 +97,13 @@ class EnterMovementReferenceNumberController @Inject() (
                     .fold(
                       error => {
                         logger.error(s"Unable to update journey [$error]")
-                        Redirect(baseRoutes.IneligibleController.ineligible())
+                        (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
                       },
-                      redirectLocation
+                      updatedJourney => (updatedJourney, redirectLocation(updatedJourney))
                     )
                 case None        =>
                   logger.error(s"Display Declaration details not found")
-                  Redirect(baseRoutes.IneligibleController.ineligible())
+                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
               }
             )
       )
@@ -109,7 +111,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   private def redirectLocation(journey: RejectedGoodsMultipleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
-      Redirect(routes.EnterDeclarantEoriNumberController.show())
+      Redirect(routes.EnterImporterEoriNumberController.show())
     } else {
       Redirect(
         routes.CheckDeclarationDetailsController.show()
