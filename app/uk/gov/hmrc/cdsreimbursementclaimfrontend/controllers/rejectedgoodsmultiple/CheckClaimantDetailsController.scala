@@ -52,7 +52,7 @@ class CheckClaimantDetailsController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd: Call                             =
-      routes.CheckClaimantDetailsController.show() // FIXME: routes.EnterContactDetailsController.show()
+      routes.EnterContactDetailsController.show()
     val postAction                                 = routes.CheckClaimantDetailsController.submit()
     val (maybeContactDetails, maybeAddressDetails) =
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
