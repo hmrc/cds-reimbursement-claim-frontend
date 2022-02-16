@@ -22,10 +22,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 import scala.util.Try
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 object PathBinders {
 
   lazy val stringBinder: PathBindable[String] = implicitly[PathBindable[String]]
+
+  implicit val mrnBinder: PathBindable[MRN] =
+    new PathBindable[MRN] {
+
+      def bind(key: String, value: String): Either[String, MRN] =
+        stringBinder.bind(key, value).map(MRN.apply)
+
+      def unbind(key: String, mrn: MRN): String =
+        stringBinder.unbind(key, mrn.value)
+    }
 
   implicit val taxCodeBinder: PathBindable[TaxCode] =
     new PathBindable[TaxCode] {

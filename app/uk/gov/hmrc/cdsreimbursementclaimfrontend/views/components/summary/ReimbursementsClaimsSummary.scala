@@ -26,10 +26,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 object ReimbursementsClaimsSummary {
 
-  def single(
+  def singleFull(
     reimbursementClaims: Seq[(TaxCode, BigDecimal)],
     key: String,
-    changeCall: Call
+    enterClaimAction: TaxCode => Call
   )(implicit
     messages: Messages
   ): SummaryList =
@@ -43,7 +43,38 @@ object ReimbursementsClaimsSummary {
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = s"${changeCall.url}/${taxCode.value}",
+                    href = enterClaimAction(taxCode).url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
+                  )
+                )
+              )
+            )
+          )
+        } ++ Seq(
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.single.total"))),
+          value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString))
+        )
+      )
+    )
+
+  def singleForCYA(
+    reimbursementClaims: Map[TaxCode, BigDecimal],
+    key: String,
+    changeCallOpt: Option[Call]
+  )(implicit messages: Messages): SummaryList =
+    SummaryList(rows =
+      reimbursementClaims.toSeq
+        .map { case (taxCode, amount) =>
+          SummaryListRow(
+            key = Key(Text(messages(s"tax-code.${taxCode.value}"))),
+            value = Value(Text(amount.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
                   )
@@ -54,12 +85,36 @@ object ReimbursementsClaimsSummary {
         } ++ Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.total"))),
-          value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString))
+          value = Value(Text(reimbursementClaims.values.sum.toPoundSterlingString)),
+          actions = changeCallOpt.map(changeCall =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.total"))
+                )
+              )
+            )
+          )
         )
       )
     )
 
-  def multiple(
+  def multipleFull(
+    reimbursementClaims: Seq[(MRN, Int, Map[TaxCode, BigDecimal])],
+    key: String,
+    enterClaimAction: (Int, TaxCode) => Call
+  )(implicit
+    messages: Messages
+  ): SummaryList = SummaryList(
+    reimbursementClaims
+      .flatMap { case (mrn, index, claims) =>
+        singleFull(claims.toSeq, key, enterClaimAction(index, _)).rows
+      }
+  )
+
+  def multipleForCYA(
     reimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]],
     key: String,
     changeCallOpt: Option[Call] = None

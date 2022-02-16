@@ -26,12 +26,14 @@ object MessagesHelper {
     combine(level1, journey.value.replace(JourneyBindable.Single.value, "").some, level3)
 
   def combine(level1: String, level2: Option[String], level3: String)(implicit messages: Messages): List[String] = {
-    val default = s"$level1.$level3"
-    val keys    = level2 match {
+    val default    = s"$level1.$level3"
+    val keys       = level2 match {
       case Some(l2) => List(s"$level1.$l2.$level3", default)
       case None     => List(default)
     }
-    keys.filter(key => messages.isDefinedAt(key))
+    val candidates = keys.filter(key => messages.isDefinedAt(key))
+    if (candidates.isEmpty) List(s"cannot find any of messages: ${keys.mkString(",")}")
+    else candidates
   }
 
 }

@@ -38,10 +38,10 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[YesNo], mrn: MRN, claims: Seq[(TaxCode, BigDecimal)], submitLink: Call, changeLink: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], claims: Seq[(MRN,Int,Map[TaxCode,BigDecimal])], enterClaimAction: (Int,TaxCode) => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-claim.rejected-goods.single"}
-@title = @{messages(s"$key.title")}
+@key = @{"check-claim.rejected-goods"}
+@title = @{messages(s"$key.multiple.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
@@ -50,13 +50,11 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.label")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.multiple.label")), Some("govuk-body"))
 
-    @pageHeading(messages(s"$key.mrn.label", mrn.value), "govuk-heading-m", "h2")
+    @summary(ReimbursementsClaimsSummary.multipleFull(claims, key, enterClaimAction))
 
-    @summary(ReimbursementsClaimsSummary.single(claims, key, changeLink))
-
-    @formWithCSRF(submitLink, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,

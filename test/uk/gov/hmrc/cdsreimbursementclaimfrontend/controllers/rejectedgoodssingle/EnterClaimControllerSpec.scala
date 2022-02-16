@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import cats.implicits.catsSyntaxEq
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -32,28 +31,27 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+
 import scala.concurrent.Future
 
-@SuppressWarnings(Array("org.wartremover.warts.EitherProjectionPartial"))
 class EnterClaimControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -118,13 +116,13 @@ class EnterClaimControllerSpec
             doc => {
               doc
                 .select("p.govuk-inset-text")
-                .text()                                                                          shouldBe messageFromMessageKey("enter-claim.rejected-goods.single.inset-text")
-              doc.select("form p").text()                                                        shouldBe messageFromMessageKey(
-                "enter-claim.rejected-goods.single.paid-amount-label",
+                .text()                                                                   shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
+              doc.select("form p").text()                                                 shouldBe messageFromMessageKey(
+                "enter-claim.rejected-goods.paid-amount-label",
                 amountPaid.toPoundSterlingString
               )
-              doc.select("input[name='enter-claim.rejected-goods.single.claim-amount']").`val`() shouldBe ""
-              doc.select("form").attr("action")                                                  shouldBe routes.EnterClaimController.submit().url
+              doc.select("input[name='enter-claim.rejected-goods.claim-amount']").`val`() shouldBe ""
+              doc.select("form").attr("action")                                           shouldBe routes.EnterClaimController.submit().url
             }
           )
 
@@ -188,13 +186,13 @@ class EnterClaimControllerSpec
               doc => {
                 doc
                   .select("p.govuk-inset-text")
-                  .text()                         shouldBe messageFromMessageKey("enter-claim.rejected-goods.single.inset-text")
+                  .text()                         shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
                 doc.select("form p").text()       shouldBe messageFromMessageKey(
-                  "enter-claim.rejected-goods.single.paid-amount-label",
+                  "enter-claim.rejected-goods.paid-amount-label",
                   amountPaid.toPoundSterlingString
                 )
                 doc
-                  .select("input[name='enter-claim.rejected-goods.single.claim-amount']")
+                  .select("input[name='enter-claim.rejected-goods.claim-amount']")
                   .`val`()                        shouldBe f"$amountClaimed%1.2f"
                 doc.select("form").attr("action") shouldBe routes.EnterClaimController.submit().url
               }
@@ -247,11 +245,11 @@ class EnterClaimControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.single.claim-amount" -> ""),
+          performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> ""),
           messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-claim.rejected-goods.single.claim-amount.error.required"
+              "enter-claim.rejected-goods.claim-amount.error.required"
             ),
           expectedStatus = BAD_REQUEST
         )
@@ -267,11 +265,11 @@ class EnterClaimControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.single.claim-amount" -> "0"),
+          performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> "0"),
           messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-claim.rejected-goods.single.claim-amount.error.zero"
+              "enter-claim.rejected-goods.claim-amount.error.zero"
             ),
           expectedStatus = BAD_REQUEST
         )
@@ -291,12 +289,12 @@ class EnterClaimControllerSpec
           checkPageIsDisplayed(
             performAction(
               ndrcDetails.taxType,
-              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
             ),
             messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-claim.rejected-goods.single.claim-amount.error.invalid-amount"
+                "enter-claim.rejected-goods.claim-amount.error.invalid-amount"
               ),
             expectedStatus = BAD_REQUEST
           )
@@ -313,11 +311,11 @@ class EnterClaimControllerSpec
           }
 
           checkPageIsDisplayed(
-            performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.single.claim-amount" -> "invalid"),
+            performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> "invalid"),
             messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-claim.rejected-goods.single.claim-amount.error.invalid-text"
+                "enter-claim.rejected-goods.claim-amount.error.invalid-text"
               ),
             expectedStatus = BAD_REQUEST
           )
@@ -344,7 +342,7 @@ class EnterClaimControllerSpec
             checkIsRedirect(
               performAction(
                 ndrcDetails1.taxType,
-                "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+                "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
               ),
               routes.EnterClaimController.show()
             )
@@ -366,7 +364,7 @@ class EnterClaimControllerSpec
 
             val result = performAction(
               ndrcDetails.taxType,
-              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
             )
 
             checkIsRedirect(
@@ -385,7 +383,7 @@ class EnterClaimControllerSpec
             val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
             val amountToClaim  = BigDecimal(ndrcDetails.amount) - 10
             val updatedJourney =
-              journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).right.get
+              journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).getOrFail
             val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
             inSequence {
@@ -396,7 +394,7 @@ class EnterClaimControllerSpec
 
             val result = performAction(
               ndrcDetails.taxType,
-              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
             )
 
             checkIsRedirect(
@@ -415,7 +413,7 @@ class EnterClaimControllerSpec
             val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
             val amountToClaim  = BigDecimal(ndrcDetails.amount)
             val updatedJourney =
-              journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).right.get
+              journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).getOrFail
             val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
             inSequence {
@@ -426,7 +424,7 @@ class EnterClaimControllerSpec
 
             val result = performAction(
               ndrcDetails.taxType,
-              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
             )
 
             checkIsRedirect(
@@ -445,7 +443,7 @@ class EnterClaimControllerSpec
             val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
             val amountToClaim  = BigDecimal(ndrcDetails1.amount) - 10
             val updatedJourney =
-              journey.submitAmountForReimbursement(TaxCode(ndrcDetails1.taxType), amountToClaim).right.get
+              journey.submitAmountForReimbursement(TaxCode(ndrcDetails1.taxType), amountToClaim).getOrFail
             val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
             inSequence {
@@ -456,7 +454,7 @@ class EnterClaimControllerSpec
 
             val result = performAction(
               ndrcDetails1.taxType,
-              "enter-claim.rejected-goods.single.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
             )
 
             checkIsRedirect(

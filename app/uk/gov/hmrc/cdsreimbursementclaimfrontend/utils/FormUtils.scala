@@ -138,7 +138,7 @@ object FormUtils {
         }
 
       def unbind(key: String, value: BigDecimal) =
-        Map(key -> value.setScale(scale).toString)
+        Map(key -> value.setScale(scale, RoundingMode.HALF_UP).toString)
     }
 
 }
