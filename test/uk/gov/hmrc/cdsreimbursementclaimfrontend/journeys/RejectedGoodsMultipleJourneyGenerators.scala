@@ -48,6 +48,23 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     }
   }
 
+  def incompleteJourneyWithSelectedDutiesGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[(MRN, Seq[TaxCode])])] = {
+    def submitData(journey: RejectedGoodsMultipleJourney)(data: (MRN, Seq[TaxCode])) =
+      journey.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
+
+    incompleteJourneyWithMrnsGen(n).flatMap { case (journey, mrns) =>
+      Gen
+        .sequence(mrns.map { mrn =>
+          val availableTaxCodes = journey.getAvailableDuties(mrn).map(_._1)
+          Gen.choose(1, availableTaxCodes.size).map(availableTaxCodes.take).map(seq => (mrn, seq))
+        })
+        .map(_.asScala)
+        .map(mrnsWithTaxCodesSelection =>
+          (journey.flatMapEach(mrnsWithTaxCodesSelection, submitData).getOrFail, mrnsWithTaxCodesSelection)
+        )
+    }
+  }
+
   val completeJourneyWithMatchingUserEoriAndCMAEligibleGen: Gen[RejectedGoodsMultipleJourney] =
     Gen.oneOf(
       buildCompleteJourneyGen(
