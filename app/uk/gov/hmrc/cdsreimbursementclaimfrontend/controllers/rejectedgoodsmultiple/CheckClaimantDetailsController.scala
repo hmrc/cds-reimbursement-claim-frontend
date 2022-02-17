@@ -52,7 +52,7 @@ class CheckClaimantDetailsController @Inject() (
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd: Call                             =
       routes.EnterContactDetailsController.show()
-    val postAction                                 = routes.CheckClaimantDetailsController.submit()
+    val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
     val (maybeContactDetails, maybeAddressDetails) =
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
     (maybeContactDetails, maybeAddressDetails) match {
@@ -73,7 +73,7 @@ class CheckClaimantDetailsController @Inject() (
       case (Some(cd), Some(ca)) =>
         (
           journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
-          Redirect("/choose-basis-for-claim") //FIXME: routes.BasisForClaimController.show()
+          Redirect(routes.BasisForClaimController.show())
         ).asFuture
       case _                    =>
         (
