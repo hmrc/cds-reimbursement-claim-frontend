@@ -171,6 +171,24 @@ final class RejectedGoodsMultipleJourney private (
   def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
 
+  /** Returns the amount paid for the given MRN and tax code as returned by ACC14,
+    * or None if either MRN or tax code not found.
+    */
+  def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply(_))
+
+  /** If the user has selected the tax code for repayment
+    * then returns the amount paid for the given MRN and tax code as returned by ACC14,
+    * otherwise None.
+    */
+  def getAmountPaidForIfSelected(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    getSelectedDuties(mrn)
+      .flatMap(selectedTaxCodes =>
+        if (selectedTaxCodes.contains(taxCode))
+          getAmountPaidFor(mrn, taxCode)
+        else None
+      )
+
   def getAvailableDuties(mrn: MRN): Seq[(TaxCode, Boolean)] =
     getNdrcDetailsFor(mrn)
       .flatMap { ndrcs =>

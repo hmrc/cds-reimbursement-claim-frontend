@@ -52,14 +52,7 @@ class EnterClaimController @Inject() (
     journey
       .getNthMovementReferenceNumber(index - 1)
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-        journey
-          .getSelectedDuties(mrn)
-          .flatMap(selectedTaxCodes =>
-            if (selectedTaxCodes.contains(taxCode))
-              journey.getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply(_))
-            else None
-          ) match {
-
+        journey.getAmountPaidForIfSelected(mrn, taxCode) match {
           case None =>
             Redirect(selectDutiesAction(index))
 
@@ -86,13 +79,7 @@ class EnterClaimController @Inject() (
       journey
         .getNthMovementReferenceNumber(index - 1)
         .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
-          journey
-            .getSelectedDuties(mrn)
-            .flatMap(selectedTaxCodes =>
-              if (selectedTaxCodes.contains(taxCode))
-                journey.getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply(_))
-              else None
-            ) match {
+          journey.getAmountPaidForIfSelected(mrn, taxCode) match {
             case None =>
               // case when tax code not selectable nor selected
               (journey, Redirect(selectDutiesAction(index)))
