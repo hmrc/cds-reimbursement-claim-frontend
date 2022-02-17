@@ -20,7 +20,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfRejectedGoodsClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -37,8 +36,7 @@ class BasisForClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val formKey: String  = "select-basis-for-claim.rejected-goods"
-  val postAction: Call = routes.BasisForClaimController.show()
+  val formKey: String = "select-basis-for-claim.rejected-goods"
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val form = journey.answers.basisOfClaim.toList.foldLeft(basisOfRejectedGoodsClaimForm)((form, basisOfClaim) =>
@@ -48,7 +46,7 @@ class BasisForClaimController @Inject() (
       basisForClaimPage(
         form,
         BasisOfRejectedGoodsClaim.values,
-        postAction
+        routes.BasisForClaimController.submit()
       )
     ).asFuture
   }
@@ -64,7 +62,7 @@ class BasisForClaimController @Inject() (
               basisForClaimPage(
                 formWithErrors,
                 BasisOfRejectedGoodsClaim.values,
-                postAction
+                routes.BasisForClaimController.submit()
               )
             )
           ).asFuture,
@@ -73,8 +71,8 @@ class BasisForClaimController @Inject() (
             journey.submitBasisOfClaim(basisOfClaim),
             Redirect(basisOfClaim match {
               case SpecialCircumstances =>
-                "/enter-special-circumstances" //FIXME routes.EnterSpecialCircumstancesController.show()
-              case _                    => "/choose-disposal-method" //FIXME routes.DisposalMethodController.show()
+                "/enter-special-circumstances" //FIXME: routes.EnterSpecialCircumstancesController.show()
+              case _                    => "/choose-disposal-method" //FIXME: routes.DisposalMethodController.show()
             })
           ).asFuture
       )

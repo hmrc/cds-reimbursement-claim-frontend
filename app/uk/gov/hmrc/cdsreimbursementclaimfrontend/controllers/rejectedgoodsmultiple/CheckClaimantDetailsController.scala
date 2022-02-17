@@ -53,7 +53,7 @@ class CheckClaimantDetailsController @Inject() (
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd: Call                             =
       routes.EnterContactDetailsController.show()
-    val postAction: Call                                 = routes.CheckClaimantDetailsController.submit()
+    val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
     val (maybeContactDetails, maybeAddressDetails) =
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
     (maybeContactDetails, maybeAddressDetails) match {
