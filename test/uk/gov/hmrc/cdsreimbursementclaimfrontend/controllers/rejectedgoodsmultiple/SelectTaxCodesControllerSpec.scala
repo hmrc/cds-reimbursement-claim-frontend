@@ -36,10 +36,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class SelectTaxCodesControllerSpec
     extends PropertyBasedControllerSpec
@@ -165,8 +165,11 @@ class SelectTaxCodesControllerSpec
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        for (index <- 1 to 100)
-          status(performAction(index)) shouldBe NOT_FOUND
+        forAll { (index: Int) =>
+          whenever(index > 0) {
+            status(performAction(index)) shouldBe NOT_FOUND
+          }
+        }
       }
 
       "display the page with no duty selected" in {
