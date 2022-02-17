@@ -48,13 +48,13 @@ class EnterClaimController @Inject() (
   val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show(_, _)
   val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit(_, _)
 
-  def show(index: Int, taxCode: TaxCode): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey
-      .getNthMovementReferenceNumber(index - 1)
+      .getNthMovementReferenceNumber(pageIndex - 1)
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
         journey.getAmountPaidForIfSelected(mrn, taxCode) match {
           case None =>
-            Redirect(selectDutiesAction(index))
+            Redirect(selectDutiesAction(pageIndex))
 
           case Some(paidAmount) =>
             val claimedAmountOpt = journey.getReimbursementClaimFor(mrn, taxCode)
@@ -63,10 +63,10 @@ class EnterClaimController @Inject() (
               enterClaim(
                 form,
                 taxCode,
-                Some(index),
+                Some(pageIndex),
                 paidAmount,
                 subKey,
-                submitClaimAction(index, taxCode)
+                submitClaimAction(pageIndex, taxCode)
               )
             )
         }
@@ -74,15 +74,15 @@ class EnterClaimController @Inject() (
       .asFuture
   }
 
-  def submit(index: Int, taxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
+  def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       journey
-        .getNthMovementReferenceNumber(index - 1)
+        .getNthMovementReferenceNumber(pageIndex - 1)
         .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
           journey.getAmountPaidForIfSelected(mrn, taxCode) match {
             case None =>
               // case when tax code not selectable nor selected
-              (journey, Redirect(selectDutiesAction(index)))
+              (journey, Redirect(selectDutiesAction(pageIndex)))
 
             case Some(paidAmount) =>
               Forms
@@ -96,10 +96,10 @@ class EnterClaimController @Inject() (
                         enterClaim(
                           formWithErrors,
                           taxCode,
-                          Some(index),
+                          Some(pageIndex),
                           paidAmount,
                           subKey,
-                          submitClaimAction(index, taxCode)
+                          submitClaimAction(pageIndex, taxCode)
                         )
                       )
                     ),
@@ -109,10 +109,10 @@ class EnterClaimController @Inject() (
                       .fold(
                         error => {
                           logger.error(s"Error submitting reimbursement claim amount - $error")
-                          (journey, Redirect(enterClaimAction(index, taxCode)))
+                          (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
                         },
                         modifiedJourney =>
-                          (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, index, mrn, taxCode)))
+                          (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
                       )
                 )
 
@@ -123,21 +123,21 @@ class EnterClaimController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  def decideNextRoute(journey: RejectedGoodsMultipleJourney, index: Int, mrn: MRN, taxCode: TaxCode): Call =
+  def decideNextRoute(journey: RejectedGoodsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
     if (journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode)
       claimsSummaryAction
     else {
       val selectedTaxCodes = journey.getSelectedDuties(mrn).getOrElse(Seq.empty)
       selectedTaxCodes.indexOf(taxCode) match {
         case -1 => // invalid tax code
-          selectDutiesAction(index)
+          selectDutiesAction(pageIndex)
 
         case n if n < selectedTaxCodes.size - 1 =>
-          enterClaimAction(index, selectedTaxCodes(n + 1))
+          enterClaimAction(pageIndex, selectedTaxCodes(n + 1))
 
         case _ =>
-          journey.getNthMovementReferenceNumber(index) match {
-            case Some(_) => selectDutiesAction(index + 1)
+          journey.getNthMovementReferenceNumber(pageIndex) match {
+            case Some(_) => selectDutiesAction(pageIndex + 1)
             case None    => claimsSummaryAction
           }
       }

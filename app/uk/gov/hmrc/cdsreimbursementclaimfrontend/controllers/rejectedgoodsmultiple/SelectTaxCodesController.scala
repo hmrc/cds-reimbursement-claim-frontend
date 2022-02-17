@@ -40,9 +40,9 @@ class SelectTaxCodesController @Inject() (
 
   val showFirst: Action[AnyContent] = show(1)
 
-  def show(index: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey
-      .getNthMovementReferenceNumber(index - 1)
+      .getNthMovementReferenceNumber(pageIndex - 1)
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
         val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties(mrn)
         if (availableDuties.isEmpty) {
@@ -54,9 +54,9 @@ class SelectTaxCodesController @Inject() (
             selectTaxCodesPage(
               form,
               availableDuties,
-              Some((index, mrn)),
+              Some((pageIndex, mrn)),
               Some("multiple"),
-              routes.SelectTaxCodesController.submit(index)
+              routes.SelectTaxCodesController.submit(pageIndex)
             )
           )
         }
@@ -64,10 +64,10 @@ class SelectTaxCodesController @Inject() (
       .asFuture
   }
 
-  def submit(index: Int): Action[AnyContent] = actionReadWriteJourney(
+  def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       journey
-        .getNthMovementReferenceNumber(index - 1)
+        .getNthMovementReferenceNumber(pageIndex - 1)
         .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
           val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties(mrn)
           if (availableDuties.isEmpty) {
@@ -85,9 +85,9 @@ class SelectTaxCodesController @Inject() (
                       selectTaxCodesPage(
                         formWithErrors,
                         availableDuties,
-                        Some((index, mrn)),
+                        Some((pageIndex, mrn)),
                         Some("multiple"),
-                        routes.SelectTaxCodesController.submit(index)
+                        routes.SelectTaxCodesController.submit(pageIndex)
                       )
                     )
                   ),
@@ -98,8 +98,8 @@ class SelectTaxCodesController @Inject() (
                       .getOrElse(journey),
                     Redirect(
                       taxCodesSelected.headOption match {
-                        case Some(taxCode) => routes.EnterClaimController.show(index, taxCode)
-                        case None          => routes.SelectTaxCodesController.show(index)
+                        case Some(taxCode) => routes.EnterClaimController.show(pageIndex, taxCode)
+                        case None          => routes.SelectTaxCodesController.show(pageIndex)
                       }
                     )
                   )

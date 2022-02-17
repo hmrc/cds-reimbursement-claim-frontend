@@ -67,7 +67,7 @@ class SelectTaxCodesControllerSpec
 
   def validateSelectTaxCodesPage(
     doc: Document,
-    index: Int,
+    pageIndex: Int,
     mrn: MRN,
     taxCodes: Seq[TaxCode],
     selectedTaxCodes: Seq[TaxCode]
@@ -80,7 +80,9 @@ class SelectTaxCodesControllerSpec
     mrnElement.text()        shouldBe mrn.value
     mrnElement.attr("class") shouldBe "govuk-!-font-weight-bold"
     hasContinueButton(doc)
-    formAction(doc)          shouldBe s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/select-duties/$index"
+    formAction(
+      doc
+    )                        shouldBe s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/select-duties/$pageIndex"
   }
 
   "SelectTaxCodesController" when {
@@ -161,20 +163,21 @@ class SelectTaxCodesControllerSpec
 
     "Show duties selection for the nth MRN" must {
 
-      def performAction(index: Int): Future[Result] = controller.show(index)(FakeRequest())
+      def performAction(pageIndex: Int): Future[Result] =
+        controller.show(pageIndex)(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        forAll { (index: Int) =>
-          whenever(index > 0) {
-            status(performAction(index)) shouldBe NOT_FOUND
+        forAll { (pageIndex: Int) =>
+          whenever(pageIndex > 0) {
+            status(performAction(pageIndex)) shouldBe NOT_FOUND
           }
         }
       }
 
       "display the page with no duty selected" in {
         forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
-          mrns.zipWithIndex.foreach { case (mrn, index) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(journey))
@@ -184,9 +187,9 @@ class SelectTaxCodesControllerSpec
               journey.getAvailableDuties(mrn).map(_._1)
 
             checkPageIsDisplayed(
-              performAction(index + 1),
-              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(index + 1)),
-              doc => validateSelectTaxCodesPage(doc, index + 1, mrn, displayedTaxCodes, Seq.empty)
+              performAction(mrnIndex + 1),
+              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
+              doc => validateSelectTaxCodesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, Seq.empty)
             )
           }
         }
@@ -194,7 +197,7 @@ class SelectTaxCodesControllerSpec
 
       "display the page with some duties selected" in {
         forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrnsWithTaxCodesSelection) =>
-          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((mrn, selectedTaxCodes), index) =>
+          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((mrn, selectedTaxCodes), mrnIndex) =>
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(journey))
@@ -204,9 +207,9 @@ class SelectTaxCodesControllerSpec
               journey.getAvailableDuties(mrn).map(_._1)
 
             checkPageIsDisplayed(
-              performAction(index + 1),
-              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(index + 1)),
-              doc => validateSelectTaxCodesPage(doc, index + 1, mrn, displayedTaxCodes, selectedTaxCodes)
+              performAction(mrnIndex + 1),
+              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
+              doc => validateSelectTaxCodesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
             )
           }
         }
@@ -214,7 +217,7 @@ class SelectTaxCodesControllerSpec
 
       "display the page with some duties selected when in change mode" in {
         forAll(completeJourneyGen) { journey =>
-          journey.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (mrn, index) =>
+          journey.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(journey))
@@ -227,9 +230,9 @@ class SelectTaxCodesControllerSpec
               journey.getSelectedDuties(mrn).get
 
             checkPageIsDisplayed(
-              performAction(index + 1),
-              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(index + 1)),
-              doc => validateSelectTaxCodesPage(doc, index + 1, mrn, displayedTaxCodes, selectedTaxCodes)
+              performAction(mrnIndex + 1),
+              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
+              doc => validateSelectTaxCodesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
             )
           }
         }
@@ -238,8 +241,8 @@ class SelectTaxCodesControllerSpec
 
     "Submit duties selection" must {
 
-      def performAction(index: Int, selectedTaxCodes: Seq[TaxCode]): Future[Result] =
-        controller.submit(index)(
+      def performAction(pageIndex: Int, selectedTaxCodes: Seq[TaxCode]): Future[Result] =
+        controller.submit(pageIndex)(
           FakeRequest()
             .withFormUrlEncodedBody(selectedTaxCodes.map(taxCode => s"$messagesKey[]" -> taxCode.value): _*)
         )
@@ -251,7 +254,7 @@ class SelectTaxCodesControllerSpec
 
       "redirect to enter first claim for the MRN when no duty selected before" in {
         forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
-          mrns.zipWithIndex.foreach { case (mrn, index) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val displayedTaxCodes: Seq[TaxCode] =
               journey.getAvailableDuties(mrn).map(_._1)
 
@@ -271,8 +274,8 @@ class SelectTaxCodesControllerSpec
             }
 
             checkIsRedirect(
-              performAction(index + 1, selectedTaxCodes),
-              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${index + 1}/${selectedTaxCodes.head.value}"
+              performAction(mrnIndex + 1, selectedTaxCodes),
+              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -280,15 +283,15 @@ class SelectTaxCodesControllerSpec
 
       "redirect to enter first claim for the MRN when the same duties already selected" in {
         forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrnsWithTaxCodesSelection) =>
-          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((_, selectedTaxCodes), index) =>
+          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((_, selectedTaxCodes), mrnIndex) =>
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(journey))
             }
 
             checkIsRedirect(
-              performAction(index + 1, selectedTaxCodes),
-              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${index + 1}/${selectedTaxCodes.head.value}"
+              performAction(mrnIndex + 1, selectedTaxCodes),
+              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -296,7 +299,7 @@ class SelectTaxCodesControllerSpec
 
       "redirect to enter first claim for the MRN when some duties already selected" in {
         forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrnsWithTaxCodesSelection) =>
-          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((mrn, selectedTaxCodes), index) =>
+          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((mrn, selectedTaxCodes), mrnIndex) =>
             val newSelectedTaxCodes: Seq[TaxCode] = selectedTaxCodes.drop(1)
             if (newSelectedTaxCodes.nonEmpty) {
               inSequence {
@@ -312,8 +315,8 @@ class SelectTaxCodesControllerSpec
               }
 
               checkIsRedirect(
-                performAction(index + 1, newSelectedTaxCodes),
-                s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${index + 1}/${newSelectedTaxCodes.head.value}"
+                performAction(mrnIndex + 1, newSelectedTaxCodes),
+                s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
               )
             }
           }
