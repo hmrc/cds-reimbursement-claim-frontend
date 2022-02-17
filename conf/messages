@@ -417,6 +417,9 @@ check-declaration-details.scheduled.mrn-number.label=Lead MRN
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
 #===================================================
 check-declaration-details.multiple.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the CDS team (opens in new tab)</a>
+check-declaration-details.multiple.error.invalid=Select ''yes'' if you want to continue with this MRN
+check-declaration-details.multiple.error.number=Select ''yes'' if you want to continue with this MRN
+check-declaration-details.multiple.error.required=Select ''yes'' if you want to continue with this MRN
 
 
 #===================================================
