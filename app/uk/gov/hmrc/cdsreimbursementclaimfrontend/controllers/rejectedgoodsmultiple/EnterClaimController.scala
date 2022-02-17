@@ -40,7 +40,6 @@ class EnterClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val key: String          = "enter-claim.rejected-goods"
   val subKey: Some[String] = Some("multiple")
 
   val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show()
@@ -54,11 +53,12 @@ class EnterClaimController @Inject() (
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
         journey.getAmountPaidForIfSelected(mrn, taxCode) match {
           case None =>
+            logger.warn(s"Claim data for selected MRN and tax code $taxCode does not exist.")
             Redirect(selectDutiesAction(pageIndex))
 
           case Some(paidAmount) =>
             val claimedAmountOpt = journey.getReimbursementClaimFor(mrn, taxCode)
-            val form             = Forms.claimAmountForm(key, paidAmount).withDefault(claimedAmountOpt)
+            val form             = Forms.claimAmountForm(EnterClaimController.key, paidAmount).withDefault(claimedAmountOpt)
             Ok(
               enterClaim(
                 form,
@@ -86,10 +86,11 @@ class EnterClaimController @Inject() (
 
             case Some(paidAmount) =>
               Forms
-                .claimAmountForm(key, paidAmount)
+                .claimAmountForm(EnterClaimController.key, paidAmount)
                 .bindFromRequest()
                 .fold(
-                  formWithErrors =>
+                  formWithErrors => {
+                    logger.warn(s"${formWithErrors.errorsAsJson}")
                     (
                       journey,
                       BadRequest(
@@ -102,7 +103,8 @@ class EnterClaimController @Inject() (
                           submitClaimAction(pageIndex, taxCode)
                         )
                       )
-                    ),
+                    )
+                  },
                   amount =>
                     journey
                       .submitAmountForReimbursement(mrn, taxCode, amount)
@@ -142,4 +144,8 @@ class EnterClaimController @Inject() (
           }
       }
     }
+}
+
+object EnterClaimController {
+  val key: String = "enter-claim.rejected-goods"
 }

@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
+import org.scalacheck.Gen
 
 class SelectTaxCodesControllerSpec
     extends PropertyBasedControllerSpec
@@ -115,19 +116,19 @@ class SelectTaxCodesControllerSpec
       }
 
       "display the page with some duties selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrnsWithTaxCodesSelection) =>
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, _) =>
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
           }
 
-          val mrn: MRN = mrnsWithTaxCodesSelection.head._1
+          val mrn: MRN = journey.getLeadMovementReferenceNumber.get
 
           val displayedTaxCodes: Seq[TaxCode] =
             journey.getAvailableDuties(mrn).map(_._1)
 
           val selectedTaxCodes: Seq[TaxCode] =
-            mrnsWithTaxCodesSelection.head._2
+            journey.getSelectedDuties(mrn).get
 
           checkPageIsDisplayed(
             performAction(),
@@ -168,10 +169,8 @@ class SelectTaxCodesControllerSpec
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        forAll { (pageIndex: Int) =>
-          whenever(pageIndex > 0) {
-            status(performAction(pageIndex)) shouldBe NOT_FOUND
-          }
+        forAll(Gen.choose(1, 1000)) { (pageIndex: Int) =>
+          status(performAction(pageIndex)) shouldBe NOT_FOUND
         }
       }
 
@@ -196,8 +195,8 @@ class SelectTaxCodesControllerSpec
       }
 
       "display the page with some duties selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrnsWithTaxCodesSelection) =>
-          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((mrn, selectedTaxCodes), mrnIndex) =>
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(journey))
@@ -205,6 +204,9 @@ class SelectTaxCodesControllerSpec
 
             val displayedTaxCodes: Seq[TaxCode] =
               journey.getAvailableDuties(mrn).map(_._1)
+
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey.getSelectedDuties(mrn).get
 
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
@@ -282,12 +284,14 @@ class SelectTaxCodesControllerSpec
       }
 
       "redirect to enter first claim for the MRN when the same duties already selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrnsWithTaxCodesSelection) =>
-          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((_, selectedTaxCodes), mrnIndex) =>
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(journey))
             }
+
+            val selectedTaxCodes: Seq[TaxCode] = journey.getSelectedDuties(mrn).get
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
@@ -298,8 +302,9 @@ class SelectTaxCodesControllerSpec
       }
 
       "redirect to enter first claim for the MRN when some duties already selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrnsWithTaxCodesSelection) =>
-          mrnsWithTaxCodesSelection.zipWithIndex.foreach { case ((mrn, selectedTaxCodes), mrnIndex) =>
+        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            val selectedTaxCodes                  = journey.getSelectedDuties(mrn).get
             val newSelectedTaxCodes: Seq[TaxCode] = selectedTaxCodes.drop(1)
             if (newSelectedTaxCodes.nonEmpty) {
               inSequence {
