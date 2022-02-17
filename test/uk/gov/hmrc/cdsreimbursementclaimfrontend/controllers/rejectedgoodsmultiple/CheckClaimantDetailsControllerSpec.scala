@@ -190,7 +190,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              "/choose-basis-for-claim" //FIXME: routes.BasisForClaimController.show()
+              "/choose-basis-for-claim" //FIXME: routes.BasisForClaimControllerSpec.show()
             )
         }
       }
@@ -232,7 +232,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              "/choose-basis-for-claim" //FIXME: routes.BasisForClaimController.show()
+              "/choose-basis-for-claim" //FIXME: routes.BasisForClaimControllerSpec.show()
             )
         }
       }
