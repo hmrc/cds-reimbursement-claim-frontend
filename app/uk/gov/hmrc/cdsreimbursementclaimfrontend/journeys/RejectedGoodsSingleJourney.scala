@@ -753,7 +753,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
 
     implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
-    implicit val format: Format[Answers] = Json.format[Answers]
+    implicit val format: Format[Answers] = Json.using[Json.WithDefaultValues].format[Answers]
   }
 
   object Output {

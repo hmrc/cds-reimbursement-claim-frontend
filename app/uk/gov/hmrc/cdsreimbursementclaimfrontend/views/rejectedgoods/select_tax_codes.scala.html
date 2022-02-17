@@ -24,6 +24,9 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -35,10 +38,10 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[Seq[TaxCode]], availableTaxCodes : Seq[(TaxCode,Boolean)], subKey: Option[String], postAction: Call)(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[Seq[TaxCode]], availableTaxCodes : Seq[(TaxCode,Boolean)], indexAndMrnOpt: Option[(Int,MRN)], subKey: Option[String], postAction: Call)(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duties"}
-    @title = @{messages(s"$key.title")}
+    @title = @{messages(combine(key, subKey, "title"), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
 
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
         CheckboxItem(
@@ -52,11 +55,15 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 
         @pageHeading(title)
+
+        @indexAndMrnOpt.map{ case(index,mrn) =>
+            @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)), Some("govuk-body"))
+        }.getOrElse("")
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

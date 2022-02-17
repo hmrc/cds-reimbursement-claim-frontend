@@ -74,7 +74,9 @@ final class RejectedGoodsMultipleJourney private (
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims.exists(mrc =>
-      mrc.nonEmpty && mrc.forall { case (_, rc) => rc.nonEmpty && rc.forall(_._2.isDefined) }
+      mrc.size === countOfMovementReferenceNumbers && mrc.forall { case (_, rc) =>
+        rc.nonEmpty && rc.forall(_._2.isDefined)
+      }
     )
 
   def hasCompleteSupportingEvidences: Boolean =
@@ -95,6 +97,9 @@ final class RejectedGoodsMultipleJourney private (
   def countOfMovementReferenceNumbers: Int =
     answers.movementReferenceNumbers.map(_.size).getOrElse(0)
 
+  def hasCompleteMovementReferenceNumbers: Boolean =
+    countOfMovementReferenceNumbers >= 2
+
   def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     getLeadMovementReferenceNumber.flatMap(getDisplayDeclarationFor)
 
@@ -109,6 +114,9 @@ final class RejectedGoodsMultipleJourney private (
 
   def getReimbursementClaimsFor(mrn: MRN): Option[Map[TaxCode, Option[BigDecimal]]] =
     answers.reimbursementClaims.flatMap(_.get(mrn))
+
+  def getReimbursementClaimFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    getReimbursementClaimsFor(mrn).flatMap(_.get(taxCode).flatten)
 
   def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
     answers.reimbursementClaims
@@ -162,6 +170,24 @@ final class RejectedGoodsMultipleJourney private (
 
   def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
+
+  /** Returns the amount paid for the given MRN and tax code as returned by ACC14,
+    * or None if either MRN or tax code not found.
+    */
+  def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply(_))
+
+  /** If the user has selected the tax code for repayment
+    * then returns the amount paid for the given MRN and tax code as returned by ACC14,
+    * otherwise None.
+    */
+  def getAmountPaidForIfSelected(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    getSelectedDuties(mrn)
+      .flatMap(selectedTaxCodes =>
+        if (selectedTaxCodes.contains(taxCode))
+          getAmountPaidFor(mrn, taxCode)
+        else None
+      )
 
   def getAvailableDuties(mrn: MRN): Seq[(TaxCode, Boolean)] =
     getNdrcDetailsFor(mrn)
@@ -284,6 +310,9 @@ final class RejectedGoodsMultipleJourney private (
       Some(declarantDetails.establishmentAddress.toContactAddress)
     case _                                                                                               => None
   }
+
+  def withDutiesChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
+    new RejectedGoodsMultipleJourney(answers.copy(dutiesChangeMode = enabled))
 
   def isFinalized: Boolean = caseNumber.isDefined
 
@@ -753,7 +782,8 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false
+    checkYourAnswersChangeMode: Boolean = false,
+    dutiesChangeMode: Boolean = false
   )
 
   // Final minimal output of the journey we want to pass to the backend.
@@ -890,7 +920,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
 
     implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
-    implicit val format: Format[Answers] = Json.format[Answers]
+    implicit val format: Format[Answers] = Json.using[Json.WithDefaultValues].format[Answers]
   }
 
   object Output {

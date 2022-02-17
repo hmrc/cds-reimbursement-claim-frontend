@@ -20,6 +20,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.mvc.PathBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class PathBindersSpec extends AnyWordSpec with Matchers {
 
@@ -41,6 +42,13 @@ class PathBindersSpec extends AnyWordSpec with Matchers {
       PathBinders.associatedMrnIndexPathBinder.unbind("key", AssociatedMrnIndex(0))  shouldBe "0"
       PathBinders.associatedMrnIndexPathBinder.unbind("key", AssociatedMrnIndex(1))  shouldBe "1"
       PathBinders.associatedMrnIndexPathBinder.unbind("key", AssociatedMrnIndex(2))  shouldBe "2"
+    }
+
+    "parse and serialize MRN" in {
+      PathBinders.mrnBinder.bind("key", "foo")         shouldBe Right(MRN("FOO"))
+      PathBinders.mrnBinder.bind("key", "FOO")         shouldBe Right(MRN("FOO"))
+      PathBinders.mrnBinder.unbind("key", MRN("foo"))  shouldBe "FOO"
+      PathBinders.mrnBinder.unbind("key", MRN("f oo")) shouldBe "FOO"
     }
   }
 

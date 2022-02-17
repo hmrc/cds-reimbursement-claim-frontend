@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select_tax_codes
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 @Singleton
 class SelectTaxCodesController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectTaxCodesPage: pages.select_tax_codes
+  selectTaxCodesPage: select_tax_codes
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
@@ -49,7 +49,7 @@ class SelectTaxCodesController @Inject() (
       Redirect(baseRoutes.IneligibleController.ineligible())
     } else {
       val form = selectTaxCodesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
-      Ok(selectTaxCodesPage(form, availableDuties, None, postAction))
+      Ok(selectTaxCodesPage(form, availableDuties, None, None, postAction))
     }
   }
 
@@ -67,7 +67,7 @@ class SelectTaxCodesController @Inject() (
             formWithErrors =>
               (
                 journey,
-                BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, postAction))
+                BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, None, postAction))
               ),
             taxCodesSelected =>
               (

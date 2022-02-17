@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementsClaimsSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -38,10 +39,10 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[YesNo], mrn: MRN, claims: Seq[(TaxCode, BigDecimal)], submitLink: Call, changeLink: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], claims: Seq[(MRN,Int,Map[TaxCode,BigDecimal])], enterClaimAction: (Int,TaxCode) => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-claim.rejected-goods.single"}
-@title = @{messages(s"$key.title")}
+@key = @{"check-claim.rejected-goods"}
+@title = @{messages(s"$key.multiple.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
@@ -50,13 +51,17 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.label")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.multiple.label")), Some("govuk-body"))
 
-    @pageHeading(messages(s"$key.mrn.label", mrn.value), "govuk-heading-m", "h2")
+    @for((mrn, index, claim) <- claims){
+        @pageHeading(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value), "govuk-heading-m", "h2")
+        @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_)))
+    }
 
-    @summary(ReimbursementsClaimsSummary.single(claims, key, changeLink))
+    @pageHeading(messages(s"$key.multiple.overall-total.header"), "govuk-heading-m", "h2")
+    @summary(ReimbursementsClaimsSummary.multipleOverallTotalRow(claims, key))
 
-    @formWithCSRF(submitLink, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,
