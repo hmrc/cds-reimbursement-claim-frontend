@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyCMAEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
@@ -186,7 +187,7 @@ class ChooseRepaymentMethodControllerSpec
         }
       }
 
-      "reject any repayment method and move on to the check your answers page when not eligible for CMA" in {
+      "reject any repayment method and show ineligible page" in {
         forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
           whenever(!ndrcDetails.isCmaEligible) {
             val session = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
@@ -198,7 +199,7 @@ class ChooseRepaymentMethodControllerSpec
 
             checkIsRedirect(
               performAction(formKey -> "0"),
-              routes.CheckYourAnswersController.show()
+              baseRoutes.IneligibleController.ineligible()
             )
           }
         }

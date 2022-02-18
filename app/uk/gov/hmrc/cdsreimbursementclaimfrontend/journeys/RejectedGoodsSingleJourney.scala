@@ -497,6 +497,13 @@ final class RejectedGoodsSingleJourney private (
         Left("submitReimbursementMethodAnswer.notCMAEligible")
     }
 
+  def resetReimbursementMethod(): RejectedGoodsSingleJourney =
+    whileJourneyIsAmendable {
+      new RejectedGoodsSingleJourney(
+        answers.copy(reimbursementMethod = None)
+      )
+    }
+
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsSingleJourney =
     whileJourneyIsAmendable {
       new RejectedGoodsSingleJourney(answers.copy(selectedDocumentType = Some(documentType)))

@@ -90,7 +90,11 @@ class CheckYourAnswersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsSingleJourney.Output) = {
+  def validateCheckYourAnswersPage(
+    doc: Document,
+    claim: RejectedGoodsSingleJourney.Output,
+    whetherShowRepaymentMethod: Boolean
+  ) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -104,12 +108,35 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers should contain allOf ("Movement Reference Number (MRN)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Repayment method", "Supporting documents", "Now send your application")
+    headers     should contain allElementsOf Seq(
+      "Movement Reference Number (MRN)",
+      "Declaration details",
+      "Contact information for this claim",
+      "Basis for claim",
+      "Disposal method",
+      "Details of rejected goods",
+      "Claim total",
+      "Details of inspection",
+      "Supporting documents",
+      "Now send your application"
+    ) ++ (if (whetherShowRepaymentMethod) Seq("Repayment method") else Nil)
 
-    if (claim.supportingEvidences.isEmpty)
-      summaryKeys should contain allOf ("MRN", "Contact details", "Contact address", "This is the basis behind the claim", "This is how the goods will be disposed of", "These are the details of the rejected goods", "Total", "Inspection date", "Inspection address type", "Inspection address", "Method")
-    else
-      summaryKeys should contain allOf ("MRN", "Contact details", "Contact address", "This is the basis behind the claim", "This is how the goods will be disposed of", "These are the details of the rejected goods", "Total", "Inspection date", "Inspection address type", "Inspection address", "Method", "Uploaded")
+    summaryKeys should contain allElementsOf Seq(
+      "MRN",
+      "Contact details",
+      "Contact address",
+      "This is the basis behind the claim",
+      "This is how the goods will be disposed of",
+      "These are the details of the rejected goods",
+      "Total",
+      "Inspection date",
+      "Inspection address type",
+      "Inspection address"
+    ) ++ (
+      if (whetherShowRepaymentMethod) Seq("Method") else Nil
+    ) ++ (
+      if (claim.supportingEvidences.nonEmpty) Seq("Uploaded") else Nil
+    )
 
     summary("MRN")                                         shouldBe claim.movementReferenceNumber.value
     summary("Contact details")                             shouldBe s"${claim.claimantInformation.summaryContact(" ")}"
@@ -121,14 +148,18 @@ class CheckYourAnswersControllerSpec
       s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}"
     )
     summary("These are the details of the rejected goods") shouldBe claim.detailsOfRejectedGoods
-    summary("Method")                                      shouldBe messages(
-      ReimbursementMethodAnswerSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
-    )
-    summary("Inspection date")                             shouldBe claim.inspectionDate.value.toString
-    summary("Inspection address type")                     shouldBe messages(
+
+    if (whetherShowRepaymentMethod) {
+      summary("Method") shouldBe messages(
+        ReimbursementMethodAnswerSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
+      )
+    }
+
+    summary("Inspection date")         shouldBe claim.inspectionDate.value.toString
+    summary("Inspection address type") shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )
-    summary("Inspection address")                          shouldBe claim.inspectionAddress.summaryAddress(" ")
+    summary("Inspection address")      shouldBe claim.inspectionAddress.summaryAddress(" ")
 
     claim.reimbursementClaims.foreach { case (taxCode, amount) =>
       summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString
@@ -177,7 +208,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, claim)
+            doc => validateCheckYourAnswersPage(doc, claim, journey.isAllSelectedDutiesAreCMAEligible)
           )
         }
       }
