@@ -128,7 +128,7 @@ class CheckClaimDetailsControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey("check-claim.rejected-goods.single.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("check-claim.rejected-goods.single.error.invalid"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("check-claim.rejected-goods.error.invalid"),
           BAD_REQUEST
         )
       }

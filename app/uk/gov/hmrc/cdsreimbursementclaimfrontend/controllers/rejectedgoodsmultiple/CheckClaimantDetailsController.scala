@@ -20,17 +20,16 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckClaimantDetailsController @Inject() (
@@ -52,8 +51,8 @@ class CheckClaimantDetailsController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd: Call                             =
-      routes.CheckClaimantDetailsController.show() // FIXME: routes.EnterContactDetailsController.show()
-    val postAction                                 = routes.CheckClaimantDetailsController.submit()
+      routes.EnterContactDetailsController.show()
+    val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
     val (maybeContactDetails, maybeAddressDetails) =
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
     (maybeContactDetails, maybeAddressDetails) match {
@@ -74,7 +73,7 @@ class CheckClaimantDetailsController @Inject() (
       case (Some(cd), Some(ca)) =>
         (
           journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
-          Redirect("/choose-basis-for-claim") //FIXME: routes.BasisForClaimController.show()
+          Redirect(routes.BasisForClaimController.show())
         ).asFuture
       case _                    =>
         (

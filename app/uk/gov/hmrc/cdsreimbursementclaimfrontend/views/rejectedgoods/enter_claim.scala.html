@@ -24,6 +24,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 
 @this(
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -35,11 +37,11 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(form: Form[BigDecimal], taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-claim.rejected-goods.single"}
-@title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
-@hintText = @{Html(messages(s"$key.actual-amount.hint"))}
+@key = @{"enter-claim.rejected-goods"}
+@title = @{messages(combine(key, subKey, "title"), taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumber.label(indexOpt.getOrElse(0)))}
+@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
@@ -58,7 +60,7 @@
             form = form,
             id = s"$key.claim-amount",
             name = s"$key.claim-amount",
-            label = s"$key.actual-amount",
+            label = s"$key.claim-amount",
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
             hintHtml = Some(hintText),

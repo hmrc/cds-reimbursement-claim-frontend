@@ -38,10 +38,10 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[YesNo], mrn: MRN, claims: Seq[(TaxCode, BigDecimal)], submitLink: Call, changeLink: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], mrn: MRN, claims: Seq[(TaxCode, BigDecimal)], enterClaimAction: TaxCode => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-claim.rejected-goods.single"}
-@title = @{messages(s"$key.title")}
+@key = @{"check-claim.rejected-goods"}
+@title = @{messages(s"$key.single.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
@@ -50,13 +50,13 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.label")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.single.label")), Some("govuk-body"))
 
-    @pageHeading(messages(s"$key.mrn.label", mrn.value), "govuk-heading-m", "h2")
+    @pageHeading(messages(s"$key.single.mrn.label", mrn.value), "govuk-heading-m", "h2")
 
-    @summary(ReimbursementsClaimsSummary.single(claims, key, changeLink))
+    @summary(ReimbursementsClaimsSummary.singleFull(claims, key, enterClaimAction))
 
-    @formWithCSRF(submitLink, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,

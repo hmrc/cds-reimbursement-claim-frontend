@@ -29,20 +29,24 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_claim_details_single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import play.api.mvc.Call
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkClaimDetails: pages.check_claim_details
+  checkClaimDetails: check_claim_details_single
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val checkClaimDetailsKey: String = "check-claim.rejected-goods.single"
+  val checkClaimDetailsKey: String = "check-claim.rejected-goods"
 
   val whetherClaimDetailsCorrect: Form[YesNo] = YesOrNoQuestionForm(checkClaimDetailsKey)
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val enterClaimAction: TaxCode => Call = routes.EnterClaimController.showAmend(_)
+
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.movementReferenceNumber match {
       case None                                                =>
         Redirect(routes.EnterMovementReferenceNumberController.show()).asFuture
@@ -52,8 +56,8 @@ class CheckClaimDetailsController @Inject() (
             whetherClaimDetailsCorrect,
             mrn,
             journey.getReimbursementClaims.toSeq,
-            routes.CheckClaimDetailsController.submit(),
-            routes.EnterClaimController.show()
+            enterClaimAction,
+            routes.CheckClaimDetailsController.submit()
           )
         ).asFuture
       case _                                                   =>
@@ -61,7 +65,7 @@ class CheckClaimDetailsController @Inject() (
     }
   }
 
-  def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.movementReferenceNumber match {
       case Some(mrn) =>
         whetherClaimDetailsCorrect
@@ -73,8 +77,8 @@ class CheckClaimDetailsController @Inject() (
                   formWithErrors,
                   mrn,
                   journey.getReimbursementClaims.toSeq,
-                  routes.CheckClaimDetailsController.submit(),
-                  routes.EnterClaimController.show()
+                  enterClaimAction,
+                  routes.CheckClaimDetailsController.submit()
                 )
               ).asFuture,
             {

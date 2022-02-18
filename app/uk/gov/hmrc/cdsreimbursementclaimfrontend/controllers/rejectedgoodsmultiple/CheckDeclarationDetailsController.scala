@@ -18,20 +18,20 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmulti
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -44,7 +44,9 @@ class CheckDeclarationDetailsController @Inject() (
 
   implicit val subKey: Option[String] = Some("multiple")
 
-  val postAction: Call = routes.CheckDeclarationDetailsController.submit()
+  private val postAction: Call                       = routes.CheckDeclarationDetailsController.submit()
+  val checkDeclarationDetailsKey: String             = "check-declaration-details.multiple"
+  val checkDeclarationDetailsAnswerForm: Form[YesNo] = YesOrNoQuestionForm(checkDeclarationDetailsKey)
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.displayDeclarations

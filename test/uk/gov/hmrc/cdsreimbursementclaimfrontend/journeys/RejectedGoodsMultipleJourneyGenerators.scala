@@ -38,13 +38,56 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
       journey.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
 
     Gen.listOfN(n, mrnWithDisplayDeclarationGen).map { data =>
-      val dataWithIndex = data.zipWithIndex
+      val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
       (
         emptyJourney
           .flatMapEach(dataWithIndex, submitData)
           .getOrFail,
         data.map(_._1)
       )
+    }
+  }
+
+  private def mrnWithSelectedTaxCodesGen(journey: RejectedGoodsMultipleJourney): Seq[Gen[(MRN, Seq[TaxCode])]] =
+    journey.answers.movementReferenceNumbers.get.map { mrn =>
+      val availableTaxCodes = journey.getAvailableDuties(mrn).map(_._1)
+      Gen
+        .choose(1, availableTaxCodes.size)
+        .map(availableTaxCodes.take)
+        .map(seq => (mrn, seq))
+    }
+
+  def incompleteJourneyWithSelectedDutiesGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
+    def submitData(journey: RejectedGoodsMultipleJourney)(data: (MRN, Seq[TaxCode])) =
+      journey.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
+
+    incompleteJourneyWithMrnsGen(n).flatMap { case (journey, _) =>
+      val gen = mrnWithSelectedTaxCodesGen(journey)
+      Gen
+        .sequence[Seq[(MRN, Seq[TaxCode])], (MRN, Seq[TaxCode])](gen)
+        .map { mrnsWithTaxCodesSelection =>
+          val modifiedJourney = journey
+            .flatMapEach(mrnsWithTaxCodesSelection, submitData)
+            .getOrFail
+          (
+            modifiedJourney,
+            modifiedJourney.answers.movementReferenceNumbers.get
+          )
+        }
+    }
+  }
+
+  def incompleteJourneyWithCompleteClaimsGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
+    def submitData(journey: RejectedGoodsMultipleJourney)(data: (MRN, TaxCode, BigDecimal)) =
+      journey.submitAmountForReimbursement(data._1, data._2, data._3)
+
+    incompleteJourneyWithSelectedDutiesGen(n).map { case (journey, mrns) =>
+      val data: Seq[(MRN, TaxCode, BigDecimal)] = mrns.flatMap { mrn =>
+        journey.getSelectedDuties(mrn).get.map { taxCode =>
+          (mrn, taxCode, BigDecimal(formatAmount(journey.getAmountPaidFor(mrn, taxCode).get / 2)))
+        }
+      }
+      (journey.flatMapEach(data, submitData).getOrFail, mrns)
     }
   }
 

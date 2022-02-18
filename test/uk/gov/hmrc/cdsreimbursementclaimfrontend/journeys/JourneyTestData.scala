@@ -30,6 +30,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import play.api.data.format.Formatter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils
 
 trait JourneyTestData {
 
@@ -180,5 +182,17 @@ trait JourneyTestData {
     fileMimeType = s"application/$id",
     fileSize = Some(12345)
   )
+
+  val bigDecimalFormatter: Formatter[BigDecimal] = FormUtils
+    .bigDecimalFormat(13, 2, "actual-amount.error.invalid")
+
+  def formatAmount(amount: BigDecimal): String =
+    bigDecimalFormatter
+      .unbind("key", amount)
+      .get("key")
+      .get
+
+  def nextTaxCode(seq: Seq[TaxCode], current: TaxCode): TaxCode =
+    seq(seq.indexOf(current) + 1)
 
 }

@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.buildCompleteJourneyGen
@@ -138,10 +137,10 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(checkDeclarationDetailsKey -> ""),
+          performAction(controller.checkDeclarationDetailsKey -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.multiple.error.required")
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
           },
           expectedStatus = BAD_REQUEST
@@ -155,7 +154,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(checkDeclarationDetailsKey -> "true"),
+          performAction(controller.checkDeclarationDetailsKey -> "true"),
           routes.WorkInProgressController.show()
         )
       }
@@ -167,7 +166,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(checkDeclarationDetailsKey -> "false"),
+          performAction(controller.checkDeclarationDetailsKey -> "false"),
           routes.EnterMovementReferenceNumberController.show()
         )
       }

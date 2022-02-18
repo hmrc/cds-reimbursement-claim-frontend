@@ -774,8 +774,12 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       forAll(incompleteJourneyWithMrnsGen(MRNS_SIZE)) { case (journey, mrns) =>
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
-          val journeyEither = journey
-            .selectAndReplaceTaxCodeSetForReimbursement(mrn, Seq(TaxCode.NI633))
+          val availableDuties = journey.getAvailableDuties(mrn).map(_._1).toSet
+          val journeyEither   = journey
+            .selectAndReplaceTaxCodeSetForReimbursement(
+              mrn,
+              TaxCodes.all.filter(tc => !availableDuties.contains(tc)).take(3)
+            )
 
           journeyEither shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
         }
@@ -849,9 +853,10 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
           val taxCodes      = journey.getAvailableDuties(mrn).map(_._1)
+          val wrongTaxCode  = TaxCodes.all.find(tc => !taxCodes.contains(tc)).get
           val journeyEither = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)
-            .flatMap(_.submitAmountForReimbursement(mrn, TaxCode.NI99B, BigDecimal("5.00")))
+            .flatMap(_.submitAmountForReimbursement(mrn, wrongTaxCode, BigDecimal("5.00")))
 
           journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
         }

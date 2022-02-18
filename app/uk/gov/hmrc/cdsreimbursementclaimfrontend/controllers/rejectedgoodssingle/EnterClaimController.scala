@@ -40,11 +40,12 @@ class EnterClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val key: String               = "enter-claim.rejected-goods.single"
+  val key: String               = "enter-claim.rejected-goods"
+  val subKey: Some[String]      = Some("single")
   val taxCodeCookieName: String = "taxCode"
   val postAction: Call          = routes.EnterClaimController.submit()
 
-  def show(): Action[AnyContent] = showInner(None)
+  val show: Action[AnyContent] = showInner(None)
 
   def showAmend(taxCode: TaxCode): Action[AnyContent] = showInner(Some(taxCode))
 
@@ -72,12 +73,12 @@ class EnterClaimController @Inject() (
   ): Future[Result] = {
     val amountPaid = BigDecimal(ndrcDetails.amount)
     val form       = Forms.claimAmountForm(key, amountPaid).withDefault(claimedAmount)
-    Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction))
+    Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), None, amountPaid, subKey, postAction))
       .withCookies(Cookie(taxCodeCookieName, ndrcDetails.taxType))
       .asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney(
+  val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       request.cookies.get(taxCodeCookieName) match {
         case Some(Cookie(_, taxCode, _, _, _, _, _, _)) =>
@@ -95,7 +96,9 @@ class EnterClaimController @Inject() (
                           enterClaim(
                             formWithErrors,
                             TaxCode(ndrcDetails.taxType),
+                            None,
                             BigDecimal(ndrcDetails.amount),
+                            subKey,
                             postAction
                           )
                         )

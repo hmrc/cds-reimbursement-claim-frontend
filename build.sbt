@@ -73,6 +73,7 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode",
+      "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN",
       "java.util.UUID"
     )
   )
