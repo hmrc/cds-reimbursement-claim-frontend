@@ -258,6 +258,12 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     if (input.size() =!= 0) Some(input.`val`()) else None
   }
 
+  def summaryKeyValue(doc: Document): (Seq[String], Seq[String]) = {
+    val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+    val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+    (summaryKeys.asScala, summaryValues.asScala)
+  }
+
   def summaryKeyValueMap(doc: Document): Map[String, String] = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()

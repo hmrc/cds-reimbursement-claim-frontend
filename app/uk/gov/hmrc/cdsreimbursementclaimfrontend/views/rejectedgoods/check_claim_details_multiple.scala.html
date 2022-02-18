@@ -54,7 +54,7 @@
     @paragraph(Html(messages(s"$key.multiple.label")), Some("govuk-body"))
 
     @for((mrn, index, claim) <- claims){
-        @pageHeading(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value), "govuk-heading-m", "h2")
+        @pageHeading(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value), "govuk-heading-m heading-mrn", "h2")
         @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_)))
     }
 

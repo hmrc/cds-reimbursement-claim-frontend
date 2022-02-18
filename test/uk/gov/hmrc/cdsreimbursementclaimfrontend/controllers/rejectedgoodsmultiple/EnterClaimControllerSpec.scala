@@ -83,18 +83,6 @@ class EnterClaimControllerSpec
     )                                 shouldBe s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/$pageIndex/$taxCode"
   }
 
-  val bigDecimalFormatter: Formatter[BigDecimal] = FormUtils
-    .bigDecimalFormat(13, 2, "actual-amount.error.invalid")
-
-  def formatAmount(amount: BigDecimal): String =
-    bigDecimalFormatter
-      .unbind("key", amount)
-      .get("key")
-      .get
-
-  def nextTaxCode(seq: Seq[TaxCode], current: TaxCode): TaxCode =
-    seq(seq.indexOf(current) + 1)
-
   "EnterClaimController" when {
 
     "Show enter claim amount" must {
