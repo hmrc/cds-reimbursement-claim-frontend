@@ -25,6 +25,7 @@ import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursementMethodForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
@@ -55,15 +56,15 @@ class ChooseRepaymentMethodController @Inject() (
           repaymentMethod =>
             (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
               case (Right(updatedJourney), CurrentMonthAdjustment) =>
-                if (journey.hasCompleteAnswers) (updatedJourney, Redirect(checkYourAnswers))
+                if (userHasSeenCYAPage(journey)) (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(chooseFileTypeAction))
               case (Right(updatedJourney), BankAccountTransfer)    =>
-                if (journey.hasCompleteAnswers && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
+                if (userHasSeenCYAPage(journey) && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
                   (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
               case (Left(errorMessage), _)                         =>
                 logger.error(s"We failed to choose the repayment method - $errorMessage")
-                (journey, Redirect(checkYourAnswers))
+                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
             }
         )
         .asFuture
@@ -71,4 +72,10 @@ class ChooseRepaymentMethodController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
+  def reset(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    val updatedJourney =
+      if (!journey.isAllSelectedDutiesAreCMAEligible) journey.resetReimbursementMethod()
+      else journey
+    (updatedJourney, Redirect(checkYourAnswers)).asFuture
+  }
 }

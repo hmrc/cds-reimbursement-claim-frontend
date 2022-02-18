@@ -80,7 +80,7 @@ class CheckClaimDetailsController @Inject() (
             {
               case Yes =>
                 Redirect(
-                  if (journey.hasCompleteAnswers) checkYourAnswers
+                  if (userHasSeenCYAPage(journey)) checkYourAnswers
                   else routes.EnterInspectionDateController.show()
                 ).asFuture
               case No  => Redirect(routes.SelectTaxCodesController.show()).asFuture
