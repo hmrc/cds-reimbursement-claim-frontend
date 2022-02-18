@@ -81,8 +81,8 @@ class UploadDocumentsConnectorSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val expectedInitializationUrl = "http://host3:124/foo-upload/initialize"
-  val expectedWipeOutUrl        = "http://host3:124/foo-upload/wipe-out"
+  val expectedInitializationUrl = "http://host3:124/internal/initialize"
+  val expectedWipeOutUrl        = "http://host3:124/internal/wipe-out"
 
   val uploadDocumentsParameters: UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
