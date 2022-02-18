@@ -55,6 +55,7 @@ class SelectTaxCodesController @Inject() (
               form,
               availableDuties,
               Some((pageIndex, mrn)),
+              false,
               Some("multiple"),
               routes.SelectTaxCodesController.submit(pageIndex)
             )
@@ -86,6 +87,7 @@ class SelectTaxCodesController @Inject() (
                         formWithErrors,
                         availableDuties,
                         Some((pageIndex, mrn)),
+                        false,
                         Some("multiple"),
                         routes.SelectTaxCodesController.submit(pageIndex)
                       )

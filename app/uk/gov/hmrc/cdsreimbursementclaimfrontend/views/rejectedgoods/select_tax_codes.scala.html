@@ -38,7 +38,14 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[Seq[TaxCode]], availableTaxCodes : Seq[(TaxCode,Boolean)], indexAndMrnOpt: Option[(Int,MRN)], subKey: Option[String], postAction: Call)(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
+@(
+    form : Form[Seq[TaxCode]], 
+    availableTaxCodes : Seq[(TaxCode,Boolean)], 
+    indexAndMrnOpt: Option[(Int,MRN)], 
+    showCmaNotEligibleHint: Boolean,
+    subKey: Option[String], 
+    postAction: Call
+)(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duties"}
     @title = @{messages(combine(key, subKey, "title"), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
@@ -48,7 +55,7 @@
             name = Some(s"$key[]"),
             value = taxCode.value,
             content = Text(taxCode.value + " - " + messages(s"$key.duty.${taxCode.value}")),
-            hint = if(isCmaEligible) None else Some(Hint(content = Text(messages(s"$key.duty.hint")))),
+            hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = Text(messages(s"$key.duty.hint")))),
             checked = form.data.exists(_._2 == taxCode.value)
         )
     }}
