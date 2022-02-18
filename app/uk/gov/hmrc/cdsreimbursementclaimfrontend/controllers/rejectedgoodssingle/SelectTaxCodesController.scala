@@ -49,7 +49,7 @@ class SelectTaxCodesController @Inject() (
       Redirect(baseRoutes.IneligibleController.ineligible())
     } else {
       val form = selectTaxCodesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
-      Ok(selectTaxCodesPage(form, availableDuties, None, None, postAction))
+      Ok(selectTaxCodesPage(form, availableDuties, None, true, None, postAction))
     }
   }
 
@@ -67,7 +67,7 @@ class SelectTaxCodesController @Inject() (
             formWithErrors =>
               (
                 journey,
-                BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, None, postAction))
+                BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, true, None, postAction))
               ),
             taxCodesSelected =>
               (
