@@ -117,10 +117,7 @@ class EnterClaimControllerSpec
               doc
                 .select("p.govuk-inset-text")
                 .text()                                                                   shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
-              doc.select("form p").text()                                                 shouldBe messageFromMessageKey(
-                "enter-claim.rejected-goods.paid-amount-label",
-                amountPaid.toPoundSterlingString
-              )
+              doc.select("#amount-paid").text()                                           shouldBe amountPaid.toPoundSterlingString
               doc.select("input[name='enter-claim.rejected-goods.claim-amount']").`val`() shouldBe ""
               doc.select("form").attr("action")                                           shouldBe routes.EnterClaimController.submit().url
             }
@@ -187,10 +184,7 @@ class EnterClaimControllerSpec
                 doc
                   .select("p.govuk-inset-text")
                   .text()                         shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
-                doc.select("form p").text()       shouldBe messageFromMessageKey(
-                  "enter-claim.rejected-goods.paid-amount-label",
-                  amountPaid.toPoundSterlingString
-                )
+                doc.select("#amount-paid").text() shouldBe amountPaid.toPoundSterlingString
                 doc
                   .select("input[name='enter-claim.rejected-goods.claim-amount']")
                   .`val`()                        shouldBe f"$amountClaimed%1.2f"

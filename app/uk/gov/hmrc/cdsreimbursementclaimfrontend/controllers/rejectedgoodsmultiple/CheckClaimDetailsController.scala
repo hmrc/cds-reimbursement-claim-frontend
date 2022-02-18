@@ -42,9 +42,7 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val checkClaimDetailsKey: String = "check-claim.rejected-goods"
-
-  val form: Form[YesNo] = YesOrNoQuestionForm(checkClaimDetailsKey)
+  val form: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.key)
 
   val submitAction: Call                       = routes.CheckClaimDetailsController.submit()
   val selectDutiesAction: Call                 = routes.SelectTaxCodesController.showFirst
@@ -100,4 +98,8 @@ class CheckClaimDetailsController @Inject() (
   def getClaimsForDisplay(journey: RejectedGoodsMultipleJourney): Seq[(MRN, Int, Map[TaxCode, BigDecimal])] =
     journey.getReimbursementClaims.toSeq.zipWithIndex
       .map { case ((mrn, claims), index) => (mrn, index + 1, claims) }
+}
+
+object CheckClaimDetailsController {
+  val key: String = "check-claim.rejected-goods"
 }

@@ -565,7 +565,7 @@ enter-commodities-details.multiple.hint=Explain why you would like to be reimbur
 enter-claim.rejected-goods.single.title=Claim details for {0} - {1}
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
-enter-claim.rejected-goods.paid-amount-label=How much was paid: {0}
+enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
 enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds.
@@ -692,6 +692,7 @@ tax-code.522 = 522 - Light oil, rebated, unleaded petrol
 tax-code.540 = 540 - Other (unmarked) Heavy oil (other than Kerosene) intended for use as heating fuel, or as fuel for an engine, which would otherwise be eligible for a full rebate
 tax-code.541 = 541 - Heavy oil, unrebated
 tax-code.542 = 542 - Heavy oil, rebated, kerosene to be used as motor fuel off-road or in an excepted vehicle
+tax-code.546 = 546 - Unrebated Kerosene
 tax-code.551 = 551 - Heavy oil, rebated, kerosene (including heavy oil aviation turbine fuel) to be used other than as motor fuel off-road
 tax-code.556 = 556 - Heavy oil, rebated, gas oil
 tax-code.561 = 561 - Heavy oil, rebated, fuel oil
@@ -700,6 +701,7 @@ tax-code.571 = 571 - Biodiesel to be used as motor fuel off road or in an except
 tax-code.572 = 572 - Biodiesel blended with kerosene for use as heating fuel
 tax-code.589 = 589 - Biodiesel
 tax-code.595 = 595 - Bioethanol
+tax-code.597 = 597 - Aqua methanol
 tax-code.591 = 591 - Natural Gas (methane content = >80%)
 tax-code.592 = 592 - Road Fuel Gas (other than natural gas, which is gaseous at 15°C and 1013.25 millibars)
 tax-code.611 = 611 - Cigarettes

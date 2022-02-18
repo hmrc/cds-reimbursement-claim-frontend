@@ -206,6 +206,13 @@ final class RejectedGoodsMultipleJourney private (
   def getSelectedDuties(mrn: MRN): Option[Seq[TaxCode]] =
     getReimbursementClaimsFor(mrn).map(_.keys.toSeq)
 
+  def getAllSelectedDuties: Seq[(MRN, Seq[TaxCode])] =
+    answers.movementReferenceNumbers
+      .map(_.map { mrn =>
+        (mrn, getSelectedDuties(mrn).getOrElse(Seq.empty))
+      })
+      .getOrElse(Seq.empty)
+
   def isAllSelectedDutiesAreCMAEligible: Boolean =
     answers.reimbursementClaims
       .map(_.flatMap { case (mrn, rc) =>
