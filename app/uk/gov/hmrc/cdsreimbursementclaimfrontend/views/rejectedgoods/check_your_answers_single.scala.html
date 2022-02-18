@@ -36,7 +36,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: RejectedGoodsSingleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
@@ -75,9 +75,11 @@
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
-    
-    @pageHeading(messages(s"$key.repayment-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod, s"$key.repayment-method", subKey, routes.ChooseRepaymentMethodController.show()))
+
+    @if(isAllSelectedDutiesAreCMAEligible) {
+        @pageHeading(messages(s"$key.repayment-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod, s"$key.repayment-method", subKey, routes.ChooseRepaymentMethodController.show()))
+    }
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
