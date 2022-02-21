@@ -512,7 +512,7 @@ select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Damaged befo
 select-basis-for-claim.rejected-goods.reason.Defective=Defective
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Not in accordance with contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
-select-basis-for-claim.rejected-goods.error.required=Choose the basis for claim.
+select-basis-for-claim.rejected-goods.error.required=Choose the basis for claim
 
 #===================================================
 #  ENTER SPECIAL CIRCUMSTANCES DETAILS PAGE
