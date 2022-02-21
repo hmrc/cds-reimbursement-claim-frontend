@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Im
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
 
@@ -52,8 +51,7 @@ class ChooseInspectionAddressTypeController @Inject() (
   val sessionStore: SessionCache,
   val jcc: JourneyControllerComponents,
   val addressLookupService: AddressLookupService,
-  inspectionAddressPage: pages.choose_inspection_address_type,
-  val problemWithAddressPage: problem_with_address
+  inspectionAddressPage: pages.choose_inspection_address_type
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
     with AddressLookupMixin[RejectedGoodsSingleJourney] {
@@ -61,7 +59,9 @@ class ChooseInspectionAddressTypeController @Inject() (
   val applyChoice: Call =
     routes.ChooseInspectionAddressTypeController.submit()
 
-  override val startAddressLookup: Call =
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
+
+  val startAddressLookup: Call =
     routes.ChooseInspectionAddressTypeController.redirectToALF()
 
   override val retrieveLookupAddress: Call =

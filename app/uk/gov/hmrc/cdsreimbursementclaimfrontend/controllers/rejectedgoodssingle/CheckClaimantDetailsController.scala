@@ -36,15 +36,16 @@ import scala.concurrent.Future
 class CheckClaimantDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val addressLookupService: AddressLookupService,
-  claimantDetailsPage: pages.check_claimant_details,
-  val problemWithAddressPage: problem_with_address
+  claimantDetailsPage: pages.check_claimant_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
     with AddressLookupMixin[RejectedGoodsSingleJourney] {
 
   implicit val subKey: Option[String] = None
 
-  override val startAddressLookup: Call =
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
+
+  val startAddressLookup: Call =
     routes.CheckClaimantDetailsController.redirectToALF()
 
   override val retrieveLookupAddress: Call =
