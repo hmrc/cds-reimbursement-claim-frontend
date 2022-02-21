@@ -12,8 +12,8 @@ POST         /rejected-goods/multiple/check-declaration-details                 
 
 GET          /rejected-goods/multiple/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.show()
 POST         /rejected-goods/multiple/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.submit()
-GET          /rejected-goods/single/claimant-details/lookup-address                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.redirectToALF()
-GET          /rejected-goods/single/claimant-details/update-address                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/multiple/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.redirectToALF()
+GET          /rejected-goods/multiple/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 
 GET          /rejected-goods/multiple/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.show()
 POST         /rejected-goods/multiple/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.submit()
