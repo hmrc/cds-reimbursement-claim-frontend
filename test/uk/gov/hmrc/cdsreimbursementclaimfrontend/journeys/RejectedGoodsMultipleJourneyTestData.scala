@@ -40,7 +40,6 @@ trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])],
     supportingEvidences: Map[UploadDocumentType, Int],
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -103,7 +102,6 @@ trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
       .flatMapEach(mrnsWithTaxCodesWithReimbursementAmount, submitAmountForReimbursement)
       .map(_.submitInspectionDate(inspectionDate))
       .map(_.submitInspectionAddress(inspectionAddress))
-      .flatMapWhenDefined(reimbursementMethod)(_.submitReimbursementMethod _)
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)

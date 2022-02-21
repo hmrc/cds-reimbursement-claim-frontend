@@ -16,19 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.syntax.eq._
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import scala.collection.JavaConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+
+import scala.collection.JavaConverters._
 
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with RejectedGoodsMultipleJourneyTestData {
@@ -185,7 +184,6 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5
@@ -200,7 +198,6 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
       submitContactAddress = submitContactAddress,
       submitBankAccountDetails = submitBankAccountDetails,
       submitBankAccountType = submitBankAccountType,
-      reimbursementMethod = reimbursementMethod,
       minNumberOfMRNs = minNumberOfMRNs,
       maxNumberOfMRNs = maxNumberOfMRNs,
       maxSize = maxSize
@@ -239,7 +236,6 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5
@@ -253,7 +249,6 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
       taxCodesWithAmounts <- Gen.sequence(mrns.map(_ => taxCodesAndAmountsGen(maxSize))).map(_.asScala)
       basisOfClaim        <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal    <- Gen.oneOf(MethodOfDisposal.values)
-      reimbursementMethod <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethodAnswer.values))
 
       numberOfSupportingEvidences <- Gen.choose(0, maxSize)
       numberOfDocumentTypes       <- Gen.choose(1, maxSize - 1)
@@ -305,25 +300,12 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
         methodOfDisposal,
         reimbursementClaims,
         supportingEvidences,
-        if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
         declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
         consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        bankAccountDetails =
-          if (
-            submitBankAccountDetails &&
-            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
-          )
-            Some(exampleBankAccountDetails)
-          else None,
-        bankAccountType =
-          if (
-            submitBankAccountType &&
-            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
-          )
-            Some(bankAccountType)
-          else None
+        bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
+        bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None
       )
     }
 
