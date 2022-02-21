@@ -533,7 +533,7 @@ select-method-of-disposal.rejected-goods.method.DonationToCharity=Donation to ch
 select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Placed in customs warehouse
 select-method-of-disposal.rejected-goods.method.ExportInBaggage=Export in baggage
 select-method-of-disposal.rejected-goods.method.Destruction=Destruction
-select-method-of-disposal.rejected-goods.error.required=Select the method of disposal.
+select-method-of-disposal.rejected-goods.error.required=Choose the method of disposal
 
 #===================================================
 #  ENTER REJECTED GOODS DETAILS PAGE
