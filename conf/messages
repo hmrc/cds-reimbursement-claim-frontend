@@ -757,7 +757,7 @@ select-duties.title=Select the duties you want to claim for
 select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
 select-duties.multiple.help-text.1=These are the duties that have been paid under MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
 select-duties.duty.hint=This duty is not eligible for CMA reimbursement
-select-duties.error.required=Choose at least one duty to claim against
+select-duties.error.required=Select one or more duties to be repaid for
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
 select-duties.duty.A30=Definitive Anti-Dumping Duty
