@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -35,7 +36,8 @@
         pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
 
@@ -43,6 +45,11 @@
 
 @key = @{"rejected-goods.choose-how-many-mrns"}
 @title = @{messages(s"$key.title")}
+
+@inset = {
+    @pageHeading(messages(s"$key.inset.title"), classes = "govuk-heading-s", level = "h2")
+    @paragraph(Html(messages(s"$key.inset.paragraph")))
+}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -55,6 +62,8 @@
     @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 
     @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
+
+    @insetText(content = HtmlContent(inset))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -76,6 +85,7 @@
                     id = Some(s"$key.multiple"),
                     value = Some(Multiple.toString),
                     content = Text(messages(s"$key.multiple.title")),
+                    hint = Some(Hint(content = Text(messages(s"$key.multiple.hint")))),
                     checked = form.value.contains(Multiple)
                 ),
                 RadioItem(
