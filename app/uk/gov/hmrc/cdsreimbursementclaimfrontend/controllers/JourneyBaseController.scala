@@ -73,11 +73,14 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
   final override def controllerComponents: MessagesControllerComponents =
     jcc.controllerComponents
 
+  final def shouldForwardToCYA(journey: Journey): Boolean =
+    userHasSeenCYAPage(journey) && hasCompleteAnswers(journey)
+
   final def resultOrShortcut(result: Result, journey: Journey, fastForwardToCYAEnabled: Boolean): Future[Result] =
     Future.successful(
       if (result.header.status =!= 303) result
       else if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
-      else if (userHasSeenCYAPage(journey) && fastForwardToCYAEnabled && hasCompleteAnswers(journey))
+      else if (fastForwardToCYAEnabled && shouldForwardToCYA(journey))
         Redirect(checkYourAnswers)
       else result
     )

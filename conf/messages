@@ -1240,6 +1240,7 @@ check-your-answers.inspection.inspection-address=Inspection address
 check-your-answers.inspection.inspection-address-type=Inspection address type
 check-your-answers.claim-total.h2=Claim total
 check-your-answers.claim-total.total=Total
+check-your-answers.claim-total.duty.label=repayment claim for MRN {0}
 check-your-answers.claim-total.multiple.total=Total
 check-your-answers.contact-information.change-hint.contact=Contact details
 check-your-answers.contact-information.change-hint.address=Contact address
