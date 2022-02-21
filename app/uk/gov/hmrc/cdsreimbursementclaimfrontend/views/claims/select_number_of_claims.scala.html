@@ -61,9 +61,7 @@
 
         @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 
-
-@insetText(content = HtmlContent(inset))
-
+        @insetText(content = HtmlContent(inset))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

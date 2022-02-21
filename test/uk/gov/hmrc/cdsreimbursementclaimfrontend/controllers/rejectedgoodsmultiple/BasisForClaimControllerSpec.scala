@@ -184,8 +184,8 @@ class BasisForClaimControllerSpec
 
         val checkBasisOfClaim = basisOfClaim match {
           case SpecialCircumstances =>
-            "/enter-special-circumstances" //FIXME routes.EnterSpecialCircumstancesController.show()
-          case _                    => "/choose-disposal-method" //FIXME routes.DisposalMethodController.show()
+            routes.BasisForClaimController.show() //FIXME routes.EnterSpecialCircumstancesController.show()
+          case _                    => routes.DisposalMethodController.show()
         }
 
         checkIsRedirect(

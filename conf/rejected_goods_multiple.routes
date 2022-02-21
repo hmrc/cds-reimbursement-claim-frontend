@@ -25,8 +25,8 @@ POST         /rejected-goods/multiple/choose-basis-for-claim                    
 GET          /rejected-goods/multiple/enter-special-circumstances                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
 POST         /rejected-goods/multiple/enter-special-circumstances                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
 
-GET          /rejected-goods/multiple/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
-POST         /rejected-goods/multiple/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
+GET          /rejected-goods/multiple/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.DisposalMethodController.show()
+POST         /rejected-goods/multiple/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.DisposalMethodController.submit()
 
 GET          /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
 POST         /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
