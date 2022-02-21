@@ -66,6 +66,7 @@ class CheckYourAnswersController @Inject() (
               Ok(
                 checkYourAnswersPage(
                   output,
+                  journey.isAllSelectedDutiesAreCMAEligible,
                   journey.answers.displayDeclaration,
                   postAction
                 )
