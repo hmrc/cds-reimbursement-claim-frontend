@@ -137,7 +137,7 @@ class CheckClaimDetailsControllerSpec
         status(performAction("false")) shouldBe NOT_FOUND
       }
 
-      "redirect to the next page if yes" in {
+      "redirect to the next page if answer is yes" in {
         forAll(incompleteJourneyWithCompleteClaimsGen(2)) { case (journey, _) =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
@@ -152,8 +152,39 @@ class CheckClaimDetailsControllerSpec
         }
       }
 
-      "redirect back to the duties selection if no" in {
+      "redirect back to the duties selection if answer is no" in {
         forAll(incompleteJourneyWithCompleteClaimsGen(2)) { case (journey, _) =>
+          assert(journey.hasCompleteReimbursementClaims)
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction("false"),
+            "/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/select-duties"
+          )
+        }
+      }
+
+      "when in change mode redirect to the CYA page if answer is yes" in {
+        forAll(completeJourneyGen) { case journey =>
+          assert(journey.hasCompleteReimbursementClaims)
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction("true"),
+            "/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/check-your-answers"
+          )
+        }
+      }
+
+      "when in change mode redirect back to the duties selection if answer is no" in {
+        forAll(completeJourneyGen) { case journey =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
             mockAuthWithNoRetrievals()
