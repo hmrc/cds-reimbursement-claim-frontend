@@ -72,8 +72,8 @@ class BasisForClaimController @Inject() (
             basisOfClaim match {
               case SpecialCircumstances =>
                 Redirect(
-                  routes.BasisForClaimController.show()
-                ) //FIXME: routes.EnterSpecialCircumstancesController.show()
+                  routes.EnterSpecialCircumstancesController.show()
+                )
               case _                    => Redirect(routes.DisposalMethodController.show())
             }
           ).asFuture
