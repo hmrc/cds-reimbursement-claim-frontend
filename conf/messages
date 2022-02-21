@@ -334,7 +334,7 @@ countryCode.enter-your-contact-details.error.required=Enter a country
 #===================================================
 #  CLAIMANT DETAILS PAGE
 #===================================================
-claimant-details.title=Check your details as registered with CDS
+claimant-details.title=How we will contact you about this claim
 claimant-details.registered.title=Details as registered with CDS
 claimant-details.registered.details=Details as registered with CDS
 claimant-details.registered.address=Address as registered with CDS
