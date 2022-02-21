@@ -183,8 +183,7 @@ class BasisForClaimControllerSpec
         }
 
         val checkBasisOfClaim = basisOfClaim match {
-          case SpecialCircumstances =>
-            routes.BasisForClaimController.show() //FIXME routes.EnterSpecialCircumstancesController.show()
+          case SpecialCircumstances => routes.EnterSpecialCircumstancesController.show()
           case _                    => routes.DisposalMethodController.show()
         }
 
