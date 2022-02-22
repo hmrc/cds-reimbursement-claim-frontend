@@ -152,8 +152,7 @@ final class RejectedGoodsMultipleJourney private (
     !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(ReimbursementMethodAnswer.BankAccountTransfer)
+    true
 
   def needsSpecialCircumstancesBasisOfClaim: Boolean =
     answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
@@ -638,35 +637,6 @@ final class RejectedGoodsMultipleJourney private (
       else Left("submitBankAccountType.unexpected")
     }
 
-  def submitReimbursementMethod(
-    reimbursementMethodAnswer: ReimbursementMethodAnswer
-  ): Either[String, RejectedGoodsMultipleJourney] =
-    whileJourneyIsAmendable {
-      if (isAllSelectedDutiesAreCMAEligible) {
-        if (reimbursementMethodAnswer === ReimbursementMethodAnswer.CurrentMonthAdjustment)
-          Right(
-            new RejectedGoodsMultipleJourney(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethodAnswer),
-                bankAccountDetails = None,
-                bankAccountType = None
-              )
-            )
-          )
-        else
-          Right(
-            new RejectedGoodsMultipleJourney(
-              answers
-                .copy(
-                  reimbursementMethod = Some(reimbursementMethodAnswer),
-                  bankAccountDetails = computeBankAccountDetails
-                )
-            )
-          )
-      } else
-        Left("submitReimbursementMethodAnswer.notCMAEligible")
-    }
-
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsMultipleJourney =
     whileJourneyIsAmendable {
       new RejectedGoodsMultipleJourney(answers.copy(selectedDocumentType = Some(documentType)))
@@ -748,7 +718,7 @@ final class RejectedGoodsMultipleJourney private (
           reimbursementClaims = getReimbursementClaims,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
+          reimbursementMethod = ReimbursementMethodAnswer.BankAccountTransfer,
           bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
@@ -786,7 +756,6 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false,
@@ -895,20 +864,6 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
         checkIsEmpty(
           _.answers.basisOfClaimSpecialCircumstances,
           BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED
-        )
-      ),
-      whenTrue(
-        _.isAllSelectedDutiesAreCMAEligible,
-        checkIsDefined(
-          _.answers.reimbursementMethod,
-          REIMBURSEMENT_METHOD_MUST_BE_DEFINED
-        )
-      ),
-      whenFalse(
-        _.isAllSelectedDutiesAreCMAEligible,
-        checkIsEmpty(
-          _.answers.reimbursementMethod,
-          REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
         )
       )
     )
