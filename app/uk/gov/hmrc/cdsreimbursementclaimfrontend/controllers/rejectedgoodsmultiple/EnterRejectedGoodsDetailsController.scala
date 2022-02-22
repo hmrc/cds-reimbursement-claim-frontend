@@ -14,59 +14,48 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterRejectedGoodsDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   enterRejectedGoodsDetailsPage: pages.enter_rejected_goods_details
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController {
-
-  private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit()
+    extends RejectedGoodsMultipleJourneyBaseController {
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Future.successful {
-      val form = enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods)
-
-      Ok(enterRejectedGoodsDetailsPage(form, postAction))
-    }
+    val form = enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods)
+    Ok(enterRejectedGoodsDetailsPage(form, routes.EnterRejectedGoodsDetailsController.submit())).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    Future.successful(
-      enterRejectedGoodsDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                enterRejectedGoodsDetailsPage(
-                  formWithErrors,
-                  postAction
-                )
-              )
-            ),
-          rejectedGoodsDetails =>
-            (
-              journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
-              Redirect(routes.SelectTaxCodesController.show())
+    enterRejectedGoodsDetailsForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          (
+            journey,
+            BadRequest(
+              enterRejectedGoodsDetailsPage(formWithErrors, routes.EnterRejectedGoodsDetailsController.submit())
             )
-        )
-    )
+          ),
+        rejectedGoodsDetails =>
+          (
+            journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
+            Redirect(routes.SelectTaxCodesController.showFirst)
+          )
+      )
+      .asFuture
   }
 }
