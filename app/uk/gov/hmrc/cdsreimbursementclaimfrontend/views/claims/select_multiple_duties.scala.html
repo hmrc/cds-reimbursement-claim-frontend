@@ -25,7 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import cats.data.NonEmptyList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 @this(
@@ -41,7 +41,7 @@
 @(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty],  mrn: MRN, mrnIndex: Int)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
-  @title = @{messages(s"multiple-$key.title", OrdinalNumber.label(mrnIndex))}
+  @title = @{messages(s"multiple-$key.title",  OrdinalNumeral(mrnIndex))}
 
   @postAction = @{routes.SelectMultipleDutiesController.selectDutiesSubmit(mrnIndex)}
     @options = @{dutiesToDisplay.map { duty =>
