@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import cats.data.NonEmptyList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -37,10 +38,10 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], mrnIndex: Int)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty],  mrn: MRN, mrnIndex: Int)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
-  @title = @{messages(s"multiple-$key.title", OrdinalNumeral(mrnIndex))}
+  @title = @{messages(s"multiple-$key.title",  OrdinalNumeral(mrnIndex))}
 
   @postAction = @{routes.SelectMultipleDutiesController.selectDutiesSubmit(mrnIndex)}
     @options = @{dutiesToDisplay.map { duty =>
@@ -61,7 +62,7 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"multiple-$key.help-text.1")), Some("govuk-body"))
+        @paragraph(Html(messages(s"multiple-$key.help-text.1", mrn.value)), Some("govuk-body"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
