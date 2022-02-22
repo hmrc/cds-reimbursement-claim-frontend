@@ -41,7 +41,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementMethodAnswerSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
@@ -104,7 +103,7 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers should contain allOf ("Movement Reference Numbers (MRNs)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Repayment method", "Supporting documents", "Now send your application")
+    headers should contain allOf ("Movement Reference Numbers (MRNs)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Supporting documents", "Now send your application")
 
     val mrnKeys: Seq[String] =
       (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber.label(i).capitalize} MRN")
@@ -116,8 +115,7 @@ class CheckYourAnswersControllerSpec
       "Total",
       "Inspection date",
       "Inspection address type",
-      "Inspection address",
-      "Method"
+      "Inspection address"
     ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded"))): _*)
 
     mrnKeys.zip(claim.movementReferenceNumbers).foreach { case (key, mrn) =>
@@ -133,9 +131,6 @@ class CheckYourAnswersControllerSpec
       s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}"
     )
     summary("These are the details of the rejected goods") shouldBe claim.detailsOfRejectedGoods
-    summary("Method")                                      shouldBe messages(
-      ReimbursementMethodAnswerSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
-    )
     summary("Inspection date")                             shouldBe claim.inspectionDate.value.toString
     summary("Inspection address type")                     shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"

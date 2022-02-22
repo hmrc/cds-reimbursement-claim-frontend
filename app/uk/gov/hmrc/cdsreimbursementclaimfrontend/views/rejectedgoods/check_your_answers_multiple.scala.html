@@ -71,14 +71,11 @@
     @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey))
     
     @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"$key.claim-total"))
+    @summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.CheckClaimDetailsController.show())))
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.WorkInProgressController.show(), routes.WorkInProgressController.show()))
-
-    @pageHeading(messages(s"$key.repayment-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod,s"$key.repayment-method", subKey))
-
+    
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey))

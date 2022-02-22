@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseControll
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
@@ -42,9 +41,7 @@ trait AddressLookupMixin[Journey] { self: JourneyBaseController[Journey] =>
 
   val addressLookupService: AddressLookupService
 
-  val problemWithAddressPage: problem_with_address
-
-  val startAddressLookup: Call
+  val problemWithAddressPage: Call
   val retrieveLookupAddress: Call
 
   def redirectToALF: Action[AnyContent] =
@@ -69,7 +66,7 @@ trait AddressLookupMixin[Journey] { self: JourneyBaseController[Journey] =>
                   error.message.contains("/address/postcode: error.path.missing") || error.message
                     .contains("/address/lines: error.minLength")
                 )
-                  Ok(problemWithAddressPage(startAddressLookup))
+                  Redirect(problemWithAddressPage)
                 else Redirect(baseRoutes.IneligibleController.ineligible())
               )
             },

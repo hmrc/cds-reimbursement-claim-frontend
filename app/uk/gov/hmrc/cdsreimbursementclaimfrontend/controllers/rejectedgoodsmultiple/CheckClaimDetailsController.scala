@@ -68,32 +68,40 @@ class CheckClaimDetailsController @Inject() (
     ).asFuture
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    (if (!journey.hasCompleteMovementReferenceNumbers) (journey, Redirect(enterMrnAction))
-     else if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction))
-     else {
-       form
-         .bindFromRequest()
-         .fold(
-           formWithErrors =>
-             (
-               journey,
-               Ok(
-                 checkClaimDetails(
-                   formWithErrors,
-                   getClaimsForDisplay(journey),
-                   enterClaimAction,
-                   submitAction
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      (if (!journey.hasCompleteMovementReferenceNumbers) (journey, Redirect(enterMrnAction))
+       else if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction))
+       else {
+         form
+           .bindFromRequest()
+           .fold(
+             formWithErrors =>
+               (
+                 journey,
+                 Ok(
+                   checkClaimDetails(
+                     formWithErrors,
+                     getClaimsForDisplay(journey),
+                     enterClaimAction,
+                     submitAction
+                   )
                  )
-               )
-             ),
-           {
-             case Yes => (journey, Redirect(nextAction))
-             case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
-           }
-         )
-     }).asFuture
-  }
+               ),
+             {
+               case Yes =>
+                 (
+                   journey,
+                   if (shouldForwardToCYA(journey)) Redirect(checkYourAnswers)
+                   else Redirect(nextAction)
+                 )
+               case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
+             }
+           )
+       }).asFuture
+    },
+    fastForwardToCYAEnabled = false
+  )
 
   def getClaimsForDisplay(journey: RejectedGoodsMultipleJourney): Seq[(MRN, Int, Map[TaxCode, BigDecimal])] =
     journey.getReimbursementClaims.toSeq.zipWithIndex

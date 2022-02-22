@@ -58,7 +58,6 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       emptyJourney.answers.inspectionDate                   shouldBe None
       emptyJourney.answers.methodOfDisposal                 shouldBe None
       emptyJourney.answers.reimbursementClaims              shouldBe None
-      emptyJourney.answers.reimbursementMethod              shouldBe None
       emptyJourney.answers.selectedDocumentType             shouldBe None
       emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode       shouldBe false
@@ -91,8 +90,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         output.detailsOfRejectedGoods   shouldBe journey.answers.detailsOfRejectedGoods.get
         output.inspectionDate           shouldBe journey.answers.inspectionDate.get
         output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
-        output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
-          .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
+        output.reimbursementMethod      shouldBe ReimbursementMethodAnswer.BankAccountTransfer
         output.reimbursementClaims      shouldBe journey.getReimbursementClaims
         output.reimbursementClaims.size shouldBe journey.countOfMovementReferenceNumbers
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
@@ -200,7 +198,6 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         modifiedJourney.answers.inspectionDate          shouldBe None
         modifiedJourney.answers.methodOfDisposal        shouldBe None
         modifiedJourney.answers.reimbursementClaims     shouldBe None
-        modifiedJourney.answers.reimbursementMethod     shouldBe None
         modifiedJourney.answers.selectedDocumentType    shouldBe None
         modifiedJourney.answers.supportingEvidences     shouldBe Seq.empty
       }
@@ -973,62 +970,6 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
-    "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        RejectedGoodsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
-
-      journeyEither.isRight shouldBe true
-    }
-
-    "fail submitting CurrentMonthAdjustment as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val journeyEither                    =
-        RejectedGoodsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, displayDeclarationNotCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
-
-      journeyEither shouldBe Left("submitReimbursementMethodAnswer.notCMAEligible")
-    }
-
-    "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        RejectedGoodsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
-
-      journeyEither.isRight shouldBe true
-    }
-
-    "fail submitting BankAccountTransfer as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val journeyEither                    =
-        RejectedGoodsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, displayDeclarationNotCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
-
-      journeyEither shouldBe Left("submitReimbursementMethodAnswer.notCMAEligible")
-    }
-
     "submit bankAccountDetails and bankAccountType if reimbursement method is BankAccountTransfer" in {
       val displayDeclarationAllCMAEligible =
         buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
@@ -1038,40 +979,10 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
           .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
       journeyEither.isRight shouldBe true
-    }
-
-    "fail submitting bankAccountDetails if not needed" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        RejectedGoodsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
-          .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-          .flatMap(_.submitBankAccountType(BankAccountType.Business))
-
-      journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
-    }
-
-    "change reimbursementMethod to CMA in a complete journey with all duties CMA eligible" in {
-      forAll(completeJourneyCMAEligibleGen) { journey =>
-        whenever(journey.needsBanksAccountDetailsSubmission) {
-          val modifiedJourney =
-            journey
-              .submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment)
-              .getOrFail
-
-          modifiedJourney.hasCompleteAnswers shouldBe true
-        }
-      }
     }
 
     "change bankAccountDetails in a complete journey with all duties CMA eligible" in {

@@ -334,7 +334,7 @@ countryCode.enter-your-contact-details.error.required=Enter a country
 #===================================================
 #  CLAIMANT DETAILS PAGE
 #===================================================
-claimant-details.title=Check your details as registered with CDS
+claimant-details.title=How we will contact you about this claim
 claimant-details.registered.title=Details as registered with CDS
 claimant-details.registered.details=Details as registered with CDS
 claimant-details.registered.address=Address as registered with CDS
@@ -355,7 +355,7 @@ claimant-details.add-different.hint=Adding different contact details will not am
 #===================================================
 #  CHECK CLAIMANT DETAILS PAGE
 #===================================================
-check-claimant-details.title=This is how we will contact you about this claim
+check-claimant-details.title=How we will contact you about this claim
 check-claimant-details.contact.details=Contact details
 check-claimant-details.change-hint.contact=Contact details
 check-claimant-details.contact.address=Contact address
@@ -512,7 +512,7 @@ select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Damaged befo
 select-basis-for-claim.rejected-goods.reason.Defective=Defective
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Not in accordance with contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
-select-basis-for-claim.rejected-goods.error.required=Select the basis for claim.
+select-basis-for-claim.rejected-goods.error.required=Choose the basis for claim
 
 #===================================================
 #  ENTER SPECIAL CIRCUMSTANCES DETAILS PAGE
@@ -533,7 +533,7 @@ select-method-of-disposal.rejected-goods.method.DonationToCharity=Donation to ch
 select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Placed in customs warehouse
 select-method-of-disposal.rejected-goods.method.ExportInBaggage=Export in baggage
 select-method-of-disposal.rejected-goods.method.Destruction=Destruction
-select-method-of-disposal.rejected-goods.error.required=Select the method of disposal.
+select-method-of-disposal.rejected-goods.error.required=Choose the method of disposal
 
 #===================================================
 #  ENTER REJECTED GOODS DETAILS PAGE
@@ -1240,6 +1240,7 @@ check-your-answers.inspection.inspection-address=Inspection address
 check-your-answers.inspection.inspection-address-type=Inspection address type
 check-your-answers.claim-total.h2=Claim total
 check-your-answers.claim-total.total=Total
+check-your-answers.claim-total.duty.label=repayment claim for MRN {0}
 check-your-answers.claim-total.multiple.total=Total
 check-your-answers.contact-information.change-hint.contact=Contact details
 check-your-answers.contact-information.change-hint.address=Contact address
