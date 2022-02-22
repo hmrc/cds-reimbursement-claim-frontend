@@ -75,9 +75,8 @@ class SelectMultipleDutiesController @Inject() (
       request.using { case journey: FillingOutClaim =>
         journey.draftClaim.MRNs
           .get(mrnIndex - 1)
-          .fold(BadRequest(mrnDoesNotExistPage())) { _ =>
+          .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
             val dutiesAvailableMap: DutiesAvailable = getAvailableDuties(journey, mrnIndex)
-
             dutiesAvailableMap.dutiesSelectedAnswer.fold(
               error => {
                 logger.warn("No Available duties: ", error)
@@ -99,6 +98,7 @@ class SelectMultipleDutiesController @Inject() (
                   selectMultipleDutiesPage(
                     filledForm,
                     dutiesAvailable,
+                    mrn,
                     mrnIndex
                   )
                 )
@@ -114,9 +114,8 @@ class SelectMultipleDutiesController @Inject() (
       request.using { case journey: FillingOutClaim =>
         journey.draftClaim.MRNs
           .get(mrnIndex - 1)
-          .fold(Future.successful(BadRequest(mrnDoesNotExistPage()))) { _ =>
+          .fold(Future.successful(BadRequest(mrnDoesNotExistPage()))) { mrn =>
             val dutiesAvailableMap: DutiesAvailable = getAvailableDuties(journey, mrnIndex)
-
             dutiesAvailableMap.dutiesSelectedAnswer.fold(
               error => {
                 logger.warn("No Available duties: ", error)
@@ -132,6 +131,7 @@ class SelectMultipleDutiesController @Inject() (
                           selectMultipleDutiesPage(
                             formWithErrors,
                             dutiesAvailable,
+                            mrn,
                             mrnIndex
                           )
                         )
