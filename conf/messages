@@ -427,8 +427,8 @@ check-declaration-details.multiple.error.required=Select ''yes'' if you want to 
 #===================================================
 #  CLAIM NORTHERN IRELAND PAGE
 #===================================================
-claim-northern-ireland.title=Were your goods imported to or moved through Northern Ireland?
-claim-northern-ireland.help-text=
+claim-northern-ireland.title=Were your goods moved through or imported to Northern Ireland?
+claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
 claim-northern-ireland.error.required=Select Yes if all the MRNs in this claim were imported to or moved through Northern Ireland.
