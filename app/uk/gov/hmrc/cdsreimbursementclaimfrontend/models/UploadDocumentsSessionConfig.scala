@@ -56,7 +56,12 @@ object UploadDocumentsSessionConfig {
     countdownSeconds: Int,
     showLanguageSelection: Boolean,
     pageTitleClasses: String,
-    allowedFilesTypesHint: String
+    allowedFilesTypesHint: String,
+    fileUploadedProgressBarLabel: String,
+    chooseFirstFileLabel: String,
+    chooseNextFileLabel: String,
+    showAddAnotherDocumentButton: Boolean,
+    addAnotherDocumentButtonText: String
   )
 
   object Content {
