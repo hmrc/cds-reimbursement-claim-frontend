@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -24,22 +24,20 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.exampleRejectedGoodsDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
-import scala.concurrent.Future
 
 class EnterRejectedGoodsDetailsControllerSpec
     extends ControllerSpec
@@ -68,24 +66,12 @@ class EnterRejectedGoodsDetailsControllerSpec
     featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
+    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
   )
 
   "Enter Rejected Goods Details Controller" must {
 
-    "not find the page if rejected goods feature is disabled" in {
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
-
-      featureSwitch.disable(Feature.RejectedGoods)
-
-      status(performAction()) shouldBe NOT_FOUND
-    }
-
     "display the page" when {
-      def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
-
       "the user has not answered this question before" in {
         inSequence {
           mockAuthWithNoRetrievals()
@@ -93,21 +79,17 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          controller.show()(FakeRequest()),
           messageFromMessageKey(s"$messagesKey.title")
         )
       }
-
     }
 
     "handle submit requests" must {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
       "the user has entered some details" in {
-        val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
+        val journey        = session.rejectedGoodsMultipleJourney.getOrElse(fail("No rejected goods journey"))
         val updatedJourney = journey.submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -116,17 +98,13 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(formKey -> exampleRejectedGoodsDetails),
-          routes.SelectTaxCodesController.show()
+          controller.submit()(FakeRequest().withFormUrlEncodedBody(formKey -> exampleRejectedGoodsDetails)),
+          routes.SelectTaxCodesController.showFirst
         )
       }
-
     }
 
     "show an error summary" when {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
       "the user submits empty details" in {
 
         inSequence {
@@ -135,7 +113,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(formKey -> ""),
+          controller.submit()(FakeRequest().withFormUrlEncodedBody(formKey -> "")),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -146,7 +124,6 @@ class EnterRejectedGoodsDetailsControllerSpec
       }
 
       "the user submits more than 500 characters" in {
-
         val answer = List.fill(600)('c').mkString(" ")
 
         inSequence {
@@ -155,7 +132,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(formKey -> answer),
+          controller.submit()(FakeRequest().withFormUrlEncodedBody(formKey -> answer)),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -185,11 +162,11 @@ class EnterRejectedGoodsDetailsControllerSpec
         val errors = form.bind(goodData.updated(messagesKey, List.fill(500)("a").mkString(""))).errors
         errors shouldBe Nil
       }
+
       "Reject details when it's too long" in {
         val errors = form.bind(goodData.updated(messagesKey, List.fill(501)("a").mkString(""))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
   }
-
 }
