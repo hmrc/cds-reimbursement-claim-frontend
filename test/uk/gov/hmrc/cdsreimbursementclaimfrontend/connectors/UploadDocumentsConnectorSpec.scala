@@ -114,7 +114,12 @@ class UploadDocumentsConnectorSpec
         countdownSeconds = 120,
         showLanguageSelection = false,
         pageTitleClasses = "govuk-heading-xl",
-        allowedFilesTypesHint = "PNG"
+        allowedFilesTypesHint = "PNG",
+        fileUploadedProgressBarLabel = "uploadfileUploadedProgressBarLabeled",
+        chooseFirstFileLabel = "chooseFirstFileLabel",
+        chooseNextFileLabel = "chooseNextFileLabel",
+        showAddAnotherDocumentButton = false,
+        addAnotherDocumentButtonText = "addAnotherDocumentButtonText"
       )
     )
 

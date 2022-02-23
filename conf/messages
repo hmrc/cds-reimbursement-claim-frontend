@@ -1322,11 +1322,12 @@ choose-file-type.choose-file-type.error.invalid-file-type=Invalid type of suppor
 #===================================================
 #  CHOOSE FILES - PAGE
 #===================================================
-choose-files.rejected-goods.title=Upload supporting documents
-choose-files.rejected-goods.p1=Upload {0}. 
-choose-files.rejected-goods.p2=The documents can be up to a maximum of {0} size per file. Valid file format: JPG, PNG, PDF.
-choose-files.rejected-goods.p3=A maximum of {0} file can be uploaded at one time.
+choose-files.uploaded.label=Uploaded
+choose-files.rejected-goods.title=Upload {0}
+choose-files.rejected-goods.p1={0} can be up to a maximum of {1} size per file. The selected file must be a JPG, PNG or PDF. 
 choose-files.rejected-goods.allowed-file-types=JPG, PNG, or PDF
+choose-files.rejected-goods.choose.first.label=Upload {0} 
+choose-files.rejected-goods.choose.next.label=Upload another {0} 
 
 #===================================================
 #  COUNTRIES - START

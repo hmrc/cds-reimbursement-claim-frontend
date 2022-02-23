@@ -54,7 +54,7 @@ trait UploadFilesMixin[Journey] {
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = 0, // user can skip uploading the file
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
-      initialNumberOfEmptyRows = 3,
+      initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
       allowedContentTypes = "application/pdf,image/jpeg,image/png",
       allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
@@ -67,14 +67,15 @@ trait UploadFilesMixin[Journey] {
     request: Request[_],
     messages: Messages
   ): UploadDocumentsSessionConfig.Content = {
-    val descriptionHtml = upload_files_description(
+    val documentTypeLabel = documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
+    val descriptionHtml   = upload_files_description(
       "choose-files.rejected-goods",
-      documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
+      documentTypeLabel
     )(request, messages, appConfig).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
-      title = messages("choose-files.rejected-goods.title"),
+      title = messages("choose-files.rejected-goods.title", documentTypeLabel),
       descriptionHtml = descriptionHtml,
       serviceUrl = appConfig.homePageUrl,
       accessibilityStatementUrl = appConfig.accessibilityStatementUrl,
@@ -87,7 +88,12 @@ trait UploadFilesMixin[Journey] {
       countdownSeconds = appConfig.ggCountdownSeconds.toInt,
       showLanguageSelection = appConfig.enableLanguageSwitching,
       pageTitleClasses = "govuk-heading-xl",
-      allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types")
+      allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types"),
+      fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
+      chooseFirstFileLabel = messages("choose-files.rejected-goods.choose.first.label", documentTypeLabel),
+      chooseNextFileLabel = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel),
+      showAddAnotherDocumentButton = false,
+      addAnotherDocumentButtonText = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel)
     )
   }
 
