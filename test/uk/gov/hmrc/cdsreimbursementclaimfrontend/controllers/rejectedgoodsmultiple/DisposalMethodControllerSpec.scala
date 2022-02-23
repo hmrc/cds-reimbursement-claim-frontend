@@ -136,7 +136,7 @@ class DisposalMethodControllerSpec
 
         checkIsRedirect(
           performAction("select-method-of-disposal.rejected-goods" -> methodOfDisposal.toString),
-          "/enter-rejected-goods-details"
+          routes.EnterRejectedGoodsDetailsController.show()
         )
       }
 

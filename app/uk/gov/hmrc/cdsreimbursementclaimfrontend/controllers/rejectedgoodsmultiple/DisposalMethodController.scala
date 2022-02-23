@@ -66,7 +66,7 @@ class DisposalMethodController @Inject() (
             Future.successful(
               (
                 updatedJourney,
-                Redirect("/enter-rejected-goods-details") //FIXME routes.EnterRejectedGoodsDetailsController.show()
+                Redirect(routes.EnterRejectedGoodsDetailsController.show())
               )
             )
           }
