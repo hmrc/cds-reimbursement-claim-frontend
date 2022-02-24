@@ -50,13 +50,10 @@ GET          /rejected-goods/multiple/inspection-address/update-address         
 GET          /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.show()
 POST         /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.submit()
 
-GET          /rejected-goods/multiple/choose-repayment-method                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
-POST         /rejected-goods/multiple/choose-repayment-method                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
-
 GET          /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.show()
 POST         /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.submit()
 
-GET          /rejected-goods/multiple/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
+GET          /rejected-goods/multiple/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.show()
 
 GET          /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
 POST         /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
