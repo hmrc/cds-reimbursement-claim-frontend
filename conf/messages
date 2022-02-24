@@ -1328,6 +1328,8 @@ choose-files.rejected-goods.p1={0} can be up to a maximum of {1} size per file. 
 choose-files.rejected-goods.allowed-file-types=JPG, PNG, or PDF
 choose-files.rejected-goods.choose.first.label=Upload {0} 
 choose-files.rejected-goods.choose.next.label=Upload another {0} 
+choose-files.rejected-goods.add-another-document-question=Add a different type of supporting evidence to your claim?
+choose-files.rejected-goods.add-another-document-question.error.required=Select ''yes'' if you want to add a different type of supporting evidence
 
 #===================================================
 #  COUNTRIES - START
