@@ -19,10 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import cats.implicits.catsSyntaxOptionId
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -31,21 +28,14 @@ import play.api.test.Helpers.BAD_REQUEST
 import shapeless.lens
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, Feature, SessionData, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -68,6 +58,8 @@ class ChooseBankAccountTypeControllerSpec
   )
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
+
+  val formKey: String = "select-bank-account-type"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -99,7 +91,7 @@ class ChooseBankAccountTypeControllerSpec
 
       checkPageIsDisplayed(
         showPage(),
-        messageFromMessageKey("select-bank-account-type.title")
+        messageFromMessageKey(s"$formKey.title")
       )
     }
 
@@ -112,12 +104,12 @@ class ChooseBankAccountTypeControllerSpec
 
         checkPageIsDisplayed(
           submitBankAccountType(),
-          messageFromMessageKey("select-bank-account-type.title"),
+          messageFromMessageKey(s"$formKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              "select-bank-account-type.error.required"
+              s"$formKey.error.required"
             ),
           BAD_REQUEST
         )
@@ -143,7 +135,7 @@ class ChooseBankAccountTypeControllerSpec
           }
 
           checkIsRedirect(
-            submitBankAccountType("select-bank-account-type" -> bankAccountType.toString),
+            submitBankAccountType(formKey -> bankAccountType.toString),
             baseRoutes.IneligibleController.ineligible()
           )
       }
@@ -162,7 +154,7 @@ class ChooseBankAccountTypeControllerSpec
         }
 
         checkIsRedirect(
-          submitBankAccountType("select-bank-account-type" -> bankAccountType.toString),
+          submitBankAccountType(formKey -> bankAccountType.toString),
           routes.EnterBankAccountDetailsController.show()
         )
       }
