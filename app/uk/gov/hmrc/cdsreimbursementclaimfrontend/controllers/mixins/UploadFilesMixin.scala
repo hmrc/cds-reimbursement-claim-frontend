@@ -42,17 +42,23 @@ trait UploadFilesMixin[Journey] {
 
   final val selfUrl: String = jcc.servicesConfig.getString("self.url")
 
-  def uploadDocumentsSessionConfig(nonce: Nonce, documentType: UploadDocumentType, continueUrl: String)(implicit
+  def uploadDocumentsSessionConfig(
+    nonce: Nonce,
+    documentType: UploadDocumentType,
+    continueAfterYesAnswerUrl: String,
+    continueAfterNoAnswerUrl: String
+  )(implicit
     request: Request[_],
     messages: Messages
   ): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
-      continueUrl = continueUrl,
+      continueUrl = continueAfterNoAnswerUrl,
+      continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
       continueWhenFullUrl = selfUrl + checkYourAnswers.url,
       backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-      minimumNumberOfFiles = 0, // user can skip uploading the file
+      minimumNumberOfFiles = 0, // user can skip uploading the files
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
@@ -60,7 +66,13 @@ trait UploadFilesMixin[Journey] {
       allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
       cargo = documentType,
       newFileDescription = documentTypeDescription(documentType),
-      content = uploadDocumentsContent(documentType)
+      content = uploadDocumentsContent(documentType),
+      features = UploadDocumentsSessionConfig.Features(
+        showUploadMultiple = true,
+        showLanguageSelection = appConfig.enableLanguageSwitching,
+        showAddAnotherDocumentButton = false,
+        showYesNoQuestionBeforeContinue = true
+      )
     )
 
   def uploadDocumentsContent(dt: UploadDocumentType)(implicit
@@ -86,14 +98,14 @@ trait UploadFilesMixin[Journey] {
       keepAliveUrl = appConfig.ggKeepAliveUrl,
       timeoutSeconds = appConfig.ggTimeoutSeconds.toInt,
       countdownSeconds = appConfig.ggCountdownSeconds.toInt,
-      showLanguageSelection = appConfig.enableLanguageSwitching,
       pageTitleClasses = "govuk-heading-xl",
       allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
       chooseFirstFileLabel = messages("choose-files.rejected-goods.choose.first.label", documentTypeLabel),
       chooseNextFileLabel = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel),
-      showAddAnotherDocumentButton = false,
-      addAnotherDocumentButtonText = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel)
+      addAnotherDocumentButtonText = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel),
+      yesNoQuestionText = messages("choose-files.rejected-goods.add-another-document-question"),
+      yesNoQuestionRequiredError = messages("choose-files.rejected-goods.add-another-document-question.error.required")
     )
   }
 
