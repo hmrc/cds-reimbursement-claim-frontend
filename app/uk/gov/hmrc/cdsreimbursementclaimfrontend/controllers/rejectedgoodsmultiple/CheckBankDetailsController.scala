@@ -36,8 +36,7 @@ class CheckBankDetailsController @Inject() (
 
   def show(): Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      val bankAccountTypeRoute =
-        routes.CheckBankDetailsController.show() // FIXME routes.ChooseBankAccountTypeController.show()
+      val bankAccountTypeRoute = routes.ChooseBankAccountTypeController.show()
       val continueRoute        =
         if (userHasSeenCYAPage(journey)) checkYourAnswers
         else routes.ChooseFileTypeController.show()

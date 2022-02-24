@@ -41,8 +41,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils
-import play.api.data.format.Formatter
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec

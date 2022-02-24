@@ -92,6 +92,7 @@ class UploadDocumentsConnectorSpec
       nonce = Nonce.random,
       cargo = UploadDocumentType.LetterOfAuthority,
       newFileDescription = "New file",
+      continueAfterYesAnswerUrl = "/yes",
       continueWhenFullUrl = "/ful",
       minimumNumberOfFiles = 0,
       maximumNumberOfFiles = 5,
@@ -99,28 +100,36 @@ class UploadDocumentsConnectorSpec
       maximumFileSizeBytes = 10L * 1024L * 1024L,
       allowedContentTypes = "image/png",
       allowedFileExtensions = "*.png",
-      content = UploadDocumentsSessionConfig.Content(
-        serviceName = "service.title",
-        title = "choose-files.rejected-goods.title",
-        descriptionHtml = "descriptionHtml",
-        serviceUrl = "homePageUrl",
-        accessibilityStatementUrl = "accessibilityStatementUrl",
-        phaseBanner = "alpha",
-        phaseBannerUrl = "serviceFeedBackUrl",
-        signOutUrl = "signOutUrl",
-        timedOutUrl = "ggTimedOutUrl",
-        keepAliveUrl = "ggKeepAliveUrl",
-        timeoutSeconds = 900,
-        countdownSeconds = 120,
-        showLanguageSelection = false,
-        pageTitleClasses = "govuk-heading-xl",
-        allowedFilesTypesHint = "PNG",
-        fileUploadedProgressBarLabel = "uploadfileUploadedProgressBarLabeled",
-        chooseFirstFileLabel = "chooseFirstFileLabel",
-        chooseNextFileLabel = "chooseNextFileLabel",
-        showAddAnotherDocumentButton = false,
-        addAnotherDocumentButtonText = "addAnotherDocumentButtonText"
-      )
+      content = UploadDocumentsSessionConfig
+        .Content(
+          serviceName = "service.title",
+          title = "choose-files.rejected-goods.title",
+          descriptionHtml = "descriptionHtml",
+          serviceUrl = "homePageUrl",
+          accessibilityStatementUrl = "accessibilityStatementUrl",
+          phaseBanner = "alpha",
+          phaseBannerUrl = "serviceFeedBackUrl",
+          signOutUrl = "signOutUrl",
+          timedOutUrl = "ggTimedOutUrl",
+          keepAliveUrl = "ggKeepAliveUrl",
+          timeoutSeconds = 900,
+          countdownSeconds = 120,
+          pageTitleClasses = "govuk-heading-xl",
+          allowedFilesTypesHint = "PNG",
+          fileUploadedProgressBarLabel = "uploadfileUploadedProgressBarLabeled",
+          chooseFirstFileLabel = "chooseFirstFileLabel",
+          chooseNextFileLabel = "chooseNextFileLabel",
+          addAnotherDocumentButtonText = "addAnotherDocumentButtonText",
+          yesNoQuestionText = "yesNoQuestionText",
+          yesNoQuestionRequiredError = "yesNoQuestionRequiredError"
+        ),
+      features = UploadDocumentsSessionConfig
+        .Features(
+          showUploadMultiple = true,
+          showLanguageSelection = false,
+          showAddAnotherDocumentButton = false,
+          showYesNoQuestionBeforeContinue = true
+        )
     )
 
   val initializationRequest: UploadDocumentsConnector.Request =

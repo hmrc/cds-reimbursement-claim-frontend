@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
 import play.api.inject.bind
@@ -38,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -199,8 +197,8 @@ class CheckBankDetailsControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.CheckBankDetailsController.show()
-      ) // FIXME routes.ChooseBankAccountTypeController.show()
+        routes.ChooseBankAccountTypeController.show()
+      )
     }
 
   }
