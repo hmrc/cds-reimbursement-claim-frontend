@@ -163,8 +163,8 @@ final class RejectedGoodsMultipleJourney private (
   def computeBankAccountDetails: Option[BankAccountDetails] =
     Stream(
       answers.bankAccountDetails,
-      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
-      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
+      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
+      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
     ).find(_.nonEmpty).flatten
 
   def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
