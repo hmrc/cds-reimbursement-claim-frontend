@@ -33,11 +33,9 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
@@ -47,8 +45,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.arbitraryBankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.genReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
@@ -169,13 +167,19 @@ class EnterBankAccountDetailsControllerSpec
       "redirect to choose bank account type page if no bank account type present in session" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
+        val journey = RejectedGoodsMultipleJourney.empty(exampleEori)
         checkIsRedirect(
-          controller.validateBankAccountDetails(None, bankDetails, None),
+          controller.validateBankAccountDetails(journey, bankDetails, None).map(_._2),
           routes.ChooseBankAccountTypeController.show()
         )
       }
 
       "personal account" must {
+        val journey = RejectedGoodsMultipleJourney
+          .empty(exampleEori)
+          .submitBankAccountType(BankAccountType.Personal)
+          .getOrFail
+
         "redirect to the check bank accounts page if a personal account that exists with a valid sort code is specified" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode)
@@ -192,7 +196,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.show()
           )
         }
@@ -211,7 +215,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -234,7 +238,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
             BAD_REQUEST
@@ -257,7 +261,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
             BAD_REQUEST
@@ -281,7 +285,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
             BAD_REQUEST
@@ -304,7 +308,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -315,6 +319,11 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "business account" must {
+        val journey = RejectedGoodsMultipleJourney
+          .empty(exampleEori)
+          .submitBankAccountType(BankAccountType.Business)
+          .getOrFail
+
         "redirect to the check bank accounts page if a business account that exists with a valid sort code is specified" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode)
@@ -331,7 +340,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.show()
           )
         }
@@ -350,7 +359,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -373,7 +382,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
             BAD_REQUEST
@@ -396,7 +405,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
             BAD_REQUEST
@@ -420,7 +429,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
             BAD_REQUEST
@@ -443,7 +452,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -492,13 +501,9 @@ class EnterBankAccountDetailsControllerSpec
         val initialJourney  = RejectedGoodsMultipleJourney.empty(exampleEori)
         val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
 
-        val updatedJourney = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
