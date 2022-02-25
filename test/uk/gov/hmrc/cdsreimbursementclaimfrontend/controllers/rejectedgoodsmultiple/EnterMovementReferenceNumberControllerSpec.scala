@@ -98,7 +98,7 @@ class EnterMovementReferenceNumberControllerSpec
   "MRN Controller" when {
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.showFirst()(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -123,7 +123,7 @@ class EnterMovementReferenceNumberControllerSpec
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
             doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController
-              .enterMrnSubmit(0)
+              .submit(1)
               .url
           }
         )
@@ -157,8 +157,8 @@ class EnterMovementReferenceNumberControllerSpec
 
     "Submit MRN page" must {
 
-      def performAction(data: (String, String)*)(leadOrOrdinalValue: Int = 0): Future[Result] =
-        controller.enterMrnSubmit(leadOrOrdinalValue)(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(data: (String, String)*)(pageIndex: Int = 1): Future[Result] =
+        controller.submit(pageIndex)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       val leadMrn            = sample[MRN]
       val secondMrn          = sample[MRN]
@@ -254,7 +254,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> secondMrn.value)(2),
-          routes.WorkInProgressController.show() //TODO: check-movement-reference-numbers (CDSR-1350)
+          "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers" //TODO: check-movement-reference-numbers (CDSR-1350)
         )
       }
     }

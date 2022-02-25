@@ -155,7 +155,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(controller.checkDeclarationDetailsKey -> "true"),
-          routes.EnterMovementReferenceNumberController.showMrn(2)
+          routes.EnterMovementReferenceNumberController.show(1)
         )
       }
 
@@ -167,7 +167,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(controller.checkDeclarationDetailsKey -> "false"),
-          routes.EnterMovementReferenceNumberController.show()
+          routes.EnterMovementReferenceNumberController.showFirst()
         )
       }
     }

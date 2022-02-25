@@ -141,7 +141,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.EnterMovementReferenceNumberController.show()
+            routes.EnterMovementReferenceNumberController.showFirst()
           )
         }
       }
@@ -267,7 +267,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.EnterMovementReferenceNumberController.show()
+              routes.EnterMovementReferenceNumberController.showFirst()
             )
           }
         }

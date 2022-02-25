@@ -24,12 +24,11 @@ import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
@@ -38,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
@@ -48,27 +46,45 @@ class EnterMovementReferenceNumberController @Inject() (
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  def show(): Action[AnyContent] = showMrn(0) // For lead MRN
+  val subKey: Some[String] = Some("multiple")
 
-  def showMrn(leadOrOrdinalValue: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Future.successful {
-      val emptyForm = movementReferenceNumberForm
-      val form      =
-        if (leadOrOrdinalValue === 0) journey.getLeadMovementReferenceNumber.fold(emptyForm)(emptyForm.fill)
-        else emptyForm
-      Ok(
-        enterMovementReferenceNumberPage(
-          form,
-          ReimbursementRoutes(JourneyBindable.Multiple).subKey,
-          getOrdinalValue(leadOrOrdinalValue),
-          routes.EnterMovementReferenceNumberController.enterMrnSubmit(leadOrOrdinalValue)
-        )
-      )
-    }
+  def showFirst(): Action[AnyContent] = show(1) // For lead MRN
+
+  def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    (if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
+       Redirect(
+         Call(
+           "GET",
+           "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers"
+         )
+       ) //TODO: check-movement-reference-numbers (CDSR-1350))
+     else {
+       val mrnIndex: Int = pageIndex - 1
+
+       Ok(
+         enterMovementReferenceNumberPage(
+           movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
+           subKey,
+           pageIndex,
+           routes.EnterMovementReferenceNumberController.submit(pageIndex)
+         )
+       )
+     }).asFuture
   }
 
-  def enterMrnSubmit(leadOrOrdinalValue: Int): Action[AnyContent] = actionReadWriteJourney {
-    implicit request => journey =>
+  def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
+      (
+        journey,
+        Redirect(
+          Call(
+            "GET",
+            "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers"
+          )
+        )
+      ).asFuture //TODO: check-movement-reference-numbers (CDSR-1350))
+    else {
+      val mrnIndex: Int = pageIndex - 1
       movementReferenceNumberForm
         .bindFromRequest()
         .fold(
@@ -78,14 +94,13 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors,
-                  ReimbursementRoutes(JourneyBindable.Multiple).subKey,
-                  getOrdinalValue(leadOrOrdinalValue),
-                  routes.EnterMovementReferenceNumberController.enterMrnSubmit(leadOrOrdinalValue)
+                  subKey,
+                  pageIndex,
+                  routes.EnterMovementReferenceNumberController.submit(pageIndex)
                 )
               )
             ).asFuture,
-          mrn => {
-            val index = getOrdinalValue(leadOrOrdinalValue) - 1
+          mrn =>
             claimService
               .getDisplayDeclaration(mrn)
               .fold(
@@ -96,49 +111,51 @@ class EnterMovementReferenceNumberController @Inject() (
                 {
                   case Some(acc14) =>
                     journey
-                      .submitMovementReferenceNumberAndDeclaration(index, mrn, acc14)
+                      .submitMovementReferenceNumberAndDeclaration(mrnIndex, mrn, acc14)
                       .fold(
                         error =>
                           if (error === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
-                            (journey, BadRequest(customError(mrn, leadOrOrdinalValue, "multiple.error.wrongMRN")))
+                            (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
                           } else if (error === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
-                            (journey, BadRequest(customError(mrn, leadOrOrdinalValue, "multiple.error.existingMRN")))
+                            (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                           } else {
                             logger.error(s"Unable to update journey [$error]")
                             (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
                           },
-                        updatedJourney => (updatedJourney, redirectLocation(updatedJourney, index))
+                        updatedJourney => (updatedJourney, redirectLocation(updatedJourney, pageIndex))
                       )
                   case None        =>
                     logger.error(s"Display Declaration details not found")
                     (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
                 }
               )
-          }
         )
+    }
   }
 
-  private def customError(mrn: MRN, ordinalValue: Int, errorSuffix: String)(implicit request: Request[_]) =
+  private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String)(implicit request: Request[_]) =
     enterMovementReferenceNumberPage(
       movementReferenceNumberForm
         .fill(mrn)
         .withError(enterMovementReferenceNumberKey, errorSuffix),
-      ReimbursementRoutes(JourneyBindable.Multiple).subKey,
-      getOrdinalValue(ordinalValue),
-      routes.EnterMovementReferenceNumberController.enterMrnSubmit(ordinalValue)
+      subKey,
+      pageIndex,
+      routes.EnterMovementReferenceNumberController.submit(pageIndex)
     )
 
-  private def redirectLocation(journey: RejectedGoodsMultipleJourney, index: Int): Result =
+  private def redirectLocation(journey: RejectedGoodsMultipleJourney, pageIndex: Int): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
       Redirect(routes.EnterImporterEoriNumberController.show())
     } else {
       Redirect(
-        if (index === 0) routes.CheckDeclarationDetailsController.show()
-        else routes.WorkInProgressController.show() //TODO: check-movement-reference-numbers (CDSR-1350)
+        if (pageIndex === 1) routes.CheckDeclarationDetailsController.show()
+        else
+          Call(
+            "GET",
+            "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers"
+          ) //TODO: check-movement-reference-numbers (CDSR-1350)
       )
     }
-
-  private def getOrdinalValue(value: Int): Int = if (value === 0) 1 else value
 
 }
 

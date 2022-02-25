@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import cats.implicits.catsSyntaxEq
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -79,10 +78,10 @@ class CheckDeclarationDetailsController @Inject() (
             journey,
             Redirect(answer match {
               case Yes =>
-                val numOfMRNs      = journey.countOfMovementReferenceNumbers
-                val nextMrnOrdinal = if (numOfMRNs === 0) 2 else numOfMRNs + 1
-                routes.EnterMovementReferenceNumberController.showMrn(nextMrnOrdinal)
-              case No  => routes.EnterMovementReferenceNumberController.show()
+                val numOfMRNs = journey.countOfMovementReferenceNumbers
+                routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
+              case No  =>
+                routes.EnterMovementReferenceNumberController.showFirst()
             })
           )
       )

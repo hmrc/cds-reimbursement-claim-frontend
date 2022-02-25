@@ -1,6 +1,6 @@
-GET          /rejected-goods/multiple/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.show()
-GET          /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.showMrn(index: Int)
-POST         /rejected-goods/multiple/enter-movement-reference-number/:index         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.enterMrnSubmit(index: Int)
+GET          /rejected-goods/multiple/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.showFirst()
+GET          /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.show(index: Int)
+POST         /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.submit(index: Int)
 
 GET          /rejected-goods/multiple/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterImporterEoriNumberController.show()
 POST         /rejected-goods/multiple/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterImporterEoriNumberController.submit()
