@@ -58,7 +58,7 @@ class ChooseBankAccountTypeController @Inject() (
           bankAccountType =>
             journey
               .submitBankAccountType(bankAccountType)
-              .map((_, Redirect("/enter-bank-account-details")))
+              .map((_, Redirect(routes.EnterBankAccountDetailsController.show())))
               .valueOr { error =>
                 logger warn error
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
