@@ -160,16 +160,18 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
         val journey       = emptyJourney
           .flatMapEach(dataWithIndex, submitData)
           .getOrFail
+
+        journey.countOfMovementReferenceNumbers shouldBe 11
         journey.getLeadMovementReferenceNumber  shouldBe data.headOption.map(_._1)
         dataWithIndex.foreach { case ((mrn, decl), index) =>
           journey.getNthMovementReferenceNumber(index) shouldBe Some(mrn)
           journey.getDisplayDeclarationFor(mrn)        shouldBe Some(decl)
         }
-        journey.countOfMovementReferenceNumbers shouldBe 11
-        journey.hasCompleteAnswers              shouldBe false
-        journey.hasCompleteReimbursementClaims  shouldBe false
-        journey.hasCompleteSupportingEvidences  shouldBe true
-        journey.isFinalized                     shouldBe false
+
+        journey.hasCompleteAnswers             shouldBe false
+        journey.hasCompleteReimbursementClaims shouldBe false
+        journey.hasCompleteSupportingEvidences shouldBe true
+        journey.isFinalized                    shouldBe false
       }
     }
 
@@ -203,15 +205,43 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
-    "accept change of the second MRN" in {
+    "accept change of the second MRN with declarantEori matching" in {
       forAll(completeJourneyGen, mrnWithDisplayDeclarationGen) { case (journey, (mrn, displayDeclaration)) =>
-        val modifiedJourney =
+        val displayDeclarationWithDeclarantEoriMatching =
+          displayDeclaration.withDeclarantEori(journey.getDeclarantEoriFromACC14.get)
+        val modifiedJourney                             =
           journey
-            .submitMovementReferenceNumberAndDeclaration(1, mrn, displayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(
+              1,
+              mrn,
+              displayDeclarationWithDeclarantEoriMatching
+            )
             .getOrFail
         modifiedJourney.getNthMovementReferenceNumber(1) shouldBe Some(mrn)
         modifiedJourney.countOfMovementReferenceNumbers  shouldBe journey.countOfMovementReferenceNumbers
-        modifiedJourney.getNthDisplayDeclaration(1)      shouldBe Some(displayDeclaration)
+        modifiedJourney.getNthDisplayDeclaration(1)      shouldBe Some(displayDeclarationWithDeclarantEoriMatching)
+        modifiedJourney.hasCompleteReimbursementClaims   shouldBe false
+        modifiedJourney.hasCompleteAnswers               shouldBe false
+      }
+    }
+
+    "accept change of the second MRN with consigneeEori matching" in {
+      forAll(completeJourneyGen, mrnWithDisplayDeclarationGen) { case (journey, (mrn, displayDeclaration)) =>
+        val displayDeclarationWithEoriMatching = journey.getConsigneeEoriFromACC14 match {
+          case Some(eori) => displayDeclaration.withConsigneeEori(eori)
+          case None       => displayDeclaration.withDeclarantEori(journey.getDeclarantEoriFromACC14.get)
+        }
+        val modifiedJourney                    =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(
+              1,
+              mrn,
+              displayDeclarationWithEoriMatching
+            )
+            .getOrFail
+        modifiedJourney.getNthMovementReferenceNumber(1) shouldBe Some(mrn)
+        modifiedJourney.countOfMovementReferenceNumbers  shouldBe journey.countOfMovementReferenceNumbers
+        modifiedJourney.getNthDisplayDeclaration(1)      shouldBe Some(displayDeclarationWithEoriMatching)
         modifiedJourney.hasCompleteReimbursementClaims   shouldBe false
         modifiedJourney.hasCompleteAnswers               shouldBe false
       }
@@ -295,17 +325,46 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
 
     "accept submission of the same nth MRN and different declaration" in {
       forAll(completeJourneyGen, displayDeclarationGen) { case (journey, declaration) =>
+        val declarationWithMatchingEori = declaration.withDeclarantEori(journey.getDeclarantEoriFromACC14.get)
         journey.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (mrn, index) =>
           val modifiedJourney = journey
             .submitMovementReferenceNumberAndDeclaration(
               index,
               mrn,
-              declaration.withDeclarationId(mrn.value)
+              declarationWithMatchingEori.withDeclarationId(mrn.value)
             )
             .getOrFail
           modifiedJourney                                  should not be journey
           modifiedJourney.hasCompleteAnswers             shouldBe false
           modifiedJourney.hasCompleteReimbursementClaims shouldBe false
+        }
+      }
+    }
+
+    "reject submission of the same nth MRN and different declaration if mrn not matching" in {
+      forAll(completeJourneyGen, displayDeclarationGen) { case (journey, declaration) =>
+        journey.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (mrn, index) =>
+          val result = journey
+            .submitMovementReferenceNumberAndDeclaration(
+              index,
+              mrn,
+              declaration
+            )
+          result shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
+        }
+      }
+    }
+
+    "reject submission of the same nth MRN and different declaration if eori not matching" in {
+      forAll(completeJourneyGen, displayDeclarationGen) { case (journey, declaration) =>
+        journey.answers.movementReferenceNumbers.get.zipWithIndex.drop(1).foreach { case (mrn, index) =>
+          val result = journey
+            .submitMovementReferenceNumberAndDeclaration(
+              index,
+              mrn,
+              declaration.withDeclarationId(mrn.value)
+            )
+          result shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
         }
       }
     }
@@ -319,7 +378,9 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
             .submitMovementReferenceNumberAndDeclaration(
               index,
               existingMrn,
-              exampleDisplayDeclaration.withDeclarationId(existingMrn.value)
+              exampleDisplayDeclaration
+                .withDeclarationId(existingMrn.value)
+                .withDeclarantEori(journey.getDeclarantEoriFromACC14.get)
             )
           modifiedJourneyEither shouldBe Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
         }

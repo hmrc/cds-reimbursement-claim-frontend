@@ -17,9 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import cats.implicits.catsSyntaxEq
-
-import javax.inject.Inject
-import javax.inject.Singleton
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -29,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import javax.inject.Inject
@@ -41,8 +37,7 @@ class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController
-    with Logging {
+    extends RejectedGoodsMultipleJourneyBaseController {
 
   implicit val subKey: Option[String] = Some("multiple")
 
