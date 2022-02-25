@@ -156,7 +156,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq(controller.dataKey -> Multiple.toString))
-        checkIsRedirect(result, rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.show())
+        checkIsRedirect(result, rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst())
       }
 
       //FIXME change to scheduled route

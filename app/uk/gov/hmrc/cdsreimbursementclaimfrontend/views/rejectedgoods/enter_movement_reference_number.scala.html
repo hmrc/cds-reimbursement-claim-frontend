@@ -22,6 +22,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+@import cats.implicits.catsSyntaxEq
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -33,10 +35,11 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[MRN], subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], subKey: Option[String], pageOrdinalValue: Int, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number.rejected-goods"}
-@title = @{messages(combine(key, subKey, "title"))}
+@ordinalValueStr = @{ if (OrdinalNumeral(pageOrdinalValue) === "lead") "first" else OrdinalNumeral(pageOrdinalValue)}
+@title = @{messages(combine(key, subKey, "title"), ordinalValueStr)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -52,13 +55,16 @@
 
         @paragraph(Html(messages(combine(key, subKey, "help-text2"), viewConfig.mrnGuideUrl)), Some("govuk-body"))
 
-        @paragraph(Html(messages(combine(key, subKey, "help-text3"))), Some("govuk-body govuk-!-margin-bottom-6"))
+        @if(pageOrdinalValue === 1) {
+            @paragraph(Html(messages(combine(key, subKey, "help-text3"))), Some("govuk-body govuk-!-margin-bottom-6"))
+        }
 
         @inputText(
             form = form,
             id = key,
             name = key,
             label = combine(key, subKey, "enter-mrn.label").head,
+            headingMessageArgs = Seq(ordinalValueStr),
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(combine(key, subKey, "help").head)

@@ -350,6 +350,13 @@ final class RejectedGoodsMultipleJourney private (
         Left(
           s"submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
+      else if (
+        index > 0 &&
+        !getLeadDisplayDeclaration.map(decl => displayDeclaration.hasSameEoriAs(decl)).getOrElse(false)
+      )
+        Left(
+          s"submitMovementReferenceNumber.wrongDisplayDeclarationEori"
+        )
       else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same

@@ -62,7 +62,7 @@ class CheckClaimantDetailsController @Inject() (
           s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
         )
         Redirect(
-          routes.EnterMovementReferenceNumberController.show()
+          routes.EnterMovementReferenceNumberController.showFirst()
         ).asFuture
     }
 
@@ -78,7 +78,7 @@ class CheckClaimantDetailsController @Inject() (
       case _                    =>
         (
           journey,
-          Redirect(routes.EnterMovementReferenceNumberController.show())
+          Redirect(routes.EnterMovementReferenceNumberController.showFirst())
         ).asFuture
     }
 
