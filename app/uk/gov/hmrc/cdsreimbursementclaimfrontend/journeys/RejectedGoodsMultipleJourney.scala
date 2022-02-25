@@ -79,6 +79,9 @@ final class RejectedGoodsMultipleJourney private (
       }
     )
 
+  def movementReferenceNumberExists(mrn: MRN): Boolean =
+    answers.movementReferenceNumbers.exists(_.contains(mrn))
+
   def hasCompleteSupportingEvidences: Boolean =
     answers.supportingEvidences.forall(_.documentType.isDefined)
 
@@ -147,6 +150,11 @@ final class RejectedGoodsMultipleJourney private (
   def needsDeclarantAndConsigneeEoriSubmission: Boolean =
     !(getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
       getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+
+  def newMrnEorisAndLeadMrnEorisMismatch(displayDeclaration: DisplayDeclaration): Boolean = {
+    val (delarantEori, consigneeEori) = (displayDeclaration.getDeclarantEori, displayDeclaration.getConsigneeEori)
+    !(getDeclarantEoriFromACC14.contains(delarantEori) || getConsigneeEoriFromACC14 === consigneeEori)
+  }
 
   def needsDeclarantAndConsigneePostCode: Boolean =
     !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)

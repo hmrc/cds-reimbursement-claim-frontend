@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import cats.implicits.catsSyntaxEq
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.data.Form
@@ -82,7 +84,9 @@ class CheckDeclarationDetailsController @Inject() (
             journey,
             Redirect(answer match {
               case Yes =>
-                routes.WorkInProgressController.show() //TODO: "/enter-movement-reference-number/2" Requires CDSR-1349
+                val numOfMRNs      = journey.countOfMovementReferenceNumbers
+                val nextMrnOrdinal = if (numOfMRNs === 0) 2 else numOfMRNs + 1
+                routes.EnterMovementReferenceNumberController.showMrn(nextMrnOrdinal)
               case No  => routes.EnterMovementReferenceNumberController.show()
             })
           )

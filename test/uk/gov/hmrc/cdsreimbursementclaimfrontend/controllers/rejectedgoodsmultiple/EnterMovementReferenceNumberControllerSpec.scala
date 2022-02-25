@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import cats.data.EitherT
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -36,12 +37,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 
 class EnterMovementReferenceNumberControllerSpec
     extends ControllerSpec
@@ -51,10 +61,13 @@ class EnterMovementReferenceNumberControllerSpec
     with ScalaCheckPropertyChecks
     with OptionValues {
 
+  val mockClaimsService: ClaimService = mock[ClaimService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[ClaimService].toInstance(mockClaimsService)
     )
 
   val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
@@ -73,6 +86,12 @@ class EnterMovementReferenceNumberControllerSpec
   val session: SessionData = SessionData.empty.copy(
     rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
   )
+
+  private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
+    (mockClaimsService
+      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .expects(expectedMrn, *)
+      .returning(EitherT.fromEither[Future](response))
 
   val messageKey: String = "enter-movement-reference-number.rejected-goods"
 
@@ -95,7 +114,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.multiple.title"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -104,7 +123,7 @@ class EnterMovementReferenceNumberControllerSpec
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
             doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController
-              .enterMrnSubmit()
+              .enterMrnSubmit(0)
               .url
           }
         )
@@ -123,7 +142,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.multiple.title"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -138,13 +157,28 @@ class EnterMovementReferenceNumberControllerSpec
 
     "Submit MRN page" must {
 
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.enterMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(data: (String, String)*)(leadOrOrdinalValue: Int = 0): Future[Result] =
+        controller.enterMrnSubmit(leadOrOrdinalValue)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      val leadMrn            = sample[MRN]
+      val secondMrn          = sample[MRN]
+      val displayDeclaration = sample[DisplayDeclaration]
+      val journey            = session.rejectedGoodsMultipleJourney.get
+
+      def getDisplayDeclarationForMrn(mrn: MRN, declarantEori: Option[Eori] = None) =
+        displayDeclaration
+          .copy(displayResponseDetail =
+            displayDeclaration.displayResponseDetail
+              .copy(
+                declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails
+                  .copy(declarantEORI = declarantEori.getOrElse(journey.answers.userEoriNumber).value),
+                declarationId = mrn.value
+              )
+          )
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
+        status(performAction()()) shouldBe NOT_FOUND
       }
 
       "reject an empty MRN" in {
@@ -154,8 +188,8 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> ""),
-          messageFromMessageKey(s"$messageKey.multiple.title"),
+          performAction(enterMovementReferenceNumberKey -> "")(),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
         )
@@ -170,13 +204,57 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
-          messageFromMessageKey(s"$messageKey.multiple.title"),
+          performAction(enterMovementReferenceNumberKey -> invalidMRN.value)(),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => {
             getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
             doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
           },
           expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "redirect to CheckDeclarationDetails page for first MRN" in {
+
+        val updatedJourney =
+          journey.submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn)).getOrFail
+        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(leadMrn, Right(Some(getDisplayDeclarationForMrn(leadMrn))))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> leadMrn.value)(),
+          routes.CheckDeclarationDetailsController.show()
+        )
+      }
+
+      "redirect to check-movement-reference-numbers page for second MRN when declarantEORI matches" in {
+
+        val updatedJourneyWithLeadMrn   = journey
+          .submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn))
+          .getOrFail
+        val updatedJourneyWithSecondMrn = updatedJourneyWithLeadMrn
+          .submitMovementReferenceNumberAndDeclaration(1, secondMrn, getDisplayDeclarationForMrn(secondMrn))
+          .getOrFail
+
+        val updatedSessionWithLeadMrn   = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourneyWithLeadMrn))
+        val updatedSessionWithSecondMrn = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourneyWithSecondMrn))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSessionWithLeadMrn)
+          mockGetDisplayDeclaration(secondMrn, Right(Some(getDisplayDeclarationForMrn(secondMrn))))
+          mockStoreSession(updatedSessionWithSecondMrn)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> secondMrn.value)(2),
+          routes.WorkInProgressController.show() //TODO: check-movement-reference-numbers (CDSR-1350)
         )
       }
     }
