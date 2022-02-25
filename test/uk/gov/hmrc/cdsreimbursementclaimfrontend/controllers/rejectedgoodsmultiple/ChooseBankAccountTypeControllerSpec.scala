@@ -130,7 +130,7 @@ class ChooseBankAccountTypeControllerSpec
 
           checkIsRedirect(
             submitBankAccountType(formKey -> bankAccountType.toString),
-            "/enter-bank-account-details"
+            routes.EnterBankAccountDetailsController.show()
           )
         }
       }
