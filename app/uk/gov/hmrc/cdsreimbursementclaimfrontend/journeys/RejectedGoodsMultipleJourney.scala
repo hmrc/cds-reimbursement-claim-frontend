@@ -82,6 +82,8 @@ final class RejectedGoodsMultipleJourney private (
   def hasCompleteSupportingEvidences: Boolean =
     answers.supportingEvidences.forall(_.documentType.isDefined)
 
+  def getMovementReferenceNumbers: Option[Seq[MRN]] = answers.movementReferenceNumbers
+
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumbers.flatMap(_.headOption)
 

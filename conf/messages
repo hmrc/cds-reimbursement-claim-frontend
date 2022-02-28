@@ -233,6 +233,16 @@ check-movement-reference-numbers.add-another-mrn-question=Do you want to add ano
 check-movement-reference-numbers.error.invalid=Select yes if you want to add another MRN
 
 #===================================================
+#  CHECK MOVEMENT REFERENCE NUMBERS - REJECTED GOODS
+#===================================================
+check-movement-reference-numbers.rejected-goods.title=All the MRNs entered in this claim
+check-movement-reference-numbers.rejected-goods.help-text=These are the MRNs that you have added so far. You can add more if you wish.
+check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=First MRN
+check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} MRN
+check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another MRN?
+check-movement-reference-numbers.rejected-goods.error.invalid=Select yes if you want to add another MRN
+
+#===================================================
 #  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
 #===================================================
 mrn-does-not-exist.title=This MRN does not exist
