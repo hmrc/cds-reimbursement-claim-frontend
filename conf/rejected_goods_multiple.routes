@@ -32,6 +32,10 @@ POST         /rejected-goods/multiple/choose-disposal-method                    
 GET          /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterRejectedGoodsDetailsController.show()
 POST         /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterRejectedGoodsDetailsController.submit()
 
+GET          /rejected-goods/multiple/check-movement-reference-numbers              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckMovementReferenceNumbersController.show()
+POST         /rejected-goods/multiple/check-movement-reference-numbers              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckMovementReferenceNumbersController.submit()
+GET          /rejected-goods/multiple/delete-movement-reference-numbers/:mrn        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckMovementReferenceNumbersController.delete(mrn: MRN)
+
 GET          /rejected-goods/multiple/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectTaxCodesController.showFirst
 GET          /rejected-goods/multiple/select-duties/:index                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectTaxCodesController.show(index: Int)
 POST         /rejected-goods/multiple/select-duties/:index                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectTaxCodesController.submit(index: Int)
