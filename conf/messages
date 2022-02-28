@@ -983,7 +983,7 @@ account-number.mask=Ending with {0}
 select-bank-account-type.title=What type of account details are you providing?
 select-bank-account-type.business-bank-account=Business bank account
 select-bank-account-type.personal-bank-account=Personal bank account
-select-bank-account-type.error.required=Select if you are providing details for a business bank account or a personal bank account.
+select-bank-account-type.error.required=Choose if you are providing details for a business bank account or a personal bank account
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
