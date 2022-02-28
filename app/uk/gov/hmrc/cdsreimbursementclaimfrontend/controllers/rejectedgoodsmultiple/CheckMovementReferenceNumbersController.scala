@@ -43,9 +43,6 @@ class CheckMovementReferenceNumbersController @Inject() (
   val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
   val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit()
 
-  //TODO: Replace with the correct call (requires CDSR-1349)
-  def working(index: Int): Call = routes.EnterMovementReferenceNumberController.show()
-
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getMovementReferenceNumbers
       .map { mrns =>
@@ -54,12 +51,12 @@ class CheckMovementReferenceNumbersController @Inject() (
             mrns,
             checkMovementReferenceNumbersForm,
             postAction,
-            working,
+            routes.EnterMovementReferenceNumberController.show,
             routes.CheckMovementReferenceNumbersController.delete
           )
         )
       }
-      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show()))
+      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
       .asFuture
   }
 
@@ -75,20 +72,21 @@ class CheckMovementReferenceNumbersController @Inject() (
                   mrns,
                   formWithErrors,
                   postAction,
-                  working,
+                  routes.EnterMovementReferenceNumberController.show,
                   routes.CheckMovementReferenceNumbersController.delete
                 )
               ),
             answer =>
               Redirect(
                 answer match {
-                  case Yes => routes.EnterMovementReferenceNumberController.show()
+                  case Yes =>
+                    routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
                   case No  => routes.CheckClaimantDetailsController.show()
                 }
               )
           )
       }
-      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show()))
+      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
       .asFuture
   }
 

@@ -59,19 +59,19 @@
                 <dt class="govuk-summary-list__key">@messages(s"$key.reference-number.multiple.label")</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href=@changeUrl(0).url>@{
+                    <a class="govuk-link" href=@changeUrl(1).url>@{
                         messages(s"cya.change")
                     }</a>
                 </dd>
                 <dd class="govuk-summary-list__actions"></dd>
             </div>
-            @references.drop(1).zipWithIndex.map { mrnWithIndex =>
+            @references.zipWithIndex.drop(1).map { mrnWithIndex =>
                 @defining(mrnWithIndex._2) { index =>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 2)).capitalize)</dt>
+                        <dt class="govuk-summary-list__key">@messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize)</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href=@changeUrl(index).url>@{
+                            <a class="govuk-link" href=@changeUrl(index + 1).url>@{
                                 messages(s"cya.change")
                             }</a>
                         </dd>

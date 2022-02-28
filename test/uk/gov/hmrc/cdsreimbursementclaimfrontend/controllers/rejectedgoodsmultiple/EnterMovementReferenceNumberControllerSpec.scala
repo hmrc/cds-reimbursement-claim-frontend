@@ -233,7 +233,7 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      "redirect to check-movement-reference-numbers page for second MRN when declarantEORI matches" in {
+      "redirect to Check Movement Reference Numbers page for second MRN when declarantEORI matches" in {
 
         val updatedJourneyWithLeadMrn   = journey
           .submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn))
@@ -254,7 +254,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> secondMrn.value)(2),
-          "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers" //TODO: check-movement-reference-numbers (CDSR-1350)
+          routes.CheckMovementReferenceNumbersController.show()
         )
       }
     }

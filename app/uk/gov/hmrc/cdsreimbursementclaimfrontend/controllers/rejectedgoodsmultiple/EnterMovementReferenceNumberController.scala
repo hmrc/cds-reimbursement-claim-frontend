@@ -52,12 +52,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     (if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
-       Redirect(
-         Call(
-           "GET",
-           "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers"
-         )
-       ) //TODO: check-movement-reference-numbers (CDSR-1350))
+       Redirect(routes.CheckMovementReferenceNumbersController.show())
      else {
        val mrnIndex: Int = pageIndex - 1
 
@@ -76,13 +71,8 @@ class EnterMovementReferenceNumberController @Inject() (
     if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
       (
         journey,
-        Redirect(
-          Call(
-            "GET",
-            "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers"
-          )
-        )
-      ).asFuture //TODO: check-movement-reference-numbers (CDSR-1350))
+        Redirect(routes.CheckMovementReferenceNumbersController.show())
+      ).asFuture
     else {
       val mrnIndex: Int = pageIndex - 1
       movementReferenceNumberForm
@@ -150,13 +140,9 @@ class EnterMovementReferenceNumberController @Inject() (
       Redirect(
         if (pageIndex === 1) routes.CheckDeclarationDetailsController.show()
         else
-          Call(
-            "GET",
-            "/claim-for-reimbursement-of-import-duties/rejectedgoods/multiple/check-movement-reference-numbers"
-          ) //TODO: check-movement-reference-numbers (CDSR-1350)
+          routes.CheckMovementReferenceNumbersController.show()
       )
     }
-
 }
 
 object EnterMovementReferenceNumberController {

@@ -75,9 +75,15 @@ class CheckMovementReferenceNumbersControllerSpec
     journey: RejectedGoodsMultipleJourney,
     acc14Declaration: DisplayDeclaration
   ): Either[String, RejectedGoodsMultipleJourney] = {
-    val nextIndex = journey.getMovementReferenceNumbers.map(_.size).getOrElse(0)
+    val nextIndex           = journey.getMovementReferenceNumbers.map(_.size).getOrElse(0)
+    val adjustedDeclaration = journey.getDeclarantEoriFromACC14
+      .fold(acc14Declaration) { eori =>
+        val declarant = acc14Declaration.getDeclarantDetails.copy(declarantEORI = eori.value)
+        val drd       = acc14Declaration.displayResponseDetail.copy(declarantDetails = declarant)
+        acc14Declaration.copy(displayResponseDetail = drd)
+      }
     journey
-      .submitMovementReferenceNumberAndDeclaration(nextIndex, acc14Declaration.getMRN, acc14Declaration)
+      .submitMovementReferenceNumberAndDeclaration(nextIndex, adjustedDeclaration.getMRN, adjustedDeclaration)
   }
 
   override def beforeEach(): Unit =
@@ -93,10 +99,10 @@ class CheckMovementReferenceNumbersControllerSpec
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
 
-      def validateMrnLine(div: Element, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
+      def validateMrnLine(div: Element, index: Int, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
         //TODO: Get correct URL
         div.select("dd:nth-of-type(2)").select("a").attr("href") shouldBe routes.EnterMovementReferenceNumberController
-          .show()
+          .show(index + 1)
           .url
         if (hasDeleteLink) {
           div.select("dd:nth-of-type(3) a").isEmpty shouldBe false
@@ -124,7 +130,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterMovementReferenceNumberController.show()
+          routes.EnterMovementReferenceNumberController.show(0)
         )
       }
 
@@ -151,9 +157,9 @@ class CheckMovementReferenceNumbersControllerSpec
               getErrorSummary(doc) shouldBe ""
               formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit().url
               val lines = doc.select("dl > div").asScala
-              lines.size                                               shouldBe 2
-              validateMrnLine(lines.head, mrns, hasDeleteLink = false) shouldBe true
-              validateMrnLine(lines.last, mrns, hasDeleteLink = false) shouldBe true
+              lines.size                                                  shouldBe 2
+              validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
+              validateMrnLine(lines.last, 1, mrns, hasDeleteLink = false) shouldBe true
             }
           )
         }
@@ -182,9 +188,9 @@ class CheckMovementReferenceNumbersControllerSpec
               getErrorSummary(doc) shouldBe ""
               formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit().url
               val lines = doc.select("dl > div").asScala
-              lines.size                                               shouldBe acc14Declarations.size
-              validateMrnLine(lines.head, mrns, hasDeleteLink = false) shouldBe true
-              lines.drop(1).forall(validateMrnLine(_, mrns))
+              lines.size                                                  shouldBe acc14Declarations.size
+              validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
+              lines.zipWithIndex.drop(1).forall(line => validateMrnLine(line._1, line._2, mrns))
             }
           )
         }
@@ -245,7 +251,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performAction(formKey -> "true"),
-            routes.EnterMovementReferenceNumberController.show() // TODO: Use correct URL
+            routes.EnterMovementReferenceNumberController.show(acc14Declarations.size + 1)
           )
         }
       }
@@ -280,7 +286,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
         checkIsRedirect(
           performAction(formKey -> "true"),
-          routes.EnterMovementReferenceNumberController.show()
+          routes.EnterMovementReferenceNumberController.show(0)
         )
       }
     }
