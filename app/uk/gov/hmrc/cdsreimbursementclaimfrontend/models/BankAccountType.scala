@@ -18,12 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed class BankAccountType(val value: Int)
+sealed trait BankAccountType {
+  val value: Int
+}
 
 object BankAccountType extends EnumerationFormat[BankAccountType] {
 
-  case object Business extends BankAccountType(0)
-  case object Personal extends BankAccountType(1)
+  case object Business extends BankAccountType { val value: Int = 0 }
+  case object Personal extends BankAccountType { val value: Int = 1 }
 
   val values: Set[BankAccountType] = Set(Business, Personal)
 }

@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
@@ -40,7 +39,6 @@ trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])],
     supportingEvidences: Map[UploadDocumentType, Int],
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -103,7 +101,6 @@ trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
       .flatMapEach(mrnsWithTaxCodesWithReimbursementAmount, submitAmountForReimbursement)
       .map(_.submitInspectionDate(inspectionDate))
       .map(_.submitInspectionAddress(inspectionAddress))
-      .flatMapWhenDefined(reimbursementMethod)(_.submitReimbursementMethod _)
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import cats.implicits.catsSyntaxOptionId
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -28,24 +27,16 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
-import shapeless.lens
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.emptyJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -64,7 +55,7 @@ class ChooseBankAccountTypeControllerSpec
     )
 
   val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(emptyJourney)
+    rejectedGoodsMultipleJourney = Some(emptyJourney)
   )
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
@@ -94,7 +85,7 @@ class ChooseBankAccountTypeControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(
           maybeBankAccountType.toList.foldLeft(session)((session, bankAccountType) =>
-            session.copy(rejectedGoodsSingleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption)
+            session.copy(rejectedGoodsMultipleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption)
           )
         )
       }
@@ -125,48 +116,23 @@ class ChooseBankAccountTypeControllerSpec
         )
       }
 
-      "reimbursement method is current month adjustment" in forAll {
-        (bankAccountType: BankAccountType, declaration: DisplayDeclaration, ndrc: NdrcDetails) =>
-          val updatedDeclaration = lens[DisplayDeclaration].displayResponseDetail.modify(declaration)(
-            _.copy(ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some)
-          )
-
+      "successfully submit bank account type" when {
+        "one of the options selected" in forAll { bankAccountType: BankAccountType =>
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(
+            mockGetSession(session)
+            mockStoreSession(
               session.copy(
-                rejectedGoodsSingleJourney = emptyJourney
-                  .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
-                  .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
-                  .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
-                  .toOption
+                rejectedGoodsMultipleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption
               )
-            )
+            )(Right(()))
           }
 
           checkIsRedirect(
             submitBankAccountType(formKey -> bankAccountType.toString),
-            baseRoutes.IneligibleController.ineligible()
+            routes.EnterBankAccountDetailsController.show()
           )
-      }
-    }
-
-    "successfully submit bank account type" when {
-      "one of the options selected" in forAll { bankAccountType: BankAccountType =>
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(
-            session.copy(
-              rejectedGoodsSingleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption
-            )
-          )(Right(()))
         }
-
-        checkIsRedirect(
-          submitBankAccountType(formKey -> bankAccountType.toString),
-          routes.EnterBankAccountDetailsController.show()
-        )
       }
     }
   }

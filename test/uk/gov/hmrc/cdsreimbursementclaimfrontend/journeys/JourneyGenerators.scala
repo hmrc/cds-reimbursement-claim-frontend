@@ -31,10 +31,15 @@ trait JourneyGenerators extends JourneyTestData {
   }
 
   val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
-    IdGen.genMRN
-      .flatMap(mrn => displayDeclarationGen.map(d => mrn -> d.withDeclarationId(mrn.value)))
+    for {
+      mrn   <- IdGen.genMRN
+      acc14 <- displayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+               )
+    } yield (mrn, acc14)
 
-  val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration]    =
+  val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = true)
 
   val displayDeclarationNotCMAEligibleGen: Gen[DisplayDeclaration] =

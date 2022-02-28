@@ -1,5 +1,6 @@
-GET          /rejected-goods/multiple/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.show()
-POST         /rejected-goods/multiple/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.enterMrnSubmit()
+GET          /rejected-goods/multiple/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.showFirst()
+GET          /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.show(index: Int)
+POST         /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.submit(index: Int)
 
 GET          /rejected-goods/multiple/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterImporterEoriNumberController.show()
 POST         /rejected-goods/multiple/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterImporterEoriNumberController.submit()
@@ -28,8 +29,8 @@ POST         /rejected-goods/multiple/enter-special-circumstances               
 GET          /rejected-goods/multiple/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.DisposalMethodController.show()
 POST         /rejected-goods/multiple/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.DisposalMethodController.submit()
 
-GET          /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
-POST         /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
+GET          /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterRejectedGoodsDetailsController.show()
+POST         /rejected-goods/multiple/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterRejectedGoodsDetailsController.submit()
 
 GET          /rejected-goods/multiple/check-movement-reference-numbers              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckMovementReferenceNumbersController.show()
 POST         /rejected-goods/multiple/check-movement-reference-numbers              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckMovementReferenceNumbersController.submit()
@@ -54,16 +55,13 @@ GET          /rejected-goods/multiple/inspection-address/update-address         
 GET          /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.show()
 POST         /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.submit()
 
-GET          /rejected-goods/multiple/choose-repayment-method                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
-POST         /rejected-goods/multiple/choose-repayment-method                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
+GET          /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.show()
+POST         /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.submit()
 
-GET          /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
-POST         /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
+GET          /rejected-goods/multiple/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.show()
 
-GET          /rejected-goods/multiple/check-these-bank-details-are-correct          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
-
-GET          /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
-POST         /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.submit()
+GET          /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController.show()
+POST         /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController.submit()
 
 GET          /rejected-goods/multiple/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseFileTypeController.show()
 POST         /rejected-goods/multiple/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseFileTypeController.submit()

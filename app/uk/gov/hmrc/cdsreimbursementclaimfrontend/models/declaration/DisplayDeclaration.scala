@@ -58,8 +58,26 @@ final case class DisplayDeclaration(
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
 
+  def withDeclarantEori(eori: Eori): DisplayDeclaration =
+    copy(displayResponseDetail =
+      displayResponseDetail.copy(declarantDetails =
+        displayResponseDetail.declarantDetails.copy(declarantEORI = eori.value)
+      )
+    )
+
+  def withConsigneeEori(eori: Eori): DisplayDeclaration =
+    copy(displayResponseDetail =
+      displayResponseDetail.copy(consigneeDetails =
+        displayResponseDetail.consigneeDetails.map(_.copy(consigneeEORI = eori.value))
+      )
+    )
+
   def withBankDetails(bankDetails: Option[BankDetails]): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(bankDetails = bankDetails))
+
+  def hasSameEoriAs(other: DisplayDeclaration): Boolean =
+    this.getDeclarantEori === other.getDeclarantEori ||
+      this.getConsigneeEori.map(eori => other.getConsigneeEori.contains(eori)).getOrElse(false)
 
 }
 

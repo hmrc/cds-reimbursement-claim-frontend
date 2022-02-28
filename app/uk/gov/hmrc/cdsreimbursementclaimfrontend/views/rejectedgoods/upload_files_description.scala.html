@@ -26,6 +26,4 @@
 )
 
 @(key: String, documentTypeDescription: String)(implicit request : Request[_], messages: Messages, appConfig: ViewConfig)
-@paragraph(Html(messages(s"$key.p1", documentTypeDescription)), Some("govuk-body govuk-!-margin-bottom-6")) 
-@paragraph(Html(messages(s"$key.p2", fileUploadConfig.readMaxFileSizeHumanReadable("supporting-evidence"))), Some("govuk-body govuk-!-margin-bottom-6")) 
-@paragraph(Html(messages(s"$key.p3", fileUploadConfig.readMaxUploadsValue("supporting-evidence"))), Some("govuk-body govuk-!-margin-bottom-6"))
+@paragraph(Html(messages(s"$key.p1", documentTypeDescription, fileUploadConfig.readMaxFileSizeHumanReadable("supporting-evidence"),fileUploadConfig.readMaxUploadsValue("supporting-evidence")).capitalize), Some("govuk-body govuk-!-margin-bottom-6")) 

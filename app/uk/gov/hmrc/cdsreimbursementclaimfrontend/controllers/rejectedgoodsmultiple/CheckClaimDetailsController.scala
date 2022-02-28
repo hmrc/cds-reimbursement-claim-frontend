@@ -46,7 +46,7 @@ class CheckClaimDetailsController @Inject() (
 
   val submitAction: Call                       = routes.CheckClaimDetailsController.submit()
   val selectDutiesAction: Call                 = routes.SelectTaxCodesController.showFirst
-  val enterMrnAction: Call                     = routes.EnterMovementReferenceNumberController.show()
+  val enterMrnAction: Call                     = routes.EnterMovementReferenceNumberController.showFirst()
   val enterClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.show(_, _)
   val nextAction: Call                         = routes.EnterInspectionDateController.show()
 

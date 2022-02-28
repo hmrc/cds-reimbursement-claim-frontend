@@ -54,17 +54,22 @@ class UploadFilesController @Inject() (
         Redirect(selectDocumentTypePageAction).asFuture
 
       case Some(documentType) =>
-        val continueUrl =
-          if (journey.answers.checkYourAnswersChangeMode)
-            selfUrl + checkYourAnswers.url
-          else
-            selfUrl + selectDocumentTypePageAction.url
+        val continueAfterYesAnswerUrl =
+          selfUrl + selectDocumentTypePageAction.url
+
+        val continueAfterNoAnswerUrl =
+          selfUrl + checkYourAnswers.url
 
         uploadDocumentsConnector
           .initialize(
             UploadDocumentsConnector
               .Request(
-                uploadDocumentsSessionConfig(journey.answers.nonce, documentType, continueUrl),
+                uploadDocumentsSessionConfig(
+                  journey.answers.nonce,
+                  documentType,
+                  continueAfterYesAnswerUrl,
+                  continueAfterNoAnswerUrl
+                ),
                 journey.answers.supportingEvidences
                   .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
               )

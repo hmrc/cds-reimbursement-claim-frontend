@@ -42,39 +42,52 @@ trait UploadFilesMixin[Journey] {
 
   final val selfUrl: String = jcc.servicesConfig.getString("self.url")
 
-  def uploadDocumentsSessionConfig(nonce: Nonce, documentType: UploadDocumentType, continueUrl: String)(implicit
+  def uploadDocumentsSessionConfig(
+    nonce: Nonce,
+    documentType: UploadDocumentType,
+    continueAfterYesAnswerUrl: String,
+    continueAfterNoAnswerUrl: String
+  )(implicit
     request: Request[_],
     messages: Messages
   ): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
-      continueUrl = continueUrl,
+      continueUrl = continueAfterNoAnswerUrl,
+      continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
       continueWhenFullUrl = selfUrl + checkYourAnswers.url,
       backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-      minimumNumberOfFiles = 0, // user can skip uploading the file
+      minimumNumberOfFiles = 0, // user can skip uploading the files
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
-      initialNumberOfEmptyRows = 3,
+      initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
       allowedContentTypes = "application/pdf,image/jpeg,image/png",
       allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
       cargo = documentType,
       newFileDescription = documentTypeDescription(documentType),
-      content = uploadDocumentsContent(documentType)
+      content = uploadDocumentsContent(documentType),
+      features = UploadDocumentsSessionConfig.Features(
+        showUploadMultiple = true,
+        showLanguageSelection = appConfig.enableLanguageSwitching,
+        showAddAnotherDocumentButton = false,
+        showYesNoQuestionBeforeContinue = true
+      )
     )
 
   def uploadDocumentsContent(dt: UploadDocumentType)(implicit
     request: Request[_],
     messages: Messages
   ): UploadDocumentsSessionConfig.Content = {
-    val descriptionHtml = upload_files_description(
+    val documentTypeLabel = documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
+    val descriptionHtml   = upload_files_description(
       "choose-files.rejected-goods",
-      documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
+      documentTypeLabel
     )(request, messages, appConfig).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
-      title = messages("choose-files.rejected-goods.title"),
+      title = messages("choose-files.rejected-goods.title", documentTypeLabel),
       descriptionHtml = descriptionHtml,
       serviceUrl = appConfig.homePageUrl,
       accessibilityStatementUrl = appConfig.accessibilityStatementUrl,
@@ -85,9 +98,14 @@ trait UploadFilesMixin[Journey] {
       keepAliveUrl = appConfig.ggKeepAliveUrl,
       timeoutSeconds = appConfig.ggTimeoutSeconds.toInt,
       countdownSeconds = appConfig.ggCountdownSeconds.toInt,
-      showLanguageSelection = appConfig.enableLanguageSwitching,
       pageTitleClasses = "govuk-heading-xl",
-      allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types")
+      allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types"),
+      fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
+      chooseFirstFileLabel = messages("choose-files.rejected-goods.choose.first.label", documentTypeLabel),
+      chooseNextFileLabel = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel),
+      addAnotherDocumentButtonText = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel),
+      yesNoQuestionText = messages("choose-files.rejected-goods.add-another-document-question"),
+      yesNoQuestionRequiredError = messages("choose-files.rejected-goods.add-another-document-question.error.required")
     )
   }
 
