@@ -467,32 +467,32 @@ select-basis-for-claim.details.hint.1=Claim temporary duty suspensions and tarif
 select-basis-for-claim.details.bullet.2=End use relief:
 select-basis-for-claim.details.hint.2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries
 
-select-basis-for-claim.details.bullet.3=Incorrect commodity code:
-select-basis-for-claim.details.hint.3=An incorrect commodity code was entered and duties were overpaid
+select-basis-for-claim.details.bullet.3=Incorrect additional information code (excluding NIAID):
+select-basis-for-claim.details.hint.3=Goods were declared as ’at risk’ in error and the tariff was paid by the importer
 
-select-basis-for-claim.details.bullet.4=Incorrect customs procedure code (CPC):
-select-basis-for-claim.details.hint.4=An incorrect CPC was entered and and duties were overpaid
+select-basis-for-claim.details.bullet.4=Incorrect commodity code:
+select-basis-for-claim.details.hint.4=An incorrect commodity code was entered and duties were overpaid
 
-select-basis-for-claim.details.bullet.5=Incorrect value:
-select-basis-for-claim.details.hint.5=Total customs value was entered incorrectly and duties were overpaid
+select-basis-for-claim.details.bullet.5=Incorrect customs procedure code (CPC):
+select-basis-for-claim.details.hint.5=An incorrect CPC was entered and and duties were overpaid
 
-select-basis-for-claim.details.bullet.6=Inward processing relief from Customs Duty:
-select-basis-for-claim.details.hint.6=Delay or reduce import duties or VAT on goods that were processed or repaired
+select-basis-for-claim.details.bullet.6=Incorrect excise value:
+select-basis-for-claim.details.hint.6=An error was made calculating excise duty. For goods imported into Northern Ireland, claims can only be made under excise tax codes
 
-select-basis-for-claim.details.bullet.7=Outward processing relief:
-select-basis-for-claim.details.hint.7=Claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported
+select-basis-for-claim.details.bullet.7=Incorrect value:
+select-basis-for-claim.details.hint.7=Total customs value was entered incorrectly and duties were overpaid
 
-select-basis-for-claim.details.bullet.8=Preferential rate of duty:
-select-basis-for-claim.details.hint.8=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates
+select-basis-for-claim.details.bullet.8=Inward processing relief from Customs Duty:
+select-basis-for-claim.details.hint.8=Delay or reduce import duties or VAT on goods that were processed or repaired
 
-select-basis-for-claim.details.bullet.9=Proof of return or refund given:
-select-basis-for-claim.details.hint.9=Proof of return or refund provided and duties were overpaid
+select-basis-for-claim.details.bullet.9=Outward processing relief:
+select-basis-for-claim.details.hint.9=A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported
 
-select-basis-for-claim.details.bullet.10=Incorrect excise value:
-select-basis-for-claim.details.hint.10=An error was made calculating excise duty. For goods imported into Northern Ireland, claims can only be made under excise tax codes
+select-basis-for-claim.details.bullet.10=Preferential rate of duty:
+select-basis-for-claim.details.hint.10=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates
 
-select-basis-for-claim.details.bullet.11=Incorrect additional information code (excluding NIAID):
-select-basis-for-claim.details.hint.11=Goods were declared as ’at risk’ in error and the tariff was paid by the importer
+select-basis-for-claim.details.bullet.11=Proof of return or refund given:
+select-basis-for-claim.details.hint.11=Proof of return or refund provided and duties were overpaid
 
 select-basis-for-claim.details.bullet.12=Other reason:
 select-basis-for-claim.details.hint.12=For any other reason not listed
@@ -500,17 +500,19 @@ select-basis-for-claim.details.hint.12=For any other reason not listed
 select-basis-for-claim.reason.d0=Duplicate MRN
 select-basis-for-claim.reason.d1=Duty suspension
 select-basis-for-claim.reason.d2=End use relief
-select-basis-for-claim.reason.d3=Incorrect commodity code
-select-basis-for-claim.reason.d4=Incorrect customs procedure code (CPC)
-select-basis-for-claim.reason.d5=Incorrect value
-select-basis-for-claim.reason.d6=Inward processing relief from Customs Duty
-select-basis-for-claim.reason.d7=Outward processing relief
-select-basis-for-claim.reason.d8=Personal effects
-select-basis-for-claim.reason.d9=Preferential rate of duty
-select-basis-for-claim.reason.d10=RGR
-select-basis-for-claim.reason.d11=Proof of return or refund given
-select-basis-for-claim.reason.d12=Incorrect excise value
-select-basis-for-claim.reason.d13=Incorrect additional information code (excluding NIAID)
+select-basis-for-claim.reason.d3=Incorrect additional information code (excluding NIAID)
+select-basis-for-claim.reason.hint.d3=Applicable only to goods moved through Northern Ireland
+select-basis-for-claim.reason.d4=Incorrect commodity code
+select-basis-for-claim.reason.d5=Incorrect customs procedure code (CPC)
+select-basis-for-claim.reason.d6=Incorrect excise value
+select-basis-for-claim.reason.hint.d6=Applicable only to goods moved through Northern Ireland
+select-basis-for-claim.reason.d7=Incorrect value
+select-basis-for-claim.reason.d8=Inward processing relief from Customs Duty
+select-basis-for-claim.reason.d9=Outward processing relief
+select-basis-for-claim.reason.d10=Personal effects
+select-basis-for-claim.reason.d11=Preferential rate of duty
+select-basis-for-claim.reason.d12=Proof of return or refund given
+select-basis-for-claim.reason.d13=RGR
 select-basis-for-claim.reason.d14=Other reason
 
 select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.

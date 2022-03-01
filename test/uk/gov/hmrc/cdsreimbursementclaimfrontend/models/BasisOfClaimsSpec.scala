@@ -56,8 +56,8 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
             OutwardProcessingRelief,
             PersonalEffects,
             Preference,
-            RGR,
             ProofOfReturnRefundGiven,
+            RGR,
             Miscellaneous
           )
         )
@@ -80,6 +80,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           DuplicateEntry,
           DutySuspension,
           EndUseRelief,
+          IncorrectAdditionalInformationCode,
           IncorrectCommodityCode,
           IncorrectCpc,
           IncorrectValue,
@@ -87,9 +88,8 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           OutwardProcessingRelief,
           PersonalEffects,
           Preference,
-          RGR,
           ProofOfReturnRefundGiven,
-          IncorrectAdditionalInformationCode,
+          RGR,
           Miscellaneous
         )
       )
@@ -101,17 +101,17 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
       List(
         DutySuspension,
         EndUseRelief,
+        IncorrectAdditionalInformationCode,
         IncorrectCommodityCode,
         IncorrectCpc,
+        IncorrectExciseValue,
         IncorrectValue,
         InwardProcessingReliefFromCustomsDuty,
         OutwardProcessingRelief,
         PersonalEffects,
         Preference,
-        RGR,
         ProofOfReturnRefundGiven,
-        IncorrectExciseValue,
-        IncorrectAdditionalInformationCode,
+        RGR,
         Miscellaneous
       )
     )
@@ -122,17 +122,17 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
       List(
         DutySuspension,
         EndUseRelief,
+        IncorrectAdditionalInformationCode,
         IncorrectCommodityCode,
         IncorrectCpc,
+        IncorrectExciseValue,
         IncorrectValue,
         InwardProcessingReliefFromCustomsDuty,
         OutwardProcessingRelief,
         PersonalEffects,
         Preference,
-        RGR,
         ProofOfReturnRefundGiven,
-        IncorrectExciseValue,
-        IncorrectAdditionalInformationCode,
+        RGR,
         Miscellaneous
       )
     )
@@ -144,17 +144,17 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         DuplicateEntry,
         DutySuspension,
         EndUseRelief,
+        IncorrectAdditionalInformationCode,
         IncorrectCommodityCode,
         IncorrectCpc,
+        IncorrectExciseValue,
         IncorrectValue,
         InwardProcessingReliefFromCustomsDuty,
         OutwardProcessingRelief,
         PersonalEffects,
         Preference,
-        RGR,
         ProofOfReturnRefundGiven,
-        IncorrectExciseValue,
-        IncorrectAdditionalInformationCode,
+        RGR,
         Miscellaneous
       )
     )

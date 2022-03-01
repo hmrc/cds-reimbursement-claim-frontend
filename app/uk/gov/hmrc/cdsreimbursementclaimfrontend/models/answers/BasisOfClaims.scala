@@ -37,21 +37,25 @@ object BasisOfClaims {
   private val ukExciseCodeStrings: HashSet[String] =
     HashSet(TaxCodes.excise.map(_.value): _*)
 
+  // The order of the items in this list is the order they
+  // will appear on the select basis for claim page on the C285 journey.
+  // Ensure that the messages starting `select-basis-for-claim.reason.d`
+  // are in the required order.
   val all: List[BasisOfClaimAnswer] = List(
     DuplicateEntry,
     DutySuspension,
     EndUseRelief,
+    IncorrectAdditionalInformationCode,
     IncorrectCommodityCode,
     IncorrectCpc,
+    IncorrectExciseValue,
     IncorrectValue,
     InwardProcessingReliefFromCustomsDuty,
     OutwardProcessingRelief,
     PersonalEffects,
     Preference,
-    RGR,
     ProofOfReturnRefundGiven,
-    IncorrectExciseValue,
-    IncorrectAdditionalInformationCode,
+    RGR,
     Miscellaneous
   )
 
