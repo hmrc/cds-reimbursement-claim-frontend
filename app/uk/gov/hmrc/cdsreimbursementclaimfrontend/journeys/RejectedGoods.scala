@@ -208,6 +208,7 @@ object RejectedGoods {
     val INCOMPLETE_SUPPORTING_EVIDENCES: String                          = "incompleteSupportingEvidences"
     val MISSING_CONTACT_DETAILS: String                                  = "missingContactDetails"
     val MISSING_CONTACT_ADDRESS: String                                  = "missingContactAddress"
+    val MISSING_SCHEDULED_DOCUMENT: String                               = "missingScheduledDocument"
     val TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO: String     = "totalReimbursementAmountMustBeGreaterThanZero"
     val DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED: String                   =
       "declarantEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"
