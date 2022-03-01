@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.ValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoods.ValidationErrors._
 
 trait RejectedGoodsSingleJourneyRouter {
 
@@ -26,7 +26,7 @@ trait RejectedGoodsSingleJourneyRouter {
   def routeForValidationError(error: String): Call =
     error match {
       case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation()
-      case MISSING_MOVEMENT_REFERENCE_NUMBER                        => routes.EnterMovementReferenceNumberController.show()
+      case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.show()
       case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.show()
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show()
       case MISSING_DETAILS_OF_REJECTED_GOODS                        => routes.EnterRejectedGoodsDetailsController.show()

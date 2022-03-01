@@ -25,21 +25,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -63,9 +58,8 @@ import java.time.LocalDate
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends FluentSyntax[RejectedGoodsMultipleJourney] {
-
-  val ZERO: BigDecimal = BigDecimal("0")
+) extends RejectedGoods.CommonJourneyProperties
+    with FluentSyntax[RejectedGoodsMultipleJourney] {
 
   /** Check if the journey is ready to finalize, i.e. to get the output. */
   def hasCompleteAnswers: Boolean =
@@ -78,9 +72,6 @@ final class RejectedGoodsMultipleJourney private (
         rc.nonEmpty && rc.forall(_._2.isDefined)
       }
     )
-
-  def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.forall(_.documentType.isDefined)
 
   def getMovementReferenceNumbers: Option[Seq[MRN]] = answers.movementReferenceNumbers
 
@@ -125,49 +116,11 @@ final class RejectedGoodsMultipleJourney private (
       .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
       .getOrElse(Map.empty)
 
-  def getConsigneeEoriFromACC14: Option[Eori] =
-    getLeadDisplayDeclaration.flatMap(_.getConsigneeEori)
-
-  def getConsigneeContactDetailsFromACC14: Option[ContactDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails).flatMap(_.contactDetails)
-
-  def getDeclarantEoriFromACC14: Option[Eori] =
-    getLeadDisplayDeclaration.map(_.getDeclarantEori)
-
-  def getDeclarantContactDetailsFromACC14: Option[ContactDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
-
-  def isConsigneePostCodeFromAcc14: Option[Boolean] =
-    getLeadDisplayDeclaration.map(
-      _.getConsigneeDetails.exists(_.establishmentAddress.postalCode.isEmpty)
-    )
-
-  def isDeclarantPostCodeFromAcc14: Option[Boolean] =
-    getLeadDisplayDeclaration.map(_.getDeclarantDetails).map(_.establishmentAddress.postalCode.isEmpty)
-
-  /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
-  def needsDeclarantAndConsigneeEoriSubmission: Boolean =
-    !(getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
-      getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
-
-  def needsDeclarantAndConsigneePostCode: Boolean =
-    !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)
-
   def needsBanksAccountDetailsSubmission: Boolean =
     true
 
-  def needsSpecialCircumstancesBasisOfClaim: Boolean =
-    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-
   def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
-
-  def computeBankAccountDetails: Option[BankAccountDetails] =
-    Stream(
-      answers.bankAccountDetails,
-      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
-      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
-    ).find(_.nonEmpty).flatten
 
   def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
@@ -236,89 +189,6 @@ final class RejectedGoodsMultipleJourney private (
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.values.flatMap(_.map(_._2)).sum
 
-  def getClaimantType: ClaimantType =
-    if (getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
-      ClaimantType.Consignee
-    else if (getDeclarantEoriFromACC14.contains(answers.userEoriNumber))
-      ClaimantType.Declarant
-    else
-      ClaimantType.User
-
-  def getClaimantEori: Eori = getClaimantType match {
-    case ClaimantType.Consignee => getConsigneeEoriFromACC14.getOrElse(answers.userEoriNumber)
-    case ClaimantType.Declarant => getDeclarantEoriFromACC14.getOrElse(answers.userEoriNumber)
-    case ClaimantType.User      => answers.userEoriNumber
-  }
-
-  def getClaimantInformation: Option[ClaimantInformation] =
-    for {
-      contactDetails <- answers.contactDetails
-      contactAddress <- answers.contactAddress
-    } yield ClaimantInformation.from(
-      getClaimantEori,
-      getClaimantType match {
-        case ClaimantType.Consignee => getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails)
-        case ClaimantType.Declarant => getLeadDisplayDeclaration.map(_.getDeclarantDetails)
-        case ClaimantType.User      => getLeadDisplayDeclaration.map(_.getDeclarantDetails)
-      },
-      contactDetails,
-      contactAddress
-    )
-
-  def getInspectionAddressType: Option[InspectionAddressType] =
-    answers.inspectionAddress.map(_.addressType)
-
-  def computeContactDetails(retrievedUser: RetrievedUserType): Option[MrnContactDetails] = (
-    answers.contactDetails,
-    getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
-    getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
-    retrievedUser
-  ) match {
-    case (details @ Some(_), _, _, _)                                                                              =>
-      details
-    case (_, Some(consigneeContactDetails), _, user) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
-      Some(
-        MrnContactDetails(
-          consigneeContactDetails.contactName.getOrElse(""),
-          consigneeContactDetails.emailAddress
-            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
-          consigneeContactDetails.telephone.map(PhoneNumber(_))
-        )
-      )
-    case (_, None, _, user) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)                          =>
-      Some(
-        MrnContactDetails(
-          user.name.map(_.toFullName).getOrElse(""),
-          user.email.getOrElse(Email("")),
-          None
-        )
-      )
-    case (_, _, Some(declarantContactDetails), user)                                                               =>
-      Some(
-        MrnContactDetails(
-          declarantContactDetails.contactName.getOrElse(""),
-          declarantContactDetails.emailAddress
-            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
-          declarantContactDetails.telephone.map(PhoneNumber(_))
-        )
-      )
-    case _                                                                                                         => None
-  }
-
-  def computeAddressDetails: Option[ContactAddress] = (
-    answers.contactAddress,
-    getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails),
-    getLeadDisplayDeclaration.map(_.getDeclarantDetails)
-  ) match {
-    case (contactAddress @ Some(_), _, _)                                                                =>
-      contactAddress
-    case (None, Some(consigneeDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
-      Some(consigneeDetails.establishmentAddress.toContactAddress)
-    case (None, _, Some(declarantDetails))                                                               =>
-      Some(declarantDetails.establishmentAddress.toContactAddress)
-    case _                                                                                               => None
-  }
-
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
     new RejectedGoodsMultipleJourney(answers.copy(dutiesChangeMode = enabled))
 
@@ -330,7 +200,7 @@ final class RejectedGoodsMultipleJourney private (
   def whileJourneyIsAmendable(
     body: => Either[String, RejectedGoodsMultipleJourney]
   ): Either[String, RejectedGoodsMultipleJourney] =
-    if (isFinalized) Left(RejectedGoodsMultipleJourney.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
+    if (isFinalized) Left(RejectedGoods.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -769,7 +639,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false,
     dutiesChangeMode: Boolean = false
-  )
+  ) extends RejectedGoods.CommonAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
@@ -789,7 +659,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
   )
 
   import com.github.arturopala.validator.Validator._
-  import RejectedGoodsMultipleJourney.ValidationErrors._
+  import RejectedGoods.ValidationErrors._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   val validator: Validate[RejectedGoodsMultipleJourney] =
@@ -921,44 +791,5 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
 
   implicit val equality: Eq[RejectedGoodsMultipleJourney] =
     Eq.fromUniversalEquals[RejectedGoodsMultipleJourney]
-
-  object ValidationErrors {
-    val JOURNEY_ALREADY_FINALIZED: String                                = "journeyAlreadyFinalized"
-    val MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER: String                  = "missingFirstMovementReferenceNumber"
-    val MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER: String                 = "missingSecondMovementReferenceNumber"
-    val MISSING_DISPLAY_DECLARATION: String                              = "missingDisplayDeclaration"
-    val MISSING_BASIS_OF_CLAIM: String                                   = "missingBasisOfClaim"
-    val MISSING_DETAILS_OF_REJECTED_GOODS: String                        = "missingDetailsOfRejectedGoods"
-    val MISSING_INSPECTION_DATE: String                                  = "missingInspectionDate"
-    val MISSING_INSPECTION_ADDRESS: String                               = "missingInspectionAddress"
-    val MISSING_METHOD_OF_DISPOSAL: String                               = "missingMethodOfDisposal"
-    val INCOMPLETE_REIMBURSEMENT_CLAIMS: String                          = "incompleteReimbursementClaims"
-    val INCOMPLETE_SUPPORTING_EVIDENCES: String                          = "incompleteSupportingEvidences"
-    val MISSING_CONTACT_DETAILS: String                                  = "missingContactDetails"
-    val MISSING_CONTACT_ADDRESS: String                                  = "missingContactAddress"
-    val TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO: String     = "totalReimbursementAmountMustBeGreaterThanZero"
-    val DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED: String                   =
-      "declarantEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"
-    val DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14: String     = "declarantEoriNumberMustBeEqualToThatOfACC14"
-    val CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED: String                   =
-      "consigneeEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"
-    val CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14: String     = "consigneeEoriNumberMustBeEqualToThatOfACC14"
-    val DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED: String       =
-      "declarantEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
-    val CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED: String       =
-      "consigneeEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
-    val BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED: String                     =
-      "bankAccountDetailsMustBeDefined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
-    val BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED: String                 =
-      "bankAccountDetailsMustNotBeDefined when reimbursementMethodAnswer is CurrentMonthAdjustment"
-    val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED: String     =
-      "basisOfClaimSpecialCircumstancesMustBeDefined when basisOfClaim value is SpecialCircumstances"
-    val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED: String =
-      "basisOfClaimSpecialCircumstancesMustNotBeDefined when basisOfClaim value is not SpecialCircumstances"
-    val REIMBURSEMENT_METHOD_MUST_BE_DEFINED: String                     =
-      "reimbursementMethodMustBeDefined when all selected duties are CMA eligible"
-    val REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED: String          =
-      "reimbursementMethodAnswerMustNotBeDefined when not all of selected duties are CMA eligible"
-  }
 
 }
