@@ -21,6 +21,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
@@ -45,15 +47,20 @@
 @title = @{messages(s"$key.title")}
 
 @radioItems = @{
-    claimTypes.items.map { basisOfClaim =>
+    claimTypes.items.map { basisOfClaim => {
         val index = BasisOfClaims.indexOf(basisOfClaim)
+        val hint = if (messages.isDefinedAt(s"$key.reason.hint.d$index"))
+            Some(Hint(content = HtmlContent(messages(s"$key.reason.hint.d$index"))))
+        else
+            None
         RadioItem(
             id = Some(s"$key-radio-$index"),
             value = Some(index.toString),
             content = Text(messages(claimTypes.buildKey(key, basisOfClaim))),
+            hint = hint,
             checked = form.value.contains(basisOfClaim)
         )
-    }
+    }}
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
