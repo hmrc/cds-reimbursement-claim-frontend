@@ -31,6 +31,9 @@ object DutyType {
   def unapply(dutyType: DutyType): Option[String] =
     Some(dutyType.repr)
 
+  def of(taxCode: TaxCode): Option[DutyType] =
+    DutyTypes.all.find(_.taxCodes.contains(taxCode))
+
   case object UkDuty extends DutyType("uk-duty", TaxCodes.UK)
 
   case object EuDuty extends DutyType("eu-duty", TaxCodes.EU)
