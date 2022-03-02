@@ -19,15 +19,67 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import scala.collection.JavaConverters._
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
 object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with RejectedGoodsScheduledJourneyTestData {
+
+  val dutyTypesGen: Gen[Seq[DutyType]] =
+    for {
+      n   <- Gen.choose(1, DutyTypes.all.size - 1)
+      dts <- Gen.pick(n, DutyTypes.all)
+    } yield dts
+
+  def taxCodesGen(dutyType: DutyType): Gen[Seq[TaxCode]] =
+    for {
+      n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
+      tcs <- Gen.pick(n, dutyType.taxCodes)
+    } yield tcs
+
+  val dutyTypesWithTaxCodesGen: Gen[Seq[(DutyType, Seq[TaxCode])]] = dutyTypesGen.flatMap(dutyTypes =>
+    Gen.sequence[Seq[(DutyType, Seq[TaxCode])], (DutyType, Seq[TaxCode])](
+      dutyTypes.map(dutyType =>
+        for {
+          n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
+          tcs <- Gen.pick(n, dutyType.taxCodes)
+        } yield (dutyType, tcs)
+      )
+    )
+  )
+
+  type TaxCodeWithAmounts = (TaxCode, BigDecimal, BigDecimal)
+
+  def taxCodesWithClaimAmountsGen(dutyType: DutyType): Gen[Seq[TaxCodeWithAmounts]] =
+    for {
+      n       <- Gen.choose(1, dutyType.taxCodes.size - 1)
+      tcs     <- Gen.pick(n, dutyType.taxCodes)
+      amounts <- Gen.sequence[Seq[TaxCodeWithAmounts], TaxCodeWithAmounts](
+                   tcs.map(tc =>
+                     Gen
+                       .choose[BigDecimal](BigDecimal("0.01"), BigDecimal("1000.00"))
+                       .flatMap(pa =>
+                         Gen
+                           .choose[BigDecimal](BigDecimal("0.01"), pa)
+                           .map(ra => (tc, ra, pa))
+                       )
+                   )
+                 )
+    } yield amounts
+
+  val dutyTypesWithTaxCodesWithClaimAmountsGen: Gen[Seq[(DutyType, Seq[TaxCodeWithAmounts])]] =
+    for {
+      dutyTypes <- dutyTypesGen
+      result    <-
+        Gen.sequence(dutyTypes.map(dutyType => taxCodesWithClaimAmountsGen(dutyType).map(tcs => dutyType -> tcs)))
+    } yield result.asScala
 
   val completeJourneyWithMatchingUserEoriGen: Gen[RejectedGoodsScheduledJourney] =
     Gen.oneOf(

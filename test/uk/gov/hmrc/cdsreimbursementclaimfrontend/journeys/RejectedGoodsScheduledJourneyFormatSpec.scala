@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 import RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 class RejectedGoodsScheduledJourneyFormatSpec
     extends AnyWordSpec
@@ -49,11 +50,11 @@ class RejectedGoodsScheduledJourneyFormatSpec
           reimbursementClaims = Some(
             Map(
               DutyType.UkDuty -> (Map(
-                TaxCode.A00 -> Some(ClaimAmounts(BigDecimal("12.99"), BigDecimal("21.00"))),
+                TaxCode.A00 -> Some(Reimbursement(BigDecimal("21.00"), BigDecimal("12.99"))),
                 TaxCode.A40 -> None
               )),
               DutyType.EuDuty -> (Map(
-                TaxCode.A50 -> Some(ClaimAmounts(BigDecimal("1.01"), BigDecimal("12.99"))),
+                TaxCode.A50 -> Some(Reimbursement(BigDecimal("12.99"), BigDecimal("1.01"))),
                 TaxCode.A70 -> None
               ))
             )

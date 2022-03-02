@@ -46,6 +46,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
+import scala.collection.immutable.ListMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 /** An encapsulated C&E1179 scheduled MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -70,11 +72,11 @@ final class RejectedGoodsScheduledJourney private (
     answers.reimbursementClaims
       .exists(rc =>
         rc.exists(_._2.nonEmpty) && rc.forall { case (dutyType, claims) =>
-          claims.forall {
+          claims.nonEmpty && claims.forall {
             case (taxCode, Some(claimAmounts)) =>
               dutyType.taxCodes.contains(taxCode) &&
                 isValidReimbursementAmount(
-                  claimAmounts.reimbursementAmount,
+                  claimAmounts.shouldOfPaid,
                   claimAmounts.paidAmount
                 )
             case _                             => false
@@ -93,40 +95,30 @@ final class RejectedGoodsScheduledJourney private (
   def getSelectedDutyTypes: Option[Seq[DutyType]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
 
+  def getSelectedDuties: Map[DutyType, Seq[TaxCode]] =
+    answers.reimbursementClaims.map(_.mapValues(_.keys.toSeq)).getOrElse(Map.empty)
+
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
-    answers.reimbursementClaims.flatMap(_.get(dutyType).map(_.keys.toSeq))
+    answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
 
   def getReimbursementClaimsFor(
     dutyType: DutyType
-  ): Option[Map[TaxCode, Option[RejectedGoodsScheduledJourney.ClaimAmounts]]] =
-    answers.reimbursementClaims.flatMap(_.get(dutyType))
+  ): Option[Map[TaxCode, Option[Reimbursement]]] =
+    answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
-  def getDutyTypeAndReimbursementClaimsFor(
-    taxCode: TaxCode
-  ): Option[
-    (
-      DutyType,
-      Map[TaxCode, Option[RejectedGoodsScheduledJourney.ClaimAmounts]]
-    )
-  ] =
-    answers.reimbursementClaims.flatMap(
-      _.find(_._1.taxCodes.contains(taxCode))
-        .flatMap { case (dutyType, reimbursementClaims) =>
-          reimbursementClaims
-            .find(_._1 === taxCode)
-            .map(_ => (dutyType, reimbursementClaims))
-        }
-    )
-
-  def getReimbursementClaims: Map[TaxCode, RejectedGoodsScheduledJourney.ClaimAmounts] =
+  def isDutySelected(taxCode: TaxCode): Boolean =
     answers.reimbursementClaims
-      .map(
-        _.flatMap(_._2.collect { case (taxCode, Some(claimAmounts)) => (taxCode, claimAmounts) })
-      )
+      .exists(_.exists { case (dutyType, tca) =>
+        dutyType.taxCodes.contains(taxCode) && tca.exists(_._1 === taxCode)
+      })
+
+  def getReimbursementClaims: Map[TaxCode, Reimbursement] =
+    answers.reimbursementClaims
+      .map(rc => rc.flatMap(_._2.collect { case (taxCode, Some(claimAmounts)) => (taxCode, claimAmounts) }))
       .getOrElse(Map.empty)
 
   def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.toSeq.map(_._2.reimbursementAmount).sum
+    getReimbursementClaims.iterator.map(_._2.shouldOfPaid).sum
 
   def getTotalPaidAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2.paidAmount).sum
@@ -265,9 +257,10 @@ final class RejectedGoodsScheduledJourney private (
       if (dutyTypes.isEmpty)
         Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
       else {
-        val newReimbursementClaims = dutyTypes.map { dutyType =>
-          (dutyType -> getReimbursementClaimsFor(dutyType).getOrElse(Map.empty))
-        }.toMap
+        val newReimbursementClaims = ListMap(
+          dutyTypes
+            .map(dutyType => (dutyType -> getReimbursementClaimsFor(dutyType).getOrElse(Map.empty))): _*
+        )
         Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
       }
     }
@@ -277,22 +270,25 @@ final class RejectedGoodsScheduledJourney private (
     taxCodes: Seq[TaxCode]
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileJourneyIsAmendable {
-      if (taxCodes.isEmpty)
+      if (!getSelectedDutyTypes.exists(_.contains(dutyType)))
+        Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
+      else if (taxCodes.isEmpty)
         Left("selectTaxCodeSetForReimbursement.emptySelection")
       else {
         val allTaxCodesMatchDutyType = taxCodes.forall(tc => dutyType.taxCodes.contains(tc))
         if (allTaxCodesMatchDutyType) {
-          val newReimbursementClaims: Map[DutyType, Map[TaxCode, Option[RejectedGoodsScheduledJourney.ClaimAmounts]]] =
+          val newReimbursementClaims =
             answers.reimbursementClaims
-              .map(_.map {
-                case (dt, reimbursementClaims) if dt.repr === dutyType.repr =>
-                  dt -> taxCodes.map { tc =>
-                    tc -> reimbursementClaims.get(tc).getOrElse(None)
-                  }.toMap
-                case pair                                                   => pair
-              })
-              .getOrElse(Map.empty)
-          Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+              .map { rc =>
+                ListMap(rc.toSeq.map {
+                  case (dt, reimbursementClaims) if dt.repr === dutyType.repr =>
+                    dt -> ListMap(taxCodes.map { tc =>
+                      tc -> reimbursementClaims.get(tc).flatten
+                    }: _*)
+                  case pair                                                   => pair
+                }: _*)
+              }
+          Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
         } else
           Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
@@ -308,22 +304,21 @@ final class RejectedGoodsScheduledJourney private (
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileJourneyIsAmendable {
       if (isValidReimbursementAmount(reimbursementAmount, paidAmount)) {
-        getDutyTypeAndReimbursementClaimsFor(taxCode) match {
-          case None =>
-            Left("submitAmountForReimbursement.taxCodeNotSelected")
-
-          case Some(_) =>
-            val newReimbursementClaims =
-              answers.reimbursementClaims
-                .map(_.map { case (dt, reimbursementClaims) =>
-                  dt -> reimbursementClaims.map {
+        if (isDutySelected(taxCode)) {
+          val newReimbursementClaims =
+            answers.reimbursementClaims
+              .map(rc =>
+                ListMap(rc.toSeq.map { case (dt, reimbursementClaims) =>
+                  dt -> ListMap(reimbursementClaims.toSeq.map {
                     case (tc, _) if tc === taxCode =>
-                      tc -> Some(RejectedGoodsScheduledJourney.ClaimAmounts(reimbursementAmount, paidAmount))
+                      tc -> Some(Reimbursement(paidAmount, reimbursementAmount))
                     case pair                      => pair
-                  }
-                })
-            Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
-        }
+                  }: _*)
+                }: _*)
+              )
+          Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
+        } else
+          Left(s"submitAmountForReimbursement.taxCodeNotSelected")
       } else
         Left("submitAmountForReimbursement.invalidReimbursementAmount")
     }
@@ -480,8 +475,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
   def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
     new RejectedGoodsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
-  final case class ClaimAmounts(reimbursementAmount: BigDecimal, paidAmount: BigDecimal)
-  type ReimbursementClaims = Map[DutyType, Map[TaxCode, Option[ClaimAmounts]]]
+  type ReimbursementClaims = Map[DutyType, Map[TaxCode, Option[Reimbursement]]]
 
   // All user answers captured during C&E1179 scheduled MRN journey
   final case class Answers(
@@ -519,7 +513,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
     detailsOfRejectedGoods: String,
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
-    reimbursementClaims: Map[TaxCode, ClaimAmounts],
+    reimbursementClaims: Map[TaxCode, Reimbursement],
     reimbursementMethod: ReimbursementMethodAnswer,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
@@ -614,9 +608,6 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
       )
     )
 
-  implicit lazy val claimAmountsFormat: Format[ClaimAmounts] =
-    Json.format[ClaimAmounts]
-
   object Answers {
 
     @SuppressWarnings(Array("org.wartremover.warts.Throw"))
@@ -629,11 +620,11 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
         _.repr
       )
 
-    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[ClaimAmounts]]] =
-      MapFormat.formatWithOptionalValue[TaxCode, ClaimAmounts]
+    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[Reimbursement]]] =
+      MapFormat.formatWithOptionalValue[TaxCode, Reimbursement]
 
     implicit lazy val mapFormat2: Format[ReimbursementClaims] =
-      MapFormat.format[DutyType, Map[TaxCode, Option[ClaimAmounts]]]
+      MapFormat.format[DutyType, Map[TaxCode, Option[Reimbursement]]]
 
     implicit lazy val mapFormat3: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
       MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
@@ -647,8 +638,8 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
 
   object Output {
 
-    implicit lazy val mapFormat1: Format[Map[TaxCode, ClaimAmounts]] =
-      MapFormat.format[TaxCode, ClaimAmounts]
+    implicit lazy val mapFormat1: Format[Map[TaxCode, Reimbursement]] =
+      MapFormat.format[TaxCode, Reimbursement]
 
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
