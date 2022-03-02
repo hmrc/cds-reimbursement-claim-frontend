@@ -224,12 +224,16 @@ final class RejectedGoodsMultipleJourney private (
         )
       else if (
         index > 0 &&
-        !getLeadDisplayDeclaration.map(decl => displayDeclaration.hasSameEoriAs(decl)).getOrElse(false)
+        !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs)
       )
         Left(
           s"submitMovementReferenceNumber.wrongDisplayDeclarationEori"
         )
-      else
+      else if (answers.movementReferenceNumbers.exists(_.contains(mrn))) {
+        Left(
+          s"submitMovementReferenceNumber.movementReferenceNumberAlreadyExists"
+        )
+      } else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
