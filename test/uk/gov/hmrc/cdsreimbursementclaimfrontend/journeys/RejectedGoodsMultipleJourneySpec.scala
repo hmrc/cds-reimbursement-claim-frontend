@@ -323,6 +323,17 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
+    "decline submission of a duplicate MRN" in {
+      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+        val acc14 = decl.withDeclarationId(mrn.value)
+
+        val journeyEither = emptyJourney
+          .submitMovementReferenceNumberAndDeclaration(0, mrn, acc14)
+          .flatMap(_.submitMovementReferenceNumberAndDeclaration(1, mrn, acc14))
+
+        journeyEither shouldBe Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
+      }
+    }
     "accept submission of the same nth MRN and different declaration" in {
       forAll(completeJourneyGen, displayDeclarationGen) { case (journey, declaration) =>
         val declarationWithMatchingEori = declaration.withDeclarantEori(journey.getDeclarantEoriFromACC14.get)
