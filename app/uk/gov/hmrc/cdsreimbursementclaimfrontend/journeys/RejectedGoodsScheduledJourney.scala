@@ -74,7 +74,7 @@ final class RejectedGoodsScheduledJourney private (
           claims.nonEmpty && claims.forall {
             case (taxCode, Some(claimAmounts)) =>
               dutyType.taxCodes.contains(taxCode) &&
-                isValidReimbursementAmount(
+                isValidClaimAmounts(
                   claimAmounts.shouldOfPaid,
                   claimAmounts.paidAmount
                 )
@@ -106,9 +106,8 @@ final class RejectedGoodsScheduledJourney private (
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
   def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean      =
-    dutyType.taxCodes.contains(taxCode) &&
-      answers.reimbursementClaims
-        .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
+    answers.reimbursementClaims
+      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
   def getReimbursementClaims: Map[DutyType, Map[TaxCode, Reimbursement]] =
     answers.reimbursementClaims
@@ -292,8 +291,8 @@ final class RejectedGoodsScheduledJourney private (
       }
     }
 
-  def isValidReimbursementAmount(reimbursementAmount: BigDecimal, paidAmount: BigDecimal): Boolean =
-    reimbursementAmount > 0 && reimbursementAmount <= paidAmount
+  def isValidClaimAmounts(reimbursementAmount: BigDecimal, paidAmount: BigDecimal): Boolean =
+    paidAmount > 0 && reimbursementAmount > 0 && reimbursementAmount <= paidAmount
 
   def submitAmountForReimbursement(
     dutyType: DutyType,
@@ -302,26 +301,29 @@ final class RejectedGoodsScheduledJourney private (
     paidAmount: BigDecimal
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileJourneyIsAmendable {
-      if (isDutySelected(dutyType, taxCode)) {
-        if (isValidReimbursementAmount(reimbursementAmount, paidAmount)) {
-          val newReimbursementClaims =
-            answers.reimbursementClaims
-              .map(rc =>
-                ListMap(rc.toSeq.map {
-                  case (dt, reimbursementClaims) if dt === dutyType =>
-                    dt -> ListMap(reimbursementClaims.toSeq.map {
-                      case (tc, _) if tc === taxCode =>
-                        tc -> Some(Reimbursement(paidAmount, reimbursementAmount))
-                      case other                     => other
-                    }: _*)
-                  case other                                        => other
-                }: _*)
-              )
-          Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
+      if (dutyType.taxCodes.contains(taxCode)) {
+        if (isDutySelected(dutyType, taxCode)) {
+          if (isValidClaimAmounts(reimbursementAmount, paidAmount)) {
+            val newReimbursementClaims =
+              answers.reimbursementClaims
+                .map(rc =>
+                  ListMap(rc.toSeq.map {
+                    case (dt, reimbursementClaims) if dt === dutyType =>
+                      dt -> ListMap(reimbursementClaims.toSeq.map {
+                        case (tc, _) if tc === taxCode =>
+                          tc -> Some(Reimbursement(paidAmount, reimbursementAmount))
+                        case other                     => other
+                      }: _*)
+                    case other                                        => other
+                  }: _*)
+                )
+            Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
+          } else
+            Left("submitAmountForReimbursement.invalidReimbursementAmount")
         } else
-          Left("submitAmountForReimbursement.invalidReimbursementAmount")
+          Left("submitAmountForReimbursement.taxCodeNotSelected")
       } else
-        Left(s"submitAmountForReimbursement.taxCodeNotSelected")
+        Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
