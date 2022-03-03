@@ -274,12 +274,7 @@ final class RejectedGoodsMultipleJourney private (
           case None              =>
             if (getIndexOfMovementReferenceNumber(mrn).isDefined)
               Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
-            else {
-              val aaa = answers.movementReferenceNumbers.map(_ :+ mrn)
-              val bbb = answers.displayDeclarations.map(_ :+ displayDeclaration)
-              val ccc = answers.reimbursementClaims.map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
-              val ddd = ccc.orElse(Some(Map(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
-
+            else
               Right(
                 new RejectedGoodsMultipleJourney(
                   answers.copy(
@@ -292,7 +287,6 @@ final class RejectedGoodsMultipleJourney private (
                   )
                 )
               )
-            }
         }
     }
 
