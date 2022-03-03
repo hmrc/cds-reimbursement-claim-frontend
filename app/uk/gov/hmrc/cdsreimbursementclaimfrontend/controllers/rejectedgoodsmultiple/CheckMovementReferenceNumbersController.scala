@@ -90,7 +90,7 @@ class CheckMovementReferenceNumbersController @Inject() (
       .asFuture
   }
 
-  def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney { _ => journey =>
     journey
       .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
       .fold(
