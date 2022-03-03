@@ -31,6 +31,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import play.api.libs.json.Format
+import play.api.libs.json.Json
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -39,7 +41,7 @@ import scala.concurrent.Future
   *  - sesion data retrieval and journey update
   *  - journey completeness check and redirect to the CYA page
   */
-abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
+abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt: Format[Journey])
     extends FrontendBaseController
     with Logging {
 
@@ -270,4 +272,8 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
     def asFuture: Future[A] = Future.successful(value)
     def |>[B](f: A => B): B = f(value)
   }
+
+  final def prettyPrint(journey: Journey): String =
+    Json.prettyPrint(Json.toJson(journey))
+
 }

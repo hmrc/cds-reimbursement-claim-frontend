@@ -465,8 +465,6 @@ final class RejectedGoodsScheduledJourney private (
         )
       )
 
-  def prettyPrint: String = Json.prettyPrint(Json.toJson(this))
-
 }
 
 object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsScheduledJourney] {

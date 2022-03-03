@@ -18,10 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmulti
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 
 import scala.concurrent.ExecutionContext
 
@@ -30,15 +29,4 @@ class WorkInProgressController @Inject() (
   val jcc: JourneyControllerComponents
 )(implicit val ec: ExecutionContext)
     extends RejectedGoodsMultipleJourneyBaseController
-    with Logging {
-
-  val show: Action[AnyContent] =
-    simpleActionReadJourney { _ =>
-      Ok("Work in progress ...")
-    }
-
-  val submit: Action[AnyContent] =
-    actionReadWriteJourney { _ => journey =>
-      (journey, Redirect(routes.WorkInProgressController.show)).asFuture
-    }
-}
+    with WorkInProgressMixin[RejectedGoodsMultipleJourney]
