@@ -72,7 +72,7 @@ class ChooseRepaymentMethodController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  def reset(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def reset(): Action[AnyContent] = actionReadWriteJourney { _ => journey =>
     val updatedJourney =
       if (!journey.isAllSelectedDutiesAreCMAEligible) journey.resetReimbursementMethod()
       else journey

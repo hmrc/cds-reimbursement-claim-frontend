@@ -84,4 +84,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
 
   val rejectedGoodsMultipleTypes: Seq[UploadDocumentType] =
     rejectedGoodsSingleTypes
+
+  val rejectedGoodsScheduledTypes: Seq[UploadDocumentType] =
+    rejectedGoodsSingleTypes
 }

@@ -21,11 +21,13 @@ import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 
 final case class SessionData(
   journeyStatus: Option[JourneyStatus] = None,
   rejectedGoodsSingleJourney: Option[RejectedGoodsSingleJourney] = None,
-  rejectedGoodsMultipleJourney: Option[RejectedGoodsMultipleJourney] = None
+  rejectedGoodsMultipleJourney: Option[RejectedGoodsMultipleJourney] = None,
+  rejectedGoodsScheduledJourney: Option[RejectedGoodsScheduledJourney] = None
 )
 
 object SessionData {
@@ -38,6 +40,9 @@ object SessionData {
 
   def apply(rejectedGoodsMultipleJourney: RejectedGoodsMultipleJourney): SessionData =
     SessionData(rejectedGoodsMultipleJourney = Some(rejectedGoodsMultipleJourney))
+
+  def apply(rejectedGoodsScheduledJourney: RejectedGoodsScheduledJourney): SessionData =
+    SessionData(rejectedGoodsScheduledJourney = Some(rejectedGoodsScheduledJourney))
 
   implicit val format: Format[SessionData] = Json.format
 
