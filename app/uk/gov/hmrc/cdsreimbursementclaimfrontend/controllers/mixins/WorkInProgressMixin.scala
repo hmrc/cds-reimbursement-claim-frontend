@@ -20,6 +20,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import java.util.UUID
 
 trait WorkInProgressMixin[Journey] {
   self: JourneyBaseController[Journey] =>
@@ -39,5 +40,8 @@ trait WorkInProgressMixin[Journey] {
         )
       ).asFuture
     }
+
+  val redirectToALF: Action[AnyContent]                                   = show
+  def retrieveAddressFromALF(id: Option[UUID] = None): Action[AnyContent] = show
 
 }
