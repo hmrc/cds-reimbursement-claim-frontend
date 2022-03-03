@@ -46,7 +46,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
-import scala.collection.immutable.ListMap
 
 /** An encapsulated C&E1179 multiple MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -417,12 +416,12 @@ final class RejectedGoodsMultipleJourney private (
             if (allTaxCodesExistInACC14) {
               val newReimbursementClaims = getReimbursementClaimsFor(mrn) match {
                 case None                      =>
-                  ListMap(taxCodes.map(taxCode => taxCode -> None): _*)
+                  taxCodes.map(taxCode => taxCode -> None).toMap
 
                 case Some(reimbursementClaims) =>
-                  ListMap(taxCodes.map { taxCode =>
+                  taxCodes.map { taxCode =>
                     taxCode -> reimbursementClaims.get(taxCode).flatten
-                  }: _*)
+                  }.toMap
               }
 
               Right(
