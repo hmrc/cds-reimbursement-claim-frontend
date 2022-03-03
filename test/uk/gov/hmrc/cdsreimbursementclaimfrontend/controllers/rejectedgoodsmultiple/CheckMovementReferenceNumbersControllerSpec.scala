@@ -50,6 +50,7 @@ import scala.collection.JavaConverters._
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
+    with AddAcc14
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -70,21 +71,6 @@ class CheckMovementReferenceNumbersControllerSpec
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   val formKey: String = "check-movement-reference-numbers.rejected-goods"
-
-  def addAcc14(
-    journey: RejectedGoodsMultipleJourney,
-    acc14Declaration: DisplayDeclaration
-  ): Either[String, RejectedGoodsMultipleJourney] = {
-    val nextIndex           = journey.getMovementReferenceNumbers.map(_.size).getOrElse(0)
-    val adjustedDeclaration = journey.getDeclarantEoriFromACC14
-      .fold(acc14Declaration) { eori =>
-        val declarant = acc14Declaration.getDeclarantDetails.copy(declarantEORI = eori.value)
-        val drd       = acc14Declaration.displayResponseDetail.copy(declarantDetails = declarant)
-        acc14Declaration.copy(displayResponseDetail = drd)
-      }
-    journey
-      .submitMovementReferenceNumberAndDeclaration(nextIndex, adjustedDeclaration.getMRN, adjustedDeclaration)
-  }
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
