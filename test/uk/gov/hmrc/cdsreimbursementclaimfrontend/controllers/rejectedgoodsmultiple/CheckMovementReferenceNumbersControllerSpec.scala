@@ -72,6 +72,9 @@ class CheckMovementReferenceNumbersControllerSpec
 
   val formKey: String = "check-movement-reference-numbers.rejected-goods"
 
+  def areMrnsUnique(acc14Declarations: List[DisplayDeclaration]): Boolean =
+    acc14Declarations.map(_.getMRN).toSet.size == acc14Declarations.size
+
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
@@ -152,7 +155,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "show page with more than 2 MRNs" in forAll { acc14Declarations: List[DisplayDeclaration] =>
-        whenever(acc14Declarations.size > 2) {
+        whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
@@ -197,7 +200,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "reject an empty Yes/No answer" in forAll { acc14Declarations: List[DisplayDeclaration] =>
-        whenever(acc14Declarations.size > 2) {
+        whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
@@ -221,7 +224,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "submit when user selects Yes" in forAll { acc14Declarations: List[DisplayDeclaration] =>
-        whenever(acc14Declarations.size > 2) {
+        whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
@@ -243,7 +246,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "submit when user selects No" in forAll { acc14Declarations: List[DisplayDeclaration] =>
-        whenever(acc14Declarations.size > 2) {
+        whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
@@ -290,9 +293,9 @@ class CheckMovementReferenceNumbersControllerSpec
         status(performAction(mrn)) shouldBe NOT_FOUND
       }
 
-      "redirect back to the check movement reference numbers page is remove worked" in forAll {
+      "redirect back to the check movement reference numbers page if remove worked" in forAll {
         acc14Declarations: List[DisplayDeclaration] =>
-          whenever(acc14Declarations.size > 3) {
+          whenever(acc14Declarations.size > 3 && areMrnsUnique(acc14Declarations)) {
             val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
               case (journey, declaration) => addAcc14(journey, declaration).getOrFail
             }

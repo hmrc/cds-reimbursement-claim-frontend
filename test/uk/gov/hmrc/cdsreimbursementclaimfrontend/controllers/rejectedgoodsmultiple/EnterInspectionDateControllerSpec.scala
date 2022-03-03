@@ -32,12 +32,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.genDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genEstablishmentAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
@@ -50,7 +52,8 @@ class EnterInspectionDateControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with ScalaCheckPropertyChecks
+    with JourneyTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -163,52 +166,62 @@ class EnterInspectionDateControllerSpec
         displayDeclaration: DisplayDeclaration,
         address: EstablishmentAddress
       ): DisplayDeclaration = {
-        val consignee                    = displayDeclaration.getConsigneeDetails.get.copy(establishmentAddress = address)
+        val consignee                    = displayDeclaration.getConsigneeDetails.map(_.copy(establishmentAddress = address))
         val declarant                    = displayDeclaration.getDeclarantDetails.copy(establishmentAddress = address)
         val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail
           .copy(
-            consigneeDetails = Some(consignee),
+            consigneeDetails = consignee,
             declarantDetails = declarant
           )
         displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
       }
 
-      "the user enters a date for the first time and Acc14 has returned contact details for the importer or declarant" in
-        forAll(displayDeclarationGen, displayDeclarationGen, genEstablishmentAddress, genDate) {
-          (firstDisplayDeclaration, secondDisplayDeclaration, address, date) =>
-            whenever(address.postalCode.isDefined) {
-              val journey        = (for {
-                j1 <- addAcc14(
-                        session.rejectedGoodsMultipleJourney.get,
-                        replaceEstablishmentAddresses(firstDisplayDeclaration, address)
-                      )
-                j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, address))
-              } yield j2).getOrFail
-              val initialSession = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
+      "the user enters a date for the first time and Acc14 has returned contact details for the importer or declarant" in forAll {
+        (
+          firstDisplayDeclaration: DisplayDeclaration,
+          secondDisplayDeclaration: DisplayDeclaration,
+          address: EstablishmentAddress,
+          date: InspectionDate
+        ) =>
+          whenever(
+            address.postalCode.isDefined && (firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN)
+          ) {
+            val journey        = (for {
+              j1 <- addAcc14(
+                      session.rejectedGoodsMultipleJourney.get,
+                      replaceEstablishmentAddresses(firstDisplayDeclaration, address)
+                    )
+              j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, address))
+            } yield j2).getOrFail
+            val initialSession = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
 
-              val updatedJourney = journey.submitInspectionDate(date)
-              val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+            val updatedJourney = journey.submitInspectionDate(date)
+            val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
 
-              inSequence {
-                mockAuthWithNoRetrievals()
-                mockGetSession(initialSession)
-                mockStoreSession(updatedSession)(Right(()))
-              }
-
-              checkIsRedirect(
-                submitInspectionDate(
-                  s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
-                  s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
-                  s"${controller.formKey}.year"  -> date.value.getYear.toString
-                ),
-                "inspection-address/choose-type"
-              )
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(initialSession)
+              mockStoreSession(updatedSession)(Right(()))
             }
-        }
 
-      "the user enters a date for the first time and Acc14 hasn't returned any contact details" in
-        forAll(displayDeclarationGen, displayDeclarationGen, genDate) {
-          (firstDisplayDeclaration, secondDisplayDeclaration, date) =>
+            checkIsRedirect(
+              submitInspectionDate(
+                s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
+                s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
+                s"${controller.formKey}.year"  -> date.value.getYear.toString
+              ),
+              "inspection-address/choose-type"
+            )
+          }
+      }
+
+      "the user enters a date for the first time and Acc14 hasn't returned any contact details" in forAll {
+        (
+          firstDisplayDeclaration: DisplayDeclaration,
+          secondDisplayDeclaration: DisplayDeclaration,
+          date: InspectionDate
+        ) =>
+          whenever(firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN) {
             val addressWithoutPostCode =
               firstDisplayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
             val journey                = (for {
@@ -237,7 +250,8 @@ class EnterInspectionDateControllerSpec
               ),
               "inspection-address/.../lookup"
             )
-        }
+          }
+      }
 
       "redirect to CYA page if journey is complete" in forAll(buildCompleteJourneyGen(), genDate) { (journey, date) =>
         val initialSession = session.copy(rejectedGoodsMultipleJourney = Some(journey))

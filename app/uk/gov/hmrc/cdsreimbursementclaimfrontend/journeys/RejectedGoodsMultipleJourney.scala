@@ -224,7 +224,7 @@ final class RejectedGoodsMultipleJourney private (
         )
       else if (
         index > 0 &&
-        !getLeadDisplayDeclaration.map(decl => displayDeclaration.hasSameEoriAs(decl)).getOrElse(false)
+        !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs)
       )
         Left(
           s"submitMovementReferenceNumber.wrongDisplayDeclarationEori"
@@ -272,18 +272,27 @@ final class RejectedGoodsMultipleJourney private (
 
           // add new MRN
           case None              =>
-            Right(
-              new RejectedGoodsMultipleJourney(
-                answers.copy(
-                  movementReferenceNumbers = answers.movementReferenceNumbers.map(_ :+ mrn).orElse(Some(Seq(mrn))),
-                  displayDeclarations =
-                    answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
-                  reimbursementClaims = answers.reimbursementClaims
-                    .map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
-                    .orElse(Some(Map(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
+            if (getIndexOfMovementReferenceNumber(mrn).isDefined)
+              Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
+            else {
+              val aaa = answers.movementReferenceNumbers.map(_ :+ mrn)
+              val bbb = answers.displayDeclarations.map(_ :+ displayDeclaration)
+              val ccc = answers.reimbursementClaims.map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
+              val ddd = ccc.orElse(Some(Map(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
+
+              Right(
+                new RejectedGoodsMultipleJourney(
+                  answers.copy(
+                    movementReferenceNumbers = answers.movementReferenceNumbers.map(_ :+ mrn).orElse(Some(Seq(mrn))),
+                    displayDeclarations =
+                      answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
+                    reimbursementClaims = answers.reimbursementClaims
+                      .map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
+                      .orElse(Some(Map(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
+                  )
                 )
               )
-            )
+            }
         }
     }
 

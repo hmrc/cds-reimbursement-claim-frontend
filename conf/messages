@@ -201,17 +201,17 @@ enter-movement-reference-number.scheduled.help-text=The Movement Reference Numbe
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 
 enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
-enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared
 enter-movement-reference-number.rejected-goods.invalid.number=Enter a movement reference number in the correct format
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number
-enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=Try a different MRN.
-enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=You have already entered this MRN. Enter a different MRN.
+enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=Try a different MRN
+enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=You have already entered this MRN. Enter a different MRN
 enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} MRN
-enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
-enter-movement-reference-number.rejected-goods.multiple.help-text3=The first MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (MRN) is issued when an import is declared
+enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>
+enter-movement-reference-number.rejected-goods.multiple.help-text3=The first MRN is the one with the highest paid amount of duties
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} MRN
-enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001.
+enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001
 
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
@@ -488,14 +488,20 @@ select-basis-for-claim.details.hint.8=Delay or reduce import duties or VAT on go
 select-basis-for-claim.details.bullet.9=Outward processing relief:
 select-basis-for-claim.details.hint.9=A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported
 
-select-basis-for-claim.details.bullet.10=Preferential rate of duty:
-select-basis-for-claim.details.hint.10=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates
+select-basis-for-claim.details.bullet.10=Personal effects
+select-basis-for-claim.details.hint.10=
 
-select-basis-for-claim.details.bullet.11=Proof of return or refund given:
-select-basis-for-claim.details.hint.11=Proof of return or refund provided and duties were overpaid
+select-basis-for-claim.details.bullet.11=Preferential rate of duty:
+select-basis-for-claim.details.hint.11=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates
 
-select-basis-for-claim.details.bullet.12=Other reason:
-select-basis-for-claim.details.hint.12=For any other reason not listed
+select-basis-for-claim.details.bullet.12=Proof of return or refund given:
+select-basis-for-claim.details.hint.12=Proof of return or refund provided and duties were overpaid
+
+select-basis-for-claim.details.bullet.13=Returned goods relief (RGR)
+select-basis-for-claim.details.hint.13=
+
+select-basis-for-claim.details.bullet.14=Other reason:
+select-basis-for-claim.details.hint.14=For any other reason not listed
 
 select-basis-for-claim.reason.d0=Duplicate MRN
 select-basis-for-claim.reason.d1=Duty suspension
@@ -512,7 +518,7 @@ select-basis-for-claim.reason.d9=Outward processing relief
 select-basis-for-claim.reason.d10=Personal effects
 select-basis-for-claim.reason.d11=Preferential rate of duty
 select-basis-for-claim.reason.d12=Proof of return or refund given
-select-basis-for-claim.reason.d13=RGR
+select-basis-for-claim.reason.d13=Returned goods relief (RGR)
 select-basis-for-claim.reason.d14=Other reason
 
 select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
