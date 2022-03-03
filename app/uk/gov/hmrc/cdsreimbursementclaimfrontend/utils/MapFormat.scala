@@ -23,7 +23,6 @@ import play.api.libs.json.Writes
 import play.api.libs.json._
 
 import scala.util.Try
-import scala.collection.immutable.ListMap
 
 /** Creates instances of [[play.api.libs.json.Format]] for the different [[Map]] variants. */
 object MapFormat {
@@ -38,7 +37,7 @@ object MapFormat {
       Reads {
         case o: JsObject =>
           Try(
-            ListMap(
+            Map(
               o.fields.map {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
@@ -78,7 +77,7 @@ object MapFormat {
       Reads {
         case o: JsObject =>
           Try(
-            ListMap(
+            Map(
               o.fields.map {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").asOpt[V]
