@@ -37,7 +37,7 @@ trait RejectedGoodsScheduledJourneyTestData extends JourneyTestData {
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     methodOfDisposal: MethodOfDisposal,
-    reimbursementClaims: Seq[(TaxCode, BigDecimal, BigDecimal)],
+    reimbursementClaims: Seq[(DutyType, Seq[(TaxCode, BigDecimal, BigDecimal)])],
     supportingEvidences: Map[UploadDocumentType, Int],
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
@@ -47,11 +47,14 @@ trait RejectedGoodsScheduledJourneyTestData extends JourneyTestData {
     bankAccountType: Option[BankAccountType] = None
   ): Either[String, RejectedGoodsScheduledJourney] = {
 
-    val dutyTypes: Map[DutyType, Seq[(TaxCode, BigDecimal, BigDecimal)]] =
-      reimbursementClaims.groupBy { case (taxCode, _, _) => DutyType.of(taxCode).get }
+    val dutyTypes: Seq[DutyType] =
+      reimbursementClaims.map(_._1)
 
-    val taxCodes: Seq[(DutyType, Seq[TaxCode])]                          =
-      dutyTypes.mapValues(_.map(_._1)).toSeq
+    val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                    =
+      reimbursementClaims.map { case (dt, tcs) => dt -> tcs.map(_._1) }
+
+    val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)]   =
+      reimbursementClaims.flatMap { case (dt, tca) => tca.map { case (tc, ra, pa) => (dt, tc, ra, pa) } }
 
     val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]] =
       supportingEvidences.map { case (documentType, size) =>
@@ -59,20 +62,6 @@ trait RejectedGoodsScheduledJourneyTestData extends JourneyTestData {
       }
 
     val scheduledDocument: UploadedFile = buildUploadDocument(s"schedule")
-
-    def selectAndReplaceTaxCodeSetForReimbursement(journey: RejectedGoodsScheduledJourney)(
-      dutyTypeWithTaxCodes: (DutyType, Seq[TaxCode])
-    ): Either[String, RejectedGoodsScheduledJourney] = {
-      val (dutyType, taxCodes) = dutyTypeWithTaxCodes
-      journey.selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodes)
-    }
-
-    def submitAmountForReimbursement(journey: RejectedGoodsScheduledJourney)(
-      taxCodesWithClaimAmounts: (TaxCode, BigDecimal, BigDecimal)
-    ): Either[String, RejectedGoodsScheduledJourney] = {
-      val (taxCode, reimbursementAmount, paidAmount) = taxCodesWithClaimAmounts
-      journey.submitAmountForReimbursement(taxCode, reimbursementAmount, paidAmount)
-    }
 
     def receiveUploadedFiles(journey: RejectedGoodsScheduledJourney)(
       documentTypeAndUploadedFiles: (UploadDocumentType, Seq[UploadedFile])
@@ -95,9 +84,15 @@ trait RejectedGoodsScheduledJourneyTestData extends JourneyTestData {
       )
       .map(_.submitMethodOfDisposal(methodOfDisposal))
       .map(_.submitDetailsOfRejectedGoods(detailsOfRejectedGoods))
-      .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes.keys.toSeq))
-      .flatMapEach(taxCodes, selectAndReplaceTaxCodeSetForReimbursement)
-      .flatMapEach(reimbursementClaims, submitAmountForReimbursement)
+      .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes))
+      .flatMapEach(
+        dutyTypesWithTaxCodes,
+        j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+      )
+      .flatMapEach(
+        taxCodesWithAmounts,
+        j => (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitAmountForReimbursement(d._1, d._2, d._3, d._4)
+      )
       .map(_.submitInspectionDate(inspectionDate))
       .map(_.submitInspectionAddress(inspectionAddress))
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)

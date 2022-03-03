@@ -20,6 +20,8 @@ import cats.kernel.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
+import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 sealed abstract class DutyType(val repr: String, val taxCodes: Seq[TaxCode]) extends Product with Serializable
 
@@ -30,9 +32,6 @@ object DutyType {
 
   def unapply(dutyType: DutyType): Option[String] =
     Some(dutyType.repr)
-
-  def of(taxCode: TaxCode): Option[DutyType] =
-    DutyTypes.all.find(_.taxCodes.contains(taxCode))
 
   case object UkDuty extends DutyType("uk-duty", TaxCodes.UK)
 
@@ -81,4 +80,14 @@ object DutyType {
 
   implicit val dutyTypFormat: OFormat[DutyType] = derived.oformat[DutyType]()
   implicit val dutyTypeEq: Eq[DutyType]         = Eq.fromUniversalEquals[DutyType]
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  val simpleDutyTypeFormat: Format[DutyType] =
+    SimpleStringFormat[DutyType](
+      repr =>
+        DutyTypes
+          .find(repr)
+          .getOrElse(throw new Exception(s"Cannot parse duty type from the string [$repr]")),
+      _.repr
+    )
 }

@@ -23,10 +23,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+
 import scala.collection.JavaConverters._
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
@@ -168,20 +168,9 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
       mrn                         <- IdGen.genMRN
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      numberOfTaxCodes            <- Gen.choose(1, 5)
-      taxCodes                    <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
-      paidAmounts                 <-
-        Gen.listOfN(
-          numberOfTaxCodes,
-          Gen.zip(Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")), Gen.oneOf(true, false))
-        )
-      reimbursementAmount         <-
-        Gen.sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts.map { case (a, _) => Gen.choose(BigDecimal.exact("0.01"), a) }
-        )
+      reimbursementClaims         <- dutyTypesWithTaxCodesWithClaimAmountsGen
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
-      numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(0, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
       documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsScheduledTypes))
@@ -196,22 +185,12 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]             =
-        taxCodes.zip(paidAmounts).map { case (t, (a, cma)) => (t, a, cma) }
-
-      val reimbursementClaims: Seq[(TaxCode, BigDecimal, BigDecimal)] =
-        taxCodes
-          .zip(paidAmounts)
-          .take(numberOfSelectedTaxCodes)
-          .zip(reimbursementAmount)
-          .map { case ((t, (pa, _)), ra) => (t, ra, pa) }
-
-      val displayDeclaration: DisplayDeclaration                      =
+      val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-          paidDuties,
+          reimbursementClaims.flatMap(_._2).map(d => (d._1, d._3, false)),
           if (submitConsigneeDetails) consigneeContact else None,
           declarantContact
         )

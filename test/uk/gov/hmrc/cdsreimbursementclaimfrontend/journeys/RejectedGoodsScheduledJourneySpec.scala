@@ -637,8 +637,8 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
         journey.getSelectedDutyTypes shouldBe Some(dutyTypes)
         dutyTypesWithTaxCodes.foreach { case (dutyType, taxCodes) =>
           journey.getSelectedDutiesFor(dutyType) shouldBe Some(taxCodes)
-          taxCodes.foreach(taxCode => journey.isDutySelected(taxCode))
-          TaxCodes.allExcept(taxCodes.toSet).foreach(taxCode => !journey.isDutySelected(taxCode))
+          taxCodes.foreach(taxCode => journey.isDutySelected(dutyType, taxCode))
+          TaxCodes.allExcept(taxCodes.toSet).foreach(taxCode => !journey.isDutySelected(dutyType, taxCode))
         }
       }
     }
@@ -663,8 +663,8 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
 
           journey.getSelectedDutyTypes.get       shouldBe Seq(dutyType)
           journey.getSelectedDutiesFor(dutyType) shouldBe Some(taxCodes2)
-          taxCodes2.foreach(taxCode => journey.isDutySelected(taxCode))
-          TaxCodes.allExcept(taxCodes2.toSet).foreach(taxCode => !journey.isDutySelected(taxCode))
+          taxCodes2.foreach(taxCode => journey.isDutySelected(dutyType, taxCode))
+          TaxCodes.allExcept(taxCodes2.toSet).foreach(taxCode => !journey.isDutySelected(dutyType, taxCode))
         }
       }
     }
@@ -712,13 +712,16 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
       }
     }
 
+    def isSubset[A](a: Seq[A], b: Seq[A]): Boolean =
+      a.toSet.intersect(b.toSet) === a.toSet
+
     "change duty types for reimbursement with a new valid set" in {
       forAll(completeJourneyGen, dutyTypesGen) { (journey, newDutyTypes) =>
         val result = journey
           .selectAndReplaceDutyTypeSetForReimbursement(newDutyTypes)
           .getOrFail
         result.getSelectedDutyTypes.get       shouldBe newDutyTypes
-        result.hasCompleteReimbursementClaims shouldBe (newDutyTypes === journey.getSelectedDutyTypes.get)
+        result.hasCompleteReimbursementClaims shouldBe isSubset(newDutyTypes, journey.getSelectedDutyTypes.get)
       }
     }
 
@@ -754,10 +757,12 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
 
     "submit valid amounts for selected duty types and tax codes" in {
       forAll(dutyTypesWithTaxCodesWithClaimAmountsGen) { data =>
-        val dutyTypes: Seq[DutyType]                                    = data.map(_._1)
-        val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]        = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
-        val taxCodesWithAmounts: Seq[(TaxCode, BigDecimal, BigDecimal)] = data.flatMap(_._2)
-        val expectedTotalReimbursementAmount                            = taxCodesWithAmounts.map(_._2).sum
+        val dutyTypes: Seq[DutyType]                                              = data.map(_._1)
+        val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                  = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
+        val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap { case (dt, tca) =>
+          tca.map { case (tc, ra, pa) => (dt, tc, ra, pa) }
+        }
+        val expectedTotalReimbursementAmount                                      = taxCodesWithAmounts.map(_._3).sum
 
         val journey = RejectedGoodsScheduledJourney
           .empty(exampleEori)
@@ -768,18 +773,19 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
           )
           .flatMapEach(
             taxCodesWithAmounts,
-            j => (d: (TaxCode, BigDecimal, BigDecimal)) => j.submitAmountForReimbursement(d._1, d._2, d._3)
+            j =>
+              (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitAmountForReimbursement(d._1, d._2, d._3, d._4)
           )
           .getOrFail
 
-        journey.getSelectedDutyTypes        shouldBe Some(dutyTypes)
+        journey.getSelectedDutyTypes                      shouldBe Some(dutyTypes)
         dutyTypesWithTaxCodes.foreach { case (dutyType, taxCodes) =>
           journey.getSelectedDutiesFor(dutyType).get shouldBe taxCodes
-          taxCodes.foreach(taxCode => journey.isDutySelected(taxCode))
-          TaxCodes.allExcept(taxCodes.toSet).foreach(taxCode => !journey.isDutySelected(taxCode))
+          taxCodes.foreach(taxCode => journey.isDutySelected(dutyType, taxCode))
+          TaxCodes.allExcept(taxCodes.toSet).foreach(taxCode => !journey.isDutySelected(dutyType, taxCode))
         }
-        journey.getReimbursementClaims.size shouldBe taxCodesWithAmounts.size
-        journey.getTotalReimbursementAmount shouldBe expectedTotalReimbursementAmount
+        journey.getReimbursementClaims.map(_._2.size).sum shouldBe taxCodesWithAmounts.size
+        journey.getTotalReimbursementAmount               shouldBe expectedTotalReimbursementAmount
       }
 
     }
@@ -907,7 +913,7 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00"), BigDecimal("2.00")))
+          .flatMap(_.submitAmountForReimbursement(DutyType.UkDuty, TaxCode.A00, BigDecimal("1.00"), BigDecimal("2.00")))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
