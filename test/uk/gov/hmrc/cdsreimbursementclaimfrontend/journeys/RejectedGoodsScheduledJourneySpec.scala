@@ -88,7 +88,8 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
         output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
         output.reimbursementMethod      shouldBe ReimbursementMethodAnswer.BankAccountTransfer
         output.reimbursementClaims      shouldBe journey.getReimbursementClaims
-        output.supportingEvidences.size shouldBe journey.answers.supportingEvidences.size + 1
+        output.scheduledDocument        shouldBe EvidenceDocument.from(journey.answers.scheduledDocument.get)
+        output.supportingEvidences.size shouldBe journey.answers.supportingEvidences.size
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
       }

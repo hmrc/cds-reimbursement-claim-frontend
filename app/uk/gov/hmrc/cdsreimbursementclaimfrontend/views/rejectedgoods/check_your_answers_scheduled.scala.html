@@ -48,6 +48,9 @@
     @pageHeading(messages(combine(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.WorkInProgressController.show())))
 
+    @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"$key.scheduled-document",Some(routes.WorkInProgressController.show())))
+
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
@@ -71,7 +74,7 @@
     @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey, routes.WorkInProgressController.show()))
     
     @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        
+    @summary(ReimbursementsClaimsSummary.scheduledForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.WorkInProgressController.show())))    
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.WorkInProgressController.show(), routes.WorkInProgressController.show()))

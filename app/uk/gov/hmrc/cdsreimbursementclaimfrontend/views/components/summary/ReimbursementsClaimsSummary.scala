@@ -24,6 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 object ReimbursementsClaimsSummary {
 
@@ -162,6 +164,60 @@ object ReimbursementsClaimsSummary {
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.multiple.total"))
+                  )
+                )
+              )
+            )
+          )
+        )
+    )
+  }
+
+  def scheduledForCYA(
+    reimbursementClaims: Map[DutyType, Map[TaxCode, Reimbursement]],
+    key: String,
+    changeCallOpt: Option[Call] = None
+  )(implicit
+    messages: Messages
+  ): SummaryList = {
+
+    val amountsPerDutyType: Seq[(DutyType, BigDecimal)] =
+      reimbursementClaims.mapValues(_.values.map(_.shouldOfPaid).sum).toSeq
+
+    val totalAmount: BigDecimal =
+      reimbursementClaims.flatMap(_._2.values.map(_.shouldOfPaid)).sum
+
+    SummaryList(rows =
+      amountsPerDutyType
+        .map { case (dutyType, amount) =>
+          SummaryListRow(
+            key = Key(Text(messages(s"duty-type.${dutyType.repr}"))),
+            value = Value(Text(amount.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"duty-type..${dutyType.repr}"))
+                  )
+                )
+              )
+            ),
+            classes = "summary-key-duty-type"
+          )
+        } ++
+        Seq(
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.scheduled.total"))),
+            value = Value(Text(totalAmount.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.scheduled.total"))
                   )
                 )
               )
