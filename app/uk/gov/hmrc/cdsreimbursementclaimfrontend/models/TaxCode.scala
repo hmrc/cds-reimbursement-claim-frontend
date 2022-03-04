@@ -109,7 +109,13 @@ object TaxCode {
   case object NI99C extends TaxCode("99C")
   case object NI99D extends TaxCode("99D")
 
-  implicit val taxCodeEq: Eq[TaxCode] = Eq.fromUniversalEquals[TaxCode]
-
+  implicit val taxCodeEq: Eq[TaxCode]         = Eq.fromUniversalEquals[TaxCode]
   implicit val taxCodeFormat: Format[TaxCode] = SimpleStringFormat(TaxCode(_), _.value)
+
+  implicit val ordering: Ordering[TaxCode] =
+    Ordering.fromLessThan { (t1: TaxCode, t2: TaxCode) =>
+      val a = if (t1.value.head.isLetter) "0" + t1.value else t1.value
+      val b = if (t2.value.head.isLetter) "0" + t2.value else t2.value
+      implicitly[Ordering[String]].lt(a, b)
+    }
 }

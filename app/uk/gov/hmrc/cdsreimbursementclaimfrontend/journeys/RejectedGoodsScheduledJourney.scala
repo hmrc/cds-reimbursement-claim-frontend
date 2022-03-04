@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
-import scala.collection.immutable.ListMap
+import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 scheduled MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -102,17 +102,17 @@ final class RejectedGoodsScheduledJourney private (
 
   def getReimbursementClaimsFor(
     dutyType: DutyType
-  ): Option[Map[TaxCode, Option[Reimbursement]]] =
+  ): Option[SortedMap[TaxCode, Option[Reimbursement]]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
-  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean      =
+  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean                  =
     answers.reimbursementClaims
       .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
-  def getReimbursementClaims: Map[DutyType, Map[TaxCode, Reimbursement]] =
+  def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]] =
     answers.reimbursementClaims
       .map(_.mapValues(_.collect { case (tc, Some(r)) => (tc, r) }))
-      .getOrElse(Map.empty)
+      .getOrElse(SortedMap.empty)
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.shouldOfPaid)).sum
@@ -254,10 +254,14 @@ final class RejectedGoodsScheduledJourney private (
       if (dutyTypes.isEmpty)
         Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
       else {
-        val newReimbursementClaims = ListMap(
-          dutyTypes
-            .map(dutyType => (dutyType -> getReimbursementClaimsFor(dutyType).getOrElse(Map.empty))): _*
-        )
+        val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[Reimbursement]]] =
+          SortedMap(
+            dutyTypes
+              .map(dutyType =>
+                (dutyType -> getReimbursementClaimsFor(dutyType)
+                  .getOrElse(SortedMap.empty[TaxCode, Option[Reimbursement]]))
+              ): _*
+          )
         Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
       }
     }
@@ -277,9 +281,9 @@ final class RejectedGoodsScheduledJourney private (
           val newReimbursementClaims =
             answers.reimbursementClaims
               .map { rc =>
-                ListMap(rc.toSeq.map {
+                SortedMap(rc.toSeq.map {
                   case (dt, reimbursementClaims) if dt.repr === dutyType.repr =>
-                    dt -> ListMap(taxCodes.map { tc =>
+                    dt -> SortedMap(taxCodes.map { tc =>
                       tc -> reimbursementClaims.get(tc).flatten
                     }: _*)
                   case other                                                  => other
@@ -307,9 +311,9 @@ final class RejectedGoodsScheduledJourney private (
             val newReimbursementClaims =
               answers.reimbursementClaims
                 .map(rc =>
-                  ListMap(rc.toSeq.map {
+                  SortedMap(rc.toSeq.map {
                     case (dt, reimbursementClaims) if dt === dutyType =>
-                      dt -> ListMap(reimbursementClaims.toSeq.map {
+                      dt -> SortedMap(reimbursementClaims.toSeq.map {
                         case (tc, _) if tc === taxCode =>
                           tc -> Some(Reimbursement(paidAmount, reimbursementAmount))
                         case other                     => other
@@ -478,7 +482,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
   def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
     new RejectedGoodsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
-  type ReimbursementClaims = Map[DutyType, Map[TaxCode, Option[Reimbursement]]]
+  type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[Reimbursement]]]
 
   // All user answers captured during C&E1179 scheduled MRN journey
   final case class Answers(
@@ -516,7 +520,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
     detailsOfRejectedGoods: String,
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
-    reimbursementClaims: Map[DutyType, Map[TaxCode, Reimbursement]],
+    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]],
     reimbursementMethod: ReimbursementMethodAnswer,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
@@ -614,11 +618,11 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
 
     implicit lazy val dutyFormat = DutyType.simpleDutyTypeFormat
 
-    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[Reimbursement]]] =
-      MapFormat.formatWithOptionalValue[TaxCode, Reimbursement]
+    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, Option[Reimbursement]]] =
+      MapFormat.formatSortedWithOptionalValue[TaxCode, Reimbursement]
 
     implicit lazy val mapFormat2: Format[ReimbursementClaims] =
-      MapFormat.format[DutyType, Map[TaxCode, Option[Reimbursement]]]
+      MapFormat.formatSorted[DutyType, SortedMap[TaxCode, Option[Reimbursement]]]
 
     implicit lazy val mapFormat3: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
       MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
@@ -631,11 +635,11 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
 
     implicit lazy val dutyFormat = DutyType.simpleDutyTypeFormat
 
-    implicit lazy val mapFormat1: Format[Map[TaxCode, Reimbursement]] =
-      MapFormat.format[TaxCode, Reimbursement]
+    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, Reimbursement]] =
+      MapFormat.formatSorted[TaxCode, Reimbursement]
 
-    implicit lazy val mapFormat2: Format[Map[DutyType, Map[TaxCode, Reimbursement]]] =
-      MapFormat.format[DutyType, Map[TaxCode, Reimbursement]]
+    implicit lazy val mapFormat2: Format[SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]] =
+      MapFormat.formatSorted[DutyType, SortedMap[TaxCode, Reimbursement]]
 
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
