@@ -199,7 +199,7 @@ object ReimbursementsClaimsSummary {
                   ActionItem(
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"duty-type..${dutyType.repr}"))
+                    visuallyHiddenText = Some(messages(s"duty-type.${dutyType.repr}"))
                   )
                 )
               )
