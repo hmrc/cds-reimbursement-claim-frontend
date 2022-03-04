@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmulti
 
 import cats.data.EitherT
 import cats.implicits._
+import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
@@ -88,6 +89,9 @@ class EnterBankAccountDetailsControllerSpec
       .expects(bankAccountDetails, postCode, *)
       .returning(EitherT.fromEither[Future](response))
       .once()
+
+  private def getInputBoxValue(doc: Document, inputBoxSubKey: String): Option[String] =
+    selectedInputBox(doc, s"enter-bank-details.$inputBoxSubKey")
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -268,14 +272,40 @@ class EnterBankAccountDetailsControllerSpec
           )
         }
 
-        "show the bank account details page if the sort code is anything other than yes or no" in forAll(
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is an Error" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode)
+        ) { (bankAccountDetails, postCode) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(ReputationResponse.Error),
+            otherError = None
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error")
+              getInputBoxValue(doc, "account-name")   shouldBe Some(bankAccountDetails.accountName.value)
+              getInputBoxValue(doc, "sort-code")      shouldBe Some(bankAccountDetails.sortCode.value)
+              getInputBoxValue(doc, "account-number") shouldBe Some(bankAccountDetails.accountNumber.value)
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is No or Indeterminate" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Inapplicable, Indeterminate, ReputationResponse.Error),
-          genReputationResponse
-        ) { (bankAccountDetails, postCode, sortCodeResponse, accountResponse) =>
+          Gen.oneOf(No, Indeterminate)
+        ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
-            accountNumberWithSortCodeIsValid = sortCodeResponse,
+            accountNumberWithSortCodeIsValid = Yes,
             accountExists = Some(accountResponse),
             otherError = None
           )
@@ -287,7 +317,69 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is a No or Error" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.oneOf(No, ReputationResponse.Error),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, accountWithSortCodeResponse, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = accountWithSortCodeResponse,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Indeterminate" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Indeterminate,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
             BAD_REQUEST
           )
         }
@@ -407,19 +499,51 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
             BAD_REQUEST
           )
         }
 
-        "show the bank account details page if the sort code is anything other than yes or no" in forAll(
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is an Error" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Inapplicable, Indeterminate, ReputationResponse.Error),
-          genReputationResponse
-        ) { (bankAccountDetails, postCode, sortCodeResponse, accountResponse) =>
+          Gen.oneOf(Seq(Yes))
+        ) { (bankAccountDetails, postCode, accountWithSortCodeResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
-            accountNumberWithSortCodeIsValid = sortCodeResponse,
+            accountNumberWithSortCodeIsValid = accountWithSortCodeResponse,
+            accountExists = Some(ReputationResponse.Error),
+            otherError = None
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error")
+              getInputBoxValue(doc, "account-name")   shouldBe Some(bankAccountDetails.accountName.value)
+              getInputBoxValue(doc, "sort-code")      shouldBe Some(bankAccountDetails.sortCode.value)
+              getInputBoxValue(doc, "account-number") shouldBe Some(bankAccountDetails.accountNumber.value)
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is No or Indeterminate" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.oneOf(No, Indeterminate)
+        ) { (bankAccountDetails, postCode, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
             accountExists = Some(accountResponse),
             otherError = None
           )
@@ -431,7 +555,69 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is No or Error" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.oneOf(No, ReputationResponse.Error),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, accountNumberWithSortCodeResponse, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = accountNumberWithSortCodeResponse,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Indeterminate" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Indeterminate,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
             BAD_REQUEST
           )
         }
