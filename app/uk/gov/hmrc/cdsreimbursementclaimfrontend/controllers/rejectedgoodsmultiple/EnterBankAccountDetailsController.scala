@@ -32,8 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
@@ -65,31 +64,59 @@ class EnterBankAccountDetailsController @Inject() (
     reputation: BankAccountReputation
   )(implicit request: Request[_]): Result =
     reputation match {
-      case BankAccountReputation(_, _, Some(errorResponse))                             =>
-        val form = enterBankDetailsForm
-          .fill(bankAccountDetails)
-          .withError("enter-bank-details", s"error.${errorResponse.code}")
-        BadRequest(enterBankAccountDetailsPage(form, postAction))
-      case BankAccountReputation(No, _, None)                                           =>
-        val form = enterBankDetailsForm
-          .fill(bankAccountDetails)
-          .withError("enter-bank-details", "error.moc-check-no")
-        BadRequest(enterBankAccountDetailsPage(form, postAction))
-      case BankAccountReputation(sortCodeResponse, _, None) if sortCodeResponse =!= Yes =>
-        val form = enterBankDetailsForm
-          .fill(bankAccountDetails)
-          .withError("enter-bank-details", "error.moc-check-failed")
-        BadRequest(enterBankAccountDetailsPage(form, postAction))
-      case BankAccountReputation(_, Some(ReputationResponse.Error), None)               =>
-        val form = enterBankDetailsForm
-          .fill(bankAccountDetails)
-          .withError("enter-bank-details", "error.account-exists-error")
-        BadRequest(enterBankAccountDetailsPage(form, postAction))
-      case _                                                                            =>
-        val form = enterBankDetailsForm
-          .fill(bankAccountDetails)
-          .withError("enter-bank-details", "error.account-does-not-exist")
-        BadRequest(enterBankAccountDetailsPage(form, postAction))
+      case BankAccountReputation(_, _, Some(errorResponse))                                                   =>
+        BadRequest(
+          enterBankAccountDetailsPage(
+            enterBankDetailsForm
+              .fill(bankAccountDetails)
+              .withError("enter-bank-details", s"error.${errorResponse.code}"),
+            postAction
+          )
+        )
+      case BankAccountReputation(Yes, Some(ReputationResponseError), None)                                    =>
+        BadRequest(
+          enterBankAccountDetailsPage(
+            enterBankDetailsForm
+              .fill(bankAccountDetails)
+              .withError("enter-bank-details", "error.account-exists-error"),
+            postAction
+          )
+        )
+      case BankAccountReputation(Yes, Some(No), None) | BankAccountReputation(Yes, Some(Indeterminate), None) =>
+        BadRequest(
+          enterBankAccountDetailsPage(
+            enterBankDetailsForm
+              .withError("enter-bank-details", "error.account-does-not-exist"),
+            postAction
+          )
+        )
+      case BankAccountReputation(No, _, None) | BankAccountReputation(ReputationResponseError, _, None)       =>
+        BadRequest(
+          enterBankAccountDetailsPage(
+            enterBankDetailsForm
+              .withError("enter-bank-details", "error.moc-check-no"),
+            postAction
+          )
+        )
+      case BankAccountReputation(Indeterminate, _, None)                                                      =>
+        BadRequest(
+          enterBankAccountDetailsPage(
+            enterBankDetailsForm
+              .withError("enter-bank-details", "error.moc-check-failed"),
+            postAction
+          )
+        )
+
+      case default: BankAccountReputation =>
+        logger.info(s"Reached default case - response: [$default]")
+        BadRequest(
+          enterBankAccountDetailsPage(
+            enterBankDetailsForm
+              .fill(bankAccountDetails)
+              .withError("enter-bank-details", "error.account-does-not-exist"),
+            postAction
+          )
+        )
     }
 
   def checkBankAccountReputation(
@@ -124,7 +151,7 @@ class EnterBankAccountDetailsController @Inject() (
                   .submitBankAccountDetails(bankAccountDetails)
                   .fold(
                     error => {
-                      logger.warn(s"cannot submit bank accout details because of $error")
+                      logger.warn(s"cannot submit bank account details because of $error")
                       (
                         journey,
                         Redirect(routes.EnterBankAccountDetailsController.show())
