@@ -36,13 +36,13 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
     for {
       n   <- Gen.choose(1, DutyTypes.all.size - 1)
       dts <- Gen.pick(n, DutyTypes.all)
-    } yield dts
+    } yield dts.sorted
 
   def taxCodesGen(dutyType: DutyType): Gen[Seq[TaxCode]] =
     for {
       n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
       tcs <- Gen.pick(n, dutyType.taxCodes)
-    } yield tcs
+    } yield tcs.sorted
 
   val dutyTypesWithTaxCodesGen: Gen[Seq[(DutyType, Seq[TaxCode])]] = dutyTypesGen.flatMap(dutyTypes =>
     Gen.sequence[Seq[(DutyType, Seq[TaxCode])], (DutyType, Seq[TaxCode])](
@@ -50,7 +50,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
         for {
           n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
           tcs <- Gen.pick(n, dutyType.taxCodes)
-        } yield (dutyType, tcs)
+        } yield (dutyType, tcs.sorted)
       )
     )
   )
@@ -62,7 +62,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
       n       <- Gen.choose(1, dutyType.taxCodes.size - 1)
       tcs     <- Gen.pick(n, dutyType.taxCodes)
       amounts <- Gen.sequence[Seq[TaxCodeWithAmounts], TaxCodeWithAmounts](
-                   tcs.map(tc =>
+                   tcs.sorted.map(tc =>
                      Gen
                        .choose[BigDecimal](BigDecimal("0.01"), BigDecimal("1000.00"))
                        .flatMap(pa =>

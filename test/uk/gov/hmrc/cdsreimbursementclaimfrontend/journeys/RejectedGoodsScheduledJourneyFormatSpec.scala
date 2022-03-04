@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 import RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import scala.collection.immutable.SortedMap
 
 class RejectedGoodsScheduledJourneyFormatSpec
     extends AnyWordSpec
@@ -48,12 +49,12 @@ class RejectedGoodsScheduledJourneyFormatSpec
         Answers(
           userEoriNumber = exampleEori,
           reimbursementClaims = Some(
-            Map(
-              DutyType.UkDuty -> (Map(
+            SortedMap(
+              DutyType.UkDuty -> (SortedMap(
                 TaxCode.A00 -> Some(Reimbursement(BigDecimal("21.00"), BigDecimal("12.99"))),
                 TaxCode.A40 -> None
               )),
-              DutyType.EuDuty -> (Map(
+              DutyType.EuDuty -> (SortedMap(
                 TaxCode.A50 -> Some(Reimbursement(BigDecimal("12.99"), BigDecimal("1.01"))),
                 TaxCode.A70 -> None
               ))
@@ -62,7 +63,7 @@ class RejectedGoodsScheduledJourneyFormatSpec
         )
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map()))
+        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(SortedMap()))
       )
 
       validateCanReadAndWriteJson(
