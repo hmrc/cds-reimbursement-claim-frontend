@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType._
 
 object DutyTypes {
 
-  val custom: Seq[DutyType] = List(UkDuty, EuDuty)
+  val custom: Seq[DutyType] = List(UkDuty, EuDuty).sorted
 
   val excise: Seq[DutyType] = List(
     Beer,
@@ -35,7 +35,7 @@ object DutyTypes {
     MiscellaneousRoadFuels,
     Tobacco,
     ClimateChangeLevy
-  )
+  ).sorted
 
   val all: Seq[DutyType] = custom ++ excise
 
