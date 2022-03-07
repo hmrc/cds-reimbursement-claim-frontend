@@ -73,6 +73,7 @@ object ClaimantDetailsSummary
       Some(Paragraph(contactAddress.line1)),
       contactAddress.line2.map(Paragraph(_)),
       contactAddress.line3.map(Paragraph(_)),
+      Some(Paragraph(contactAddress.line4)),
       Some(Paragraph(contactAddress.postcode)),
       Some(Paragraph(messages(s"country.${contactAddress.country.code}")))
     ).flattenOption
