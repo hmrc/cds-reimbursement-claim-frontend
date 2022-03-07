@@ -462,8 +462,8 @@ final class RejectedGoodsScheduledJourney private (
           inspectionDate = inspectionDate,
           inspectionAddress = inspectionAddress,
           reimbursementClaims = getReimbursementClaims,
-          supportingEvidences =
-            EvidenceDocument.from(scheduledDocument) +: supportingEvidences.map(EvidenceDocument.from),
+          scheduledDocument = EvidenceDocument.from(scheduledDocument),
+          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod = ReimbursementMethodAnswer.BankAccountTransfer,
           bankAccountDetails = answers.bankAccountDetails
@@ -523,6 +523,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
     reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]],
     reimbursementMethod: ReimbursementMethodAnswer,
     bankAccountDetails: Option[BankAccountDetails],
+    scheduledDocument: EvidenceDocument,
     supportingEvidences: Seq[EvidenceDocument]
   )
 
