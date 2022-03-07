@@ -22,6 +22,7 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
 
 class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks {
 
@@ -52,6 +53,88 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
     "Reject way too long Eori" in forAll(Gen.listOfN(17, Gen.numChar)) { ending =>
       val errors = form.bind(Map(eoriNumber -> s"GB${ending.mkString}")).errors
       errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+    }
+  }
+
+  "Enter Inspection Date Form" must {
+    val form = enterInspectionDateForm
+
+    val dateOfInspectionDay   = "enter-inspection-date.rejected-goods.day"
+    val dateOfInspectionMonth = "enter-inspection-date.rejected-goods.month"
+    val dateOfInspectionYear  = "enter-inspection-date.rejected-goods.year"
+
+    val goodData = Map(
+      dateOfInspectionDay   -> "20",
+      dateOfInspectionMonth -> "3",
+      dateOfInspectionYear  -> "1987"
+    )
+
+    "accept a valid date" in {
+      val errors = form.bind(goodData).errors
+      errors shouldBe Nil
+    }
+
+    "Day of Inspection" should {
+      "Reject days too big" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionDay, "32")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+      "Reject days too small" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionDay, "0")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+      "Reject valid days in 3 digits" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionDay, "015")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+      "Reject days with chars" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionDay, "Ab")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+    }
+
+    "Month of Inspection" should {
+      "Reject months too big" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionMonth, "13")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+      "Reject months too small" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionMonth, "0")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+      "Reject valid months in 3 digits" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionMonth, "012")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+      "Reject months with chars" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionMonth, "Ja")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+    }
+
+    "Year of Inspection" should {
+      "Reject years too early" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionYear, "1899")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.before1900")
+      }
+
+      "Reject 3 digits" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionYear, "202")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
+      "Reject years with chars" in {
+        val errors = form.bind(goodData.updated(dateOfInspectionYear, "202a")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+      }
+
     }
   }
 }

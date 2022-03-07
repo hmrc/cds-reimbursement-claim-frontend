@@ -23,7 +23,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
-/** routes.ScheduleOfMrnDocumentController.review() */
 object ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
 
   override def render(
@@ -34,11 +33,20 @@ object ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
   )(implicit
     messages: Messages
   ): SummaryList =
+    apply(answer.uploadDocument.fileName, key, changeCallOpt)
+
+  def apply(
+    fileName: String,
+    key: String,
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
+  ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.label"))),
-          value = Value(Text(answer.uploadDocument.fileName)),
+          value = Value(Text(fileName)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(

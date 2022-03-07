@@ -93,6 +93,9 @@ object TaxCodes {
 
   val all: Seq[TaxCode] = UK ++ EU ++ excise
 
+  def allExcept(taxCodes: Set[TaxCode]): Seq[TaxCode] =
+    all.filterNot(taxCodes.contains)
+
   private[models] val taxCodesStringMap: Map[String, TaxCode] =
     all.map(a => a.value -> a).toMap
 
@@ -104,4 +107,5 @@ object TaxCodes {
 
   def findUnsafe(taxCode: String): TaxCode =
     taxCodesStringMap(taxCode)
+
 }
