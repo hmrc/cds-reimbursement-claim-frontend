@@ -33,11 +33,6 @@ import RejectedGoods.ValidationErrors._
 
 class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
-  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 100)
-
-  implicit def noShrink[A]: Shrink[A] = Shrink.shrinkAny
-
   "RejectedGoodsScheduledJourney" should {
     "have an empty instance" in {
       emptyJourney.answers.userEoriNumber                   shouldBe exampleEori
