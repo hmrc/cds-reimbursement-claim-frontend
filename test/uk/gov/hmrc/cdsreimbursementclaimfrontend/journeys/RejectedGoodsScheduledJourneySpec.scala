@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.data.Validated
 import org.scalacheck.Gen
-import org.scalacheck.Shrink
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -32,6 +31,9 @@ import RejectedGoodsScheduledJourneyGenerators._
 import RejectedGoods.ValidationErrors._
 
 class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 100)
 
   "RejectedGoodsScheduledJourney" should {
     "have an empty instance" in {
