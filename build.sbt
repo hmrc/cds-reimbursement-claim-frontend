@@ -96,6 +96,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(Compile / doc / sources := Seq.empty)
   .settings(scalacOptions --= Seq("-Xfatal-warnings"))
   .settings(Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"))
+  .settings(Test / envVars := Map("SCALACTIC_FILL_FILE_PATHNAMES" -> "yes"))
 
 lazy val welshTranslation = taskKey[Unit]("Generate Welsh Translations'")
 
