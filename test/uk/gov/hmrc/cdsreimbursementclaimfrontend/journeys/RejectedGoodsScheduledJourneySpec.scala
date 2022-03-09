@@ -912,10 +912,14 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
     "reject change to invalid amount for valid selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, Reimbursement(pa, ra)) =>
-            val result =
-              journey.submitAmountForReimbursement(dutyType, taxCode, pa, ra) //swaped amounts
-            result shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+          tca.foreach { case (taxCode, Reimbursement(pa, _)) =>
+            val result1 =
+              journey.submitAmountForReimbursement(dutyType, taxCode, pa + 0.01, pa)
+            result1 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+
+            val result2 =
+              journey.submitAmountForReimbursement(dutyType, taxCode, 0, pa)
+            result2 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
           }
         }
       }
