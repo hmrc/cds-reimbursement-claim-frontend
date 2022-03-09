@@ -47,7 +47,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   val subKey: Some[String] = Some("multiple")
 
-  def showFirst(): Action[AnyContent] = show(1) // For lead MRN
+  def showFirst(): Action[AnyContent] = show(1)
 
   def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     (if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
@@ -133,13 +133,12 @@ class EnterMovementReferenceNumberController @Inject() (
     )
 
   private def redirectLocation(journey: RejectedGoodsMultipleJourney, pageIndex: Int): Result =
-    if (journey.needsDeclarantAndConsigneeEoriSubmission) {
+    if (journey.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex)) {
       Redirect(routes.EnterImporterEoriNumberController.show())
     } else {
       Redirect(
         if (pageIndex === 1) routes.CheckDeclarationDetailsController.show()
-        else
-          routes.CheckMovementReferenceNumbersController.show()
+        else routes.CheckMovementReferenceNumbersController.show()
       )
     }
 }
