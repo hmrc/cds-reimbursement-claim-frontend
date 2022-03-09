@@ -45,6 +45,7 @@ final case class ClaimantInformation(
       contactInformation.addressLine1,
       contactInformation.addressLine2,
       contactInformation.addressLine3,
+      contactInformation.city,
       contactInformation.postalCode,
       contactInformation.countryCode
     )

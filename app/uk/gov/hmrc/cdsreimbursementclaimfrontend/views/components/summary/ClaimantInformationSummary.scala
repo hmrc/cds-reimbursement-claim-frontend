@@ -64,6 +64,7 @@ object ClaimantInformationSummary {
       contactInformation.addressLine1.map(Paragraph(_)),
       contactInformation.addressLine2.map(Paragraph(_)),
       contactInformation.addressLine3.map(Paragraph(_)),
+      contactInformation.city.map(Paragraph(_)),
       contactInformation.postalCode.map(Paragraph(_)),
       contactInformation.countryCode.map(Paragraph(_))
     ).flattenOption
