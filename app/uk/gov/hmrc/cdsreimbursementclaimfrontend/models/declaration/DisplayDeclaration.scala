@@ -77,7 +77,7 @@ final case class DisplayDeclaration(
 
   def hasSameEoriAs(other: DisplayDeclaration): Boolean =
     this.getDeclarantEori === other.getDeclarantEori ||
-      this.getConsigneeEori.map(eori => other.getConsigneeEori.contains(eori)).getOrElse(false)
+      this.getConsigneeEori.exists(eori => other.getConsigneeEori.contains(eori))
 
 }
 

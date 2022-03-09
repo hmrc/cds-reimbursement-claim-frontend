@@ -67,6 +67,7 @@ trait JourneyTestData {
   val exampleEoriAsString: String = exampleEori.value
 
   val exampleMrn: MRN            = IdGen.genMRN.sample.get
+  val anotherExampleMrn: MRN     = IdGen.genMRN.sample.get
   val exampleMrnAsString: String = exampleMrn.value
 
   val uploadDocument = buildUploadDocument("foo")

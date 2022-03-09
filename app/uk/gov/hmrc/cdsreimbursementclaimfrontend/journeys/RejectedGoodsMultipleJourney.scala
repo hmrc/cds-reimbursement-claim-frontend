@@ -53,7 +53,7 @@ import java.time.LocalDate
   * The journey uses two nested case classes:
   *
   *  - [[RejectedGoodsMultipleJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[RejectedGoodsMultipleJourney.Outcome]] - final outcome of the journey to be sent to backend processing
+  *  - [[RejectedGoodsMultipleJourney.Output]] - final outcome of the journey to be sent to backend processing
   */
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
@@ -119,6 +119,9 @@ final class RejectedGoodsMultipleJourney private (
   def needsBanksAccountDetailsSubmission: Boolean =
     true
 
+  def needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex: Int): Boolean =
+    if (pageIndex === 1) needsDeclarantAndConsigneeEoriSubmission else false
+
   def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
 
@@ -129,7 +132,7 @@ final class RejectedGoodsMultipleJourney private (
     * or None if either MRN or tax code not found.
     */
   def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
-    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply(_))
+    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply)
 
   /** If the user has selected the tax code for repayment
     * then returns the amount paid for the given MRN and tax code as returned by ACC14,
@@ -187,7 +190,7 @@ final class RejectedGoodsMultipleJourney private (
     getReimbursementClaimsFor(mrn).map(_.map(_._2.getOrElse(ZERO)).sum)
 
   def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.values.flatMap(_.map(_._2)).sum
+    getReimbursementClaims.values.flatMap(_.values).sum
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
     new RejectedGoodsMultipleJourney(answers.copy(dutiesChangeMode = enabled))
