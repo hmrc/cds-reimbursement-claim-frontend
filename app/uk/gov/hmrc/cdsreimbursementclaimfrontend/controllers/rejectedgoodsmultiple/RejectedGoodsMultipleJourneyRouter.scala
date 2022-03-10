@@ -31,7 +31,7 @@ trait RejectedGoodsMultipleJourneyRouter {
       case MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER                 => undefined //routes.EnterMovementReferenceNumberController.show()
       case MISSING_DISPLAY_DECLARATION                              => undefined //routes.EnterMovementReferenceNumberController.show()
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show()
-      case MISSING_DETAILS_OF_REJECTED_GOODS                        => undefined
+      case MISSING_DETAILS_OF_REJECTED_GOODS                        => routes.EnterRejectedGoodsDetailsController.show()
       case MISSING_INSPECTION_DATE                                  => undefined
       case MISSING_INSPECTION_ADDRESS                               => undefined
       case MISSING_METHOD_OF_DISPOSAL                               => routes.DisposalMethodController.show()
