@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoods.ValidationErrors._
 
 trait RejectedGoodsMultipleJourneyRouter {
@@ -47,7 +48,7 @@ trait RejectedGoodsMultipleJourneyRouter {
         undefined //routes.EnterImporterEoriNumberController.show()
       case DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
-      case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => undefined
+      case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => routes.CheckBankDetailsController.show()
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED     => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
