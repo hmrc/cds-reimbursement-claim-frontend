@@ -204,6 +204,18 @@ class ChooseInspectionAddressTypeControllerSpec
             }
           )
       }
+
+      "redirect to the address lookup page if no addresses present" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          showPage(),
+          routes.ChooseInspectionAddressTypeController.redirectToALF()
+        )
+      }
     }
 
     "handle submit request on new journey" when {
