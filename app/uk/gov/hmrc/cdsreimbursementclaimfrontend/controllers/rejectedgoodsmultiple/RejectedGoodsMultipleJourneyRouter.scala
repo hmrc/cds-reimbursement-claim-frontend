@@ -32,7 +32,7 @@ trait RejectedGoodsMultipleJourneyRouter {
       case MISSING_DISPLAY_DECLARATION                              => undefined //routes.EnterMovementReferenceNumberController.show()
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show()
       case MISSING_DETAILS_OF_REJECTED_GOODS                        => routes.EnterRejectedGoodsDetailsController.show()
-      case MISSING_INSPECTION_DATE                                  => undefined
+      case MISSING_INSPECTION_DATE                                  => routes.EnterInspectionDateController.show()
       case MISSING_INSPECTION_ADDRESS                               => undefined
       case MISSING_METHOD_OF_DISPOSAL                               => routes.DisposalMethodController.show()
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
