@@ -50,7 +50,12 @@ class ChooseInspectionAddressTypeController @Inject() (
   override val retrieveLookupAddress: Call  = routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(inspectionAddressPage(populateAddresses(journey), inspectionAddressTypeForm, postAction)).asFuture
+    populateAddresses(journey) match {
+      case List()    =>
+        Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF()).asFuture
+      case addresses =>
+        Ok(inspectionAddressPage(addresses, inspectionAddressTypeForm, postAction)).asFuture
+    }
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney(
