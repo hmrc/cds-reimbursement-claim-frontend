@@ -39,7 +39,7 @@ trait RejectedGoodsMultipleJourneyRouter {
       case INCOMPLETE_SUPPORTING_EVIDENCES                          => undefined //routes.ChooseFileTypeController.show()
       case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show()
       case MISSING_CONTACT_ADDRESS                                  => routes.CheckClaimantDetailsController.redirectToALF()
-      case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => undefined
+      case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => routes.CheckClaimDetailsController.show()
       case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined //routes.EnterDeclarantEoriNumberController.show()
       case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     =>
         undefined //routes.EnterDeclarantEoriNumberController.show()
