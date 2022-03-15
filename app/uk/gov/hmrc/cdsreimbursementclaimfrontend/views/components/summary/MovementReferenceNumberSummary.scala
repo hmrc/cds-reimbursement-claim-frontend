@@ -61,7 +61,7 @@ object MovementReferenceNumberSummary {
             Actions(
               items = Seq(
                 ActionItem(
-                  href = changeCallFx(index).url,
+                  href = changeCallFx(index + 1).url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(combine(key, subKey, "label"), OrdinalNumber.label(index)))
                 )
