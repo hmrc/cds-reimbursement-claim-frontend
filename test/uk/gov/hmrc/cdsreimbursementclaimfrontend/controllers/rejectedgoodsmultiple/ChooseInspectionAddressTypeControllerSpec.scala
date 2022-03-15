@@ -209,7 +209,7 @@ class ChooseInspectionAddressTypeControllerSpec
               doc.select("input[value=Other]").isEmpty     shouldBe false
               doc.select("input[value=Declarant]").isEmpty shouldBe false
               doc.select("input[value=Importer]").isEmpty  shouldBe false
-              selectedInput(doc)                           shouldBe Some("Hello")
+              isCheckboxChecked(doc, optionChosen.toString)          shouldBe true
             }
           )
       }
