@@ -54,7 +54,13 @@ class ChooseInspectionAddressTypeController @Inject() (
       case List()    =>
         Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF()).asFuture
       case addresses =>
-        Ok(inspectionAddressPage(addresses, inspectionAddressTypeForm, postAction)).asFuture
+        Ok(
+          inspectionAddressPage(
+            addresses,
+            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
+            postAction
+          )
+        ).asFuture
     }
   }
 
