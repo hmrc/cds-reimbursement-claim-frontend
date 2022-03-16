@@ -301,7 +301,7 @@ class ChooseInspectionAddressTypeControllerSpec
           val address               = optionChosen match {
             case Importer  =>
               inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
-            case Declarant =>
+            case _ =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
           val updatedJourney        = journey.submitInspectionAddress(address)

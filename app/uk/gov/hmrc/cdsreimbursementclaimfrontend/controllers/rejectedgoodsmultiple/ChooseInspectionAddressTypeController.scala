@@ -101,6 +101,7 @@ class ChooseInspectionAddressTypeController @Inject() (
       case Importer  => journey.getConsigneeContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
       case Declarant =>
         journey.getDeclarantContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
+      case Other     => None
     }
 
   private def populateAddresses(journey: RejectedGoodsMultipleJourney) = Seq(
