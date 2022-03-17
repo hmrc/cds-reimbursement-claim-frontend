@@ -62,6 +62,8 @@ GET          /rejected-goods/single/check-bank-details                          
 GET          /rejected-goods/single/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterBankAccountDetailsController.show()
 POST         /rejected-goods/single/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterBankAccountDetailsController.submit()
 
+GET         /rejected-goods/single/bank-account-verification-unavailable          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ServiceUnavailableController.show()
+
 GET          /rejected-goods/single/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseFileTypeController.show()
 POST         /rejected-goods/single/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseFileTypeController.submit()
 
