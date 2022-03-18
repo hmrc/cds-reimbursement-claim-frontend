@@ -69,7 +69,7 @@ class ServiceUnavailableControllerSpec
     rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
   )
 
-  "Select Tax Codes Controller" must {
+  "Service Unavailable Controller" must {
 
     def performAction(): Future[Result] = controller.show()(FakeRequest())
 
