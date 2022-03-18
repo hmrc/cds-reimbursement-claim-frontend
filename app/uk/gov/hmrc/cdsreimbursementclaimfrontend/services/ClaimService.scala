@@ -150,7 +150,7 @@ class DefaultClaimService @Inject() (
             response
               .parseJSON[ReputationErrorResponse]()
               .map(_.toCommonResponse())
-              .leftMap(Error(_, ("BAD REQUEST" -> "true")))
+              .leftMap(Error(_, BAD_REQUEST))
           case status: Int =>
             Left(
               Error(

@@ -65,8 +65,8 @@ class EnterBankAccountDetailsController @Inject() (
   )(implicit request: Request[_]): Future[Result] =
     reputation.fold(
       {
-        case error if error.identifiers.contains("BAD REQUEST") => Redirect(routes.ServiceUnavailableController.show())
-        case error                                              => logAndDisplayError("could not process bank account details: ")(errorHandler, request)(error)
+        case error if error.responseStatus === Some(BAD_REQUEST) => Redirect(routes.ServiceUnavailableController.show())
+        case error => logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error)
       },
       {
         case BankAccountReputation(Yes, Some(Yes), None)                                  =>

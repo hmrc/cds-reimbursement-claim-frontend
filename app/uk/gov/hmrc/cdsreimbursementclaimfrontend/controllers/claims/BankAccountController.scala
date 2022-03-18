@@ -141,10 +141,10 @@ class BankAccountController @Inject() (
                     }
                   } yield reputationResponse).fold(
                     {
-                      case e @ Error(_, Some(_: BadGatewayException), _) =>
+                      case e @ Error(_, Some(_: BadGatewayException), _, _) =>
                         logger warn ("could not contact bank account service: ", e)
                         Redirect(routes.ServiceUnavailableController.unavailable(journeyBindable))
-                      case e                                             =>
+                      case e                                                =>
                         logAndDisplayError("could not process bank account details: ")(errorHandler, request)(e)
                     },
                     reputationResponse =>

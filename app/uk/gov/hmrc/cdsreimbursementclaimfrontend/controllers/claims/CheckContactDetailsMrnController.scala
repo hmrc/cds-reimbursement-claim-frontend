@@ -194,7 +194,7 @@ class CheckContactDetailsMrnController @Inject() (
           .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
             {
-              case e @ Error(message, _, _)
+              case e @ Error(message, _, _, _)
                   if message.contains("/address/postcode: error.path.missing") ||
                     message.contains("/address/lines: error.minLength") =>
                 logger warn s"Error updating Address Lookup address: $e"

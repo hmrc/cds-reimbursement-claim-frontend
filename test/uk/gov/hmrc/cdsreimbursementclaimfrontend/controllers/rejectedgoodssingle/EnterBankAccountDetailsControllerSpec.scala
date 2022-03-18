@@ -55,7 +55,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.al
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.http.BadGatewayException
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -523,7 +522,7 @@ class EnterBankAccountDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockPersonalReputation(bankDetails, None, Left(Error("Boom!", ("BAD REQUEST" -> "true"))))
+          mockPersonalReputation(bankDetails, None, Left(Error("Boom!", BAD_REQUEST)))
           mockStoreSession(updatedSession)(Right(()))
         }
 
