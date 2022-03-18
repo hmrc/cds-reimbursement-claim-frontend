@@ -19,6 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import cats.data.EitherT
 import cats.implicits._
 import org.scalacheck.Gen
+import org.scalamock.handlers.CallHandler2
+import org.scalamock.handlers.CallHandler3
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -65,12 +67,12 @@ class EnterBankAccountDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach {
 
-  val mockClaimService = mock[ClaimService]
+  val mockClaimService: ClaimService = mock[ClaimService]
 
   def mockBusinessReputation(
     bankAccountDetails: BankAccountDetails,
     response: Either[Error, BankAccountReputation]
-  ) =
+  ): CallHandler2[BankAccountDetails, HeaderCarrier, EitherT[Future, Error, BankAccountReputation]] =
     (mockClaimService
       .getBusinessAccountReputation(_: BankAccountDetails)(_: HeaderCarrier))
       .expects(bankAccountDetails, *)
@@ -81,7 +83,7 @@ class EnterBankAccountDetailsControllerSpec
     bankAccountDetails: BankAccountDetails,
     postCode: Option[String],
     response: Either[Error, BankAccountReputation]
-  ) =
+  ): CallHandler3[BankAccountDetails, Option[String], HeaderCarrier, EitherT[Future, Error, BankAccountReputation]] =
     (mockClaimService
       .getPersonalAccountReputation(_: BankAccountDetails, _: Option[String])(_: HeaderCarrier))
       .expects(bankAccountDetails, postCode, *)
@@ -163,11 +165,12 @@ class EnterBankAccountDetailsControllerSpec
     }
 
     "validate bank account details" when {
+      implicit val journey: RejectedGoodsSingleJourney = completeJourneyNotCMAEligibleGen.sample.get
       "redirect to choose bank account type page if no bank account type present in session" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
         checkIsRedirect(
-          controller.validateBankAccountDetails(None, bankDetails, None),
+          controller.validateBankAccountDetails(None, bankDetails, None).map(_._2),
           routes.ChooseBankAccountTypeController.show()
         )
       }
@@ -189,7 +192,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankDetails, postCode),
+            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.show()
           )
         }
@@ -208,7 +211,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -231,7 +236,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
             BAD_REQUEST
@@ -254,7 +261,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
             BAD_REQUEST
@@ -278,7 +287,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
             BAD_REQUEST
@@ -301,7 +312,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Personal), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -328,7 +341,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankDetails, postCode),
+            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.show()
           )
         }
@@ -347,7 +360,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -370,7 +385,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
             BAD_REQUEST
@@ -393,7 +410,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
             BAD_REQUEST
@@ -417,7 +436,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
             BAD_REQUEST
@@ -440,7 +461,9 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkPageIsDisplayed(
-            controller.validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode),
+            controller
+              .validateBankAccountDetails(Some(BankAccountType.Business), bankAccountDetails, postCode)
+              .map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
@@ -489,13 +512,9 @@ class EnterBankAccountDetailsControllerSpec
         val initialJourney  = RejectedGoodsSingleJourney.empty(exampleEori)
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
 
-        val updatedJourney = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
