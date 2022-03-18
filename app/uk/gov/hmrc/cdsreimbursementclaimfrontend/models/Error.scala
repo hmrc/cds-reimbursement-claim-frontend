@@ -19,12 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdValue
 
-final case class Error(
-  message: String,
-  throwable: Option[Throwable],
-  identifiers: Map[IdKey, IdValue],
-  responseStatus: Option[Int] = None
-) {
+final case class Error(message: String, throwable: Option[Throwable], identifiers: Map[IdKey, IdValue]) {
 
   def toException: Exception = throwable match {
     case Some(t) => new Exception(message, t)
@@ -38,11 +33,7 @@ object Error {
   type IdKey   = String
   type IdValue = String
 
-  def apply(message: String, identifiers: (IdKey, IdValue)*): Error =
-    Error(message, None, identifiers.toMap)
-
-  def apply(message: String, responseStatus: Int): Error =
-    Error(message, None, Map.empty[IdKey, IdValue], Some(responseStatus))
+  def apply(message: String, identifiers: (IdKey, IdValue)*): Error = Error(message, None, identifiers.toMap)
 
   def apply(error: Throwable, identifiers: (IdKey, IdValue)*): Error =
     Error(error.getMessage, Some(error), identifiers.toMap)

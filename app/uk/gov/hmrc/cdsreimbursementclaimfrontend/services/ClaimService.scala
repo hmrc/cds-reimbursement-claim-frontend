@@ -45,8 +45,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -150,7 +152,7 @@ class DefaultClaimService @Inject() (
             response
               .parseJSON[ReputationErrorResponse]()
               .map(_.toCommonResponse())
-              .leftMap(Error(_, BAD_REQUEST))
+              .leftMap(msg => Error(new BadRequestException(msg)))
           case status: Int =>
             Left(
               Error(

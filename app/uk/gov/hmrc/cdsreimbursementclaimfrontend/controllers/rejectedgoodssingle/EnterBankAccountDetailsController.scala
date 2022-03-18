@@ -38,6 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.BadRequestException
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -65,8 +67,11 @@ class EnterBankAccountDetailsController @Inject() (
   )(implicit request: Request[_]): Future[Result] =
     reputation.fold(
       {
-        case error if error.responseStatus === Some(BAD_REQUEST) => Redirect(routes.ServiceUnavailableController.show())
-        case error => logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error)
+        case Error(_, Some(t: BadRequestException), _) =>
+          logger.warn("Could not contact bank account service: ", t)
+          Redirect(routes.ServiceUnavailableController.show())
+        case error                                     =>
+          logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error)
       },
       {
         case BankAccountReputation(Yes, Some(Yes), None)                                  =>
