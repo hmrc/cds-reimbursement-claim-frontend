@@ -48,7 +48,7 @@
             value = Some(addressType.toString),
             content = Text(address),
             hint = Some(Hint(content = Text(messages(s"$key.$addressType")))),
-            checked = form.data.exists(_._2 == InspectionAddressType.keyOf(addressType))
+            checked = form.data.exists(_._2 == s"$addressType")
         )
     }
 }
@@ -58,7 +58,7 @@
         id = Some(s"$key-radio-${InspectionAddressType.Other}"),
         value = Some(InspectionAddressType.Other.toString),
         content = Text(messages(s"$key.${InspectionAddressType.Other}")),
-        checked = form.data.exists(_._2 == InspectionAddressType.keyOf(InspectionAddressType.Other))
+        checked = form.data.exists(_._2 == "Other")
     ) :: Nil
 }
 

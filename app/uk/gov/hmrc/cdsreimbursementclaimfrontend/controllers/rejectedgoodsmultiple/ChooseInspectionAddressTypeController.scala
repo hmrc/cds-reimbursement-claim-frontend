@@ -54,7 +54,13 @@ class ChooseInspectionAddressTypeController @Inject() (
       case List()    =>
         Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF()).asFuture
       case addresses =>
-        Ok(inspectionAddressPage(addresses, inspectionAddressTypeForm, postAction)).asFuture
+        Ok(
+          inspectionAddressPage(
+            addresses,
+            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
+            postAction
+          )
+        ).asFuture
     }
   }
 
@@ -95,6 +101,7 @@ class ChooseInspectionAddressTypeController @Inject() (
       case Importer  => journey.getConsigneeContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
       case Declarant =>
         journey.getDeclarantContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
+      case Other     => None
     }
 
   private def populateAddresses(journey: RejectedGoodsMultipleJourney) = Seq(

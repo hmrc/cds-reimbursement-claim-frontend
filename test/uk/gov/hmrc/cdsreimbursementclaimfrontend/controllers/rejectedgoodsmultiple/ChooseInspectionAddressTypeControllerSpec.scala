@@ -173,6 +173,47 @@ class ChooseInspectionAddressTypeControllerSpec
           )
       }
 
+      "Show the page, with the existing value pre-selected, when the lead Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
+        (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
+          val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
+          val displayResponseDetail = displayDeclaration.displayResponseDetail
+            .copy(
+              consigneeDetails = Some(consignee),
+              declarantDetails = declarant
+            )
+          val journey               = session.rejectedGoodsMultipleJourney.get
+            .submitMovementReferenceNumberAndDeclaration(
+              0,
+              displayDeclaration.getMRN,
+              DisplayDeclaration(displayResponseDetail)
+            )
+            .getOrFail
+          val optionChosen          = Gen.oneOf(Seq(Importer, Declarant)).sample.get
+          val address               = optionChosen match {
+            case Importer  =>
+              inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
+            case Declarant =>
+              inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
+          }
+          val updatedJourney        = journey.submitInspectionAddress(address)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+          }
+
+          checkPageIsDisplayed(
+            showPage(),
+            messageFromMessageKey("inspection-address.type.title"),
+            doc => {
+              doc.select("input[value=Other]").isEmpty      shouldBe false
+              doc.select("input[value=Declarant]").isEmpty  shouldBe false
+              doc.select("input[value=Importer]").isEmpty   shouldBe false
+              isCheckboxChecked(doc, optionChosen.toString) shouldBe true
+            }
+          )
+      }
+
       "Show the page when the lead Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
         (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
           val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
@@ -260,7 +301,7 @@ class ChooseInspectionAddressTypeControllerSpec
           val address               = optionChosen match {
             case Importer  =>
               inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
-            case Declarant =>
+            case _ =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
           val updatedJourney        = journey.submitInspectionAddress(address)
