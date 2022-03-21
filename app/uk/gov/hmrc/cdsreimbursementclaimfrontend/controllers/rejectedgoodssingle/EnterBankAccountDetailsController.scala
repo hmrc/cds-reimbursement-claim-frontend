@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
@@ -39,6 +40,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.BadRequestException
+
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -66,7 +69,13 @@ class EnterBankAccountDetailsController @Inject() (
     reputation: EitherT[Future, Error, BankAccountReputation]
   )(implicit request: Request[_], journey: RejectedGoodsSingleJourney): Future[(RejectedGoodsSingleJourney, Result)] =
     reputation.fold(
-      error => (journey, logAndDisplayError("could not process bank account details: ")(errorHandler, request)(error)),
+      {
+        case Error(_, Some(t: BadRequestException), _) =>
+          logger.warn("Could not contact bank account service: ", t)
+          (journey, Redirect(rejectedGoodsRoutes.ServiceUnavailableController.show()))
+        case error                                     =>
+          (journey, logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error))
+      },
       {
         case BankAccountReputation(Yes, Some(Yes), None)                                  =>
           journey

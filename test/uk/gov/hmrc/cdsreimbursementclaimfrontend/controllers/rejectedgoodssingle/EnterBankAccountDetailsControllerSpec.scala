@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
@@ -57,7 +58,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.al
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -514,6 +517,35 @@ class EnterBankAccountDetailsControllerSpec
           routes.ChooseBankAccountTypeController.show()
         )
       }
+
+      "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
+        genBankAccountDetails
+      ) { bankDetails =>
+        val initialJourney  =
+          RejectedGoodsSingleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
+        val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+
+        val updatedJourney = initialJourney.submitBankAccountDetails(bankDetails)
+        val updatedSession = session.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(requiredSession)
+          mockPersonalReputation(bankDetails, None, Left(Error(new BadRequestException("Boom!"))))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(
+            s"${controller.formKey}.account-name"   -> bankDetails.accountName.value,
+            s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
+            s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
+          ),
+          rejectedGoodsRoutes.ServiceUnavailableController.show()
+        )
+
+      }
+
     }
   }
 
