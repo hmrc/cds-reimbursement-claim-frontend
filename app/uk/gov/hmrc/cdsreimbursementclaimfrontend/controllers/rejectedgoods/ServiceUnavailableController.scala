@@ -14,28 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
 class ServiceUnavailableController @Inject() (
-  val jcc: JourneyControllerComponents,
+  cc: MessagesControllerComponents,
   serviceUnavailablePage: pages.service_unavailable
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController
-    with Logging {
+)(implicit viewConfig: ViewConfig)
+    extends FrontendController(cc) {
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(serviceUnavailablePage()).asFuture
-  }
+  val show: Action[AnyContent] = Action(implicit request => Ok(serviceUnavailablePage()))
 }

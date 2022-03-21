@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
@@ -69,7 +70,7 @@ class EnterBankAccountDetailsController @Inject() (
       {
         case Error(_, Some(t: BadRequestException), _) =>
           logger.warn("Could not contact bank account service: ", t)
-          Redirect(routes.ServiceUnavailableController.show())
+          Redirect(rejectedGoodsRoutes.ServiceUnavailableController.show())
         case error                                     =>
           logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error)
       },

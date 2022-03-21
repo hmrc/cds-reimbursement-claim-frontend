@@ -18,7 +18,6 @@
 @import play.twirl.api.Html
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -35,5 +34,5 @@
 @layout(pageTitle = Some(s"$title")) {
     @pageHeading(title)
     @paragraph(Html(messages(s"$key.help", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
-    @button(s"button.go-back", href = Some(routes.CheckBankDetailsController.show().url))
+    @button(s"button.go-back", href = Some("javascript:history.back()"))
 }
