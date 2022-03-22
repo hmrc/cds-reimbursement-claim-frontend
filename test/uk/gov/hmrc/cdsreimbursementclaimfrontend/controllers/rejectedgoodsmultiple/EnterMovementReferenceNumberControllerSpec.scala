@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import cats.data.EitherT
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -46,7 +47,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -256,6 +256,47 @@ class EnterMovementReferenceNumberControllerSpec
           performAction(enterMovementReferenceNumberKey -> secondMrn.value)(2),
           routes.CheckMovementReferenceNumbersController.show()
         )
+      }
+
+      "redirect to the Select duties page when amending the non-lead MRN" in forAll(
+        completeJourneyGen,
+        arbitraryDisplayDeclaration.arbitrary
+      ) { (journey, newDisplayDeclaration) =>
+        whenever(
+          journey
+            .getDisplayDeclarationFor(newDisplayDeclaration.getMRN)
+            .isEmpty && journey.countOfMovementReferenceNumbers > 1
+        ) {
+          val correctedDD = newDisplayDeclaration
+            .copy(displayResponseDetail =
+              newDisplayDeclaration.displayResponseDetail
+                .copy(
+                  declarantDetails = journey.getLeadDisplayDeclaration.get.getDeclarantDetails,
+                  consigneeDetails = journey.getLeadDisplayDeclaration.get.getConsigneeDetails
+                )
+            )
+
+          val mrnToChange   = Gen.choose(2, journey.countOfMovementReferenceNumbers).sample.get
+          val originalAcc14 = journey.answers.displayDeclarations.get.apply(mrnToChange - 1)
+
+          val updatedJourney =
+            journey
+              .submitMovementReferenceNumberAndDeclaration(mrnToChange - 1, correctedDD.getMRN, correctedDD)
+              .getOrFail
+          val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetDisplayDeclaration(correctedDD.getMRN, Right(Some(correctedDD)))
+            mockStoreSession(updatedSession)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(enterMovementReferenceNumberKey -> correctedDD.getMRN.value)(mrnToChange),
+            routes.SelectTaxCodesController.show(mrnToChange)
+          )
+        }
       }
     }
   }
