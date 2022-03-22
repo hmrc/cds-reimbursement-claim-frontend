@@ -40,7 +40,7 @@
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.p1")), Some("govuk-body govuk-!-margin-top-8"))
 

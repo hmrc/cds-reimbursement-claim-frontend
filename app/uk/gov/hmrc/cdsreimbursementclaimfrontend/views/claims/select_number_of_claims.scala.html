@@ -43,7 +43,7 @@
     @title = @{messages(s"$key.title")}
 
     @inset = {
-        @pageHeading(messages(s"$key.inset.title"), classes = "govuk-heading-s", level = "h2")
+        @pageHeading(Html(messages(s"$key.inset.title")), classes = "govuk-heading-s", level = "h2")
         @paragraph(Html(messages(s"$key.inset.paragraph")))
     }
 
@@ -55,7 +55,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 

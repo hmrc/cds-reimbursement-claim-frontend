@@ -36,7 +36,7 @@
 
     @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         <p class="govuk-body">@{messages(s"$key.p1")}</p>
 

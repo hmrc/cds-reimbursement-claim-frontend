@@ -43,53 +43,53 @@
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
-    @pageHeading(messages(combine(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @pageHeading(Html(messages(combine(s"$key.reference-number", subKey, "h2"))), "govuk-heading-m govuk-!-margin-top-7", "h2")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
 
     @displayDeclarationOpt.map { displayDeclaration =>
-        @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.declaration-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
     } 
 
-    @pageHeading(messages(s"$key.contact-information.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.contact-information.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.CheckClaimantDetailsController.show(), routes.CheckClaimantDetailsController.show()))
 
-    @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.basis.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"$key.basis", subKey, routes.BasisForClaimController.show()))
 
     @claim.basisOfClaimSpecialCircumstances.map { specialCircumstances =>
-        @pageHeading(messages(s"$key.special-circumstances.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.special-circumstances.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SpecialCircumstancesSummary(specialCircumstances,s"$key.special-circumstances", subKey, routes.EnterSpecialCircumstancesController.show()))
     }
 
-    @pageHeading(messages(s"$key.disposal-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.disposal-method.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(DisposalMethodSummary(claim.methodOfDisposal,s"$key.disposal-method", subKey, routes.DisposalMethodController.show()))
 
-    @pageHeading(messages(s"$key.details-rejected-goods.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.details-rejected-goods.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
     
-    @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.claim-total.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(ReimbursementsClaimsSummary.singleForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.CheckClaimDetailsController.show())))
 
-    @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.inspection.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
 
     @if(isAllSelectedDutiesAreCMAEligible) {
-        @pageHeading(messages(s"$key.repayment-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.repayment-method.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod, s"$key.repayment-method", subKey, routes.ChooseRepaymentMethodController.show()))
     }
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
-        @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.bank-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey, routes.CheckBankDetailsController.show()))
     }
     
-    @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.attached-documents.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", subKey, routes.ChooseFileTypeController.show()))
 
-    @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.confirmation-statement.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {

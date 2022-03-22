@@ -54,13 +54,13 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
-    @pageHeading(messages(s"$key.registered.title"), "govuk-heading-m govuk-!-margin-bottom-6", "h2")
+    @pageHeading(Html(messages(s"$key.registered.title")), "govuk-heading-m govuk-!-margin-bottom-6", "h2")
     @summary(SummaryList(claimantDetailsHelper.renderDetailsRegisteredWithCDS(registeredContactDetails, establishmentAddress)))
 
     @if(mandatoryDataAvailable) {
-        @pageHeading(messages(s"$key.contact.title"), "govuk-heading-m", "h2")
+        @pageHeading(Html(messages(s"$key.contact.title")), "govuk-heading-m", "h2")
         @paragraph(Html(messages(s"$key.contact.description")), Some("govuk-body govuk-!-margin-bottom-6"))
         @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, journey)))
     }

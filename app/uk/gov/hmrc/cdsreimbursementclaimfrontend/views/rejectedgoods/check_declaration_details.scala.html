@@ -50,7 +50,7 @@
 
   @errorSummary(form.errors)
 
-  @pageHeading(title)
+  @pageHeading(Html(title))
 
   @paragraph(Html(messages(s"$key$subKeyDetail.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
@@ -58,7 +58,7 @@
 
     @summary(RejectedGoodsCdsDisplayDeclarationSummary(declaration,s"$checkYourAnswersKey.declaration-details", subKey))
 
-    @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h2")
+    @pageHeading(Html(messages(s"$key.is-information-correct")), "govuk-heading-s govuk-!-margin-top-8", "h2")
 
     @radios(
       form = form,

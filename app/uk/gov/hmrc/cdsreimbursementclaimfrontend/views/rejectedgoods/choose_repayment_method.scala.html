@@ -18,6 +18,7 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import play.api.mvc.Call
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
@@ -43,7 +44,7 @@
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
     @errorSummary(form.errors)
 
-    @pageHeading(title, "govuk-heading-xl govuk-!-margin-bottom-6")
+    @pageHeading(Html(title), "govuk-heading-xl govuk-!-margin-bottom-6")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(

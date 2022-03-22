@@ -17,6 +17,7 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
@@ -42,9 +43,9 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
-    @pageHeading(messages(s"$key.h2"), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @pageHeading(Html(messages(s"$key.h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

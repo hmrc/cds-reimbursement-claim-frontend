@@ -36,7 +36,7 @@
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     <p class="govuk-body">@messages(s"$key.help.p1")</p>
     <p class="govuk-body">@messages(s"$key.help.p2")</p>

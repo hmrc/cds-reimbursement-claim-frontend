@@ -66,7 +66,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         @indexAndMrnOpt.map{ case(index,mrn) =>
             @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)), Some("govuk-body"))

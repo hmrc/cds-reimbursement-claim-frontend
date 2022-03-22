@@ -32,7 +32,7 @@
 
     @layout(pageTitle = Some(s"$title"), timeOut = false, suppressBackLink = true, suppressSignOutLink = true) {
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         <p class="govuk-body">@messages("signed-out.p1")</p>
 

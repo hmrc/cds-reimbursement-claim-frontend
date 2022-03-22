@@ -66,43 +66,43 @@
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
-    @pageHeading(messages(combine(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @pageHeading(Html(messages(combine(s"$key.reference-number", subKey, "h2"))), "govuk-heading-m govuk-!-margin-top-7", "h2")
     @summary(mrnSummary)
 
     @claim.scheduledDocumentAnswer.map { scheduledDocument =>
-        @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.scheduled-document.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey,fileUploadRoutes.ScheduleOfMrnDocumentController.review()))
     }
 
     @claim.displayDeclaration.map { displayDeclaration =>
-        @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.declaration-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details",subKey).rows.drop(2)))
     }
 
     @claim.declarantTypeAnswer.map { declarantType =>
-        @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.claimant-type.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(ClaimTypeSummary(declarantType,s"$key.claimant-type",subKey,claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey)))
     }
 
     @cdsClaimantDetailsSummary.map { cdsDetails =>
-        @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.claimant-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(cdsDetails)
     }
 
     @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
-        @pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.northern-ireland-claim.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(NorthernIrelandAnswerSummary(whetherNorthernIrelandClaim,s"$key.northern-ireland-claim",subKey,claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)))
     }
 
     @claim.basisOfClaimAnswer.map { basisOfClaim =>
-        @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.basis.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(BasisOfClaimSummary(basisOfClaim,s"$key.basis",subKey,claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journey)))
     }
 
     @claim.commoditiesDetailsAnswer.map { commodity =>
-        @pageHeading(messages(s"$key.commodity-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.commodity-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(CommodityDetailsSummary(commodity,s"$key.commodities-details",subKey,claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)))
     }
 
@@ -110,34 +110,34 @@
         @if(claim.typeOfClaim.isEmpty ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Individual) ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Scheduled)) {
-            @pageHeading(messages(combine(s"$key.claim-calculation", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @pageHeading(Html(messages(combine(s"$key.claim-calculation", subKey, "h2"))), "govuk-heading-m govuk-!-margin-top-9", "h2")
             @summary(ClaimedReimbursementsAnswerSummary(reimbursement,s"$key.claim-calculation",subKey, if (journey == JourneyBindable.Scheduled) claimRoutes.CheckScheduledClaimController.showReimbursements() else claimRoutes.EnterSingleClaimController.checkClaimSummary()))
         }
     }
 
     @if(claim.typeOfClaim.contains(TypeOfClaimAnswer.Multiple)) {
-        @pageHeading(messages(s"$key.multiple-claim-totals.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.multiple-claim-totals.label")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(MultipleClaimsAnswerSummary(claim.multipleClaimsAnswer,s"$key.claim-calculation",subKey,claimRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag))
     }
 
     @claim.reimbursementMethodAnswer.map { rma =>
-        @pageHeading(messages(s"$key.reimbursement-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.reimbursement-method.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(ReimbursementMethodAnswerSummary(rma,s"$key.reimbursement-method",subKey,claimRoutes.ReimbursementMethodController.showReimbursementMethod()))
     }
 
     @claim.findNonEmptyBankAccountDetails.map { bankAccountDetails =>
         @if(!claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)) {
-            @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @pageHeading(Html(messages(s"$key.bank-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
             @summary(BankAccountDetailsSummary(bankAccountDetails,s"$key.bank-details",subKey,claimRoutes.BankAccountController.checkBankAccountDetails(journey)))
         }
     }
 
     @claim.supportingEvidencesAnswer.map { evidences =>
-        @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @pageHeading(Html(messages(s"$key.attached-documents.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SupportingEvidenceSummary(evidences,s"$key.attached-documents", subKey, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey)))
     }
 
-    @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(Html(messages(s"$key.confirmation-statement.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
 
     @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(journey), 'novalidate -> "novalidate") {
