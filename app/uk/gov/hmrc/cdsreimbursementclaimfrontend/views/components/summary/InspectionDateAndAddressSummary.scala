@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -86,7 +87,8 @@ object InspectionDateAndAddressSummary {
         ),
         SummaryListRow(
           key = Key(Text(messages(s"$key.inspection-address"))),
-          value = Value(HtmlContent(HtmlFormat.fill(addressData)))
+          value = Value(HtmlContent(HtmlFormat.fill(addressData))),
+          actions = if (inspectionAddress.addressType == Other) Some(changeInspectionAddressTypeAction) else None
         )
       )
     )

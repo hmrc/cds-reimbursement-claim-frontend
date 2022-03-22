@@ -29,7 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -38,6 +40,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.BadRequestException
+
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -62,37 +67,51 @@ class EnterBankAccountDetailsController @Inject() (
   def handleBankAccountReputation(
     bankAccountDetails: BankAccountDetails,
     reputation: EitherT[Future, Error, BankAccountReputation]
-  )(implicit request: Request[_]): Future[Result] =
+  )(implicit request: Request[_], journey: RejectedGoodsSingleJourney): Future[(RejectedGoodsSingleJourney, Result)] =
     reputation.fold(
-      error => logAndDisplayError("could not process bank account details: ")(errorHandler, request)(error),
+      {
+        case Error(_, Some(t: BadRequestException), _) =>
+          logger.warn("Could not contact bank account service: ", t)
+          (journey, Redirect(rejectedGoodsRoutes.ServiceUnavailableController.show()))
+        case error                                     =>
+          (journey, logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error))
+      },
       {
         case BankAccountReputation(Yes, Some(Yes), None)                                  =>
-          Redirect(routes.CheckBankDetailsController.show())
+          journey
+            .submitBankAccountDetails(bankAccountDetails)
+            .fold(
+              errors => {
+                logger.error(s"Unable to get bank account details - $errors")
+                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+              },
+              updatedJourney => (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
+            )
         case BankAccountReputation(_, _, Some(errorResponse))                             =>
           val form = enterBankDetailsForm
             .fill(bankAccountDetails)
             .withError("enter-bank-details", s"error.${errorResponse.code}")
-          BadRequest(enterBankAccountDetailsPage(form, postAction))
+          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
         case BankAccountReputation(No, _, None)                                           =>
           val form = enterBankDetailsForm
             .fill(bankAccountDetails)
             .withError("enter-bank-details", "error.moc-check-no")
-          BadRequest(enterBankAccountDetailsPage(form, postAction))
+          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
         case BankAccountReputation(sortCodeResponse, _, None) if sortCodeResponse =!= Yes =>
           val form = enterBankDetailsForm
             .fill(bankAccountDetails)
             .withError("enter-bank-details", "error.moc-check-failed")
-          BadRequest(enterBankAccountDetailsPage(form, postAction))
+          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
         case BankAccountReputation(_, Some(ReputationResponse.Error), None)               =>
           val form = enterBankDetailsForm
             .fill(bankAccountDetails)
             .withError("enter-bank-details", "error.account-exists-error")
-          BadRequest(enterBankAccountDetailsPage(form, postAction))
+          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
         case BankAccountReputation(_, _, None)                                            =>
           val form = enterBankDetailsForm
             .fill(bankAccountDetails)
             .withError("enter-bank-details", "error.account-does-not-exist")
-          BadRequest(enterBankAccountDetailsPage(form, postAction))
+          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
       }
     )
 
@@ -100,7 +119,7 @@ class EnterBankAccountDetailsController @Inject() (
     bankAccountType: Option[BankAccountType],
     bankAccountDetails: BankAccountDetails,
     postCode: Option[String]
-  )(implicit request: Request[_]): Future[Result] =
+  )(implicit request: Request[_], journey: RejectedGoodsSingleJourney): Future[(RejectedGoodsSingleJourney, Result)] =
     bankAccountType match {
       case Some(BankAccountType.Personal) =>
         handleBankAccountReputation(
@@ -113,11 +132,11 @@ class EnterBankAccountDetailsController @Inject() (
           claimService.getBusinessAccountReputation(bankAccountDetails)
         )
       case _                              =>
-        Redirect(routes.ChooseBankAccountTypeController.show()).asFuture
+        (journey, Redirect(routes.ChooseBankAccountTypeController.show())).asFuture
     }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
+    { implicit request => implicit journey =>
       enterBankDetailsForm
         .bindFromRequest()
         .fold(
@@ -131,22 +150,7 @@ class EnterBankAccountDetailsController @Inject() (
                 )
               )
             ).asFuture,
-          bankAccountDetails =>
-            journey
-              .submitBankAccountDetails(bankAccountDetails)
-              .fold(
-                errors => {
-                  logger.error(s"unable to get bank account details - $errors")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
-                },
-                updatedJourney =>
-                  validateBankAccountDetails(journey.answers.bankAccountType, bankAccountDetails, None).map(result =>
-                    (
-                      updatedJourney,
-                      result
-                    )
-                  )
-              )
+          validateBankAccountDetails(journey.answers.bankAccountType, _, None)
         )
     },
     fastForwardToCYAEnabled = false

@@ -46,7 +46,7 @@
     @pageHeading(title)
 
     @pageHeading(messages(combine(s"$key.reference-number.multiple", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
-    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"$key.reference-number.rejectedgoodsmultiple", subKey, None))
+    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"$key.reference-number.rejectedgoodsmultiple", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
@@ -57,7 +57,7 @@
     @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information",routes.CheckClaimantDetailsController.show(), routes.CheckClaimantDetailsController.show()))
 
     @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim,s"$key.basis", subKey))
+    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim,s"$key.basis", subKey, routes.BasisForClaimController.show()))
 
     @claim.basisOfClaimSpecialCircumstances.map { specialCircumstances =>
         @pageHeading(messages(s"$key.special-circumstances.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
@@ -65,20 +65,20 @@
     }
 
     @pageHeading(messages(s"$key.disposal-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"$key.disposal-method", subKey))
+    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"$key.disposal-method", subKey, routes.DisposalMethodController.show()))
 
     @pageHeading(messages(s"$key.details-rejected-goods.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey))
+    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
     
     @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.CheckClaimDetailsController.show())))
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.WorkInProgressController.show(), routes.WorkInProgressController.show()))
+    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
     
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey, routes.CheckBankDetailsController.show()))
     }
     
     @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
