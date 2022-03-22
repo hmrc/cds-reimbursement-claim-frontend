@@ -111,7 +111,7 @@ class EnterMovementReferenceNumberController @Inject() (
                             logger.error(s"Unable to update journey [$error]")
                             (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
                           },
-                        updatedJourney => (updatedJourney, redirectLocation(updatedJourney, pageIndex))
+                        updatedJourney => (updatedJourney, redirectLocation(journey, updatedJourney, pageIndex))
                       )
                   case None        =>
                     logger.error(s"Display Declaration details not found")
@@ -132,15 +132,21 @@ class EnterMovementReferenceNumberController @Inject() (
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
     )
 
-  private def redirectLocation(journey: RejectedGoodsMultipleJourney, pageIndex: Int): Result =
-    if (journey.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex)) {
-      Redirect(routes.EnterImporterEoriNumberController.show())
-    } else {
-      Redirect(
+  private def redirectLocation(
+    journey: RejectedGoodsMultipleJourney,
+    updatedJourney: RejectedGoodsMultipleJourney,
+    pageIndex: Int
+  ): Result =
+    Redirect(
+      if (updatedJourney.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex)) {
+        routes.EnterImporterEoriNumberController.show()
+      } else {
         if (pageIndex === 1) routes.CheckDeclarationDetailsController.show()
+        else if (journey.getNthMovementReferenceNumber(pageIndex - 1).isDefined)
+          routes.SelectTaxCodesController.show(pageIndex)
         else routes.CheckMovementReferenceNumbersController.show()
-      )
-    }
+      }
+    )
 }
 
 object EnterMovementReferenceNumberController {

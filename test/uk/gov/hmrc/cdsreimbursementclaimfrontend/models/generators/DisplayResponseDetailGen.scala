@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AccountDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.genAccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.genSortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 
 object DisplayResponseDetailGen {
 
@@ -90,7 +91,7 @@ object DisplayResponseDetailGen {
 
   lazy val genDisplayResponseDetail: Gen[DisplayResponseDetail] =
     for {
-      declarationId            <- genStringWithMaxSizeOfN(10)
+      declarationId            <- genMRN
       acceptanceDate           <- genLocalDateTime
       declarantReferenceNumber <- Gen.option(genStringWithMaxSizeOfN(10))
       securityReason           <- Gen.option(genStringWithMaxSizeOfN(10))
@@ -104,7 +105,7 @@ object DisplayResponseDetailGen {
       maskedBankDetails        <- Gen.const(bankDetails.map(mask))
       ndrcDetails              <- Gen.option(Gen.nonEmptyListOf(genNdrcDetails))
     } yield DisplayResponseDetail(
-      declarationId = declarationId,
+      declarationId = declarationId.value,
       acceptanceDate = acceptanceDate.toString,
       declarantReferenceNumber = declarantReferenceNumber,
       securityReason = securityReason,
