@@ -525,14 +525,10 @@ class EnterBankAccountDetailsControllerSpec
           RejectedGoodsSingleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
 
-        val updatedJourney = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
           mockPersonalReputation(bankDetails, None, Left(Error(new BadRequestException("Boom!"))))
-          mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
