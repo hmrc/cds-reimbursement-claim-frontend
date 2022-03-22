@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import cats.data.EitherT
-import cats.implicits._
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -27,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.Ba
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.BadRequestException
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -140,11 +141,13 @@ class EnterBankAccountDetailsController @Inject() (
       bankAccountType =>
         checkBankAccountReputation(bankAccountType, bankAccountDetails, postCode)
           .fold(
-            error =>
-              (
-                journey,
-                logAndDisplayError("could not process bank account details: ")(errorHandler, request)(error)
-              ),
+            {
+              case Error(_, Some(t: BadRequestException), _) =>
+                logger.warn("Could not contact bank account service: ", t)
+                (journey, Redirect(rejectedGoodsRoutes.ServiceUnavailableController.show()))
+              case error                                     =>
+                (journey, logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error))
+            },
             {
               case BankAccountReputation(Yes, Some(Yes), None) =>
                 journey
