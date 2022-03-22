@@ -1,2 +1,4 @@
 GET          /rejected-goods/choose-how-many-mrns                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.ChooseHowManyMrnsController.show()
 POST         /rejected-goods/choose-how-many-mrns                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.ChooseHowManyMrnsController.submit()
+
+GET         /rejected-goods/single/bank-account-verification-unavailable          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.ServiceUnavailableController.show()
