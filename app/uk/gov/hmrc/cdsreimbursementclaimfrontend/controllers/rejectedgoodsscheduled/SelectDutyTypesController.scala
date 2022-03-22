@@ -36,7 +36,6 @@ class SelectDutyTypesController @Inject() (
 
   val formKey: String = "select-duty-types"
 
-  //TODO: move form to Forms file
   //TODO: tests
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     val form = selectDutyTypesForm
