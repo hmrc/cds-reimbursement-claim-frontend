@@ -20,10 +20,6 @@ import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.Forms.list
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -31,15 +27,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.selectDutyTypesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -104,21 +98,4 @@ class SelectDutyTypesController @Inject() (
           )
       }
     }
-}
-
-object SelectDutyTypesController {
-
-  lazy val selectDutyTypesForm: Form[List[DutyType]] = Form(
-    mapping(
-      "select-duty-types" -> list(
-        mapping(
-          "" -> nonEmptyText
-            .verifying(
-              "error.invalid",
-              code => DutyTypes has code
-            )
-        )(DutyType.apply)(DutyType.unapply)
-      ).verifying("error.required", _.nonEmpty)
-    )(identity)(Some(_))
-  )
 }
