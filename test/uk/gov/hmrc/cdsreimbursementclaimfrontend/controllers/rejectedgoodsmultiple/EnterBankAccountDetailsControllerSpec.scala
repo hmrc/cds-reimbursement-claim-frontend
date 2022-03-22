@@ -57,7 +57,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.al
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier}
+import uk.gov.hmrc.http.BadRequestException
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

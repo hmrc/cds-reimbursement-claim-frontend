@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.http.BadRequestException
 
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
