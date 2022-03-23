@@ -650,9 +650,7 @@ duty-type.wine=Wine
 duty-type.made-wine=Made-wine
 duty-type.low-alcohol-beverages=Low alcohol beverages
 duty-type.spirits=Spirits
-duty-type.cider-perry=Cider and perry
-duty-type.hydrocarbon-oils=Hydrocarbon oil
-duty-type.biofuels=Biofuels
+duty-type.ci4
 duty-type.miscellaneous-road-fuels=Miscellaneous road fuels
 duty-type.tobacco=Tobacco products
 duty-type.climate-change-levy=Climate Change Levy

@@ -36,7 +36,6 @@ class SelectDutyTypesController @Inject() (
 
   val formKey: String = "select-duty-types"
 
-  //TODO: tests
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     val form = selectDutyTypesForm
 
@@ -66,4 +65,8 @@ class SelectDutyTypesController @Inject() (
       .asFuture
   }
 
+}
+
+object SelectDutyTypesController {
+  val selectDutyTypesKey: String = ""
 }
