@@ -276,8 +276,7 @@ class EnterMovementReferenceNumberControllerSpec
                 )
             )
 
-          val mrnToChange   = Gen.choose(2, journey.countOfMovementReferenceNumbers).sample.get
-          val originalAcc14 = journey.answers.displayDeclarations.get.apply(mrnToChange - 1)
+          val mrnToChange = Gen.choose(2, journey.countOfMovementReferenceNumbers).sample.get
 
           val updatedJourney =
             journey
