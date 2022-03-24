@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -61,22 +62,23 @@ class SelectDutyTypesController @Inject() (
   implicit val dataExtractor: DraftClaim => Option[SelectedDutyTaxCodesReimbursementAnswer] =
     _.selectedDutyTaxCodesReimbursementAnswer
 
-  val postAction: Call = routes.SelectDutyTypesController.submitDutyTypes()
-
-  def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
-      Ok(
-        selectDutyTypesPage(
-          answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill),
-          postAction
+  def showDutyTypes(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
+        val postAction: Call = claimRoutes.SelectDutyTypesController.submitDutyTypes(journey)
+        Ok(
+          selectDutyTypesPage(
+            answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill),
+            postAction
+          )
         )
-      )
-    }
+      }
   }
 
-  def submitDutyTypes(): Action[AnyContent] =
+  def submitDutyTypes(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
+        val postAction: Call = claimRoutes.SelectDutyTypesController.submitDutyTypes(journey)
         selectDutyTypesForm
           .bindFromRequest()
           .fold(

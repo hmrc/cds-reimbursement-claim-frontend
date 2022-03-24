@@ -229,7 +229,7 @@ class EnterCommoditiesDetailsControllerSpec
         checkIsRedirect(
           performAction(Seq("enter-commodities-details" -> "some package")),
           if (journeyBindable === JourneyBindable.Scheduled) {
-            routes.SelectDutyTypesController.showDutyTypes()
+            routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
           } else if (journeyBindable === JourneyBindable.Multiple) {
             routes.SelectMultipleDutiesController.selectDuties(1)
           } else {
