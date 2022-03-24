@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
@@ -35,7 +36,7 @@ object BasisOfRejectedGoodsClaimSummary extends AnswerSummary[BasisOfRejectedGoo
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.l0"))),
+          key = Key(HtmlContent(messages(s"$key.l0"))),
           value = Value(Text(messages(s"select-basis-for-claim.rejected-goods.reason.$answer"))),
           actions = changeCallOpt.map(changeCall =>
             Actions(

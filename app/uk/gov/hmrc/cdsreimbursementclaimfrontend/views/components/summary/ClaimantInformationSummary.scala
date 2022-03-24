@@ -84,12 +84,12 @@ object ClaimantInformationSummary {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.contact-details"))),
+          key = Key(HtmlContent(messages(s"$key.contact-details"))),
           value = Value(HtmlContent(HtmlFormat.fill(contactData))),
           actions = contactAction
         ),
         SummaryListRow(
-          key = Key(Text(messages(s"$key.contact-address"))),
+          key = Key(HtmlContent(messages(s"$key.contact-address"))),
           value = Value(HtmlContent(HtmlFormat.fill(addressData))),
           actions = addressAction
         )

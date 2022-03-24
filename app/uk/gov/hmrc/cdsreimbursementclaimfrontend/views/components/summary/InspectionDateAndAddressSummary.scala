@@ -76,17 +76,17 @@ object InspectionDateAndAddressSummary {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.inspection-date"))),
+          key = Key(HtmlContent(messages(s"$key.inspection-date"))),
           value = Value(Text(inspectionDate.value.toString)),
           actions = Some(changeInspectionDateAction)
         ),
         SummaryListRow(
-          key = Key(Text(messages(s"$key.inspection-address-type"))),
+          key = Key(HtmlContent(messages(s"$key.inspection-address-type"))),
           value = Value(Text(messages(s"inspection-address.type.${inspectionAddress.addressType}"))),
           actions = Some(changeInspectionAddressTypeAction)
         ),
         SummaryListRow(
-          key = Key(Text(messages(s"$key.inspection-address"))),
+          key = Key(HtmlContent(messages(s"$key.inspection-address"))),
           value = Value(HtmlContent(HtmlFormat.fill(addressData))),
           actions = if (inspectionAddress.addressType == Other) Some(changeInspectionAddressTypeAction) else None
         )

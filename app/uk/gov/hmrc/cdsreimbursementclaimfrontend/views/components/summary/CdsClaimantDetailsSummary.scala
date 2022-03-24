@@ -81,7 +81,7 @@ object CdsClaimantDetailsSummary
       ).flattenOption
 
       SummaryListRow(
-        key = Key(Text(messages(s"$key.${role(isAdditional)}.contact.details"))),
+        key = Key(HtmlContent(messages(s"$key.${role(isAdditional)}.contact.details"))),
         value = Value(HtmlContent(HtmlFormat.fill(data))),
         actions = actions
       )
@@ -113,7 +113,7 @@ object CdsClaimantDetailsSummary
       ).flattenOption
 
       SummaryListRow(
-        key = Key(Text(messages(s"$key.${role(isAdditional)}.contact.address"))),
+        key = Key(HtmlContent(messages(s"$key.${role(isAdditional)}.contact.address"))),
         value = Value(HtmlContent(HtmlFormat.fill(data))),
         actions = actions
       )
@@ -121,7 +121,7 @@ object CdsClaimantDetailsSummary
 
     def additionalContact: SummaryListRow =
       SummaryListRow(
-        key = Key(Text(messages(s"$key.contact.additional"))),
+        key = Key(HtmlContent(messages(s"$key.contact.additional"))),
         value = Value(Text(messages(s"generic.$additionalContactKey"))),
         actions = changeCallOpt.map(changeCall =>
           Actions(

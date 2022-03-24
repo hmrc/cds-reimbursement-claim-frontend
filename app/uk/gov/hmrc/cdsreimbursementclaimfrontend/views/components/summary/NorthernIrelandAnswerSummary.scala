@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.govukfrontend.views.Aliases.ActionItem
 import uk.gov.hmrc.govukfrontend.views.Aliases.Key
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -35,7 +36,7 @@ object NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.label"))),
+          key = Key(HtmlContent(messages(s"$key.label"))),
           value = Value(Text(answer.toString)),
           actions = changeCallOpt.map(changeCall =>
             Actions(

@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper.combine
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
@@ -32,7 +33,7 @@ object MovementReferenceNumberSummary {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(combine(key, subKey, "label")))),
+          key = Key(HtmlContent(messages(combine(key, subKey, "label")))),
           value = Value(Text(answer.value)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
@@ -55,7 +56,7 @@ object MovementReferenceNumberSummary {
     SummaryList(
       mrns.zipWithIndex.map { case (mrn, index) =>
         SummaryListRow(
-          key = Key(Text(messages(combine(key, subKey, "label"), OrdinalNumber.label(index + 1).capitalize))),
+          key = Key(HtmlContent(messages(combine(key, subKey, "label"), OrdinalNumber.label(index + 1).capitalize))),
           value = Value(Text(mrn.value)),
           actions = changeCallOpt.map(changeCallFx =>
             Actions(

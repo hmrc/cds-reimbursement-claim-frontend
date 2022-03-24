@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsM
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswers
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
@@ -32,7 +33,7 @@ object ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.l0"))),
+          key = Key(HtmlContent(messages(s"$key.l0"))),
           value = Value(
             Text(messages(s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswers.indexOf(answer)}"))
           ),

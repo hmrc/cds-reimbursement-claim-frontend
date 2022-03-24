@@ -40,7 +40,7 @@ object ReimbursementsClaimsSummary {
       reimbursementClaims
         .map { case (taxCode, amount) =>
           SummaryListRow(
-            key = Key(Text(messages(s"tax-code.${taxCode.value}"))),
+            key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
             value = Value(Text(amount.toPoundSterlingString)),
             actions = Some(
               Actions(
@@ -56,7 +56,7 @@ object ReimbursementsClaimsSummary {
           )
         } ++ Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.single.total"))),
+          key = Key(HtmlContent(messages(s"$key.single.total"))),
           value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString))
         )
       )
@@ -71,7 +71,7 @@ object ReimbursementsClaimsSummary {
       reimbursementClaims.toSeq
         .map { case (taxCode, amount) =>
           SummaryListRow(
-            key = Key(Text(messages(s"tax-code.${taxCode.value}"))),
+            key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
             value = Value(Text(amount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -87,7 +87,7 @@ object ReimbursementsClaimsSummary {
           )
         } ++ Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.total"))),
+          key = Key(HtmlContent(messages(s"$key.total"))),
           value = Value(Text(reimbursementClaims.values.sum.toPoundSterlingString)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
@@ -112,7 +112,7 @@ object ReimbursementsClaimsSummary {
   ): SummaryList = SummaryList(
     Seq(
       SummaryListRow(
-        key = Key(Text(messages(s"$key.multiple.overall-total.label"))),
+        key = Key(HtmlContent(messages(s"$key.multiple.overall-total.label"))),
         value = Value(
           HtmlContent(
             s"""<span id="overall-total">${reimbursementClaims.flatMap(_._3.values).sum.toPoundSterlingString}</span>"""
@@ -155,7 +155,7 @@ object ReimbursementsClaimsSummary {
         } ++
         Seq(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.multiple.total"))),
+            key = Key(HtmlContent(messages(s"$key.multiple.total"))),
             value = Value(Text(totalAmount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -191,7 +191,7 @@ object ReimbursementsClaimsSummary {
       amountsPerDutyType
         .map { case (dutyType, amount) =>
           SummaryListRow(
-            key = Key(Text(messages(s"duty-type.${dutyType.repr}"))),
+            key = Key(HtmlContent(messages(s"duty-type.${dutyType.repr}"))),
             value = Value(Text(amount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -209,7 +209,7 @@ object ReimbursementsClaimsSummary {
         } ++
         Seq(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.scheduled.total"))),
+            key = Key(HtmlContent(messages(s"$key.scheduled.total"))),
             value = Value(Text(totalAmount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(

@@ -39,7 +39,7 @@ object SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.label"))),
+          key = Key(HtmlContent(messages(s"$key.label"))),
           value = Value(
             HtmlContent(
               answers

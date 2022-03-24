@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
@@ -45,7 +46,7 @@ object ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.label"))),
+          key = Key(HtmlContent(messages(s"$key.label"))),
           value = Value(Text(fileName)),
           actions = changeCallOpt.map(changeCall =>
             Actions(

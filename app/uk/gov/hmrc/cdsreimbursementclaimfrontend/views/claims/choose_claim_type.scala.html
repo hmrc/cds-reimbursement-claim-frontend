@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
@@ -55,13 +56,13 @@
     RadioItem(
      id = Some(s"$key-c285"),
      value = Some(C285.toString),
-     content = Text(messages(s"$key.c285.title")),
+     content = HtmlContent(messages(s"$key.c285.title")),
      checked = form.value.contains(C285)
     ),
     RadioItem(
      id = Some(s"$key-ce1179"),
      value = Some(RejectedGoods.toString),
-     content = Text(messages(s"$key.ce1179.title")),
+     content = HtmlContent(messages(s"$key.ce1179.title")),
      hint = Some(Hint(content = Text(messages(s"$key.ce1179.hint")))),
      checked = form.value.contains(RejectedGoods)
     )

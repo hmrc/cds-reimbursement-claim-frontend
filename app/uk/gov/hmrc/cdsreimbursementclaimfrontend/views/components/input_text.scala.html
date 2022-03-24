@@ -50,7 +50,7 @@
     name,
     classes = classes.fold("")(x => x),
     label = Label(
-        content = Text(messages(label, headingMessageArgs:_*)),
+        content = HtmlContent(messages(label, headingMessageArgs:_*)),
         isPageHeading = isPageHeading,
         classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else "")
     ),

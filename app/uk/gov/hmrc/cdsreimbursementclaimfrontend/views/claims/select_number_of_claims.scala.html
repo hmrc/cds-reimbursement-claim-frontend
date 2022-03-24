@@ -76,21 +76,21 @@
                     RadioItem(
                         id = Some(s"$key-individual"),
                         value = Some("0"),
-                        content = Text(messages(s"$key.individual.title")),
+                        content = HtmlContent(messages(s"$key.individual.title")),
                         checked = form.value.contains(Individual)
                     ),
                     RadioItem(
                         id = Some(s"$key-bulk"),
                         value = Some("1"),
-                        content = Text(messages(s"$key.multiple.title")),
-                        hint = Some(Hint(content = Text(messages(s"$key.multiple.hint")))),
+                        content = HtmlContent(messages(s"$key.multiple.title")),
+                        hint = Some(Hint(content = HtmlContent(messages(s"$key.multiple.hint")))),
                         checked = form.value.contains(Multiple)
                     ),
                     RadioItem(
                         id = Some(s"$key-scheduled"),
                         value = Some("2"),
-                        content = Text(messages(s"$key.scheduled.title")),
-                        hint = Some(Hint(content = Text(messages(s"$key.scheduled.hint")))),
+                        content = HtmlContent(messages(s"$key.scheduled.title")),
+                        hint = Some(Hint(content = HtmlContent(messages(s"$key.scheduled.hint")))),
                         checked = form.value.contains(Scheduled)
                     )
                 )

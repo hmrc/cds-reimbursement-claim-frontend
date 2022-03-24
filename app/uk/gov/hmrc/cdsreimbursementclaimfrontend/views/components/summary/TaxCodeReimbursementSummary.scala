@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.govukfrontend.views.Aliases.Key
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -53,7 +54,7 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
         val reimbursement = taxCodeWithClaim._2
 
         SummaryListRow(
-          key = Key(Text(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))),
+          key = Key(HtmlContent(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))),
           value = Value(Text(reimbursement.refundTotal.toPoundSterlingString)),
           actions = Some(
             Actions(
@@ -71,7 +72,7 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
         if (claimsMadeAgainstTaxCodes.size > 1) {
           Seq(
             SummaryListRow(
-              key = Key(Text(messages(s"$key.duty-code.total.key", messages(s"duty-type.${duty.repr}")))),
+              key = Key(HtmlContent(messages(s"$key.duty-code.total.key", messages(s"duty-type.${duty.repr}")))),
               value = Value(Text(claimsMadeAgainstTaxCodes.subtotal.toPoundSterlingString))
             )
           )

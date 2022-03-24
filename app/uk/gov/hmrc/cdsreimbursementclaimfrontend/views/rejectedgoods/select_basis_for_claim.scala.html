@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 
 @this(
@@ -44,7 +45,7 @@
     RadioItem(
       id = Some(s"$key-radio-$basisOfClaim"),
       value = Some(basisOfClaim.toString),
-      content = Text(messages(s"$key.reason.$basisOfClaim")),
+      content = HtmlContent(messages(s"$key.reason.$basisOfClaim")),
       checked = form.value.contains(basisOfClaim)
     )
   }.toList
