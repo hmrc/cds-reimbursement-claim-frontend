@@ -51,7 +51,8 @@ class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with SummaryInspectionAddress {
 
   val mockConnector: RejectedGoodsSingleClaimConnector       = mock[RejectedGoodsSingleClaimConnector]
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
@@ -159,7 +160,7 @@ class CheckYourAnswersControllerSpec
     summary("Inspection address type") shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )
-    summary("Inspection address")      shouldBe claim.inspectionAddress.summaryAddress(" ")
+    summary("Inspection address")      shouldBe summaryAddress(claim.inspectionAddress, " ")
 
     claim.reimbursementClaims.foreach { case (taxCode, amount) =>
       summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString

@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
@@ -50,7 +49,8 @@ class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with SummaryInspectionAddress {
 
   val mockConnector: RejectedGoodsMultipleClaimConnector     = mock[RejectedGoodsMultipleClaimConnector]
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
@@ -135,7 +135,7 @@ class CheckYourAnswersControllerSpec
     summary("Inspection address type")                     shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )
-    summary("Inspection address")                          shouldBe claim.inspectionAddress.summaryAddress(" ")
+    summary("Inspection address")                          shouldBe summaryAddress(claim.inspectionAddress, " ")
 
     claim.reimbursementClaims.foreach { case (mrn, claims) =>
       summary(mrn.value) shouldBe claims.values.sum.toPoundSterlingString

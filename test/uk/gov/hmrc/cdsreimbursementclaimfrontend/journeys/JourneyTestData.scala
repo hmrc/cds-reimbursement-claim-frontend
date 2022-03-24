@@ -91,11 +91,12 @@ trait JourneyTestData {
 
   val exampleInspectionAddress: InspectionAddress =
     InspectionAddress(
-      addressLine1 = "1 Bar Road",
-      addressLine2 = "Lewisham",
-      city = "London",
-      postalCode = "BA1 1FO",
-      countryCode = Country.uk.code,
+      addressLine1 = Some("1 Bar Road"),
+      addressLine2 = Some("Lewisham"),
+      addressLine3 = None,
+      city = Some("London"),
+      postalCode = Some("BA1 1FO"),
+      countryCode = Some(Country.uk.code),
       addressType = InspectionAddressType.Other
     )
 

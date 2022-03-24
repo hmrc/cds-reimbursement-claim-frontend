@@ -35,11 +35,12 @@ object InspectionAddressGen {
     country     <- genCountry
     addressType <- Gen.oneOf(InspectionAddressType.values)
   } yield InspectionAddress(
-    addressLine1 = s"$num $street",
-    addressLine2 = district,
-    city = city,
-    countryCode = country.code,
-    postalCode = postcode,
+    addressLine1 = Some(s"$num $street"),
+    addressLine2 = Some(district),
+    addressLine3 = None,
+    city = Some(city),
+    countryCode = Some(country.code),
+    postalCode = Some(postcode),
     addressType = addressType
   )
 
