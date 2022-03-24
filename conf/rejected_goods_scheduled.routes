@@ -31,8 +31,8 @@ POST         /rejected-goods/scheduled/choose-disposal-method                   
 GET          /rejected-goods/scheduled/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
 POST         /rejected-goods/scheduled/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
 
-GET          /rejected-goods/scheduled/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/select-duties/select-duty-types               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyTypesController.show()
+POST         /rejected-goods/scheduled/select-duties/select-duty-types               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyTypesController.submit()
 
 GET          /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
 POST         /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()

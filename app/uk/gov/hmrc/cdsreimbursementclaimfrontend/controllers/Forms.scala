@@ -32,6 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
@@ -171,6 +173,20 @@ object Forms {
         )(Duty.apply)(Duty.unapply)
       ).verifying("error.required", _.nonEmpty)
     )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
+  )
+
+  val selectDutyTypesForm: Form[List[DutyType]] = Form(
+    mapping(
+      "select-duty-types" -> list(
+        mapping(
+          "" -> nonEmptyText
+            .verifying(
+              "error.invalid",
+              code => DutyTypes has code
+            )
+        )(DutyType.apply)(DutyType.unapply)
+      ).verifying("error.required", _.nonEmpty)
+    )(identity)(Some(_))
   )
 
   def taxCodeMapping(availableTaxCodes: Seq[TaxCode]): Mapping[TaxCode] =

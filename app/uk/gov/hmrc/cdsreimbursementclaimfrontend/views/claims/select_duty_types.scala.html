@@ -16,10 +16,10 @@
 
 @import play.api.data.Form
 @import play.twirl.api.Html
+@import play.api.mvc.Call
+@import play.api.mvc.Request
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
@@ -35,12 +35,10 @@
     checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form: Form[List[DutyType]])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[List[DutyType]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-duty-types"}
 @title = @{messages(s"$key.title")}
-
-@postAction = @{claimsRoutes.SelectDutyTypesController.submitDutyTypes()}
 
 @customsOptions = @{
     DutyTypes.custom.map { dutyType =>
