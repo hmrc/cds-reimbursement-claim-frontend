@@ -38,23 +38,22 @@
 
     @pageHeading(Html(title))
 
-    <p class="govuk-body">@messages(s"$key.help.p1")</p>
-    <p class="govuk-body">@messages(s"$key.help.p2")</p>
+    @paragraph(Html(messages(s"$key.help.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help.p2")), Some("govuk-body"))
 
-    <h2 class="govuk-heading-l">@messages(s"$key.who.heading")</h2>
+    @pageHeading(Html(messages(s"$key.who.heading")), "govuk-heading-m govuk-!-margin-top-6", "h2")
 
-    <p class="govuk-body">@messages(s"$key.who.p1")</p>
-    <p class="govuk-body">@Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl))</p>
-    <p class="govuk-body">@messages(s"$key.who.p3")</p>
+    @paragraph(Html(messages(s"$key.who.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.who.p3")), Some("govuk-body"))
 
     @bulletList((1 to 3).map(i => Html(messages(s"$key.who.l$i"))))
 
-    <p class="govuk-body">@messages(s"$key.who.p4")</p>
+    @paragraph(Html(messages(s"$key.who.p4")), Some("govuk-body"))
 
-    <h2 class="govuk-heading-l">@messages(s"$key.why.heading")</h2>
+    @pageHeading(Html(messages(s"$key.why.heading")), "govuk-heading-m govuk-!-margin-top-6", "h2")
 
-    <p class="govuk-body">@messages(s"$key.why.p1")</p>
-
+    @paragraph(Html(messages(s"$key.why.p1")), Some("govuk-body"))
 
     @bulletList(
         Seq(
@@ -72,9 +71,9 @@
         </a>
     </p>
 
-    <h2 class="govuk-heading-l">@messages(s"$key.before.heading")</h2>
+    @pageHeading(Html(messages(s"$key.before.heading")), "govuk-heading-m govuk-!-margin-top-6", "h2")
 
-    <p class="govuk-body">@messages(s"$key.before.p1")</p>
+    @paragraph(Html(messages(s"$key.before.p1")), Some("govuk-body"))
 
     @bulletList((1 to 9).map(i => Html(messages(s"$key.before.l$i"))))
 
