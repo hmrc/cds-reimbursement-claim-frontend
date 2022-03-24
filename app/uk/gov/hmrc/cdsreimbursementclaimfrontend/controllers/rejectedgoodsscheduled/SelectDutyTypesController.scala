@@ -34,8 +34,6 @@ class SelectDutyTypesController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  val formKey: String = "select-duty-types"
-
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     val form = selectDutyTypesForm
 
@@ -59,14 +57,10 @@ class SelectDutyTypesController @Inject() (
         dutyTypes =>
           (
             journey.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes).getOrElse(journey),
-            Redirect(" /select-duties/:category page") //FIXME: routes.SelectDutyCodesController.iterate()
+            Redirect("/select-duties/:category page") //FIXME: routes.SelectDutyCodesController.iterate()
           )
       )
       .asFuture
   }
 
-}
-
-object SelectDutyTypesController {
-  val selectDutyTypesKey: String = ""
 }
