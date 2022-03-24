@@ -20,6 +20,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
@@ -34,10 +35,12 @@ class SelectDutyTypesController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
+  val postAction: Call = routes.SelectDutyTypesController.submit()
+
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     val form = selectDutyTypesForm
 
-    Ok(selectDutyTypesPage(form)).asFuture
+    Ok(selectDutyTypesPage(form, postAction)).asFuture
 
   }
 
@@ -50,7 +53,8 @@ class SelectDutyTypesController @Inject() (
             journey,
             BadRequest(
               selectDutyTypesPage(
-                formWithErrors
+                formWithErrors,
+                postAction
               )
             )
           ),

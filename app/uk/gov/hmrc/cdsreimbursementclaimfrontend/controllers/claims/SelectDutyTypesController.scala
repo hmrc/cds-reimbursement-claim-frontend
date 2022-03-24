@@ -21,6 +21,7 @@ import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc._
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -60,11 +61,14 @@ class SelectDutyTypesController @Inject() (
   implicit val dataExtractor: DraftClaim => Option[SelectedDutyTaxCodesReimbursementAnswer] =
     _.selectedDutyTaxCodesReimbursementAnswer
 
+  val postAction: Call = routes.SelectDutyTypesController.submitDutyTypes()
+
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
       Ok(
         selectDutyTypesPage(
-          answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill)
+          answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill),
+          postAction
         )
       )
     }
@@ -76,7 +80,7 @@ class SelectDutyTypesController @Inject() (
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
+            formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors, postAction)),
             selectedDuties => {
 
               val previousAnswer = maybeAnswer getOrElse SelectedDutyTaxCodesReimbursementAnswer.none
