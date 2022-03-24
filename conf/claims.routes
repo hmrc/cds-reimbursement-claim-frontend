@@ -103,8 +103,8 @@ POST        /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.
 GET         /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummary
 POST        /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummarySubmit
 
-GET         /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.showDutyTypes()
-POST        /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.submitDutyTypes()
+GET         /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.showDutyTypes(journey: JourneyBindable)
+POST        /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.submitDutyTypes(journey: JourneyBindable)
 
 GET         /scheduled/select-duties/start                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.iterate()
 GET         /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.showDutyCodes(dutyType: DutyType)
