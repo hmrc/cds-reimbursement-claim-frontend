@@ -18,11 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.mvc.{Action, AnyContent, Call, Result}
+import play.api.data.Form
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+//import play.api.mvc.Call
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.selectDutyCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 //import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.[FORM]
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
@@ -31,58 +36,50 @@ import scala.concurrent.Future
 
 @Singleton
 class SelectDutyCodesController @Inject() (
-val jcc: JourneyControllerComponents,
-selectDutyCodesPage: pages.select_duty_codes
-  )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
-  extends RejectedGoodsScheduledJourneyBaseController {
+  val jcc: JourneyControllerComponents,
+  selectDutyCodesPage: pages.select_duty_codes
+)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+    extends RejectedGoodsScheduledJourneyBaseController {
 
-  val formKey: String          = "select-duty-codes"
-  private val postAction: Call = routes.SelectDutyCodesController.submit()
+  val formKey: String = "select-duty-codes"
 
-  val iterate: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  //private val postAction: Call = routes.SelectDutyCodesController.submit()
+  //TODO: move form to form object
+  val iterate: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     def selectDuties: Future[Result] = Redirect(routes.SelectDutyTypesController.show()).asFuture
 
     def start(dutyType: DutyType): Future[Result] = Redirect(routes.SelectDutyCodesController.show(dutyType)).asFuture
 
-//    withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
-//      maybeAnswer.flatMap(_.value.headOption).fold(selectDuties) { selectedDutyTaxCodesReimbursement =>
-//        start(selectedDutyTaxCodesReimbursement._1)
- //     }
-   // }
+    journey.answers.reimbursementClaims.flatMap(_.value.headOption).fold(selectDuties) {
+      selectedDutyTaxCodesReimbursement => start(selectedDutyTaxCodesReimbursement._1)
+    }
   }
 
+  def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    val maybeTaxCodes: Option[List[TaxCode]] = journey.getSelectedDuties.map(_._2.toList).headOption
+    val form: Form[List[TaxCode]]            = maybeTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_))
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-
-  val form = selectDutyCodesForm  // .withDefault(journey.getSelectedDuties.map(_._2))
-    val dutyTypes: Seq[DutyType] = journey.getSelectedDutyTypes.getOrElse(Seq.empty)
-
-  Ok(selectDutyCodesPage(form)).asFuture
+    Ok(selectDutyCodesPage(dutyType, form)).asFuture
 
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-  Future.successful(
-  [FORM]
-  .bindFromRequest()
-  .fold(
-  formWithErrors =>
-  (
-  journey,
-  BadRequest(
-    selectDutyCodesPage(
-  formWithErrors,
-  postAction
-  )
-  )
-  ),
-    dutyCodes =>
-  (
-  journey.[SUBMIT METHOD](dutyCodes),
-  Redirect("routes.[NEW CONTROLLER].show()") //FIXME: routes.[NEW CONTROLLER].show()
-  )
-  )
-  )
+  def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    Future.successful(
+      selectDutyCodesForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(selectDutyCodesPage(currentDuty, formWithErrors))
+            ),
+          selectedTaxCodes =>
+            (
+              journey.selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes).getOrElse(journey),
+              Redirect("routes.[NEW CONTROLLER].show()") //FIXME: routes.[NEW CONTROLLER].show()
+            )
+        )
+    )
   }
 
-  }
+}
