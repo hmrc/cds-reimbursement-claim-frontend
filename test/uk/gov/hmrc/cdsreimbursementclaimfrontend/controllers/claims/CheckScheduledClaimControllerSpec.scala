@@ -83,7 +83,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           controller.showReimbursements()(FakeRequest()),
-          routes.SelectDutyTypesController.showDutyTypes()
+          routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
         )
       }
 
@@ -97,7 +97,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           controller.submitReimbursements()(FakeRequest().withFormUrlEncodedBody(checkClaimSummaryKey -> "false")),
-          routes.SelectDutyTypesController.showDutyTypes()
+          routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
         )
       }
     }

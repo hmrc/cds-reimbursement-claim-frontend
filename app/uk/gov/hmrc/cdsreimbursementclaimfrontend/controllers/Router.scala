@@ -66,6 +66,8 @@ trait SubmitRoutes extends Product with Serializable {
 
   def submitUrlForSelectBankAccountType(): Call =
     claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
+
+  def submitUrlForSelectDutyTypes(): Call = claimRoutes.SelectDutyTypesController.submitDutyTypes(journeyBindable)
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {

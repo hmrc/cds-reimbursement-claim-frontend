@@ -91,7 +91,7 @@ class EnterCommoditiesDetailsController @Inject() (
                     Redirect(
                       CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively = journeyBindable match {
                         case JourneyBindable.Scheduled =>
-                          claimRoutes.SelectDutyTypesController.showDutyTypes()
+                          claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
                         case JourneyBindable.Multiple  =>
                           claimRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
                         case _                         =>

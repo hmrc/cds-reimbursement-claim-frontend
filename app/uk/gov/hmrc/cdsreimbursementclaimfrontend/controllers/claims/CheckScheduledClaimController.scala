@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.whetherDutiesCorrectForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
@@ -73,7 +74,7 @@ class CheckScheduledClaimController @Inject() (
       implicit val subKey: Option[String] = routes.subKey
 
       def redirectToSelectDutiesPage: Future[Result] =
-        Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
+        Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)))
 
       def loadPage(answer: SelectedDutyTaxCodesReimbursementAnswer): Future[Result] =
         Future.successful(
@@ -91,7 +92,7 @@ class CheckScheduledClaimController @Inject() (
       import routes._
 
       def selectDuties: Future[Result] =
-        Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
+        Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)))
 
       maybeAnswer.fold(selectDuties)(reimbursements =>
         whetherDutiesCorrectForm

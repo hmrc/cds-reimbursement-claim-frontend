@@ -24,16 +24,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
 
 final case class InspectionAddress(
-  addressLine1: String,
-  addressLine2: String,
-  city: String,
-  countryCode: String,
-  postalCode: String,
+  addressLine1: Option[String],
+  addressLine2: Option[String],
+  addressLine3: Option[String],
+  city: Option[String],
+  countryCode: Option[String],
+  postalCode: Option[String],
   addressType: InspectionAddressType
-) {
-  def summaryAddress(sep: String): String =
-    Seq(addressLine1, addressLine2, city, postalCode).mkString(sep)
-}
+)
 
 object InspectionAddress {
 
@@ -44,21 +42,23 @@ object InspectionAddress {
 
     def mapFrom(contactAddress: ContactAddress): InspectionAddress =
       InspectionAddress(
-        addressLine1 = contactAddress.line1,
-        addressLine2 = contactAddress.line2.getOrElse(" "),
-        city = contactAddress.line4.asSomeIfNonEmpty.orElse(contactAddress.line3).getOrElse(""),
-        countryCode = contactAddress.country.code,
-        postalCode = contactAddress.postcode,
+        addressLine1 = contactAddress.line1.asSomeIfNonEmpty,
+        addressLine2 = contactAddress.line2,
+        addressLine3 = contactAddress.line3,
+        city = contactAddress.line4.asSomeIfNonEmpty,
+        countryCode = contactAddress.country.code.asSomeIfNonEmpty,
+        postalCode = contactAddress.postcode.asSomeIfNonEmpty,
         addressType = inspectionAddressType
       )
 
     def mapFrom(contactDetails: ContactDetails): InspectionAddress =
       InspectionAddress(
-        addressLine1 = contactDetails.addressLine1.getOrElse(""),
-        addressLine2 = contactDetails.addressLine2.getOrElse(" "),
-        city = contactDetails.addressLine4.orElse(contactDetails.addressLine3).getOrElse(""),
-        countryCode = contactDetails.countryCode.getOrElse(""),
-        postalCode = contactDetails.postalCode.getOrElse(""),
+        addressLine1 = contactDetails.addressLine1,
+        addressLine2 = contactDetails.addressLine2,
+        addressLine3 = contactDetails.addressLine3,
+        city = contactDetails.addressLine4,
+        countryCode = contactDetails.countryCode,
+        postalCode = contactDetails.postalCode,
         addressType = inspectionAddressType
       )
   }
