@@ -33,7 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.{routes => rejectedGoodsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectedGoodsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.{routes => rejectedGoodsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
@@ -102,7 +104,12 @@ class ChooseHowManyMrnsController @Inject() (
                      Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst()))
 
-                case Scheduled => Future.successful(Redirect(Call("GET", "/scheduled"))) //FIXME
+                case Scheduled =>
+                  (if (request.sessionData.rejectedGoodsScheduledJourney.isEmpty)
+                     updateSession(sessionStore, request)(_ => SessionData(RejectedGoodsScheduledJourney.empty(eori)))
+                   else
+                     Future.successful(Right(())))
+                    .map(_ => Redirect(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show()))
 
               }
             )

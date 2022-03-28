@@ -40,7 +40,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.{routes => rejectedGoodsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectedGoodsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.{routes => rejectedGoodsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -54,9 +56,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import collection.JavaConverters._
-import play.api.mvc.Call
 
 class ChooseHowManyMrnsControllerSpec
     extends ControllerSpec
@@ -159,16 +159,17 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst())
       }
 
-      //FIXME change to scheduled route
       "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
+        val updatedSession = SessionData(RejectedGoodsScheduledJourney.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
+          mockStoreSession(updatedSession)(Right(()))
         }
 
         val result = performAction(Seq(controller.dataKey -> Scheduled.toString))
-        checkIsRedirect(result, Call("GET", "/scheduled"))
+        checkIsRedirect(result, rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show())
       }
 
       "Show error message when no data selected" in {
