@@ -115,7 +115,7 @@ class EnterMovementReferenceNumberController @Inject() (
   private def redirectLocation(updatedJourney: RejectedGoodsScheduledJourney): Result                         =
     Redirect(
       if (updatedJourney.needsDeclarantAndConsigneeEoriSubmission) {
-        routes.WorkInProgressController.show() //TODO: Should be routes.EnterImporterEoriNumberController.show()
+        routes.EnterImporterEoriNumberController.show()
       } else {
         routes.WorkInProgressController.show() //TODO: Should be routes.CheckDeclarationDetailsController.show()
       }
