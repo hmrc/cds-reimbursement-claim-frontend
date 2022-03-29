@@ -61,7 +61,7 @@ class SelectDutyTypesController @Inject() (
         dutyTypes =>
           (
             journey.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes).getOrElse(journey),
-            Redirect("/select-duties/:category page") //FIXME: routes.SelectDutyCodesController.iterate()
+            Redirect(routes.SelectDutyCodesController.iterate())
           )
       )
       .asFuture

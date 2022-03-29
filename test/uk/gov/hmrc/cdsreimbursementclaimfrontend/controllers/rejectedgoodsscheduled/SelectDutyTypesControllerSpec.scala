@@ -164,7 +164,7 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(Seq(s"$messagesKey[]" -> dutyType.repr)),
-          "/select-duties/:category page" //FIXME routes.SelectDutyCodesController.iterate()
+          routes.SelectDutyCodesController.iterate()
         )
       }
 
