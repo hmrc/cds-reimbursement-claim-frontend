@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import org.scalacheck.Gen
@@ -17,19 +33,30 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.selectDutyCodesKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.{completeJourneyGen, dutyTypesWithTaxCodesGen, exampleEori}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.dutyTypesWithTaxCodesGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, Feature, SessionData, TaxCode, TaxCodes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
+import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 
 class SelectDutyCodesControllerSpec
-  extends PropertyBasedControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach {
@@ -41,9 +68,10 @@ class SelectDutyCodesControllerSpec
     )
 
   val controller: SelectDutyCodesController = instanceOf[SelectDutyCodesController]
+  val selectDutyCodesKey: String            = "select-duty-codes"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
-  implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
@@ -56,9 +84,18 @@ class SelectDutyCodesControllerSpec
     rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
   )
 
+  ////  def performAction(): Future[Result] = controller.show()(FakeRequest())
+
   "Select Duty Codes Controller" should {
 
+    "not find the page if rejected goods feature is disabled" in forAll { dutyType: DutyType =>
+      featureSwitch.disable(Feature.RejectedGoods)
+
+      status(controller.show(dutyType)(FakeRequest())) shouldBe NOT_FOUND
+    }
+
     "redirect to the select duty types page" when {
+
       "user has not selected any duty types" in {
 
         inSequence {
@@ -75,23 +112,23 @@ class SelectDutyCodesControllerSpec
 
     "show select tax codes page" when {
 
-      "user has previously selected duty types" in forAll(completeJourneyGen, genDuty) { (journey, dutyType: DutyType) =>
-        val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-        val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+      "user has previously selected duty types" in forAll(completeJourneyGen, genDuty) {
+        (journey, dutyType: DutyType) =>
+          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
+          val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
-        }
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
 
-        checkIsRedirect(
-          controller.iterate()(FakeRequest()),
-          routes.SelectDutyCodesController.show(dutyType)
-        )
+          checkIsRedirect(
+            controller.iterate()(FakeRequest()),
+            routes.SelectDutyCodesController.show(dutyType)
+          )
       }
 
       "the user has not answered this question before" in forAll(genDuty) { dutyType =>
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -111,81 +148,33 @@ class SelectDutyCodesControllerSpec
     }
 
     "tick existing tax codes" when {
-      "select tax code page is shown" in forAll(genDutyWithRandomlySelectedTaxCode) { case (dutyType: DutyType, taxCode: TaxCode) =>
+      "select tax code page is shown" in forAll(genDutyWithRandomlySelectedTaxCode) {
+        case (dutyType: DutyType, taxCode: TaxCode) =>
+          val journey = RejectedGoodsScheduledJourney
+            .empty(exampleEori)
+            .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
 
-        val journey = RejectedGoodsScheduledJourney
-          .empty(exampleEori)
-          .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
+          val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = journey.toOption)
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = journey.toOption)
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkPageIsDisplayed(
-          controller.show(dutyType)(FakeRequest()),
-          messageFromMessageKey(
-            s"$selectDutyCodesKey.title",
-            messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
-          ),
-          doc => isCheckboxChecked(doc, taxCode.value) shouldBe true
-        )
+          checkPageIsDisplayed(
+            controller.show(dutyType)(FakeRequest()),
+            messageFromMessageKey(
+              s"$selectDutyCodesKey.title",
+              messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+            ),
+            doc => isCheckboxChecked(doc, taxCode.value) shouldBe true
+          )
 
       }
 
-
     }
   }
-  //  def performAction(): Future[Result] = controller.show()(FakeRequest())
-  //
-  //      "not find the page if rejected goods feature is disabled" in {
-  //        featureSwitch.disable(Feature.RejectedGoods)
-  //
-  //        status(performAction()) shouldBe NOT_FOUND
-  //      }
-
-  //      "display the page for the first time" in {
-  //        val journey = RejectedGoodsScheduledJourney
-  //          .empty(exampleEori)
-  //          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
-  //          .getOrFail
-  //
-  //        val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(journey))
-  //
-  //        inSequence {
-  //          mockAuthWithNoRetrievals()
-  //          mockGetSession(updatedSession)
-  //        }
-  //
-  //        checkPageIsDisplayed(
-  //          performAction(),
-  //          messageFromMessageKey(s"$messagesKey.title"),
-  //          doc => selectedCheckBox(doc) shouldBe empty
-  //        )
-  //      }
-
-  //      "display the page when a duty has already been selected before" in {
-  //        forAll(completeJourneyGen, genDuty) { (journey, dutyType: DutyType) =>
-  //          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-  //          val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
-  //
-  //          inSequence {
-  //            mockAuthWithNoRetrievals()
-  //            mockGetSession(updatedSession)
-  //          }
-  //
-  //          checkPageIsDisplayed(
-  //            performAction(),
-  //            messageFromMessageKey(s"$messagesKey.title"),
-  //            doc => isCheckboxChecked(doc, dutyType.repr)
-  //          )
-  //        }
-  //      }
-
-
 
   "Submit Select Tax Codes page" must {
 
@@ -198,11 +187,12 @@ class SelectDutyCodesControllerSpec
     "save user selected tax codes and redirect to the next page" when {
 
       "no other selected duties remaining" in forAll(genDutyWithRandomlySelectedTaxCode) { case (duty, taxCode) =>
-
-        val initialJourney = RejectedGoodsScheduledJourney.empty(exampleEori).selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
+        val initialJourney =
+          RejectedGoodsScheduledJourney.empty(exampleEori).selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
         val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
 
-        val updatedJourney = initialJourney.flatMap(journey => journey.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)))
+        val updatedJourney =
+          initialJourney.flatMap(journey => journey.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)))
         val updatedSession = initialSession.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
 
         inSequence {
@@ -220,11 +210,59 @@ class SelectDutyCodesControllerSpec
       }
     }
 
+    "save user selected tax codes and ask user to select tax codes for the next available duty" in {
+
+      forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise)) { (customDuty, exciseDuty) =>
+//        val (sessionOne, draftClaim) = sessionWithDutyCodesState(
+//          SelectedDutyTaxCodesReimbursementAnswer(
+//            SortedMap(
+//              customDuty -> SortedMap.empty[TaxCode, Reimbursement],
+//              exciseDuty -> SortedMap.empty[TaxCode, Reimbursement]
+//            )
+//          ).some
+//        )
+        val initialJourney         = RejectedGoodsScheduledJourney
+          .empty(exampleEori)
+          .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
+        val initialSession         = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+        val taxCodes: Seq[TaxCode] = initialJourney.map(_.getSelectedDutiesFor(customDuty)).getOrFail.get
+
+        val updatedJourney =
+          initialJourney.flatMap(journey => journey.selectAndReplaceTaxCodeSetForReimbursement(customDuty, taxCodes))
+        val updatedSession = initialSession.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+
+//        val updatedSession: SessionData =
+//          session.copy(journeyStatus = session.journeyStatus.collect { case fillingOutClaim: FillingOutClaim =>
+//            fillingOutClaim.copy(
+//              draftClaim = draftClaim.copy(
+//                selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
+//                  SortedMap(
+//                    customDuty -> SortedMap(customDuty.taxCodes(0) -> Reimbursement.unclaimed),
+//                    exciseDuty -> SortedMap.empty
+//                  )
+//                ).some
+//              )
+//            )
+//          })
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          //mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          controller.submit(customDuty)(
+            FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> customDuty.taxCodes(0).value)
+          ),
+          "routes.[NEW CONTROLLER].show()" // FixMe: routes.SelectDutyCodesController.show(exciseDuty)
+        )
+      }
+    }
 
     "show an error summary" when {
 
       "no duty code is selected" in forAll { duty: DutyType =>
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -249,7 +287,6 @@ class SelectDutyCodesControllerSpec
 
   }
 }
-
 
 object SelectDutyCodesControllerSpec {
 

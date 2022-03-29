@@ -25,10 +25,9 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.selectDutyCodesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.[FORM]
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
 import scala.concurrent.ExecutionContext
@@ -41,10 +40,7 @@ class SelectDutyCodesController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  val formKey: String = "select-duty-codes"
-
   //private val postAction: Call = routes.SelectDutyCodesController.submit()
-  //TODO: move form to form object
   val iterate: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     def selectDuties: Future[Result] = Redirect(routes.SelectDutyTypesController.show()).asFuture
 
