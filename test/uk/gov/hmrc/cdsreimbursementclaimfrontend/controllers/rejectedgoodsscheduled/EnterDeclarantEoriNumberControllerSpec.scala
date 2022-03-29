@@ -206,7 +206,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
           checkIsRedirect(
             performAction(controller.eoriNumberFormKey -> eori.value),
-            "check-declaration-details" //TODO: Fix with actual route.
+            routes.CheckDeclarationDetailsController.show()
           )
       }
 

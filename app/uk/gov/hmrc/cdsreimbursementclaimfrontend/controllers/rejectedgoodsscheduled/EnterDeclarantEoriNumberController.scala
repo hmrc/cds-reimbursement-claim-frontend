@@ -70,7 +70,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                 logger.error(s"Unable to record $eori - $errors")
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
               },
-              updatedJourney => (updatedJourney, Redirect("check-declaration-details")) //TODO: Fix with proper route
+              updatedJourney => (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show()))
             )
       )
       .asFuture
