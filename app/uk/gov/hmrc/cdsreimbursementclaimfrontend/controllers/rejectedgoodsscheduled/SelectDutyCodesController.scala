@@ -51,8 +51,9 @@ class SelectDutyCodesController @Inject() (
   }
 
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val postAction: Call                     = routes.SelectDutyCodesController.submit(dutyType)
-    val maybeTaxCodes: Option[List[TaxCode]] = journey.getSelectedDuties.map(_._2.toList).headOption
+    val postAction: Call = routes.SelectDutyCodesController.submit(dutyType)
+
+    val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
     val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
 
     Ok(selectDutyCodesPage(dutyType, form, postAction)).asFuture
@@ -72,16 +73,25 @@ class SelectDutyCodesController @Inject() (
               BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))
             ),
           selectedTaxCodes =>
-            (
-              journey.selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes).getOrElse(journey),
-              journey.findNextSelectedDutyAfter(currentDuty) match {
-                case Some(nextDuty) => Redirect(routes.SelectDutyCodesController.show(nextDuty))
-                case None           =>
-                  Redirect(
-                    "/rejected-goods/scheduled/select-duties/reimbursement-claim/start"
-                  ) //FIXME: routes.EnterScheduledClaimController.iterate()
-              }
-            )
+            journey
+              .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
+              .fold(
+                errors => {
+                  logger.error(s"Error updating tax codes selection - $errors")
+                  (journey, Redirect(routes.SelectDutyCodesController.show(currentDuty)))
+                },
+                updatedJourney =>
+                  (
+                    updatedJourney,
+                    updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
+                      case Some(nextDuty) => Redirect(routes.SelectDutyCodesController.show(nextDuty))
+                      case None           =>
+                        Redirect(
+                          "/rejected-goods/scheduled/select-duties/reimbursement-claim/start"
+                        ) //FIXME: routes.EnterScheduledClaimController.iterate()
+                    }
+                  )
+              )
         )
     )
   }

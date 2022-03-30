@@ -25,7 +25,6 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -45,9 +44,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
-import scala.collection.immutable.SortedMap
-import scala.concurrent.Future
 
 class SelectDutyCodesControllerSpec
     extends PropertyBasedControllerSpec
@@ -102,10 +98,15 @@ class SelectDutyCodesControllerSpec
 
     "show select tax codes page" when {
 
-      "the user has not answered this question before" in forAll(genDuty) { dutyType =>
+      "the user has not answered this question before" in forAll { dutyType: DutyType =>
+        val initialJourney = RejectedGoodsScheduledJourney
+          .empty(exampleEori)
+          .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
+        val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkPageIsDisplayed(
@@ -209,7 +210,6 @@ class SelectDutyCodesControllerSpec
           .empty(exampleEori)
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
         val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
-        val nextDuty       = initialJourney.getOrFail.findNextSelectedDutyAfter(customDuty)
 
         val taxCode: TaxCode = customDuty.taxCodes(0)
 

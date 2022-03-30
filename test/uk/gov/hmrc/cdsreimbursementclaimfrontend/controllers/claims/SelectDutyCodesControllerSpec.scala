@@ -136,7 +136,7 @@ class SelectDutyCodesControllerSpec
           ),
           doc => {
             isCheckboxChecked(doc, taxCode.value) shouldBe true
-            formAction(doc) shouldBe routes.SelectDutyCodesController.submitDutyCodes(duty).url
+            formAction(doc)                       shouldBe routes.SelectDutyCodesController.submitDutyCodes(duty).url
           }
         )
       }
