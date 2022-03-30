@@ -21,6 +21,12 @@ import javax.inject.Singleton
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.dutyTypesRankMap
+
+import scala.collection.SortedMap
+import scala.collection.immutable.ListMap
 //import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -40,7 +46,6 @@ class SelectDutyCodesController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  //private val postAction: Call = routes.SelectDutyCodesController.submit()
   val iterate: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     def selectDuties: Future[Result] = Redirect(routes.SelectDutyTypesController.show()).asFuture
 
@@ -51,9 +56,11 @@ class SelectDutyCodesController @Inject() (
     }
   }
 
+  //TODO: Add default form action
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val maybeTaxCodes: Option[List[TaxCode]] = journey.getSelectedDuties.map(_._2.toList).headOption
-    val form: Form[List[TaxCode]]            = maybeTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_))
+    val form: Form[List[TaxCode]]            =
+      maybeTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_)).withDefault(maybeTaxCodes)
 
     Ok(selectDutyCodesPage(dutyType, form)).asFuture
 
@@ -72,7 +79,13 @@ class SelectDutyCodesController @Inject() (
           selectedTaxCodes =>
             (
               journey.selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes).getOrElse(journey),
-              Redirect("routes.[NEW CONTROLLER].show()") //FIXME: routes.[NEW CONTROLLER].show()
+              journey.findNextSelectedDutyAfter(currentDuty) match {
+                case Some(nextDuty) => Redirect(routes.SelectDutyCodesController.show(nextDuty))
+                case None           =>
+                  Redirect(
+                    "/rejected-goods/scheduled/select-duties/reimbursement-claim/start"
+                  ) //FIXME: routes.EnterScheduledClaimController.iterate()
+              }
             )
         )
     )
