@@ -1,8 +1,8 @@
-GET          /rejected-goods/scheduled/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterMovementReferenceNumberController.show()
+POST         /rejected-goods/scheduled/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterMovementReferenceNumberController.submit()
 
-GET          /rejected-goods/scheduled/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterImporterEoriNumberController.show()
+POST         /rejected-goods/scheduled/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterImporterEoriNumberController.submit()
 
 GET          /rejected-goods/scheduled/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterDeclarantEoriNumberController.show()
 POST         /rejected-goods/scheduled/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterDeclarantEoriNumberController.submit()
