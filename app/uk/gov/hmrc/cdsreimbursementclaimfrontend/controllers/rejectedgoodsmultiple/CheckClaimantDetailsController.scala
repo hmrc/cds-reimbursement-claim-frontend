@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLooku
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,12 +34,10 @@ import scala.concurrent.ExecutionContext
 class CheckClaimantDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val addressLookupService: AddressLookupService,
-  claimantDetailsPage: pages.check_claimant_details
+  claimantDetailsPage: check_claimant_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController
     with AddressLookupMixin[RejectedGoodsMultipleJourney] {
-
-  implicit val subKey: Option[String] = None
 
   val startAddressLookup: Call =
     routes.CheckClaimantDetailsController.redirectToALF()

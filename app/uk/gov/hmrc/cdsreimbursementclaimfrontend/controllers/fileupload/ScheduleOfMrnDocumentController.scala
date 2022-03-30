@@ -208,7 +208,7 @@ class ScheduleOfMrnDocumentController @Inject() (
         request
           .routeToCheckAnswers(Scheduled)
           .whenComplete(journey.draftClaim)(alternatively =
-            claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(Scheduled)
+            claimRoutes.CheckContactDetailsMrnController.show(Scheduled)
           )
       }
     }

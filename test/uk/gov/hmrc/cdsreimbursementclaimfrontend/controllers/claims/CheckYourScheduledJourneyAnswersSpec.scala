@@ -16,140 +16,128 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.implicits.catsSyntaxApply
+import org.jsoup.nodes
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec.DOMDocOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyTypeSummary
 
-class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec with CheckCDSDetails {
+import scala.collection.JavaConverters._
 
-  "The CYA page" should {
+class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec with SummaryMatchers {
 
-    "display answer summaries for the Scheduled journey" in {
-      val (session, claim)                              = genData(TypeOfClaimAnswer.Scheduled)
-      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus.collect {
-        case fillingOutClaim: FillingOutClaim => fillingOutClaim
-      }
+  "The C285 Scheduled journey CYA page" should {
 
-      inSequence {
-        mockAuthWithNoRetrievals()
-        mockGetSession(session)
-      }
+    "display answer summaries" in {
 
-      val result = controller.checkAllAnswers(JourneyBindable.Scheduled)(FakeRequest())
-
-      checkPageIsDisplayed(
-        result,
-        messageFromMessageKey(s"$checkYourAnswersKey.title"),
-        doc => {
-          val headers   = doc.extractHeaders()
-          val summaries = doc.extractSummaries()
-
-          headers   should contain allElementsOf (Seq(
-            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
-            claim.displayDeclaration *> Some(s"$checkYourAnswersKey.declaration-details.h2"),
-            claim.extractEstablishmentAddress *> Some(s"$checkYourAnswersKey.claimant-details.h2")
-          ).flatMap(_.toList) ++ Seq(
-            s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.attached-documents.h2",
-            s"$checkYourAnswersKey.scheduled-document.h2",
-            s"$checkYourAnswersKey.reference-number.scheduled.h2",
-            s"$checkYourAnswersKey.claim-calculation.scheduled.h2"
-          )).map(messages(_))
-
-          summaries should contain allElementsOf Seq(
-            (
-              messages(s"$checkYourAnswersKey.reference-number.scheduled.label"),
-              claim.movementReferenceNumber.value.value
-            ),
-            (
-              messages(s"$checkYourAnswersKey.claimant-type.l0"),
-              messages(
-                s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswers.indexOf(claim.declarantTypeAnswer.value)}"
-              )
-            ),
-            (
-              messages(s"$checkYourAnswersKey.commodities-details.label"),
-              claim.commoditiesDetailsAnswer.map(_.value).value
-            ),
-            (
-              messages(s"$checkYourAnswersKey.scheduled-document.label"),
-              claim.scheduledDocumentAnswer.map(_.uploadDocument.fileName).value
-            )
-          ) ++ claim.basisOfClaimAnswer.map { answer =>
-            (
-              messages(s"$checkYourAnswersKey.basis.l0"),
-              messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
-            )
-          }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
-            (
-              messages(s"$checkYourAnswersKey.attached-documents.label"),
-              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"$supportingEvidenceKey.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
-            )
-          }.toList ++ claim.displayDeclaration.toList
-            .flatMap { declaration =>
-              Seq(
-                Some(
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.import-date-label"),
-                    declaration.displayResponseDetail.acceptanceDate
-                  )
-                ),
-                Some(
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.paid-charges-label"),
-                    declaration.totalPaidCharges.toPoundSterlingString
-                  )
-                ),
-                declaration.consigneeName.map { name =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.importer-name-label"),
-                    name
-                  )
-                },
-                declaration.consigneeEmail.map { email =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.importer-email-label"),
-                    email
-                  )
-                },
-                declaration.consigneeAddress.map { address =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.importer-address-label"),
-                    address.replace("<br />", " ")
-                  )
-                },
-                Some(
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.declarant-name-label"),
-                    declaration.declarantName
-                  )
-                ),
-                declaration.declarantContactAddress.map { address =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.declarant-address-label"),
-                    address.replace("<br />", " ")
-                  )
-                }
-              )
-            }
-            .flatMap(_.toList) ++ contactDetailsFromCDS(
-            claim,
-            maybeFillingOutClaim.map(_.signedInUserDetails.verifiedEmail)
-          )
+      forAll(draftClaimGen(TypeOfClaimAnswer.Scheduled)) { case (session, claim, user) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
         }
-      )
+
+        val result = controller.checkAllAnswers(JourneyBindable.Scheduled)(FakeRequest())
+
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey(s"$checkYourAnswersKey.title"),
+          (doc: nodes.Document) => {
+
+            val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
+            val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+            val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+
+            val declaration: Option[DisplayDeclaration]           = claim.displayDeclaration
+            val declarationDetails: Option[DisplayResponseDetail] = declaration.map(_.displayResponseDetail)
+
+            val expectedDocuments: String =
+              claim.supportingEvidencesAnswer.value
+                .map { uploadDocument =>
+                  s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"$supportingEvidenceKey.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
+                }
+                .toList
+                .mkString(" ")
+
+            val scheduledDocument = claim.scheduledDocumentAnswer.map { document =>
+              s"${document.uploadDocument.fileName}"
+            }
+
+            val claims: Seq[DutyTypeSummary] =
+              DutyTypeSummary.buildFrom(claim.claimedReimbursementsAnswer.value)
+
+            val claimSummaries: Seq[(String, Option[String])] = claims.map(claim =>
+              (
+                messages(s"check-your-answers.claim-calculation.${claim.messageKey}"),
+                Some(claim.total.toPoundSterlingString)
+              )
+            )
+
+            val total: String =
+              claims.map(_.total).sum.toPoundSterlingString
+
+            headers should containOnlyDefinedElementsOf(
+              "Lead Movement Reference Number (MRN)".expectedAlways,
+              "Declaration details".expectedWhen(claim.displayDeclaration),
+              "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
+              "Basis for claim".expectedAlways,
+              "Reason for claim".expectedAlways,
+              "Total reimbursement claim for all MRNs".expectedAlways,
+              "Bank details".expectedAlways,
+              "Supporting documents".expectedAlways,
+              "Were your goods imported into Northern Ireland?".expectedWhen(claim.whetherNorthernIrelandAnswer),
+              "Reimbursement method".expectedWhen(claim.reimbursementMethodAnswer),
+              "Scheduled document".expectedAlways,
+              "Now send your application".expectedAlways
+            )
+
+            summaries should containOnlyDefinedPairsOf(
+              Seq(
+                ("Lead MRN"                                        -> claim.movementReferenceNumber.map(_.value)),
+                ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),
+                ("Duties and VAT paid"                             -> declaration.map(_.totalPaidCharges.toPoundSterlingString)),
+                ("Importer name"                                   -> declaration.flatMap(_.consigneeName)),
+                ("Importer email"                                  -> declaration.flatMap(_.consigneeEmail)),
+                ("Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone)),
+                ("Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br />", " "))),
+                ("Declarant name"                                  -> declaration.map(_.declarantName)),
+                ("Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " "))),
+                ("This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
+                  messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
+                )),
+                ("This is the reason for the claim"                -> claim.commoditiesDetailsAnswer.map(_.value)),
+                ("Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value)),
+                ("Sort code"                                       -> claim.bankAccountDetailsAnswer.map(_.sortCode.masked)),
+                ("Account number"                                  -> claim.bankAccountDetailsAnswer.map(_.accountNumber.masked)),
+                ("Contact details"                                 -> claim
+                  .getClaimantInformation(user.eori)
+                  .map(ClaimantInformationSummary.getContactDataString)),
+                ("Contact address"                                 -> claim
+                  .getClaimantInformation(user.eori)
+                  .map(ClaimantInformationSummary.getAddressDataString)),
+                ("Total"                                           -> Some(total)),
+                ("Uploaded"                                        -> Some(expectedDocuments)),
+                ("Scheduled document"                              -> scheduledDocument),
+                ("Were your goods imported into Northern Ireland?" -> claim.whetherNorthernIrelandAnswer.map(
+                  _.toString()
+                ))
+              )
+                ++ claimSummaries
+            )
+          }
+        )
+      }
+
     }
   }
 }

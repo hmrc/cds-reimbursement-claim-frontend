@@ -35,6 +35,7 @@ import java.util.UUID
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 final case class DraftClaim(
   id: UUID,
@@ -192,6 +193,105 @@ final case class DraftClaim(
       case _               => isSingleJourneyComplete
     }
   }
+
+  def computeContactDetails(retrievedUser: RetrievedUserType): Option[MrnContactDetails] = (
+    mrnContactDetailsAnswer,
+    displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
+    displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
+    retrievedUser,
+    retrievedUser.eoriOpt
+  ) match {
+    case (details @ Some(_), _, _, _, _) =>
+      details
+
+    case (_, Some(consigneeContactDetails), _, user, Some(userEoriNumber))
+        if getConsigneeEoriFromACC14.contains(userEoriNumber) =>
+      Some(
+        MrnContactDetails(
+          consigneeContactDetails.contactName.getOrElse(""),
+          consigneeContactDetails.emailAddress
+            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
+          consigneeContactDetails.telephone.map(PhoneNumber(_))
+        )
+      )
+
+    case (_, None, _, user, Some(userEoriNumber)) if getConsigneeEoriFromACC14.contains(userEoriNumber) =>
+      Some(
+        MrnContactDetails(
+          user.name.map(_.toFullName).getOrElse(""),
+          user.email.getOrElse(Email("")),
+          None
+        )
+      )
+
+    case (_, _, Some(declarantContactDetails), user, _) =>
+      Some(
+        MrnContactDetails(
+          declarantContactDetails.contactName.getOrElse(""),
+          declarantContactDetails.emailAddress
+            .fold(user.email.getOrElse(Email("")))(address => Email(address)),
+          declarantContactDetails.telephone.map(PhoneNumber(_))
+        )
+      )
+
+    case _ =>
+      None
+  }
+
+  def computeAddressDetails(retrievedUser: RetrievedUserType): Option[ContactAddress] = (
+    mrnContactAddressAnswer,
+    displayDeclaration.flatMap(_.getConsigneeDetails),
+    displayDeclaration.map(_.getDeclarantDetails),
+    retrievedUser.eoriOpt
+  ) match {
+    case (contactAddress @ Some(_), _, _, _) =>
+      contactAddress
+
+    case (None, Some(consigneeDetails), _, Some(userEoriNumber))
+        if getConsigneeEoriFromACC14.contains(userEoriNumber) =>
+      Some(consigneeDetails.establishmentAddress.toContactAddress)
+
+    case (None, _, Some(declarantDetails), _) =>
+      Some(declarantDetails.establishmentAddress.toContactAddress)
+
+    case _ => None
+  }
+
+  def getDeclarantEoriFromACC14: Option[Eori] =
+    displayDeclaration.map(_.getDeclarantEori)
+
+  def getConsigneeEoriFromACC14: Option[Eori] =
+    displayDeclaration.flatMap(_.getConsigneeEori)
+
+  def getClaimantEori(userEoriNumber: Eori): Eori = getClaimantType(userEoriNumber) match {
+    case ClaimantType.Consignee => getConsigneeEoriFromACC14.getOrElse(userEoriNumber)
+    case ClaimantType.Declarant => getDeclarantEoriFromACC14.getOrElse(userEoriNumber)
+    case ClaimantType.User      => userEoriNumber
+  }
+
+  def getClaimantType(userEoriNumber: Eori): ClaimantType =
+    if (getConsigneeEoriFromACC14.contains(userEoriNumber))
+      ClaimantType.Consignee
+    else if (getDeclarantEoriFromACC14.contains(userEoriNumber))
+      ClaimantType.Declarant
+    else
+      ClaimantType.User
+
+  def getClaimantInformation(userEoriNumber: Eori): Option[ClaimantInformation] =
+    for {
+      contactDetails <- mrnContactDetailsAnswer
+      contactAddress <- mrnContactAddressAnswer
+    } yield ClaimantInformation.from(
+      getClaimantEori(userEoriNumber),
+      getClaimantType(userEoriNumber) match {
+        case ClaimantType.Consignee => displayDeclaration.flatMap(_.getConsigneeDetails)
+        case ClaimantType.Declarant => displayDeclaration.map(_.getDeclarantDetails)
+        case ClaimantType.User      => displayDeclaration.map(_.getDeclarantDetails)
+      },
+      contactDetails,
+      contactAddress
+    )
+
 }
 
 object DraftClaim {

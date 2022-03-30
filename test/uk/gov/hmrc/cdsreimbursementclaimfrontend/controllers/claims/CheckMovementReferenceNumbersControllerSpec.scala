@@ -287,7 +287,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performActionWithData(Seq(checkMovementReferenceNumbersKey -> false.toString)),
-            routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple)
+            routes.CheckContactDetailsMrnController.show(JourneyBindable.Multiple)
           )
 
         }

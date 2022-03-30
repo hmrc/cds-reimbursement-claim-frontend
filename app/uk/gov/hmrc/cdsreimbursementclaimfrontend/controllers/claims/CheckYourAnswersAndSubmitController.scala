@@ -82,7 +82,13 @@ class CheckYourAnswersAndSubmitController @Inject() (
       request.using { case fillingOutClaim: FillingOutClaim =>
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
         implicit val subKey: Option[String]      = router.subKey
-        Ok(checkYourAnswersPage(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail))
+        Ok(
+          checkYourAnswersPage(
+            fillingOutClaim.draftClaim,
+            fillingOutClaim.signedInUserDetails.verifiedEmail,
+            fillingOutClaim.signedInUserDetails.eori
+          )
+        )
       }
     }
 

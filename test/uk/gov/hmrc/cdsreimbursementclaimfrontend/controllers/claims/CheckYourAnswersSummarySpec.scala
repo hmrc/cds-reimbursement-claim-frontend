@@ -41,9 +41,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 
 abstract class CheckYourAnswersSummarySpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with OptionValues
     with SessionSupport
     with AuthSupport {
@@ -71,6 +74,15 @@ abstract class CheckYourAnswersSummarySpec
     val session             = SessionData.empty.copy(journeyStatus = Some(fillingOutClaim))
     (session, claim)
   }
+
+  def draftClaimGen(
+    maybeTypeOfClaim: TypeOfClaimAnswer
+  ): Gen[(SessionData, DraftClaim, SignedInUserDetails)] = for {
+    ggCredId            <- implicitly[Arbitrary[GGCredId]].arbitrary
+    signedInUserDetails <- implicitly[Arbitrary[SignedInUserDetails]].arbitrary
+    claim               <- genValidDraftClaim(maybeTypeOfClaim)
+    fillingOutClaim      = FillingOutClaim(ggCredId, signedInUserDetails, claim)
+  } yield (SessionData.empty.copy(journeyStatus = Some(fillingOutClaim)), claim, signedInUserDetails)
 }
 
 object CheckYourAnswersSummarySpec extends HtmlParseSupport {
