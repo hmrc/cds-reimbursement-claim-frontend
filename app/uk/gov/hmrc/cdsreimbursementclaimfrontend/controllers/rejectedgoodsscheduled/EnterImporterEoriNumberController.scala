@@ -74,7 +74,7 @@ class EnterImporterEoriNumberController @Inject() (
               updatedJourney =>
                 (
                   updatedJourney,
-                  Redirect("routes.EnterDeclarantEoriNumberController.show()")
+                  Redirect(routes.EnterDeclarantEoriNumberController.show())
                 )
             )
             .asFuture

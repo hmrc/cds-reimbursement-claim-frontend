@@ -212,7 +212,7 @@ class EnterImporterEoriNumberControllerSpec
 
           checkIsRedirect(
             performAction(controller.eoriNumberFormKey -> eori.value),
-            "routes.EnterDeclarantEoriNumberController.show()" // todo CDS-1346
+            routes.EnterDeclarantEoriNumberController.show()
           )
       }
 
