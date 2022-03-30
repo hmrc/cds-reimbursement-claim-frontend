@@ -114,7 +114,10 @@ class SelectDutyCodesControllerSpec
             s"$selectDutyCodesKey.title",
             messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
           ),
-          doc => selectedCheckBox(doc) shouldBe empty
+          doc => {
+            selectedCheckBox(doc) shouldBe empty
+            formAction(doc)       shouldBe routes.SelectDutyCodesController.submit(dutyType).url
+          }
         )
       }
 

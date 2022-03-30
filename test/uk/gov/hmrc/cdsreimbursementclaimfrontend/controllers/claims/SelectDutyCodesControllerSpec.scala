@@ -134,7 +134,10 @@ class SelectDutyCodesControllerSpec
             s"$selectDutyCodesKey.title",
             messageFromMessageKey(s"$selectDutyCodesKey.h1.${duty.repr}")
           ),
-          doc => isCheckboxChecked(doc, taxCode.value) shouldBe true
+          doc => {
+            isCheckboxChecked(doc, taxCode.value) shouldBe true
+            formAction(doc) shouldBe routes.SelectDutyCodesController.submitDutyCodes(duty).url
+          }
         )
       }
     }

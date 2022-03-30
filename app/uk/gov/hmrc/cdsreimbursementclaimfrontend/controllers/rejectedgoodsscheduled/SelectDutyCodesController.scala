@@ -21,13 +21,7 @@ import javax.inject.Singleton
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.dutyTypesRankMap
-
-import scala.collection.SortedMap
-import scala.collection.immutable.ListMap
-//import play.api.mvc.Call
+import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -56,17 +50,18 @@ class SelectDutyCodesController @Inject() (
     }
   }
 
-  //TODO: Add default form action
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    val postAction: Call                     = routes.SelectDutyCodesController.submit(dutyType)
     val maybeTaxCodes: Option[List[TaxCode]] = journey.getSelectedDuties.map(_._2.toList).headOption
-    val form: Form[List[TaxCode]]            =
-      maybeTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_)).withDefault(maybeTaxCodes)
+    val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
 
-    Ok(selectDutyCodesPage(dutyType, form)).asFuture
+    Ok(selectDutyCodesPage(dutyType, form, postAction)).asFuture
 
   }
 
   def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    val postAction: Call = routes.SelectDutyCodesController.submit(currentDuty)
+
     Future.successful(
       selectDutyCodesForm
         .bindFromRequest()
@@ -74,7 +69,7 @@ class SelectDutyCodesController @Inject() (
           formWithErrors =>
             (
               journey,
-              BadRequest(selectDutyCodesPage(currentDuty, formWithErrors))
+              BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))
             ),
           selectedTaxCodes =>
             (

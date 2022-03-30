@@ -21,6 +21,7 @@ import cats.implicits.catsSyntaxOptionId
 import com.google.inject.Inject
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -80,9 +81,13 @@ class SelectDutyCodesController @Inject() (
     implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
         val maybeSelectedTaxCodes = maybeAnswer.map(_.getTaxCodes(dutyType))
-
+        val postAction: Call      = claimRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)
         Ok(
-          selectDutyCodesPage(dutyType, maybeSelectedTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_)))
+          selectDutyCodesPage(
+            dutyType,
+            maybeSelectedTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_)),
+            postAction
+          )
         )
       }
   }
@@ -90,6 +95,8 @@ class SelectDutyCodesController @Inject() (
   def submitDutyCodes(currentDuty: DutyType): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
+        val postAction: Call = claimRoutes.SelectDutyCodesController.submitDutyCodes(currentDuty)
+
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) = {
           val claim = from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = answer.some))
           updateSession(sessionCache, request)(_.copy(journeyStatus = claim.some))
@@ -98,7 +105,7 @@ class SelectDutyCodesController @Inject() (
         selectDutyCodesForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectDutyCodesPage(currentDuty, formWithErrors)),
+            formWithErrors => BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction)),
             selectedTaxCodes =>
               OptionT
                 .fromOption[Future](maybeAnswer.map(_.reapply(selectedTaxCodes)(currentDuty)))
