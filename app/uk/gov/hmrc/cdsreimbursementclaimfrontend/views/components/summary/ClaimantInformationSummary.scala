@@ -101,7 +101,7 @@ object ClaimantInformationSummary {
       Some(contactInformation.contactPerson.getOrElse(claimantInformation.fullName)),
       Some(contactInformation.emailAddress.getOrElse("")),
       contactInformation.telephoneNumber
-    ).flattenOption.mkString(" ")
+    ).flattenOption.mkString(" ").trim
   }
 
   def getAddressDataHtml(
@@ -127,6 +127,6 @@ object ClaimantInformationSummary {
       contactInformation.city,
       contactInformation.postalCode,
       contactInformation.countryCode.map(code => messages(s"country.$code"))
-    ).flattenOption.mkString(" ")
+    ).flattenOption.mkString(" ").trim
   }
 }

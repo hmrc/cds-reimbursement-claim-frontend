@@ -31,11 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtracto
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -57,9 +54,7 @@ import scala.concurrent.Future
 class CheckContactDetailsMrnController @Inject() (
   addressLookupService: AddressLookupService,
   val authenticatedAction: AuthenticatedAction,
-  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
   val sessionDataAction: SessionDataAction,
-  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
@@ -67,7 +62,6 @@ class CheckContactDetailsMrnController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
-    with WithAuthRetrievalsAndSessionDataAction
     with SessionUpdates
     with SessionDataExtractor
     with Logging {
@@ -78,11 +72,10 @@ class CheckContactDetailsMrnController @Inject() (
     routes.CheckContactDetailsMrnController.redirectToALF(journey)
 
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
-    authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+    authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
-        val retrievedUserType    = request.authenticatedRequest.journeyUserType
-        val maybeContactDetails  = fillingOutClaim.draftClaim.computeContactDetails(retrievedUserType)
-        val maybeAddressDetails  = fillingOutClaim.draftClaim.computeAddressDetails(retrievedUserType)
+        val maybeContactDetails  = fillingOutClaim.draftClaim.computeContactDetails(fillingOutClaim.signedInUserDetails)
+        val maybeAddressDetails  = fillingOutClaim.draftClaim.computeAddressDetails(fillingOutClaim.signedInUserDetails)
         val changeContactDetails = routes.EnterContactDetailsMrnController.changeMrnContactDetails(journey)
         val postAction           = routes.CheckContactDetailsMrnController.submit(journey)
 
@@ -93,25 +86,51 @@ class CheckContactDetailsMrnController @Inject() (
             Ok(view)
 
           case _ =>
-            logger.warn(
-              s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
-            )
             Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))
         }
       }
     }
 
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
-    authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+    authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
-        val router = extractRoutes(fillingOutClaim.draftClaim, journey)
-        Redirect(
-          router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-            if (featureSwitch.isEnabled(Feature.NorthernIreland))
-              routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
-            else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
+        val sessionUpdateResult: Future[Either[Error, Unit]] =
+          if (
+            fillingOutClaim.draftClaim.mrnContactDetailsAnswer.isDefined &&
+            fillingOutClaim.draftClaim.mrnContactAddressAnswer.isDefined
           )
-        )
+            Future.successful(Right(()))
+          else {
+            val updatedClaim: FillingOutClaim = fillingOutClaim.copy(draftClaim =
+              fillingOutClaim.draftClaim.copy(
+                mrnContactDetailsAnswer = fillingOutClaim.draftClaim.mrnContactDetailsAnswer
+                  .orElse(
+                    fillingOutClaim.draftClaim.computeContactDetails(fillingOutClaim.signedInUserDetails)
+                  ),
+                mrnContactAddressAnswer = fillingOutClaim.draftClaim.mrnContactAddressAnswer
+                  .orElse(
+                    fillingOutClaim.draftClaim.computeAddressDetails(fillingOutClaim.signedInUserDetails)
+                  )
+              )
+            )
+            updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim)))
+          }
+
+        EitherT(sessionUpdateResult)
+          .leftMap(_ => Error("could not update session"))
+          .fold(
+            logAndDisplayError("could not store contact and address details"),
+            _ => {
+              val router = extractRoutes(fillingOutClaim.draftClaim, journey)
+              Redirect(
+                router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                  if (featureSwitch.isEnabled(Feature.NorthernIreland))
+                    routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+                  else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
+                )
+              )
+            }
+          )
       }
     }
 
