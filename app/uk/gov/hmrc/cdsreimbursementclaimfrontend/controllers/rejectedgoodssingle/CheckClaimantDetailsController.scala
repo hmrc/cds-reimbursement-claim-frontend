@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLooku
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,30 +35,28 @@ import scala.concurrent.Future
 class CheckClaimantDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val addressLookupService: AddressLookupService,
-  claimantDetailsPage: pages.check_claimant_details
+  claimantDetailsPage: check_claimant_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
     with AddressLookupMixin[RejectedGoodsSingleJourney] {
 
-  implicit val subKey: Option[String] = None
-
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 
-  val startAddressLookup: Call =
-    routes.CheckClaimantDetailsController.redirectToALF()
+  val postAction: Call           = routes.CheckClaimantDetailsController.submit()
+  val changeContactDetails: Call = routes.EnterContactDetailsController.show()
+  val startAddressLookup: Call   = routes.CheckClaimantDetailsController.redirectToALF()
 
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-    val changeCd                                   = routes.EnterContactDetailsController.show()
-    val postAction                                 = routes.CheckClaimantDetailsController.submit()
-    val (maybeContactDetails, maybeAddressDetails) =
-      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
+    val maybeContactDetails = journey.computeContactDetails(retrievedUserType)
+    val maybeAddressDetails = journey.computeAddressDetails
     Future.successful(
       (maybeContactDetails, maybeAddressDetails) match {
-        case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction))
-        case _                    =>
+        case (Some(contactDetails), Some(contactAddress)) =>
+          Ok(claimantDetailsPage(contactDetails, contactAddress, changeContactDetails, startAddressLookup, postAction))
+        case _                                            =>
           logger.warn(
             s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
           )

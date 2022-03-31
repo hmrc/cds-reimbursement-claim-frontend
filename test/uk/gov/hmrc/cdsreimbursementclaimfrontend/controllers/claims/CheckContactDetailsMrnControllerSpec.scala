@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.Functor
 import cats.Id
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -30,23 +29,21 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -64,9 +61,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
 
 import java.net.URL
 import java.util.UUID
+import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -75,7 +75,8 @@ class CheckContactDetailsMrnControllerSpec
     with AuthSupport
     with SessionSupport
     with AddressLookupSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with SummaryMatchers {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -94,26 +95,22 @@ class CheckContactDetailsMrnControllerSpec
 
   private def getSessionWithPreviousAnswer(
     displayDeclaration: Option[DisplayDeclaration],
-    declarantTypeAnswer: Option[DeclarantTypeAnswer],
     maybeTypeOfClaim: Option[TypeOfClaimAnswer],
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
     mrnContactAddressAnswer: Option[ContactAddress] = None
   ): (SessionData, FillingOutClaim) = {
+    val signedInUserDetails = sample[SignedInUserDetails]
     val draftC285Claim      = DraftClaim.blank.copy(
-      displayDeclaration = displayDeclaration,
-      declarantTypeAnswer = declarantTypeAnswer,
+      displayDeclaration = displayDeclaration.map(_.withConsigneeEori(signedInUserDetails.eori)),
       typeOfClaim = maybeTypeOfClaim,
       movementReferenceNumber = Some(sample[MRN]),
       mrnContactDetailsAnswer = mrnContactDetailsAnswer,
       mrnContactAddressAnswer = mrnContactAddressAnswer
     )
     val ggCredId            = sample[GGCredId]
-    val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
-      journey
-    )
+
+    (SessionData(journey), journey)
   }
 
   "CheckContactDetailsMrnController" must {
@@ -121,13 +118,10 @@ class CheckContactDetailsMrnControllerSpec
     def showPageAction(journey: JourneyBindable): Future[Result] =
       controller.show(journey)(FakeRequest())
 
-    def showPageActionAddDetails(journey: JourneyBindable): Future[Result] =
-      controller.addDetailsShow(journey)(FakeRequest())
-
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
         val journey = sample[JourneyBindable]
-        val session = getSessionWithPreviousAnswer(None, None, Some(toTypeOfClaim(journey)))._1
+        val session = getSessionWithPreviousAnswer(None, Some(toTypeOfClaim(journey)))._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -142,15 +136,15 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "display the page" when {
-      "all mandatory data from Acc14 is available" in {
-        val journey                    = sample[JourneyBindable]
-        val acc14                      = genAcc14WithAddresses
-        val mrnContactDetails          = sample[MrnContactDetails].copy(phoneNumber = Some(sample[PhoneNumber]))
-        val mrnContactAddress          = sample[ContactAddress]
+      "contact and address data answers are available" in {
+        val journey           = sample[JourneyBindable]
+        val acc14             = genAcc14WithAddresses
+        val mrnContactDetails = sample[MrnContactDetails].copy(phoneNumber = Some(sample[PhoneNumber]))
+        val mrnContactAddress = sample[ContactAddress]
           .copy(line2 = Some(alphaCharGen(10)), line3 = Some(alphaCharGen(10)), country = Country.uk)
+
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
           Some(toTypeOfClaim(journey)),
           Some(mrnContactDetails),
           Some(mrnContactAddress)
@@ -165,37 +159,104 @@ class CheckContactDetailsMrnControllerSpec
           showPageAction(journey),
           messageFromMessageKey("claimant-details.title"),
           doc => {
-            val paragraphs = doc.select("dd > p")
-            val consignee  = acc14.displayResponseDetail.consigneeDetails.getOrElse(fail())
-            //Registered Details with CDS
-            paragraphs.get(1).text()  shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail())
-            paragraphs.get(2).text()  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
-            paragraphs.get(3).text()  shouldBe consignee.establishmentAddress.addressLine1
-            paragraphs.get(4).text()  shouldBe consignee.establishmentAddress.addressLine2.getOrElse(fail)
-            paragraphs.get(5).text()  shouldBe consignee.establishmentAddress.addressLine3.getOrElse(fail)
-            paragraphs.get(6).text()  shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
-            //Contact Details
-            paragraphs.get(7).text()  shouldBe mrnContactDetails.fullName
-            paragraphs.get(8).text()  shouldBe mrnContactDetails.emailAddress.value
-            paragraphs.get(9).text()  shouldBe mrnContactDetails.phoneNumber.map(_.value).getOrElse(fail)
-            paragraphs.get(10).text() shouldBe mrnContactAddress.line1
-            paragraphs.get(11).text() shouldBe mrnContactAddress.line2.getOrElse(fail)
-            paragraphs.get(12).text() shouldBe mrnContactAddress.line3.getOrElse(fail)
-            paragraphs.get(13).text() shouldBe mrnContactAddress.line4
-            paragraphs.get(14).text() shouldBe mrnContactAddress.postcode
-            paragraphs.get(15).text() shouldBe "United Kingdom"
-            paragraphs.size()         shouldBe 16
+            val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+            val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+
+            summaries should containOnlyDefinedPairsOf(
+              Seq(
+                ("Contact details" -> fillingOutClaim.draftClaim
+                  .getClaimantInformation(fillingOutClaim.signedInUserDetails.eori)
+                  .map(ClaimantInformationSummary.getContactDataString)),
+                ("Contact address" -> fillingOutClaim.draftClaim
+                  .getClaimantInformation(fillingOutClaim.signedInUserDetails.eori)
+                  .map(ClaimantInformationSummary.getAddressDataString))
+              )
+            )
           }
         )
       }
 
-      "not all mandatory data from Acc14 is available, page redirects" in {
+      "consignee contact and address data from ACC14 is available" in {
         val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
 
+        val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(toTypeOfClaim(journey))
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          showPageAction(journey),
+          messageFromMessageKey("claimant-details.title"),
+          doc => {
+            val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+            val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+
+            summaries should containOnlyDefinedPairsOf(
+              Seq(
+                ("Contact details" -> fillingOutClaim.draftClaim
+                  .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
+                  .map(ClaimantInformationSummary.getContactDataString)),
+                ("Contact address" -> fillingOutClaim.draftClaim
+                  .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
+                  .map(ClaimantInformationSummary.getAddressDataString))
+              )
+            )
+          }
+        )
+      }
+
+      "declarant contact and address data from ACC14 is available" in {
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithoutContactDetails
+
+        val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(toTypeOfClaim(journey)),
+          None,
+          None
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          showPageAction(journey),
+          messageFromMessageKey("claimant-details.title"),
+          doc => {
+            val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+            val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+
+            summaries should containOnlyDefinedPairsOf(
+              Seq(
+                ("Contact details" -> fillingOutClaim.draftClaim
+                  .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
+                  .map(ClaimantInformationSummary.getContactDataString)),
+                ("Contact address" -> fillingOutClaim.draftClaim
+                  .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
+                  .map(ClaimantInformationSummary.getAddressDataString))
+              )
+            )
+          }
+        )
+      }
+
+      "not consignee nor declarant contact and address data from ACC14 is available, page redirects" in {
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithoutConsigneeAndDeclarantDetails
+
         val (session, _) = getSessionWithPreviousAnswer(
           Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
           Some(toTypeOfClaim(journey)),
           None,
           None
@@ -208,265 +269,218 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           showPageAction(journey),
-          routes.CheckContactDetailsMrnController.addDetailsShow(journey)
+          routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
-
       }
+    }
 
-      "not all mandatory data from Acc14 is available, no contact details are shown" in {
+    "handle submit requests" when {
+
+      "when contact and address answers provided and NorthernIreland feature switched off" in {
+        featureSwitch.disable(Feature.NorthernIreland)
+
         val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
-
-        val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
+        val session = getSessionWithPreviousAnswer(
           Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
+          Some(toTypeOfClaim(journey)),
+          Some(sample[MrnContactDetails]),
+          Some(sample[ContactAddress].copy(country = Country.uk))
+        )._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          controller.submit(journey)(FakeRequest()),
+          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
+        )
+      }
+
+      "when contact and address answers provided and NorthernIreland feature switched on" in {
+        featureSwitch.enable(Feature.NorthernIreland)
+
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithAddresses
+        val session = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(toTypeOfClaim(journey)),
+          Some(sample[MrnContactDetails]),
+          Some(sample[ContactAddress].copy(country = Country.uk))
+        )._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          controller.submit(journey)(FakeRequest()),
+          routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+        )
+      }
+
+      "when contact and address answers not yet provided and NorthernIreland feature switched off" in {
+        featureSwitch.disable(Feature.NorthernIreland)
+
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithAddresses
+        val session = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(toTypeOfClaim(journey))
+        )._1
+
+        val updatedSession = session
+          .copy(journeyStatus =
+            session.journeyStatus
+              .map {
+                case claim: FillingOutClaim =>
+                  claim.copy(draftClaim =
+                    claim.draftClaim.copy(
+                      mrnContactDetailsAnswer = claim.draftClaim.computeContactDetails(claim.signedInUserDetails),
+                      mrnContactAddressAnswer = claim.draftClaim.computeAddressDetails(claim.signedInUserDetails)
+                    )
+                  )
+                case _                      =>
+                  fail("wrong C285 claim status")
+              }
+          )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          controller.submit(journey)(FakeRequest()),
+          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
+        )
+      }
+
+      "when contact and address answers not yet provided and NorthernIreland feature switched on" in {
+        featureSwitch.enable(Feature.NorthernIreland)
+
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithAddresses
+        val session = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(toTypeOfClaim(journey))
+        )._1
+
+        val updatedSession = session
+          .copy(journeyStatus =
+            session.journeyStatus
+              .map {
+                case claim: FillingOutClaim =>
+                  claim.copy(draftClaim =
+                    claim.draftClaim.copy(
+                      mrnContactDetailsAnswer = claim.draftClaim.computeContactDetails(claim.signedInUserDetails),
+                      mrnContactAddressAnswer = claim.draftClaim.computeAddressDetails(claim.signedInUserDetails)
+                    )
+                  )
+                case _                      =>
+                  fail("wrong C285 claim status")
+              }
+          )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          controller.submit(journey)(FakeRequest()),
+          routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+        )
+      }
+
+      "when contact details answer not yet provided and NorthernIreland feature switched off" in {
+        featureSwitch.disable(Feature.NorthernIreland)
+
+        val previousContactAddress = sample[ContactAddress].copy(country = Country.uk)
+
+        val journey = sample[JourneyBindable]
+        val acc14   = genAcc14WithAddresses
+        val session = getSessionWithPreviousAnswer(
+          Some(acc14),
           Some(toTypeOfClaim(journey)),
           None,
-          None
-        )
+          Some(previousContactAddress)
+        )._1
+
+        val updatedSession = session
+          .copy(journeyStatus =
+            session.journeyStatus
+              .map {
+                case claim: FillingOutClaim =>
+                  claim.copy(draftClaim =
+                    claim.draftClaim.copy(
+                      mrnContactDetailsAnswer = claim.draftClaim.computeContactDetails(claim.signedInUserDetails),
+                      mrnContactAddressAnswer = Some(previousContactAddress)
+                    )
+                  )
+                case _                      =>
+                  fail("wrong C285 claim status")
+              }
+          )
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          showPageActionAddDetails(journey),
-          messageFromMessageKey("claimant-details.title"),
-          doc => {
-            val paragraphs = doc.select("dd > p")
-            val consignee  = acc14.displayResponseDetail.consigneeDetails.getOrElse(fail())
-            //Registered Details with CDS
-            paragraphs.get(1).text() shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail())
-            paragraphs.get(2).text() shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
-            paragraphs.get(3).text() shouldBe consignee.establishmentAddress.addressLine1
-            paragraphs.get(4).text() shouldBe consignee.establishmentAddress.addressLine2.getOrElse(fail)
-            paragraphs.get(5).text() shouldBe consignee.establishmentAddress.addressLine3.getOrElse(fail)
-            paragraphs.get(6).text() shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
-            paragraphs.size()        shouldBe 7
-          }
-        )
-      }
-    }
-
-    "handle add submit requests" when {
-
-      def submitAdd(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.addDetailsSubmit(journeyBindable)(
-          FakeRequest().withFormUrlEncodedBody(data: _*)
-        )
-
-      "user chooses the Yes option" in {
-        val journey         = sample[JourneyBindable]
-        val acc14           = genAcc14WithAddresses
-        val (session, foc)  = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
-          Some(toTypeOfClaim(journey))
-        )
-        val fillingOutClaim = foc
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
-          submitAdd(Seq(checkContactDetailsKey -> "true"), journey),
-          routes.EnterContactDetailsMrnController.enterMrnContactDetails(journey)
-        )
-      }
-
-      "user chooses the No option" in {
-        featureSwitch.disable(Feature.NorthernIreland)
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithAddresses
-
-        val (session, foc)  = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
-          Some(toTypeOfClaim(journey))
-        )
-        val fillingOutClaim = foc
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
-        }
-
-        checkIsRedirect(
-          submitAdd(Seq(checkContactDetailsKey -> "false"), journey),
+          controller.submit(journey)(FakeRequest()),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
 
-      "the user does not select an option" in {
-        val journey         = sample[JourneyBindable]
-        val acc14           = genAcc14WithAddresses
-        val (session, foc)  = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
-          Some(toTypeOfClaim(journey))
-        )
-        val fillingOutClaim = foc
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
-        }
-
-        checkPageIsDisplayed(
-          submitAdd(Seq.empty, journey),
-          messageFromMessageKey(s"$checkContactDetailsKey.title"),
-          doc =>
-            doc
-              .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
-              s"$checkContactDetailsKey.error.invalid"
-            ),
-          BAD_REQUEST
-        )
-      }
-
-      "an invalid option value is submitted" in {
-        val journey         = sample[JourneyBindable]
-        val acc14           = genAcc14WithAddresses
-        val (session, foc)  = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
-          Some(toTypeOfClaim(journey))
-        )
-        val fillingOutClaim = foc
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
-        }
-
-        checkPageIsDisplayed(
-          submitAdd(Seq(), journey),
-          messageFromMessageKey(s"$checkContactDetailsKey.title"),
-          doc =>
-            doc
-              .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
-              s"$checkContactDetailsKey.error.invalid"
-            ),
-          BAD_REQUEST
-        )
-      }
-    }
-
-    "handle change submit requests" when {
-
-      def submitChange(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.submit(journeyBindable)(
-          FakeRequest().withFormUrlEncodedBody(data: _*)
-        )
-
-      "user chooses the Yes option" in {
+      "when contact address answer not yet provided and NorthernIreland feature switched off" in {
         featureSwitch.disable(Feature.NorthernIreland)
+
+        val previousContactDetails = sample[MrnContactDetails]
+
         val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
           Some(toTypeOfClaim(journey)),
-          Some(sample[MrnContactDetails]),
-          Some(sample[ContactAddress].copy(country = Country.uk))
+          Some(previousContactDetails)
         )._1
+
+        val updatedSession = session
+          .copy(journeyStatus =
+            session.journeyStatus
+              .map {
+                case claim: FillingOutClaim =>
+                  claim.copy(draftClaim =
+                    claim.draftClaim.copy(
+                      mrnContactDetailsAnswer = Some(previousContactDetails),
+                      mrnContactAddressAnswer = claim.draftClaim.computeAddressDetails(claim.signedInUserDetails)
+                    )
+                  )
+                case _                      =>
+                  fail("wrong C285 claim status")
+              }
+          )
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
-          submitChange(Seq(checkContactDetailsKey -> "true"), journey),
+          controller.submit(journey)(FakeRequest()),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
 
-      "user chooses the No option" in {
-        val acc14   = genAcc14WithAddresses
-        val journey = sample[JourneyBindable]
-        val session = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
-          Some(toTypeOfClaim(journey)),
-          Some(sample[MrnContactDetails]),
-          Some(sample[ContactAddress].copy(country = Country.uk))
-        )._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(Right(()))
-        }
-
-        checkIsRedirect(
-          submitChange(Seq(checkContactDetailsKey -> "false"), journey),
-          routes.CheckContactDetailsMrnController.addDetailsShow(journey)
-        )
-      }
-
-      "the user does not select an option" in {
-        val acc14   = genAcc14WithAddresses
-        val journey = sample[JourneyBindable]
-        val session = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
-          Some(toTypeOfClaim(journey)),
-          Some(sample[MrnContactDetails]),
-          Some(sample[ContactAddress].copy(country = Country.uk))
-        )._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          submitChange(Seq.empty, journey),
-          messageFromMessageKey(s"$checkContactDetailsKey.title"),
-          doc =>
-            doc
-              .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
-              s"$checkContactDetailsKey.error.invalid"
-            ),
-          BAD_REQUEST
-        )
-      }
-
-      "an invalid option value is submitted" in {
-        val acc14   = genAcc14WithAddresses
-        val journey = sample[JourneyBindable]
-        val session = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
-          Some(toTypeOfClaim(journey)),
-          Some(sample[MrnContactDetails]),
-          Some(sample[ContactAddress].copy(country = Country.uk))
-        )._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          submitChange(Seq.empty, journey),
-          messageFromMessageKey(s"$checkContactDetailsKey.title"),
-          doc =>
-            doc
-              .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
-              s"$checkContactDetailsKey.error.invalid"
-            ),
-          BAD_REQUEST
-        )
-      }
     }
 
     "Redirect to the problem page" when {
@@ -479,7 +493,6 @@ class CheckContactDetailsMrnControllerSpec
         val journey       = sample[JourneyBindable]
         val (session, _)  = getSessionWithPreviousAnswer(
           Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
           Some(toTypeOfClaim(journey))
         )
         val errorResponse = Error("parsing address lookup response:/address/postcode: error.path.missing")
@@ -502,7 +515,6 @@ class CheckContactDetailsMrnControllerSpec
         val acc14         = genAcc14WithAddresses
         val (session, _)  = getSessionWithPreviousAnswer(
           Some(acc14),
-          Some(DeclarantTypeAnswer.Importer),
           Some(toTypeOfClaim(journey))
         )
         val errorResponse = Error("parsing address lookup response:/address/lines: error.minLength")
@@ -526,7 +538,6 @@ class CheckContactDetailsMrnControllerSpec
     "return true if we have valid session data" in {
       val fillingOutClaim = getSessionWithPreviousAnswer(
         None,
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(JourneyBindable.Single)),
         Some(sample[MrnContactDetails]),
         Some(sample[ContactAddress])
@@ -538,7 +549,6 @@ class CheckContactDetailsMrnControllerSpec
     "return false if we have valid contact details but missing contact address" in {
       val fillingOutClaim = getSessionWithPreviousAnswer(
         None,
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(JourneyBindable.Single)),
         Some(sample[MrnContactDetails]),
         None
@@ -550,7 +560,6 @@ class CheckContactDetailsMrnControllerSpec
     "return false if we have valid contact address but missing contact details" in {
       val fillingOutClaim = getSessionWithPreviousAnswer(
         None,
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         Some(sample[ContactAddress])
@@ -564,7 +573,6 @@ class CheckContactDetailsMrnControllerSpec
       val acc14           = genAcc14WithAddresses
       val fillingOutClaim = getSessionWithPreviousAnswer(
         Some(acc14),
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
@@ -583,7 +591,6 @@ class CheckContactDetailsMrnControllerSpec
       )
       val fillingOutClaim  = getSessionWithPreviousAnswer(
         Some(acc14),
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
@@ -602,7 +609,6 @@ class CheckContactDetailsMrnControllerSpec
       )
       val fillingOutClaim  = getSessionWithPreviousAnswer(
         Some(acc14),
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
@@ -622,7 +628,6 @@ class CheckContactDetailsMrnControllerSpec
       )
       val fillingOutClaim  = getSessionWithPreviousAnswer(
         Some(acc14),
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
@@ -668,7 +673,6 @@ class CheckContactDetailsMrnControllerSpec
       val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(journey))
       )
 
@@ -691,7 +695,6 @@ class CheckContactDetailsMrnControllerSpec
       val journey      = sample[JourneyBindable]
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(journey))
       )
 
@@ -709,7 +712,6 @@ class CheckContactDetailsMrnControllerSpec
       val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
-        Some(DeclarantTypeAnswer.Importer),
         Some(toTypeOfClaim(journey))
       )
 

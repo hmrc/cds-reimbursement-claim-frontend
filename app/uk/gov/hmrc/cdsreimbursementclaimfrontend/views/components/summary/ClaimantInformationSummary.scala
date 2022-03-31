@@ -41,12 +41,8 @@ object ClaimantInformationSummary {
   )(implicit
     messages: Messages
   ): SummaryList = {
-    val contactInformation = claimantInformation.contactInformation
-    val contactData        = List(
-      Some(Paragraph(contactInformation.contactPerson.getOrElse(claimantInformation.fullName))),
-      Some(Paragraph(contactInformation.emailAddress.getOrElse(""))),
-      contactInformation.telephoneNumber.map(n => Paragraph(n))
-    ).flattenOption
+
+    val contactData = getContactDataHtml(claimantInformation)
 
     val contactAction = Some(
       Actions(
@@ -60,14 +56,7 @@ object ClaimantInformationSummary {
       )
     )
 
-    val addressData = List(
-      contactInformation.addressLine1.map(Paragraph(_)),
-      contactInformation.addressLine2.map(Paragraph(_)),
-      contactInformation.addressLine3.map(Paragraph(_)),
-      contactInformation.city.map(Paragraph(_)),
-      contactInformation.postalCode.map(Paragraph(_)),
-      contactInformation.countryCode.map(Paragraph(_))
-    ).flattenOption
+    val addressData = getAddressDataHtml(claimantInformation)
 
     val addressAction = Some(
       Actions(
@@ -95,5 +84,49 @@ object ClaimantInformationSummary {
         )
       )
     )
+  }
+
+  def getContactDataHtml(claimantInformation: ClaimantInformation): List[HtmlFormat.Appendable] = {
+    val contactInformation = claimantInformation.contactInformation
+    List(
+      Some(Paragraph(contactInformation.contactPerson.getOrElse(claimantInformation.fullName))),
+      Some(Paragraph(contactInformation.emailAddress.getOrElse(""))),
+      contactInformation.telephoneNumber.map(n => Paragraph(n))
+    ).flattenOption
+  }
+
+  def getContactDataString(claimantInformation: ClaimantInformation): String = {
+    val contactInformation = claimantInformation.contactInformation
+    List(
+      Some(contactInformation.contactPerson.getOrElse(claimantInformation.fullName)),
+      Some(contactInformation.emailAddress.getOrElse("")),
+      contactInformation.telephoneNumber
+    ).flattenOption.mkString(" ").trim
+  }
+
+  def getAddressDataHtml(
+    claimantInformation: ClaimantInformation
+  )(implicit messages: Messages): List[HtmlFormat.Appendable] = {
+    val contactInformation = claimantInformation.contactInformation
+    List(
+      contactInformation.addressLine1.map(Paragraph(_)),
+      contactInformation.addressLine2.map(Paragraph(_)),
+      contactInformation.addressLine3.map(Paragraph(_)),
+      contactInformation.city.map(Paragraph(_)),
+      contactInformation.postalCode.map(Paragraph(_)),
+      contactInformation.countryCode.map(code => messages(s"country.$code")).map(Paragraph(_))
+    ).flattenOption
+  }
+
+  def getAddressDataString(claimantInformation: ClaimantInformation)(implicit messages: Messages): String = {
+    val contactInformation = claimantInformation.contactInformation
+    List(
+      contactInformation.addressLine1,
+      contactInformation.addressLine2,
+      contactInformation.addressLine3,
+      contactInformation.city,
+      contactInformation.postalCode,
+      contactInformation.countryCode.map(code => messages(s"country.$code"))
+    ).flattenOption.mkString(" ").trim
   }
 }

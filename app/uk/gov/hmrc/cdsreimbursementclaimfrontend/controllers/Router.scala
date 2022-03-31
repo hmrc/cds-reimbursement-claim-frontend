@@ -31,9 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
-  def submitUrlForWhoIsMakingTheClaim(): Call =
-    claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
-
   def submitUrlForEnterBankAccountDetails(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
@@ -51,12 +48,6 @@ trait SubmitRoutes extends Product with Serializable {
 
   def submitUrlForEnterDeclarantEoriNumber(): Call =
     claimRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journeyBindable)
-
-  def submitPageForClaimantDetails(mandatoryDataAvailable: Boolean): Call = {
-    val controller = claimRoutes.CheckContactDetailsMrnController
-    if (mandatoryDataAvailable) controller.submit(journeyBindable)
-    else controller.addDetailsSubmit(journeyBindable)
-  }
 
   def submitUrlForChangeMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
@@ -94,7 +85,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
             else
               claimRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
           case _                         =>
-            claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+            claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
         }
       case No  =>
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
@@ -122,7 +113,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
             claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
       case None                =>
-        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+        claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
     }
 }
 

@@ -16,195 +16,133 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.implicits.catsSyntaxApply
 import org.jsoup.nodes
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec.DOMDocOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
-class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with CheckCDSDetails {
+import scala.collection.JavaConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyTypeSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with SummaryMatchers {
 
-  "The CYA page" should {
+  "The C285 Single journey CYA page" should {
 
-    "display answer summaries for the Single journey" in {
-      val (session, claim)                              = genData(TypeOfClaimAnswer.Individual)
-      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus.collect {
-        case fillingOutClaim: FillingOutClaim => fillingOutClaim
-      }
+    "display answer summaries" in {
 
-      inSequence {
-        mockAuthWithNoRetrievals()
-        mockGetSession(session)
-      }
-
-      val result = controller.checkAllAnswers(JourneyBindable.Single)(FakeRequest())
-
-      checkPageIsDisplayed(
-        result,
-        messageFromMessageKey(s"$checkYourAnswersKey.title"),
-        (doc: nodes.Document) => {
-          val headers   = doc.extractHeaders()
-          val summaries = doc.extractSummaries()
-
-          headers   should contain allElementsOf (Seq(
-            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
-            claim.displayDeclaration *> Some(s"$checkYourAnswersKey.declaration-details.h2"),
-            claim.extractEstablishmentAddress *> Some(s"$checkYourAnswersKey.claimant-details.h2")
-          ).flatMap(_.toList) ++ reimbursementMethodHeaders(claim.reimbursementMethodAnswer) ++ Seq(
-            s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.attached-documents.h2",
-            s"$checkYourAnswersKey.reference-number.h2",
-            s"$checkYourAnswersKey.claim-calculation.h2"
-          )).map(messages(_))
-
-          summaries should contain allElementsOf Seq(
-            (
-              messages(s"$checkYourAnswersKey.claimant-type.l0"),
-              messages(
-                s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswers.indexOf(claim.declarantTypeAnswer.value)}"
-              )
-            ),
-            (
-              messages(s"$checkYourAnswersKey.commodities-details.label"),
-              claim.commoditiesDetailsAnswer.map(_.value).value
-            ),
-            (
-              messages(s"$checkYourAnswersKey.reference-number.label"),
-              claim.movementReferenceNumber.value.value
-            )
-          ) ++ claim.basisOfClaimAnswer.map { answer =>
-            (
-              messages(s"$checkYourAnswersKey.basis.l0"),
-              messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
-            )
-          }.toList ++ reimbursementMethodSummaries(
-            claim.reimbursementMethodAnswer,
-            claim.bankAccountDetailsAnswer
-          ) ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
-            (
-              messages(s"$checkYourAnswersKey.attached-documents.label"),
-              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"$supportingEvidenceKey.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
-            )
-          }.toList ++ claim.displayDeclaration.toList
-            .flatMap { declaration =>
-              Seq(
-                Some(
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.import-date-label"),
-                    declaration.displayResponseDetail.acceptanceDate
-                  )
-                ),
-                Some(
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.paid-charges-label"),
-                    declaration.totalPaidCharges.toPoundSterlingString
-                  )
-                ),
-                declaration.consigneeName.map { name =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.importer-name-label"),
-                    name
-                  )
-                },
-                declaration.consigneeEmail.map { email =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.importer-email-label"),
-                    email
-                  )
-                },
-                declaration.consigneeAddress.map { address =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.importer-address-label"),
-                    address.replace("<br />", " ")
-                  )
-                },
-                Some(
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.declarant-name-label"),
-                    declaration.declarantName
-                  )
-                ),
-                declaration.declarantContactAddress.map { address =>
-                  (
-                    messages(s"$checkYourAnswersKey.declaration-details.declarant-address-label"),
-                    address.replace("<br />", " ")
-                  )
-                }
-              )
-            }
-            .flatMap(_.toList) ++ contactDetailsFromCDS(
-            claim,
-            maybeFillingOutClaim.map(_.signedInUserDetails.verifiedEmail)
-          )
+      forAll(draftClaimGen(TypeOfClaimAnswer.Individual)) { case (session, claim, user) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
         }
-      )
+
+        val result = controller.checkAllAnswers(JourneyBindable.Single)(FakeRequest())
+
+        val bankDetailsExpected = claim.findNonEmptyBankAccountDetails.isDefined &&
+          !claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)
+
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey(s"$checkYourAnswersKey.title"),
+          (doc: nodes.Document) => {
+
+            val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
+            val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+            val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+
+            val declaration: Option[DisplayDeclaration]           = claim.displayDeclaration
+            val declarationDetails: Option[DisplayResponseDetail] = declaration.map(_.displayResponseDetail)
+
+            val expectedDocuments: String =
+              claim.supportingEvidencesAnswer.value
+                .map { uploadDocument =>
+                  s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"$supportingEvidenceKey.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
+                }
+                .toList
+                .mkString(" ")
+
+            val claims: Seq[DutyTypeSummary] =
+              DutyTypeSummary.buildFrom(claim.claimedReimbursementsAnswer.value)
+
+            val claimSummaries: Seq[(String, Option[String])] = claims.map(claim =>
+              (
+                messages(s"check-your-answers.claim-calculation.${claim.messageKey}"),
+                Some(claim.total.toPoundSterlingString)
+              )
+            )
+
+            val total: String =
+              claims.map(_.total).sum.toPoundSterlingString
+
+            headers should containOnlyDefinedElementsOf(
+              "Movement Reference Number (MRN)".expectedAlways,
+              "Declaration details".expectedWhen(claim.displayDeclaration),
+              "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
+              "Basis for claim".expectedAlways,
+              "Reason for claim".expectedAlways,
+              "Claim total".expectedAlways,
+              "Bank details".expectedWhen(bankDetailsExpected),
+              "Supporting documents".expectedAlways,
+              "Were your goods imported into Northern Ireland?".expectedWhen(claim.whetherNorthernIrelandAnswer),
+              "Reimbursement method".expectedWhen(claim.reimbursementMethodAnswer),
+              "Now send your application".expectedAlways
+            )
+
+            summaries should containOnlyDefinedPairsOf(
+              Seq(
+                ("MRN"                                             -> claim.movementReferenceNumber.map(_.value)),
+                ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),
+                ("Duties and VAT paid"                             -> declaration.map(_.totalPaidCharges.toPoundSterlingString)),
+                ("Importer name"                                   -> declaration.flatMap(_.consigneeName)),
+                ("Importer email"                                  -> declaration.flatMap(_.consigneeEmail)),
+                ("Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone)),
+                ("Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br />", " "))),
+                ("Declarant name"                                  -> declaration.map(_.declarantName)),
+                ("Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " "))),
+                ("This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
+                  messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
+                )),
+                ("This is the reason for the claim"                -> claim.commoditiesDetailsAnswer.map(_.value)),
+                ("Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value))
+                  .expectedWhen(bankDetailsExpected),
+                ("Sort code"                                       -> claim.bankAccountDetailsAnswer.map(_.sortCode.masked))
+                  .expectedWhen(bankDetailsExpected),
+                ("Account number"                                  -> claim.bankAccountDetailsAnswer.map(_.accountNumber.masked))
+                  .expectedWhen(bankDetailsExpected),
+                ("Method"                                          -> messages(s"$checkYourAnswersKey.reimbursement-method.cma"))
+                  .expectedWhen(claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)),
+                ("Method"                                          -> messages(s"$checkYourAnswersKey.reimbursement-method.bt"))
+                  .expectedWhen(claim.reimbursementMethodAnswer.contains(BankAccountTransfer)),
+                ("Contact details"                                 -> claim
+                  .getClaimantInformation(user.eori)
+                  .map(ClaimantInformationSummary.getContactDataString)),
+                ("Contact address"                                 -> claim
+                  .getClaimantInformation(user.eori)
+                  .map(ClaimantInformationSummary.getAddressDataString)),
+                ("Total"                                           -> Some(total)),
+                ("Uploaded"                                        -> Some(expectedDocuments)),
+                ("Were your goods imported into Northern Ireland?" -> claim.whetherNorthernIrelandAnswer.map(
+                  _.toString()
+                ))
+              )
+                ++ claimSummaries
+            )
+          }
+        )
+      }
     }
   }
 
-  private def reimbursementMethodHeaders(
-    reimbursementMethodAnswer: Option[ReimbursementMethodAnswer]
-  ): Seq[String] =
-    reimbursementMethodAnswer match {
-      case Some(CurrentMonthAdjustment) => Seq(s"$checkYourAnswersKey.reimbursement-method.h2")
-      case Some(BankAccountTransfer)    =>
-        Seq(s"$checkYourAnswersKey.reimbursement-method.h2", s"$checkYourAnswersKey.bank-details.h2")
-      case _                            => Seq(s"$checkYourAnswersKey.bank-details.h2")
-    }
-
-  private def reimbursementMethodSummaries(
-    reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
-    bankDetails: Option[BankAccountDetails]
-  ): Seq[(String, String)] =
-    (reimbursementMethodAnswer, bankDetails) match {
-      case (Some(CurrentMonthAdjustment), _) =>
-        Seq(
-          (
-            messages(s"$checkYourAnswersKey.reimbursement-method.label"),
-            messages(s"$checkYourAnswersKey.reimbursement-method.cma")
-          )
-        )
-
-      case (Some(BankAccountTransfer), Some(bankAccountDetails)) =>
-        Seq(
-          (
-            messages(s"$checkYourAnswersKey.reimbursement-method.label"),
-            messages(s"$checkYourAnswersKey.reimbursement-method.bt")
-          )
-        ) ++ bankAccountDetailsSummaries(bankAccountDetails)
-
-      case (None, Some(bankAccountDetails)) =>
-        bankAccountDetailsSummaries(bankAccountDetails)
-      case _                                =>
-        Seq.empty
-    }
-
-  private def bankAccountDetailsSummaries(bankAccountDetails: BankAccountDetails): Seq[(String, String)] = Seq(
-    (
-      messages(s"$checkYourAnswersKey.bank-details.account-name.label"),
-      bankAccountDetails.accountName.value
-    ),
-    (
-      messages(s"$checkYourAnswersKey.bank-details.sort-code.label"),
-      bankAccountDetails.sortCode.masked
-    ),
-    (
-      messages(s"$checkYourAnswersKey.bank-details.account-number.label"),
-      bankAccountDetails.accountNumber.masked
-    )
-  )
 }

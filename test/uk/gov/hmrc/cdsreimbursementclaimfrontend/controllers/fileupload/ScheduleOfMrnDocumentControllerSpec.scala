@@ -147,7 +147,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
           checkIsRedirect(
             controller.reviewSubmit()(FakeRequest()),
-            claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled)
+            claimRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Scheduled)
           )
         }
       }

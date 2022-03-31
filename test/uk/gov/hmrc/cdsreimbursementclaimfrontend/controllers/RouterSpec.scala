@@ -74,7 +74,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
         whetherDeclarationDetailsCorrect = Yes,
         hasAssociatedMrns = false
       ) should be(
-        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(router.journeyBindable)
+        claimRoutes.CheckContactDetailsMrnController.show(router.journeyBindable)
       )
     }
 
@@ -105,26 +105,5 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
       }
     }
 
-    "CheckContactDetailsMrnController and changing details" in {
-      forAll(allRoutes) { router =>
-        router.submitPageForClaimantDetails(mandatoryDataAvailable =
-          true
-        ) shouldBe claimRoutes.CheckContactDetailsMrnController
-          .submit(
-            router.journeyBindable
-          )
-      }
-    }
-
-    "CheckContactDetailsMrnController and adding details" in {
-      forAll(allRoutes) { router =>
-        router.submitPageForClaimantDetails(mandatoryDataAvailable =
-          false
-        ) shouldBe claimRoutes.CheckContactDetailsMrnController
-          .addDetailsSubmit(
-            router.journeyBindable
-          )
-      }
-    }
   }
 }

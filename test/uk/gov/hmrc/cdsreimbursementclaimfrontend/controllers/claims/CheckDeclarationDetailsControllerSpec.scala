@@ -220,7 +220,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(JourneyBindable.Single, Seq(checkDeclarationDetailsKey -> "true")),
-          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
+          routes.CheckContactDetailsMrnController.show(JourneyBindable.Single)
         )
       }
 

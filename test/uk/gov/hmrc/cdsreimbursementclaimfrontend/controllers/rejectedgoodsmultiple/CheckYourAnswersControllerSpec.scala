@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -122,8 +123,8 @@ class CheckYourAnswersControllerSpec
       summary(key) shouldBe mrn.value
     }
 
-    summary("Contact details")                             shouldBe s"${claim.claimantInformation.summaryContact(" ")}"
-    summary("Contact address")                             shouldBe s"${claim.claimantInformation.summaryAddress(" ")}"
+    summary("Contact details")                             shouldBe ClaimantInformationSummary.getContactDataString(claim.claimantInformation)
+    summary("Contact address")                             shouldBe ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)
     summary("This is the basis behind the claim")          shouldBe messages(
       s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}"
     )

@@ -35,6 +35,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Consignee
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Declarant
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.User
 
 final case class C285Claim(
   id: UUID,
@@ -88,14 +92,19 @@ final case class C285Claim(
 
 object C285Claim {
 
-  def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email): Either[Error, C285Claim] =
+  def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email, userEori: Eori): Either[Error, C285Claim] = {
+    val declarant: DeclarantTypeAnswer =
+      draftClaim.getClaimantType(userEori) match {
+        case Consignee => DeclarantTypeAnswer.Importer
+        case Declarant => DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
+        case User      => DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
+      }
     draftClaim match {
       case DraftClaim(
             id,
             maybeTypeOfClaim,
             maybeMrn,
             maybeDuplicateMovementReferenceNumberAnswer,
-            maybeDraftDeclarantTypeAnswer,
             maybeDraftMrnContactDetails,
             maybeDraftMrnContactAddress,
             maybeBankAccountDetails,
@@ -122,7 +131,6 @@ object C285Claim {
           MRN.validator.validate(maybeMrn),
           BasisOfClaimAnswer.validator.validate(maybeBasisForClaim),
           DisplayDeclaration.validator.validate(maybeDisplayDeclaration),
-          DeclarantTypeAnswer.validator.validate(maybeDraftDeclarantTypeAnswer),
           CommodityDetailsAnswer.validator.validate(maybeDraftCommodityAnswer),
           SupportingEvidencesAnswer.validator.validate(maybeSupportingEvidences),
           ClaimedReimbursementsAnswer.validator.validate(maybeClaimedReimbursementsAnswer),
@@ -134,7 +142,6 @@ object C285Claim {
                 mrn,
                 basisOfClaims,
                 declaration,
-                declarant,
                 commodity,
                 evidences,
                 claim,
@@ -174,6 +181,7 @@ object C285Claim {
 
       case _ => Left(Error("unknown claim type"))
     }
+  }
 
   implicit val eq: Eq[C285Claim]         = Eq.fromUniversalEquals[C285Claim]
   implicit val format: Format[C285Claim] = Json.format[C285Claim]
