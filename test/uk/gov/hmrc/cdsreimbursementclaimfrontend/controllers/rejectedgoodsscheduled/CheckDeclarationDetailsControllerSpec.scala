@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
+
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.http.Status.BAD_REQUEST
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -27,6 +26,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers.BAD_REQUEST
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -34,9 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -64,7 +63,7 @@ class CheckDeclarationDetailsControllerSpec
       bind[ClaimService].toInstance(mockClaimService)
     )
 
-  val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
+  implicit val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -73,28 +72,30 @@ class CheckDeclarationDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori)))
+  val session =
+    SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori)))
 
   val messagesKey: String = "check-declaration-details"
 
+  def performAction(data: (String, String)*)(implicit controller: CheckDeclarationDetailsController): Future[Result] =
+    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
   "Check Declaration Details Controller" when {
     "Check Declaration Details page" must {
-
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "does not find the page if the rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page" in {
-        val journey = buildCompleteJourneyGen(
+      "display the page" in forAll(
+        buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false,
           hasConsigneeDetailsInACC14 = true
-        ).sample.getOrElse(fail("Journey building has failed."))
-
-        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        )
+      ) { journey =>
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -102,22 +103,18 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          performAction(checkDeclarationDetailsKey -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            doc
-              .select("main p")
-              .text()                                    shouldBe messageFromMessageKey(s"$messagesKey.help-text")
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
-          }
+          },
+          expectedStatus = BAD_REQUEST
         )
       }
     }
 
     "Submit Check Declaration Details page" must {
-
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -127,10 +124,10 @@ class CheckDeclarationDetailsControllerSpec
 
       "reject an empty Yes/No answer" in {
         val displayDeclaration = sample[DisplayDeclaration]
-        val journey            = session.rejectedGoodsSingleJourney.get
+        val journey            = session.rejectedGoodsScheduledJourney.get
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
-        val sessionToAmend     = SessionData(journey)
+        val sessionToAmend     = session.copy(rejectedGoodsScheduledJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -156,7 +153,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(checkDeclarationDetailsKey -> "true"),
-          routes.CheckClaimantDetailsController.show()
+          routes.WorkInProgressController.show() // todo CSDR-1354 routes.CheckClaimantDetailsController.show()
         )
       }
 
