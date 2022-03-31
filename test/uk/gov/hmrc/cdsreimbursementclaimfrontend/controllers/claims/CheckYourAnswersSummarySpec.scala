@@ -17,6 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import org.jsoup.nodes
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import org.scalatest.OptionValues
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -27,23 +29,20 @@ import play.api.inject.guice.GuiceableModule
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 
 abstract class CheckYourAnswersSummarySpec
     extends PropertyBasedControllerSpec
