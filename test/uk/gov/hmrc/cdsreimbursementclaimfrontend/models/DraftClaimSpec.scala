@@ -24,18 +24,17 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genAcc14WithAddresses
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with EitherValues with Matchers {
 
@@ -180,93 +179,46 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
   }
 
   "CDS Details Extraction" should {
-    "Extract contact details for DeclarantTypeAnswer.Importer" in {
-      val verifiedEmail  = sample[Email]
-      val acc14          = genAcc14WithAddresses
-      val acc14consignee = acc14.displayResponseDetail.consigneeDetails
-      val initialClaim   = sample[DraftClaim]
-      val draftClaim     = initialClaim.copy(
-        displayDeclaration = Some(acc14),
-        declarantTypeAnswer = Some(Importer)
-      )
-
-      val namePhoneEmail =
-        draftClaim.extractDetailsRegisteredWithCDS(verifiedEmail)
-      namePhoneEmail.name                     shouldBe acc14consignee.map(_.legalName)
-      namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
-      namePhoneEmail.email.getOrElse(fail())  shouldBe verifiedEmail
-    }
 
     "Extract establishment address for DeclarantTypeAnswer.Importer" in {
-      val acc14          = genAcc14WithAddresses
-      val acc14consignee = acc14.displayResponseDetail.consigneeDetails
-      val initialClaim   = sample[DraftClaim]
-      val draftClaim     = initialClaim.copy(
-        displayDeclaration = Some(acc14),
-        declarantTypeAnswer = Some(Importer)
+      val eori                = sample[Eori]
+      val signedInUserDetails = sample[SignedInUserDetails].copy(eori = eori)
+      val acc14               = genAcc14WithoutContactDetails.withConsigneeEori(eori)
+      val acc14consignee      = acc14.displayResponseDetail.consigneeDetails
+      val initialClaim        = sample[DraftClaim]
+      val draftClaim          = initialClaim.copy(
+        displayDeclaration = Some(acc14)
       )
 
-      val address = draftClaim.extractEstablishmentAddress
+      val address = draftClaim.extractEstablishmentAddress(signedInUserDetails)
       address shouldBe acc14consignee.map(_.establishmentAddress)
-    }
-
-    "Extract contact details for DeclarantTypeAnswer.AssociatedWithImporterCompany" in {
-      val verifiedEmail  = sample[Email]
-      val acc14          = genAcc14WithAddresses
-      val acc14consignee = acc14.displayResponseDetail.consigneeDetails
-      val initialClaim   = sample[DraftClaim]
-      val draftClaim     = initialClaim.copy(
-        displayDeclaration = Some(acc14),
-        declarantTypeAnswer = Some(AssociatedWithImporterCompany)
-      )
-
-      val namePhoneEmail =
-        draftClaim.extractDetailsRegisteredWithCDS(verifiedEmail)
-      namePhoneEmail.name                     shouldBe acc14consignee.map(_.legalName)
-      namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
-      namePhoneEmail.email.getOrElse(fail())  shouldBe verifiedEmail
     }
 
     "Extract establishment address for DeclarantTypeAnswer.AssociatedWithImporterCompany" in {
-      val acc14          = genAcc14WithAddresses
-      val acc14consignee = acc14.displayResponseDetail.consigneeDetails
-      val initialClaim   = sample[DraftClaim]
-      val draftClaim     = initialClaim.copy(
-        displayDeclaration = Some(acc14),
-        declarantTypeAnswer = Some(AssociatedWithImporterCompany)
+      val eori                = sample[Eori]
+      val signedInUserDetails = sample[SignedInUserDetails].copy(eori = eori)
+      val acc14               = genAcc14WithoutContactDetails.withDeclarantEori(eori)
+      val acc14consignee      = acc14.displayResponseDetail.consigneeDetails
+      val initialClaim        = sample[DraftClaim]
+      val draftClaim          = initialClaim.copy(
+        displayDeclaration = Some(acc14)
       )
 
-      val address = draftClaim.extractEstablishmentAddress
+      val address = draftClaim.extractEstablishmentAddress(signedInUserDetails)
       address shouldBe acc14consignee.map(_.establishmentAddress)
     }
 
-    "Extract contact details for DeclarantTypeAnswer.AssociatedWithRepresentativeCompany" in {
-      val verifiedEmail  = sample[Email]
-      val acc14          = genAcc14WithAddresses
-      val acc14Declarant = acc14.displayResponseDetail.declarantDetails
-      val initialClaim   = sample[DraftClaim]
-      val draftClaim     = initialClaim.copy(
-        displayDeclaration = Some(acc14),
-        declarantTypeAnswer = Some(AssociatedWithRepresentativeCompany)
-      )
-
-      val namePhoneEmail =
-        draftClaim.extractDetailsRegisteredWithCDS(verifiedEmail)
-      namePhoneEmail.name                     shouldBe Some(acc14Declarant.legalName)
-      namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14Declarant.contactDetails.flatMap(_.telephone)
-      namePhoneEmail.email.getOrElse(fail())  shouldBe verifiedEmail
-    }
-
     "Extract establishment address for DeclarantTypeAnswer.AssociatedWithRepresentativeCompany" in {
-      val acc14          = genAcc14WithAddresses
-      val acc14Declarant = acc14.displayResponseDetail.declarantDetails
-      val initialClaim   = sample[DraftClaim]
-      val draftClaim     = initialClaim.copy(
-        displayDeclaration = Some(acc14),
-        declarantTypeAnswer = Some(AssociatedWithRepresentativeCompany)
+      val eori                = sample[Eori]
+      val signedInUserDetails = sample[SignedInUserDetails].copy(eori = eori)
+      val acc14               = genAcc14WithoutContactDetails
+      val acc14Declarant      = acc14.displayResponseDetail.declarantDetails
+      val initialClaim        = sample[DraftClaim]
+      val draftClaim          = initialClaim.copy(
+        displayDeclaration = Some(acc14)
       )
 
-      val address = draftClaim.extractEstablishmentAddress
+      val address = draftClaim.extractEstablishmentAddress(signedInUserDetails)
       address shouldBe Some(acc14Declarant.establishmentAddress)
     }
   }

@@ -40,11 +40,11 @@ trait RejectedGoodsScheduledJourneyRouter {
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => undefined
       case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined
       case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => undefined
-      case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined
-      case CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => undefined
+      case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterImporterEoriNumberController.show()
+      case CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterImporterEoriNumberController.show()
       case DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
-      case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => undefined
+      case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => routes.ChooseBankAccountTypeController.show()
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED     => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined

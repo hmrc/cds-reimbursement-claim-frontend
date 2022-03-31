@@ -44,7 +44,7 @@
 @hintText = @{Html(messages(s"$key.actual-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 

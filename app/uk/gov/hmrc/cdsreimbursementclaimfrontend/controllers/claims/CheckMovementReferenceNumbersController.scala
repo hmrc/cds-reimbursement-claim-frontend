@@ -104,7 +104,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                   .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.length))
               )
             case No  =>
-              Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
+              Redirect(routes.CheckContactDetailsMrnController.show(JourneyBindable.Multiple))
           }
         )
     }

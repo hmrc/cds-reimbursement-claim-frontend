@@ -135,7 +135,9 @@ class BankAccountController @Inject() (
                       if (bankAccount === BankAccountType.Business) {
                         claimService.getBusinessAccountReputation(bankAccountDetails)
                       } else {
-                        val postCode = fillingOutClaim.draftClaim.extractEstablishmentAddress.flatMap(_.postalCode)
+                        val postCode = fillingOutClaim.draftClaim
+                          .extractEstablishmentAddress(fillingOutClaim.signedInUserDetails)
+                          .flatMap(_.postalCode)
                         claimService.getPersonalAccountReputation(bankAccountDetails, postCode)
                       }
                     }
