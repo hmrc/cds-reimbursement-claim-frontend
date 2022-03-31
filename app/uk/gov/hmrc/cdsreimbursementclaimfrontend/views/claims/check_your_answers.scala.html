@@ -59,12 +59,6 @@
     )
 }
 
-@cdsClaimantDetailsSummary = @{
-    claim.extractEstablishmentAddress.map { cdsAddress =>
-        CdsClaimantDetailsSummary((claim.extractDetailsRegisteredWithCDS(verifiedEmail), cdsAddress, claim.mrnContactDetailsAnswer,claim.mrnContactAddressAnswer),s"$key.claimant-details",subKey,claimRoutes.CheckContactDetailsMrnController.show(journey))
-    }
-}
-
 @layout(pageTitle = Some(s"$title")) {
 
     @pageHeading(title)

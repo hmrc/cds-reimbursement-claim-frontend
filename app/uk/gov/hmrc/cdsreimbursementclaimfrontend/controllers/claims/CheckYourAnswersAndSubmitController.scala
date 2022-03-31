@@ -210,7 +210,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.using({ case fillingOutClaim @ FillingOutClaim(_, signedInUserDetails, draftClaim: DraftClaim) =>
       C285Claim
-        .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
+        .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail, signedInUserDetails.eori)
         .fold[Future[Result]](
           error => logAndDisplayError("could not make a complete claim") apply error,
           c285Claim => f(fillingOutClaim, c285Claim)

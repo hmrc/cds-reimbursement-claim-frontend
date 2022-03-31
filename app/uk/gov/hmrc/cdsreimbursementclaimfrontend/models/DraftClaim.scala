@@ -16,34 +16,32 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Applicative
 import cats.Eq
 import cats.data.NonEmptyList
 import cats.syntax.all._
 import julienrf.json.derived
+import play.api.Logger
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ImporterEoriNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import java.util.UUID
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import play.api.Logger
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+
+import java.util.UUID
 
 final case class DraftClaim(
   id: UUID,
   typeOfClaim: Option[TypeOfClaimAnswer] = None,
   movementReferenceNumber: Option[MRN] = None,
   duplicateMovementReferenceNumberAnswer: Option[MRN] = None,
-  declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
   mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
   mrnContactAddressAnswer: Option[ContactAddress] = None,
   bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
@@ -118,35 +116,15 @@ final case class DraftClaim(
       claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList)
   }
 
-  def extractDetailsRegisteredWithCDS(verifiedEmail: Email): NamePhoneEmail =
-    Applicative[Option]
-      .map2(displayDeclaration, declarantTypeAnswer) { (declaration, declarantType) =>
-        declarantType match {
-          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-            val consignee = declaration.displayResponseDetail.consigneeDetails
-            val name      = consignee.map(_.legalName)
-            val phone     = consignee.flatMap(_.contactDetails.flatMap(_.telephone))
-            NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(verifiedEmail))
-          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-            val declarant = declaration.displayResponseDetail.declarantDetails
-            val name      = declarant.legalName
-            val phone     = declarant.contactDetails.flatMap(_.telephone)
-            NamePhoneEmail(Some(name), phone.map(PhoneNumber(_)), Some(verifiedEmail))
-        }
+  def extractEstablishmentAddress(user: SignedInUserDetails): Option[EstablishmentAddress] =
+    displayDeclaration.flatMap { declaration =>
+      getClaimantType(user.eori) match {
+        case ClaimantType.Consignee                     =>
+          declaration.displayResponseDetail.consigneeDetails.map(_.establishmentAddress)
+        case ClaimantType.Declarant | ClaimantType.User =>
+          Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
       }
-      .getOrElse(NamePhoneEmail())
-
-  def extractEstablishmentAddress: Option[EstablishmentAddress] =
-    Applicative[Option]
-      .map2(displayDeclaration, declarantTypeAnswer) { (declaration, declarantType) =>
-        declarantType match {
-          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-            declaration.displayResponseDetail.consigneeDetails.map(_.establishmentAddress)
-          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-            Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
-        }
-      }
-      .flatten
+    }
 
   def isComplete: Boolean = {
 
@@ -162,7 +140,6 @@ final case class DraftClaim(
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
-        DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
         MRN.validator.validate(movementReferenceNumber).isValid
 
@@ -171,7 +148,6 @@ final case class DraftClaim(
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
-        DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
         AssociatedMRNsClaimsAnswer.validator.validate(associatedMRNsClaimsAnswer).isValid &&
         AssociatedMRNsAnswer.validator.validate(associatedMRNsAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
@@ -184,7 +160,6 @@ final case class DraftClaim(
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         ScheduledDocumentAnswer.validator.validate(scheduledDocumentAnswer).isValid &&
-        DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
         MRN.validator.validate(movementReferenceNumber).isValid
 
