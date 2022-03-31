@@ -44,6 +44,7 @@ class SelectDutyTypesController @Inject() (
 
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     selectDutyTypesForm
       .bindFromRequest()
@@ -59,10 +60,22 @@ class SelectDutyTypesController @Inject() (
             )
           ),
         dutyTypes =>
-          (
-            journey.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes).getOrElse(journey),
-            Redirect(routes.SelectDutyCodesController.iterate())
-          )
+          journey
+            .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+            .fold(
+              errors => {
+                logger.error(s"Error updating duty types selection - $errors")
+                (journey, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction)))
+              },
+              updatedJourney =>
+                (
+                  updatedJourney,
+                  Redirect(
+                    routes.SelectDutyCodesController
+                      .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
+                  )
+                )
+            )
       )
       .asFuture
   }

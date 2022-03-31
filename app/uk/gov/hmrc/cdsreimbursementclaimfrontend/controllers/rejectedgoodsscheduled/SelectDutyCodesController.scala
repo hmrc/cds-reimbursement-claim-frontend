@@ -22,7 +22,6 @@ import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyCodesForm
@@ -39,16 +38,6 @@ class SelectDutyCodesController @Inject() (
   selectDutyCodesPage: pages.select_duty_codes
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
-
-  val iterate: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    def selectDuties: Future[Result] = Redirect(routes.SelectDutyTypesController.show()).asFuture
-
-    def start(dutyType: DutyType): Future[Result] = Redirect(routes.SelectDutyCodesController.show(dutyType)).asFuture
-
-    journey.answers.reimbursementClaims.flatMap(_.value.headOption).fold(selectDuties) {
-      selectedDutyTaxCodesReimbursement => start(selectedDutyTaxCodesReimbursement._1)
-    }
-  }
 
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.SelectDutyCodesController.submit(dutyType)
@@ -78,7 +67,7 @@ class SelectDutyCodesController @Inject() (
               .fold(
                 errors => {
                   logger.error(s"Error updating tax codes selection - $errors")
-                  (journey, Redirect(routes.SelectDutyCodesController.show(currentDuty)))
+                  (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
                 },
                 updatedJourney =>
                   (

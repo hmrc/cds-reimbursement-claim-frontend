@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -80,22 +79,6 @@ class SelectDutyCodesControllerSpec
       status(controller.show(dutyType)(FakeRequest())) shouldBe NOT_FOUND
     }
 
-    "redirect to the select duty types page" when {
-
-      "user has not selected any duty types" in {
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkIsRedirect(
-          controller.iterate()(FakeRequest()),
-          routes.SelectDutyTypesController.show()
-        )
-      }
-    }
-
     "show select tax codes page" when {
 
       "the user has not answered this question before" in forAll { dutyType: DutyType =>
@@ -132,9 +115,12 @@ class SelectDutyCodesControllerSpec
             mockGetSession(updatedSession)
           }
 
-          checkIsRedirect(
-            controller.iterate()(FakeRequest()),
-            routes.SelectDutyCodesController.show(dutyType)
+          checkPageIsDisplayed(
+            controller.show(dutyType)(FakeRequest()),
+            messageFromMessageKey(
+              s"$selectDutyCodesKey.title",
+              messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+            )
           )
       }
 
