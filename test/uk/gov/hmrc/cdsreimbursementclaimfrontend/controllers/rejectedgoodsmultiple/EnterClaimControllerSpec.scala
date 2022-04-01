@@ -180,6 +180,7 @@ class EnterClaimControllerSpec
         forAll(incompleteJourneyWithSelectedDutiesGen(9)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes = journey.getSelectedDuties(mrn).get
+
             selectedTaxCodes.foreach { taxCode =>
               val amountPaid  = journey.getAmountPaidFor(mrn, taxCode).get
               val claimAmount = BigDecimal(formatAmount(amountPaid / 2))

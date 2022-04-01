@@ -84,11 +84,9 @@ class SelectDutyTypesControllerSpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(journey))
-
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -100,12 +98,11 @@ class SelectDutyTypesControllerSpec
 
       "display the page when a duty has already been selected before" in {
         forAll(completeJourneyGen, genDuty) { (journey, dutyType: DutyType) =>
-          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-          val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -128,15 +125,10 @@ class SelectDutyTypesControllerSpec
       }
 
       "reject an empty duty type selection" in {
-
-        val journey = RejectedGoodsScheduledJourney
-          .empty(exampleEori)
-
-        val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(journey))
-
+        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -148,23 +140,18 @@ class SelectDutyTypesControllerSpec
       }
 
       "select valid duty types when none have been selected before" in forAll { dutyType: DutyType =>
-        val initialJourney = RejectedGoodsScheduledJourney
-          .empty(exampleEori)
-
-        val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(initialJourney))
-
-        val updatedJourney = initialJourney.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-        val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+        val initialJourney = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val updatedJourney = initialJourney.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(initialSession)
-          mockStoreSession(updatedSession)(Right(()))
+          mockGetSession(SessionData(initialJourney))
+          mockStoreSession(SessionData(updatedJourney))(Right(()))
         }
 
         checkIsRedirect(
           performAction(Seq(s"$messagesKey[]" -> dutyType.repr)),
-          routes.SelectDutyCodesController.show(dutyType)
+          routes.SelectTaxCodesController.show(dutyType)
         )
       }
 

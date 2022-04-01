@@ -71,7 +71,7 @@ class SelectDutyTypesController @Inject() (
                 (
                   updatedJourney,
                   Redirect(
-                    routes.SelectDutyCodesController
+                    routes.SelectTaxCodesController
                       .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
                   )
                 )

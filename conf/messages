@@ -896,16 +896,19 @@ enter-claim.invalid.claim=Amount that should have been paid must be lower than t
 #  ENTER SCHEDULE CLAIM PAGE
 #===================================================
 enter-scheduled-claim.title=Claim details for all MRNs under {0} {1}
-enter-scheduled-claim.help-text=This is to calculate your repayment as part of your claim.
+enter-scheduled-claim.help-text=Provide your claim details for {0}.
 enter-scheduled-claim.inset-text=HMRC does not refund agents’ fees.
 enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
-enter-scheduled-claim.actual-amount.hint=This is the {0} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
+enter-scheduled-claim.actual-amount.hint=The amount must be lower than or equal to the paid amount.
 enter-scheduled-claim.paid-amount.error.required=Enter the amount that was paid, in pounds
 enter-scheduled-claim.paid-amount.error.invalid=Paid amount must be a number, like 30
+enter-scheduled-claim.paid-amount.error.zero=The paid amount cannot be 0
 enter-scheduled-claim.actual-amount.error.required=Enter the amount that should have been paid, in pounds
-enter-scheduled-claim.actual-amount.error.invalid=Amount that should have been paid must be a number, like 30
+enter-scheduled-claim.actual-amount.error.invalid=Paid amount must be a number, like 30
 enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been paid must be lower than the amount paid
+enter-scheduled-claim.actual-amount.error.zero=The claim amount cannot be 0
+enter-scheduled-claim.invalid.claim=The amount must be a number, like 30
 
 #===================================================
 #  ENTER MULTIPLE CLAIM PAGE
