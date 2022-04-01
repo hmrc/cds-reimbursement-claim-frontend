@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,13 +29,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select
 
 import scala.concurrent.ExecutionContext
 import play.api.data.Form
+import play.api.mvc.Call
 
 @Singleton
 class BasisForClaimController @Inject() (
   val jcc: JourneyControllerComponents,
   basisForClaimPage: select_basis_for_claim
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController {
+    extends RejectedGoodsScheduledJourneyBaseController {
 
   val formKey: String = "select-basis-for-claim.rejected-goods"
 
@@ -69,13 +70,18 @@ class BasisForClaimController @Inject() (
         basisOfClaim =>
           (
             journey.submitBasisOfClaim(basisOfClaim),
-            basisOfClaim match {
+            Redirect(basisOfClaim match {
               case SpecialCircumstances =>
-                Redirect(
-                  routes.EnterSpecialCircumstancesController.show()
-                )
-              case _                    => Redirect(routes.DisposalMethodController.show())
-            }
+                Call(
+                  "GET",
+                  "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/enter-special-circumstances"
+                ) //routes.EnterSpecialCircumstancesController.show()
+              case _                    =>
+                Call(
+                  "GET",
+                  "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/choose-disposal-method"
+                ) //routes.DisposalMethodController.show()
+            })
           ).asFuture
       )
   }
