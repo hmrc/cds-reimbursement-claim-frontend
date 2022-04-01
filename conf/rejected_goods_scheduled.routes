@@ -37,6 +37,9 @@ POST         /rejected-goods/scheduled/select-duties/select-duty-types          
 GET         /rejected-goods/scheduled/select-duties/:dutyType                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesController.show(dutyType: DutyType)
 POST        /rejected-goods/scheduled/select-duties/:dutyType                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesController.submit(dutyType: DutyType)
 
+GET         /rejected-goods/scheduled/select-duties/reimbursement-claim/start        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.iterate()
+GET         /rejected-goods/scheduled/select-duties/:dutyType/:taxCode               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.show(dutyType: DutyType, taxCode: TaxCode)
+
 GET          /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
 POST         /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
 
