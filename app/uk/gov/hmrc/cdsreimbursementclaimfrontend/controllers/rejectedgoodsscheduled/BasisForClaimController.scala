@@ -77,10 +77,7 @@ class BasisForClaimController @Inject() (
                   "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/enter-special-circumstances"
                 ) //routes.EnterSpecialCircumstancesController.show()
               case _                    =>
-                Call(
-                  "GET",
-                  "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/choose-disposal-method"
-                ) //routes.DisposalMethodController.show()
+                routes.DisposalMethodController.show()
             })
           ).asFuture
       )
