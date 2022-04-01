@@ -58,7 +58,7 @@
 
     @summary(RejectedGoodsCdsDisplayDeclarationSummary(declaration,s"$checkYourAnswersKey.declaration-details", subKey))
 
-    @{if(subKey=="scheduled")
+    @{if(subKey.contains("scheduled"))
         paragraph(Html(messages(s"$key$subKeyDetail.is-information-correct")))
       else
         pageHeading(messages(s"$key$subKeyDetail.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h1")}

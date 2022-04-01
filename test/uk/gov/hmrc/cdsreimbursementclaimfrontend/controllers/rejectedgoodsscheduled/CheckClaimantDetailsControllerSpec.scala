@@ -189,7 +189,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.WorkInProgressController.show()
+              routes.BasisForClaimController.show()
             )
         }
       }
@@ -231,7 +231,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.WorkInProgressController.show()
+              routes.BasisForClaimController.show()
             )
         }
       }
