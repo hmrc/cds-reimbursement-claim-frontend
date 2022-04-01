@@ -209,6 +209,21 @@ object Forms {
     )
   }
 
+  val selectDutyCodesForm: Form[List[TaxCode]] =
+    Form(
+      mapping(
+        "select-duty-codes" -> list(
+          mapping(
+            "" -> nonEmptyText
+              .verifying(
+                "error.invalid",
+                code => TaxCodes has code
+              )
+          )(TaxCode.apply)(TaxCode.unapply)
+        ).verifying("error.required", _.nonEmpty)
+      )(identity)(Some(_))
+    )
+
   val inspectionAddressTypeForm: Form[InspectionAddressType] =
     Form(
       "inspection-address.type" ->

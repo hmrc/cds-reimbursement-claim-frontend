@@ -29,7 +29,6 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.selectDutyCodesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
@@ -67,6 +66,7 @@ class SelectDutyCodesControllerSpec
     )
 
   val controller: SelectDutyCodesController = instanceOf[SelectDutyCodesController]
+  val selectDutyCodesKey: String            = "select-duty-codes"
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -134,7 +134,10 @@ class SelectDutyCodesControllerSpec
             s"$selectDutyCodesKey.title",
             messageFromMessageKey(s"$selectDutyCodesKey.h1.${duty.repr}")
           ),
-          doc => isCheckboxChecked(doc, taxCode.value) shouldBe true
+          doc => {
+            isCheckboxChecked(doc, taxCode.value) shouldBe true
+            formAction(doc)                       shouldBe routes.SelectDutyCodesController.submitDutyCodes(duty).url
+          }
         )
       }
     }
