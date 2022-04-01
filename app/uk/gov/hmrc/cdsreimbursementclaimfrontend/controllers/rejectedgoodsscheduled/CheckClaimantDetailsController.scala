@@ -47,7 +47,7 @@ class CheckClaimantDetailsController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
     val changeCd: Call                             =
-      routes.WorkInProgressController.show() //TODO: should be claimant-details/change-contact-details (CDSR-1356)
+      Call("GET", "claimant-details/change-contact-details") //TODO: change to routes
     val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
     val (maybeContactDetails, maybeAddressDetails) =
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
@@ -57,8 +57,9 @@ class CheckClaimantDetailsController @Inject() (
         Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)).asFuture
       case _                    =>
         logger.warn(
-          s"${maybeContactDetails.map(_ => "Contact details is defined").getOrElse("Cannot compute contact details")} "+
-          s"${maybeAddressDetails.map(_ => "Address details is defined").getOrElse("Cannot compute address details")}")
+          s"${maybeContactDetails.map(_ => "Contact details is defined").getOrElse("Cannot compute contact details")} " +
+            s"${maybeAddressDetails.map(_ => "Address details is defined").getOrElse("Cannot compute address details")}"
+        )
         Redirect(routes.EnterMovementReferenceNumberController.show()).asFuture
     }
 
