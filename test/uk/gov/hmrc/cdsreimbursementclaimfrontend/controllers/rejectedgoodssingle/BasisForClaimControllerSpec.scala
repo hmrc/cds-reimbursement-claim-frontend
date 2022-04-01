@@ -68,9 +68,7 @@ class BasisForClaimControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  val session = SessionData(RejectedGoodsSingleJourney.empty(exampleEori))
 
   "Enter Basis for claim Controller" when {
     "Show Basis for claim page" must {
@@ -104,12 +102,12 @@ class BasisForClaimControllerSpec
 
       "display the page on a pre-existing journey" in forAll(buildCompleteJourneyGen()) { journey =>
         whenever(journey.answers.basisOfClaim.isDefined) {
-          val basisOfClaims  = journey.answers.basisOfClaim.map(_.toString)
-          val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+          val basisOfClaims = journey.answers.basisOfClaim.map(_.toString)
+          val session       = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(sessionToAmend)
+            mockGetSession(session)
           }
 
           checkPageIsDisplayed(
@@ -174,7 +172,7 @@ class BasisForClaimControllerSpec
       "submit a valid basis for claim" in forAll(Gen.oneOf(BasisOfRejectedGoodsClaim.values)) { basisOfClaim =>
         val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
         val updatedJourney = journey.submitBasisOfClaim(basisOfClaim)
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
