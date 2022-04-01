@@ -103,6 +103,7 @@ class EnterMovementReferenceNumberController @Inject() (
             )
       )
   }
+  
   private def customError(mrn: MRN, errorSuffix: String)(implicit request: Request[_]): HtmlFormat.Appendable =
     enterMovementReferenceNumberPage(
       movementReferenceNumberForm
@@ -117,7 +118,7 @@ class EnterMovementReferenceNumberController @Inject() (
       if (updatedJourney.needsDeclarantAndConsigneeEoriSubmission) {
         routes.EnterImporterEoriNumberController.show()
       } else {
-        routes.WorkInProgressController.show() //TODO: Should be routes.CheckDeclarationDetailsController.show()
+        routes.CheckDeclarationDetailsController.show()
       }
     )
 }
