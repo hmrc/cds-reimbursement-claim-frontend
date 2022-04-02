@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
+import cats.data.EitherT
+import cats.implicits._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -34,13 +36,22 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, Feature, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DeclarantDetails, DisplayDeclaration}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnterMovementReferenceNumberControllerSpec
@@ -51,13 +62,13 @@ class EnterMovementReferenceNumberControllerSpec
     with ScalaCheckPropertyChecks
     with OptionValues {
 
-  val mockClaimsService: ClaimService = mock[ClaimService]
+  val mockClaimService: ClaimService = mock[ClaimService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[ClaimService].toInstance(mockClaimsService)
+      bind[ClaimService].toInstance(mockClaimService)
     )
 
   val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
@@ -70,14 +81,22 @@ class EnterMovementReferenceNumberControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.RejectedGoods)
+    ()
+  }
 
   val session: SessionData = SessionData.empty.copy(
     rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
   )
 
   val messageKey: String = "enter-movement-reference-number.rejected-goods"
+
+  private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
+    (mockClaimService
+      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .expects(expectedMrn, *)
+      .returning(EitherT.fromEither[Future](response))
 
   "MRN Controller" when {
     "Enter MRN page" must {
@@ -181,6 +200,82 @@ class EnterMovementReferenceNumberControllerSpec
           expectedStatus = BAD_REQUEST
         )
       }
+
+      "submit an unknown MRN" in forAll { (mrn: MRN) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(None))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          baseRoutes.IneligibleController.ineligible()
+        )
+      }
+
+      "submit a valid MRN and user is declarant" in forAll { (mrn: MRN) =>
+        val journey                       = session.rejectedGoodsScheduledJourney.getOrElse(fail("No rejected goods journey"))
+        val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+        val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
+          declarantEORI = journey.answers.userEoriNumber.value
+        )
+        val updatedDisplayResponseDetails =
+          displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+        val updatedJourney                =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+            .getOrFail
+        val updatedSession                = SessionData(updatedJourney)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          routes.CheckDeclarationDetailsController.show()
+        )
+      }
+
+      "submit a valid MRN and user is not the declarant or consignee" in forAll {
+        (mrn: MRN, declarant: Eori, consignee: Eori) =>
+          whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
+            val journey            = session.rejectedGoodsScheduledJourney.getOrElse(fail("No rejected goods journey"))
+            val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+            val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
+            val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
+
+            val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+              declarantDetails = declarantDetails,
+              consigneeDetails = Some(consigneeDetails)
+            )
+            val updatedDisplayDeclaration     =
+              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+            val updatedJourney                =
+              journey
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+                .getOrFail
+            val updatedSession                = SessionData(updatedJourney)
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+              mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+              mockStoreSession(updatedSession)(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(enterMovementReferenceNumberKey -> mrn.value),
+              routes.EnterImporterEoriNumberController.show()
+            )
+          }
+      }
+
     }
   }
 }
