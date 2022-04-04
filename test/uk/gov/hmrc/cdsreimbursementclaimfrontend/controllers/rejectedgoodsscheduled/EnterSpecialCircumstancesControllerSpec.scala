@@ -168,7 +168,9 @@ class EnterSpecialCircumstancesControllerSpec
         )
       }
 
-      "redirect to the choose disposal method if a valid set of special circumstances are entered" in forAll(genStringWithMaxSizeOfN(50)) { details =>
+      "redirect to the choose disposal method if a valid set of special circumstances are entered" in forAll(
+        genStringWithMaxSizeOfN(50)
+      ) { details =>
         val journey        =
           session.rejectedGoodsScheduledJourney.get.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
         val updatedJourney = journey
