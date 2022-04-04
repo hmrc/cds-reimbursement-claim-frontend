@@ -59,12 +59,12 @@ GET          /rejected-goods/scheduled/check-bank-details                       
 GET          /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
 POST         /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
 
-GET          /rejected-goods/scheduled/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseFileTypeController.show()
+POST         /rejected-goods/scheduled/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseFileTypeController.submit()
 
-GET          /rejected-goods/scheduled/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
+GET          /rejected-goods/scheduled/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.UploadFilesController.show()
 +nocsrf
-POST         /rejected-goods/scheduled/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+POST         /rejected-goods/scheduled/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.UploadFilesController.submit()
 
 POST         /rejected-goods/scheduled/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.submit()
 GET          /rejected-goods/scheduled/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.showConfirmation()

@@ -39,8 +39,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, Feature, SessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DeclarantDetails, DisplayDeclaration}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
