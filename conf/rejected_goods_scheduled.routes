@@ -10,6 +10,9 @@ POST         /rejected-goods/scheduled/enter-declarant-eori                     
 GET          /rejected-goods/scheduled/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckDeclarationDetailsController.show()
 POST         /rejected-goods/scheduled/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckDeclarationDetailsController.submit()
 
+GET          /rejected-goods/scheduled/upload-mrn-list                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
+POST         /rejected-goods/scheduled/upload-mrn-list                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+
 GET          /rejected-goods/scheduled/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimantDetailsController.show()
 POST         /rejected-goods/scheduled/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimantDetailsController.submit()
 GET          /rejected-goods/scheduled/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimantDetailsController.redirectToALF()

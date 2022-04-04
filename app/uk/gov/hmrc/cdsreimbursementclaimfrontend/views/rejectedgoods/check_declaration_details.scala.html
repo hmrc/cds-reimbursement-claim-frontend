@@ -59,13 +59,13 @@
     @summary(RejectedGoodsCdsDisplayDeclarationSummary(declaration,s"$checkYourAnswersKey.declaration-details", subKey))
 
     @{if(subKey.contains("scheduled"))
-        paragraph(Html(messages(s"$key$subKeyDetail.is-information-correct")))
+        paragraph(Html(messages(s"$key$subKeyDetail.is-information-correct")), Some("govuk-body"))
       else
         pageHeading(messages(s"$key$subKeyDetail.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h1")}
 
     @radios(
       form = form,
-      name = s"$key$subKeyDetail",
+      name = key,
       legend = title,
       legendAsHeading = false,
       hintKey = None,

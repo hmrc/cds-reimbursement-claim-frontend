@@ -75,7 +75,8 @@ class CheckDeclarationDetailsController @Inject() (
             Redirect(answer match {
               case Yes =>
                 routes.WorkInProgressController.show() // todo CSDR-1351 routes.UploadMrnList.show()
-              case No  => routes.EnterMovementReferenceNumberController.submit()
+              case No  =>
+                routes.EnterMovementReferenceNumberController.submit()
             })
           )
       )
