@@ -34,7 +34,8 @@ trait RejectedGoodsScheduledJourneyRouter {
       case MISSING_INSPECTION_ADDRESS                               => undefined
       case MISSING_METHOD_OF_DISPOSAL                               => undefined
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
-      case INCOMPLETE_SUPPORTING_EVIDENCES                          => undefined
+      case MISSING_SCHEDULED_DOCUMENT                               => routes.UploadMrnListController.show()
+      case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show()
       case MISSING_CONTACT_DETAILS                                  => undefined
       case MISSING_CONTACT_ADDRESS                                  => undefined
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => undefined

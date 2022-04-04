@@ -35,7 +35,7 @@ trait RejectedGoodsMultipleJourneyRouter {
       case MISSING_INSPECTION_ADDRESS                               => routes.ChooseInspectionAddressTypeController.show()
       case MISSING_METHOD_OF_DISPOSAL                               => routes.DisposalMethodController.show()
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
-      case INCOMPLETE_SUPPORTING_EVIDENCES                          => undefined //routes.ChooseFileTypeController.show()
+      case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show()
       case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show()
       case MISSING_CONTACT_ADDRESS                                  => routes.CheckClaimantDetailsController.redirectToALF()
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => routes.CheckClaimDetailsController.show()
