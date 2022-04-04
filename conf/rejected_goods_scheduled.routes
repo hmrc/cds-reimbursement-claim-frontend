@@ -22,8 +22,8 @@ POST         /rejected-goods/scheduled/claimant-details/change-contact-details  
 GET          /rejected-goods/scheduled/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.BasisForClaimController.show()
 POST         /rejected-goods/scheduled/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.BasisForClaimController.submit()
 
-GET          /rejected-goods/scheduled/enter-special-circumstances                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/enter-special-circumstances                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/enter-special-circumstances                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterSpecialCircumstancesController.show()
+POST         /rejected-goods/scheduled/enter-special-circumstances                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterSpecialCircumstancesController.submit()
 
 GET          /rejected-goods/scheduled/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
 POST         /rejected-goods/scheduled/choose-disposal-method                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
