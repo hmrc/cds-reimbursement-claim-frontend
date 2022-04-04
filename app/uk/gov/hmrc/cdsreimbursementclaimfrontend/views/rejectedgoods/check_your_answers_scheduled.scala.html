@@ -49,7 +49,7 @@
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.WorkInProgressController.show())))
 
     @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"$key.scheduled-document",Some(routes.WorkInProgressController.show())))
+    @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"$key.scheduled-document",Some(routes.UploadMrnListController.show())))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
