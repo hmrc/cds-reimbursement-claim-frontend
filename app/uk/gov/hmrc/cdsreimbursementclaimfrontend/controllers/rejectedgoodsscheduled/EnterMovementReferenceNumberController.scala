@@ -58,7 +58,7 @@ class EnterMovementReferenceNumberController @Inject() (
     ).asFuture
   }
 
-  def submit(): Action[AnyContent]                                                                            = actionReadWriteJourney { implicit request => journey =>
+  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     movementReferenceNumberForm
       .bindFromRequest()
       .fold(
@@ -103,7 +103,7 @@ class EnterMovementReferenceNumberController @Inject() (
             )
       )
   }
-  
+
   private def customError(mrn: MRN, errorSuffix: String)(implicit request: Request[_]): HtmlFormat.Appendable =
     enterMovementReferenceNumberPage(
       movementReferenceNumberForm
