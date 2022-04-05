@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
@@ -103,16 +104,24 @@ final class RejectedGoodsScheduledJourney private (
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
 
   private val dutyTypesRankMap: ListMap[DutyType, Int]                = ListMap(DutyTypes.all.zipWithIndex: _*)
+  private val taxCodesRankMap: ListMap[TaxCode, Int]                  = ListMap(TaxCodes.all.zipWithIndex: _*)
   def findNextSelectedDutyAfter(previous: DutyType): Option[DutyType] =
     DutyTypes.all
       .drop(dutyTypesRankMap(previous) + 1)
       .find(duty => getSelectedDutyTypes.getOrElse(Seq.empty).contains(duty))
+
+  //FIXME: remove if unused
+  def findNextSelectedTaxCodeAfter(dutyType: DutyType, previous: TaxCode): Option[TaxCode] =
+    TaxCodes.all
+      .drop(taxCodesRankMap(previous) + 1)
+      .find(taxCode => getSelectedDutiesFor(dutyType).contains(taxCode))
 
   def getReimbursementClaimsFor(
     dutyType: DutyType
   ): Option[SortedMap[TaxCode, Option[Reimbursement]]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
+  //FIXME: remove if unused
   def getReimbursementFor(
     dutyType: DutyType,
     taxCode: TaxCode

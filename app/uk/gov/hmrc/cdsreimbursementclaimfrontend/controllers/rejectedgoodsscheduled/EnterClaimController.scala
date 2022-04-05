@@ -26,7 +26,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.findUnclaimedReimbursements
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.findDutyTypeAndTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -52,9 +52,15 @@ class EnterClaimController @Inject() (
     def start(dutyAndTaxCode: (DutyType, TaxCode)): Future[Result] =
       Redirect(routes.EnterClaimController.show(dutyAndTaxCode._1, dutyAndTaxCode._2)).asFuture
 
-    val maybeReimbursementClaim: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]] = journey.getReimbursementClaims
+    val dutyAndTaxCodes: Map[DutyType, Seq[TaxCode]] = journey.getSelectedDuties
+    val isCompleteReimbursementClaim = journey.hasCompleteReimbursementClaims
 
-    findUnclaimedReimbursements(maybeReimbursementClaim).fold(redirectToSummaryPage) { dutyAndTaxCode =>
+    //FIXME: Does the reimbursement claim exist?
+    // If Yes -> redirect to check claim page,
+    // If No -> start claim page with duty and taxcode, if these don't exist redirect to start Claim
+    if (journey.hasCompleteReimbursementClaims) redirectToSummaryPage
+    else
+    findDutyTypeAndTaxCode(dutyAndTaxCodes).fold(redirectToSummaryPage) { dutyAndTaxCode =>
       start(dutyAndTaxCode)
     }
 
@@ -110,13 +116,22 @@ class EnterClaimController @Inject() (
 
 object EnterClaimController {
 
-  def findUnclaimedReimbursements(
-    value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
+  def findDutyTypeAndTaxCode(
+    value: Map[DutyType, Seq[TaxCode]]
   ): Option[(DutyType, TaxCode)] =
+    for {
+      dutyTypeAndTaxCodes <- value.find(_._2.nonEmpty)
+      firstAvailableTaxCode          <- dutyTypeAndTaxCodes._2.find(_.value.nonEmpty)
+    } yield (dutyTypeAndTaxCodes._1, firstAvailableTaxCode)
+
+  def findUnclaimedReimbursements1(
+    value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
+  ): Option[(DutyType, TaxCode)] = {
     for {
       unclaimedReimbursements <- value.find(_._2.exists(_._2.isUnclaimed))
       firstAvailable          <- unclaimedReimbursements._2.find(_._2.isUnclaimed)
     } yield (unclaimedReimbursements._1, firstAvailable._1)
+  }
 
   def findReimbursement(value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]): Option[Reimbursement] =
     for {
