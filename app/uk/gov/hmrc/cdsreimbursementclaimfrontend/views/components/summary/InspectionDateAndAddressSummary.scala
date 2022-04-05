@@ -67,11 +67,13 @@ object InspectionDateAndAddressSummary {
       )
 
     val addressData = List(
-      Paragraph(inspectionAddress.addressLine1),
-      Paragraph(inspectionAddress.addressLine2),
-      Paragraph(inspectionAddress.city),
-      Paragraph(inspectionAddress.postalCode)
-    )
+      inspectionAddress.addressLine1.map(Paragraph(_)),
+      inspectionAddress.addressLine2.map(Paragraph(_)),
+      inspectionAddress.addressLine3.map(Paragraph(_)),
+      inspectionAddress.city.map(Paragraph(_)),
+      inspectionAddress.postalCode.map(Paragraph(_)),
+      inspectionAddress.countryCode.map(code => Paragraph(messages(s"country.$code")))
+    ).flatten(Option.option2Iterable)
 
     SummaryList(
       Seq(

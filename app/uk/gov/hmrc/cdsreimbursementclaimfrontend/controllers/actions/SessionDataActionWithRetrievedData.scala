@@ -23,16 +23,32 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
+import scala.concurrent.Future
 
 final case class RequestWithSessionDataAndRetrievedData[A](
   sessionData: SessionData,
   authenticatedRequest: AuthenticatedRequestWithRetrievedData[A]
 ) extends WrappedRequest[A](authenticatedRequest)
     with PreferredMessagesProvider {
+
   override def messagesApi: MessagesApi =
     authenticatedRequest.request.messagesApi
+
+  def using(
+    matchExpression: PartialFunction[JourneyStatus, Future[Result]],
+    applyIfNone: => Result = startNewJourney
+  ): Future[Result] =
+    sessionData.journeyStatus
+      .collect(matchExpression)
+      .getOrElse(Future.successful(applyIfNone))
+
+  def startNewJourney: Result =
+    Redirect(baseRoutes.StartController.start())
 }
 
 @Singleton

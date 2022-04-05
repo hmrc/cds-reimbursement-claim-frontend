@@ -19,12 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.OptionT
 import cats.implicits.catsSyntaxOptionId
 import com.google.inject.Inject
-import play.api.data.Form
-import play.api.data.Forms.list
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -33,16 +30,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.selectDutyCodesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -69,7 +65,7 @@ class SelectDutyCodesController @Inject() (
 
   def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     def selectDuties: Future[Result] =
-      Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
+      Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)))
 
     def start(dutyType: DutyType): Future[Result] =
       Future(Redirect(claimRoutes.SelectDutyCodesController.showDutyCodes(dutyType)))
@@ -85,9 +81,13 @@ class SelectDutyCodesController @Inject() (
     implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
         val maybeSelectedTaxCodes = maybeAnswer.map(_.getTaxCodes(dutyType))
-
+        val postAction: Call      = claimRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)
         Ok(
-          selectDutyCodesPage(dutyType, maybeSelectedTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_)))
+          selectDutyCodesPage(
+            dutyType,
+            maybeSelectedTaxCodes.toList.foldLeft(selectDutyCodesForm)(_.fill(_)),
+            postAction
+          )
         )
       }
   }
@@ -95,6 +95,8 @@ class SelectDutyCodesController @Inject() (
   def submitDutyCodes(currentDuty: DutyType): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
+        val postAction: Call = claimRoutes.SelectDutyCodesController.submitDutyCodes(currentDuty)
+
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) = {
           val claim = from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = answer.some))
           updateSession(sessionCache, request)(_.copy(journeyStatus = claim.some))
@@ -103,7 +105,7 @@ class SelectDutyCodesController @Inject() (
         selectDutyCodesForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectDutyCodesPage(currentDuty, formWithErrors)),
+            formWithErrors => BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction)),
             selectedTaxCodes =>
               OptionT
                 .fromOption[Future](maybeAnswer.map(_.reapply(selectedTaxCodes)(currentDuty)))
@@ -119,28 +121,8 @@ class SelectDutyCodesController @Inject() (
                         )
                   )
                 )
-                .getOrElse(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
+                .getOrElse(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)))
           )
       }
     }
-}
-
-object SelectDutyCodesController {
-
-  val selectDutyCodesKey: String = "select-duty-codes"
-
-  val selectDutyCodesForm: Form[List[TaxCode]] =
-    Form(
-      mapping(
-        selectDutyCodesKey -> list(
-          mapping(
-            "" -> nonEmptyText
-              .verifying(
-                "error.invalid",
-                code => TaxCodes has code
-              )
-          )(TaxCode.apply)(TaxCode.unapply)
-        ).verifying("error.required", _.nonEmpty)
-      )(identity)(Some(_))
-    )
 }

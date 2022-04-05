@@ -25,7 +25,7 @@ import UploadDocumentsSessionConfig._
 final case class UploadDocumentsSessionConfig(
   nonce: Nonce, // unique secret shared by the host and upload microservices
   continueUrl: String, // url to continue after uploading the files (when user answers NO)
-  continueAfterYesAnswerUrl: String, // url to continue after user answers YES
+  continueAfterYesAnswerUrl: Option[String] = None, // url to continue after user answers YES
   continueWhenFullUrl: String, // url to continue after all possible files has been uploaded
   backlinkUrl: String, // backlink url
   callbackUrl: String, // url where to post uploaded files
@@ -35,8 +35,8 @@ final case class UploadDocumentsSessionConfig(
   maximumFileSizeBytes: Long, // maximum size of a single file upload
   allowedContentTypes: String, // a list of allowed file types (i.e. MIME types),
   allowedFileExtensions: String, // file picker filter hint, see: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept
-  cargo: UploadDocumentType, // type of the document to assign to the newly added files
-  newFileDescription: String, // description of the new file added
+  cargo: Option[UploadDocumentType] = None, // type of the document to assign to the newly added files
+  newFileDescription: Option[String], // description of the new file added
   content: Content,
   features: Features
 )
@@ -60,10 +60,10 @@ object UploadDocumentsSessionConfig {
     allowedFilesTypesHint: String,
     fileUploadedProgressBarLabel: String,
     chooseFirstFileLabel: String,
-    chooseNextFileLabel: String,
-    addAnotherDocumentButtonText: String,
-    yesNoQuestionText: String,
-    yesNoQuestionRequiredError: String
+    chooseNextFileLabel: Option[String] = None,
+    addAnotherDocumentButtonText: Option[String] = None,
+    yesNoQuestionText: Option[String] = None,
+    yesNoQuestionRequiredError: Option[String] = None
   )
 
   object Content {

@@ -94,11 +94,12 @@ class ChooseInspectionAddressTypeControllerSpec
     inspectionAddressType: InspectionAddressType
   ): InspectionAddress =
     InspectionAddress(
-      addressLine1 = contactDetails.addressLine1.getOrElse(""),
-      addressLine2 = contactDetails.addressLine2.getOrElse(" "),
-      city = contactDetails.addressLine4.orElse(contactDetails.addressLine3).getOrElse(""),
-      countryCode = contactDetails.countryCode.getOrElse(""),
-      postalCode = contactDetails.postalCode.getOrElse(""),
+      addressLine1 = contactDetails.addressLine1,
+      addressLine2 = contactDetails.addressLine2,
+      addressLine3 = contactDetails.addressLine3,
+      city = contactDetails.addressLine4,
+      countryCode = contactDetails.countryCode,
+      postalCode = contactDetails.postalCode,
       addressType = inspectionAddressType
     )
 
@@ -347,11 +348,12 @@ class ChooseInspectionAddressTypeControllerSpec
 
     "update address" in forAll { address: ContactAddress =>
       val inspectionAddress = InspectionAddress(
-        addressLine1 = address.line1,
-        addressLine2 = address.line2.getOrElse(" "),
-        city = address.line4.asSomeIfNonEmpty.orElse(address.line3).getOrElse(""),
-        countryCode = address.country.code,
-        postalCode = address.postcode,
+        addressLine1 = Some(address.line1),
+        addressLine2 = address.line2,
+        addressLine3 = address.line3,
+        city = address.line4.asSomeIfNonEmpty,
+        countryCode = address.country.code.asSomeIfNonEmpty,
+        postalCode = address.postcode.asSomeIfNonEmpty,
         addressType = Other
       )
 

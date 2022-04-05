@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -26,7 +27,8 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
         inputFile: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_file,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
+        bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+        fileUploadConfig: FileUploadConfig
 )
 
 @(upscanUpload: UpscanUpload)(implicit request: RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
@@ -37,7 +39,7 @@
 @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
 @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
+@layout(pageTitle = Some(s"$title")) {
 
     <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
         <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
@@ -60,7 +62,7 @@
 
     @pageHeading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-top-8 govuk-!-margin-bottom-4"))
+    @paragraph(Html(messages(s"$key.help-text",fileUploadConfig.readMaxFileSizeHumanReadable("schedule-of-mrn")))), Some("govuk-body govuk-!-margin-top-8 govuk-!-margin-bottom-4"))
 
     @paragraph(Html(messages(s"$key.things-to-show.p1")), Some("govuk-body"))
 

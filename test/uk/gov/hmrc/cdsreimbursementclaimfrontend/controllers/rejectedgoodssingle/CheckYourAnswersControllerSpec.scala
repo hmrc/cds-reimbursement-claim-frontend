@@ -46,12 +46,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with SummaryInspectionAddress {
 
   val mockConnector: RejectedGoodsSingleClaimConnector       = mock[RejectedGoodsSingleClaimConnector]
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
@@ -139,8 +141,8 @@ class CheckYourAnswersControllerSpec
     )
 
     summary("MRN")                                         shouldBe claim.movementReferenceNumber.value
-    summary("Contact details")                             shouldBe s"${claim.claimantInformation.summaryContact(" ")}"
-    summary("Contact address")                             shouldBe s"${claim.claimantInformation.summaryAddress(" ")}"
+    summary("Contact details")                             shouldBe ClaimantInformationSummary.getContactDataString(claim.claimantInformation)
+    summary("Contact address")                             shouldBe ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)
     summary("This is the basis behind the claim")          shouldBe messages(
       s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}"
     )
@@ -159,7 +161,7 @@ class CheckYourAnswersControllerSpec
     summary("Inspection address type") shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )
-    summary("Inspection address")      shouldBe claim.inspectionAddress.summaryAddress(" ")
+    summary("Inspection address")      shouldBe summaryAddress(claim.inspectionAddress, " ")
 
     claim.reimbursementClaims.foreach { case (taxCode, amount) =>
       summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString

@@ -22,11 +22,8 @@ POST        /:journey/enter-importer-eori                           uk.gov.hmrc.
 GET         /:journey/enter-declarant-eori                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journey:JourneyBindable)
 POST        /:journey/enter-declarant-eori                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/check                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.show(journey: JourneyBindable)
-POST        /:journey/claimant-details/check                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.submit(journey: JourneyBindable)
-
-GET         /:journey/claimant-details/add                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.addDetailsShow(journey: JourneyBindable)
-POST        /:journey/claimant-details/add                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.addDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.show(journey: JourneyBindable)
+POST        /:journey/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.submit(journey: JourneyBindable)
 
 GET         /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
@@ -38,9 +35,6 @@ GET         /:journey/claimant-details/lookup-address               uk.gov.hmrc.
 GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.retrieveAddressFromALF(journey: JourneyBindable, id: Option[UUID] ?= None)
 
 GET         /:journey/claimant-details/problem-with-address         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ProblemWithAddressController.problem(journey: JourneyBindable)
-
-GET         /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey: JourneyBindable)
-POST        /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journey: JourneyBindable)
 
 GET         /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey: JourneyBindable)
 POST        /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaimSubmit(journey: JourneyBindable)
@@ -103,8 +97,8 @@ POST        /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.
 GET         /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummary
 POST        /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummarySubmit
 
-GET         /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.showDutyTypes()
-POST        /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.submitDutyTypes()
+GET         /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.showDutyTypes(journey: JourneyBindable)
+POST        /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.submitDutyTypes(journey: JourneyBindable)
 
 GET         /scheduled/select-duties/start                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.iterate()
 GET         /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.showDutyCodes(dutyType: DutyType)

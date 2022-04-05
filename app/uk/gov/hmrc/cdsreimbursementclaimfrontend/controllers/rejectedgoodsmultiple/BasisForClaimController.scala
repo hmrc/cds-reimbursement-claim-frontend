@@ -25,23 +25,23 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfReject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select_basis_for_claim
 
 import scala.concurrent.ExecutionContext
+import play.api.data.Form
 
 @Singleton
 class BasisForClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  basisForClaimPage: pages.select_basis_for_claim
+  basisForClaimPage: select_basis_for_claim
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val formKey: String = "select-basis-for-claim.rejected-goods"
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val form = journey.answers.basisOfClaim.toList.foldLeft(basisOfRejectedGoodsClaimForm)((form, basisOfClaim) =>
-      form.fill(basisOfClaim)
-    )
+    val form: Form[BasisOfRejectedGoodsClaim] =
+      basisOfRejectedGoodsClaimForm.withDefault(journey.answers.basisOfClaim)
     Ok(
       basisForClaimPage(
         form,

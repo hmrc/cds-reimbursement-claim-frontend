@@ -56,7 +56,7 @@ class CheckDeclarationDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
+  implicit val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -69,6 +69,9 @@ class CheckDeclarationDetailsControllerSpec
     SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori)))
 
   val messagesKey: String = "check-declaration-details"
+
+  def performAction(data: (String, String)*)(implicit controller: CheckDeclarationDetailsController): Future[Result] =
+    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
   "Check Declaration Details Controller" when {
     "Check Declaration Details page" must {
@@ -87,7 +90,7 @@ class CheckDeclarationDetailsControllerSpec
           hasConsigneeDetailsInACC14 = true
         )
       ) { journey =>
-        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -115,9 +118,6 @@ class CheckDeclarationDetailsControllerSpec
     }
 
     "Submit Check Declaration Details page" must {
-
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

@@ -60,7 +60,7 @@
         }   
     }
 
-    @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 

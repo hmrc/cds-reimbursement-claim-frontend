@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
@@ -46,6 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
+import scala.collection.immutable.ListMap
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 scheduled MRN journey logic.
@@ -99,6 +101,12 @@ final class RejectedGoodsScheduledJourney private (
 
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
+
+  private val dutyTypesRankMap: ListMap[DutyType, Int]                = ListMap(DutyTypes.all.zipWithIndex: _*)
+  def findNextSelectedDutyAfter(previous: DutyType): Option[DutyType] =
+    DutyTypes.all
+      .drop(dutyTypesRankMap(previous) + 1)
+      .find(duty => getSelectedDutyTypes.getOrElse(Seq.empty).contains(duty))
 
   def getReimbursementClaimsFor(
     dutyType: DutyType
@@ -379,6 +387,12 @@ final class RejectedGoodsScheduledJourney private (
           new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
       } else Left("receiveScheduledDocument.invalidNonce")
+    }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def removeScheduledDocument: RejectedGoodsScheduledJourney =
+    whileJourneyIsAmendable {
+      new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = None))
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsScheduledJourney =

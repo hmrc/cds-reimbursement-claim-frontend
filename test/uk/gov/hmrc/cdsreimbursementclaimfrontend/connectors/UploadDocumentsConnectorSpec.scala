@@ -90,9 +90,9 @@ class UploadDocumentsConnectorSpec
       backlinkUrl = "/bar",
       callbackUrl = "/baz",
       nonce = Nonce.random,
-      cargo = UploadDocumentType.LetterOfAuthority,
-      newFileDescription = "New file",
-      continueAfterYesAnswerUrl = "/yes",
+      cargo = Some(UploadDocumentType.LetterOfAuthority),
+      newFileDescription = Some("New file"),
+      continueAfterYesAnswerUrl = Some("/yes"),
       continueWhenFullUrl = "/ful",
       minimumNumberOfFiles = 0,
       maximumNumberOfFiles = 5,
@@ -118,10 +118,10 @@ class UploadDocumentsConnectorSpec
           allowedFilesTypesHint = "PNG",
           fileUploadedProgressBarLabel = "uploadfileUploadedProgressBarLabeled",
           chooseFirstFileLabel = "chooseFirstFileLabel",
-          chooseNextFileLabel = "chooseNextFileLabel",
-          addAnotherDocumentButtonText = "addAnotherDocumentButtonText",
-          yesNoQuestionText = "yesNoQuestionText",
-          yesNoQuestionRequiredError = "yesNoQuestionRequiredError"
+          chooseNextFileLabel = Some("chooseNextFileLabel"),
+          addAnotherDocumentButtonText = Some("addAnotherDocumentButtonText"),
+          yesNoQuestionText = Some("yesNoQuestionText"),
+          yesNoQuestionRequiredError = Some("yesNoQuestionRequiredError")
         ),
       features = UploadDocumentsSessionConfig
         .Features(

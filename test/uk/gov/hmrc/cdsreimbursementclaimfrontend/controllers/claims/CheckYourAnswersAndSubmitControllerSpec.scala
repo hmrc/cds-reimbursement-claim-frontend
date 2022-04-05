@@ -124,7 +124,11 @@ class CheckYourAnswersAndSubmitControllerSpec
           val fillingOutClaim = sample[FillingOutClaim]
 
           val claim = C285Claim
-            .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
+            .fromDraftClaim(
+              fillingOutClaim.draftClaim,
+              fillingOutClaim.signedInUserDetails.verifiedEmail,
+              fillingOutClaim.signedInUserDetails.eori
+            )
             .value
 
           val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
@@ -171,7 +175,11 @@ class CheckYourAnswersAndSubmitControllerSpec
           val fillingOutClaim = sample[FillingOutClaim]
 
           val claim = C285Claim
-            .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
+            .fromDraftClaim(
+              fillingOutClaim.draftClaim,
+              fillingOutClaim.signedInUserDetails.verifiedEmail,
+              fillingOutClaim.signedInUserDetails.eori
+            )
             .value
 
           val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
@@ -238,7 +246,11 @@ class CheckYourAnswersAndSubmitControllerSpec
           val fillingOutClaim = sample[FillingOutClaim]
 
           val claim = C285Claim
-            .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
+            .fromDraftClaim(
+              fillingOutClaim.draftClaim,
+              fillingOutClaim.signedInUserDetails.verifiedEmail,
+              fillingOutClaim.signedInUserDetails.eori
+            )
             .value
 
           val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
@@ -291,7 +303,11 @@ class CheckYourAnswersAndSubmitControllerSpec
         val fillingOutClaim = sample[FillingOutClaim]
 
         val claim = C285Claim
-          .fromDraftClaim(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail)
+          .fromDraftClaim(
+            fillingOutClaim.draftClaim,
+            fillingOutClaim.signedInUserDetails.verifiedEmail,
+            fillingOutClaim.signedInUserDetails.eori
+          )
           .value
 
         val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)

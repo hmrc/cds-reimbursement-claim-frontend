@@ -130,7 +130,7 @@ class CheckDeclarationDetailsControllerSpec
         val journey            = session.rejectedGoodsSingleJourney.get
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
-        val sessionToAmend     = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val sessionToAmend     = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()

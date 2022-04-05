@@ -30,6 +30,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
@@ -66,11 +67,11 @@ class SelectDutyTypesControllerSpec
     PropertyCheckConfiguration(minSuccessful = 2)
 
   def performAction(data: Seq[(String, String)]): Future[Result] =
-    controller.submitDutyTypes()(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submitDutyTypes(JourneyBindable.Scheduled)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
   "display the page" when {
 
-    def performAction(): Future[Result] = controller.showDutyTypes()(FakeRequest())
+    def performAction(): Future[Result] = controller.showDutyTypes(JourneyBindable.Scheduled)(FakeRequest())
 
     "the user has not answered this question before" in {
       val (session, _, _) = sessionWithDutyTypesState(None)

@@ -130,4 +130,54 @@ object Acc14Gen {
 
     displayDeclaration
   }
+
+  lazy val genAcc14WithoutContactDetails: DisplayDeclaration = {
+    val establishmentAddress = sample[EstablishmentAddress]
+      .copy(
+        addressLine2 = Some(alphaCharGen(20)),
+        addressLine3 = Some(alphaCharGen(20)),
+        postalCode = Some(alphaCharGen(6)),
+        countryCode = "GB"
+      )
+    val consignee            = sample[ConsigneeDetails]
+      .copy(establishmentAddress = establishmentAddress, contactDetails = None)
+
+    val declarant = sample[DeclarantDetails]
+      .copy(establishmentAddress = establishmentAddress, contactDetails = None)
+
+    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+      dd.copy(displayResponseDetail =
+        dd.displayResponseDetail.copy(
+          consigneeDetails = Some(consignee),
+          declarantDetails = declarant
+        )
+      )
+    )
+
+    displayDeclaration
+  }
+
+  lazy val genAcc14WithoutConsigneeAndDeclarantDetails: DisplayDeclaration = {
+    val establishmentAddress = sample[EstablishmentAddress]
+      .copy(
+        addressLine2 = Some(alphaCharGen(20)),
+        addressLine3 = Some(alphaCharGen(20)),
+        postalCode = Some(alphaCharGen(6)),
+        countryCode = "GB"
+      )
+
+    val declarant = sample[DeclarantDetails]
+      .copy(establishmentAddress = establishmentAddress, contactDetails = None)
+
+    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+      dd.copy(displayResponseDetail =
+        dd.displayResponseDetail.copy(
+          consigneeDetails = None,
+          declarantDetails = declarant
+        )
+      )
+    )
+
+    displayDeclaration
+  }
 }

@@ -15,7 +15,6 @@
  *@
 
 @import play.api.data.Form
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -33,7 +32,6 @@
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
@@ -43,7 +41,7 @@
   @title = @{messages(s"$key.title")}
 
   @postAction = @{routes.SelectDutiesController.selectDutiesSubmit}
-    @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
+  @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
 
         val isCmaEligible: Boolean = cmaEligibleList.nonEmpty && cmaEligibleList(index)
         CheckboxItem(
@@ -57,7 +55,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 
