@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -32,32 +32,31 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReplaceEstablishmentAddresses
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 
 class EnterInspectionDateControllerSpec
     extends ControllerSpec
-    with AddAcc14
-    with AdjustDisplayDeclaration
-    with ReplaceEstablishmentAddresses
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with JourneyTestData {
+    with AdjustDisplayDeclaration
+    with ReplaceEstablishmentAddresses
+    with RejectedGoodsScheduledJourneyTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -73,50 +72,44 @@ class EnterInspectionDateControllerSpec
   private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-inspection-date.rejected-goods"
 
-  def showPage(): Future[Result] =
-    controller.show()(FakeRequest())
-
-  def submitInspectionDate(data: (String, String)*): Future[Result] =
-    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
+    rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
   )
 
-  "Enter Inspection Date Controller" must {
+  "Enter Special Circumstances Controller" must {
+    "Show Page" when {
+      def performAction(): Future[Result] =
+        controller.show()(FakeRequest())
 
-    "not find the page if rejected goods feature is disabled" in {
-      featureSwitch.disable(Feature.RejectedGoods)
+      "not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+        status(performAction()) shouldBe NOT_FOUND
+      }
 
-      status(showPage()) shouldBe NOT_FOUND
-    }
-
-    "display the page" when {
-      "the user has not answered this question before" in {
+      "display the page on a new journey" in {
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
 
         checkPageIsDisplayed(
-          showPage(),
+          performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            doc
-              .select("main p")
-              .html()          shouldBe messageFromMessageKey(s"$messagesKey.help-text")
-            formAction(doc)    shouldBe routes.EnterInspectionDateController.submit().url
-            selectedInput(doc) shouldBe empty
+            formAction(doc)                                                     shouldBe routes.EnterInspectionDateController.submit().url
+            selectedInputBox(doc, "enter-inspection-date.rejected-goods.day")   shouldBe Some("")
+            selectedInputBox(doc, "enter-inspection-date.rejected-goods.month") shouldBe Some("")
+            selectedInputBox(doc, "enter-inspection-date.rejected-goods.year")  shouldBe Some("")
           }
         )
       }
 
       "the user has answered this question before" in forAll(buildCompleteJourneyGen()) { journey =>
         val inspectionDate = journey.answers.inspectionDate
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val updatedSession = session.copy(rejectedGoodsScheduledJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -124,7 +117,7 @@ class EnterInspectionDateControllerSpec
         }
 
         checkPageIsDisplayed(
-          showPage(),
+          performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             selectedInputBox(doc, "enter-inspection-date.rejected-goods.day")   shouldBe Some(
@@ -141,12 +134,13 @@ class EnterInspectionDateControllerSpec
       }
     }
 
-    "handle submit requests" when {
+    "Submit Page" when {
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-
-        status(submitInspectionDate()) shouldBe NOT_FOUND
+        status(performAction()) shouldBe NOT_FOUND
       }
 
       "the user submits an empty date" in {
@@ -156,7 +150,7 @@ class EnterInspectionDateControllerSpec
         }
 
         checkPageIsDisplayed(
-          submitInspectionDate(),
+          performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -166,27 +160,45 @@ class EnterInspectionDateControllerSpec
         )
       }
 
+      "the user submits an invalid date" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(
+            s"${controller.formKey}.day"   -> "a",
+            s"${controller.formKey}.month" -> "b",
+            s"${controller.formKey}.year"  -> "c"
+          ),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$messagesKey.error.invalid"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
       "the user enters a date for the first time and Acc14 has returned contact details for the importer or declarant" in forAll {
         (
-          firstDisplayDeclaration: DisplayDeclaration,
-          secondDisplayDeclaration: DisplayDeclaration,
+          displayDeclaration: DisplayDeclaration,
           address: EstablishmentAddress,
           date: InspectionDate
         ) =>
-          whenever(
-            address.postalCode.isDefined && (firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN)
-          ) {
-            val journey        = (for {
-              j1 <- addAcc14(
-                      session.rejectedGoodsMultipleJourney.get,
-                      replaceEstablishmentAddresses(firstDisplayDeclaration, address)
-                    )
-              j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, address))
-            } yield j2).getOrFail
-            val initialSession = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
+          whenever(address.postalCode.isDefined) {
+            val adjustedDeclaration = adjustWithDeclarantEori(
+              replaceEstablishmentAddresses(displayDeclaration, address),
+              session.rejectedGoodsScheduledJourney.get
+            )
+            val journey             = session.rejectedGoodsScheduledJourney.get
+              .submitMovementReferenceNumberAndDeclaration(adjustedDeclaration.getMRN, adjustedDeclaration)
+              .getOrFail
+            val initialSession      = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(journey))
 
             val updatedJourney = journey.submitInspectionDate(date)
-            val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -195,58 +207,56 @@ class EnterInspectionDateControllerSpec
             }
 
             checkIsRedirect(
-              submitInspectionDate(
-                s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
-                s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
-                s"${controller.formKey}.year"  -> date.value.getYear.toString
+              performAction(
+                s"$messagesKey.day"   -> date.value.getDayOfMonth.toString,
+                s"$messagesKey.month" -> date.value.getMonthValue.toString,
+                s"$messagesKey.year"  -> date.value.getYear.toString
               ),
-              routes.ChooseInspectionAddressTypeController.show()
+              "inspection-address/choose-type"
             )
           }
       }
 
       "the user enters a date for the first time and Acc14 hasn't returned any contact details" in forAll {
         (
-          firstDisplayDeclaration: DisplayDeclaration,
-          secondDisplayDeclaration: DisplayDeclaration,
+          displayDeclaration: DisplayDeclaration,
           date: InspectionDate
         ) =>
-          whenever(firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN) {
-            val addressWithoutPostCode =
-              firstDisplayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
-            val journey                = (for {
-              j1 <- addAcc14(
-                      session.rejectedGoodsMultipleJourney.get,
-                      replaceEstablishmentAddresses(firstDisplayDeclaration, addressWithoutPostCode)
-                    )
-              j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, addressWithoutPostCode))
-            } yield j2).getOrFail
-            val initialSession         = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val addressWithoutPostCode =
+            displayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
+          val adjustedDeclaration    = adjustWithDeclarantEori(
+            replaceEstablishmentAddresses(displayDeclaration, addressWithoutPostCode),
+            session.rejectedGoodsScheduledJourney.get
+          )
 
-            val updatedJourney = journey.submitInspectionDate(date)
-            val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+          val journey        = session.rejectedGoodsScheduledJourney.get
+            .submitMovementReferenceNumberAndDeclaration(adjustedDeclaration.getMRN, adjustedDeclaration)
+            .getOrFail
+          val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(journey))
 
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(initialSession)
-              mockStoreSession(updatedSession)(Right(()))
-            }
+          val updatedJourney = journey.submitInspectionDate(date)
+          val updatedSession = SessionData(updatedJourney)
 
-            checkIsRedirect(
-              submitInspectionDate(
-                s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
-                s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
-                s"${controller.formKey}.year"  -> date.value.getYear.toString
-              ),
-              routes.ChooseInspectionAddressTypeController.redirectToALF()
-            )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(initialSession)
+            mockStoreSession(updatedSession)(Right(()))
           }
+
+          checkIsRedirect(
+            performAction(
+              s"$messagesKey.day"   -> date.value.getDayOfMonth.toString,
+              s"$messagesKey.month" -> date.value.getMonthValue.toString,
+              s"$messagesKey.year"  -> date.value.getYear.toString
+            ),
+            "inspection-address/lookup"
+          )
       }
 
       "redirect to CYA page if journey is complete" in forAll(buildCompleteJourneyGen(), genDate) { (journey, date) =>
-        val initialSession = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val initialSession = SessionData(journey)
         val updatedJourney = journey.submitInspectionDate(date)
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -255,7 +265,7 @@ class EnterInspectionDateControllerSpec
         }
 
         checkIsRedirect(
-          submitInspectionDate(
+          performAction(
             s"${controller.formKey}.day"   -> date.value.getDayOfMonth.toString,
             s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
             s"${controller.formKey}.year"  -> date.value.getYear.toString
