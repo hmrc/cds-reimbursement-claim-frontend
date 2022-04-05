@@ -33,7 +33,7 @@ import scala.concurrent.Future
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkDeclarationDetailsPage: pages.check_declaration_details
+  checkDeclarationDetailsPage: pages.check_declaration_details_scheduled
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends RejectedGoodsScheduledJourneyBaseController {
 
