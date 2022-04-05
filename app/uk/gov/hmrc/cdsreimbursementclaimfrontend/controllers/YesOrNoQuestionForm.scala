@@ -24,18 +24,28 @@ import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
-object YesOrNoQuestionForm {
+object YesOrNoQuestionForm extends Logging {
 
+  // todo we need to validate key exists as a field
+  // so make key not optional and check it exists first
   def apply(key: String): Form[YesNo] =
     Form(
       mapping(
         key -> optional(boolean)
           .verifying("error.invalid", _.isDefined)
           .transform[YesNo](
-            value => if (value.exists(_ === true)) Yes else No,
-            answer => Some(answer === Yes)
+            value => {
+              logger.warn(s"**** value=$value")
+              if (value.exists(_ === true)) Yes else No
+            },
+            answer => {
+              logger.warn(s"**** answer=$answer")
+              Some(answer === Yes)
+            }
           )
       )(identity)(Some(_))
     )
+
 }

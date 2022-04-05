@@ -18,12 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
@@ -33,11 +36,16 @@ import scala.concurrent.Future
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkDeclarationDetailsPage: pages.check_declaration_details_scheduled
+  checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   implicit val subKey: Option[String] = Some("scheduled")
+
+  val checkDeclarationDetailsKey: String = s"check-declaration-details${subKey.fold("")(a => s".$a")}"
+
+  val checkDeclarationDetailsAnswerForm: Form[YesNo] =
+    YesOrNoQuestionForm(checkDeclarationDetailsKey)
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.CheckDeclarationDetailsController.submit()
@@ -74,8 +82,10 @@ class CheckDeclarationDetailsController @Inject() (
             journey,
             Redirect(answer match {
               case Yes =>
+                logger.error("#### Yes")
                 routes.UploadMrnListController.show()
               case No  =>
+                logger.error("#### No")
                 routes.EnterMovementReferenceNumberController.submit()
             })
           )
