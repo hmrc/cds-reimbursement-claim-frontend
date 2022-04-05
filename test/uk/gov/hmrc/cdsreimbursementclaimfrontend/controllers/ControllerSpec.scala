@@ -101,7 +101,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def overrideBindings: List[GuiceableModule] = List.empty[GuiceableModule]
 
   def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
+    document.select(".govuk-error-summary__list > li > a").html()
 
   private lazy val additionalConfig = Configuration()
 
@@ -194,7 +194,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
     val doc = Jsoup.parse(contentAsString(result))
 
-    doc.select("h1").text should include(expectedTitle)
+    doc.select("h1").html should include(expectedTitle)
 
     val bodyText = doc.select("body").text
 

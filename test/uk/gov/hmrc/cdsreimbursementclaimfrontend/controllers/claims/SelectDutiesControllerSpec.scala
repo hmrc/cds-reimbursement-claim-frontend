@@ -239,7 +239,8 @@ class SelectDutiesControllerSpec
           mockGetSession(session)
         }
 
-        val hintText = Some("This duty is not eligible for CMA reimbursement")
+        val hintText =
+          Some("This duty is not eligible for <abbr title=\"Current Month Adjustment\">CMA</abbr> reimbursement")
 
         checkPageIsDisplayed(
           performAction(),
