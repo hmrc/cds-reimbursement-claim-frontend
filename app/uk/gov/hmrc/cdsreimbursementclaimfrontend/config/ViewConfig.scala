@@ -79,11 +79,13 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   private val contactFormServiceIdentifier = "CDSRC"
 
-  def pageTitleWithServiceName(pageTitle: String, serviceName: String, hasErrors: Boolean): String =
+  def pageTitleWithServiceName(pageTitle: String, serviceName: String, hasErrors: Boolean): String = {
+    val pageTitleNoHTML = pageTitle.replaceAll("\\<.*?\\>", "")
     if (hasErrors)
-      s"ERROR: $pageTitle - $serviceName - GOV.UK"
+      s"ERROR: $pageTitleNoHTML - $serviceName - GOV.UK"
     else
-      s"$pageTitle - $serviceName - GOV.UK"
+      s"$pageTitleNoHTML - $serviceName - GOV.UK"
+  }
 
   val reportAProblemPartialUrl: String =
     s"/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"

@@ -50,7 +50,7 @@
 
   @errorSummary(form.errors)
 
-  @pageHeading(title)
+  @pageHeading(Html(title))
 
   @paragraph(Html(messages(s"$key$subKeyDetail.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
@@ -61,7 +61,7 @@
     @{if(subKey.contains("scheduled"))
         paragraph(Html(messages(s"$key$subKeyDetail.is-information-correct")), Some("govuk-body"))
       else
-        pageHeading(messages(s"$key$subKeyDetail.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h1")}
+        pageHeading(Html(messages(s"$key$subKeyDetail.is-information-correct")), "govuk-heading-s govuk-!-margin-top-8", "h1")}
 
     @radios(
       form = form,
