@@ -404,6 +404,12 @@ final class RejectedGoodsScheduledJourney private (
       } else Left("receiveScheduledDocument.invalidNonce")
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def removeScheduledDocument: RejectedGoodsScheduledJourney =
+    whileJourneyIsAmendable {
+      new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = None))
+    }
+
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsScheduledJourney =
     whileJourneyIsAmendable {
       new RejectedGoodsScheduledJourney(answers.copy(selectedDocumentType = Some(documentType)))

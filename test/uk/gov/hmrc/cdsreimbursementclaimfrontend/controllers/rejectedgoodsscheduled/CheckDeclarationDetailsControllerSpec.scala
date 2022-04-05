@@ -153,7 +153,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(checkDeclarationDetailsKey -> "true"),
-          routes.WorkInProgressController.show() // todo CSDR-1354 routes.CheckClaimantDetailsController.show()
+          routes.UploadMrnListController.show()
         )
       }
 

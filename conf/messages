@@ -748,14 +748,14 @@ tax-code.99C = 99C - Gas supplied by a gas utility or any gas supplied in a gase
 tax-code.99D = 99D - Electricity
 
 select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
-select-duty-types.error.required=Select one or more duty types you want to claim for.
+select-duty-types.error.required=Select one or more duty types you want to claim for
 select-duty-types.error.invalid=Invalid duty type code
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
 select-duty-codes.title=Select the {0} duties you want to claim for all MRNs in the file you uploaded
-select-duty-codes.error.required=Select one or more duties to be reimbursed for.
+select-duty-codes.error.required=Select one or more duties to be repaid for
 select-duty-codes.error.invalid=Invalid duty code
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-codes.h1.uk-duty=UK
@@ -1125,13 +1125,15 @@ supporting-evidence.error.invalid-document-type=Invalid supporting evidence docu
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
 schedule-document.upload.title=Add a document which shows all the MRNs in this claim
-schedule-document.upload.help-text=Upload a list of all MRNs in this claim, known as a scheduled document. This document can be up to 10MB and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
+schedule-document.upload.help-text=Upload a list of all MRNs in this claim, known as a scheduled document. This document can be up to {0} and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
 schedule-document.upload.things-to-show.p1=The document should show:
 schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each MRN
 schedule-document.upload.things-to-show.l2=the amount that was paid to HMRC for each MRN
 schedule-document.upload.things-to-show.l3=the amount that should have been paid to HMRC for each MRN
 schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
+schedule-document.upload.choose.description=Document
+schedule-document.upload.allowed-file-types=JPG, PNG, or PDF
 schedule-document.size-fail.title=There is a problem with the file you uploaded
 schedule-document.size-fail.p1=We could not scan your file.
 schedule-document.size-fail.p2=This could be because:

@@ -54,7 +54,7 @@ trait UploadFilesMixin[Journey] {
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
-      continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
+      continueAfterYesAnswerUrl = Some(continueAfterYesAnswerUrl),
       continueWhenFullUrl = selfUrl + checkYourAnswers.url,
       backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
@@ -64,8 +64,8 @@ trait UploadFilesMixin[Journey] {
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
       allowedContentTypes = "application/pdf,image/jpeg,image/png",
       allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
-      cargo = documentType,
-      newFileDescription = documentTypeDescription(documentType),
+      cargo = Some(documentType),
+      newFileDescription = Some(documentTypeDescription(documentType)),
       content = uploadDocumentsContent(documentType),
       features = UploadDocumentsSessionConfig.Features(
         showUploadMultiple = true,
@@ -102,10 +102,11 @@ trait UploadFilesMixin[Journey] {
       allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
       chooseFirstFileLabel = messages("choose-files.rejected-goods.choose.first.label", documentTypeLabel),
-      chooseNextFileLabel = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel),
-      addAnotherDocumentButtonText = messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel),
-      yesNoQuestionText = messages("choose-files.rejected-goods.add-another-document-question"),
-      yesNoQuestionRequiredError = messages("choose-files.rejected-goods.add-another-document-question.error.required")
+      chooseNextFileLabel = Some(messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel)),
+      addAnotherDocumentButtonText = Some(messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel)),
+      yesNoQuestionText = Some(messages("choose-files.rejected-goods.add-another-document-question")),
+      yesNoQuestionRequiredError =
+        Some(messages("choose-files.rejected-goods.add-another-document-question.error.required"))
     )
   }
 
