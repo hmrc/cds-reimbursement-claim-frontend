@@ -939,7 +939,7 @@ check-claim-summary.total.header=Total
 
 multiple-check-claim-summary.title=Check the reimbursement claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
 multiple-check-claim-summary.help-text=These are the calculations based on the information you gave us.
-multiple-check-claim-summary.duty.label={0} <abbr title="Movement Reference Number">MRN</abbr>: {1}
+multiple-check-claim-summary.duty.label={0} MRN: {1}
 multiple-check-claim-summary.total=Reimbursement for this <abbr title="Movement Reference Number">MRN</abbr>
 multiple-check-claim-summary.overall-total.header=Total
 multiple-check-claim-summary.overall-total.label=Total reimbursement

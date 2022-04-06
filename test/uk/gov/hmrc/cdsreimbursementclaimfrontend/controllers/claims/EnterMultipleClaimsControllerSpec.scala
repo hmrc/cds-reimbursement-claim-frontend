@@ -353,7 +353,7 @@ class EnterMultipleClaimsControllerSpec
           mrn.value
         )
       }
-    elements.html() should contain allElementsOf expectedHeaders
+    elements.eachText() should contain allElementsOf expectedHeaders
   }
 
   def assertAllClaimValuesAreDisplayed(document: Document, claimsList: List[List[ClaimedReimbursement]])(implicit
