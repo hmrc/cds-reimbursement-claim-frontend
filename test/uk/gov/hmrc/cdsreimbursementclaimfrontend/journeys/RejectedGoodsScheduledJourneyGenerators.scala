@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import cats.Bifunctor
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.{emptyJourney, mrnWithDisplayDeclarationGen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -25,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 import scala.collection.JavaConverters._
@@ -80,6 +83,19 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
       result    <-
         Gen.sequence(dutyTypes.map(dutyType => taxCodesWithClaimAmountsGen(dutyType).map(tcs => dutyType -> tcs)))
     } yield result.asScala
+
+  def incompleteJourneyWithDutyTypesTaxCodesAndClaimAmountsGen(n: Int): Gen[RejectedGoodsScheduledJourney] = {
+
+    def submitData(journey: RejectedGoodsScheduledJourney)(data: (DutyType, TaxCode, BigDecimal, BigDecimal)) =
+      journey.submitAmountForReimbursement(data._1, data._2, data._3, data._4)
+
+    Gen.listOfN(n, displayDeclarationGen).map { data =>
+      val dataWithIndex: List[((DisplayDeclaration), Int)] = data.zipWithIndex
+      emptyJourney
+          .flatMapEach(dataWithIndex, submitData)
+          .getOrFail
+    }
+  }
 
   val completeJourneyWithMatchingUserEoriGen: Gen[RejectedGoodsScheduledJourney] =
     Gen.oneOf(

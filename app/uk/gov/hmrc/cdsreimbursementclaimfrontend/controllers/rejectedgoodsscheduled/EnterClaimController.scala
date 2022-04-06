@@ -52,17 +52,11 @@ class EnterClaimController @Inject() (
     def start(dutyAndTaxCode: (DutyType, TaxCode)): Future[Result] =
       Redirect(routes.EnterClaimController.show(dutyAndTaxCode._1, dutyAndTaxCode._2)).asFuture
 
-    val dutyAndTaxCodes: Map[DutyType, Seq[TaxCode]] = journey.getSelectedDuties
-    val isCompleteReimbursementClaim = journey.hasCompleteReimbursementClaims
-
-    //FIXME: Does the reimbursement claim exist?
-    // If Yes -> redirect to check claim page,
-    // If No -> start claim page with duty and taxcode, if these don't exist redirect to start Claim
     if (journey.hasCompleteReimbursementClaims) redirectToSummaryPage
     else
-    findDutyTypeAndTaxCode(dutyAndTaxCodes).fold(redirectToSummaryPage) { dutyAndTaxCode =>
-      start(dutyAndTaxCode)
-    }
+      findDutyTypeAndTaxCode(journey.getSelectedDuties).fold(redirectToSummaryPage) { dutyAndTaxCode =>
+        start(dutyAndTaxCode)
+      }
 
   }
 
@@ -76,41 +70,41 @@ class EnterClaimController @Inject() (
 
   }
 
-  //def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-//    val postAction: Call = routes.SelectDutyCodesController.submit(currentDuty)
-//
-//    Future.successful(
-//      selectDutyCodesForm
-//        .bindFromRequest()
-//        .fold(
-//          formWithErrors =>
-//            (
-//              journey,
-//              BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))
-//            ),
-//          selectedTaxCodes =>
-//            journey
-//              .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
-//              .fold(
-//                errors => {
-//                  logger.error(s"Error updating tax codes selection - $errors")
-//                  (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
-//                },
-//                updatedJourney =>
-//                  (
-//                    updatedJourney,
-//                    updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
-//                      case Some(nextDuty) => Redirect(routes.SelectDutyCodesController.show(nextDuty))
-//                      case None           =>
-//                        Redirect(
-//                          "/rejected-goods/scheduled/select-duties/reimbursement-claim/start"
-//                        ) //FIXME: routes.EnterScheduledClaimController.iterate()
-//                    }
-//                  )
-//              )
-//        )
-//    )
-//}
+  def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
+
+    Future.successful(
+      enterScheduledClaimForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(enterClaimPage(currentDuty, currentTaxCode, formWithErrors))
+            ),
+          reimbursement =>
+            journey
+              .submitAmountForReimbursement(currentDuty, currentTaxCode, reimbursement.shouldOfPaid, reimbursement.paidAmount)
+              .fold(
+                errors => {
+                  logger.error(s"Error updating tax codes selection - $errors")
+                  (journey, BadRequest(enterClaimPage(currentDuty, currentTaxCode, enterScheduledClaimForm)))
+                },
+                updatedJourney =>
+                  (
+                    updatedJourney,
+                    updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
+                      case Some(nextTaxCode) => Redirect(routes.EnterClaimController.show(currentDuty, nextTaxCode))
+                      case None           =>
+                        Redirect(
+                          "/rejected-goods/scheduled/check-claim"
+                        ) //FIXME: routes.CheckClaimController.show()
+                    }
+                  )
+              )
+        )
+    )
+}
 
 }
 
@@ -120,18 +114,17 @@ object EnterClaimController {
     value: Map[DutyType, Seq[TaxCode]]
   ): Option[(DutyType, TaxCode)] =
     for {
-      dutyTypeAndTaxCodes <- value.find(_._2.nonEmpty)
-      firstAvailableTaxCode          <- dutyTypeAndTaxCodes._2.find(_.value.nonEmpty)
+      dutyTypeAndTaxCodes   <- value.find(_._2.nonEmpty)
+      firstAvailableTaxCode <- dutyTypeAndTaxCodes._2.find(_.value.nonEmpty)
     } yield (dutyTypeAndTaxCodes._1, firstAvailableTaxCode)
 
   def findUnclaimedReimbursements1(
     value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
-  ): Option[(DutyType, TaxCode)] = {
+  ): Option[(DutyType, TaxCode)] =
     for {
       unclaimedReimbursements <- value.find(_._2.exists(_._2.isUnclaimed))
       firstAvailable          <- unclaimedReimbursements._2.find(_._2.isUnclaimed)
     } yield (unclaimedReimbursements._1, firstAvailable._1)
-  }
 
   def findReimbursement(value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]): Option[Reimbursement] =
     for {
