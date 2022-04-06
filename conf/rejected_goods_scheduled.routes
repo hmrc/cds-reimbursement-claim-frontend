@@ -16,8 +16,8 @@ GET          /rejected-goods/scheduled/claimant-details/lookup-address          
 GET          /rejected-goods/scheduled/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 GET          /rejected-goods/scheduled/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ProblemWithAddressController.show()
 
-GET          /rejected-goods/scheduled/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterContactDetailsController.show()
+POST         /rejected-goods/scheduled/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterContactDetailsController.submit()
 
 GET          /rejected-goods/scheduled/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.BasisForClaimController.show()
 POST         /rejected-goods/scheduled/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.BasisForClaimController.submit()
