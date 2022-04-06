@@ -159,11 +159,11 @@ rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (<abbr title=
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
 rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
-rejected-goods.choose-how-many-mrns.individual.title=Enter one <abbr title="Movement Reference Number">MRN</abbr>
-rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
-rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each <abbr title="Movement Reference Number">MRN</abbr>.
-rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
-rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all <abbr title="Movement Reference Numbers">MRNs</abbr>.
+rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
+rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
+rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
+rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
+rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
 rejected-goods.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
@@ -619,7 +619,7 @@ check-claim.rejected-goods.are-duties-correct=Are these duties correct?
 check-claim.rejected-goods.yes=Yes
 check-claim.rejected-goods.no=No, select different duties
 check-claim.rejected-goods.error.invalid=Select Yes if these duties are correct.
-check-claim.rejected-goods.multiple.duty.label={0} <abbr title="Movement Reference Number">MRN</abbr>: {1}
+check-claim.rejected-goods.multiple.duty.label={0} MRN: {1}
 check-claim.rejected-goods.multiple.overall-total.header=Total
 check-claim.rejected-goods.multiple.overall-total.label=Total repayment
 
@@ -1328,7 +1328,7 @@ problem-with-address.button.tryAgain=Try again
 #===================================================
 choose-claim-type.title=Choose type of claim
 choose-claim-type.c285.title=Repayment of import duties and <abbr title="Value Added Tax">VAT</abbr> overpayment (C285)
-choose-claim-type.ce1179.title=Repayment or remission of import duties and <abbr title="Value Added Tax">VAT</abbr> on rejected imports (C&E1179)
+choose-claim-type.ce1179.title=Repayment or remission of import duties and <abbr title="Value Added Tax">VAT</abbr> on rejected imports (C&amp;E1179)
 choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
 choose-claim-type.error.required=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
 choose-claim-type.error.unknown=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
