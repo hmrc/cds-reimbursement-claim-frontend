@@ -50,6 +50,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.InspectionAddressUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.StringOps
 import scala.concurrent.Future
 
@@ -58,7 +59,8 @@ class ChooseInspectionAddressTypeControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with RejectedGoodsMultipleJourneyTestData {
+    with RejectedGoodsMultipleJourneyTestData
+    with InspectionAddressUtils {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -89,19 +91,6 @@ class ChooseInspectionAddressTypeControllerSpec
   def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
     controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
 
-  def inspectionAddressFromContactDetails(
-    contactDetails: ContactDetails,
-    inspectionAddressType: InspectionAddressType
-  ): InspectionAddress =
-    InspectionAddress(
-      addressLine1 = contactDetails.addressLine1,
-      addressLine2 = contactDetails.addressLine2,
-      addressLine3 = contactDetails.addressLine3,
-      city = contactDetails.addressLine4,
-      countryCode = contactDetails.countryCode,
-      postalCode = contactDetails.postalCode,
-      addressType = inspectionAddressType
-    )
 
   "Choose Inspection Address Type Controller" should {
 
@@ -323,20 +312,6 @@ class ChooseInspectionAddressTypeControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-        }
-
-        checkIsRedirect(
-          submitAddress(messagesKey -> Other.toString),
-          routes.ChooseInspectionAddressTypeController.redirectToALF()
-        )
-      }
-    }
-
-    "handle submit request on completed journey" when {
-      "the user selects 'other' address" in forAll(buildCompleteJourneyGen()) { journey =>
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
         }
 
         checkIsRedirect(

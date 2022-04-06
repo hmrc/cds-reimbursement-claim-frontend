@@ -68,9 +68,9 @@ class ChooseInspectionAddressTypeController @Inject() (
     routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Monad[Future].map(populateAddresses(journey).asFuture)({
+    journey.getPotentialInspectionAddresses match {
       case Nil =>
-        Redirect(startAddressLookup)
+        Redirect(startAddressLookup).asFuture
       case xs  =>
         Ok(
           inspectionAddressPage(
@@ -78,8 +78,8 @@ class ChooseInspectionAddressTypeController @Inject() (
             inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
             applyChoice
           )
-        )
-    })
+        ).asFuture
+    }
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
@@ -88,7 +88,7 @@ class ChooseInspectionAddressTypeController @Inject() (
         .bindFromRequest()
         .fold(
           errors =>
-            (journey, BadRequest(inspectionAddressPage(populateAddresses(journey), errors, applyChoice))).asFuture,
+            (journey, BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, applyChoice))).asFuture,
           {
             case Other     =>
               (journey, Redirect(startAddressLookup)).asFuture
@@ -125,9 +125,4 @@ class ChooseInspectionAddressTypeController @Inject() (
     else if (journey.isAllSelectedDutiesAreCMAEligible)
       (journey, Redirect(routes.ChooseRepaymentMethodController.show()))
     else (journey, Redirect(routes.CheckBankDetailsController.show()))
-
-  private def populateAddresses(journey: RejectedGoodsSingleJourney) = Seq(
-    journey.getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer  -> _),
-    journey.getDeclarantContactDetailsFromACC14.flatMap(_.showAddress).map(Declarant -> _)
-  ).flatten(Option.option2Iterable)
 }

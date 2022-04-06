@@ -50,7 +50,7 @@ class ChooseInspectionAddressTypeController @Inject() (
   override val retrieveLookupAddress: Call  = routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    populateAddresses(journey) match {
+    journey.getPotentialInspectionAddresses match {
       case List()    =>
         Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF()).asFuture
       case addresses =>
@@ -72,7 +72,7 @@ class ChooseInspectionAddressTypeController @Inject() (
           formWithErrors =>
             (
               journey,
-              BadRequest(inspectionAddressPage(populateAddresses(journey), formWithErrors, postAction))
+              BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, formWithErrors, postAction))
             ),
           {
             case Other                 =>
@@ -81,7 +81,7 @@ class ChooseInspectionAddressTypeController @Inject() (
                 Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
               )
             case inspectionAddressType =>
-              inspectionAddressForType(inspectionAddressType, journey)
+              journey.getInspectionAddressForType(inspectionAddressType)
                 .map { address =>
                   redirectToTheNextPage(journey.submitInspectionAddress(address))
                 }
@@ -92,22 +92,6 @@ class ChooseInspectionAddressTypeController @Inject() (
     },
     fastForwardToCYAEnabled = false
   )
-
-  private def inspectionAddressForType(
-    addressType: InspectionAddressType,
-    journey: RejectedGoodsMultipleJourney
-  ): Option[InspectionAddress] =
-    addressType match {
-      case Importer  => journey.getConsigneeContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
-      case Declarant =>
-        journey.getDeclarantContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
-      case Other     => None
-    }
-
-  private def populateAddresses(journey: RejectedGoodsMultipleJourney) = Seq(
-    journey.getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer  -> _),
-    journey.getDeclarantContactDetailsFromACC14.flatMap(_.showAddress).map(Declarant -> _)
-  ).flatten(Option.option2Iterable)
 
   private val nextPage: Call = routes.CheckBankDetailsController.show()
 
