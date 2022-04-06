@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -103,10 +102,10 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(checkDeclarationDetailsKey -> ""),
+          performAction(controller.checkDeclarationDetailsKey -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.scheduled.error.required")
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
           },
           expectedStatus = BAD_REQUEST
@@ -135,10 +134,10 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(checkDeclarationDetailsKey -> ""),
+          performAction(controller.checkDeclarationDetailsKey -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.scheduled.error.required")
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
           },
           expectedStatus = BAD_REQUEST
@@ -152,7 +151,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(checkDeclarationDetailsKey -> "true"),
+          performAction(controller.checkDeclarationDetailsKey -> "true"),
           routes.UploadMrnListController.show()
         )
       }
@@ -164,7 +163,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(checkDeclarationDetailsKey -> "false"),
+          performAction(controller.checkDeclarationDetailsKey -> "false"),
           routes.EnterMovementReferenceNumberController.submit()
         )
 

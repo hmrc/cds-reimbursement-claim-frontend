@@ -1,4 +1,5 @@
 service.name=Claim for reimbursement of import duties
+service.name=Claim for reimbursement of import duties
 service.text=Claim for reimbursement of import duties
 service.title=Claim for reimbursement of import duties
 service.signOut=Sign out
@@ -241,6 +242,7 @@ check-movement-reference-numbers.title=All the <abbr title="Movement Reference N
 check-movement-reference-numbers.help-text=These are the <abbr title="Movement Reference Numbers">MRNs</abbr> that you have added so far. You can add more if you wish.
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
 check-movement-reference-numbers.error.invalid=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
+check-movement-reference-numbers.error.required=Select yes if you want to add another MRN
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS - REJECTED GOODS
@@ -251,6 +253,7 @@ check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=
 check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
 check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
 check-movement-reference-numbers.rejected-goods.error.invalid=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
+check-movement-reference-numbers.rejected-goods.error.required=Select yes if you want to add another MRN
 
 #===================================================
 #  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
@@ -445,6 +448,9 @@ check-declaration-details.multiple.error.number=Select ''yes'' if you want to co
 check-declaration-details.multiple.error.required=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.multiple.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.scheduled.is-information-correct=Are these details correct?
+check-declaration-details.scheduled.error.invalid=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.scheduled.error.number=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.scheduled.error.required=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 
 #===================================================
 #  CLAIM NORTHERN IRELAND PAGE
@@ -615,6 +621,7 @@ check-claim.rejected-goods.single.label=Your repayment or remission calculations
 check-claim.rejected-goods.multiple.label=These are the calculations based on the information you gave us.
 check-claim.rejected-goods.single.mrn.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
 check-claim.rejected-goods.single.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
+check-claim.rejected-goods.error.required=Select Yes if these duties are correct.
 check-claim.rejected-goods.are-duties-correct=Are these duties correct?
 check-claim.rejected-goods.yes=Yes
 check-claim.rejected-goods.no=No, select different duties

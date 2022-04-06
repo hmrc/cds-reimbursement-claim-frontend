@@ -18,23 +18,50 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Form
-import play.api.data.Forms.boolean
 import play.api.data.Forms.mapping
-import play.api.data.Forms.optional
+import play.api.data.Forms.text
+import play.api.data.validation.Constraint
+import play.api.data.validation.Invalid
+import play.api.data.validation.Valid
+import play.api.data.validation.ValidationError
+import play.api.data.validation.ValidationResult
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 object YesOrNoQuestionForm {
+
+  private def isBoolean(s: String): ValidationResult = s match {
+    case "true"  => Valid
+    case "false" => Valid
+    case _       => Invalid(ValidationError("error.invalid"))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  private def booleanThatExists: Constraint[String] = {
+    lazy val errorMessage: String = "error.invalid"
+    Constraint[String]("constraint.yesno") { s =>
+      if (s === null) Invalid(ValidationError(errorMessage))
+      else if (s.trim.isEmpty) Invalid(ValidationError(errorMessage))
+      else isBoolean(s)
+    }
+  }
 
   def apply(key: String): Form[YesNo] =
     Form(
       mapping(
-        key -> optional(boolean)
-          .verifying("error.invalid", _.isDefined)
+        key -> text()
+          .verifying(booleanThatExists)
           .transform[YesNo](
-            value => if (value.exists(_ === true)) Yes else No,
-            answer => Some(answer === Yes)
+            {
+              case "true"  => Yes
+              case "false" => No
+            },
+            {
+              case Yes => "true"
+              case No  => "false"
+            }
           )
       )(identity)(Some(_))
     )
