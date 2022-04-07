@@ -76,8 +76,8 @@ class SelectDutyCodesController @Inject() (
                       case Some(nextDuty) => Redirect(routes.SelectDutyCodesController.show(nextDuty))
                       case None           =>
                         Redirect(
-                          "/rejected-goods/scheduled/select-duties/reimbursement-claim/start"
-                        ) //FIXME: routes.EnterScheduledClaimController.iterate()
+                          routes.EnterClaimController.iterate()
+                        )
                     }
                   )
               )

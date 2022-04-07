@@ -33,16 +33,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimKey
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.findDutyTypeAndTaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.genDutyWithRandomlySelectedTaxCodeAndReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.formatter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.genDutyWithRandomlySelectedTaxCodeAndReimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.nextTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.taxCodesGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.incompleteJourneyWithDutyTypesTaxCodesAndClaimAmountsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -201,11 +201,20 @@ class EnterClaimControllerSpec
       "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
         forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise), genReimbursement) {
           (customDuty, exciseDuty, reimbursement) =>
-
             val initialJourney = RejectedGoodsScheduledJourney
               .empty(exampleEori)
+              .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
+              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes(0))))
+            val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
 
-            val updatedJourney = initialJourney.flatMap(journey => journey.submitAmountForReimbursement(customDuty, customDuty.taxCodes(0), reimbursement.paidAmount, reimbursement.shouldOfPaid))
+            val updatedJourney = initialJourney.flatMap(journey =>
+              journey.submitAmountForReimbursement(
+                customDuty,
+                customDuty.taxCodes(0),
+                reimbursement.paidAmount,
+                reimbursement.shouldOfPaid
+              )
+            )
             val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
 
             inSequence {
@@ -225,7 +234,7 @@ class EnterClaimControllerSpec
               routes.EnterClaimController.show(exciseDuty, exciseDuty.taxCodes(0))
             )
         }
-      }
+      } // save user defined end
 
     } // submit end
 
@@ -243,5 +252,8 @@ object EnterClaimControllerSpec {
     taxCode       <- Gen.oneOf(duty.taxCodes)
     reimbursement <- genReimbursement
   } yield (duty, taxCode, reimbursement)
+
+  def nextTaxCode(seq: Seq[TaxCode], current: TaxCode): TaxCode =
+    seq(seq.indexOf(current) + 1)
 
 }

@@ -62,49 +62,58 @@ class EnterClaimController @Inject() (
 
   def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
     implicit request => journey =>
-      //val postAction: Call = routes.EnterClaimController.submit(dutyType, taxCode)
+      val postAction: Call                          = routes.EnterClaimController.submit(dutyType, taxCode)
       val maybeReimbursement: Option[Reimbursement] = journey.getReimbursementFor(dutyType, taxCode)
       val form                                      = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
-      Ok(enterClaimPage(dutyType, taxCode, form)).asFuture
+      Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
 
   }
 
-  def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
+  def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney {
+    implicit request => journey =>
+      val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
 
-    Future.successful(
-      enterScheduledClaimForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(enterClaimPage(currentDuty, currentTaxCode, formWithErrors))
-            ),
-          reimbursement =>
-            journey
-              .submitAmountForReimbursement(currentDuty, currentTaxCode, reimbursement.shouldOfPaid, reimbursement.paidAmount)
-              .fold(
-                errors => {
-                  logger.error(s"Error updating tax codes selection - $errors")
-                  (journey, BadRequest(enterClaimPage(currentDuty, currentTaxCode, enterScheduledClaimForm)))
-                },
-                updatedJourney =>
-                  (
-                    updatedJourney,
-                    updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
-                      case Some(nextTaxCode) => Redirect(routes.EnterClaimController.show(currentDuty, nextTaxCode))
-                      case None           =>
-                        Redirect(
-                          "/rejected-goods/scheduled/check-claim"
-                        ) //FIXME: routes.CheckClaimController.show()
-                    }
-                  )
-              )
-        )
-    )
-}
+      Future.successful(
+        enterScheduledClaimForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(enterClaimPage(currentDuty, currentTaxCode, formWithErrors, postAction))
+              ),
+            reimbursement =>
+              journey
+                .submitAmountForReimbursement(
+                  currentDuty,
+                  currentTaxCode,
+                  reimbursement.shouldOfPaid,
+                  reimbursement.paidAmount
+                )
+                .fold(
+                  errors => {
+                    logger.error(s"Error updating tax codes selection - $errors")
+                    (
+                      journey,
+                      BadRequest(enterClaimPage(currentDuty, currentTaxCode, enterScheduledClaimForm, postAction))
+                    )
+                  },
+                  updatedJourney =>
+                    (
+                      updatedJourney,
+                      updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
+                        case Some(nextTaxCode) => Redirect(routes.EnterClaimController.show(currentDuty, nextTaxCode))
+                        case None              =>
+                          Redirect(
+                            "/rejected-goods/scheduled/check-claim"
+                          ) //FIXME: routes.CheckClaimController.show()
+                      }
+                    )
+                )
+          )
+      )
+  }
 
 }
 

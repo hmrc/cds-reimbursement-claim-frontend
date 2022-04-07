@@ -24,6 +24,7 @@ import play.api.data.FormError
 import play.api.data.Forms.mapping
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -93,6 +94,7 @@ class EnterScheduledClaimController @Inject() (
   def enterClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
+        val postAction: Call = claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, dutyCode)
         Ok(
           enterScheduledClaimPage(
             dutyType,
@@ -100,7 +102,8 @@ class EnterScheduledClaimController @Inject() (
             maybeAnswer
               .map(_.value(dutyType)(dutyCode))
               .filter(!_.isUnclaimed)
-              .foldLeft(enterScheduledClaimForm)((form, answer) => form.fill(answer))
+              .foldLeft(enterScheduledClaimForm)((form, answer) => form.fill(answer)),
+            postAction
           )
         )
       }
@@ -109,6 +112,7 @@ class EnterScheduledClaimController @Inject() (
   def submitClaim(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
+        val postAction: Call                                             = claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, taxCode)
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) =
           updateSession(sessionCache, request)(
             _.copy(journeyStatus =
@@ -120,7 +124,9 @@ class EnterScheduledClaimController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              BadRequest(enterScheduledClaimPage(dutyType, taxCode, redirectVerificationMessage(formWithErrors))),
+              BadRequest(
+                enterScheduledClaimPage(dutyType, taxCode, redirectVerificationMessage(formWithErrors), postAction)
+              ),
             claim =>
               EitherT
                 .fromOption[Future](
