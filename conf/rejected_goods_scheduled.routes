@@ -37,11 +37,11 @@ POST         /rejected-goods/scheduled/select-duties/select-duty-types          
 GET         /rejected-goods/scheduled/select-duties/:dutyType                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesController.show(dutyType: DutyType)
 POST        /rejected-goods/scheduled/select-duties/:dutyType                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesController.submit(dutyType: DutyType)
 
-GET          /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseInspectionAddressTypeController.show()
+POST         /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseInspectionAddressTypeController.submit()
 
-GET          /rejected-goods/scheduled/inspection-address/lookup-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.redirectToALF()
-GET          /rejected-goods/scheduled/inspection-address/update-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/scheduled/inspection-address/lookup-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseInspectionAddressTypeController.redirectToALF()
+GET          /rejected-goods/scheduled/inspection-address/update-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseInspectionAddressTypeController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 
 GET          /rejected-goods/scheduled/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterInspectionDateController.show()
 POST         /rejected-goods/scheduled/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterInspectionDateController.submit()

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,13 +27,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.inspectionAddressTypeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -42,29 +42,29 @@ class ChooseInspectionAddressTypeController @Inject() (
   val addressLookupService: AddressLookupService,
   inspectionAddressPage: pages.choose_inspection_address_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends RejectedGoodsMultipleJourneyBaseController
-    with AddressLookupMixin[RejectedGoodsMultipleJourney] {
+    extends RejectedGoodsScheduledJourneyBaseController
+    with AddressLookupMixin[RejectedGoodsScheduledJourney] {
 
-  val postAction: Call                      = routes.ChooseInspectionAddressTypeController.submit()
+  private val postAction                    = routes.ChooseInspectionAddressTypeController.submit()
+  private val nextPage: Call                = Call("GET", "check-bank-details")
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
   override val retrieveLookupAddress: Call  = routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getPotentialInspectionAddresses match {
-      case List()    =>
-        Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF()).asFuture
+  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    (journey.getPotentialInspectionAddresses match {
+      case List()    => Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
       case addresses =>
         Ok(
           inspectionAddressPage(
             addresses,
-            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
+            inspectionAddressTypeForm,
             postAction
           )
-        ).asFuture
-    }
+        )
+    }).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney(
+  def submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       inspectionAddressTypeForm
         .bindFromRequest()
@@ -72,7 +72,13 @@ class ChooseInspectionAddressTypeController @Inject() (
           formWithErrors =>
             (
               journey,
-              BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, formWithErrors, postAction))
+              BadRequest(
+                inspectionAddressPage(
+                  journey.getPotentialInspectionAddresses,
+                  formWithErrors,
+                  postAction
+                )
+              )
             ),
           {
             case Other                 =>
@@ -84,9 +90,17 @@ class ChooseInspectionAddressTypeController @Inject() (
               journey
                 .getInspectionAddressForType(inspectionAddressType)
                 .map { address =>
-                  redirectToTheNextPage(journey.submitInspectionAddress(address))
+                  (
+                    journey.submitInspectionAddress(address),
+                    Redirect(nextPage)
+                  )
                 }
-                .getOrElse((journey, Ok("Where do we go if this fails?")))
+                .getOrElse(
+                  (
+                    journey,
+                    Redirect(baseRoutes.IneligibleController.ineligible())
+                  )
+                )
           }
         )
         .asFuture
@@ -94,14 +108,7 @@ class ChooseInspectionAddressTypeController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  private val nextPage: Call = routes.CheckBankDetailsController.show()
-
-  override def update(journey: RejectedGoodsMultipleJourney): ContactAddress => RejectedGoodsMultipleJourney = {
-    contactAddress =>
-      journey.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
-  }
-
-  override def redirectToTheNextPage(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) =
+  override def redirectToTheNextPage(journey: RejectedGoodsScheduledJourney): (RejectedGoodsScheduledJourney, Result) =
     (
       journey,
       if (journey.hasCompleteAnswers)
@@ -109,4 +116,9 @@ class ChooseInspectionAddressTypeController @Inject() (
       else
         Redirect(nextPage)
     )
+
+  override def update(journey: RejectedGoodsScheduledJourney): ContactAddress => RejectedGoodsScheduledJourney = {
+    contactAddress =>
+      journey.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
+  }
 }

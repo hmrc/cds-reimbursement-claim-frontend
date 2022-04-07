@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import java.util.UUID
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -30,36 +30,39 @@ import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Declarant
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Importer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.InspectionAddressUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.StringOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.InspectionAddressUtils
 import scala.concurrent.Future
 
 class ChooseInspectionAddressTypeControllerSpec
-    extends PropertyBasedControllerSpec
+    extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with RejectedGoodsMultipleJourneyTestData
+    with ScalaCheckPropertyChecks
+    with RejectedGoodsScheduledJourneyTestData
     with InspectionAddressUtils {
 
   override val overrideBindings: List[GuiceableModule] =
@@ -67,10 +70,6 @@ class ChooseInspectionAddressTypeControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
-  val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(emptyJourney)
-  )
 
   val controller: ChooseInspectionAddressTypeController = instanceOf[ChooseInspectionAddressTypeController]
 
@@ -80,23 +79,21 @@ class ChooseInspectionAddressTypeControllerSpec
   private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "inspection-address.type"
 
-  override def beforeEach(): Unit = featureSwitch enable Feature.RejectedGoods
+  override def beforeEach(): Unit =
+    featureSwitch.enable(Feature.RejectedGoods)
 
-  def showPage(): Future[Result] =
-    controller.show()(FakeRequest())
+  val session: SessionData = SessionData.empty.copy(
+    rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
+  )
 
-  def submitAddress(data: (String, String)*): Future[Result] =
-    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+  "Enter Special Circumstances Controller" must {
+    "Show Page" when {
+      def performAction(): Future[Result] =
+        controller.show()(FakeRequest())
 
-  def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
-    controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
-
-  "Choose Inspection Address Type Controller" should {
-
-    "display the page" when {
-      "does not find the page if the rejected goods feature is disabled" in {
+      "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        status(showPage()) shouldBe NOT_FOUND
+        status(performAction()) shouldBe NOT_FOUND
       }
 
       "Show the page when the lead Acc 14 Declaration does not have a consignee" in forAll {
@@ -107,9 +104,8 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = None,
               declarantDetails = declarant
             )
-          val updatedJourney        = session.rejectedGoodsMultipleJourney.get
+          val updatedJourney        = session.rejectedGoodsScheduledJourney.get
             .submitMovementReferenceNumberAndDeclaration(
-              0,
               displayDeclaration.getMRN,
               DisplayDeclaration(displayResponseDetail)
             )
@@ -117,16 +113,17 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
-            showPage(),
+            performAction(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
               doc.select("input[value=Other]").isEmpty     shouldBe false
               doc.select("input[value=Declarant]").isEmpty shouldBe false
               doc.select("input[value=Importer]").isEmpty  shouldBe true
+              formAction(doc)                              shouldBe routes.ChooseInspectionAddressTypeController.submit().url
             }
           )
       }
@@ -138,9 +135,9 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = Some(consignee),
               declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails.copy(contactDetails = None)
             )
-          val updatedJourney        = session.rejectedGoodsMultipleJourney.get
+
+          val updatedJourney = session.rejectedGoodsScheduledJourney.get
             .submitMovementReferenceNumberAndDeclaration(
-              0,
               displayDeclaration.getMRN,
               DisplayDeclaration(displayResponseDetail)
             )
@@ -148,11 +145,11 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
-            showPage(),
+            performAction(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
               doc.select("input[value=Other]").isEmpty     shouldBe false
@@ -170,62 +167,30 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
             )
-          val journey               = session.rejectedGoodsMultipleJourney.get
+
+          val journey = session.rejectedGoodsScheduledJourney.get
             .submitMovementReferenceNumberAndDeclaration(
-              0,
               displayDeclaration.getMRN,
               DisplayDeclaration(displayResponseDetail)
             )
             .getOrFail
-          val optionChosen          = Gen.oneOf(Seq(Importer, Declarant)).sample.get
-          val address               = optionChosen match {
+
+          val optionChosen   = Gen.oneOf(Seq(Importer, Declarant)).sample.get
+          val address        = optionChosen match {
             case Importer  =>
               inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
             case Declarant =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
-          val updatedJourney        = journey.submitInspectionAddress(address)
+          val updatedJourney = journey.submitInspectionAddress(address)
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
-            showPage(),
-            messageFromMessageKey("inspection-address.type.title"),
-            doc => {
-              doc.select("input[value=Other]").isEmpty      shouldBe false
-              doc.select("input[value=Declarant]").isEmpty  shouldBe false
-              doc.select("input[value=Importer]").isEmpty   shouldBe false
-              isCheckboxChecked(doc, optionChosen.toString) shouldBe true
-            }
-          )
-      }
-
-      "Show the page when the lead Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
-        (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
-          val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
-          val displayResponseDetail = displayDeclaration.displayResponseDetail
-            .copy(
-              consigneeDetails = Some(consignee),
-              declarantDetails = declarant
-            )
-          val updatedJourney        = session.rejectedGoodsMultipleJourney.get
-            .submitMovementReferenceNumberAndDeclaration(
-              0,
-              displayDeclaration.getMRN,
-              DisplayDeclaration(displayResponseDetail)
-            )
-            .getOrFail
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
-          }
-
-          checkPageIsDisplayed(
-            showPage(),
+            performAction(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
               doc.select("input[value=Other]").isEmpty     shouldBe false
@@ -242,16 +207,19 @@ class ChooseInspectionAddressTypeControllerSpec
         }
 
         checkIsRedirect(
-          showPage(),
+          performAction(),
           routes.ChooseInspectionAddressTypeController.redirectToALF()
         )
       }
     }
 
-    "handle submit request on new journey" when {
-      "does not find the page if the rejected goods feature is disabled" in {
+    "Submit Page" when {
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        status(submitAddress()) shouldBe NOT_FOUND
+        status(performAction()) shouldBe NOT_FOUND
       }
 
       "the user submits an empty form" in {
@@ -261,12 +229,9 @@ class ChooseInspectionAddressTypeControllerSpec
         }
 
         checkPageIsDisplayed(
-          submitAddress(),
+          performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$messagesKey.error.required"
-            ),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
           expectedStatus = BAD_REQUEST
         )
       }
@@ -279,31 +244,32 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
             )
-          val journey               = session.rejectedGoodsMultipleJourney.get
+
+          val journey = session.rejectedGoodsScheduledJourney.get
             .submitMovementReferenceNumberAndDeclaration(
-              0,
               displayDeclaration.getMRN,
               DisplayDeclaration(displayResponseDetail)
             )
             .getOrFail
-          val optionChosen          = Gen.oneOf(Seq(Importer, Declarant)).sample.get
-          val address               = optionChosen match {
-            case Importer =>
+
+          val optionChosen   = Gen.oneOf(Seq(Importer, Declarant)).sample.get
+          val address        = optionChosen match {
+            case Importer  =>
               inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
-            case _        =>
+            case Declarant =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
-          val updatedJourney        = journey.submitInspectionAddress(address)
+          val updatedJourney = journey.submitInspectionAddress(address)
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
-            mockStoreSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))(Right(()))
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
           }
 
           checkIsRedirect(
-            submitAddress(messagesKey -> optionChosen.toString),
-            routes.CheckBankDetailsController.show()
+            performAction(messagesKey -> optionChosen.toString),
+            "check-bank-details"
           )
       }
 
@@ -314,45 +280,45 @@ class ChooseInspectionAddressTypeControllerSpec
         }
 
         checkIsRedirect(
-          submitAddress(messagesKey -> Other.toString),
+          performAction(messagesKey -> Other.toString),
           routes.ChooseInspectionAddressTypeController.redirectToALF()
         )
       }
-    }
 
-    "update address" in forAll { address: ContactAddress =>
-      val inspectionAddress = InspectionAddress(
-        addressLine1 = Some(address.line1),
-        addressLine2 = address.line2,
-        addressLine3 = address.line3,
-        city = address.line4.asSomeIfNonEmpty,
-        countryCode = address.country.code.asSomeIfNonEmpty,
-        postalCode = address.postcode.asSomeIfNonEmpty,
-        addressType = Other
-      )
-
-      val expectedJourney = emptyJourney.submitInspectionAddress(inspectionAddress)
-
-      controller.update(emptyJourney)(address) shouldBe expectedJourney
-    }
-
-    "redirect to the next page" when {
-      "on a new journey" in {
-        controller.redirectToTheNextPage(emptyJourney) shouldBe (
-          (
-            emptyJourney,
-            Redirect(routes.CheckBankDetailsController.show())
-          )
+      "update address" in forAll { address: ContactAddress =>
+        val inspectionAddress = InspectionAddress(
+          addressLine1 = Some(address.line1),
+          addressLine2 = address.line2,
+          addressLine3 = address.line3,
+          city = address.line4.asSomeIfNonEmpty,
+          countryCode = address.country.code.asSomeIfNonEmpty,
+          postalCode = address.postcode.asSomeIfNonEmpty,
+          addressType = Other
         )
+
+        val expectedJourney = emptyJourney.submitInspectionAddress(inspectionAddress)
+
+        controller.update(emptyJourney)(address) shouldBe expectedJourney
       }
 
-      "changing the entered details" in forAll(buildCompleteJourneyGen()) { journey =>
-        controller.redirectToTheNextPage(journey) shouldBe (
-          (
-            journey,
-            Redirect(routes.CheckYourAnswersController.show())
+      "redirect to the next page" when {
+        "on a new journey" in {
+          controller.redirectToTheNextPage(emptyJourney) shouldBe (
+            (
+              emptyJourney,
+              Redirect("check-bank-details")
+            )
           )
-        )
+        }
+
+        "changing the entered details" in forAll(buildCompleteJourneyGen()) { journey =>
+          controller.redirectToTheNextPage(journey) shouldBe (
+            (
+              journey,
+              Redirect(routes.CheckYourAnswersController.show())
+            )
+          )
+        }
       }
     }
   }

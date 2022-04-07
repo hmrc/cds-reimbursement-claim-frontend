@@ -65,9 +65,9 @@ class EnterInspectionDateController @Inject() (
           (
             updatedJourney,
             if (updatedJourney.needsDeclarantAndConsigneePostCode) {
-              Redirect("inspection-address/choose-type") // TODO: Replace with correct route
+              Redirect(routes.ChooseInspectionAddressTypeController.show())
             } else {
-              Redirect("inspection-address/lookup") // TODO: Replace with correct route
+              Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
             }
           )
         }
