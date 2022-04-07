@@ -103,7 +103,6 @@ class EnterClaimController @Inject() (
                     (
                       updatedJourney,
                       // FIXME: loop over each duty -> loop over tax codes for each duty
-
                       updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
                         case Some(nextTaxCode) => Redirect(routes.EnterClaimController.show(currentDuty, nextTaxCode))
                         case None              =>
