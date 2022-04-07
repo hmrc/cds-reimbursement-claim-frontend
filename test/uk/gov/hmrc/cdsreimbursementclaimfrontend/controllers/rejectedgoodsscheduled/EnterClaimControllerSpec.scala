@@ -206,7 +206,6 @@ class EnterClaimControllerSpec
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes(0))))
             val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
 
-
             val updatedJourney = initialJourney.flatMap(journey =>
               journey.submitAmountForReimbursement(
                 customDuty,

@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -30,9 +27,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.collection.SortedMap
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -44,20 +42,19 @@ class EnterClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  //TODO: Add form to Forms object
-  def iterate(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    def redirectToSummaryPage: Future[Result] =
-      Redirect("/scheduled/check-claim").asFuture //FIXME: routes.CheckClaimController.show()
+  def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    (journey.getSelectedDuties.headOption
+      .flatMap { case (dt, tcs) => tcs.headOption.map(tc => (dt, tc)) } match {
+      case Some((dutyType, taxCode)) =>
+        val postAction: Call                          = routes.EnterClaimController.submit(dutyType, taxCode)
+        val maybeReimbursement: Option[Reimbursement] = journey.getReimbursementFor(dutyType, taxCode)
+        val form                                      = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
-    def start(dutyAndTaxCode: (DutyType, TaxCode)): Future[Result] =
-      Redirect(routes.EnterClaimController.show(dutyAndTaxCode._1, dutyAndTaxCode._2)).asFuture
+        Ok(enterClaimPage(dutyType, taxCode, form, postAction))
 
-    if (journey.hasCompleteReimbursementClaims) redirectToSummaryPage
-    else
-      findDutyTypeAndTaxCode(journey.getSelectedDuties).fold(redirectToSummaryPage) { dutyAndTaxCode =>
-        start(dutyAndTaxCode)
-      }
-
+      case None =>
+        Redirect(routes.SelectDutyTypesController.show())
+    }).asFuture
   }
 
   def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
@@ -70,8 +67,8 @@ class EnterClaimController @Inject() (
 
   }
 
-  def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney {
-    implicit request => journey =>
+  def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
       val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
 
       Future.successful(
@@ -102,11 +99,10 @@ class EnterClaimController @Inject() (
                   updatedJourney =>
                     (
                       updatedJourney,
-                      // FIXME: loop over each duty -> loop over tax codes for each duty
-
                       updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
-                        case Some(nextTaxCode) => Redirect(routes.EnterClaimController.show(currentDuty, nextTaxCode))
-                        case None              =>
+                        case Some((nextDutyType, nextTaxCode)) =>
+                          Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
+                        case None                              =>
                           Redirect(
                             "/rejected-goods/scheduled/check-claim"
                           ) //FIXME: routes.CheckClaimController.show()
@@ -115,31 +111,10 @@ class EnterClaimController @Inject() (
                 )
           )
       )
-  }
+    },
+    fastForwardToCYAEnabled = false
+  )
 
 }
 
-object EnterClaimController {
-
-  def findDutyTypeAndTaxCode(
-    value: Map[DutyType, Seq[TaxCode]]
-  ): Option[(DutyType, TaxCode)] =
-    for {
-      dutyTypeAndTaxCodes   <- value.find(_._2.nonEmpty)
-      firstAvailableTaxCode <- dutyTypeAndTaxCodes._2.find(_.value.nonEmpty)
-    } yield (dutyTypeAndTaxCodes._1, firstAvailableTaxCode)
-
-  def findUnclaimedReimbursements1(
-    value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
-  ): Option[(DutyType, TaxCode)] =
-    for {
-      unclaimedReimbursements <- value.find(_._2.exists(_._2.isUnclaimed))
-      firstAvailable          <- unclaimedReimbursements._2.find(_._2.isUnclaimed)
-    } yield (unclaimedReimbursements._1, firstAvailable._1)
-
-  def findReimbursement(value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]): Option[Reimbursement] =
-    for {
-      claimedReimbursements <- value.find(_._2.exists(_._2.isValid))
-      firstAvailable        <- claimedReimbursements._2.find(_._2.isValid)
-    } yield (firstAvailable._2)
-}
+object EnterClaimController {}
