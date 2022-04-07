@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
@@ -87,6 +88,21 @@ object RejectedGoods {
       getLeadDisplayDeclaration.map(
         _.getConsigneeDetails.exists(_.establishmentAddress.postalCode.isEmpty)
       )
+
+    def getPotentialInspectionAddresses: Seq[(InspectionAddressType, String)] =
+      Seq(
+        getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer  -> _),
+        getDeclarantContactDetailsFromACC14.flatMap(_.showAddress).map(Declarant -> _)
+      ).flatten(Option.option2Iterable)
+
+    def getInspectionAddressForType(
+      addressType: InspectionAddressType
+    ): Option[InspectionAddress] =
+      addressType match {
+        case Importer  => getConsigneeContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
+        case Declarant => getDeclarantContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
+        case Other     => None
+      }
 
     final def isDeclarantPostCodeFromAcc14: Option[Boolean] =
       getLeadDisplayDeclaration.map(_.getDeclarantDetails).map(_.establishmentAddress.postalCode.isEmpty)

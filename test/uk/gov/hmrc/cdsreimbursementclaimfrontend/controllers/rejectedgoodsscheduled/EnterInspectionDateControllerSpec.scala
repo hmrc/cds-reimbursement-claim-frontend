@@ -212,7 +212,7 @@ class EnterInspectionDateControllerSpec
                 s"$messagesKey.month" -> date.value.getMonthValue.toString,
                 s"$messagesKey.year"  -> date.value.getYear.toString
               ),
-              "inspection-address/choose-type"
+              routes.ChooseInspectionAddressTypeController.show()
             )
           }
       }
@@ -249,7 +249,7 @@ class EnterInspectionDateControllerSpec
               s"$messagesKey.month" -> date.value.getMonthValue.toString,
               s"$messagesKey.year"  -> date.value.getYear.toString
             ),
-            "inspection-address/lookup"
+            routes.ChooseInspectionAddressTypeController.redirectToALF()
           )
       }
 

@@ -46,8 +46,7 @@ class CheckClaimantDetailsController @Inject() (
   override val retrieveLookupAddress: Call = routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
   val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-    val changeCd: Call                             =
-      Call("GET", "claimant-details/change-contact-details") //TODO: change to routes
+    val changeCd: Call                             = routes.EnterContactDetailsController.show()
     val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
     val (maybeContactDetails, maybeAddressDetails) =
       (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
