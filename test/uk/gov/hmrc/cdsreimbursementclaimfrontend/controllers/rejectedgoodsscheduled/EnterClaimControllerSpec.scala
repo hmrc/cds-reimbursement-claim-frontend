@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.incompleteJourneyWithDutyTypesTaxCodesAndClaimAmountsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -207,6 +206,7 @@ class EnterClaimControllerSpec
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes(0))))
             val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
 
+
             val updatedJourney = initialJourney.flatMap(journey =>
               journey.submitAmountForReimbursement(
                 customDuty,
@@ -215,6 +215,7 @@ class EnterClaimControllerSpec
                 reimbursement.shouldOfPaid
               )
             )
+
             val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
 
             inSequence {

@@ -42,8 +42,6 @@
 
 @hintText = @{Html(messages(s"$key.actual-amount.hint", messages(s"tax-code.${dutyCode.value}")))}
 
-@postAction = @{claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, dutyCode)}
-
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
