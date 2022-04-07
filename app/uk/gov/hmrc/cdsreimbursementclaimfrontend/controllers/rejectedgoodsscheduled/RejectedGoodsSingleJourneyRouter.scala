@@ -30,8 +30,8 @@ trait RejectedGoodsScheduledJourneyRouter {
       case MISSING_DISPLAY_DECLARATION                              => undefined
       case MISSING_BASIS_OF_CLAIM                                   => undefined
       case MISSING_DETAILS_OF_REJECTED_GOODS                        => undefined
-      case MISSING_INSPECTION_DATE                                  => undefined
-      case MISSING_INSPECTION_ADDRESS                               => undefined
+      case MISSING_INSPECTION_DATE                                  => routes.EnterInspectionDateController.show()
+      case MISSING_INSPECTION_ADDRESS                               => routes.ChooseInspectionAddressTypeController.show()
       case MISSING_METHOD_OF_DISPOSAL                               => undefined
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
       case MISSING_SCHEDULED_DOCUMENT                               => routes.UploadMrnListController.show()
