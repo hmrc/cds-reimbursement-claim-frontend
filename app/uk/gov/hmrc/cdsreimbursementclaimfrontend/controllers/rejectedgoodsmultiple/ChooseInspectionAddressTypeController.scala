@@ -81,7 +81,8 @@ class ChooseInspectionAddressTypeController @Inject() (
                 Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
               )
             case inspectionAddressType =>
-              journey.getInspectionAddressForType(inspectionAddressType)
+              journey
+                .getInspectionAddressForType(inspectionAddressType)
                 .map { address =>
                   redirectToTheNextPage(journey.submitInspectionAddress(address))
                 }

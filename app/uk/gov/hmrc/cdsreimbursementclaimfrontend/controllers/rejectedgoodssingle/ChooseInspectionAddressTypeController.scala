@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.Monad
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
@@ -40,9 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
-
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class ChooseInspectionAddressTypeController @Inject() (
@@ -88,7 +85,10 @@ class ChooseInspectionAddressTypeController @Inject() (
         .bindFromRequest()
         .fold(
           errors =>
-            (journey, BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, applyChoice))).asFuture,
+            (
+              journey,
+              BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, applyChoice))
+            ).asFuture,
           {
             case Other     =>
               (journey, Redirect(startAddressLookup)).asFuture

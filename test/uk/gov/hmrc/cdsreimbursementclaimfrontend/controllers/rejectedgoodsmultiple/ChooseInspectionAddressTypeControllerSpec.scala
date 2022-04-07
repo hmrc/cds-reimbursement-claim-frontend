@@ -91,7 +91,6 @@ class ChooseInspectionAddressTypeControllerSpec
   def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
     controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
 
-
   "Choose Inspection Address Type Controller" should {
 
     "display the page" when {
