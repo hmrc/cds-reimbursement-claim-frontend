@@ -86,7 +86,7 @@ class YesOrNoQuestionFormSpec extends ControllerSpec with TypeCheckedTripleEqual
     }
 
     "processing an expected key when yes is selected" should {
-      "flag errors" in {
+      "return yes" in {
         YesOrNoQuestionForm("check-declaration-details")
           .bind(Map("check-declaration-details" -> "true"))
           .fold(
@@ -100,7 +100,7 @@ class YesOrNoQuestionFormSpec extends ControllerSpec with TypeCheckedTripleEqual
     }
 
     "processing an expected key when no is selected" should {
-      "flag errors" in {
+      "return no" in {
         YesOrNoQuestionForm("check-declaration-details")
           .bind(Map("check-declaration-details" -> "false"))
           .fold(
@@ -114,7 +114,7 @@ class YesOrNoQuestionFormSpec extends ControllerSpec with TypeCheckedTripleEqual
     }
 
     "processing an expected sub key when yes is selected" should {
-      "flag errors" in {
+      "return yes" in {
         YesOrNoQuestionForm("check-declaration-details.scheduled")
           .bind(Map("check-declaration-details.scheduled" -> "true"))
           .fold(
@@ -128,7 +128,7 @@ class YesOrNoQuestionFormSpec extends ControllerSpec with TypeCheckedTripleEqual
     }
 
     "processing an expected sub key when no is selected" should {
-      "flag errors" in {
+      "return no" in {
         YesOrNoQuestionForm("check-declaration-details.scheduled")
           .bind(Map("check-declaration-details.scheduled" -> "false"))
           .fold(
