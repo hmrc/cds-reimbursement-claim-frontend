@@ -76,7 +76,7 @@ class EnterClaimControllerSpec
     rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
   )
 
-  "Select Duty Codes Controller" should {
+  "Enter Claim Controller" should {
 
     "not find the page if rejected goods feature is disabled" in forAll(genDutyWithRandomlySelectedTaxCode) {
       case (dutyType: DutyType, taxCode: TaxCode) =>
@@ -265,6 +265,39 @@ class EnterClaimControllerSpec
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(2) > a")
                   .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.error.invalid")
+              },
+              BAD_REQUEST
+            )
+        }
+
+        "duty amounts are 0" in forAll(genDutyWithRandomlySelectedTaxCode) {
+          case (dutyType: DutyType, taxCode: TaxCode) =>
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+            }
+
+            checkPageIsDisplayed(
+              controller.submit(dutyType, taxCode)(
+                FakeRequest().withFormUrlEncodedBody(
+                  Seq(
+                    s"$enterClaimKey.paid-amount"   -> "0.00",
+                    s"$enterClaimKey.actual-amount" -> "0.00"
+                  ): _*
+                )
+              ),
+              messageFromMessageKey(
+                messageKey = s"$enterClaimKey.title",
+                messages(s"duty-type.${dutyType.repr}"),
+                taxCode.value
+              ),
+              doc => {
+                doc
+                  .select(".govuk-error-summary__list > li:nth-child(1) > a")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.paid-amount.error.zero")
+                doc
+                  .select(".govuk-error-summary__list > li:nth-child(2) > a")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.error.zero")
               },
               BAD_REQUEST
             )

@@ -64,13 +64,14 @@ class EnterClaimController @Inject() (
   def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
     implicit request => journey =>
       journey.findNextDutyToSelectTaxCodes match {
-        case None =>
+        case None            =>
           val postAction: Call                          = routes.EnterClaimController.submit(dutyType, taxCode)
           val maybeReimbursement: Option[Reimbursement] = journey.getReimbursementFor(dutyType, taxCode)
           val form                                      = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
           Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
 
+        // the user has not filled in tax code
         case Some(emptyDuty) =>
           Redirect(routes.SelectTaxCodesController.show(emptyDuty)).asFuture
       }

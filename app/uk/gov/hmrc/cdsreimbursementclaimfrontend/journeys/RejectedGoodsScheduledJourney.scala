@@ -136,9 +136,11 @@ final class RejectedGoodsScheduledJourney private (
   ): Option[Reimbursement] =
     getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
 
-  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean                  =
+  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
     answers.reimbursementClaims
       .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
+
+  val isDutyTypeSelected: Boolean                                   = answers.reimbursementClaims.exists(_.nonEmpty)
 
   def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]] =
     answers.reimbursementClaims

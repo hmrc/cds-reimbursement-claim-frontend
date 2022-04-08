@@ -40,7 +40,7 @@
 @key = @{"enter-scheduled-claim"}
 @title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
 
-@hintText = @{Html(messages(s"$key.actual-amount.hint", messages(s"tax-code.${dutyCode.value}")))}
+@hintText = @{Html(messages(s"$key.actual-amount.hint"))}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -50,7 +50,7 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help-text", messages(s"tax-code.${dutyCode.value}"))), Some("govuk-body"))
 
     @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 

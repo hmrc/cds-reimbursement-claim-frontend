@@ -218,17 +218,22 @@ class SelectTaxCodesControllerSpec
 
     "show an error summary" when {
 
-      "no duty code is selected" in forAll { duty: DutyType =>
+      "no tax code is selected" in forAll { dutyType: DutyType =>
+        val initialJourney = RejectedGoodsScheduledJourney
+          .empty(exampleEori)
+          .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
+          .getOrFail
+
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(initialJourney))
         }
 
         checkPageIsDisplayed(
-          controller.submit(duty)(FakeRequest()),
+          controller.submit(dutyType)(FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey" -> "")),
           messageFromMessageKey(
             s"$selectDutyCodesKey.title",
-            messageFromMessageKey(s"$selectDutyCodesKey.h1.${duty.repr}")
+            messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
           ),
           doc =>
             doc
