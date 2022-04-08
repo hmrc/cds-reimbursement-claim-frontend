@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.formatter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectTaxCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -99,9 +99,9 @@ class EnterClaimControllerSpec
           routes.SelectDutyTypesController.show()
         )
 
-      } // has complete claim
+      }
 
-    } // redirect to check claim page
+    }
 
     "show enter claim page" when {
 
@@ -111,11 +111,11 @@ class EnterClaimControllerSpec
             .empty(exampleEori)
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
-          val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+            .getOrFail
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(initialSession)
+            mockGetSession(SessionData(initialJourney))
           }
 
           checkPageIsDisplayed(
@@ -127,7 +127,7 @@ class EnterClaimControllerSpec
             )
           )
 
-      } // user has selected tax and type
+      }
 
       " the user revisits enter claim page again" in forAll(completeJourneyGen) { journey =>
         val dutyType: DutyType           = journey.getReimbursementClaims.head._1
@@ -136,11 +136,9 @@ class EnterClaimControllerSpec
         val paidAmount: BigDecimal       = reimbursement.paidAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
         val shouldOfPaid: BigDecimal     = reimbursement.shouldOfPaid.setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
-        val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Option(journey))
-
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(initialSession)
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -156,9 +154,9 @@ class EnterClaimControllerSpec
             BigDecimal(elements.get(1).`val`()) should be(shouldOfPaid)
           }
         )
-      } // revisits page
+      }
 
-    } //show enter claim page
+    }
 
     "Submit enter claim page" must {
 
@@ -199,7 +197,7 @@ class EnterClaimControllerSpec
               routes.EnterClaimController.show(exciseDuty, exciseDuty.taxCodes(1))
             )
         }
-      } // save user defined end
+      }
 
       "save user defined amounts and redirect to the next page" in {
         forAll(Gen.oneOf(DutyTypes.custom), genReimbursement) { (dutyType, reimbursement) =>
@@ -207,24 +205,21 @@ class EnterClaimControllerSpec
             .empty(exampleEori)
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(dutyType.taxCodes(0))))
+            .getOrFail
 
-          val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
-
-          val updatedJourney = initialJourney.flatMap(
-            _.submitAmountForReimbursement(
+          val updatedJourney = initialJourney
+            .submitAmountForReimbursement(
               dutyType,
               dutyType.taxCodes(0),
-              reimbursement.paidAmount,
-              reimbursement.shouldOfPaid
+              reimbursement.shouldOfPaid,
+              reimbursement.paidAmount
             )
-          )
-
-          val updatedSession = initialSession.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+            .getOrFail
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(initialSession)
-            mockStoreSession(updatedSession)(Right(()))
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
           }
 
           checkIsRedirect(
@@ -273,7 +268,7 @@ class EnterClaimControllerSpec
               },
               BAD_REQUEST
             )
-        } // duty amounts are missing
+        }
 
         "actual amount is greater or equal to paid amount" in {
           forAll(genDuty, genTaxCode, genReimbursement) { (duty, taxCode, reimbursement) =>
@@ -306,14 +301,14 @@ class EnterClaimControllerSpec
               BAD_REQUEST
             )
           }
-        } // actual amount
+        }
 
-      } // show an error summary when
+      }
 
-    } // submit end
+    }
 
-  } //controller end
-} //end
+  }
+}
 
 object EnterClaimControllerSpec {
   private val formatter = new DecimalFormat()
@@ -326,8 +321,5 @@ object EnterClaimControllerSpec {
     taxCode       <- Gen.oneOf(duty.taxCodes)
     reimbursement <- genReimbursement
   } yield (duty, taxCode, reimbursement)
-
-  def nextTaxCode(seq: Seq[TaxCode], current: TaxCode): TaxCode =
-    seq(seq.indexOf(current) + 1)
 
 }

@@ -32,10 +32,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectTaxCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.EitherOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -44,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-class SelectDutyCodesControllerSpec
+class SelectTaxCodesControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -71,7 +72,7 @@ class SelectDutyCodesControllerSpec
     rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
   )
 
-  "Select Duty Codes Controller" should {
+  "Select Tax Codes Controller" should {
 
     "not find the page if rejected goods feature is disabled" in forAll { dutyType: DutyType =>
       featureSwitch.disable(Feature.RejectedGoods)
@@ -85,11 +86,11 @@ class SelectDutyCodesControllerSpec
         val initialJourney = RejectedGoodsScheduledJourney
           .empty(exampleEori)
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-        val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+          .getOrFail
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(initialSession)
+          mockGetSession(SessionData(initialJourney))
         }
 
         checkPageIsDisplayed(
@@ -107,12 +108,11 @@ class SelectDutyCodesControllerSpec
 
       "user has previously selected duty types" in forAll(completeJourneyGen, genDuty) {
         (journey, dutyType: DutyType) =>
-          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-          val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -134,12 +134,11 @@ class SelectDutyCodesControllerSpec
             .empty(exampleEori)
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
-
-          val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = journey.toOption)
+            .getOrFail
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(journey))
           }
 
           checkPageIsDisplayed(
@@ -167,24 +166,25 @@ class SelectDutyCodesControllerSpec
 
       "no other selected duties remaining" in forAll(genDutyWithRandomlySelectedTaxCode) { case (duty, taxCode) =>
         val initialJourney =
-          RejectedGoodsScheduledJourney.empty(exampleEori).selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
-        val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+          RejectedGoodsScheduledJourney
+            .empty(exampleEori)
+            .selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
+            .getOrFail
 
         val updatedJourney =
-          initialJourney.flatMap(journey => journey.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)))
-        val updatedSession = initialSession.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+          initialJourney.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)).getOrFail
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(initialSession)
-          mockStoreSession(updatedSession)(Right(()))
+          mockGetSession(SessionData(initialJourney))
+          mockStoreSession(SessionData(updatedJourney))(Right(()))
         }
 
         checkIsRedirect(
           controller.submit(duty)(
             FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> taxCode.value)
           ),
-          "/rejected-goods/scheduled/select-duties/reimbursement-claim/start" //FIXME: routes.EnterScheduledClaimController.iterate()
+          routes.EnterClaimController.showFirst()
         )
       }
     }
@@ -195,19 +195,16 @@ class SelectDutyCodesControllerSpec
         val initialJourney = RejectedGoodsScheduledJourney
           .empty(exampleEori)
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
-        val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+          .getOrFail
 
         val taxCode: TaxCode = customDuty.taxCodes(0)
-
-        val updatedJourney = initialJourney.flatMap(journey =>
-          journey.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(taxCode))
-        )
-        val updatedSession = initialSession.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+        val updatedJourney   =
+          initialJourney.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(taxCode)).getOrFail
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(initialSession)
-          mockStoreSession(updatedSession)(Right(()))
+          mockGetSession(SessionData(initialJourney))
+          mockStoreSession(SessionData(updatedJourney))(Right(()))
         }
 
         checkIsRedirect(
@@ -247,7 +244,7 @@ class SelectDutyCodesControllerSpec
   }
 }
 
-object SelectDutyCodesControllerSpec {
+object SelectTaxCodesControllerSpec {
 
   lazy val genDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for {
     duty    <- genDuty
