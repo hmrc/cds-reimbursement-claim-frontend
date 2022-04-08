@@ -56,8 +56,8 @@ POST         /rejected-goods/scheduled/choose-bank-account-type                 
 
 GET          /rejected-goods/scheduled/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
 
-GET          /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
+GET          /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterBankAccountDetailsController.show()
+POST         /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterBankAccountDetailsController.submit()
 
 GET          /rejected-goods/scheduled/upload-mrn-list                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.UploadMrnListController.show()
 +nocsrf
