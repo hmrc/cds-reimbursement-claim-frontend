@@ -24,6 +24,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -60,13 +61,13 @@
                 RadioItem(
                     id = Some(s"$key-cma"),
                     value = Some("0"),
-                    content = Text(messages(s"$key.cma")),
+                    content = HtmlContent(messages(s"$key.cma")),
                     checked = form.value.contains(CurrentMonthAdjustment)
                 ),
                 RadioItem(
                     id = Some(s"$key-bank-transfer"),
                     value = Some("1"),
-                    content = Text(messages(s"$key.bank-transfer")),
+                    content = HtmlContent(messages(s"$key.bank-transfer")),
                     checked = form.value.contains(BankAccountTransfer)
                 )
             )

@@ -67,7 +67,7 @@ class SelectTaxCodesControllerSpec
   def getHintText(document: Document, hintTextId: String) = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
-    if (hintTextElement.hasText) Some(hintTextElement.text()) else None
+    if (hintTextElement.hasText) Some(hintTextElement.html()) else None
   }
 
   private val messagesKey: String = "select-duties"
