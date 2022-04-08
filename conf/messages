@@ -1131,7 +1131,7 @@ supporting-evidence.error.invalid-document-type=Invalid supporting evidence docu
 #===================================================
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
-schedule-document.upload.title=Add a document which shows all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim
+schedule-document.upload.title=Add a document which shows all the MRNs in this claim
 schedule-document.upload.help-text=Upload a list of all <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim, known as a scheduled document. This document can be up to {0} and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
 schedule-document.upload.things-to-show.p1=The document should show:
 schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
