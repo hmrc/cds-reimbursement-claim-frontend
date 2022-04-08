@@ -122,6 +122,9 @@ final class RejectedGoodsScheduledJourney private (
           )
     }
 
+  def findNextDutyToSelectTaxCodes: Option[DutyType] =
+    answers.reimbursementClaims.flatMap(_.find(_._2.isEmpty).map(_._1))
+
   def getReimbursementClaimsFor(
     dutyType: DutyType
   ): Option[SortedMap[TaxCode, Option[Reimbursement]]] =

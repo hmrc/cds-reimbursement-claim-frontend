@@ -35,8 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.formatter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -170,23 +169,22 @@ class EnterClaimControllerSpec
               .empty(exampleEori)
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes(0))))
+              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exciseDuty, Seq(exciseDuty.taxCodes(1))))
+              .getOrFail
 
-            val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
-            val updatedJourney = initialJourney.flatMap(
-              _.submitAmountForReimbursement(
+            val updatedJourney = initialJourney
+              .submitAmountForReimbursement(
                 customDuty,
                 customDuty.taxCodes(0),
-                reimbursement.paidAmount,
-                reimbursement.shouldOfPaid
+                reimbursement.shouldOfPaid,
+                reimbursement.paidAmount
               )
-            )
-
-            val updatedSession = session.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+              .getOrFail
 
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(initialSession)
-              mockStoreSession(updatedSession)(Right(()))
+              mockGetSession(SessionData(initialJourney))
+              mockStoreSession(SessionData(updatedJourney))(Right(()))
             }
 
             checkIsRedirect(
@@ -198,7 +196,7 @@ class EnterClaimControllerSpec
                   ): _*
                 )
               ),
-              routes.EnterClaimController.show(exciseDuty, exciseDuty.taxCodes(0))
+              routes.EnterClaimController.show(exciseDuty, exciseDuty.taxCodes(1))
             )
         }
       } // save user defined end

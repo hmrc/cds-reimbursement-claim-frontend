@@ -56,8 +56,8 @@ class SelectDutyCodesControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: SelectDutyCodesController = instanceOf[SelectDutyCodesController]
-  val selectDutyCodesKey: String            = "select-duty-codes"
+  val controller: SelectTaxCodesController = instanceOf[SelectTaxCodesController]
+  val selectDutyCodesKey: String           = "select-duty-codes"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -100,7 +100,7 @@ class SelectDutyCodesControllerSpec
           ),
           doc => {
             selectedCheckBox(doc) shouldBe empty
-            formAction(doc)       shouldBe routes.SelectDutyCodesController.submit(dutyType).url
+            formAction(doc)       shouldBe routes.SelectTaxCodesController.submit(dutyType).url
           }
         )
       }
@@ -214,7 +214,7 @@ class SelectDutyCodesControllerSpec
           controller.submit(customDuty)(
             FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> customDuty.taxCodes(0).value)
           ),
-          routes.SelectDutyCodesController.show(exciseDuty)
+          routes.SelectTaxCodesController.show(exciseDuty)
         )
       }
     }
