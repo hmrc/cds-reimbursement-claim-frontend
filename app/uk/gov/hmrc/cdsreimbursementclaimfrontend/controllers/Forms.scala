@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -223,6 +224,18 @@ object Forms {
         ).verifying("error.required", _.nonEmpty)
       )(identity)(Some(_))
     )
+
+  val enterScheduledClaimForm: Form[Reimbursement] = Form(
+    "enter-scheduled-claim" ->
+      mapping(
+        "paid-amount"   -> moneyMapping(13, 2, "error.invalid"),
+        "actual-amount" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
+      )(Reimbursement.apply)(Reimbursement.unapply)
+        .verifying(
+          "invalid.claim",
+          _.isValid
+        )
+  )
 
   val inspectionAddressTypeForm: Form[InspectionAddressType] =
     Form(

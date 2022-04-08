@@ -127,7 +127,6 @@ final class RejectedGoodsScheduledJourney private (
   ): Option[SortedMap[TaxCode, Option[Reimbursement]]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
-  //FIXME: remove if unused
   def getReimbursementFor(
     dutyType: DutyType,
     taxCode: TaxCode

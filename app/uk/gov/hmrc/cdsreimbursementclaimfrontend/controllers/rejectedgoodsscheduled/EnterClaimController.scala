@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
+import play.api.data.Form
+import play.api.data.FormError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.findDutyTypeAndTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import scala.collection.SortedMap
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -52,8 +51,7 @@ class EnterClaimController @Inject() (
 
         Ok(enterClaimPage(dutyType, taxCode, form, postAction))
 
-      case None =>
-        Redirect(routes.SelectDutyTypesController.show())
+      case None => Redirect(routes.SelectDutyTypesController.show())
     }).asFuture
   }
 
@@ -78,7 +76,9 @@ class EnterClaimController @Inject() (
             formWithErrors =>
               (
                 journey,
-                BadRequest(enterClaimPage(currentDuty, currentTaxCode, formWithErrors, postAction))
+                BadRequest(
+                  enterClaimPage(currentDuty, currentTaxCode, redirectVerificationMessage(formWithErrors), postAction)
+                )
               ),
             reimbursement =>
               journey
@@ -90,7 +90,7 @@ class EnterClaimController @Inject() (
                 )
                 .fold(
                   errors => {
-                    logger.error(s"Error updating tax codes selection - $errors")
+                    logger.error(s"Error updating reimbursement selection - $errors")
                     (
                       journey,
                       BadRequest(enterClaimPage(currentDuty, currentTaxCode, enterScheduledClaimForm, postAction))
@@ -115,6 +115,12 @@ class EnterClaimController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
+  def redirectVerificationMessage(formWithErrors: Form[Reimbursement]): Form[Reimbursement] = {
+    val errors: Seq[FormError] = formWithErrors.errors.map {
+      case formError if formError.messages.contains("invalid.claim") =>
+        formError.copy(key = s"${formError.key}.actual-amount")
+      case formError                                                 => formError
+    }
+    formWithErrors.copy(errors = errors)
+  }
 }
-
-object EnterClaimController {}

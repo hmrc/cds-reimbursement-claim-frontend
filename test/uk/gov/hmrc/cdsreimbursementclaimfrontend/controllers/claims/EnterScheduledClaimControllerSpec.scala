@@ -70,6 +70,7 @@ class EnterScheduledClaimControllerSpec
     )
 
   val controller: EnterScheduledClaimController = instanceOf[EnterScheduledClaimController]
+  val enterScheduledClaimKey: String            = "enter-scheduled-claim"
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)

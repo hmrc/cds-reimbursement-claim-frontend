@@ -76,7 +76,7 @@ class SelectDutyCodesController @Inject() (
                       case Some(nextDuty) => Redirect(routes.SelectDutyCodesController.show(nextDuty))
                       case None           =>
                         Redirect(
-                          routes.EnterClaimController.iterate()
+                          routes.EnterClaimController.showFirst()
                         )
                     }
                   )

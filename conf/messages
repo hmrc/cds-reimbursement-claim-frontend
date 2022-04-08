@@ -899,6 +899,7 @@ enter-scheduled-claim.paid-amount.error.invalid=Paid amount must be a number, li
 enter-scheduled-claim.actual-amount.error.required=Enter the amount that should have been paid, in pounds
 enter-scheduled-claim.actual-amount.error.invalid=Amount that should have been paid must be a number, like 30
 enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been paid must be lower than the amount paid
+enter-scheduled-claim.invalid.claim=The amount must be a number, like 30
 
 #===================================================
 #  ENTER MULTIPLE CLAIM PAGE

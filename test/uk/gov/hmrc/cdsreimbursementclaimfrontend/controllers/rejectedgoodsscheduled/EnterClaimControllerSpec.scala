@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -26,38 +25,30 @@ import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
+import play.api.test.Helpers.BAD_REQUEST
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.findDutyTypeAndTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.formatter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.genDutyWithRandomlySelectedTaxCodeAndReimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimControllerSpec.nextTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementGen.genReimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen.genTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import java.text.DecimalFormat
-import scala.collection.SortedMap
-import scala.collection.immutable.SortedMap
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -95,43 +86,18 @@ class EnterClaimControllerSpec
         status(controller.show(dutyType, taxCode)(FakeRequest())) shouldBe NOT_FOUND
     }
 
-    "redirect to the enter claim page" when {
+    "redirect to the select duty type page" when {
 
-      "the user has not answered this question before" in forAll(genDutyWithRandomlySelectedTaxCode) {
-        case (dutyType: DutyType, taxCode: TaxCode) =>
-          val initialJourney = RejectedGoodsScheduledJourney
-            .empty(exampleEori)
-            .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
-          val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(initialSession)
-          }
-
-          checkIsRedirect(
-            controller.iterate()(FakeRequest()),
-            routes.EnterClaimController.show(dutyType, taxCode)
-          )
-
-      } // not answered question before
-
-    } // redirect to  enter claim page
-
-    "redirect to the check claim page" when {
-
-      "the user has a complete reimbursement claim" in forAll(completeJourneyGen) { journey =>
-        val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Option(journey))
+      "the user has not chosen duty type or tax code" in {
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(initialSession)
+          mockGetSession(session)
         }
 
         checkIsRedirect(
-          controller.iterate()(FakeRequest()),
-          "/scheduled/check-claim"
+          controller.showFirst()(FakeRequest()),
+          routes.SelectDutyTypesController.show()
         )
 
       } // has complete claim
@@ -146,7 +112,7 @@ class EnterClaimControllerSpec
             .empty(exampleEori)
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
-          val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+          val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -154,9 +120,9 @@ class EnterClaimControllerSpec
           }
 
           checkPageIsDisplayed(
-            controller.show(dutyType, taxCode)(FakeRequest()),
+            controller.showFirst()(FakeRequest()),
             messageFromMessageKey(
-              messageKey = s"$enterScheduledClaimKey.title",
+              messageKey = s"$enterClaimKey.title",
               messages(s"duty-type.${dutyType.repr}"),
               taxCode.value
             )
@@ -181,7 +147,7 @@ class EnterClaimControllerSpec
         checkPageIsDisplayed(
           controller.show(dutyType, taxCode)(FakeRequest()),
           messageFromMessageKey(
-            messageKey = s"$enterScheduledClaimKey.title",
+            messageKey = s"$enterClaimKey.title",
             messages(s"duty-type.${dutyType.repr}"),
             taxCode.value
           ),
@@ -204,10 +170,10 @@ class EnterClaimControllerSpec
               .empty(exampleEori)
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes(0))))
-            val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
 
-            val updatedJourney = initialJourney.flatMap(journey =>
-              journey.submitAmountForReimbursement(
+            val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+            val updatedJourney = initialJourney.flatMap(
+              _.submitAmountForReimbursement(
                 customDuty,
                 customDuty.taxCodes(0),
                 reimbursement.paidAmount,
@@ -215,19 +181,20 @@ class EnterClaimControllerSpec
               )
             )
 
-            val updatedSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+            val updatedSession = session.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
 
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(updatedSession)
+              mockGetSession(initialSession)
+              mockStoreSession(updatedSession)(Right(()))
             }
 
             checkIsRedirect(
-              controller.submit(exciseDuty, exciseDuty.taxCodes(0))(
+              controller.submit(customDuty, customDuty.taxCodes(0))(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterScheduledClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
-                    s"$enterScheduledClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
+                    s"$enterClaimKey.paid-amount"   -> reimbursement.paidAmount.toString,
+                    s"$enterClaimKey.actual-amount" -> reimbursement.shouldOfPaid.toString
                   ): _*
                 )
               ),
@@ -235,6 +202,115 @@ class EnterClaimControllerSpec
             )
         }
       } // save user defined end
+
+      "save user defined amounts and redirect to the next page" in {
+        forAll(Gen.oneOf(DutyTypes.custom), genReimbursement) { (dutyType, reimbursement) =>
+          val initialJourney = RejectedGoodsScheduledJourney
+            .empty(exampleEori)
+            .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(dutyType.taxCodes(0))))
+
+          val initialSession = session.copy(rejectedGoodsScheduledJourney = initialJourney.toOption)
+
+          val updatedJourney = initialJourney.flatMap(
+            _.submitAmountForReimbursement(
+              dutyType,
+              dutyType.taxCodes(0),
+              reimbursement.paidAmount,
+              reimbursement.shouldOfPaid
+            )
+          )
+
+          val updatedSession = initialSession.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(initialSession)
+            mockStoreSession(updatedSession)(Right(()))
+          }
+
+          checkIsRedirect(
+            controller.submit(dutyType, dutyType.taxCodes(0))(
+              FakeRequest().withFormUrlEncodedBody(
+                Seq(
+                  s"$enterClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
+                  s"$enterClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
+                ): _*
+              )
+            ),
+            "/rejected-goods/scheduled/check-claim" //FIXME: routes.CheckClaimController.show()
+          )
+        }
+      }
+
+      "show an error summary" when {
+        "duty amounts are missing or invalid" in forAll(genDutyWithRandomlySelectedTaxCode) {
+          case (dutyType: DutyType, taxCode: TaxCode) =>
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+            }
+
+            checkPageIsDisplayed(
+              controller.submit(dutyType, taxCode)(
+                FakeRequest().withFormUrlEncodedBody(
+                  Seq(
+                    s"$enterClaimKey.paid-amount"   -> "",
+                    s"$enterClaimKey.actual-amount" -> "bad"
+                  ): _*
+                )
+              ),
+              messageFromMessageKey(
+                messageKey = s"$enterClaimKey.title",
+                messages(s"duty-type.${dutyType.repr}"),
+                taxCode.value
+              ),
+              doc => {
+                doc
+                  .select(".govuk-error-summary__list > li:nth-child(1) > a")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.paid-amount.error.required")
+                doc
+                  .select(".govuk-error-summary__list > li:nth-child(2) > a")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.error.invalid")
+              },
+              BAD_REQUEST
+            )
+        } // duty amounts are missing
+
+        "actual amount is greater or equal to paid amount" in {
+          forAll(genDuty, genTaxCode, genReimbursement) { (duty, taxCode, reimbursement) =>
+            val paidAmount   = reimbursement.paidAmount
+            val actualAmount = reimbursement.shouldOfPaid + paidAmount
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+            }
+
+            checkPageIsDisplayed(
+              controller.submit(duty, taxCode)(
+                FakeRequest().withFormUrlEncodedBody(
+                  Seq(
+                    s"$enterClaimKey.paid-amount"   -> paidAmount.toString,
+                    s"$enterClaimKey.actual-amount" -> actualAmount.toString
+                  ): _*
+                )
+              ),
+              messageFromMessageKey(
+                messageKey = s"$enterClaimKey.title",
+                messages(s"duty-type.${duty.repr}"),
+                taxCode.value
+              ),
+              doc =>
+                doc
+                  .select(".govuk-error-summary__list > li:nth-child(1) > a")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.invalid.claim"),
+              BAD_REQUEST
+            )
+          }
+        } // actual amount
+
+      } // show an error summary when
 
     } // submit end
 
