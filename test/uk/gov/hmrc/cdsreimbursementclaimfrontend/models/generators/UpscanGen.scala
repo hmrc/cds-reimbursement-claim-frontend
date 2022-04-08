@@ -27,11 +27,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.Up
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import java.time.ZonedDateTime
+import java.time.ZoneOffset
 
 object UpscanGen extends OptionValues {
 
   def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
-    Arbitrary(Gen.listOfN(n, arbitraryUploadDocument.arbitrary).map(NonEmptyList.fromList))
+    Arbitrary(Gen.listOfN(n, arbitraryUploadedFile.arbitrary).map(NonEmptyList.fromList))
 
   lazy val genEvidenceDocumentType: Gen[UploadDocumentType] =
     Gen.oneOf(UploadDocumentType.c285EvidenceTypes)
@@ -61,28 +64,28 @@ object UpscanGen extends OptionValues {
   implicit lazy val arbitrarySupportingEvidencesAnswerOpt: Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
 
-  implicit lazy val arbitraryUploadDocument: Typeclass[UploadDocument] = Arbitrary {
+  implicit lazy val arbitraryUploadedFile: Typeclass[UploadedFile] = Arbitrary {
     for {
-      uploadReference  <- gen[UploadReference].arbitrary
-      upscanUploadMeta <- arbitraryUpscanUploadMeta.arbitrary
-      uploadedOn       <- genLocalDateTime
-      upscanSuccess    <- arbitraryUpscanSuccess.arbitrary
-      name             <- genStringWithMaxSizeOfN(6)
-      extension        <- Gen.oneOf("pdf", "doc", "csv")
-      documentType     <- arbitrarySupportingEvidenceDocumentType.arbitrary
-    } yield UploadDocument(
-      uploadReference = uploadReference,
-      upscanUploadMeta = upscanUploadMeta,
-      uploadedOn = uploadedOn,
-      upscanSuccess = upscanSuccess,
+      uploadReference <- gen[UploadReference].arbitrary
+      upscanSuccess   <- arbitraryUpscanSuccess.arbitrary
+      name            <- genStringWithMaxSizeOfN(6)
+      extension       <- Gen.oneOf("pdf", "doc", "csv")
+      documentType    <- arbitrarySupportingEvidenceDocumentType.arbitrary
+    } yield UploadedFile(
+      upscanReference = uploadReference.value,
+      downloadUrl = upscanSuccess.downloadUrl,
+      uploadTimestamp = ZonedDateTime.ofInstant(upscanSuccess.uploadDetails.uploadTimestamp, ZoneOffset.UTC),
+      checksum = upscanSuccess.uploadDetails.checksum,
       fileName = s"$name.$extension",
-      documentType = Some(documentType)
+      fileMimeType = upscanSuccess.uploadDetails.fileMimeType,
+      fileSize = Some(upscanSuccess.uploadDetails.size),
+      cargo = Some(documentType)
     )
   }
 
   lazy val genScheduledDocument: Gen[ScheduledDocumentAnswer] =
-    arbitraryUploadDocument.arbitrary.map(doc =>
-      ScheduledDocumentAnswer(doc.copy(documentType = Some(UploadDocumentType.ScheduleOfMRNs)))
+    arbitraryUploadedFile.arbitrary.map(doc =>
+      ScheduledDocumentAnswer(doc.copy(cargo = Some(UploadDocumentType.ScheduleOfMRNs)))
     )
 
   implicit lazy val arbitraryScheduledDocumentAnswer: Typeclass[ScheduledDocumentAnswer] =

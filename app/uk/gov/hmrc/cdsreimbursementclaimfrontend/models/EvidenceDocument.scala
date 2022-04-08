@@ -21,7 +21,6 @@ import cats.Eq
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 final case class EvidenceDocument(
   checksum: String,
@@ -34,17 +33,6 @@ final case class EvidenceDocument(
 )
 
 object EvidenceDocument {
-
-  def from(uploadedDocument: UploadDocument): EvidenceDocument =
-    EvidenceDocument(
-      checksum = uploadedDocument.upscanSuccess.uploadDetails.checksum,
-      downloadUrl = uploadedDocument.upscanSuccess.downloadUrl,
-      fileName = uploadedDocument.fileName,
-      fileMimeType = uploadedDocument.upscanSuccess.uploadDetails.fileMimeType,
-      size = uploadedDocument.upscanSuccess.uploadDetails.size,
-      uploadedOn = uploadedDocument.uploadedOn,
-      documentType = uploadedDocument.documentType.getOrElse(UploadDocumentType.Other)
-    )
 
   def from(uploadedFile: UploadedFile): EvidenceDocument =
     EvidenceDocument(
