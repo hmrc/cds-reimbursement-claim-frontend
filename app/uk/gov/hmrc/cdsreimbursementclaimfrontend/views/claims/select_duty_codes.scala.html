@@ -25,6 +25,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -66,7 +67,7 @@
 
         @checkboxes(
             field = form(s"$key"),
-            legend = messages(s"duty-type.${dutyType.repr}"),
+            legend = HtmlContent(messages(s"duty-type.${dutyType.repr}")),
             items = options
         )
 

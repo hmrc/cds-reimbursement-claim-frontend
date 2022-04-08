@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import cats.data.NonEmptyList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -49,7 +50,7 @@
             name = Some(s"$key[]"),
             value = duty.taxCode.value,
             content = Text(duty.taxCode.value + " - " + messages(s"$key.duty.${duty.taxCode.value}")),
-            hint = if(isCmaEligible) None else Some(Hint(content = Text(messages(s"$key.duty.hint")))),
+            hint = if(isCmaEligible) None else Some(Hint(content = HtmlContent(messages(s"$key.duty.hint")))),
             checked = form.data.exists(_._2 == duty.taxCode.value)
         )
     }}
@@ -67,7 +68,7 @@
             @checkboxes(
                 field = form(s"$key"),
                 legendAsHeading = false,
-                legend = title,
+                legend = HtmlContent(title),
                 items = options.toList,
                 hint = None
             )

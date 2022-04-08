@@ -240,9 +240,9 @@ enter-associated-mrn.error.missing-declaration=This <abbr title="Movement Refere
 #===================================================
 check-movement-reference-numbers.title=All the <abbr title="Movement Reference Numbers">MRNs</abbr> entered in this claim
 check-movement-reference-numbers.help-text=These are the <abbr title="Movement Reference Numbers">MRNs</abbr> that you have added so far. You can add more if you wish.
-check-movement-reference-numbers.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
+check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
 check-movement-reference-numbers.error.invalid=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
-check-movement-reference-numbers.error.required=Select yes if you want to add another MRN
+check-movement-reference-numbers.error.required=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS - REJECTED GOODS
@@ -251,9 +251,9 @@ check-movement-reference-numbers.rejected-goods.title=All the <abbr title="Movem
 check-movement-reference-numbers.rejected-goods.help-text=These are the <abbr title="Movement Reference Numbers">MRNs</abbr> that you have added so far. You can add more if you wish.
 check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
-check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
+check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another MRN?
 check-movement-reference-numbers.rejected-goods.error.invalid=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
-check-movement-reference-numbers.rejected-goods.error.required=Select yes if you want to add another MRN
+check-movement-reference-numbers.rejected-goods.error.required=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
 
 #===================================================
 #  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
@@ -1132,7 +1132,7 @@ supporting-evidence.error.invalid-document-type=Invalid supporting evidence docu
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
 schedule-document.upload.title=Add a document which shows all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim
-schedule-document.upload.help-text=Upload a list of all M<abbr title="Movement Reference Numbers">MRNs</abbr>Ns in this claim, known as a scheduled document. This document can be up to {0} and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
+schedule-document.upload.help-text=Upload a list of all <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim, known as a scheduled document. This document can be up to {0} and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
 schedule-document.upload.things-to-show.p1=The document should show:
 schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.things-to-show.l2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>

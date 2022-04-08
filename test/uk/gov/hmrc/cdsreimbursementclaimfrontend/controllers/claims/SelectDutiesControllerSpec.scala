@@ -240,7 +240,7 @@ class SelectDutiesControllerSpec
         }
 
         val hintText =
-          Some("This duty is not eligible for <abbr title=\"Current Month Adjustment\">CMA</abbr> reimbursement")
+          Some("This duty is not eligible for CMA reimbursement")
 
         checkPageIsDisplayed(
           performAction(),
