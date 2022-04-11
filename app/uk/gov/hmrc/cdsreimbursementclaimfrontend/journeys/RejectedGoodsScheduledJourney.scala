@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
@@ -47,7 +46,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
-import scala.collection.immutable.ListMap
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 scheduled MRN journey logic.
@@ -96,26 +94,53 @@ final class RejectedGoodsScheduledJourney private (
   def getSelectedDutyTypes: Option[Seq[DutyType]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
 
-  def getSelectedDuties: Map[DutyType, Seq[TaxCode]] =
-    answers.reimbursementClaims.map(_.mapValues(_.keys.toSeq)).getOrElse(Map.empty)
+  def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
+    answers.reimbursementClaims.map(_.mapValues(_.keys.toSeq)).getOrElse(SortedMap.empty)
 
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
 
-  private val dutyTypesRankMap: ListMap[DutyType, Int]                = ListMap(DutyTypes.all.zipWithIndex: _*)
-  def findNextSelectedDutyAfter(previous: DutyType): Option[DutyType] =
-    DutyTypes.all
-      .drop(dutyTypesRankMap(previous) + 1)
-      .find(duty => getSelectedDutyTypes.getOrElse(Seq.empty).contains(duty))
+  private def nextAfter[A](item: A)(seq: Seq[A]): Option[A] = {
+    val i = seq.indexOf(item)
+    if (i === -1) None
+    else if (i === seq.size - 1) None
+    else Some(seq(i + 1))
+  }
+
+  def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
+    getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
+
+  def findNextSelectedTaxCodeAfter(dutyType: DutyType, taxCode: TaxCode): Option[(DutyType, TaxCode)] =
+    getSelectedDutiesFor(dutyType).flatMap(nextAfter(taxCode) _) match {
+      case Some(taxCode) => Some((dutyType, taxCode))
+      case None          =>
+        findNextSelectedDutyAfter(dutyType)
+          .flatMap(dt =>
+            getSelectedDutiesFor(dt)
+              .flatMap(_.headOption)
+              .map(tc => (dt, tc))
+          )
+    }
+
+  def findNextDutyToSelectTaxCodes: Option[DutyType] =
+    answers.reimbursementClaims.flatMap(_.find(_._2.isEmpty).map(_._1))
 
   def getReimbursementClaimsFor(
     dutyType: DutyType
   ): Option[SortedMap[TaxCode, Option[Reimbursement]]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
-  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean                  =
+  def getReimbursementFor(
+    dutyType: DutyType,
+    taxCode: TaxCode
+  ): Option[Reimbursement] =
+    getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
+
+  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
     answers.reimbursementClaims
       .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
+
+  val isDutyTypeSelected: Boolean                                   = answers.reimbursementClaims.exists(_.nonEmpty)
 
   def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]] =
     answers.reimbursementClaims

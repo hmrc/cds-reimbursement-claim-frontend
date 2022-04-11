@@ -21,9 +21,9 @@ import cats.syntax.all._
 import com.google.inject.Inject
 import play.api.data.Form
 import play.api.data.FormError
-import play.api.data.Forms.mapping
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
@@ -45,7 +45,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -93,6 +92,7 @@ class EnterScheduledClaimController @Inject() (
   def enterClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
+        val postAction: Call = claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, dutyCode)
         Ok(
           enterScheduledClaimPage(
             dutyType,
@@ -100,7 +100,8 @@ class EnterScheduledClaimController @Inject() (
             maybeAnswer
               .map(_.value(dutyType)(dutyCode))
               .filter(!_.isUnclaimed)
-              .foldLeft(enterScheduledClaimForm)((form, answer) => form.fill(answer))
+              .foldLeft(enterScheduledClaimForm)((form, answer) => form.fill(answer)),
+            postAction
           )
         )
       }
@@ -109,6 +110,7 @@ class EnterScheduledClaimController @Inject() (
   def submitClaim(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
+        val postAction: Call                                             = claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, taxCode)
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) =
           updateSession(sessionCache, request)(
             _.copy(journeyStatus =
@@ -120,7 +122,9 @@ class EnterScheduledClaimController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              BadRequest(enterScheduledClaimPage(dutyType, taxCode, redirectVerificationMessage(formWithErrors))),
+              BadRequest(
+                enterScheduledClaimPage(dutyType, taxCode, redirectVerificationMessage(formWithErrors), postAction)
+              ),
             claim =>
               EitherT
                 .fromOption[Future](
@@ -153,21 +157,4 @@ class EnterScheduledClaimController @Inject() (
     }
     formWithErrors.copy(errors = errors)
   }
-}
-
-object EnterScheduledClaimController {
-
-  val enterScheduledClaimKey: String = "enter-scheduled-claim"
-
-  val enterScheduledClaimForm: Form[Reimbursement] = Form(
-    enterScheduledClaimKey ->
-      mapping(
-        "paid-amount"   -> moneyMapping(13, 2, "error.invalid"),
-        "actual-amount" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
-      )(Reimbursement.apply)(Reimbursement.unapply)
-        .verifying(
-          "invalid.claim",
-          _.isValid
-        )
-  )
 }
