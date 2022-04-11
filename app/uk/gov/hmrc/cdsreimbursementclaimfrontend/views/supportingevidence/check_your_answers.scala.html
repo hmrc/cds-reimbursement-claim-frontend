@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -74,7 +75,7 @@
                         }
                     </dt>
                     <dd class="govuk-summary-list__actions">
-                        @defining(routes.SupportingEvidenceController.deleteSupportingEvidence(journey, evidence.uploadReference, addNew = false).url) { changeUrl =>
+                        @defining(routes.SupportingEvidenceController.deleteSupportingEvidence(journey, UploadReference(evidence.upscanReference), addNew = false).url) { changeUrl =>
                             <a class="govuk-link" href=@changeUrl>
                                 @{messages(s"cya.remove")}
                             </a>

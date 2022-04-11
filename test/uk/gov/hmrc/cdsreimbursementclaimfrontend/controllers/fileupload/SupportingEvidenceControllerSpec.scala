@@ -23,9 +23,9 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import play.api.test.Helpers.redirectLocation
 import play.api.test.Helpers.status
-import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.checkYourAnswersDataKey
@@ -179,7 +179,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
       "display the page" when {
 
         val uploadReference    = sample[UploadReference]
-        val supportingEvidence = sample[UploadDocument].copy(documentType = None)
+        val supportingEvidence = sample[UploadedFile].copy(cargo = None)
         val answer             = List(supportingEvidence).toNel
 
         "a user has not answered the question before" in {
@@ -200,7 +200,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey = sample[JourneyBindable]
 
           val supportingEvidence =
-            sample[UploadDocument].copy(documentType = Some(UploadDocumentType.CorrespondenceTrader))
+            sample[UploadedFile].copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))
 
           val answer = List(supportingEvidence).toNel
 
@@ -264,14 +264,14 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
         "an error caught on session update" in {
           val journeyBindable    = sample[JourneyBindable]
-          val supportingEvidence = sample[UploadDocument].copy(documentType = None)
+          val supportingEvidence = sample[UploadedFile].copy(cargo = None)
           val documentType       = sample[UploadDocumentType]
           val answer             = List(supportingEvidence).toNel
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
           val updatedSupportingEvidence = supportingEvidence.copy(
-            documentType = Some(documentType)
+            cargo = Some(documentType)
           )
 
           val updatedAnswer               = List(updatedSupportingEvidence).toNel
@@ -297,13 +297,13 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
         "document type is successfully selected" in {
           val journeyBindable    = sample[JourneyBindable]
-          val supportingEvidence = sample[UploadDocument].copy(documentType = None)
+          val supportingEvidence = sample[UploadedFile].copy(cargo = None)
           val documentType       = sample[UploadDocumentType]
           val answer             = List(supportingEvidence).toNel
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
-          val updatedSupportingEvidence = supportingEvidence.copy(documentType = Some(documentType))
+          val updatedSupportingEvidence = supportingEvidence.copy(cargo = Some(documentType))
           val updatedAnswer             = List(updatedSupportingEvidence).toNel
 
           val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
@@ -336,7 +336,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
         "removing already stored evidence" in {
           val journeyBindable    = sample[JourneyBindable]
-          val supportingEvidence = sample[UploadDocument]
+          val supportingEvidence = sample[UploadedFile]
           val answers            = List(supportingEvidence).toNel
 
           val (session, journey, draftClaim) = sessionWithClaimState(answers)
@@ -392,7 +392,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
         "update session fails" in {
           val journeyBindable = sample[JourneyBindable]
-          val evidence        = sample[UploadDocument]
+          val evidence        = sample[UploadedFile]
           val answer          = List(evidence).toNel
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
@@ -421,12 +421,11 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
         "update of draft claim fails" in {
           val journeyBindable    = sample[JourneyBindable]
-          val supportingEvidence = sample[UploadDocument].copy(documentType = None)
+          val supportingEvidence = sample[UploadedFile].copy(cargo = None)
           val uploadReference    = supportingEvidence.uploadReference
 
           val uploadDetails        = sample[UploadDetails].copy(fileName = supportingEvidence.fileName)
-          val updatedUpscanSuccess =
-            supportingEvidence.upscanSuccess.copy(uploadDetails = uploadDetails)
+          val updatedUpscanSuccess = sample[UpscanSuccess].copy(uploadDetails = uploadDetails)
 
           val upscanUpload = genUpscanUpload(uploadReference).copy(upscanCallBack = Some(updatedUpscanSuccess))
 
@@ -434,14 +433,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
-          val newSupportingEvidence = UploadDocument(
-            upscanUpload.uploadReference,
-            upscanUpload.upscanUploadMeta,
-            upscanUpload.uploadedOn,
-            updatedUpscanSuccess,
-            updatedUpscanSuccess.fileName,
-            None
-          )
+          val newSupportingEvidence = UploadedFile.from(uploadReference, updatedUpscanSuccess)
 
           val updatedAnswer = answer.map(_ :+ newSupportingEvidence) orElse List(newSupportingEvidence).toNel
 
@@ -515,28 +507,30 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
       "discard adding duplicate evidence with the same reference" when {
 
         "user revisits page" in {
-          val journey  = sample[JourneyBindable]
-          val evidence = sample[UploadDocument]
-          val answers  = List(evidence).toNel
+          val journey         = sample[JourneyBindable]
+          val uploadReference = sample[UploadReference]
+          val upscanSuccess   = sample[UpscanSuccess].copy(reference = uploadReference.value)
 
           val upscanUpload =
             sample[UpscanUpload].copy(
-              uploadReference = evidence.uploadReference,
-              upscanCallBack = Some(evidence.upscanSuccess)
+              uploadReference = uploadReference,
+              upscanCallBack = Some(upscanSuccess)
             )
+
+          val answers = List(UploadedFile.from(uploadReference, upscanSuccess)).toNel
 
           val (session, _, _) = sessionWithClaimState(answers)
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockGetUpscanUpload(evidence.uploadReference)(Right(upscanUpload))
+            mockGetUpscanUpload(uploadReference)(Right(upscanUpload))
           }
 
           checkIsRedirect(
-            performAction(journey, evidence.uploadReference),
+            performAction(journey, uploadReference),
             routes.SupportingEvidenceController
-              .chooseSupportingEvidenceDocumentType(journey, evidence.uploadReference)
+              .chooseSupportingEvidenceDocumentType(journey, uploadReference)
           )
         }
       }
@@ -560,14 +554,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
               upscanCallBack = Some(updatedUpscanSuccess)
             )
 
-          val newSupportingEvidence = UploadDocument(
-            upscanUpload.uploadReference,
-            upscanUpload.upscanUploadMeta,
-            upscanUpload.uploadedOn,
-            updatedUpscanSuccess,
-            updatedUpscanSuccess.fileName,
-            None
-          )
+          val newSupportingEvidence = UploadedFile.from(uploadReference, updatedUpscanSuccess)
 
           val updatedAnswer = answer.map(_ :+ newSupportingEvidence) orElse List(newSupportingEvidence).toNel
 
@@ -596,7 +583,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey            = sample[JourneyBindable]
           val uploadReference    = sample[UploadReference]
           val supportingEvidence =
-            sample[UploadDocument].copy(uploadReference = uploadReference)
+            sample[UploadedFile].copy(upscanReference = uploadReference.value)
 
           val upscanUpload =
             sample[UpscanUpload]
@@ -630,7 +617,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey            = sample[JourneyBindable]
           val uploadReference    = sample[UploadReference]
           val supportingEvidence =
-            sample[UploadDocument].copy(uploadReference = uploadReference)
+            sample[UploadedFile].copy(upscanReference = uploadReference.value)
 
           val upscanFailure = sample[UpscanFailure]
 
