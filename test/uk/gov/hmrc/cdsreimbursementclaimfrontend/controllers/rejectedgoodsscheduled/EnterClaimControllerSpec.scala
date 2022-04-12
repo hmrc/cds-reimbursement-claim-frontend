@@ -303,10 +303,10 @@ class EnterClaimControllerSpec
             )
         }
 
-        "actual amount is greater or equal to paid amount" in {
+        "claim amount is greater than paid amount" in {
           forAll(genDuty, genTaxCode, genReimbursement) { (duty, taxCode, reimbursement) =>
             val paidAmount   = reimbursement.paidAmount
-            val actualAmount = reimbursement.claimAmount + paidAmount
+            val claimAmount = reimbursement.claimAmount + paidAmount
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -318,7 +318,7 @@ class EnterClaimControllerSpec
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
                     s"$enterClaimKey.paid-amount"  -> paidAmount.toString,
-                    s"$enterClaimKey.claim-amount" -> actualAmount.toString
+                    s"$enterClaimKey.claim-amount" -> claimAmount.toString
                   ): _*
                 )
               ),
