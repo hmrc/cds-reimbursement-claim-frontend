@@ -68,6 +68,7 @@ POST         /rejected-goods/single/choose-file-type                            
 GET          /rejected-goods/single/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.UploadFilesController.show()
 +nocsrf
 POST         /rejected-goods/single/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.UploadFilesController.submit()
+GET          /rejected-goods/single/upload-summary                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.UploadFilesController.summary()
 
 POST         /rejected-goods/single/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.submit()
 GET          /rejected-goods/single/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckYourAnswersController.showConfirmation()

@@ -49,7 +49,7 @@ class UploadFilesControllerSpec
 
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
 
-  val expectedUploadDocumentsLocation: String = "/upload-files"
+  val expectedUploadDocumentsLocation: String = "http://localhost:10100/foo/upload-files"
 
   def mockInitializeCall(existingFiles: Seq[UploadedFile] = Seq.empty) =
     (mockUploadDocumentsConnector
@@ -101,7 +101,7 @@ class UploadFilesControllerSpec
 
         checkIsRedirect(
           performAction(),
-          Call("GET", s"http://localhost:10100$expectedUploadDocumentsLocation")
+          Call("GET", s"$expectedUploadDocumentsLocation")
         )
       }
 
@@ -124,7 +124,7 @@ class UploadFilesControllerSpec
 
         checkIsRedirect(
           performAction(),
-          Call("GET", s"http://localhost:10100$expectedUploadDocumentsLocation")
+          Call("GET", s"$expectedUploadDocumentsLocation")
         )
       }
 
@@ -142,7 +142,7 @@ class UploadFilesControllerSpec
 
           checkIsRedirect(
             performAction(),
-            Call("GET", s"http://localhost:10100$expectedUploadDocumentsLocation")
+            Call("GET", s"$expectedUploadDocumentsLocation")
           )
         }
       }

@@ -128,7 +128,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
           checkPageIsDisplayed(
             controller.review()(FakeRequest()),
-            messageFromMessageKey("schedule-document.review.title")
+            messageFromMessageKey("schedule-document.check-your-answers.title")
           )
         }
       }
@@ -214,7 +214,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
               FakeRequest()
             ),
             messageFromMessageKey(
-              "schedule-document.format-virus-fail.title"
+              "schedule-document.scan-failed.title"
             )
           )
         }

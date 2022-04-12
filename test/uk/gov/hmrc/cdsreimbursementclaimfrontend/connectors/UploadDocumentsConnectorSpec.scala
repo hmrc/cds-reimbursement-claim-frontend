@@ -72,7 +72,7 @@ class UploadDocumentsConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new UploadDocumentsConnectorImpl(
+    new ExternalUploadDocumentsConnector(
       mockHttp,
       new UploadDocumentsConfig(new ServicesConfig(config), config),
       config,
@@ -133,7 +133,7 @@ class UploadDocumentsConnectorSpec
     )
 
   val initializationRequest: UploadDocumentsConnector.Request =
-    UploadDocumentsConnector.Request(uploadDocumentsParameters, Seq.empty)
+    UploadDocumentsConnector.Request(uploadDocumentsParameters, Seq.empty, None)
 
   val givenInitializationCallReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
     mockPost(
@@ -141,7 +141,8 @@ class UploadDocumentsConnectorSpec
       Seq.empty,
       UploadDocumentsConnector.Request(
         uploadDocumentsParameters,
-        Seq.empty
+        Seq.empty,
+        None
       )
     ) _
 
@@ -163,7 +164,7 @@ class UploadDocumentsConnectorSpec
       connector.uploadDocumentsConfig.retryIntervals shouldBe Seq(FiniteDuration(15, "ms"), FiniteDuration(30, "ms"))
     }
 
-    "return caseNumber when successful call" in {
+    "return redirect URL when successful call" in {
       givenInitializationCallReturns(Some(HttpResponse(201, "", responseHeaders))).once()
       await(connector.initialize(initializationRequest)) shouldBe expectedResponse
     }

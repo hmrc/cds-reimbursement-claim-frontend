@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 
+import cats.syntax.eq._
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -39,6 +40,10 @@ trait SessionCache {
   ): Future[Either[Error, Option[SessionData]]]
 
   def store(sessionData: SessionData)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Unit]]
+
+  def update(sessionDataUpdate: SessionData => SessionData)(implicit
     hc: HeaderCarrier
   ): Future[Either[Error, Unit]]
 
@@ -87,6 +92,33 @@ class DefaultSessionCache @Inject() (
           Left(
             Error("no session id found in headers - cannot store data in mongo")
           )
+        )
+    }
+
+  def update(modify: SessionData => SessionData)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Unit]] =
+    hc.sessionId.map(_.value) match {
+      case Some(sessionId) ⇒
+        get[SessionData](sessionId).flatMap {
+          case Right(Some(value)) =>
+            val newSessionData = modify(value)
+            if (newSessionData =!= value)
+              store(sessionId, newSessionData)
+            else
+              Future.successful(Right(()))
+
+          case Right(None) =>
+            Future.successful(
+              Left(Error("no session found in mongo"))
+            )
+
+          case Left(error) =>
+            Future.successful(Left(error))
+        }
+      case None =>
+        Future.successful(
+          Left(Error("no session id found in headers - cannot query mongo"))
         )
     }
 
