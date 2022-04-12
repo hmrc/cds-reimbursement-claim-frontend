@@ -879,7 +879,7 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
         val totalReimbursementAmount = journey.getTotalReimbursementAmount
         val totalPaidAmount          = journey.getTotalPaidAmount
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, Reimbursement(pa, ra)) =>
+          tca.foreach { case (taxCode, ReimbursementRejectedGoods(pa, ra)) =>
             val modifiedJourney =
               journey.submitAmountForReimbursement(dutyType, taxCode, ra * 0.7, pa * 0.85).getOrFail
 
@@ -900,7 +900,7 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
             .getOrElse(???)
 
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (_, Reimbursement(pa, ra)) =>
+          tca.foreach { case (_, ReimbursementRejectedGoods(pa, ra)) =>
             val result =
               journey.submitAmountForReimbursement(dutyType, taxCodeNotSelected(dutyType), ra, pa)
             result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
@@ -912,7 +912,7 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
     "reject change to invalid amount for valid selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, Reimbursement(pa, _)) =>
+          tca.foreach { case (taxCode, ReimbursementRejectedGoods(pa, _)) =>
             val result1 =
               journey.submitAmountForReimbursement(dutyType, taxCode, pa + 0.01, pa)
             result1 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")

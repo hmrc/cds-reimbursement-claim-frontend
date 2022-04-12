@@ -25,9 +25,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimRejectedGoodsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,7 +37,7 @@ import scala.concurrent.Future
 @Singleton
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterClaimPage: pages.enter_scheduled_claim
+  enterClaimPage: pages.enter_claim_scheduled
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
@@ -47,9 +47,9 @@ class EnterClaimController @Inject() (
         (journey.getSelectedDuties.headOption
           .flatMap { case (dt, tcs) => tcs.headOption.map(tc => (dt, tc)) } match {
           case Some((dutyType, taxCode)) =>
-            val postAction: Call                          = routes.EnterClaimController.submit(dutyType, taxCode)
-            val maybeReimbursement: Option[Reimbursement] = journey.getReimbursementFor(dutyType, taxCode)
-            val form                                      = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
+            val postAction: Call                                       = routes.EnterClaimController.submit(dutyType, taxCode)
+            val maybeReimbursement: Option[ReimbursementRejectedGoods] = journey.getReimbursementFor(dutyType, taxCode)
+            val form                                                   = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
 
             Ok(enterClaimPage(dutyType, taxCode, form, postAction))
 
@@ -65,9 +65,9 @@ class EnterClaimController @Inject() (
     implicit request => journey =>
       journey.findNextDutyToSelectTaxCodes match {
         case None =>
-          val postAction: Call                          = routes.EnterClaimController.submit(dutyType, taxCode)
-          val maybeReimbursement: Option[Reimbursement] = journey.getReimbursementFor(dutyType, taxCode)
-          val form                                      = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
+          val postAction: Call                                       = routes.EnterClaimController.submit(dutyType, taxCode)
+          val maybeReimbursement: Option[ReimbursementRejectedGoods] = journey.getReimbursementFor(dutyType, taxCode)
+          val form                                                   = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
 
           Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
 
@@ -104,7 +104,7 @@ class EnterClaimController @Inject() (
                     .submitAmountForReimbursement(
                       currentDuty,
                       currentTaxCode,
-                      reimbursement.shouldOfPaid,
+                      reimbursement.claimAmount,
                       reimbursement.paidAmount
                     )
                     .fold(
@@ -145,7 +145,9 @@ class EnterClaimController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  def redirectVerificationMessage(formWithErrors: Form[Reimbursement]): Form[Reimbursement] = {
+  def redirectVerificationMessage(
+    formWithErrors: Form[ReimbursementRejectedGoods]
+  ): Form[ReimbursementRejectedGoods] = {
     val errors: Seq[FormError] = formWithErrors.errors.map {
       case formError if formError.messages.contains("invalid.claim") =>
         formError.copy(key = s"${formError.key}.claim-amount")

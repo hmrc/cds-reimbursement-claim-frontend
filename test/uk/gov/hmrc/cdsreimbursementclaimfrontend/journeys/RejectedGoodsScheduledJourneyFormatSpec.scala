@@ -21,13 +21,14 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
-
 import RejectedGoodsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+
 import scala.collection.immutable.SortedMap
 
 class RejectedGoodsScheduledJourneyFormatSpec
@@ -51,11 +52,11 @@ class RejectedGoodsScheduledJourneyFormatSpec
           reimbursementClaims = Some(
             SortedMap(
               DutyType.UkDuty -> (SortedMap(
-                TaxCode.A00 -> Some(Reimbursement(BigDecimal("21.00"), BigDecimal("12.99"))),
+                TaxCode.A00 -> Some(ReimbursementRejectedGoods(BigDecimal("21.00"), BigDecimal("12.99"))),
                 TaxCode.A40 -> None
               )),
               DutyType.EuDuty -> (SortedMap(
-                TaxCode.A50 -> Some(Reimbursement(BigDecimal("12.99"), BigDecimal("1.01"))),
+                TaxCode.A50 -> Some(ReimbursementRejectedGoods(BigDecimal("12.99"), BigDecimal("1.01"))),
                 TaxCode.A70 -> None
               ))
             )

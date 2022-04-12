@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -237,12 +238,12 @@ object Forms {
         )
   )
 
-  val enterScheduledClaimRejectedGoodsForm: Form[Reimbursement] = Form(
+  val enterScheduledClaimRejectedGoodsForm: Form[ReimbursementRejectedGoods] = Form(
     "enter-claim-scheduled.rejected-goods" ->
       mapping(
         "paid-amount"  -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero")),
         "claim-amount" -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero"))
-      )(Reimbursement.apply)(Reimbursement.unapply)
+      )(ReimbursementRejectedGoods.apply)(ReimbursementRejectedGoods.unapply)
         .verifying(
           "invalid.claim",
           _.isValid
