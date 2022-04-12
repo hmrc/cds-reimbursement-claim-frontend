@@ -269,7 +269,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             performAction(messagesKey -> optionChosen.toString),
-            "check-bank-details"
+            routes.CheckBankDetailsController.show()
           )
       }
 
@@ -306,7 +306,7 @@ class ChooseInspectionAddressTypeControllerSpec
           controller.redirectToTheNextPage(emptyJourney) shouldBe (
             (
               emptyJourney,
-              Redirect("check-bank-details")
+              Redirect(routes.CheckBankDetailsController.show())
             )
           )
         }
