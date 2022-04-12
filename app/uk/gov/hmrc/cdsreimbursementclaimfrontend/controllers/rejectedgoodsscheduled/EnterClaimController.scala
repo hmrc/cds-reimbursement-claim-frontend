@@ -23,7 +23,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimRejectedGoodsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -49,7 +49,7 @@ class EnterClaimController @Inject() (
           case Some((dutyType, taxCode)) =>
             val postAction: Call                          = routes.EnterClaimController.submit(dutyType, taxCode)
             val maybeReimbursement: Option[Reimbursement] = journey.getReimbursementFor(dutyType, taxCode)
-            val form                                      = enterScheduledClaimForm.withDefault(maybeReimbursement)
+            val form                                      = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
 
             Ok(enterClaimPage(dutyType, taxCode, form, postAction))
 
@@ -67,7 +67,7 @@ class EnterClaimController @Inject() (
         case None            =>
           val postAction: Call                          = routes.EnterClaimController.submit(dutyType, taxCode)
           val maybeReimbursement: Option[Reimbursement] = journey.getReimbursementFor(dutyType, taxCode)
-          val form                                      = enterScheduledClaimForm.withDefault(maybeReimbursement)
+          val form                                      = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
 
           Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
 
@@ -85,7 +85,7 @@ class EnterClaimController @Inject() (
           val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
 
           Future.successful(
-            enterScheduledClaimForm
+            enterScheduledClaimRejectedGoodsForm
               .bindFromRequest()
               .fold(
                 formWithErrors =>
@@ -113,7 +113,14 @@ class EnterClaimController @Inject() (
                         logger.error(s"Error updating reimbursement selection - $errors")
                         (
                           journey,
-                          BadRequest(enterClaimPage(currentDuty, currentTaxCode, enterScheduledClaimForm, postAction))
+                          BadRequest(
+                            enterClaimPage(
+                              currentDuty,
+                              currentTaxCode,
+                              enterScheduledClaimRejectedGoodsForm,
+                              postAction
+                            )
+                          )
                         )
                       },
                       updatedJourney =>
@@ -142,7 +149,7 @@ class EnterClaimController @Inject() (
   def redirectVerificationMessage(formWithErrors: Form[Reimbursement]): Form[Reimbursement] = {
     val errors: Seq[FormError] = formWithErrors.errors.map {
       case formError if formError.messages.contains("invalid.claim") =>
-        formError.copy(key = s"${formError.key}.actual-amount")
+        formError.copy(key = s"${formError.key}.claim-amount")
       case formError                                                 => formError
     }
     formWithErrors.copy(errors = errors)

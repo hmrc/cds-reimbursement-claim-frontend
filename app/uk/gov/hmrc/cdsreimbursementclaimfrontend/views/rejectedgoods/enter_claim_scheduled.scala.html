@@ -15,44 +15,41 @@
  *@
 
 @import play.api.data.Form
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
-@import play.api.mvc.Call
+@import play.twirl.api.Html
 @import play.api.mvc.Request
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, Reimbursement, TaxCode}
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-    inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(dutyType: DutyType, dutyCode: TaxCode, form : Form[Reimbursement], postAction: Call)(implicit request: Request[_], messages:Messages, viewConfig: ViewConfig)
+@(dutyType: DutyType, dutyCode: TaxCode, form : Form[Reimbursement], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-scheduled-claim"}
+@key = @{"enter-claim-scheduled.rejected-goods"}
 @title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
-
-@hintText = @{Html(messages(s"$key.actual-amount.hint"))}
-
+@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
     @pageHeading(title)
 
     @paragraph(Html(messages(s"$key.help-text", messages(s"tax-code.${dutyCode.value}"))), Some("govuk-body"))
-
-    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 
     @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
@@ -72,9 +69,9 @@
 
         @inputText(
             form = form,
-            id = s"$key.actual-amount",
-            name = s"$key.actual-amount",
-            label = s"$key.actual-amount",
+            id = s"$key.claim-amount",
+            name = s"$key.claim-amount",
+            label = s"$key.claim-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
@@ -85,3 +82,4 @@
         @submitButton("button.continue")
     }
 }
+
