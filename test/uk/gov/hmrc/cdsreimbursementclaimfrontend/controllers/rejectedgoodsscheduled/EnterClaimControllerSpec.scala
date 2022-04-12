@@ -62,7 +62,7 @@ class EnterClaimControllerSpec
     )
 
   val controller: EnterClaimController = instanceOf[EnterClaimController]
-  val enterClaimKey: String            = "enter-scheduled-claim"
+  val enterClaimKey: String            = "enter-claim-scheduled.rejected-goods"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -189,8 +189,8 @@ class EnterClaimControllerSpec
               controller.submit(customDuty, customDuty.taxCodes(0))(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> reimbursement.paidAmount.toString,
-                    s"$enterClaimKey.actual-amount" -> reimbursement.shouldOfPaid.toString
+                    s"$enterClaimKey.paid-amount"  -> reimbursement.paidAmount.toString,
+                    s"$enterClaimKey.claim-amount" -> reimbursement.shouldOfPaid.toString
                   ): _*
                 )
               ),
@@ -226,8 +226,8 @@ class EnterClaimControllerSpec
             controller.submit(dutyType, dutyType.taxCodes(0))(
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
-                  s"$enterClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
-                  s"$enterClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
+                  s"$enterClaimKey.paid-amount"  -> formatter.format(reimbursement.paidAmount),
+                  s"$enterClaimKey.claim-amount" -> formatter.format(reimbursement.shouldOfPaid)
                 ): _*
               )
             ),
@@ -248,8 +248,8 @@ class EnterClaimControllerSpec
               controller.submit(dutyType, taxCode)(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> "",
-                    s"$enterClaimKey.actual-amount" -> "bad"
+                    s"$enterClaimKey.paid-amount"  -> "",
+                    s"$enterClaimKey.claim-amount" -> "bad"
                   ): _*
                 )
               ),
@@ -264,7 +264,7 @@ class EnterClaimControllerSpec
                   .text() shouldBe messageFromMessageKey(s"$enterClaimKey.paid-amount.error.required")
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(2) > a")
-                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.error.invalid")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.claim-amount.error.invalid")
               },
               BAD_REQUEST
             )
@@ -281,8 +281,8 @@ class EnterClaimControllerSpec
               controller.submit(dutyType, taxCode)(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> "0.00",
-                    s"$enterClaimKey.actual-amount" -> "0.00"
+                    s"$enterClaimKey.paid-amount"  -> "0.00",
+                    s"$enterClaimKey.claim-amount" -> "0.00"
                   ): _*
                 )
               ),
@@ -297,7 +297,7 @@ class EnterClaimControllerSpec
                   .text() shouldBe messageFromMessageKey(s"$enterClaimKey.paid-amount.error.zero")
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(2) > a")
-                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.error.zero")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.claim-amount.error.zero")
               },
               BAD_REQUEST
             )
@@ -317,8 +317,8 @@ class EnterClaimControllerSpec
               controller.submit(duty, taxCode)(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> paidAmount.toString,
-                    s"$enterClaimKey.actual-amount" -> actualAmount.toString
+                    s"$enterClaimKey.paid-amount"  -> paidAmount.toString,
+                    s"$enterClaimKey.claim-amount" -> actualAmount.toString
                   ): _*
                 )
               ),
@@ -330,7 +330,7 @@ class EnterClaimControllerSpec
               doc =>
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(1) > a")
-                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.invalid.claim"),
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.claim-amount.invalid.claim"),
               BAD_REQUEST
             )
           }
