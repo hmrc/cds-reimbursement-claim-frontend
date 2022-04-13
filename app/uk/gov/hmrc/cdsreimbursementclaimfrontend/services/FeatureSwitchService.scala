@@ -50,6 +50,9 @@ class FeatureSwitchService @Inject() (
       .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
       .getOrElse(false)
 
+  def optionally[A](feature: Feature, value: A): Option[A] =
+    if (isEnabled(feature)) Some(value) else None
+
   def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
     new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
 

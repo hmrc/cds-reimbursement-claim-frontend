@@ -49,6 +49,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{schedule => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.fileupload.scan_progress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.fileupload.scan_failed
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.fileupload.upload_failed
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -62,9 +65,9 @@ class ScheduleOfMrnDocumentController @Inject() (
   sessionStore: SessionCache,
   config: FileUploadConfig,
   uploadPage: pages.upload,
-  scanProgressPage: pages.scan_progress,
-  fileSizeErrorPage: pages.size_fail,
-  formatVirusErrorPage: pages.format_virus_fail,
+  scanProgressPage: scan_progress,
+  uploadFailedPage: upload_failed,
+  scanFailedPage: scan_failed,
   reviewPage: pages.review
 )(implicit
   viewConfig: ViewConfig,
@@ -94,7 +97,10 @@ class ScheduleOfMrnDocumentController @Inject() (
               routes.ScheduleOfMrnDocumentController.scanProgress,
               config.readMaxFileSize(configKey)
             )
-            .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload)))
+            .fold(
+              _ => errorHandler.errorResult(),
+              upscanUpload => Ok(uploadPage(upscanUpload, "schedule-document.upload"))
+            )
       }
     }
 
@@ -110,7 +116,12 @@ class ScheduleOfMrnDocumentController @Inject() (
 
   def showFileSizeErrorPage(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(fileSizeErrorPage())
+      Ok(
+        uploadFailedPage(
+          routes.ScheduleOfMrnDocumentController.uploadScheduledDocumentSubmit(),
+          "schedule-document.upload-failed"
+        )
+      )
     }
 
   def addDocument(
@@ -151,7 +162,12 @@ class ScheduleOfMrnDocumentController @Inject() (
               case Some(_: UpscanFailure) =>
                 Redirect(uploadRoutes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback())
               case None                   =>
-                Ok(scanProgressPage(upscanUpload))
+                Ok(
+                  scanProgressPage(
+                    routes.ScheduleOfMrnDocumentController.scanProgressSubmit(uploadReference.value),
+                    "schedule-document.scan-progress"
+                  )
+                )
             }
         )
       }
@@ -208,7 +224,12 @@ class ScheduleOfMrnDocumentController @Inject() (
 
   def handleFormatOrVirusCheckErrorCallback(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(formatVirusErrorPage())
+      Ok(
+        scanFailedPage(
+          routes.ScheduleOfMrnDocumentController.uploadScheduledDocumentSubmit(),
+          "schedule-document.scan-failed"
+        )
+      )
     }
 }
 

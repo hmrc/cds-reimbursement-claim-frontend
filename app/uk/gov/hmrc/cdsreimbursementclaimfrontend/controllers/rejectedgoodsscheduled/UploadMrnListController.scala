@@ -34,6 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 @Singleton
 class UploadMrnListController @Inject() (
@@ -41,7 +44,8 @@ class UploadMrnListController @Inject() (
   uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
-  val upload_mrn_list_description: upload_mrn_list_description
+  val upload_mrn_list_description: upload_mrn_list_description,
+  featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val appConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
@@ -56,12 +60,14 @@ class UploadMrnListController @Inject() (
         UploadDocumentsConnector
           .Request(
             uploadDocumentsSessionConfig(journey.answers.nonce),
-            journey.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty)
+            journey.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty),
+            featureSwitchService
+              .optionally(Feature.InternalUploadDocuments, "schedule-document")
           )
       )
       .map {
         case Some(url) =>
-          Redirect(s"${uploadDocumentsConfig.publicUrl}$url")
+          Redirect(url)
         case None      =>
           Redirect(
             s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}"
@@ -120,8 +126,9 @@ class UploadMrnListController @Inject() (
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("schedule-of-mrn"),
       allowedContentTypes = "application/pdf,image/jpeg,image/png",
       allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
-      cargo = None,
-      newFileDescription = None,
+      cargo = Some(UploadDocumentType.ScheduleOfMRNs),
+      newFileDescription =
+        Some(messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(UploadDocumentType.ScheduleOfMRNs)}")),
       content = uploadDocumentsContent,
       features = UploadDocumentsSessionConfig.Features(
         showUploadMultiple = true,

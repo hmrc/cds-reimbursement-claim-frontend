@@ -16,23 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.syntax.eq._
+import cats.Eq
+import play.api.libs.json.Json
+import play.api.libs.json.Format
 
-sealed trait Feature {
-  def name: String
+final case class UploadDocumentsSessionModel(
+  sessionConfig: UploadDocumentsSessionConfig,
+  uploadedFiles: Seq[UploadedFile] = Seq.empty,
+  internalKey: String
+) {
+
+  def canShowYesNoQuestion: Boolean =
+    sessionConfig.features.showYesNoQuestionBeforeContinue &&
+      uploadedFiles.size < sessionConfig.maximumNumberOfFiles
 }
 
-object Feature {
-
-  case object NorthernIreland extends Feature { val name = "northern-ireland" }
-  case object RejectedGoods extends Feature { val name = "rejected-goods" }
-  case object InternalUploadDocuments extends Feature { val name = "internal-upload-documents" }
-
-  def of(name: String): Option[Feature] =
-    Seq[Feature](
-      NorthernIreland,
-      RejectedGoods,
-      InternalUploadDocuments
-    ).find(_.name === name)
-
+object UploadDocumentsSessionModel {
+  implicit val equality: Eq[UploadDocumentsSessionModel]   = Eq.fromUniversalEquals[UploadDocumentsSessionModel]
+  implicit val format: Format[UploadDocumentsSessionModel] = Json.format[UploadDocumentsSessionModel]
 }
