@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack
 import java.time.ZoneOffset
+import cats.implicits.catsSyntaxOptionId
 
 /** DTO between upload-documents-frontend and this microservice.
   * Do NOT rename fields!
@@ -53,7 +54,7 @@ object UploadedFile {
       callback.uploadDetails.checksum,
       callback.uploadDetails.fileName,
       callback.uploadDetails.fileMimeType,
-      None
+      callback.uploadDetails.size.some
     )
 
   implicit val formats: Format[UploadedFile] = Json.format[UploadedFile]

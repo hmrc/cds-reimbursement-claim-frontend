@@ -16,7 +16,8 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import play.api.mvc.Call
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
@@ -31,9 +32,8 @@
         fileUploadConfig: FileUploadConfig
 )
 
-@(upscanUpload: UpscanUpload)(implicit request: RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
+@(upscanUpload: UpscanUpload, key: String)(implicit request: Request[_], messages: Messages, appConfig: ViewConfig)
 
-@key = @{"schedule-document.upload"}
 @field = @{"file"}
 @title = @{messages(s"$key.title")}
 @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}

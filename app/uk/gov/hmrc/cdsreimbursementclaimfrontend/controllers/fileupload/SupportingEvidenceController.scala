@@ -54,6 +54,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.fileupload.scan_progress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.fileupload.summary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.fileupload.scan_failed
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.fileupload.upload_failed
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -68,10 +72,10 @@ class SupportingEvidenceController @Inject() (
   config: FileUploadConfig,
   uploadPage: pages.upload,
   chooseDocumentTypePage: pages.choose_document_type,
-  checkYourAnswersPage: pages.check_your_answers,
-  scanProgressPage: pages.scan_progress,
-  uploadFailedPage: pages.upload_failed,
-  scanFailedPage: pages.scan_failed
+  summaryPage: summary,
+  scanProgressPage: scan_progress,
+  uploadFailedPage: upload_failed,
+  scanFailedPage: scan_failed
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -100,7 +104,15 @@ class SupportingEvidenceController @Inject() (
             )
             .fold(
               _ => errorHandler.errorResult(),
-              upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints(evidenceTypes), router.subKey))
+              upscanUpload =>
+                Ok(
+                  uploadPage(
+                    upscanUpload,
+                    getSupportingEvidenceHints(evidenceTypes),
+                    "supporting-evidence.upload",
+                    router.subKey
+                  )
+                )
             )
       }
     }
@@ -117,7 +129,12 @@ class SupportingEvidenceController @Inject() (
 
   def sizeFail(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(uploadFailedPage(journey))
+      Ok(
+        uploadFailedPage(
+          routes.SupportingEvidenceController.uploadSupportingEvidenceSubmit(journey),
+          "supporting-evidence.upload-failed"
+        )
+      )
     }
 
   def attachDocument(
@@ -158,10 +175,17 @@ class SupportingEvidenceController @Inject() (
                 Redirect(
                   routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(journey, uploadReference)
                 )
+
               case Some(_: UpscanFailure) =>
                 Redirect(routes.SupportingEvidenceController.handleUpscanCallBackFailures(journey))
-              case None                   =>
-                Ok(scanProgressPage(journey, upscanUpload))
+
+              case None =>
+                Ok(
+                  scanProgressPage(
+                    routes.SupportingEvidenceController.scanProgressSubmit(journey, uploadReference.value),
+                    "supporting-evidence.scan-progress"
+                  )
+                )
             }
         )
       }
@@ -176,7 +200,12 @@ class SupportingEvidenceController @Inject() (
 
   def handleUpscanCallBackFailures(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(scanFailedPage(journey))
+      Ok(
+        scanFailedPage(
+          routes.SupportingEvidenceController.uploadSupportingEvidenceSubmit(journey),
+          "supporting-evidence.scan-failed"
+        )
+      )
     }
 
   def chooseSupportingEvidenceDocumentType(
@@ -284,7 +313,18 @@ class SupportingEvidenceController @Inject() (
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
 
         def listUploadedItems(evidences: SupportingEvidencesAnswer) =
-          Ok(checkYourAnswersPage(journey, evidences, maxUploads, whetherAddAnotherDocument))
+          Ok(
+            summaryPage(
+              evidences.toList,
+              evidences.size < maxUploads,
+              whetherAddAnotherDocument,
+              checkYourAnswersDataKey,
+              routes.SupportingEvidenceController.checkYourAnswersSubmit(journey),
+              (reference: String) =>
+                routes.SupportingEvidenceController
+                  .deleteSupportingEvidence(journey, UploadReference(reference), addNew = false)
+            )
+          )
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }
@@ -302,12 +342,22 @@ class SupportingEvidenceController @Inject() (
             whetherAddAnotherDocument
               .bindFromRequest()
               .fold(
-                formWithErrors => BadRequest(checkYourAnswersPage(journey, evidences, maxUploads, formWithErrors)),
+                formWithErrors =>
+                  BadRequest(
+                    summaryPage(
+                      evidences.toList,
+                      evidences.size < maxUploads,
+                      formWithErrors,
+                      checkYourAnswersDataKey,
+                      routes.SupportingEvidenceController.checkYourAnswersSubmit(journey),
+                      (reference: String) =>
+                        routes.SupportingEvidenceController
+                          .deleteSupportingEvidence(journey, UploadReference(reference), addNew = false)
+                    )
+                  ),
                 {
-                  case Yes =>
-                    Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-                  case No  =>
-                    Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+                  case Yes => Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
+                  case No  => Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
                 }
               )
           }

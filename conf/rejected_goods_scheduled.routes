@@ -71,6 +71,7 @@ POST         /rejected-goods/scheduled/choose-file-type                         
 GET          /rejected-goods/scheduled/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.UploadFilesController.show()
 +nocsrf
 POST         /rejected-goods/scheduled/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.UploadFilesController.submit()
+GET          /rejected-goods/scheduled/upload-summary                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.UploadFilesController.summary()
 
 POST         /rejected-goods/scheduled/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.submit()
 GET          /rejected-goods/scheduled/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.showConfirmation()
