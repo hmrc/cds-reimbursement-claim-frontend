@@ -134,6 +134,7 @@ class UploadDocumentsController @Inject() (
                 (unmodified, Redirect(routes.UploadDocumentsController.showScanErrorPage())).asFuture
 
               case None =>
+                logger.info(s"No upscan callback registered yet for $reference")
                 (
                   unmodified,
                   Ok(
