@@ -230,7 +230,7 @@ object Forms {
     "enter-scheduled-claim" ->
       mapping(
         "paid-amount"   -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero")),
-        "actual-amount" -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero"))
+        "actual-amount" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
       )(Reimbursement.apply)(Reimbursement.unapply)
         .verifying(
           "invalid.claim",

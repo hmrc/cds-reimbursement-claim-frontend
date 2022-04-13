@@ -908,7 +908,6 @@ enter-scheduled-claim.paid-amount.error.zero=Paid amount cannot be 0
 enter-scheduled-claim.actual-amount.error.required=Enter the amount that should have been paid, in pounds
 enter-scheduled-claim.actual-amount.error.invalid=Amount that should have been paid must be a number, like 30
 enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been paid must be lower than the amount paid
-enter-scheduled-claim.actual-amount.error.zero=Amount that should have been paid cannot be 0
 enter-scheduled-claim.invalid.claim=The amount must be a number, like 30
 
 #===================================================

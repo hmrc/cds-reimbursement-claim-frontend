@@ -305,7 +305,7 @@ class EnterClaimControllerSpec
 
         "claim amount is greater than paid amount" in {
           forAll(genDuty, genTaxCode, genReimbursement) { (duty, taxCode, reimbursement) =>
-            val paidAmount   = reimbursement.paidAmount
+            val paidAmount  = reimbursement.paidAmount
             val claimAmount = reimbursement.claimAmount + paidAmount
 
             inSequence {

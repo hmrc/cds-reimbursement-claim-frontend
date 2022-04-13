@@ -26,7 +26,7 @@ final case class ReimbursementRejectedGoods(paidAmount: BigDecimal, claimAmount:
 
   lazy val isUnclaimed: Boolean = paidAmount === 0 && claimAmount === 0
 
-  lazy val isValid: Boolean = claimAmount >= 0 && claimAmount < paidAmount
+  lazy val isValid: Boolean = claimAmount >= 0 && claimAmount <= paidAmount
 }
 
 object ReimbursementRejectedGoods {
