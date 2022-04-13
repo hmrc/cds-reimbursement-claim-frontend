@@ -212,8 +212,7 @@ class UploadDocumentsController @Inject() (
         Ok(
           summaryPage(
             model.uploadedFiles,
-            model.sessionConfig.features.showYesNoQuestionBeforeContinue &&
-              model.uploadedFiles.size < model.sessionConfig.maximumNumberOfFiles,
+            model.canShowYesNoQuestion,
             YesOrNoQuestionForm(s"${model.internalKey}.check-your-answers"),
             s"${model.internalKey}.check-your-answers",
             routes.UploadDocumentsController.summarySubmit(),
@@ -231,8 +230,7 @@ class UploadDocumentsController @Inject() (
             BadRequest(
               summaryPage(
                 model.uploadedFiles,
-                model.sessionConfig.features.showYesNoQuestionBeforeContinue &&
-                  model.uploadedFiles.size < model.sessionConfig.maximumNumberOfFiles,
+                model.canShowYesNoQuestion,
                 formWithErrors,
                 s"${model.internalKey}.check-your-answers",
                 routes.UploadDocumentsController.summarySubmit(),

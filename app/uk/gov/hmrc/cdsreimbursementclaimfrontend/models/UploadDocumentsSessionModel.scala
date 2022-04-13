@@ -24,7 +24,12 @@ final case class UploadDocumentsSessionModel(
   sessionConfig: UploadDocumentsSessionConfig,
   uploadedFiles: Seq[UploadedFile] = Seq.empty,
   internalKey: String
-)
+) {
+
+  def canShowYesNoQuestion: Boolean =
+    sessionConfig.features.showYesNoQuestionBeforeContinue &&
+      uploadedFiles.size < sessionConfig.maximumNumberOfFiles
+}
 
 object UploadDocumentsSessionModel {
   implicit val equality: Eq[UploadDocumentsSessionModel]   = Eq.fromUniversalEquals[UploadDocumentsSessionModel]
