@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 import scala.collection.immutable.SortedMap
@@ -45,20 +45,20 @@ class SelectedDutyTaxCodesReimbursementAnswerSpec extends AnyWordSpec with Scala
       val answer = SelectedDutyTaxCodesReimbursementAnswer(
         value = SortedMap(
           Beer     -> SortedMap(
-            NI444 -> Reimbursement.unclaimed,
-            NI440 -> Reimbursement.unclaimed
+            NI444 -> AmountPaidWithCorrect.unclaimed,
+            NI440 -> AmountPaidWithCorrect.unclaimed
           ),
           EuDuty   -> SortedMap(
-            A90 -> Reimbursement.unclaimed,
-            A80 -> Reimbursement.unclaimed
+            A90 -> AmountPaidWithCorrect.unclaimed,
+            A80 -> AmountPaidWithCorrect.unclaimed
           ),
           MadeWine -> SortedMap(
-            NI423 -> Reimbursement.unclaimed,
-            NI422 -> Reimbursement.unclaimed
+            NI423 -> AmountPaidWithCorrect.unclaimed,
+            NI422 -> AmountPaidWithCorrect.unclaimed
           ),
           UkDuty   -> SortedMap(
-            B00 -> Reimbursement.unclaimed,
-            A00 -> Reimbursement.unclaimed
+            B00 -> AmountPaidWithCorrect.unclaimed,
+            A00 -> AmountPaidWithCorrect.unclaimed
           )
         )
       )
@@ -67,20 +67,20 @@ class SelectedDutyTaxCodesReimbursementAnswerSpec extends AnyWordSpec with Scala
         SelectedDutyTaxCodesReimbursementAnswer(
           value = SortedMap(
             UkDuty   -> SortedMap(
-              A00 -> Reimbursement.unclaimed,
-              B00 -> Reimbursement.unclaimed
+              A00 -> AmountPaidWithCorrect.unclaimed,
+              B00 -> AmountPaidWithCorrect.unclaimed
             ),
             EuDuty   -> SortedMap(
-              A80 -> Reimbursement.unclaimed,
-              A90 -> Reimbursement.unclaimed
+              A80 -> AmountPaidWithCorrect.unclaimed,
+              A90 -> AmountPaidWithCorrect.unclaimed
             ),
             Beer     -> SortedMap(
-              NI440 -> Reimbursement.unclaimed,
-              NI444 -> Reimbursement.unclaimed
+              NI440 -> AmountPaidWithCorrect.unclaimed,
+              NI444 -> AmountPaidWithCorrect.unclaimed
             ),
             MadeWine -> SortedMap(
-              NI422 -> Reimbursement.unclaimed,
-              NI423 -> Reimbursement.unclaimed
+              NI422 -> AmountPaidWithCorrect.unclaimed,
+              NI423 -> AmountPaidWithCorrect.unclaimed
             )
           )
         )
@@ -93,7 +93,7 @@ class SelectedDutyTaxCodesReimbursementAnswerSpec extends AnyWordSpec with Scala
       SelectedDutyTaxCodesReimbursementAnswer(
         SortedMap(
           duty -> SortedMap(
-            taxCodes.map(_ -> Reimbursement.unclaimed): _*
+            taxCodes.map(_ -> AmountPaidWithCorrect.unclaimed): _*
           )
         )
       ).getTaxCodes(duty) should contain allElementsOf taxCodes
@@ -121,10 +121,10 @@ class SelectedDutyTaxCodesReimbursementAnswerSpec extends AnyWordSpec with Scala
             Map(
               taxCode -> dutiesWithReimbursements
                 .map(_._2)
-                .foldLeft(Reimbursement.unclaimed)((resulting, current) =>
-                  Reimbursement(
+                .foldLeft(AmountPaidWithCorrect.unclaimed)((resulting, current) =>
+                  AmountPaidWithCorrect(
                     paidAmount = resulting.paidAmount + current.paidAmount,
-                    shouldOfPaid = resulting.shouldOfPaid + current.shouldOfPaid
+                    correctAmount = resulting.correctAmount + current.correctAmount
                   )
                 )
             )
@@ -142,16 +142,16 @@ class SelectedDutyTaxCodesReimbursementAnswerSpec extends AnyWordSpec with Scala
 
 object SelectedDutyTaxCodesReimbursementAnswerSpec {
 
-  lazy val genDutiesWithReimbursements: Gen[List[(DutyType, Reimbursement)]] = for {
+  lazy val genDutiesWithReimbursements: Gen[List[(DutyType, AmountPaidWithCorrect)]] = for {
     dutyTypes      <- Gen.listOf(genDuty).map(_.distinct)
     reimbursements <- Gen.listOfN(dutyTypes.size, genReimbursement)
   } yield dutyTypes zip reimbursements
 
-  lazy val genTaxCodesWithUnclaimedReimbursement: Gen[List[(TaxCode, Reimbursement)]] = for {
+  lazy val genTaxCodesWithUnclaimedReimbursement: Gen[List[(TaxCode, AmountPaidWithCorrect)]] = for {
     taxCodes       <- Gen.nonEmptyListOf(genTaxCode).map(_.distinct)
     position       <- Gen.choose(0, taxCodes.length - 1)
     reimbursements <- Gen.listOfN(taxCodes.length - 1, genReimbursement)
     (front, back)   = reimbursements splitAt position
-    withUnclaimed   = front ++ List(Reimbursement.unclaimed) ++ back
+    withUnclaimed   = front ++ List(AmountPaidWithCorrect.unclaimed) ++ back
   } yield taxCodes zip withUnclaimed
 }

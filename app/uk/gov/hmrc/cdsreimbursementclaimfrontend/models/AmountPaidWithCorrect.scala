@@ -21,24 +21,25 @@ import cats.kernel.Semigroup
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
-final case class Reimbursement(paidAmount: BigDecimal, shouldOfPaid: BigDecimal) {
+final case class AmountPaidWithCorrect(paidAmount: BigDecimal, correctAmount: BigDecimal) {
 
-  lazy val refundTotal: BigDecimal = paidAmount - shouldOfPaid
+  val refundAmount: BigDecimal = paidAmount - correctAmount
 
-  lazy val isUnclaimed: Boolean = paidAmount === 0 && shouldOfPaid === 0
+  def isUnclaimed: Boolean = paidAmount === 0 && correctAmount === 0
 
-  lazy val isValid: Boolean = shouldOfPaid >= 0 && shouldOfPaid < paidAmount
+  def isValid: Boolean = correctAmount >= 0 && correctAmount < paidAmount
 }
 
-object Reimbursement {
+object AmountPaidWithCorrect {
 
-  val unclaimed: Reimbursement = Reimbursement(paidAmount = 0, shouldOfPaid = 0)
+  val unclaimed: AmountPaidWithCorrect = AmountPaidWithCorrect(paidAmount = 0, correctAmount = 0)
 
-  implicit val reimbursementSemigroup: Semigroup[Reimbursement] = (x: Reimbursement, y: Reimbursement) =>
-    Reimbursement(
-      paidAmount = x.paidAmount + y.paidAmount,
-      shouldOfPaid = x.shouldOfPaid + y.shouldOfPaid
-    )
+  implicit val semigroup: Semigroup[AmountPaidWithCorrect] =
+    (x: AmountPaidWithCorrect, y: AmountPaidWithCorrect) =>
+      AmountPaidWithCorrect(
+        paidAmount = x.paidAmount + y.paidAmount,
+        correctAmount = x.correctAmount + y.correctAmount
+      )
 
-  implicit val format: OFormat[Reimbursement] = Json.format[Reimbursement]
+  implicit val format: OFormat[AmountPaidWithCorrect] = Json.format[AmountPaidWithCorrect]
 }

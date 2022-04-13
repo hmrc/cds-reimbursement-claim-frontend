@@ -19,16 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementRejectedGoods
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 
 object ReimbursementRejectedGoodsGen {
 
-  lazy val genReimbursement: Gen[ReimbursementRejectedGoods] = for {
+  lazy val genReimbursement: Gen[AmountPaidWithRefund] = for {
     claimAmount <- genBigDecimal
     random      <- Gen.choose(1, 100)
     paidAmount   = random + claimAmount
-  } yield ReimbursementRejectedGoods(paidAmount, claimAmount)
+  } yield AmountPaidWithRefund(paidAmount, claimAmount)
 
-  implicit lazy val arbitraryReimbursementClaim: Typeclass[ReimbursementRejectedGoods] =
+  implicit lazy val arbitraryReimbursementClaim: Typeclass[AmountPaidWithRefund] =
     Arbitrary(genReimbursement)
 }

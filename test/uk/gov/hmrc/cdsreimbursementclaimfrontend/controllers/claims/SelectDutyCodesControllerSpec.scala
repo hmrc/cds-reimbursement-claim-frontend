@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -118,7 +118,7 @@ class SelectDutyCodesControllerSpec
         val (session, _) = sessionWithDutyCodesState(
           SelectedDutyTaxCodesReimbursementAnswer(
             SortedMap(
-              duty -> SortedMap(taxCode -> Reimbursement.unclaimed)
+              duty -> SortedMap(taxCode -> AmountPaidWithCorrect.unclaimed)
             )
           ).some
         )
@@ -147,8 +147,8 @@ class SelectDutyCodesControllerSpec
         val (session, draftClaim) = sessionWithDutyCodesState(
           SelectedDutyTaxCodesReimbursementAnswer(
             SortedMap(
-              customDuty -> SortedMap.empty[TaxCode, Reimbursement],
-              exciseDuty -> SortedMap.empty[TaxCode, Reimbursement]
+              customDuty -> SortedMap.empty[TaxCode, AmountPaidWithCorrect],
+              exciseDuty -> SortedMap.empty[TaxCode, AmountPaidWithCorrect]
             )
           ).some
         )
@@ -159,7 +159,7 @@ class SelectDutyCodesControllerSpec
               draftClaim = draftClaim.copy(
                 selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
                   SortedMap(
-                    customDuty -> SortedMap(customDuty.taxCodes(0) -> Reimbursement.unclaimed),
+                    customDuty -> SortedMap(customDuty.taxCodes(0) -> AmountPaidWithCorrect.unclaimed),
                     exciseDuty -> SortedMap.empty
                   )
                 ).some
@@ -193,7 +193,7 @@ class SelectDutyCodesControllerSpec
             fillingOutClaim.copy(
               draftClaim = draftClaim.copy(
                 selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
-                  SortedMap(duty -> SortedMap(taxCode -> Reimbursement.unclaimed))
+                  SortedMap(duty -> SortedMap(taxCode -> AmountPaidWithCorrect.unclaimed))
                 ).some
               )
             )

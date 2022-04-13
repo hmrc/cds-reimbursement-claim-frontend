@@ -20,7 +20,7 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, Reimbursement, TaxCode}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, AmountPaidWithCorrect, TaxCode}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 
@@ -34,7 +34,7 @@
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
 )
 
-@(dutyType: DutyType, dutyCode: TaxCode, form : Form[Reimbursement], postAction: Call)(implicit request: Request[_], messages:Messages, viewConfig: ViewConfig)
+@(dutyType: DutyType, dutyCode: TaxCode, form : Form[AmountPaidWithCorrect], postAction: Call)(implicit request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-scheduled-claim"}
 @title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
