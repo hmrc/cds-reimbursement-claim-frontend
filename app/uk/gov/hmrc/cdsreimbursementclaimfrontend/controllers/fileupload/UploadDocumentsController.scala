@@ -70,7 +70,7 @@ class UploadDocumentsController @Inject() (
     sessionData.copy(uploadDocumentsSessionModel = Some(model))
 
   override val fallbackResultIfModelMissing: Result =
-    BadRequest("Upload documents session data is missing")
+    Redirect(viewConfig.homePageUrl)
 
   private val unmodified: UploadDocumentsSessionModel => UploadDocumentsSessionModel =
     identity[UploadDocumentsSessionModel] _
