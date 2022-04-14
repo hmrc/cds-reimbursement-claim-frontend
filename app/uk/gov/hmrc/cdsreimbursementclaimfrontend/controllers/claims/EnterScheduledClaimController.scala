@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxC
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -149,7 +149,7 @@ class EnterScheduledClaimController @Inject() (
       }
     }
 
-  def redirectVerificationMessage(formWithErrors: Form[Reimbursement]): Form[Reimbursement] = {
+  def redirectVerificationMessage(formWithErrors: Form[AmountPaidWithCorrect]): Form[AmountPaidWithCorrect] = {
     val errors: Seq[FormError] = formWithErrors.errors.map {
       case formError if formError.messages.contains("invalid.claim") =>
         formError.copy(key = s"${formError.key}.actual-amount")

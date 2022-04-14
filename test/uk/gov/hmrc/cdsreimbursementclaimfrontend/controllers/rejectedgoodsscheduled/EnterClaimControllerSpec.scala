@@ -39,11 +39,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementGen.genReimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementRejectedGoodsGen.genReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen.genTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -62,7 +62,7 @@ class EnterClaimControllerSpec
     )
 
   val controller: EnterClaimController = instanceOf[EnterClaimController]
-  val enterClaimKey: String            = "enter-scheduled-claim"
+  val enterClaimKey: String            = "enter-claim-scheduled.rejected-goods"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -130,11 +130,11 @@ class EnterClaimControllerSpec
       }
 
       " the user revisits enter claim page again" in forAll(completeJourneyGen) { journey =>
-        val dutyType: DutyType           = journey.getReimbursementClaims.head._1
-        val taxCode: TaxCode             = journey.getReimbursementClaimsFor(dutyType).get.head._1
-        val reimbursement: Reimbursement = journey.getReimbursementClaimsFor(dutyType).get.head._2.get
-        val paidAmount: BigDecimal       = reimbursement.paidAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
-        val shouldOfPaid: BigDecimal     = reimbursement.shouldOfPaid.setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        val dutyType: DutyType                  = journey.getReimbursementClaims.head._1
+        val taxCode: TaxCode                    = journey.getReimbursementClaimsFor(dutyType).get.head._1
+        val reimbursement: AmountPaidWithRefund = journey.getReimbursementClaimsFor(dutyType).get.head._2.get
+        val paidAmount: BigDecimal              = reimbursement.paidAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        val shouldOfPaid: BigDecimal            = reimbursement.refundAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -174,7 +174,7 @@ class EnterClaimControllerSpec
               .submitAmountForReimbursement(
                 customDuty,
                 customDuty.taxCodes(0),
-                reimbursement.shouldOfPaid,
+                reimbursement.refundAmount,
                 reimbursement.paidAmount
               )
               .getOrFail
@@ -189,8 +189,8 @@ class EnterClaimControllerSpec
               controller.submit(customDuty, customDuty.taxCodes(0))(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> reimbursement.paidAmount.toString,
-                    s"$enterClaimKey.actual-amount" -> reimbursement.shouldOfPaid.toString
+                    s"$enterClaimKey.paid-amount"  -> reimbursement.paidAmount.toString,
+                    s"$enterClaimKey.claim-amount" -> reimbursement.refundAmount.toString
                   ): _*
                 )
               ),
@@ -211,7 +211,7 @@ class EnterClaimControllerSpec
             .submitAmountForReimbursement(
               dutyType,
               dutyType.taxCodes(0),
-              reimbursement.shouldOfPaid,
+              reimbursement.refundAmount,
               reimbursement.paidAmount
             )
             .getOrFail
@@ -226,8 +226,8 @@ class EnterClaimControllerSpec
             controller.submit(dutyType, dutyType.taxCodes(0))(
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
-                  s"$enterClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
-                  s"$enterClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
+                  s"$enterClaimKey.paid-amount"  -> formatter.format(reimbursement.paidAmount),
+                  s"$enterClaimKey.claim-amount" -> formatter.format(reimbursement.refundAmount)
                 ): _*
               )
             ),
@@ -248,8 +248,8 @@ class EnterClaimControllerSpec
               controller.submit(dutyType, taxCode)(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> "",
-                    s"$enterClaimKey.actual-amount" -> "bad"
+                    s"$enterClaimKey.paid-amount"  -> "",
+                    s"$enterClaimKey.claim-amount" -> "bad"
                   ): _*
                 )
               ),
@@ -264,7 +264,7 @@ class EnterClaimControllerSpec
                   .text() shouldBe messageFromMessageKey(s"$enterClaimKey.paid-amount.error.required")
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(2) > a")
-                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.error.invalid")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.claim-amount.error.invalid")
               },
               BAD_REQUEST
             )
@@ -281,8 +281,8 @@ class EnterClaimControllerSpec
               controller.submit(dutyType, taxCode)(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> "0.00",
-                    s"$enterClaimKey.actual-amount" -> "0.00"
+                    s"$enterClaimKey.paid-amount"  -> "0.00",
+                    s"$enterClaimKey.claim-amount" -> "0.00"
                   ): _*
                 )
               ),
@@ -297,16 +297,16 @@ class EnterClaimControllerSpec
                   .text() shouldBe messageFromMessageKey(s"$enterClaimKey.paid-amount.error.zero")
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(2) > a")
-                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.error.zero")
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.claim-amount.error.zero")
               },
               BAD_REQUEST
             )
         }
 
-        "actual amount is greater or equal to paid amount" in {
+        "claim amount is greater than paid amount" in {
           forAll(genDuty, genTaxCode, genReimbursement) { (duty, taxCode, reimbursement) =>
-            val paidAmount   = reimbursement.paidAmount
-            val actualAmount = reimbursement.shouldOfPaid + paidAmount
+            val paidAmount  = reimbursement.paidAmount
+            val claimAmount = reimbursement.refundAmount + paidAmount
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -317,8 +317,8 @@ class EnterClaimControllerSpec
               controller.submit(duty, taxCode)(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
-                    s"$enterClaimKey.paid-amount"   -> paidAmount.toString,
-                    s"$enterClaimKey.actual-amount" -> actualAmount.toString
+                    s"$enterClaimKey.paid-amount"  -> paidAmount.toString,
+                    s"$enterClaimKey.claim-amount" -> claimAmount.toString
                   ): _*
                 )
               ),
@@ -330,7 +330,7 @@ class EnterClaimControllerSpec
               doc =>
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(1) > a")
-                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.invalid.claim"),
+                  .text() shouldBe messageFromMessageKey(s"$enterClaimKey.claim-amount.invalid.claim"),
               BAD_REQUEST
             )
           }
@@ -349,10 +349,11 @@ object EnterClaimControllerSpec {
   formatter.setMinimumFractionDigits(2)
   formatter.setGroupingUsed(false)
 
-  lazy val genDutyWithRandomlySelectedTaxCodeAndReimbursement: Gen[(DutyType, TaxCode, Reimbursement)] = for {
-    duty          <- genDuty
-    taxCode       <- Gen.oneOf(duty.taxCodes)
-    reimbursement <- genReimbursement
-  } yield (duty, taxCode, reimbursement)
+  lazy val genDutyWithRandomlySelectedTaxCodeAndReimbursement: Gen[(DutyType, TaxCode, AmountPaidWithRefund)] =
+    for {
+      duty          <- genDuty
+      taxCode       <- Gen.oneOf(duty.taxCodes)
+      reimbursement <- genReimbursement
+    } yield (duty, taxCode, reimbursement)
 
 }
