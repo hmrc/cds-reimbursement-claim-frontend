@@ -25,7 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementRejectedGoods
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 
 object ReimbursementClaimsRejectedGoodsSummary {
   def singleFull(
@@ -173,7 +173,7 @@ object ReimbursementClaimsRejectedGoodsSummary {
   }
 
   def scheduledForCYA(
-    reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementRejectedGoods]],
+    reimbursementClaims: Map[DutyType, Map[TaxCode, AmountPaidWithRefund]],
     key: String,
     changeCallOpt: Option[Call] = None
   )(implicit
@@ -181,10 +181,10 @@ object ReimbursementClaimsRejectedGoodsSummary {
   ): SummaryList = {
 
     val amountsPerDutyType: Seq[(DutyType, BigDecimal)] =
-      reimbursementClaims.mapValues(_.values.map(_.claimAmount).sum).toSeq
+      reimbursementClaims.mapValues(_.values.map(_.refundAmount).sum).toSeq
 
     val totalAmount: BigDecimal =
-      reimbursementClaims.flatMap(_._2.values.map(_.claimAmount)).sum
+      reimbursementClaims.flatMap(_._2.values.map(_.refundAmount)).sum
 
     SummaryList(rows =
       amountsPerDutyType

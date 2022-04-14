@@ -21,24 +21,23 @@ import cats.kernel.Semigroup
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
-final case class ReimbursementRejectedGoods(paidAmount: BigDecimal, claimAmount: BigDecimal) {
-  lazy val refundTotal: BigDecimal = claimAmount
+final case class AmountPaidWithRefund(paidAmount: BigDecimal, refundAmount: BigDecimal) {
 
-  lazy val isUnclaimed: Boolean = paidAmount === 0 && claimAmount === 0
+  def isUnclaimed: Boolean = paidAmount === 0 && refundAmount === 0
 
-  lazy val isValid: Boolean = claimAmount >= 0 && claimAmount <= paidAmount
+  def isValid: Boolean = refundAmount >= 0 && refundAmount <= paidAmount
 }
 
-object ReimbursementRejectedGoods {
+object AmountPaidWithRefund {
 
-  val unclaimed: ReimbursementRejectedGoods = ReimbursementRejectedGoods(paidAmount = 0, claimAmount = 0)
+  val unclaimed: AmountPaidWithRefund = AmountPaidWithRefund(paidAmount = 0, refundAmount = 0)
 
-  implicit val reimbursementSemigroup: Semigroup[ReimbursementRejectedGoods] =
-    (x: ReimbursementRejectedGoods, y: ReimbursementRejectedGoods) =>
-      ReimbursementRejectedGoods(
+  implicit val semigroup: Semigroup[AmountPaidWithRefund] =
+    (x: AmountPaidWithRefund, y: AmountPaidWithRefund) =>
+      AmountPaidWithRefund(
         paidAmount = x.paidAmount + y.paidAmount,
-        claimAmount = x.claimAmount + y.claimAmount
+        refundAmount = x.refundAmount + y.refundAmount
       )
 
-  implicit val format: OFormat[ReimbursementRejectedGoods] = Json.format[ReimbursementRejectedGoods]
+  implicit val format: OFormat[AmountPaidWithRefund] = Json.format[AmountPaidWithRefund]
 }

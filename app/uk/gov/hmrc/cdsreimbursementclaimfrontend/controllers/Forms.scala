@@ -38,8 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementRejectedGoods
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -226,24 +226,24 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  val enterScheduledClaimForm: Form[Reimbursement] = Form(
+  val enterScheduledClaimForm: Form[AmountPaidWithCorrect] = Form(
     "enter-scheduled-claim" ->
       mapping(
         "paid-amount"   -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero")),
         "actual-amount" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
-      )(Reimbursement.apply)(Reimbursement.unapply)
+      )(AmountPaidWithCorrect.apply)(AmountPaidWithCorrect.unapply)
         .verifying(
           "invalid.claim",
           _.isValid
         )
   )
 
-  val enterScheduledClaimRejectedGoodsForm: Form[ReimbursementRejectedGoods] = Form(
+  val enterScheduledClaimRejectedGoodsForm: Form[AmountPaidWithRefund] = Form(
     "enter-claim-scheduled.rejected-goods" ->
       mapping(
         "paid-amount"  -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero")),
         "claim-amount" -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero"))
-      )(ReimbursementRejectedGoods.apply)(ReimbursementRejectedGoods.unapply)
+      )(AmountPaidWithRefund.apply)(AmountPaidWithRefund.unapply)
         .verifying(
           "invalid.claim",
           _.isValid

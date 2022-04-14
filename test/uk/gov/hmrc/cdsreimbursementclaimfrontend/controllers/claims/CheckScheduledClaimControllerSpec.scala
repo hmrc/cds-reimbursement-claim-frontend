@@ -50,7 +50,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -108,10 +108,10 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
           SelectedDutyTaxCodesReimbursementAnswer(
             SortedMap(
               UkDuty -> SortedMap(
-                A30 -> Reimbursement(paidAmount = 100, shouldOfPaid = 45),
-                B00 -> Reimbursement(paidAmount = 89, shouldOfPaid = 3)
+                A30 -> AmountPaidWithCorrect(paidAmount = 100, correctAmount = 45),
+                B00 -> AmountPaidWithCorrect(paidAmount = 89, correctAmount = 3)
               ),
-              EuDuty -> SortedMap(A70 -> Reimbursement(paidAmount = 33, shouldOfPaid = 15)),
+              EuDuty -> SortedMap(A70 -> AmountPaidWithCorrect(paidAmount = 33, correctAmount = 15)),
               Wine   -> SortedMap.empty
             )
           ).some
@@ -163,7 +163,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
     "continue with the next page" in {
       val session = sessionWithAnswer(
         SelectedDutyTaxCodesReimbursementAnswer(
-          SortedMap(UkDuty -> SortedMap(A30 -> Reimbursement(paidAmount = 99, shouldOfPaid = 78)))
+          SortedMap(UkDuty -> SortedMap(A30 -> AmountPaidWithCorrect(paidAmount = 99, correctAmount = 78)))
         ).some
       )
 
@@ -184,7 +184,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
         sample(genValidDraftClaim(TypeOfClaimAnswer.Scheduled)).copy(
           selectedDutyTaxCodesReimbursementAnswer = Some(
             SelectedDutyTaxCodesReimbursementAnswer(
-              SortedMap(UkDuty -> SortedMap(A30 -> Reimbursement(paidAmount = 99, shouldOfPaid = 78)))
+              SortedMap(UkDuty -> SortedMap(A30 -> AmountPaidWithCorrect(paidAmount = 99, correctAmount = 78)))
             )
           )
         )

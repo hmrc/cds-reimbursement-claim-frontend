@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimRejectedGoodsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementRejectedGoods
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
@@ -47,9 +47,9 @@ class EnterClaimController @Inject() (
         (journey.getSelectedDuties.headOption
           .flatMap { case (dt, tcs) => tcs.headOption.map(tc => (dt, tc)) } match {
           case Some((dutyType, taxCode)) =>
-            val postAction: Call                                       = routes.EnterClaimController.submit(dutyType, taxCode)
-            val maybeReimbursement: Option[ReimbursementRejectedGoods] = journey.getReimbursementFor(dutyType, taxCode)
-            val form                                                   = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
+            val postAction: Call                                 = routes.EnterClaimController.submit(dutyType, taxCode)
+            val maybeReimbursement: Option[AmountPaidWithRefund] = journey.getReimbursementFor(dutyType, taxCode)
+            val form                                             = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
 
             Ok(enterClaimPage(dutyType, taxCode, form, postAction))
 
@@ -65,9 +65,9 @@ class EnterClaimController @Inject() (
     implicit request => journey =>
       journey.findNextDutyToSelectTaxCodes match {
         case None =>
-          val postAction: Call                                       = routes.EnterClaimController.submit(dutyType, taxCode)
-          val maybeReimbursement: Option[ReimbursementRejectedGoods] = journey.getReimbursementFor(dutyType, taxCode)
-          val form                                                   = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
+          val postAction: Call                                 = routes.EnterClaimController.submit(dutyType, taxCode)
+          val maybeReimbursement: Option[AmountPaidWithRefund] = journey.getReimbursementFor(dutyType, taxCode)
+          val form                                             = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
 
           Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
 
@@ -104,7 +104,7 @@ class EnterClaimController @Inject() (
                     .submitAmountForReimbursement(
                       currentDuty,
                       currentTaxCode,
-                      reimbursement.claimAmount,
+                      reimbursement.refundAmount,
                       reimbursement.paidAmount
                     )
                     .fold(
@@ -146,8 +146,8 @@ class EnterClaimController @Inject() (
   )
 
   def redirectVerificationMessage(
-    formWithErrors: Form[ReimbursementRejectedGoods]
-  ): Form[ReimbursementRejectedGoods] = {
+    formWithErrors: Form[AmountPaidWithRefund]
+  ): Form[AmountPaidWithRefund] = {
     val errors: Seq[FormError] = formWithErrors.errors.map {
       case formError if formError.messages.contains("invalid.claim") =>
         formError.copy(key = s"${formError.key}.claim-amount")

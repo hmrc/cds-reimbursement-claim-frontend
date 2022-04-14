@@ -21,32 +21,36 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class ReimbursementSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class AmountPaidWithRefundSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 2)
 
   "The reimbursement claim" should {
     "be valid" when {
-      "paid amount is greater than should paid of amount" in forAll(Gen.posNum[Int], Gen.posNum[Int]) { (amount, n) =>
-        AmountPaidWithCorrect(paidAmount = amount + n, correctAmount = amount).isValid should be(true)
+      "paid amount is greater than claim amount" in forAll(Gen.posNum[Int], Gen.posNum[Int]) { (amount, n) =>
+        AmountPaidWithRefund(paidAmount = amount + n, refundAmount = amount).isValid should be(true)
       }
+
+      "paid amount is equal to the claim amount" in forAll(Gen.posNum[Int], Gen.posNum[Int]) { (amount, _) =>
+        AmountPaidWithRefund(paidAmount = amount, refundAmount = amount).isValid should be(true)
+      }
+
     }
 
     "be invalid" when {
-      "paid amount is lower or equal to should paid of amount" in forAll(Gen.posNum[Int], Gen.chooseNum(0, 2)) {
-        (amount, n) =>
-          AmountPaidWithCorrect(paidAmount = amount, correctAmount = amount + n).isValid should be(false)
+      "paid amount is lower than the claim amount" in forAll(Gen.posNum[Int], Gen.chooseNum(0, 2)) { (amount, n) =>
+        AmountPaidWithRefund(paidAmount = amount, refundAmount = amount + n).isValid should be(false)
       }
     }
 
     "be unclaimed" in {
-      AmountPaidWithCorrect.unclaimed.isUnclaimed should be(true)
+      AmountPaidWithRefund.unclaimed.isUnclaimed should be(true)
     }
 
-    "have refund total as subtraction of should paid amount from paid amount" in forAll {
-      (paidAmount: BigDecimal, shouldPaidAmount: BigDecimal) =>
-        AmountPaidWithCorrect(paidAmount, shouldPaidAmount).refundAmount should be(paidAmount - shouldPaidAmount)
+    "have refund total as the claim amount" in forAll { (paidAmount: BigDecimal, claimAmount: BigDecimal) =>
+      AmountPaidWithRefund(paidAmount, claimAmount).refundAmount should be(claimAmount)
     }
+
   }
 }
