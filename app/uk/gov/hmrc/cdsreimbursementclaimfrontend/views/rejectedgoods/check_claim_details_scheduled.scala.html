@@ -20,15 +20,17 @@
 @import play.api.mvc.Request
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SelectedDutyTaxCodesReimbursementAnswer, YesNo}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyAndTaxCodeReimbursementSummary
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.TaxCodeReimbursementSummary
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import scala.collection.SortedMap
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-@import scala.collection.immutable.SortedMap
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -56,7 +58,7 @@
 
     @paragraph(Html(messages(s"$key.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
 
-    @answer.value.map { claims =>
+    @answer.map { claims =>
         @pageHeading(messages(s"duty-type.${claims._1.repr}"), "govuk-heading-m", "h2")
         @summary(TaxCodeReimbursementSummary((claims._1, claims._2),key, subKey))
         <br/>
