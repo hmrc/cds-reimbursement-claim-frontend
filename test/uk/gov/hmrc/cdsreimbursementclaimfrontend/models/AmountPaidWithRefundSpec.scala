@@ -28,7 +28,7 @@ class AmountPaidWithRefundSpec extends AnyWordSpec with ScalaCheckPropertyChecks
 
   "The reimbursement claim" should {
     "be valid" when {
-      "paid amount is greater than claim amount" in forAll(Gen.posNum[Int], Gen.posNum[Int]) { (amount, n) =>
+      "paid amount is greater than claim amount" in forAll(Gen.posNum[Int], Gen.chooseNum(1, 2)) { (amount, n) =>
         AmountPaidWithRefund(paidAmount = amount + n, refundAmount = amount).isValid should be(true)
       }
 
@@ -39,7 +39,7 @@ class AmountPaidWithRefundSpec extends AnyWordSpec with ScalaCheckPropertyChecks
     }
 
     "be invalid" when {
-      "paid amount is lower than the claim amount" in forAll(Gen.posNum[Int], Gen.chooseNum(0, 2)) { (amount, n) =>
+      "paid amount is lower than the claim amount" in forAll(Gen.chooseNum(10, 20), Gen.chooseNum(1, 2)) { (amount, n) =>
         AmountPaidWithRefund(paidAmount = amount, refundAmount = amount + n).isValid should be(false)
       }
     }

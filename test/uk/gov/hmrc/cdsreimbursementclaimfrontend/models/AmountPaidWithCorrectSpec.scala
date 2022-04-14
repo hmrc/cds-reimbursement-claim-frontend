@@ -21,7 +21,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class ReimbursementSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class AmountPaidWithCorrectSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 2)
