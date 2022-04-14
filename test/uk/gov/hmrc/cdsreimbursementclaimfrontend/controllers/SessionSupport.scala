@@ -44,6 +44,12 @@ trait SessionSupport { this: MockFactory =>
       .expects(*)
       .returning(Future.successful(Right(Some(session))))
 
+  def mockStoreSessionNotCalled: CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
+    (mockSessionCache
+      .store (_: SessionData)(_: HeaderCarrier))
+      .expects(*, *)
+      .never()
+
   def mockStoreSession(
     session: SessionData
   )(result: Either[Error, Unit]): CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
