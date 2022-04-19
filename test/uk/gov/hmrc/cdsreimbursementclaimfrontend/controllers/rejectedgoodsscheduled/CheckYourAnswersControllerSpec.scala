@@ -17,6 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import org.jsoup.nodes.Document
+import org.scalamock.handlers.CallHandler1
+import org.scalamock.handlers.CallHandler2
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -59,13 +62,15 @@ class CheckYourAnswersControllerSpec
 
   def mockSubmitClaim(submitClaimRequest: RejectedGoodsScheduledClaimConnector.Request)(
     response: Future[RejectedGoodsScheduledClaimConnector.Response]
-  ) =
+  ): CallHandler2[RejectedGoodsScheduledClaimConnector.Request, HeaderCarrier, Future[
+    RejectedGoodsScheduledClaimConnector.Response
+  ]] =
     (mockConnector
       .submitClaim(_: RejectedGoodsScheduledClaimConnector.Request)(_: HeaderCarrier))
       .expects(submitClaimRequest, *)
       .returning(response)
 
-  def mockWipeOutCall() =
+  def mockWipeOutCall(): CallHandler1[HeaderCarrier, Future[Unit]] =
     (mockUploadDocumentsConnector
       .wipeOut(_: HeaderCarrier))
       .expects(*)
@@ -86,12 +91,10 @@ class CheckYourAnswersControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "check-your-answers"
-
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsScheduledJourney.Output) = {
+  def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsScheduledJourney.Output): Unit = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -106,10 +109,30 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers should contain allOf ("Movement Reference Number (MRN)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Supporting documents", "Now send your application")
+    headers should contain("First Movement Reference Number (MRN)")
+    headers should contain("Declaration details")
+    headers should contain("Contact information for this claim")
+    headers should contain("Basis for claim")
+    headers should contain("Disposal method")
+    headers should contain("Details of rejected goods")
+    headers should contain("Claim total")
+    headers should contain("Details of inspection")
+    headers should contain("Supporting documents")
+    headers should contain("Now send your claim")
 
-    summaryKeys should contain allOf ("Contact details", "Contact address", (Seq(
-      "MRN",
+    headers     should contain allOf ("First Movement Reference Number (MRN)",
+    "Declaration details",
+    "Contact information for this claim",
+    "Basis for claim",
+    "Disposal method",
+    "Details of rejected goods",
+    "Claim total",
+    "Details of inspection",
+    "Supporting documents",
+    "Now send your claim")
+
+    summaryKeys should contain allOf ("Contact details", "Contact address", Seq(
+      "First MRN",
       "Scheduled document",
       "This is the basis behind the claim",
       "This is how the goods will be disposed of",
@@ -118,9 +141,9 @@ class CheckYourAnswersControllerSpec
       "Inspection date",
       "Inspection address type",
       "Inspection address"
-    ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded"))): _*)
+    ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded")): _*)
 
-    summary("MRN")                                         shouldBe claim.movementReferenceNumber.value
+    summary("First MRN")                                   shouldBe claim.movementReferenceNumber.value
     summary("Scheduled document")                          shouldBe claim.scheduledDocument.fileName
     summary("Contact details")                             shouldBe ClaimantInformationSummary.getContactDataString(claim.claimantInformation)
     summary("Contact address")                             shouldBe ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)
@@ -164,7 +187,7 @@ class CheckYourAnswersControllerSpec
     }
   }
 
-  def validateConfirmationPage(doc: Document, caseNumber: String) =
+  def validateConfirmationPage(doc: Document, caseNumber: String): Assertion =
     doc.select(".cds-wrap-content--forced").text shouldBe caseNumber
 
   "Check Your Answers Controller" when {
@@ -189,7 +212,7 @@ class CheckYourAnswersControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey(s"$messagesKey.title"),
+            messageFromMessageKey(s"check-your-answers.rejectedgoods.scheduled.title"),
             doc => validateCheckYourAnswersPage(doc, claim)
           )
         }

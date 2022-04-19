@@ -39,14 +39,14 @@
 @(claim: RejectedGoodsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"$key.rejectedgoods.scheduled.title")}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @pageHeading(title)
 
-    @pageHeading(messages(combine(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
-    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.WorkInProgressController.show())))
+    @pageHeading(messages(combine(s"$key.reference-number.rejectedgoods", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number.rejectedgoods", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
 
     @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"$key.scheduled-document",Some(routes.UploadMrnListController.show())))
@@ -87,7 +87,7 @@
     @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", subKey, routes.UploadFilesController.summary()))
 
-    @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(messages(combine(s"$key", subKey, "confirmation-statement.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {

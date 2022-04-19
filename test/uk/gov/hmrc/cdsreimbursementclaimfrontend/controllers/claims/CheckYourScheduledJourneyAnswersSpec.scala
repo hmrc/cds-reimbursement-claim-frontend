@@ -103,34 +103,34 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
-                ("Lead MRN"                                        -> claim.movementReferenceNumber.map(_.value)),
-                ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),
-                ("Duties and VAT paid"                             -> declaration.map(_.totalPaidCharges.toPoundSterlingString)),
-                ("Importer name"                                   -> declaration.flatMap(_.consigneeName)),
-                ("Importer email"                                  -> declaration.flatMap(_.consigneeEmail)),
-                ("Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone)),
-                ("Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br />", " "))),
-                ("Declarant name"                                  -> declaration.map(_.declarantName)),
-                ("Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " "))),
-                ("This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
+                "Lead MRN"                                        -> claim.movementReferenceNumber.map(_.value),
+                "Import date"                                     -> declarationDetails.map(_.acceptanceDate),
+                "Duties and VAT paid"                             -> declaration.map(_.totalPaidCharges.toPoundSterlingString),
+                "Importer name"                                   -> declaration.flatMap(_.consigneeName),
+                "Importer email"                                  -> declaration.flatMap(_.consigneeEmail),
+                "Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone),
+                "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br />", " ")),
+                "Declarant name"                                  -> declaration.map(_.declarantName),
+                "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " ")),
+                "This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
                   messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
-                )),
-                ("This is the reason for the claim"                -> claim.commoditiesDetailsAnswer.map(_.value)),
-                ("Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value)),
-                ("Sort code"                                       -> claim.bankAccountDetailsAnswer.map(_.sortCode.masked)),
-                ("Account number"                                  -> claim.bankAccountDetailsAnswer.map(_.accountNumber.masked)),
-                ("Contact details"                                 -> claim
+                ),
+                "This is the reason for the claim"                -> claim.commoditiesDetailsAnswer.map(_.value),
+                "Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value),
+                "Sort code"                                       -> claim.bankAccountDetailsAnswer.map(_.sortCode.masked),
+                "Account number"                                  -> claim.bankAccountDetailsAnswer.map(_.accountNumber.masked),
+                "Contact details"                                 -> claim
                   .getClaimantInformation(user.eori)
-                  .map(ClaimantInformationSummary.getContactDataString)),
-                ("Contact address"                                 -> claim
+                  .map(ClaimantInformationSummary.getContactDataString),
+                "Contact address"                                 -> claim
                   .getClaimantInformation(user.eori)
-                  .map(ClaimantInformationSummary.getAddressDataString)),
-                ("Total"                                           -> Some(total)),
-                ("Uploaded"                                        -> Some(expectedDocuments)),
-                ("Scheduled document"                              -> scheduledDocument),
-                ("Were your goods imported into Northern Ireland?" -> claim.whetherNorthernIrelandAnswer.map(
+                  .map(ClaimantInformationSummary.getAddressDataString),
+                "Total"                                           -> Some(total),
+                "Uploaded"                                        -> Some(expectedDocuments),
+                "Scheduled document"                              -> scheduledDocument,
+                "Were your goods imported into Northern Ireland?" -> claim.whetherNorthernIrelandAnswer.map(
                   _.toString()
-                ))
+                )
               )
                 ++ claimSummaries
             )
