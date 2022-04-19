@@ -48,7 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -98,7 +98,9 @@ class EnterScheduledClaimControllerSpec
     "show enter claim amount page" when {
       "user has selected duty and tax codes" in forAll { (duty: DutyType, taxCode: TaxCode) =>
         val (session, _) = sessionWithAnswer(
-          SelectedDutyTaxCodesReimbursementAnswer(SortedMap(duty -> SortedMap(taxCode -> Reimbursement.unclaimed))).some
+          SelectedDutyTaxCodesReimbursementAnswer(
+            SortedMap(duty -> SortedMap(taxCode -> AmountPaidWithCorrect.unclaimed))
+          ).some
         )
 
         inSequence {
@@ -115,7 +117,7 @@ class EnterScheduledClaimControllerSpec
 
     "display already entered amounts" when {
       "user revisits enter claim page again" in forAll {
-        (duty: DutyType, taxCode: TaxCode, reimbursement: Reimbursement) =>
+        (duty: DutyType, taxCode: TaxCode, reimbursement: AmountPaidWithCorrect) =>
           val (session, _) = sessionWithAnswer(
             SelectedDutyTaxCodesReimbursementAnswer(SortedMap(duty -> SortedMap(taxCode -> reimbursement))).some
           )
@@ -135,7 +137,7 @@ class EnterScheduledClaimControllerSpec
             doc => {
               val elements = doc.select("input")
               BigDecimal(elements.get(0).`val`()) should be(reimbursement.paidAmount)
-              BigDecimal(elements.get(1).`val`()) should be(reimbursement.shouldOfPaid)
+              BigDecimal(elements.get(1).`val`()) should be(reimbursement.correctAmount)
             }
           )
       }
@@ -147,8 +149,8 @@ class EnterScheduledClaimControllerSpec
           val (session, draftClaim) = sessionWithAnswer(
             SelectedDutyTaxCodesReimbursementAnswer(
               SortedMap(
-                customDuty -> SortedMap(customDuty.taxCodes(0) -> Reimbursement.unclaimed),
-                exciseDuty -> SortedMap(exciseDuty.taxCodes(0) -> Reimbursement.unclaimed)
+                customDuty -> SortedMap(customDuty.taxCodes(0) -> AmountPaidWithCorrect.unclaimed),
+                exciseDuty -> SortedMap(exciseDuty.taxCodes(0) -> AmountPaidWithCorrect.unclaimed)
               )
             ).some
           )
@@ -160,7 +162,7 @@ class EnterScheduledClaimControllerSpec
                   selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
                     SortedMap(
                       customDuty -> SortedMap(customDuty.taxCodes(0) -> reimbursement),
-                      exciseDuty -> SortedMap(exciseDuty.taxCodes(0) -> Reimbursement.unclaimed)
+                      exciseDuty -> SortedMap(exciseDuty.taxCodes(0) -> AmountPaidWithCorrect.unclaimed)
                     )
                   ).some
                 )
@@ -178,7 +180,7 @@ class EnterScheduledClaimControllerSpec
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
                   s"$enterScheduledClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
-                  s"$enterScheduledClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
+                  s"$enterScheduledClaimKey.actual-amount" -> formatter.format(reimbursement.correctAmount)
                 ): _*
               )
             ),
@@ -191,7 +193,7 @@ class EnterScheduledClaimControllerSpec
       forAll(Gen.oneOf(DutyTypes.custom), genReimbursement) { (duty, reimbursement) =>
         val (session, draftClaim) = sessionWithAnswer(
           SelectedDutyTaxCodesReimbursementAnswer(
-            SortedMap(duty -> SortedMap(duty.taxCodes(0) -> Reimbursement.unclaimed))
+            SortedMap(duty -> SortedMap(duty.taxCodes(0) -> AmountPaidWithCorrect.unclaimed))
           ).some
         )
 
@@ -219,7 +221,7 @@ class EnterScheduledClaimControllerSpec
             FakeRequest().withFormUrlEncodedBody(
               Seq(
                 s"$enterScheduledClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
-                s"$enterScheduledClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
+                s"$enterScheduledClaimKey.actual-amount" -> formatter.format(reimbursement.correctAmount)
               ): _*
             )
           ),

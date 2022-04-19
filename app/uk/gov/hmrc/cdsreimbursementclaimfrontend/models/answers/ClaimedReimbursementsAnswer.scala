@@ -22,7 +22,7 @@ import cats.implicits.catsSyntaxOption
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 object ClaimedReimbursementsAnswer {
@@ -35,11 +35,11 @@ object ClaimedReimbursementsAnswer {
 
   def apply(reimbursements: SelectedDutyTaxCodesReimbursementAnswer): Option[ClaimedReimbursementsAnswer] = {
 
-    def toClaim(taxCodeWithClaim: (TaxCode, Reimbursement)) =
+    def toClaim(taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect)) =
       ClaimedReimbursement(
         taxCode = taxCodeWithClaim._1,
         paidAmount = taxCodeWithClaim._2.paidAmount,
-        claimAmount = taxCodeWithClaim._2.refundTotal
+        claimAmount = taxCodeWithClaim._2.refundAmount
       )
 
     reimbursements.combine.flatMap { combinedReimbursements =>

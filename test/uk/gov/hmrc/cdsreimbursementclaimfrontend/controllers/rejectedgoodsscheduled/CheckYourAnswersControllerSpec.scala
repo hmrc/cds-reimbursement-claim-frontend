@@ -162,13 +162,13 @@ class CheckYourAnswersControllerSpec
 
     claim.reimbursementClaims.foreach { case (dutyType, claims) =>
       summary(messages(s"duty-type.${dutyType.repr}")) shouldBe claims.values
-        .map(_.shouldOfPaid)
+        .map(_.refundAmount)
         .sum
         .toPoundSterlingString
     }
 
     summary("Total") shouldBe claim.reimbursementClaims.values
-      .map(_.values.map(_.shouldOfPaid).sum)
+      .map(_.values.map(_.refundAmount).sum)
       .sum
       .toPoundSterlingString
 
