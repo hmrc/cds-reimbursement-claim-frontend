@@ -39,8 +39,9 @@ class AmountPaidWithRefundSpec extends AnyWordSpec with ScalaCheckPropertyChecks
     }
 
     "be invalid" when {
-      "paid amount is lower than the claim amount" in forAll(Gen.chooseNum(10, 20), Gen.chooseNum(1, 2)) { (amount, n) =>
-        AmountPaidWithRefund(paidAmount = amount, refundAmount = amount + n).isValid should be(false)
+      "paid amount is lower than the claim amount" in forAll(Gen.chooseNum(10, 20), Gen.chooseNum(1, 2)) {
+        (amount, n) =>
+          AmountPaidWithRefund(paidAmount = amount, refundAmount = amount + n).isValid should be(false)
       }
     }
 

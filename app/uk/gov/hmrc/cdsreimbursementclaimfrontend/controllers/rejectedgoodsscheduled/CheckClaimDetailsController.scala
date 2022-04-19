@@ -26,8 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController.checkClaimDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
@@ -53,8 +53,10 @@ class CheckClaimDetailsController @Inject() (
     routes.SelectDutyTypesController.submit() //FIXME: routes.CheckClaimDetailsController.submit()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val answers: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]] = journey.getReimbursementClaims
-    Ok(checkClaimDetailsPage(answers, checkClaimDetailsForm, postAction)).asFuture
+    val answers: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]] = journey.getReimbursementClaims
+    val reimbursementTotal: BigDecimal                                         = journey.getTotalReimbursementAmount
+    implicit val subKey: Option[String]                                        = Some("scheduled")
+    Ok(checkClaimDetailsPage(answers, reimbursementTotal, checkClaimDetailsForm, postAction)).asFuture
 
   }
 
