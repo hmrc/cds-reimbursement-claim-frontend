@@ -109,17 +109,6 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers should contain("First Movement Reference Number (MRN)")
-    headers should contain("Declaration details")
-    headers should contain("Contact information for this claim")
-    headers should contain("Basis for claim")
-    headers should contain("Disposal method")
-    headers should contain("Details of rejected goods")
-    headers should contain("Claim total")
-    headers should contain("Details of inspection")
-    headers should contain("Supporting documents")
-    headers should contain("Now send your claim")
-
     headers     should contain allOf ("First Movement Reference Number (MRN)",
     "Declaration details",
     "Contact information for this claim",
