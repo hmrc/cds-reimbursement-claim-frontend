@@ -179,9 +179,9 @@ class ChooseInspectionAddressTypeControllerSpec
             .getOrFail
           val optionChosen          = Gen.oneOf(Seq(Importer, Declarant)).sample.get
           val address               = optionChosen match {
-            case Importer  =>
+            case Importer      =>
               inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
-            case Declarant =>
+            case Declarant | _ =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
           val updatedJourney        = journey.submitInspectionAddress(address)
