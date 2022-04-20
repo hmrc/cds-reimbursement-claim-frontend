@@ -70,7 +70,7 @@
     @summary(DisposalMethodSummary(claim.methodOfDisposal,s"$key.disposal-method", subKey, routes.WorkInProgressController.show()))
 
     @pageHeading(messages(s"$key.details-rejected-goods.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey, routes.WorkInProgressController.show()))
+    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
     
     @pageHeading(messages(s"$key.claim-total.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(ReimbursementClaimsRejectedGoodsSummary.scheduledForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.WorkInProgressController.show())))
