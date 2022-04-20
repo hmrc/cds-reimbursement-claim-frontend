@@ -88,7 +88,7 @@ class UploadDocumentsController @Inject() (
           )
           .fold(
             _ => ccc.errorHandler.errorResult(),
-            upscanUpload => Ok(chooseFilePage(upscanUpload, model.sessionConfig))
+            upscanUpload => Ok(chooseFilePage(upscanUpload, model.sessionConfig, s"${model.internalKey}.upload"))
           )
     }
 
