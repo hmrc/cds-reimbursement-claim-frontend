@@ -130,7 +130,7 @@ class EnterClaimController @Inject() (
                               Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
                             case None                              =>
                               Redirect(
-                                "/rejected-goods/scheduled/check-claim"
+                                "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-claim"
                               ) //FIXME: routes.CheckClaimController.show()
                           }
                         )

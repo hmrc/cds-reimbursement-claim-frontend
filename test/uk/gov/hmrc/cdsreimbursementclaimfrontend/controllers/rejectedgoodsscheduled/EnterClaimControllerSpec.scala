@@ -166,14 +166,14 @@ class EnterClaimControllerSpec
             val initialJourney = RejectedGoodsScheduledJourney
               .empty(exampleEori)
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
-              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes(0))))
+              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes.head)))
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exciseDuty, Seq(exciseDuty.taxCodes(1))))
               .getOrFail
 
             val updatedJourney = initialJourney
               .submitAmountForReimbursement(
                 customDuty,
-                customDuty.taxCodes(0),
+                customDuty.taxCodes.head,
                 reimbursement.refundAmount,
                 reimbursement.paidAmount
               )
@@ -186,7 +186,7 @@ class EnterClaimControllerSpec
             }
 
             checkIsRedirect(
-              controller.submit(customDuty, customDuty.taxCodes(0))(
+              controller.submit(customDuty, customDuty.taxCodes.head)(
                 FakeRequest().withFormUrlEncodedBody(
                   Seq(
                     s"$enterClaimKey.paid-amount"  -> reimbursement.paidAmount.toString,
@@ -204,13 +204,13 @@ class EnterClaimControllerSpec
           val initialJourney = RejectedGoodsScheduledJourney
             .empty(exampleEori)
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(dutyType.taxCodes(0))))
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(dutyType.taxCodes.head)))
             .getOrFail
 
           val updatedJourney = initialJourney
             .submitAmountForReimbursement(
               dutyType,
-              dutyType.taxCodes(0),
+              dutyType.taxCodes.head,
               reimbursement.refundAmount,
               reimbursement.paidAmount
             )
@@ -223,7 +223,7 @@ class EnterClaimControllerSpec
           }
 
           checkIsRedirect(
-            controller.submit(dutyType, dutyType.taxCodes(0))(
+            controller.submit(dutyType, dutyType.taxCodes.head)(
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
                   s"$enterClaimKey.paid-amount"  -> formatter.format(reimbursement.paidAmount),
@@ -231,7 +231,7 @@ class EnterClaimControllerSpec
                 ): _*
               )
             ),
-            "/rejected-goods/scheduled/check-claim" //FIXME: routes.CheckClaimController.show()
+            "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-claim" //FIXME: routes.CheckClaimController.show()
           )
         }
       }
