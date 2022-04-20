@@ -33,12 +33,31 @@
     dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(upscanUpload : UpscanUpload, sessionConfig: UploadDocumentsSessionConfig)(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
+@(upscanUpload : UpscanUpload, sessionConfig: UploadDocumentsSessionConfig, key: String)(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
     @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
 
     @layout(pageTitle = Some(sessionConfig.content.title)) {
+
+        <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
+            <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+                <h2 class="govuk-error-summary__title" id="error-summary-title">
+                    There is a problem
+                </h2>
+                <div class="govuk-error-summary__body">
+                    <ul class="govuk-list govuk-error-summary__list">
+                        <li>
+                            <a href="#file">@(messages(s"$key.error.required"))</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <span id="file-upload-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @(messages(s"$key.error.required"))
+            </span>
+        </div>
 
         @pageHeading(sessionConfig.content.title)
 
