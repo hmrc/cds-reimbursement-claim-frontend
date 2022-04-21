@@ -210,4 +210,44 @@ object MapFormat {
       }
     )
 
+  def formatOrdered[K, V](implicit
+    keyFormat: Format[K],
+    valueFormat: Format[V]
+  ): Format[OrderedMap[K, V]] =
+    Format(
+      Reads {
+        case o: JsObject =>
+          Try(
+            OrderedMap(
+              o.fields.map {
+                case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
+                  (o2 \ "k").as[K] -> (o2 \ "v").as[V]
+
+                case (k, valueJson)                                 =>
+                  JsString(k).as[K] -> valueJson.as[V]
+              }: _*
+            )
+          ).fold[JsResult[OrderedMap[K, V]]](
+            error => JsError(error.toString()),
+            mapInstance => JsSuccess(mapInstance)
+          )
+
+        case json => JsError(s"Expected json object but got ${json.getClass.getSimpleName}")
+      },
+      Writes.apply { mapInstance =>
+        JsObject(
+          mapInstance.toSeq.zipWithIndex.map { case ((k, v), i) =>
+            keyFormat.writes(k) match {
+              // in case key serializes to String, use it as a field key directly
+              case JsString(keyString) =>
+                keyString -> valueFormat.writes(v)
+              // otherwise use intermediate object to handle key and value
+              case keyJson             =>
+                s"$entryPrefix$i" -> Json.obj("k" -> keyJson, "v" -> valueFormat.writes(v))
+            }
+          }
+        )
+      }
+    )
+
 }
