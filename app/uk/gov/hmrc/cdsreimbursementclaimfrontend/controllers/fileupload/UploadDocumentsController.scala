@@ -240,11 +240,18 @@ class UploadDocumentsController @Inject() (
           yesNo =>
             Redirect(yesNo match {
               case Yes =>
-                model.sessionConfig.continueAfterYesAnswerUrl
-                  .getOrElse(model.sessionConfig.continueUrl)
+                if (model.uploadedFiles.size === model.sessionConfig.maximumNumberOfFiles)
+                  model.sessionConfig.continueAfterYesAnswerUrl
+                    .getOrElse(model.sessionConfig.continueWhenFullUrl)
+                else
+                  model.sessionConfig.continueAfterYesAnswerUrl
+                    .getOrElse(model.sessionConfig.continueUrl)
 
               case No =>
-                model.sessionConfig.continueUrl
+                if (model.uploadedFiles.size === model.sessionConfig.maximumNumberOfFiles)
+                  model.sessionConfig.continueWhenFullUrl
+                else
+                  model.sessionConfig.continueUrl
             })
         )
     }

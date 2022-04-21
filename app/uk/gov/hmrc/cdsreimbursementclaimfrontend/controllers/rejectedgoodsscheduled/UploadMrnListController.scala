@@ -49,17 +49,23 @@ class UploadMrnListController @Inject() (
 )(implicit val ec: ExecutionContext, val appConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  final val continueUrl: Call    = routes.CheckClaimantDetailsController.show()
   final val backlinkUrl: Call    = routes.CheckDeclarationDetailsController.show()
   final val callbackAction: Call = routes.UploadMrnListController.submit()
   final val selfUrl: String      = jcc.servicesConfig.getString("self.url")
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    val continueUrl: Call =
+      if (hasCompleteAnswers(journey)) checkYourAnswers
+      else routes.CheckClaimantDetailsController.show()
+
     uploadDocumentsConnector
       .initialize(
         UploadDocumentsConnector
           .Request(
-            uploadDocumentsSessionConfig(journey.answers.nonce),
+            uploadDocumentsSessionConfig(
+              journey.answers.nonce,
+              continueUrl
+            ),
             journey.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty),
             featureSwitchService
               .optionally(Feature.InternalUploadDocuments, "schedule-document")
@@ -109,7 +115,8 @@ class UploadMrnListController @Inject() (
   )
 
   def uploadDocumentsSessionConfig(
-    nonce: Nonce
+    nonce: Nonce,
+    continueUrl: Call
   )(implicit
     request: Request[_],
     messages: Messages
@@ -117,7 +124,7 @@ class UploadMrnListController @Inject() (
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = selfUrl + continueUrl.url,
-      continueWhenFullUrl = selfUrl + checkYourAnswers.url,
+      continueWhenFullUrl = selfUrl + continueUrl.url,
       backlinkUrl = selfUrl + backlinkUrl.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = 1,
