@@ -76,7 +76,8 @@
     @summary(ReimbursementClaimsRejectedGoodsSummary.scheduledForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.WorkInProgressController.show())))
 
     @pageHeading(messages(s"$key.inspection.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
+    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(),
+        routes.ChooseInspectionAddressTypeController.show(), Some(routes.ChooseInspectionAddressTypeController.redirectToALF)))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
