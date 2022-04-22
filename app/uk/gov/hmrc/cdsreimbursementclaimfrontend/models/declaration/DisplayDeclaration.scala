@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import play.api.i18n.Messages
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -128,7 +129,7 @@ object DisplayDeclaration {
         details.contactDetails.flatMap(f => f.telephone)
       )
 
-    def consigneeAddress: Option[String] =
+    def consigneeAddress(implicit messages: Messages): Option[String] =
       displayDeclaration.displayResponseDetail.consigneeDetails.map(details =>
         establishmentAddress(details.establishmentAddress).mkString("<br />")
       )
@@ -141,12 +142,12 @@ object DisplayDeclaration {
     def declarantTelephoneNumber: Option[String] =
       displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.telephone)
 
-    def declarantContactAddress: Option[String] =
+    def declarantContactAddress(implicit messages: Messages): Option[String] =
       Option(displayDeclaration.displayResponseDetail.declarantDetails.establishmentAddress).map(address =>
         establishmentAddress(address).mkString("<br />")
       )
 
-    def declarantAddress(contactDetails: ContactDetails): List[String] = {
+    def declarantAddress(contactDetails: ContactDetails)(implicit messages: Messages): List[String] = {
       val lines = List(
         contactDetails.addressLine1,
         contactDetails.addressLine2,
@@ -154,17 +155,19 @@ object DisplayDeclaration {
         contactDetails.addressLine4,
         contactDetails.postalCode,
         contactDetails.countryCode
+          .map(countryCode => messages(s"country.$countryCode"))
       )
       lines.collect { case Some(s) => s }
     }
 
-    def establishmentAddress(establishmentAddress: EstablishmentAddress): List[String] =
+    def establishmentAddress(establishmentAddress: EstablishmentAddress)(implicit messages: Messages): List[String] =
       List(
         Some(establishmentAddress.addressLine1),
         establishmentAddress.addressLine2,
         establishmentAddress.addressLine3,
         establishmentAddress.postalCode,
         Some(establishmentAddress.countryCode)
+          .map(countryCode => messages(s"country.$countryCode"))
       ).flattenOption
   }
 
