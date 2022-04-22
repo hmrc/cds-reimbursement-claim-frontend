@@ -21,14 +21,8 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController.checkClaimDetailsKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -36,9 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pa
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
@@ -49,40 +41,50 @@ class CheckClaimDetailsController @Inject() (
 
   val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.checkClaimDetailsKey)
 
-  private val postAction: Call =
-    routes.SelectDutyTypesController.submit() //FIXME: routes.CheckClaimDetailsController.submit()
+  private val postAction: Call         = routes.CheckClaimDetailsController.submit()
+  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val answers: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]] = journey.getReimbursementClaims
-    val reimbursementTotal: BigDecimal                                         = journey.getTotalReimbursementAmount
-    implicit val subKey: Option[String]                                        = Some("scheduled")
-    Ok(checkClaimDetailsPage(answers, reimbursementTotal, checkClaimDetailsForm, postAction)).asFuture
-
+    val answers                         = journey.getReimbursementClaims
+    val reimbursementTotal              = journey.getTotalReimbursementAmount
+    implicit val subKey: Option[String] = Some("scheduled")
+    if (journey.hasCompleteReimbursementClaims)
+      Ok(checkClaimDetailsPage(answers, reimbursementTotal, checkClaimDetailsForm, postAction)).asFuture
+    else Redirect(selectDutiesAction).asFuture
   }
 
-  //val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-//  Future.successful(
-//    checkClaimDetailsForm
-//  .bindFromRequest()
-//  .fold(
-//  formWithErrors =>
-//  (
-//  journey,
-//  BadRequest(
-//    checkClaimDetailsPage(
-//  formWithErrors,
-//  postAction
-//  )
-//  )
-//  ),
-//    yesNo =>
-//  (
-//  journey..[SUBMIT METHOD](yesNo),
-//Redirect(routes.[NEW CONTROLLER].show()) //FIXME
-//  )
-//  )
-//  )
-//}
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      val answers                         = journey.getReimbursementClaims
+      val reimbursementTotal              = journey.getTotalReimbursementAmount
+      implicit val subKey: Option[String] = Some("scheduled")
+      if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction)).asFuture
+      else {
+        checkClaimDetailsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(
+                  checkClaimDetailsPage(
+                    answers,
+                    reimbursementTotal,
+                    formWithErrors,
+                    postAction
+                  )
+                )
+              ),
+            {
+              case Yes => (journey, Redirect(routes.EnterInspectionDateController.show()))
+              case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
+            }
+          )
+          .asFuture
+      }
+    },
+    fastForwardToCYAEnabled = false
+  )
 
 }
 

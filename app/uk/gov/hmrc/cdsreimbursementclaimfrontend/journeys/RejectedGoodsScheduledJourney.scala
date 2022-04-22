@@ -363,6 +363,9 @@ final class RejectedGoodsScheduledJourney private (
         Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
+  def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
+    new RejectedGoodsScheduledJourney(answers.copy(dutiesChangeMode = enabled))
+
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsScheduledJourney =
@@ -545,7 +548,8 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
     selectedDocumentType: Option[UploadDocumentType] = None,
     scheduledDocument: Option[UploadedFile] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false
+    checkYourAnswersChangeMode: Boolean = false,
+    dutiesChangeMode: Boolean = false
   ) extends RejectedGoods.CommonAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
