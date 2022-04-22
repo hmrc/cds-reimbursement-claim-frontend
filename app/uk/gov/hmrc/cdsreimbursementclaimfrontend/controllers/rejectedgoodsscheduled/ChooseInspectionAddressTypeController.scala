@@ -57,7 +57,7 @@ class ChooseInspectionAddressTypeController @Inject() (
         Ok(
           inspectionAddressPage(
             addresses,
-            inspectionAddressTypeForm,
+            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
             postAction
           )
         )
@@ -90,10 +90,7 @@ class ChooseInspectionAddressTypeController @Inject() (
               journey
                 .getInspectionAddressForType(inspectionAddressType)
                 .map { address =>
-                  (
-                    journey.submitInspectionAddress(address),
-                    Redirect(nextPage)
-                  )
+                  redirectToTheNextPage(journey.submitInspectionAddress(inspectionAddress = address))
                 }
                 .getOrElse(
                   (
