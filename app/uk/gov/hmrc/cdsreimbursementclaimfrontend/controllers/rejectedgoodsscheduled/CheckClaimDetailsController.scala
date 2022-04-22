@@ -77,7 +77,7 @@ class CheckClaimDetailsController @Inject() (
               ),
             {
               case Yes => (journey, Redirect(routes.EnterInspectionDateController.show()))
-              case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
+              case No  => (journey, Redirect(selectDutiesAction))
             }
           )
           .asFuture

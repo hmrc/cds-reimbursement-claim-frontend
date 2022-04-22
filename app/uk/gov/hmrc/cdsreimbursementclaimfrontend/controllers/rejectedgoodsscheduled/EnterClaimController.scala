@@ -127,9 +127,8 @@ class EnterClaimController @Inject() (
                           updatedJourney,
                           updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
                             case Some((nextDutyType, nextTaxCode)) =>
-                              if (
-                                updatedJourney.hasCompleteReimbursementClaims && !updatedJourney.answers.dutiesChangeMode
-                              ) Redirect(routes.CheckClaimDetailsController.show())
+                              if (journey.hasCompleteReimbursementClaims)
+                                Redirect(routes.CheckClaimDetailsController.show())
                               else Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
                             case None                              =>
                               Redirect(routes.CheckClaimDetailsController.show())
