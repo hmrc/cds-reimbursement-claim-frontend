@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import RejectedGoodsMultipleJourneyGenerators._
 
@@ -50,7 +51,7 @@ class RejectedGoodsMultipleJourneyFormatSpec
         Answers(
           userEoriNumber = exampleEori,
           reimbursementClaims = Some(
-            Map(
+            OrderedMap(
               MRN("19GB03I52858027001") -> Map(TaxCode.A00 -> Some(BigDecimal("12.99"))),
               MRN("19GB03I52858027002") -> Map(TaxCode.A00 -> None, TaxCode.A20 -> Some(BigDecimal("1.01")))
             )
@@ -60,12 +61,13 @@ class RejectedGoodsMultipleJourneyFormatSpec
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          reimbursementClaims =
-            Some(Map(MRN("19GB03I52858027001") -> Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None)))
+          reimbursementClaims = Some(
+            OrderedMap(MRN("19GB03I52858027001") -> Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
+          )
         )
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map()))
+        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(OrderedMap()))
       )
 
       validateCanReadAndWriteJson(

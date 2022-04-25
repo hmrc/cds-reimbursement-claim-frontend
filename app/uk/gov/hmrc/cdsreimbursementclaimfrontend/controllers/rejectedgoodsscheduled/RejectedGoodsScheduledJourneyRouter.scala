@@ -25,32 +25,30 @@ trait RejectedGoodsScheduledJourneyRouter {
 
   def routeForValidationError(error: String): Call =
     error match {
-      case JOURNEY_ALREADY_FINALIZED                                => undefined
-      case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => undefined
-      case MISSING_DISPLAY_DECLARATION                              => undefined
-      case MISSING_BASIS_OF_CLAIM                                   => undefined
-      case MISSING_DETAILS_OF_REJECTED_GOODS                        => undefined
+      case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation()
+      case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.show()
+      case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.show()
+      case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show()
+      case MISSING_DETAILS_OF_REJECTED_GOODS                        => routes.EnterRejectedGoodsDetailsController.show()
       case MISSING_INSPECTION_DATE                                  => routes.EnterInspectionDateController.show()
       case MISSING_INSPECTION_ADDRESS                               => routes.ChooseInspectionAddressTypeController.show()
-      case MISSING_METHOD_OF_DISPOSAL                               => undefined
+      case MISSING_METHOD_OF_DISPOSAL                               => routes.DisposalMethodController.show()
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
       case MISSING_SCHEDULED_DOCUMENT                               => routes.UploadMrnListController.show()
       case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show()
-      case MISSING_CONTACT_DETAILS                                  => undefined
-      case MISSING_CONTACT_ADDRESS                                  => undefined
+      case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show()
+      case MISSING_CONTACT_ADDRESS                                  => routes.CheckClaimantDetailsController.redirectToALF()
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => undefined
-      case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined
-      case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => undefined
+      case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterDeclarantEoriNumberController.show()
+      case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterDeclarantEoriNumberController.show()
       case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterImporterEoriNumberController.show()
       case CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterImporterEoriNumberController.show()
       case DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => routes.ChooseBankAccountTypeController.show()
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
-      case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED     => undefined
+      case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED     => routes.EnterSpecialCircumstancesController.show()
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
-      case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => undefined
-      case REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED          => undefined
       case _                                                        => undefined
     }
 

@@ -39,7 +39,8 @@ object InspectionDateAndAddressSummary {
     inspectionAddress: InspectionAddress,
     key: String,
     changeInspectionDateCall: Call,
-    changeInspectionAddressTypeCall: Call
+    changeInspectionAddressTypeCall: Call,
+    maybeChangeInspectionAddressCall: Option[Call] = None
   )(implicit
     messages: Messages
   ): SummaryList = {
@@ -60,6 +61,17 @@ object InspectionDateAndAddressSummary {
         items = Seq(
           ActionItem(
             href = s"${changeInspectionAddressTypeCall.url}",
+            content = Text(messages("cya.change")),
+            visuallyHiddenText = Some(messages(s"$key.inspection-address-type"))
+          )
+        )
+      )
+
+    lazy val changeInspectionAddressAction =
+      Actions(
+        items = Seq(
+          ActionItem(
+            href = s"${maybeChangeInspectionAddressCall.map(_.url).getOrElse("")}",
             content = Text(messages("cya.change")),
             visuallyHiddenText = Some(messages(s"$key.inspection-address-type"))
           )
@@ -90,7 +102,11 @@ object InspectionDateAndAddressSummary {
         SummaryListRow(
           key = Key(Text(messages(s"$key.inspection-address"))),
           value = Value(HtmlContent(HtmlFormat.fill(addressData))),
-          actions = if (inspectionAddress.addressType == Other) Some(changeInspectionAddressTypeAction) else None
+          actions = (inspectionAddress.addressType, maybeChangeInspectionAddressCall) match {
+            case (Other, Some(_)) => Some(changeInspectionAddressAction)
+            case (Other, None)    => Some(changeInspectionAddressTypeAction)
+            case _                => None
+          }
         )
       )
     )

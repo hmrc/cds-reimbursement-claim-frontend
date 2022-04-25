@@ -142,7 +142,7 @@ trait JourneyTestData {
             legalName = s"consignee-legal-name-$id",
             establishmentAddress = EstablishmentAddress(
               addressLine1 = s"consignee-address-line-1-$id",
-              countryCode = s"consignee-country-code-$id"
+              countryCode = Country.uk.code
             ),
             contactDetails = consigneeContact
           )
@@ -162,7 +162,7 @@ trait JourneyTestData {
           legalName = s"declarant-legal-name-$id",
           establishmentAddress = EstablishmentAddress(
             addressLine1 = s"declarant-address-line-1-$id",
-            countryCode = s"declarant-country-code-$id"
+            countryCode = Country.uk.code
           ),
           contactDetails = declarantContact
         ),
