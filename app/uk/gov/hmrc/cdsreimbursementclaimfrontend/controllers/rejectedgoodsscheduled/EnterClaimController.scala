@@ -127,11 +127,11 @@ class EnterClaimController @Inject() (
                           updatedJourney,
                           updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
                             case Some((nextDutyType, nextTaxCode)) =>
-                              Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
+                              if (journey.hasCompleteReimbursementClaims)
+                                Redirect(routes.CheckClaimDetailsController.show())
+                              else Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
                             case None                              =>
-                              Redirect(
-                                "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-claim"
-                              ) //FIXME: routes.CheckClaimController.show()
+                              Redirect(routes.CheckClaimDetailsController.show())
                           }
                         )
                     )

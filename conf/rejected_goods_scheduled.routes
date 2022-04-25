@@ -41,6 +41,9 @@ GET          /rejected-goods/scheduled/select-duties                            
 GET          /rejected-goods/scheduled/select-duties/:dutyType/:taxCode              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.show(dutyType: DutyType, taxCode: TaxCode)
 POST         /rejected-goods/scheduled/select-duties/:dutyType/:taxCode              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.submit(dutyType: DutyType, taxCode: TaxCode)
 
+GET          /rejected-goods/scheduled/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController.show()
+POST         /rejected-goods/scheduled/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController.submit()
+
 GET          /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseInspectionAddressTypeController.show()
 POST         /rejected-goods/scheduled/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseInspectionAddressTypeController.submit()
 
@@ -49,11 +52,6 @@ GET          /rejected-goods/scheduled/inspection-address/update-address        
 
 GET          /rejected-goods/scheduled/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterInspectionDateController.show()
 POST         /rejected-goods/scheduled/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterInspectionDateController.submit()
-
-GET          /rejected-goods/scheduled/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-
-GET          /rejected-goods/scheduled/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()
-POST         /rejected-goods/scheduled/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.submit()
 
 GET          /rejected-goods/scheduled/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseBankAccountTypeController.show()
 POST         /rejected-goods/scheduled/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseBankAccountTypeController.submit()
@@ -78,3 +76,5 @@ GET          /rejected-goods/scheduled/upload-summary                           
 POST         /rejected-goods/scheduled/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.submit()
 GET          /rejected-goods/scheduled/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.showConfirmation()
 GET          /rejected-goods/scheduled/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.show()
+
+GET          /rejected-goods/scheduled/work-in-progress                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.WorkInProgressController.show()

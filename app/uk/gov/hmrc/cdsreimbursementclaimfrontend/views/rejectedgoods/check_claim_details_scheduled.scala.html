@@ -1,0 +1,97 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SelectedDutyTaxCodesReimbursementAnswer, YesNo}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyAndTaxCodeReimbursementSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.TaxCodeReimbursementSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import scala.collection.SortedMap
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.TaxCodeReimbursementRejectedGoodsSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyAndTaxCodeReimbursementRejectedGoodsSummary
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+)
+
+@(answer: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+
+@key = @{"check-claim-summary"}
+@title = @{messages(s"$key.scheduled.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @pageHeading(title)
+
+    @paragraph(Html(messages(s"$key.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
+
+    @answer.map { claims =>
+        @pageHeading(messages(s"duty-type.${claims._1.repr}"), "govuk-heading-m", "h2")
+        @summary(TaxCodeReimbursementRejectedGoodsSummary((claims._1, claims._2),key, subKey))
+        <br/>
+    }
+
+    @pageHeading(messages(s"$key.total.header"), "govuk-heading-m", "h2")
+    @summary(DutyAndTaxCodeReimbursementRejectedGoodsSummary(reimbursementTotal, key, subKey, None))
+    <br/>
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @radios(
+            form = form,
+            name = key,
+            legend = messages(s"$key.are-duties-correct"),
+            classes = "govuk-fieldset__legend--s govuk-!-margin-top-6",
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    value = Some("true"),
+                    content = Text(messages(s"$key.yes")),
+                    checked = false
+                ),
+                RadioItem(
+                    value = Some("false"),
+                    content = Text(messages(s"$key.no")),
+                    checked = false
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+    }
+}

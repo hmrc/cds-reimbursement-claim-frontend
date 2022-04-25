@@ -231,7 +231,7 @@ class EnterClaimControllerSpec
                 ): _*
               )
             ),
-            "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-claim" //FIXME: routes.CheckClaimController.show()
+            routes.CheckClaimDetailsController.show()
           )
         }
       }
