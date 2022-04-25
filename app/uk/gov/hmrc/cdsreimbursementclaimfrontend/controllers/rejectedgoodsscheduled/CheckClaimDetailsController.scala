@@ -43,11 +43,12 @@ class CheckClaimDetailsController @Inject() (
 
   private val postAction: Call         = routes.CheckClaimDetailsController.submit()
   private val selectDutiesAction: Call = routes.SelectDutyTypesController.show()
+  implicit val subKey: Option[String]  = Some("scheduled")
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val answers                         = journey.getReimbursementClaims
-    val reimbursementTotal              = journey.getTotalReimbursementAmount
-    implicit val subKey: Option[String] = Some("scheduled")
+    val answers            = journey.getReimbursementClaims
+    val reimbursementTotal = journey.getTotalReimbursementAmount
+
     if (journey.hasCompleteReimbursementClaims)
       Ok(checkClaimDetailsPage(answers, reimbursementTotal, checkClaimDetailsForm, postAction)).asFuture
     else Redirect(selectDutiesAction).asFuture
@@ -55,9 +56,9 @@ class CheckClaimDetailsController @Inject() (
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      val answers                         = journey.getReimbursementClaims
-      val reimbursementTotal              = journey.getTotalReimbursementAmount
-      implicit val subKey: Option[String] = Some("scheduled")
+      val answers            = journey.getReimbursementClaims
+      val reimbursementTotal = journey.getTotalReimbursementAmount
+
       if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction)).asFuture
       else {
         checkClaimDetailsForm
