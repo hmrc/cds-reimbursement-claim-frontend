@@ -231,7 +231,7 @@ class EnterClaimControllerSpec
                 ): _*
               )
             ),
-            "/rejected-goods/scheduled/check-claim" //FIXME: routes.CheckClaimController.show()
+            routes.CheckClaimDetailsController.show()
           )
         }
       }

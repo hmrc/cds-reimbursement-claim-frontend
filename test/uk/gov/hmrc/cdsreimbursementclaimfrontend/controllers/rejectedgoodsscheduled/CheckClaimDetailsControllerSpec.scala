@@ -82,7 +82,7 @@ class CheckClaimDetailsControllerSpec
 
       status(controller.show()(FakeRequest())) shouldBe NOT_FOUND
 
-    } // not show page
+    }
 
     "redirect to the select duty types page" when {
       "the user has not entered reimbursement amounts" in {
@@ -93,9 +93,9 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(performActionShow(), routes.SelectDutyTypesController.show())
 
-      } // no reimbursement amounts
+      }
 
-    } // redirect to duty types
+    }
 
     "show the page" when {
 
@@ -111,9 +111,9 @@ class CheckClaimDetailsControllerSpec
             messageFromMessageKey(messageKey = s"$checkClaimDetailsKey.scheduled.title"),
             doc => formAction(doc) shouldBe routes.CheckClaimDetailsController.submit().url
           )
-        } // forAll
-      } // in
-    } // amounts filled
+        }
+      }
+    }
 
     "submit" must {
 
@@ -134,8 +134,8 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(performActionSubmit("true"), routes.EnterInspectionDateController.show())
 
-        } // forAll
-      } // redirect to next page
+        }
+      }
 
       "redirect back to select duty types page if the answer is no" in {
         forAll(completeJourneyGen) { journey =>
@@ -148,11 +148,11 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(performActionSubmit("false"), routes.SelectDutyTypesController.show())
 
-        } // forAll
-      } // redirect back
+        }
+      }
 
-    } // submit
+    }
 
-  } //controller end
+  }
 
-} // class end
+}
