@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
 import scala.concurrent.Future
 
 class CheckClaimDetailsControllerSpec
@@ -123,7 +122,19 @@ class CheckClaimDetailsControllerSpec
         status(performActionSubmit("false")) shouldBe NOT_FOUND
       }
 
-      "redirect to the next page if the answer is yes" in {
+      "redirect to the next page if the answer is yes if not all of the questions have been answered" in
+        forAll(completeJourneyGen) { completeJourney =>
+          val incompleteJourney = completeJourney.submitContactDetails(None)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(incompleteJourney))
+          }
+
+          checkIsRedirect(performActionSubmit("true"), routes.EnterInspectionDateController.show())
+        }
+
+      "redirect to the check your answers page if the answer is yes if all of the questions have been answered" in {
         forAll(completeJourneyGen) { journey =>
           assert(journey.hasCompleteReimbursementClaims)
 
@@ -132,8 +143,7 @@ class CheckClaimDetailsControllerSpec
             mockGetSession(SessionData(journey))
           }
 
-          checkIsRedirect(performActionSubmit("true"), routes.EnterInspectionDateController.show())
-
+          checkIsRedirect(performActionSubmit("true"), routes.CheckYourAnswersController.show())
         }
       }
 

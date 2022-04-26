@@ -77,7 +77,16 @@ class CheckClaimDetailsController @Inject() (
                 )
               ),
             {
-              case Yes => (journey, Redirect(routes.EnterInspectionDateController.show()))
+              case Yes =>
+                (
+                  journey,
+                  Redirect(
+                    if (journey.hasCompleteAnswers)
+                      checkYourAnswers
+                    else
+                      routes.EnterInspectionDateController.show()
+                  )
+                )
               case No  => (journey, Redirect(selectDutiesAction))
             }
           )
