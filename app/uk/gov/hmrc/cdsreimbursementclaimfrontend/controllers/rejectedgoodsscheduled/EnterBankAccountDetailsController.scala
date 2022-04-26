@@ -50,10 +50,7 @@ class EnterBankAccountDetailsController @Inject() (
   private val postAction: Call = routes.EnterBankAccountDetailsController.submit()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Future.successful {
-      val form = enterBankDetailsForm
-      Ok(enterBankAccountDetailsPage(form, postAction))
-    }
+    Ok(enterBankAccountDetailsPage(enterBankDetailsForm, postAction)).asFuture
   }
 
   def handleBadReputation(
