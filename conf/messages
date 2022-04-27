@@ -1352,11 +1352,11 @@ confirmation-of-submission.what-next.link.1.start-another-claim=Start another cl
 #  PROBLEM WITH ADDRESS
 #===================================================
 problem-with-address.title=There is a problem with your contact address
-problem-with-address.paragraph.1=Some information about your contact address was missing.
-problem-with-address.paragraph.2=This could be because:
-problem-with-address.point.1=the first line of the address was not entered
-problem-with-address.point.2=a valid postcode was not entered for this address
-problem-with-address.point.3=a town or city was not entered for this address
+problem-with-address.paragraph.1=Some information was missing for your contact address.
+problem-with-address.paragraph.2=The contact address should include:
+problem-with-address.point.1=a property name or number (address line 1)
+problem-with-address.point.2=a real postcode
+problem-with-address.point.3=a town or city name
 problem-with-address.button.tryAgain=Try again
 
 #===================================================
