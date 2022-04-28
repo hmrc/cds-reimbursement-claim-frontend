@@ -275,6 +275,12 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def formAction(doc: Document) =
     doc.select("form").attr("action")
+
+  def assertThatNoneRadioButtonIsSelected: Document => Any               =
+    (doc: Document) => selectedRadioValue(doc).shouldBe(None)
+
+  def assertThatRadioButtonIsSelected(expected: String): Document => Any =
+    (doc: Document) => selectedRadioValue(doc).shouldBe(Some(expected))
 }
 
 trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks {

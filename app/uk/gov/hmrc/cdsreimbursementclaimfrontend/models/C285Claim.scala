@@ -109,6 +109,7 @@ object C285Claim {
             maybeBankAccountDetails,
             _,
             maybeBasisForClaim,
+            _,
             maybeSupportingEvidences,
             _,
             maybeDraftCommodityAnswer,

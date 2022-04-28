@@ -56,9 +56,12 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    supportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
+    supportingEvidencesAnswer: Option[SupportingEvidencesAnswer],
+    documentTypeAnswer: Option[UploadDocumentType]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftC285Claim      = DraftClaim.blank.copy(supportingEvidencesAnswer = supportingEvidencesAnswer)
+    val draftC285Claim      =
+      DraftClaim.blank
+        .copy(supportingEvidencesAnswer = supportingEvidencesAnswer, documentTypeAnswer = documentTypeAnswer)
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
@@ -85,7 +88,11 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         "the number of uploads have reached the maximum allowed" in {
           val answer          = sample(arbitrarySupportingEvidencesAnswerOfN(60))
           val journey         = sample[JourneyBindable]
-          val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = answer)
+          val (session, _, _) =
+            sessionWithClaimState(
+              supportingEvidencesAnswer = answer,
+              documentTypeAnswer = Some(UploadDocumentType.BillOfLading)
+            )
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -104,7 +111,10 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         "upscan initiate call fails" in {
           val answer          = sample[SupportingEvidencesAnswer]
           val journey         = sample[JourneyBindable]
-          val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = Some(answer))
+          val (session, _, _) = sessionWithClaimState(
+            supportingEvidencesAnswer = Some(answer),
+            documentTypeAnswer = Some(UploadDocumentType.BillOfLading)
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -124,7 +134,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey         = sample[JourneyBindable]
           val uploadReference = sample[UploadReference]
           val answer          = sample(arbitrarySupportingEvidencesAnswerOfN(1))
-          val (session, _, _) = sessionWithClaimState(answer)
+          val (session, _, _) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
           val upscanUpload    = genUpscanUpload(uploadReference)
 
           inSequence {
@@ -157,7 +168,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val journey         = sample[JourneyBindable]
           val answer          = sample(arbitrarySupportingEvidencesAnswerOfN(2))
-          val (session, _, _) = sessionWithClaimState(answer)
+          val (session, _, _) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -169,162 +181,6 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           )
         }
       }
-    }
-
-    "handling requests to display the choose your document type page" must {
-
-      def performAction(journey: JourneyBindable, uploadReference: UploadReference): Future[Result] =
-        controller.chooseSupportingEvidenceDocumentType(journey, uploadReference)(FakeRequest())
-
-      "display the page" when {
-
-        val uploadReference    = sample[UploadReference]
-        val supportingEvidence = sample[UploadedFile].copy(cargo = None)
-        val answer             = List(supportingEvidence).toNel
-
-        "a user has not answered the question before" in {
-          val journey = sample[JourneyBindable]
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(sessionWithClaimState(answer)._1)
-          }
-          checkPageIsDisplayed(
-            performAction(journey, uploadReference),
-            messageFromMessageKey(
-              "supporting-evidence.choose-document-type.title"
-            )
-          )
-        }
-
-        "a user has answered the question before" in {
-          val journey = sample[JourneyBindable]
-
-          val supportingEvidence =
-            sample[UploadedFile].copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))
-
-          val answer = List(supportingEvidence).toNel
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(sessionWithClaimState(answer)._1)
-          }
-
-          checkPageIsDisplayed(
-            performAction(journey, uploadReference),
-            messageFromMessageKey(
-              "supporting-evidence.choose-document-type.title"
-            )
-          )
-        }
-      }
-    }
-
-    "handling requests to chose evidence document type" must {
-
-      def performAction(journey: JourneyBindable, uploadReference: UploadReference)(
-        data: Seq[(String, String)]
-      ): Future[Result] =
-        controller.chooseSupportingEvidenceDocumentTypeSubmit(journey, uploadReference)(
-          FakeRequest().withFormUrlEncodedBody(data: _*)
-        )
-
-      "fail" when {
-        "document type is missing" in {
-          val journey         = sample[JourneyBindable]
-          val uploadReference = sample[UploadReference]
-          val answer          = sample[SupportingEvidencesAnswer]
-
-          val (session, _, _) = sessionWithClaimState(Some(answer))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          status(performAction(journey, uploadReference)(Seq.empty)) shouldBe BAD_REQUEST
-        }
-
-        "supporting evidence is not found" in {
-          val journey         = sample[JourneyBindable]
-          val uploadReference = sample[UploadReference]
-          val documentType    = sample[UploadDocumentType]
-          val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = None)
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          checkIsTechnicalErrorPage(
-            performAction(journey, uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(documentType))
-            )
-          )
-        }
-
-        "an error caught on session update" in {
-          val journeyBindable    = sample[JourneyBindable]
-          val supportingEvidence = sample[UploadedFile].copy(cargo = None)
-          val documentType       = sample[UploadDocumentType]
-          val answer             = List(supportingEvidence).toNel
-
-          val (session, journey, draftClaim) = sessionWithClaimState(answer)
-
-          val updatedSupportingEvidence = supportingEvidence.copy(
-            cargo = Some(documentType)
-          )
-
-          val updatedAnswer               = List(updatedSupportingEvidence).toNel
-          val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
-          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
-          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-            mockStoreSession(updatedSession)(Left(Error("boom")))
-          }
-
-          checkIsTechnicalErrorPage(
-            performAction(journeyBindable, supportingEvidence.uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(documentType))
-            )
-          )
-        }
-      }
-
-      "redirect to check your answers page" when {
-
-        "document type is successfully selected" in {
-          val journeyBindable    = sample[JourneyBindable]
-          val supportingEvidence = sample[UploadedFile].copy(cargo = None)
-          val documentType       = sample[UploadDocumentType]
-          val answer             = List(supportingEvidence).toNel
-
-          val (session, journey, draftClaim) = sessionWithClaimState(answer)
-
-          val updatedSupportingEvidence = supportingEvidence.copy(cargo = Some(documentType))
-          val updatedAnswer             = List(updatedSupportingEvidence).toNel
-
-          val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
-          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
-          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-            mockStoreSession(updatedSession)(Right(()))
-          }
-
-          checkIsRedirect(
-            performAction(journeyBindable, supportingEvidence.uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(documentType))
-            ),
-            routes.SupportingEvidenceController.checkYourAnswers(journeyBindable)
-          )
-        }
-      }
-
     }
 
     "handling requests to delete supporting evidence" must {
@@ -339,7 +195,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val supportingEvidence = sample[UploadedFile]
           val answers            = List(supportingEvidence).toNel
 
-          val (session, journey, draftClaim) = sessionWithClaimState(answers)
+          val (session, journey, draftClaim) =
+            sessionWithClaimState(answers, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           val updatedDraftReturn = draftClaim.copy(supportingEvidencesAnswer = None)
           val updatedJourney     = journey.copy(draftClaim = updatedDraftReturn)
@@ -366,7 +223,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journeyBindable = sample[JourneyBindable]
           val answer          = sample(arbitrarySupportingEvidencesAnswerOfN(2))
 
-          val (session, journey, draftClaim) = sessionWithClaimState(answer)
+          val (session, journey, draftClaim) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           val updatedAnswer = answer.flatMap(_.tail.toNel)
 
@@ -395,7 +253,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val evidence        = sample[UploadedFile]
           val answer          = List(evidence).toNel
 
-          val (session, journey, draftClaim) = sessionWithClaimState(answer)
+          val (session, journey, draftClaim) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = None)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
@@ -423,6 +282,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journeyBindable    = sample[JourneyBindable]
           val supportingEvidence = sample[UploadedFile].copy(cargo = None)
           val uploadReference    = supportingEvidence.uploadReference
+          val documentType       = sample[UploadDocumentType]
 
           val uploadDetails        = sample[UploadDetails].copy(fileName = supportingEvidence.fileName)
           val updatedUpscanSuccess = sample[UpscanSuccess].copy(uploadDetails = uploadDetails)
@@ -431,9 +291,10 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val answer = sample(arbitrarySupportingEvidencesAnswerOpt)
 
-          val (session, journey, draftClaim) = sessionWithClaimState(answer)
+          val (session, journey, draftClaim) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(documentType))
 
-          val newSupportingEvidence = UploadedFile.from(uploadReference, updatedUpscanSuccess)
+          val newSupportingEvidence = UploadedFile.from(uploadReference, updatedUpscanSuccess, Some(documentType))
 
           val updatedAnswer = answer.map(_ :+ newSupportingEvidence) orElse List(newSupportingEvidence).toNel
 
@@ -463,7 +324,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val journey         = sample[JourneyBindable]
           val answer          = sample[SupportingEvidencesAnswer]
-          val (session, _, _) = sessionWithClaimState(Some(answer))
+          val (session, _, _) =
+            sessionWithClaimState(Some(answer), documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -489,7 +351,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey = sample[JourneyBindable]
           val answer  = sample[SupportingEvidencesAnswer]
 
-          val (session, _, _) = sessionWithClaimState(Some(answer))
+          val (session, _, _) =
+            sessionWithClaimState(Some(answer), documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
@@ -519,7 +382,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val answers = List(UploadedFile.from(uploadReference, upscanSuccess)).toNel
 
-          val (session, _, _) = sessionWithClaimState(answers)
+          val (session, _, _) =
+            sessionWithClaimState(answers, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -529,24 +393,25 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsRedirect(
             performAction(journey, uploadReference),
-            routes.SupportingEvidenceController
-              .chooseSupportingEvidenceDocumentType(journey, uploadReference)
+            routes.SupportingEvidenceController.checkYourAnswers(journey)
           )
         }
       }
 
-      "return the user to the choose document type page" when {
+      "return the user to the upload summary page" when {
 
         "the upscan call back came back with a success status" in {
           val journeyBindable      = sample[JourneyBindable]
           val upscanSuccess        = sample[UpscanSuccess]
           val uploadDetails        = sample[UploadDetails]
           val updatedUpscanSuccess = upscanSuccess.copy(uploadDetails = uploadDetails)
+          val documentType         = sample[UploadDocumentType]
 
           val uploadReference = sample[UploadReference]
           val answer          = sample(arbitrarySupportingEvidencesAnswerOpt)
 
-          val (session, journey, draftClaim) = sessionWithClaimState(answer)
+          val (session, journey, draftClaim) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(documentType))
 
           val upscanUpload =
             sample[UpscanUpload].copy(
@@ -554,7 +419,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
               upscanCallBack = Some(updatedUpscanSuccess)
             )
 
-          val newSupportingEvidence = UploadedFile.from(uploadReference, updatedUpscanSuccess)
+          val newSupportingEvidence = UploadedFile.from(uploadReference, updatedUpscanSuccess, Some(documentType))
 
           val updatedAnswer = answer.map(_ :+ newSupportingEvidence) orElse List(newSupportingEvidence).toNel
 
@@ -572,7 +437,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsRedirect(
             performAction(journeyBindable, uploadReference),
-            routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(journeyBindable, uploadReference)
+            routes.SupportingEvidenceController.checkYourAnswers(journeyBindable)
           )
         }
       }
@@ -591,7 +456,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val answer = List(supportingEvidence).toNel
 
-          val (session, _, _) = sessionWithClaimState(answer)
+          val (session, _, _) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -629,7 +495,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val answer = List(supportingEvidence).toNel
 
-          val (session, _, _) = sessionWithClaimState(answer)
+          val (session, _, _) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -654,7 +521,10 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
         "the user has already answered yes to adding supporting evidences and has not uploaded any evidences so far" in {
           val journey         = sample[JourneyBindable]
-          val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = None)
+          val (session, _, _) = sessionWithClaimState(
+            supportingEvidencesAnswer = None,
+            documentTypeAnswer = Some(UploadDocumentType.BillOfLading)
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -676,7 +546,10 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
         "the use has never answered this question" in {
           val journey         = sample[JourneyBindable]
-          val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = None)
+          val (session, _, _) = sessionWithClaimState(
+            supportingEvidencesAnswer = None,
+            documentTypeAnswer = Some(UploadDocumentType.BillOfLading)
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -696,7 +569,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey = sample[JourneyBindable]
           val answer  = sample[SupportingEvidencesAnswer]
 
-          val (session, _, _) = sessionWithClaimState(Some(answer))
+          val (session, _, _) =
+            sessionWithClaimState(Some(answer), documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -729,7 +603,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey = sample[JourneyBindable]
           val answer  = sample[SupportingEvidencesAnswer]
 
-          val (session, _, _) = sessionWithClaimState(Some(answer))
+          val (session, _, _) =
+            sessionWithClaimState(Some(answer), documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -746,7 +621,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val journey = sample[JourneyBindable]
           val answer  = sample(arbitrarySupportingEvidencesAnswerOfN(60))
 
-          val (session, _, _) = sessionWithClaimState(answer)
+          val (session, _, _) =
+            sessionWithClaimState(answer, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -760,13 +636,14 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         }
       }
 
-      "redirect to upload new document page" when {
+      "redirect to select document type" when {
 
         "user decided to add more documents" in {
           val journey = sample[JourneyBindable]
           val answer  = sample[SupportingEvidencesAnswer]
 
-          val (session, _, _) = sessionWithClaimState(Some(answer))
+          val (session, _, _) =
+            sessionWithClaimState(Some(answer), documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -775,7 +652,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsRedirect(
             performAction(journey, whetherAddNewDocument = Some(true)),
-            routes.SupportingEvidenceController.uploadSupportingEvidence(journey)
+            claimRoutes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey)
           )
         }
       }
@@ -784,7 +661,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         val journey = sample[JourneyBindable]
         val answer  = sample[SupportingEvidencesAnswer]
 
-        val (session, _, _) = sessionWithClaimState(Some(answer))
+        val (session, _, _) =
+          sessionWithClaimState(Some(answer), documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -797,7 +675,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
       "redirect to upload evidence page if not answers exist" in {
         val journey = sample[JourneyBindable]
 
-        val (session, _, _) = sessionWithClaimState(None)
+        val (session, _, _) = sessionWithClaimState(None, documentTypeAnswer = Some(UploadDocumentType.BillOfLading))
 
         inSequence {
           mockAuthWithNoRetrievals()

@@ -17,6 +17,7 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
@@ -39,12 +40,10 @@
     dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(journey: JourneyBindable, form: Form[ChooseSupportingEvidenceDocumentType],  supportingEvidenceHints: DropdownHints, uploadReference : UploadReference, typesOfEvidences: Seq[UploadDocumentType])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(journey: JourneyBindable, form: Form[_], supportingEvidenceHints: DropdownHints,  typesOfEvidences: Seq[UploadDocumentType], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"supporting-evidence.choose-document-type"}
     @title = @{messages(s"$key.title")}
-
-    @postAction = @{ routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit(journey, uploadReference) }
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

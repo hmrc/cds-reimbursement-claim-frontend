@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.reimbursementMethodKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
@@ -87,7 +86,7 @@ class ReimbursementMethodController @Inject() (
                     case (_, true)                                             =>
                       claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
                     case (ReimbursementMethodAnswer.CurrentMonthAdjustment, _) =>
-                      fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(JourneyBindable.Single)
+                      claimsRoutes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(JourneyBindable.Single)
                     case (ReimbursementMethodAnswer.BankAccountTransfer, _)    =>
                       claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
                   })

@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -86,7 +85,7 @@ class BankAccountController @Inject() (
                 checkBankAccountDetailsPage(
                   bankAccountDetails,
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey)
+                    routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey)
                   ),
                   routes.SelectBankAccountTypeController.selectBankAccountType(journey)
                 )
