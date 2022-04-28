@@ -46,7 +46,11 @@ final case class UploadedFile(
 
 object UploadedFile {
 
-  def from(uploadReference: UploadReference, callback: UpscanCallBack.UpscanSuccess): UploadedFile =
+  def from(
+    uploadReference: UploadReference,
+    callback: UpscanCallBack.UpscanSuccess,
+    documentType: Option[UploadDocumentType] = None
+  ): UploadedFile =
     UploadedFile(
       uploadReference.value,
       callback.downloadUrl,
@@ -54,7 +58,8 @@ object UploadedFile {
       callback.uploadDetails.checksum,
       callback.uploadDetails.fileName,
       callback.uploadDetails.fileMimeType,
-      callback.uploadDetails.size.some
+      callback.uploadDetails.size.some,
+      documentType
     )
 
   implicit val formats: Format[UploadedFile] = Json.format[UploadedFile]

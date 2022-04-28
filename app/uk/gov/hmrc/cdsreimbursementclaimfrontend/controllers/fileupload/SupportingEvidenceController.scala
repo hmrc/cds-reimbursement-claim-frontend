@@ -71,7 +71,6 @@ class SupportingEvidenceController @Inject() (
   sessionStore: SessionCache,
   config: FileUploadConfig,
   uploadPage: pages.upload,
-  chooseDocumentTypePage: pages.choose_document_type,
   summaryPage: summary,
   scanProgressPage: scan_progress,
   uploadFailedPage: upload_failed,
@@ -143,7 +142,7 @@ class SupportingEvidenceController @Inject() (
     answer: Option[SupportingEvidencesAnswer],
     claim: FillingOutClaim
   ): FillingOutClaim = {
-    val newEvidence = UploadedFile.from(uploadReference, callback)
+    val newEvidence = UploadedFile.from(uploadReference, callback, claim.draftClaim.documentTypeAnswer)
     val evidences   = answer.map(_ :+ newEvidence).orElse(Some(SupportingEvidencesAnswer(newEvidence)))
     FillingOutClaim.from(claim)(_.copy(supportingEvidencesAnswer = evidences))
   }
@@ -173,7 +172,7 @@ class SupportingEvidenceController @Inject() (
             upscanUpload.upscanCallBack match {
               case Some(_: UpscanSuccess) =>
                 Redirect(
-                  routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(journey, uploadReference)
+                  routes.SupportingEvidenceController.checkYourAnswers(journey)
                 )
 
               case Some(_: UpscanFailure) =>
@@ -206,74 +205,6 @@ class SupportingEvidenceController @Inject() (
           "supporting-evidence.scan-failed"
         )
       )
-    }
-
-  def chooseSupportingEvidenceDocumentType(
-    journey: JourneyBindable,
-    uploadReference: UploadReference
-  ): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      Ok(
-        chooseDocumentTypePage(
-          journey,
-          chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
-          getSupportingEvidenceHints(evidenceTypes),
-          uploadReference,
-          evidenceTypes
-        )
-      )
-    }
-
-  def chooseSupportingEvidenceDocumentTypeSubmit(
-    journey: JourneyBindable,
-    uploadReference: UploadReference
-  ): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[SupportingEvidencesAnswer] { (fillingOutClaim, maybeEvidences) =>
-        chooseSupportEvidenceDocumentTypeForm(evidenceTypes)
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                chooseDocumentTypePage(
-                  journey,
-                  requestFormWithErrors,
-                  getSupportingEvidenceHints(evidenceTypes),
-                  uploadReference,
-                  evidenceTypes
-                )
-              ),
-            documentType => {
-              val answers = for {
-                documents <- maybeEvidences.map(_.toList)
-                index     <- Option(documents.indexWhere(_.upscanReference === uploadReference.value)).filter(_ >= 0)
-                (x, xs)    = documents.splitAt(index)
-                updated    = documents(index).copy(cargo = Some(documentType.supportingEvidenceDocumentType))
-                items     <- NonEmptyList.fromList(updated :: (x ++ xs.drop(1)))
-              } yield items
-
-              val result = for {
-                evidences <-
-                  EitherT
-                    .fromOption[Future](answers, Error(s"could not find file upload with reference: $uploadReference"))
-                _         <-
-                  EitherT(
-                    updateSession(sessionStore, request)(
-                      _.copy(
-                        journeyStatus =
-                          FillingOutClaim.from(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences.some)).some
-                      )
-                    )
-                  )
-              } yield ()
-
-              result.fold(
-                logAndDisplayError("Error assigning evidence document type"),
-                _ => Redirect(routes.SupportingEvidenceController.checkYourAnswers(journey))
-              )
-            }
-          )
-      }
     }
 
   def deleteSupportingEvidence(
@@ -356,8 +287,10 @@ class SupportingEvidenceController @Inject() (
                     )
                   ),
                 {
-                  case Yes => Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-                  case No  => Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+                  case Yes =>
+                    Redirect(claimRoutes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey))
+                  case No  =>
+                    Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
                 }
               )
           }

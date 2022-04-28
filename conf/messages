@@ -1148,7 +1148,7 @@ supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calc
 supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
 supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet
 
-supporting-evidence.error.invalid-document-type=Invalid supporting evidence document type
+supporting-evidence.choose-document-type.error.invalid-document-type=Invalid supporting evidence document type
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES

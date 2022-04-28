@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import java.util.UUID
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 final case class DraftClaim(
   id: UUID,
@@ -47,6 +48,7 @@ final case class DraftClaim(
   bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
   bankAccountTypeAnswer: Option[BankAccountType] = None,
   basisOfClaimAnswer: Option[BasisOfClaimAnswer] = None,
+  documentTypeAnswer: Option[UploadDocumentType] = None,
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
   commoditiesDetailsAnswer: Option[CommodityDetailsAnswer] = None,
