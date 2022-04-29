@@ -60,7 +60,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .url
 
   val ggSignOut: String =
-    signOutUrl + s"?continue=$betaFeedbackUrl"
+    signOutUrl + s"?continue=$serviceFeedBackUrl"
 
   val weSignedYouOutPageUrl: String =
     s"$selfBaseUrl/claim-for-reimbursement-of-import-duties${baseRoutes.StartController.timedOut().url}"
@@ -95,12 +95,6 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
     val baseUrl     = servicesConfig.baseUrl("contact-frontend")
     val contactPath = servicesConfig.getString(s"microservice.services.contact-frontend.contact-hmrc-url")
     s"$baseUrl$contactPath"
-  }
-
-  lazy val betaFeedbackUrl: String = {
-    val baseUrl      = servicesConfig.baseUrl("contact-frontend")
-    val feedbackPath = servicesConfig.getString(s"microservice.services.contact-frontend.beta-feedback-url")
-    s"$baseUrl$feedbackPath"
   }
 
   val eoriNumberHelpUrl: String = getString("external-url.eori-number-help")
