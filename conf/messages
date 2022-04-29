@@ -1,7 +1,7 @@
-service.name=Claim for reimbursement of import duties
-service.name=Claim for reimbursement of import duties
-service.text=Claim for reimbursement of import duties
-service.title=Claim for reimbursement of import duties
+service.text2=Claim for reimbursement of import duties
+service.name=Claim back import duty and VAT
+service.text=service.text
+service.title=service.title
 service.signOut=Sign out
 hmrc_branding=HM Revenue & Customs
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
@@ -85,7 +85,7 @@ we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government 
 #===================================================
 #  LANDING PAGE
 #===================================================
-landing.title=Claim for reimbursement of import duties
+landing.title=Claim back import duty and VAT
 landing.help.p1=You can use this service to apply to claim reimbursements on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
 landing.help.p2=You can use this service for multiple claims (bulk), and be reimbursed via either Current Month Adjustment (CMA) or by bank account transfer.
 landing.who.heading=Who can claim
