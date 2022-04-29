@@ -65,7 +65,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val weSignedYouOutPageUrl: String =
     s"$selfBaseUrl/claim-for-reimbursement-of-import-duties${baseRoutes.StartController.timedOut().url}"
 
-  val serviceFeedBackUrl: String = {
+  lazy val serviceFeedBackUrl: String = {
     val baseUrl = config.get[String]("microservice.services.feedback.url")
     val path    = config.get[String]("microservice.services.feedback.source")
     s"$baseUrl$path"
