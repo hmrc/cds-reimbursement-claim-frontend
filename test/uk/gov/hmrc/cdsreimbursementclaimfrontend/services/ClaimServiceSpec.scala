@@ -38,9 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.genBankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
@@ -238,123 +235,6 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
           await(claimService.getDisplayDeclaration(mrn).value) shouldBe Right(None)
         }
 
-      }
-
-    }
-
-    "handling requests to verify a business account" should {
-      def businessRequest(bankAccountDetails: BankAccountDetails) = Json.obj(
-        "account" -> Json.obj(
-          "sortCode"      -> bankAccountDetails.sortCode.value,
-          "accountNumber" -> bankAccountDetails.accountNumber.value
-        )
-      )
-
-      def mockBusinessReputationConnector(data: JsValue)(response: Either[Error, HttpResponse]) =
-        (mockCDSReimbursementClaimConnector
-          .getBusinessReputation(_: JsValue)(_: HeaderCarrier))
-          .expects(data, *)
-          .returning(EitherT.fromEither[Future](response))
-          .atLeastOnce()
-
-      "retrieve and parse data" in forAll(
-        genBankAccountDetails,
-        arbitraryBusinessCompleteResponse.arbitrary
-      ) { (bankAccount, businessResponse) =>
-        val httpResponse = HttpResponse(200, Json.toJson(businessResponse).toString())
-        mockBusinessReputationConnector(businessRequest(bankAccount))(Right(httpResponse))
-        val response     = await(claimService.getBusinessAccountReputation(bankAccount).value)
-        response shouldBe Right(businessResponse.toCommonResponse())
-      }
-
-      "parse error response" in forAll(
-        genBankAccountDetails,
-        arbitraryReputationErrorResponse.arbitrary
-      ) { (bankAccount, errorResponse) =>
-        val httpResponse = HttpResponse(400, Json.toJson(errorResponse).toString())
-        mockBusinessReputationConnector(businessRequest(bankAccount))(Right(httpResponse))
-        val response     = await(claimService.getBusinessAccountReputation(bankAccount).value)
-        response shouldBe Right(errorResponse.toCommonResponse())
-      }
-
-      "Fail when the connector fails" in forAll(
-        genBankAccountDetails
-      ) { bankAccount =>
-        val httpResponse = HttpResponse(500, "")
-        mockBusinessReputationConnector(businessRequest(bankAccount))(Right(httpResponse))
-        val response     = await(claimService.getBusinessAccountReputation(bankAccount).value)
-        response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500"))
-      }
-
-      "Fail when the returned JSON cannot be parsed" in forAll(
-        genBankAccountDetails
-      ) { bankAccount =>
-        val httpResponse = HttpResponse(200, """{"BARS" : "maybe not"}""")
-        mockBusinessReputationConnector(businessRequest(bankAccount))(Right(httpResponse))
-        val response     = await(claimService.getBusinessAccountReputation(bankAccount).value)
-        response.isLeft                                                                      shouldBe true
-        response.left.getOrElse(fail).message.contains("could not parse http response JSON") shouldBe true
-      }
-    }
-
-    "handling requests to verify a personal account" should {
-      def personalRequest(bankAccountDetails: BankAccountDetails, postCode: String) = Json.obj(
-        "account" -> Json.obj(
-          "sortCode"      -> bankAccountDetails.sortCode.value,
-          "accountNumber" -> bankAccountDetails.accountNumber.value
-        ),
-        "subject" -> Json.obj(
-          "name"    -> bankAccountDetails.accountName.value,
-          "address" -> Json.obj(
-            "lines"    -> Json.arr(" "),
-            "postcode" -> postCode
-          )
-        )
-      )
-
-      def mockPersonalReputationConnector(data: JsValue)(response: Either[Error, HttpResponse]) =
-        (mockCDSReimbursementClaimConnector
-          .getPersonalReputation(_: JsValue)(_: HeaderCarrier))
-          .expects(data, *)
-          .returning(EitherT.fromEither[Future](response))
-          .atLeastOnce()
-
-      "retrieve and parse data" in forAll(
-        genBankAccountDetails,
-        genPostcode,
-        arbitraryPersonalCompleteResponse.arbitrary
-      ) { (bankAccount, postCode, personalResponse) =>
-        val httpResponse = HttpResponse(200, Json.toJson(personalResponse).toString())
-        mockPersonalReputationConnector(personalRequest(bankAccount, postCode))(Right(httpResponse))
-        val response     = await(claimService.getPersonalAccountReputation(bankAccount, Some(postCode)).value)
-        response shouldBe Right(personalResponse.toCommonResponse())
-      }
-
-      "parse error response" in forAll(
-        genBankAccountDetails,
-        genPostcode,
-        arbitraryReputationErrorResponse.arbitrary
-      ) { (bankAcount, postCode, errorResponse) =>
-        val httpResponse = HttpResponse(400, Json.toJson(errorResponse).toString())
-        mockPersonalReputationConnector(personalRequest(bankAcount, postCode))(Right(httpResponse))
-        val response     = await(claimService.getPersonalAccountReputation(bankAcount, Some(postCode)).value)
-        response shouldBe Right(errorResponse.toCommonResponse())
-      }
-
-      "Fail when the connector fails" in forAll(genBankAccountDetails, genPostcode) { (bankAcount, postCode) =>
-        val httpResponse = HttpResponse(500, "")
-        mockPersonalReputationConnector(personalRequest(bankAcount, postCode))(Right(httpResponse))
-        val response     = await(claimService.getPersonalAccountReputation(bankAcount, Some(postCode)).value)
-        response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500"))
-      }
-
-      "Fail when the returned JSON cannot be parsed" in forAll(genBankAccountDetails, genPostcode) {
-        (bankAcount, postCode) =>
-          val httpResponse = HttpResponse(200, """{"BARS" : "maybe not"}""")
-          mockPersonalReputationConnector(personalRequest(bankAcount, postCode))(Right(httpResponse))
-          val response     = await(claimService.getPersonalAccountReputation(bankAcount, Some(postCode)).value)
-          response.isLeft                                                                      shouldBe true
-          response.left.getOrElse(fail).message.contains("could not parse http response JSON") shouldBe true
       }
 
     }

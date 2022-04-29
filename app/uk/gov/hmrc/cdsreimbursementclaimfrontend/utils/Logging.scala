@@ -20,7 +20,9 @@ import play.api.Logger
 import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 
 trait Logging {
@@ -35,6 +37,15 @@ trait Logging {
       logger warn (description, error)
       errorResult()
     }
+  }
+
+  def logAndDisplayError[T : CdsError](
+    description: String,
+    error: T
+  )(implicit errorHandler: ErrorHandler, request: Request[_], cdsError: CdsError[T]): Result = {
+    import errorHandler._
+    logger.warn(s"$description: ${cdsError.message(error)}")
+    errorResult()
   }
 }
 

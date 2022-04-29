@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import org.scalacheck.magnolia._
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
@@ -27,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationErrorResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 
 object BankAccountReputationGen {
 
