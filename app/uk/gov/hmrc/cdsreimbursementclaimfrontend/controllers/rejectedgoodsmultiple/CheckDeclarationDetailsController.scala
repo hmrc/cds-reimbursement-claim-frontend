@@ -78,8 +78,7 @@ class CheckDeclarationDetailsController @Inject() (
             journey,
             Redirect(answer match {
               case Yes =>
-                val numOfMRNs = journey.countOfMovementReferenceNumbers
-                routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
+                routes.CheckMovementReferenceNumbersController.show()
               case No  =>
                 routes.EnterMovementReferenceNumberController.showFirst()
             })

@@ -86,8 +86,7 @@ class CheckDeclarationDetailsControllerSpec
       "display the page" in forAll(
         buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
-          acc14ConsigneeMatchesUserEori = false,
-          hasConsigneeDetailsInACC14 = true
+          acc14ConsigneeMatchesUserEori = false
         )
       ) { journey =>
         val sessionToAmend = SessionData(journey)
@@ -155,7 +154,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(controller.checkDeclarationDetailsKey -> "true"),
-          routes.EnterMovementReferenceNumberController.show(1)
+          routes.CheckMovementReferenceNumbersController.show()
         )
       }
 
