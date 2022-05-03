@@ -78,7 +78,7 @@ class EnterClaimControllerSpec
     doc.select("input").attr("value") shouldBe claimAmount
     formAction(
       doc
-    )                                 shouldBe s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/$pageIndex/$taxCode"
+    )                                 shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/$pageIndex/$taxCode"
   }
 
   "EnterClaimController" when {
@@ -199,11 +199,11 @@ class EnterClaimControllerSpec
                 performAction(mrnIndex + 1, taxCode, claimAmount.toString()),
                 if (taxCode === selectedTaxCodes.last) {
                   if (mrnIndex === mrns.size - 1)
-                    s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/check-claim"
+                    s"/claim-back-import-duty-vat/rejected-goods/multiple/check-claim"
                   else
-                    s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/select-duties/${mrnIndex + 2}"
+                    s"/claim-back-import-duty-vat/rejected-goods/multiple/select-duties/${mrnIndex + 2}"
                 } else
-                  s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${nextTaxCode(selectedTaxCodes, taxCode)}"
+                  s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${nextTaxCode(selectedTaxCodes, taxCode)}"
               )
             }
           }

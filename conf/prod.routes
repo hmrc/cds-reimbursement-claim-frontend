@@ -6,6 +6,6 @@
 ->          /claim-back-import-duty-vat                   rejected_goods_single.Routes
 ->          /claim-back-import-duty-vat                   rejected_goods_multiple.Routes
 ->          /claim-back-import-duty-vat                   rejected_goods_scheduled.Routes
-->          /                                                           health.Routes
+->          /                                             health.Routes
 
-GET         /admin/metrics                                              com.kenshoo.play.metrics.MetricsController.metrics
+GET         /admin/metrics                                com.kenshoo.play.metrics.MetricsController.metrics

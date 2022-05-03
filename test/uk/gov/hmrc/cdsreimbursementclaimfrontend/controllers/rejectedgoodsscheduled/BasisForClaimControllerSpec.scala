@@ -185,12 +185,12 @@ class BasisForClaimControllerSpec
           case SpecialCircumstances =>
             Call(
               "GET",
-              "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/enter-special-circumstances"
+              "/claim-back-import-duty-vat/rejected-goods/scheduled/enter-special-circumstances"
             )
           case _                    =>
             Call(
               "GET",
-              "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/choose-disposal-method"
+              "/claim-back-import-duty-vat/rejected-goods/scheduled/choose-disposal-method"
             )
         }
 
