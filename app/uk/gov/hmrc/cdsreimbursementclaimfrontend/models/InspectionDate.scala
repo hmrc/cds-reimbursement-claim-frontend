@@ -30,7 +30,7 @@ object InspectionDate {
   def displayFormat(date: String): Option[String] = {
     val result = for {
       t <- Try(LocalDate.parse(date, DateTimeFormatter.ofPattern("u-M-d")))
-      f <- Try(DateTimeFormatter.ofPattern("d MMMM u").format(t))
+      f <- Try(DateTimeFormatter.ofPattern("d MMMM yyyy").format(t))
     } yield f
     result.toOption
   }

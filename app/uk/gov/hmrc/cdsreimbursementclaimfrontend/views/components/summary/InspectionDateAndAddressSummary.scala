@@ -91,7 +91,8 @@ object InspectionDateAndAddressSummary {
       Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.inspection-date"))),
-          value = Value(Text(inspectionDate.value.toString)),
+          //value = Value(Text(inspectionDate.value.toString)),
+          value = Value(Text(InspectionDate(inspectionDate.value).checkYourDetailsDisplayFormat)),
           actions = Some(changeInspectionDateAction)
         ),
         SummaryListRow(
