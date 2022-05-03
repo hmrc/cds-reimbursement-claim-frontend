@@ -80,7 +80,7 @@ class CheckClaimDetailsControllerSpec
     hasContinueButton(doc)
     formAction(
       doc
-    ) shouldBe s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/check-claim"
+    ) shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/check-claim"
 
     val claimedTaxCodes = claims.flatMap(_._2.keys).map(tc => messages(s"tax-code.${tc.value}")).toSet
     val claimedAmounts  = claims.flatMap(_._2.values.map(_.get)).map(_.toPoundSterlingString).toSet
@@ -147,7 +147,7 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("true"),
-            "/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-inspection-date"
+            "/claim-back-import-duty-vat/rejected-goods/multiple/enter-inspection-date"
           )
         }
       }
@@ -163,7 +163,7 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("false"),
-            "/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/select-duties"
+            "/claim-back-import-duty-vat/rejected-goods/multiple/select-duties"
           )
         }
       }
@@ -178,7 +178,7 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("true"),
-            "/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/check-your-answers"
+            "/claim-back-import-duty-vat/rejected-goods/multiple/check-your-answers"
           )
         }
       }
@@ -194,7 +194,7 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("false"),
-            "/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/select-duties"
+            "/claim-back-import-duty-vat/rejected-goods/multiple/select-duties"
           )
         }
       }

@@ -72,10 +72,7 @@ class BasisForClaimController @Inject() (
             journey.submitBasisOfClaim(basisOfClaim),
             Redirect(basisOfClaim match {
               case SpecialCircumstances =>
-                Call(
-                  "GET",
-                  "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/enter-special-circumstances"
-                ) //routes.EnterSpecialCircumstancesController.show()
+                routes.EnterSpecialCircumstancesController.show()
               case _                    =>
                 routes.DisposalMethodController.show()
             })

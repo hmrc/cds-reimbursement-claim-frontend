@@ -1,7 +1,6 @@
-service.name=Claim for reimbursement of import duties
-service.name=Claim for reimbursement of import duties
-service.text=Claim for reimbursement of import duties
-service.title=Claim for reimbursement of import duties
+service.name=Claim back import duty and VAT
+service.text=service.text
+service.title=Claim back import duty and VAT
 service.signOut=Sign out
 hmrc_branding=HM Revenue & Customs
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
@@ -53,13 +52,13 @@ date.month=Month
 date.year=Year
 
 signed-out.title=You’ve signed out
-signed-out.p1=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
+signed-out.p1=To access the claim back import duty and VAT service, you’ll need to sign back in.
 signed-out.p2=You can <a href="{0}">sign in</a> to your account.
 signed-out.button=Go to GOV.UK
 
 timed-out.title=For your security, we signed you out
 timed-out.p1=This was because you were inactive for too long.
-timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
+timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
 timed-out.button=Sign in
 
 recruitment-banner.message=Help improve GOV.UK
@@ -85,7 +84,7 @@ we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government 
 #===================================================
 #  LANDING PAGE
 #===================================================
-landing.title=Claim for reimbursement of import duties
+landing.title=Claim back import duty and VAT
 landing.help.p1=You can use this service to apply to claim reimbursements on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
 landing.help.p2=You can use this service for multiple claims (bulk), and be reimbursed via either Current Month Adjustment (CMA) or by bank account transfer.
 landing.who.heading=Who can claim
@@ -982,7 +981,7 @@ multiple-check-claim-summary.error.invalid=Select Yes if these duties are correc
 #===================================================
 check-claim-timed-out.title=For your security, we signed you out.
 check-claim-timed-out.p1=This was because you were inactive for too long.
-check-claim-timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
+check-claim-timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
 check-claim-timed-out.button=Sign in
 
 #===================================================

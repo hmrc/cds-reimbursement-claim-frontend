@@ -1,11 +1,11 @@
 # Add all the application routes to the app.routes file
-->          /claim-for-reimbursement-of-import-duties                   app.Routes
-->          /claim-for-reimbursement-of-import-duties                   claims.Routes
-->          /claim-for-reimbursement-of-import-duties                   file_upload.Routes
-->          /claim-for-reimbursement-of-import-duties                   rejected_goods.Routes
-->          /claim-for-reimbursement-of-import-duties                   rejected_goods_single.Routes
-->          /claim-for-reimbursement-of-import-duties                   rejected_goods_multiple.Routes
-->          /claim-for-reimbursement-of-import-duties                   rejected_goods_scheduled.Routes
-->          /                                                           health.Routes
+->          /claim-back-import-duty-vat                   app.Routes
+->          /claim-back-import-duty-vat                   claims.Routes
+->          /claim-back-import-duty-vat                   file_upload.Routes
+->          /claim-back-import-duty-vat                   rejected_goods.Routes
+->          /claim-back-import-duty-vat                   rejected_goods_single.Routes
+->          /claim-back-import-duty-vat                   rejected_goods_multiple.Routes
+->          /claim-back-import-duty-vat                   rejected_goods_scheduled.Routes
+->          /                                             health.Routes
 
-GET         /admin/metrics                                              com.kenshoo.play.metrics.MetricsController.metrics
+GET         /admin/metrics                                com.kenshoo.play.metrics.MetricsController.metrics
