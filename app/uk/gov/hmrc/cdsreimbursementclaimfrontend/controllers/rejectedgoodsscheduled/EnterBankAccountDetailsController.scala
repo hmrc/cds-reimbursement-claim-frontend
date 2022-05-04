@@ -157,13 +157,9 @@ class EnterBankAccountDetailsController @Inject() (
                       (
                         modifiedJourney,
                         Redirect(
-                          Call(
-                            "GET",
-                            "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-bank-details"
-                          )
+                          routes.CheckBankDetailsController.show()
                         )
                       )
-                    //modifiedJourney => (modifiedJourney, Redirect(routes.CheckBankDetailsController.show())) todo CSDR-1387 / CSDR-1389
                   )
               case badReputation                               =>
                 (journey, handleBadReputation(bankAccountDetails, badReputation))

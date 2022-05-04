@@ -204,10 +204,7 @@ class EnterBankAccountDetailsControllerSpec
 
           checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
-            Call(
-              "GET",
-              "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-bank-details"
-            )
+            routes.CheckBankDetailsController.show()
           )
         }
 
@@ -439,10 +436,7 @@ class EnterBankAccountDetailsControllerSpec
 
           checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
-            Call(
-              "GET",
-              "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-bank-details"
-            )
+            routes.CheckBankDetailsController.show()
           )
         }
 
@@ -687,10 +681,7 @@ class EnterBankAccountDetailsControllerSpec
             s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
             s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
           ),
-          Call(
-            "GET",
-            "/claim-for-reimbursement-of-import-duties/rejected-goods/scheduled/check-bank-details"
-          )
+          routes.CheckBankDetailsController.show()
         )
 
       }
