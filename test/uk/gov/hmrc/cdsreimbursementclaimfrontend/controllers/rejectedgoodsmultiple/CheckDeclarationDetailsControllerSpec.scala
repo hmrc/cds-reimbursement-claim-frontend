@@ -154,7 +154,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(controller.checkDeclarationDetailsKey -> "true"),
-          routes.CheckMovementReferenceNumbersController.show()
+          routes.EnterMovementReferenceNumberController.show(1)
         )
       }
 
