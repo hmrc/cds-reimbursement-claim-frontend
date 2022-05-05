@@ -139,7 +139,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
             ndrcDetails = Some(
               List(
                 NdrcDetails(
-                  taxType = "A01",
+                  taxType = "B00",
                   amount = "20.00",
                   paymentMethod = "CC",
                   paymentReference = "Some ref",
