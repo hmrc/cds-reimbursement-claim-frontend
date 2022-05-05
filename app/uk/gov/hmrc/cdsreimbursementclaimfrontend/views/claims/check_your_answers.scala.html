@@ -68,7 +68,7 @@
 
     @claim.scheduledDocumentAnswer.map { scheduledDocument =>
         @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey,fileUploadRoutes.ScheduleOfMrnDocumentController.review()))
+        @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey, claimRoutes.UploadMrnListController.show()))
     }
 
     @claim.displayDeclaration.map { displayDeclaration =>
@@ -124,7 +124,7 @@
 
     @claim.supportingEvidencesAnswer.map { evidences =>
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SupportingEvidenceSummary(evidences,s"$key.attached-documents", subKey, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey)))
+        @summary(SupportingEvidenceSummary(evidences,s"$key.attached-documents", subKey, claimRoutes.UploadFilesController.summary(journey)))
     }
 
     @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")

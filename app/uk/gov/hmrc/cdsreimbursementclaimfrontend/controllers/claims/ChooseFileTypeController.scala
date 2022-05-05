@@ -34,14 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseFileTypeController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.choose_document_type
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -51,7 +50,7 @@ class ChooseFileTypeController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   sessionStore: SessionCache,
-  chooseDocumentTypePage: pages.choose_document_type
+  chooseDocumentTypePage: choose_document_type
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -105,7 +104,7 @@ class ChooseFileTypeController @Inject() (
               )
                 .fold(
                   logAndDisplayError("Error assigning evidence document type"),
-                  _ => Redirect(uploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey))
+                  _ => Redirect(routes.UploadFilesController.show(journey))
                 )
           )
       }

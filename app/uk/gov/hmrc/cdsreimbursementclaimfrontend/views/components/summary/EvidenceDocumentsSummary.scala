@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -50,7 +49,7 @@ object EvidenceDocumentsSummary extends AnswerSummary[Seq[EvidenceDocument]] {
                   .map(document =>
                     Paragraph(
                       document.fileName,
-                      messages(s"$supportingEvidenceKey.choose-document-type.document-type.${document.documentType}")
+                      messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}")
                     ).toString
                   )
                   .toList

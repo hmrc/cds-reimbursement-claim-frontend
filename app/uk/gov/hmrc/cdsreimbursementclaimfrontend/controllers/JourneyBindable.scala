@@ -34,6 +34,8 @@ object JourneyBindable {
     case "scheduled" => Scheduled
   }
 
+  val all: Seq[JourneyBindable] = Seq(Scheduled, Single, Multiple)
+
   implicit val format: OFormat[JourneyBindable] = derived.oformat()
   implicit val eq: Eq[JourneyBindable]          = Eq.fromUniversalEquals[JourneyBindable]
 }
