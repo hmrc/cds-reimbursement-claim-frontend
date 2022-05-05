@@ -157,7 +157,7 @@ class CheckYourAnswersControllerSpec
       )
     }
 
-    summary("Inspection date")         shouldBe claim.inspectionDate.value.toString
+    summary("Inspection date")         shouldBe claim.inspectionDate.checkYourDetailsDisplayFormat
     summary("Inspection address type") shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )

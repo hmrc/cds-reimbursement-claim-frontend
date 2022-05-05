@@ -177,9 +177,9 @@ class ChooseInspectionAddressTypeControllerSpec
 
           val optionChosen   = Gen.oneOf(Seq(Importer, Declarant)).sample.get
           val address        = optionChosen match {
-            case Importer  =>
+            case Importer      =>
               inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
-            case Declarant =>
+            case Declarant | _ =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
           val updatedJourney = journey.submitInspectionAddress(address)
@@ -254,9 +254,9 @@ class ChooseInspectionAddressTypeControllerSpec
 
           val optionChosen   = Gen.oneOf(Seq(Importer, Declarant)).sample.get
           val address        = optionChosen match {
-            case Importer  =>
+            case Importer      =>
               inspectionAddressFromContactDetails(consignee.contactDetails.get, Importer)
-            case Declarant =>
+            case Declarant | _ =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
           val updatedJourney = journey.submitInspectionAddress(address)
@@ -269,7 +269,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             performAction(messagesKey -> optionChosen.toString),
-            "check-bank-details"
+            routes.CheckBankDetailsController.show()
           )
       }
 
@@ -306,7 +306,7 @@ class ChooseInspectionAddressTypeControllerSpec
           controller.redirectToTheNextPage(emptyJourney) shouldBe (
             (
               emptyJourney,
-              Redirect("check-bank-details")
+              Redirect(routes.CheckBankDetailsController.show())
             )
           )
         }

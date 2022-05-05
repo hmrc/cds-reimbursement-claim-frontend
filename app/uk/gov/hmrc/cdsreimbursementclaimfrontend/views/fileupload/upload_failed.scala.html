@@ -16,23 +16,22 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
+@import play.api.mvc.Call
+@import play.api.mvc.Request 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(journey: JourneyBindable, upscanUpload : UpscanUpload)(implicit request: RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
+@(postAction: Call, key: String)(implicit request:Request[_], messages:Messages, appConfig: ViewConfig)
 
-    @key = @{"supporting-evidence.scan-progress"}
     @title = @{messages(s"$key.title")}
 
     @layout(pageTitle = Some(s"$title")) {
@@ -40,10 +39,19 @@
         @pageHeading(Html(title))
 
         @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
-        @paragraph(Html(messages(s"$key.p2")), Some("govuk-body govuk-!-margin-bottom-5"))
+        @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 
-        @formWithCSRF(routes.SupportingEvidenceController.scanProgressSubmit(journey, upscanUpload.uploadReference.value), 'novalidate -> "novalidate") {
-            @submitButton("button.continue")
+        @bulletList(
+            Seq(
+                Html(messages(s"$key.bullet1")),
+                Html(messages(s"$key.bullet2"))
+            )
+        )
+
+        @paragraph(Html(messages(s"$key.p3")), Some("govuk-body"))
+
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+            @submitButton(s"$key.button.tryAgain")
         }
 
     }

@@ -13,10 +13,10 @@
 ->         /                          prod.Routes
 
 
-GET        /claim-for-reimbursement-of-import-duties/test-only/feature/:featureName/enable  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.FeatureSwitchController.enable(featureName)
-GET        /claim-for-reimbursement-of-import-duties/test-only/feature/:featureName/disable @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.FeatureSwitchController.disable(featureName)
+GET        /claim-back-import-duty-vat/test-only/feature/:featureName/enable  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.FeatureSwitchController.enable(featureName)
+GET        /claim-back-import-duty-vat/test-only/feature/:featureName/disable @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.FeatureSwitchController.disable(featureName)
 
 
-GET        /claim-for-reimbursement-of-import-duties/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.show
+GET        /claim-back-import-duty-vat/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.show
 +nocsrf
-POST        /claim-for-reimbursement-of-import-duties/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.submit
+POST        /claim-back-import-duty-vat/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.submit

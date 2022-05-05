@@ -879,7 +879,7 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
         val totalReimbursementAmount = journey.getTotalReimbursementAmount
         val totalPaidAmount          = journey.getTotalPaidAmount
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, Reimbursement(pa, ra)) =>
+          tca.foreach { case (taxCode, AmountPaidWithRefund(pa, ra)) =>
             val modifiedJourney =
               journey.submitAmountForReimbursement(dutyType, taxCode, ra * 0.7, pa * 0.85).getOrFail
 
@@ -900,7 +900,7 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
             .getOrElse(???)
 
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (_, Reimbursement(pa, ra)) =>
+          tca.foreach { case (_, AmountPaidWithRefund(pa, ra)) =>
             val result =
               journey.submitAmountForReimbursement(dutyType, taxCodeNotSelected(dutyType), ra, pa)
             result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
@@ -912,7 +912,7 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
     "reject change to invalid amount for valid selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, Reimbursement(pa, _)) =>
+          tca.foreach { case (taxCode, AmountPaidWithRefund(pa, _)) =>
             val result1 =
               journey.submitAmountForReimbursement(dutyType, taxCode, pa + 0.01, pa)
             result1 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
@@ -991,6 +991,81 @@ class RejectedGoodsScheduledJourneySpec extends AnyWordSpec with ScalaCheckPrope
       "return true if all claim amounts are present" in {
         forAll(completeJourneyGen) { journey =>
           journey.hasCompleteReimbursementClaims shouldBe true
+        }
+      }
+    }
+
+    "find next duty type - examples" in {
+      val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+
+      val dutyTypes       = Seq(DutyType.EuDuty, DutyType.Beer, DutyType.Biofuels)
+      val modifiedJourney =
+        journey.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes).getOrFail
+
+      modifiedJourney.findNextSelectedDutyAfter(DutyType.Beer)     shouldBe Some(DutyType.Biofuels)
+      modifiedJourney.findNextSelectedDutyAfter(DutyType.EuDuty)   shouldBe Some(DutyType.Beer)
+      modifiedJourney.findNextSelectedDutyAfter(DutyType.Biofuels) shouldBe None
+    }
+
+    "find next duty type" in {
+      val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+      forAll(dutyTypesGen) { dutyTypes =>
+        val modifiedJourney =
+          journey.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes).getOrFail
+
+        val expected: Seq[(DutyType, DutyType)] = dutyTypes.init.zip(dutyTypes.tail)
+
+        expected.foreach { case (previous, next) =>
+          modifiedJourney.findNextSelectedDutyAfter(previous) shouldBe Some(next)
+        }
+
+        modifiedJourney.findNextSelectedDutyAfter(dutyTypes.last) shouldBe None
+      }
+    }
+
+    "find next duty type and tax code pair" in {
+      val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+      forAll(dutyTypesWithTaxCodesGen) { dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] =>
+        whenever(dutyTypesWithTaxCodes.nonEmpty && dutyTypesWithTaxCodes.forall(_._2.nonEmpty)) {
+
+          val dutyTypes: Seq[DutyType] = dutyTypesWithTaxCodes.map(_._1)
+          val modifiedJourney          =
+            journey
+              .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+              .flatMapEach(
+                dutyTypesWithTaxCodes,
+                j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+              )
+              .getOrFail
+
+          val expected: Seq[((DutyType, TaxCode), (DutyType, TaxCode))] =
+            dutyTypes.init.zip(dutyTypes.tail).flatMap { case (dutyType, nextDutyType) =>
+              val taxCodes: Seq[TaxCode] = dutyTypesWithTaxCodes.find(_._1 == dutyType).get._2
+              val nextTaxCode: TaxCode   = dutyTypesWithTaxCodes.find(_._1 == nextDutyType).flatMap(_._2.headOption).get
+
+              val edge = Seq(((dutyType, taxCodes.last), (nextDutyType, nextTaxCode)))
+
+              taxCodes.init.zip(taxCodes.tail).map { case (previous, next) =>
+                ((dutyType, previous), (dutyType, next))
+              } ++ edge
+            }
+
+          expected.foreach { case ((previousDutyType, previousTaxCode), (nextDutyType, nextTaxCode)) =>
+            modifiedJourney.findNextSelectedTaxCodeAfter(
+              previousDutyType,
+              previousTaxCode
+            ) shouldBe Some((nextDutyType, nextTaxCode))
+          }
+
+          val (lastDutyType, lastTaxCode) = {
+            val (dt, tcs) = dutyTypesWithTaxCodes.last
+            (dt, tcs.last)
+          }
+
+          modifiedJourney.findNextSelectedTaxCodeAfter(
+            lastDutyType,
+            lastTaxCode
+          ) shouldBe None
         }
       }
     }

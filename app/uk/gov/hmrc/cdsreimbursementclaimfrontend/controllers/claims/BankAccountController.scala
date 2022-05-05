@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -42,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -50,7 +50,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.LoggerOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.http.BadGatewayException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -86,7 +85,7 @@ class BankAccountController @Inject() (
                 checkBankAccountDetailsPage(
                   bankAccountDetails,
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey)
+                    routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey)
                   ),
                   routes.SelectBankAccountTypeController.selectBankAccountType(journey)
                 )
@@ -128,9 +127,6 @@ class BankAccountController @Inject() (
                     FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountDetailsAnswer = Some(bankAccountDetails)))
 
                   (for {
-                    _                  <- EitherT
-                                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                                            .leftMap((_: Unit) => Error("could not update session"))
                     reputationResponse <- {
                       if (bankAccount === BankAccountType.Business) {
                         claimService.getBusinessAccountReputation(bankAccountDetails)
@@ -139,6 +135,17 @@ class BankAccountController @Inject() (
                           .extractEstablishmentAddress(fillingOutClaim.signedInUserDetails)
                           .flatMap(_.postalCode)
                         claimService.getPersonalAccountReputation(bankAccountDetails, postCode)
+                      }
+                    }
+                    _                  <- {
+                      if (reputationResponse.accountExists.contains(Yes)) {
+                        EitherT
+                          .liftF(
+                            updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
+                          )
+                          .leftMap((_: Unit) => Error("could not update session"))
+                      } else {
+                        EitherT.rightT[Future, Error](Right(()))
                       }
                     }
                   } yield reputationResponse).fold(

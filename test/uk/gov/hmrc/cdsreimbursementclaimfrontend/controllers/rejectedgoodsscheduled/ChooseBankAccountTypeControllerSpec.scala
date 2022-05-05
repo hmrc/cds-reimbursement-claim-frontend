@@ -54,7 +54,7 @@ class ChooseBankAccountTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session = SessionData.empty.copy(
+  val session: SessionData = SessionData.empty.copy(
     rejectedGoodsScheduledJourney = Some(emptyJourney)
   )
 
@@ -152,7 +152,7 @@ class ChooseBankAccountTypeControllerSpec
 
         checkIsRedirect(
           performAction(formKey -> s"$bankAccountType"),
-          "enter-bank-account-details"
+          routes.EnterBankAccountDetailsController.show()
         )
       }
     }

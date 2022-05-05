@@ -23,6 +23,7 @@ import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.UploadFilesMixin
@@ -33,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @Singleton
 class UploadFilesController @Inject() (
@@ -40,7 +42,8 @@ class UploadFilesController @Inject() (
   val uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
-  val upload_files_description: upload_files_description
+  val upload_files_description: upload_files_description,
+  featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val appConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
     with UploadFilesMixin[RejectedGoodsMultipleJourney] {
@@ -71,13 +74,16 @@ class UploadFilesController @Inject() (
                   continueAfterNoAnswerUrl
                 ),
                 journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
+                featureSwitchService
+                  .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
               )
           )
           .map {
             case Some(url) =>
-              Redirect(s"${uploadDocumentsConfig.publicUrl}$url")
-            case None      =>
+              Redirect(url)
+
+            case None =>
               Redirect(
                 s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}"
               )
@@ -112,4 +118,49 @@ class UploadFilesController @Inject() (
     },
     isCallback = true
   )
+
+  final val summary: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey.answers.selectedDocumentType match {
+      case None =>
+        Redirect(selectDocumentTypePageAction).asFuture
+
+      case Some(documentType) =>
+        val continueAfterYesAnswerUrl =
+          selfUrl + selectDocumentTypePageAction.url
+
+        val continueAfterNoAnswerUrl =
+          selfUrl + checkYourAnswers.url
+
+        uploadDocumentsConnector
+          .initialize(
+            UploadDocumentsConnector
+              .Request(
+                uploadDocumentsSessionConfig(
+                  journey.answers.nonce,
+                  documentType,
+                  continueAfterYesAnswerUrl,
+                  continueAfterNoAnswerUrl
+                ),
+                journey.answers.supportingEvidences
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
+                featureSwitchService
+                  .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
+              )
+          )
+          .map {
+            case Some(url) =>
+              Redirect(
+                if (featureSwitchService.isEnabled(Feature.InternalUploadDocuments))
+                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController
+                    .summary()
+                    .url
+                else
+                  url
+              )
+
+            case None =>
+              Redirect(s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}/summary")
+          }
+    }
+  }
 }

@@ -1,0 +1,86 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import play.api.mvc.Call
+@import play.api.mvc.Request    
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    inputFile: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_file,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+)
+
+@(upscanUpload : UpscanUpload, sessionConfig: UploadDocumentsSessionConfig, key: String)(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
+
+    @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
+    @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
+
+    @layout(pageTitle = Some(sessionConfig.content.title)) {
+
+        <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
+            <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+                <h2 class="govuk-error-summary__title" id="error-summary-title">
+                    There is a problem
+                </h2>
+                <div class="govuk-error-summary__body">
+                    <ul class="govuk-list govuk-error-summary__list">
+                        <li>
+                            <a href="#file">@(messages(s"$key.error.required"))</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <span id="file-upload-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @(messages(s"$key.error.required"))
+            </span>
+        </div>
+
+        @pageHeading(Html(sessionConfig.content.title))
+
+        @Html(sessionConfig.content.descriptionHtml)
+
+        <form action="@href" method="post" enctype="multipart/form-data">
+
+            @for((k,v) <- meta){
+                <input type="hidden" id="@k" name="@k" value="@v">
+            }
+
+            @inputFile(
+                id = "file",
+                name = "file",
+                label = sessionConfig.content.chooseFirstFileLabel,
+                labelClasses = Some("govuk-label"),
+                isPageHeading = false
+            )   
+
+            <div class="govuk-!-margin-bottom-9">
+                @submitButton("button.continue")
+            </div>
+
+        </form>
+
+    }

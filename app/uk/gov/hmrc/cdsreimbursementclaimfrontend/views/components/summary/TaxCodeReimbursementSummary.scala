@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.govukfrontend.views.Aliases.Key
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
@@ -35,10 +35,10 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import scala.collection.SortedMap
 import play.api.mvc.Call
 
-object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[TaxCode, Reimbursement])] {
+object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])] {
 
   override def render(
-    answer: (DutyType, SortedMap[TaxCode, Reimbursement]),
+    answer: (DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]),
     key: String,
     subKey: Option[String],
     changeCallOpt: Option[Call]
@@ -49,13 +49,13 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
     val claimsMadeAgainstTaxCodes = answer._2
 
     SummaryList(
-      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, Reimbursement) =>
+      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect) =>
         val taxCode       = taxCodeWithClaim._1
         val reimbursement = taxCodeWithClaim._2
 
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))),
-          value = Value(Text(reimbursement.refundTotal.toPoundSterlingString)),
+          value = Value(Text(reimbursement.refundAmount.toPoundSterlingString)),
           actions = Some(
             Actions(
               items = Seq(

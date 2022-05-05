@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.CdsDisplayDeclarationSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -36,7 +37,8 @@
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
 @(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
@@ -55,6 +57,16 @@
     @paragraph(Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)), Some("govuk-body govuk-!-margin-bottom-6"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @dropdownDetails(
+            summary = s"$key.details.title",
+            html(
+                pageHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s", level = "h2"),
+                paragraph(Html(messages(s"$key.details.p1")), Some("govuk-body")),
+                pageHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s", level = "h2"),
+                paragraph(Html(messages(s"$key.details.p2")), Some("govuk-body"))
+            )
+        )
 
         @summary(CdsDisplayDeclarationSummary(declaration,s"$checkYourAnswersKey.declaration-details", subKey))
 

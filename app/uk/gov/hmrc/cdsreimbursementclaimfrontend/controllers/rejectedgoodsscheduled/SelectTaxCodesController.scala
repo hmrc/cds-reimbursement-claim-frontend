@@ -33,56 +33,56 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class SelectDutyCodesController @Inject() (
+class SelectTaxCodesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectDutyCodesPage: pages.select_duty_codes
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val postAction: Call = routes.SelectDutyCodesController.submit(dutyType)
+    if (journey.isDutyTypeSelected) {
+      val postAction: Call                     = routes.SelectTaxCodesController.submit(dutyType)
+      val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
+      val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
 
-    val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
-    val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
-
-    Ok(selectDutyCodesPage(dutyType, form, postAction)).asFuture
+      Ok(selectDutyCodesPage(dutyType, form, postAction)).asFuture
+    } else {
+      Redirect(routes.SelectDutyTypesController.show()).asFuture
+    }
 
   }
 
   def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.SelectDutyCodesController.submit(currentDuty)
+    val postAction: Call = routes.SelectTaxCodesController.submit(currentDuty)
+    if (journey.isDutyTypeSelected) {
+      Future.successful(
+        selectDutyCodesForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
+            selectedTaxCodes =>
+              journey
+                .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
+                .fold(
+                  errors => {
+                    logger.error(s"Error updating tax codes selection - $errors")
+                    (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
+                  },
+                  updatedJourney =>
+                    (
+                      updatedJourney,
+                      updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
+                        case Some(nextDuty) => Redirect(routes.SelectTaxCodesController.show(nextDuty))
+                        case None           => Redirect(routes.EnterClaimController.showFirst())
+                      }
+                    )
+                )
+          )
+      )
+    } else {
+      (journey, Redirect(routes.SelectDutyTypesController.show())).asFuture
+    }
 
-    Future.successful(
-      selectDutyCodesForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))
-            ),
-          selectedTaxCodes =>
-            journey
-              .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
-              .fold(
-                errors => {
-                  logger.error(s"Error updating tax codes selection - $errors")
-                  (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
-                },
-                updatedJourney =>
-                  (
-                    updatedJourney,
-                    updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
-                      case Some(nextDuty) => Redirect(routes.SelectDutyCodesController.show(nextDuty))
-                      case None           =>
-                        Redirect(
-                          "/rejected-goods/scheduled/select-duties/reimbursement-claim/start"
-                        ) //FIXME: routes.EnterScheduledClaimController.iterate()
-                    }
-                  )
-              )
-        )
-    )
   }
 
 }

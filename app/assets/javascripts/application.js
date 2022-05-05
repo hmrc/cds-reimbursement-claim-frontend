@@ -31,6 +31,14 @@ const CDSR = {
             CDSR.form.addEventListener('submit', CDSR.CheckFileInputs);
         }
 
+        // Open feedback link in new window
+
+        const feedbackLink = document.querySelector('.govuk-phase-banner a.govuk-link');
+
+        if (feedbackLink) {
+            feedbackLink.setAttribute('target', '_blank');
+        }
+
     },
 
     CheckFileInputs: (event) => {

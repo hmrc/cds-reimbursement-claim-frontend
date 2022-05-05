@@ -1,7 +1,6 @@
-service.name=Claim for reimbursement of import duties
-service.name=Claim for reimbursement of import duties
-service.text=Claim for reimbursement of import duties
-service.title=Claim for reimbursement of import duties
+service.name=Claim back import duty and VAT
+service.text=service.text
+service.title=Claim back import duty and VAT
 service.signOut=Sign out
 hmrc_branding=HM Revenue & Customs
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
@@ -53,13 +52,13 @@ date.month=Month
 date.year=Year
 
 signed-out.title=You’ve signed out
-signed-out.p1=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
+signed-out.p1=To access the claim back import duty and VAT service, you’ll need to sign back in.
 signed-out.p2=You can <a href="{0}">sign in</a> to your account.
 signed-out.button=Go to GOV.UK
 
 timed-out.title=For your security, we signed you out
 timed-out.p1=This was because you were inactive for too long.
-timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
+timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
 timed-out.button=Sign in
 
 recruitment-banner.message=Help improve GOV.UK
@@ -85,7 +84,7 @@ we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government 
 #===================================================
 #  LANDING PAGE
 #===================================================
-landing.title=Claim for reimbursement of import duties
+landing.title=Claim back import duty and VAT
 landing.help.p1=You can use this service to apply to claim reimbursements on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
 landing.help.p2=You can use this service for multiple claims (bulk), and be reimbursed via either Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or by bank account transfer.
 landing.who.heading=Who can claim
@@ -429,6 +428,11 @@ select-who-is-making-the-claim.details.paragraph.2=A representative company can 
 #===================================================
 check-declaration-details.title=Check these declaration details are correct
 check-declaration-details.duplicate.title=Check these declaration details are correct for the duplicate <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.details.title=Who is the importer and the declarant?
+check-declaration-details.details.h1=Importer
+check-declaration-details.details.p1=The importer is the person or company that purchased the goods brought into the UK.
+check-declaration-details.details.h2=Declarant
+check-declaration-details.details.p2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
 check-declaration-details.help-text=These are the declarant details we have from the MRN declaration.
 check-declaration-details.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.yes=Yes
@@ -893,19 +897,41 @@ enter-claim.error.invalid=Amount that should have been paid must be a number, li
 enter-claim.invalid.claim=Amount that should have been paid must be lower than the amount paid
 
 #===================================================
-#  ENTER SCHEDULE CLAIM PAGE
+#  ENTER SCHEDULE CLAIM PAGE C285
 #===================================================
 enter-scheduled-claim.title=Claim details for all <abbr title="Movement Reference Numbers">MRNs</abbr> under {0} {1}
-enter-scheduled-claim.help-text=This is to calculate your repayment as part of your claim.
+enter-scheduled-claim.help-text=Provide your claim details for {0}.
+enter-scheduled-claim.p1=This is to calculate your repayment as part of your claim.
 enter-scheduled-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
-enter-scheduled-claim.actual-amount.hint=This is the {0} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
+enter-scheduled-claim.actual-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
 enter-scheduled-claim.paid-amount.error.required=Enter the amount that was paid, in pounds
 enter-scheduled-claim.paid-amount.error.invalid=Paid amount must be a number, like 30
+enter-scheduled-claim.paid-amount.error.zero=Paid amount cannot be 0
 enter-scheduled-claim.actual-amount.error.required=Enter the amount that should have been paid, in pounds
 enter-scheduled-claim.actual-amount.error.invalid=Amount that should have been paid must be a number, like 30
 enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been paid must be lower than the amount paid
+enter-scheduled-claim.invalid.claim=The amount must be a number, like 30
+
+#===================================================
+#  ENTER CLAIM SCHEDULED PAGE C&E1179
+#===================================================
+enter-claim-scheduled.rejected-goods.title=Claim details for all MRNs under {0} {1}
+enter-claim-scheduled.rejected-goods.help-text=Provide your claim details for {0}.
+enter-claim-scheduled.rejected-goods.inset-text=HMRC does not refund agents’ fees.
+enter-claim-scheduled.rejected-goods.paid-amount=How much was paid, in pounds?
+enter-claim-scheduled.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
+enter-claim-scheduled.rejected-goods.claim-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
+enter-claim-scheduled.rejected-goods.paid-amount.error.required=Enter the amount that was paid, in pounds
+enter-claim-scheduled.rejected-goods.paid-amount.error.invalid=The paid amount must be a number, like 30
+enter-claim-scheduled.rejected-goods.paid-amount.error.zero=The paid amount cannot be 0
+enter-claim-scheduled.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
+enter-claim-scheduled.rejected-goods.claim-amount.error.invalid=The claim amount must be a number, like 30
+enter-claim-scheduled.rejected-goods.claim-amount.invalid.claim=The claim amount must be lower than or equal to the paid amount
+enter-claim-scheduled.rejected-goods.claim-amount.error.zero=The claim amount cannot be 0
+enter-claim-scheduled.rejected-goods.invalid.claim=The amount must be a number, like 30
+
 
 #===================================================
 #  ENTER MULTIPLE CLAIM PAGE
@@ -925,7 +951,7 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
 check-claim-summary.title=Check the claim total for the <abbr title="Movement Reference Number">MRN</abbr>
-check-claim-summary.scheduled.title=Check the reimbursement claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
+check-claim-summary.scheduled.title=Check the repayment claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
 check-claim-summary.help-text=Your repayment or remissions calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
 check-claim-summary.duty.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
@@ -960,7 +986,7 @@ multiple-check-claim-summary.error.invalid=Select Yes if these duties are correc
 #===================================================
 check-claim-timed-out.title=For your security, we signed you out.
 check-claim-timed-out.p1=This was because you were inactive for too long.
-check-claim-timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
+check-claim-timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
 check-claim-timed-out.button=Sign in
 
 #===================================================
@@ -1013,7 +1039,7 @@ select-bank-account-type.error.required=Choose if you are providing details for 
 #===================================================
 #  ENTER BANK DETAILS PAGE
 #===================================================
-enter-bank-details.title=Enter bank account details
+enter-bank-details.title=Enter your bank account details
 enter-bank-details.p1=This is where you would like repayments to be made in the UK.
 enter-bank-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
 enter-bank-details.account-name.label=Name on the account
@@ -1070,9 +1096,9 @@ supporting-evidence.upload-failed.p3=You’ll need to try again.
 supporting-evidence.upload-failed.button.tryAgain=Try again
 supporting-evidence.scan-failed.title=There is a problem with your file
 supporting-evidence.scan-failed.p1=The problem could be that:
-supporting-evidence.scan-failed.bullet1=the file had a virus or was corrupt
-supporting-evidence.scan-failed.bullet2=you did not select a file to upload
-supporting-evidence.scan-failed.bullet3=you uploaded the wrong type of file
+supporting-evidence.scan-failed.l1=the file had a virus or was corrupt
+supporting-evidence.scan-failed.l2=you did not select a file to upload
+supporting-evidence.scan-failed.l3=you uploaded the wrong type of file
 supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG and PDF.
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
@@ -1126,7 +1152,7 @@ supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calc
 supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
 supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet
 
-supporting-evidence.error.invalid-document-type=Invalid supporting evidence document type
+supporting-evidence.choose-document-type.error.invalid-document-type=Invalid supporting evidence document type
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES
@@ -1141,42 +1167,46 @@ schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=Upload a scheduled document with all the <abbr title="Movement Reference Numbers">MRNs</abbr>
 schedule-document.upload.choose.description=Document
 schedule-document.upload.allowed-file-types=JPG, PNG, or PDF
-schedule-document.size-fail.title=There is a problem with the file you uploaded
-schedule-document.size-fail.p1=We could not scan your file.
-schedule-document.size-fail.p2=This could be because:
-schedule-document.size-fail.bullet1=the service has experienced technical issues
-schedule-document.size-fail.bullet2=your file was larger than 10MB
-schedule-document.size-fail.p2=You’ll need to try again.
-schedule-document.size-fail.button.tryAgain=Try again
+schedule-document.upload-failed.title=There is a problem with the file you uploaded
+schedule-document.upload-failed.p1=We could not scan your file.
+schedule-document.upload-failed.p2=This could be because:
+schedule-document.upload-failed.bullet1=the service has experienced technical issues
+schedule-document.upload-failed.bullet2=your file was larger than 10MB
+schedule-document.upload-failed.p3=You’ll need to try again.
+schedule-document.upload-failed.button.tryAgain=Try again
 schedule-document.scan-progress.title=We are checking your document
 schedule-document.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
 schedule-document.scan-progress.p2=You’ll need to keep selecting ’continue’ every few seconds until the check is complete to go to the next page.
-schedule-document.format-virus-fail.title=There is a problem with your file
-schedule-document.format-virus-fail.p1=The problem could be that:
-schedule-document.format-virus-fail.l1=the file had a virus or was corrupt
-schedule-document.format-virus-fail.l2=you did not select a file to upload
-schedule-document.format-virus-fail.l3=you uploaded the wrong type of file
-schedule-document.format-virus-fail.p2=We only accept these file types: JPG, PNG and PDF.
-schedule-document.format-virus-fail.p3=You’ll need to try again.
-schedule-document.format-virus-fail.button.tryAgain=Try again
+schedule-document.scan-failed.title=There is a problem with your file
+schedule-document.scan-failed.p1=The problem could be that:
+schedule-document.scan-failed.l1=the file had a virus or was corrupt
+schedule-document.scan-failed.l2=you did not select a file to upload
+schedule-document.scan-failed.l3=you uploaded the wrong type of file
+schedule-document.scan-failed.p2=We only accept these file types: JPG, PNG and PDF.
+schedule-document.scan-failed.p3=You’ll need to try again.
+schedule-document.scan-failed.button.tryAgain=Try again
 
-schedule-document.review.title=You have successfully uploaded a document showing all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim
-schedule-document.review.p1=The document should show:
-schedule-document.review.bullet1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.review.bullet2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.review.bullet3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.review.remove=Remove
-schedule-document.review.assistive=the file named {0}
+schedule-document.check-your-answers.title=You have successfully uploaded a document showing all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim
+schedule-document.check-your-answers.help-text=The document should show:<ul class="govuk-list govuk-list--bullet"><li>the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr><li>the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr><li>the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr></ul>
+schedule-document.check-your-answers.p1=The document should show:
+schedule-document.check-your-answers.bullet1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
+schedule-document.check-your-answers.bullet2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
+schedule-document.check-your-answers.bullet3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
+schedule-document.check-your-answers.remove=Remove
+schedule-document.check-your-answers.assistive=the file named {0}
 
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
 check-your-answers.title=Check your answers before sending your application
+check-your-answers.scheduled.title=Check your answers before sending your application
+check-your-answers.rejectedgoods.scheduled.title=Check your answers before sending your claim
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
 check-your-answers.reference-number.label=<abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.multiple.label=Lead <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.scheduled.label=Lead <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.rejectedgoods.scheduled.label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.associated-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.rejectedgoodsmultiple.label={0} <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.label=Declaration details
@@ -1230,6 +1260,7 @@ check-your-answers.bank-details.account-number.label=Account number
 check-your-answers.reference-number.h2=Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
 check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (<abbr title="Movement Reference Numbers">MRNs</abbr>)
 check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
+check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
 check-your-answers.commodity-details.h2=Reason for claim
@@ -1251,6 +1282,7 @@ check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.claimant-details.h2=Contact information for this claim
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
+check-your-answers.scheduled.confirmation-statement.h2=Now send your claim
 check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.
 check-your-answers.reimbursement-method.h2=Reimbursement method
 check-your-answers.reimbursement-method.label=Method
@@ -1324,10 +1356,11 @@ confirmation-of-submission.what-next.link.1.start-another-claim=Start another cl
 #  PROBLEM WITH ADDRESS
 #===================================================
 problem-with-address.title=There is a problem with your contact address
-problem-with-address.paragraph.1=Some information about your contact address was missing.
-problem-with-address.paragraph.2=This could be because:
-problem-with-address.point.1=the postcode you entered is missing address line 1
-problem-with-address.point.2=you did not provide a postcode for this address
+problem-with-address.paragraph.1=Some information was missing for your contact address.
+problem-with-address.paragraph.2=The contact address should include:
+problem-with-address.point.1=a property name or number (address line 1)
+problem-with-address.point.2=a real postcode
+problem-with-address.point.3=a town or city name
 problem-with-address.button.tryAgain=Try again
 
 #===================================================

@@ -22,8 +22,8 @@ import play.api.data.Form
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes.subKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -39,8 +39,6 @@ class CheckDeclarationDetailsController @Inject() (
   checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends RejectedGoodsScheduledJourneyBaseController {
-
-  implicit val subKey: Option[String] = Some("scheduled")
 
   val checkDeclarationDetailsKey: String = s"check-declaration-details${subKey.fold("")(a => s".$a")}"
 

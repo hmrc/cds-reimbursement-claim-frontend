@@ -16,17 +16,20 @@
 
 @import play.api.i18n.Messages
 @import play.api.data.Form
+@import play.api.mvc.Call
+@import play.api.mvc.Request 
 @import play.twirl.api.Html
 @import play.twirl.api.TwirlFeatureImports.defining
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -38,13 +41,9 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(journey: JourneyBindable, evidences: SupportingEvidencesAnswer, maxUploads: Int, form: Form[YesNo])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(evidences: Seq[UploadedFile], showYesNoQuestion: Boolean, form: Form[YesNo],  key: String, postAction: Call, deleteAction: String => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"supporting-evidence.check-your-answers"}
-
-    @title = @{messages(s"$key.title", evidences.size, if (evidences.size > 1) "s" else "")}
-
-    @postAction = @{ routes.SupportingEvidenceController.checkYourAnswersSubmit(journey) }
+    @title = @{messages(s"$key.title", evidences.size, if (evidences.size != 1) "s" else "")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -54,39 +53,42 @@
 
         @pageHeading(Html(title))
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+        @if(evidences.nonEmpty){
 
-        <dl class="govuk-summary-list govuk-!-margin-bottom-8">
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key"></dt>
-                <dd class="govuk-summary-list__actions"></dd>
-            </div>
-            @evidences.toList.map { evidence =>
+            @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+
+            <dl class="govuk-summary-list govuk-!-margin-bottom-8">
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        @defining(evidence.fileName) { name =>
-                            @name<br />
-                            <span style="font-weight: normal">
-                                @{evidence.documentType.fold("")(documentType =>
-                                    messages(s"supporting-evidence.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}")
-                                )}
-                            </span>
-                        }
-                    </dt>
-                    <dd class="govuk-summary-list__actions">
-                        @defining(routes.SupportingEvidenceController.deleteSupportingEvidence(journey, evidence.uploadReference, addNew = false).url) { changeUrl =>
-                            <a class="govuk-link" href=@changeUrl>
-                                @{messages(s"cya.remove")}
-                            </a>
-                        }
-                    </dd>
+                    <dt class="govuk-summary-list__key"></dt>
+                    <dd class="govuk-summary-list__actions"></dd>
                 </div>
-            }
-        </dl>
+                @evidences.map { evidence =>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            @defining(evidence.fileName) { name =>
+                                @name<br />
+                                <span style="font-weight: normal">
+                                    @{evidence.documentType.fold("")(documentType =>
+                                        messages(s"supporting-evidence.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}")
+                                    )}
+                                </span>
+                            }
+                        </dt>
+                        <dd class="govuk-summary-list__actions">
+                            @defining(deleteAction(evidence.upscanReference)) { changeUrl =>
+                                <a class="govuk-link" href=@changeUrl>
+                                    @{messages(s"cya.remove")}
+                                </a>
+                            }
+                        </dd>
+                    </div>
+                }
+            </dl>
+        }
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-            @if(evidences.size < maxUploads) {
+            @if(showYesNoQuestion) {
                 @radios(
                     form = form,
                     name = key,
@@ -108,6 +110,8 @@
                         )
                     )
                 )
+            } else {
+                <input type="hidden" name="@key" value="false"/>
             }
 
             @submitButton("button.continue")

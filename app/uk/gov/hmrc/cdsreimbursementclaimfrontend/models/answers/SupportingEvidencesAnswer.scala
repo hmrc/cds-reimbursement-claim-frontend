@@ -21,13 +21,13 @@ import cats.data.NonEmptyList
 import cats.syntax.all._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 object SupportingEvidencesAnswer {
 
   val validator: Validator[Id, SupportingEvidencesAnswer] = (maybeEvidences: Option[SupportingEvidencesAnswer]) =>
     maybeEvidences.toValidNel(MissingAnswerError("Supporting Evidences"))
 
-  def apply(evidence: UploadDocument): SupportingEvidencesAnswer =
+  def apply(evidence: UploadedFile): SupportingEvidencesAnswer =
     NonEmptyList.one(evidence)
 }

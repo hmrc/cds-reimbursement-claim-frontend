@@ -41,7 +41,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val homePageUrl: String = selfBaseUrl + getString("home-page")
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
-    "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
+    "%2Fclaim-back-import-duty-vat%2Fstart&origin=cds-reimbursement-claim-frontend"
 
   val signOutUrl: String = getString("bas-gateway.signOutUrl")
 
@@ -52,22 +52,20 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
     servicesConfig.getDuration("gg.countdown").toSeconds
 
   val ggKeepAliveUrl: String =
-    s"$selfBaseUrl/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController.keepAlive().url
+    s"$selfBaseUrl/claim-back-import-duty-vat" + baseRoutes.StartController.keepAlive().url
 
   val ggTimedOutUrl: String =
-    signOutUrl + s"?continue=$selfBaseUrl/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
+    signOutUrl + s"?continue=$selfBaseUrl/claim-back-import-duty-vat" + baseRoutes.StartController
       .timedOut()
       .url
 
   val ggSignOut: String =
-    signOutUrl + s"?continue=$selfBaseUrl/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
-      .start()
-      .url
+    signOutUrl + s"?continue=$serviceFeedBackUrl"
 
   val weSignedYouOutPageUrl: String =
-    s"$selfBaseUrl/claim-for-reimbursement-of-import-duties${baseRoutes.StartController.timedOut().url}"
+    s"$selfBaseUrl/claim-back-import-duty-vat${baseRoutes.StartController.timedOut().url}"
 
-  val serviceFeedBackUrl: String = {
+  lazy val serviceFeedBackUrl: String = {
     val baseUrl = config.get[String]("microservice.services.feedback.url")
     val path    = config.get[String]("microservice.services.feedback.source")
     s"$baseUrl$path"

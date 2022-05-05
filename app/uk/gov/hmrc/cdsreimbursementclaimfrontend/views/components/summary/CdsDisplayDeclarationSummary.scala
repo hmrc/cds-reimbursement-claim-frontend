@@ -53,8 +53,12 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
         value = Value(Text(declaration.displayResponseDetail.acceptanceDate))
       ).some,
       SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.paid-charges-label"))),
-        value = Value(Text(declaration.totalPaidCharges.toPoundSterlingString))
+        key = Key(HtmlContent(messages(s"$key.paid-duties-charges-label"))),
+        value = Value(Text(declaration.totalDutiesPaidCharges.toPoundSterlingString))
+      ).some,
+      SummaryListRow(
+        key = Key(HtmlContent(messages(s"$key.paid-vat-charges-label"))),
+        value = Value(Text(declaration.totalVatPaidCharges.toPoundSterlingString))
       ).some,
       declaration.consigneeName.map { name =>
         SummaryListRow(

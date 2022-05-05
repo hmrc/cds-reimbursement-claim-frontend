@@ -257,8 +257,8 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockStoreSession(updatedSession)(Right(()))
           mockBusinessReputation(Right(businessResponse))
+          mockStoreSession(updatedSession)(Right(()))
         }
         val form               = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
@@ -289,6 +289,7 @@ class BankAccountControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(session)
             mockBusinessReputation(Right(businessResponse))
+            mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
           val doc              = Jsoup.parse(contentAsString(result))
@@ -323,6 +324,7 @@ class BankAccountControllerSpec
               mockAuthWithNoRetrievals()
               mockGetSession(session)
               mockBusinessReputation(Right(businessResponse))
+              mockStoreSessionNotCalled
             }
             val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
             val doc              = Jsoup.parse(contentAsString(result))
@@ -353,6 +355,7 @@ class BankAccountControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockBusinessReputation(Right(businessResponse))
+          mockStoreSessionNotCalled
         }
         val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
         val doc              = Jsoup.parse(contentAsString(result))
@@ -383,6 +386,7 @@ class BankAccountControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(session)
             mockBusinessReputation(Right(businessResponse))
+            mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
           val doc              = Jsoup.parse(contentAsString(result))
@@ -409,6 +413,7 @@ class BankAccountControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockBusinessReputation(Right(businessResponse))
+          mockStoreSessionNotCalled
         }
         val form             = enterBankDetailsForm.fill(Business).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
@@ -434,6 +439,7 @@ class BankAccountControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockBusinessReputation(Left(errorResponse))
+          mockStoreSessionNotCalled
         }
 
         val form    = enterBankDetailsForm.fill(Business).data.toSeq
@@ -466,8 +472,8 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockStoreSession(updatedSession)(Right(()))
           mockPersonalReputation(Right(personalResponse))
+          mockStoreSession(updatedSession)(Right(()))
         }
 
         val form    = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
@@ -498,6 +504,7 @@ class BankAccountControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(session)
             mockPersonalReputation(Right(personalResponse))
+            mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
           val doc              = Jsoup.parse(contentAsString(result))
@@ -531,6 +538,7 @@ class BankAccountControllerSpec
               mockAuthWithNoRetrievals()
               mockGetSession(session)
               mockPersonalReputation(Right(personalResponse))
+              mockStoreSessionNotCalled
             }
             val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
             val doc              = Jsoup.parse(contentAsString(result))
@@ -561,6 +569,7 @@ class BankAccountControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockPersonalReputation(Right(personalResponse))
+          mockStoreSessionNotCalled
         }
         val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
         val doc              = Jsoup.parse(contentAsString(result))
@@ -592,6 +601,7 @@ class BankAccountControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(session)
             mockPersonalReputation(Right(personalResponse))
+            mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
           val doc              = Jsoup.parse(contentAsString(result))
@@ -617,6 +627,7 @@ class BankAccountControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockPersonalReputation(Right(personalResponse))
+          mockStoreSessionNotCalled
         }
         val form             = enterBankDetailsForm.fill(Personal).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
@@ -642,6 +653,7 @@ class BankAccountControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockPersonalReputation(Left(errorResponse))
+          mockStoreSessionNotCalled
         }
 
         val form    = enterBankDetailsForm.fill(Personal).data.toSeq

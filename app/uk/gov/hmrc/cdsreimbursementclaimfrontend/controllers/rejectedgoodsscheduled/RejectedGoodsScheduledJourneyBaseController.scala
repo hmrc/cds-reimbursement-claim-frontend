@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes.subKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -52,4 +53,5 @@ abstract class RejectedGoodsScheduledJourneyBaseController(implicit ec: Executio
   final override def isFinalized(journey: RejectedGoodsScheduledJourney): Boolean =
     journey.isFinalized
 
+  implicit val implicitSubKey: Option[String] = subKey
 }

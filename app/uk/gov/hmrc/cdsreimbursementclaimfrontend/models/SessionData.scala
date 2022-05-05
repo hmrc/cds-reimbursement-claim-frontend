@@ -22,13 +22,25 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 
 final case class SessionData(
   journeyStatus: Option[JourneyStatus] = None,
   rejectedGoodsSingleJourney: Option[RejectedGoodsSingleJourney] = None,
   rejectedGoodsMultipleJourney: Option[RejectedGoodsMultipleJourney] = None,
-  rejectedGoodsScheduledJourney: Option[RejectedGoodsScheduledJourney] = None
-)
+  rejectedGoodsScheduledJourney: Option[RejectedGoodsScheduledJourney] = None,
+  uploadDocumentsSessionModel: Option[UploadDocumentsSessionModel] = None
+) {
+
+  def withUpdatedC285Claim(update: DraftClaim => DraftClaim): SessionData =
+    SessionData(journeyStatus.map {
+      case FillingOutClaim(ggCredId, signedInUserDetails, draftClaim) =>
+        FillingOutClaim(ggCredId, signedInUserDetails, update(draftClaim))
+
+      case other => other
+    })
+
+}
 
 object SessionData {
 
@@ -43,6 +55,9 @@ object SessionData {
 
   def apply(rejectedGoodsScheduledJourney: RejectedGoodsScheduledJourney): SessionData =
     SessionData(rejectedGoodsScheduledJourney = Some(rejectedGoodsScheduledJourney))
+
+  def apply(uploadDocumentsModel: UploadDocumentsSessionModel): SessionData =
+    SessionData(uploadDocumentsSessionModel = Some(uploadDocumentsModel))
 
   implicit val format: Format[SessionData] = Json.format
 

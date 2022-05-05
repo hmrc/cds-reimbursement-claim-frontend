@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -51,7 +50,7 @@ final case class C285Claim(
   mrnContactAddressAnswer: Option[ContactAddress],
   basisOfClaimAnswer: BasisOfClaimAnswer,
   bankAccountDetailsAnswer: Option[BankAccountDetails],
-  documents: NonEmptyList[UploadDocument],
+  documents: NonEmptyList[EvidenceDocument],
   commodityDetailsAnswer: CommodityDetailsAnswer,
   displayDeclaration: Option[DisplayDeclaration],
   duplicateDisplayDeclaration: Option[DisplayDeclaration],
@@ -110,6 +109,7 @@ object C285Claim {
             maybeBankAccountDetails,
             _,
             maybeBasisForClaim,
+            _,
             maybeSupportingEvidences,
             _,
             maybeDraftCommodityAnswer,
@@ -158,7 +158,7 @@ object C285Claim {
               maybeDraftMrnContactAddress,
               basisOfClaims,
               maybeBankAccountDetails,
-              evidences ++ maybeSchedule.map(_.uploadDocument).toList,
+              (evidences ++ maybeSchedule.map(_.uploadDocument).toList).map(EvidenceDocument.from),
               commodity,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,

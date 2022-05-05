@@ -45,8 +45,8 @@ class ChooseInspectionAddressTypeController @Inject() (
     extends RejectedGoodsScheduledJourneyBaseController
     with AddressLookupMixin[RejectedGoodsScheduledJourney] {
 
-  private val postAction                    = routes.ChooseInspectionAddressTypeController.submit()
-  private val nextPage: Call                = Call("GET", "check-bank-details")
+  private val postAction: Call              = routes.ChooseInspectionAddressTypeController.submit()
+  private val nextPage: Call                = routes.CheckBankDetailsController.show()
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
   override val retrieveLookupAddress: Call  = routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
@@ -57,7 +57,7 @@ class ChooseInspectionAddressTypeController @Inject() (
         Ok(
           inspectionAddressPage(
             addresses,
-            inspectionAddressTypeForm,
+            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
             postAction
           )
         )
@@ -90,10 +90,7 @@ class ChooseInspectionAddressTypeController @Inject() (
               journey
                 .getInspectionAddressForType(inspectionAddressType)
                 .map { address =>
-                  (
-                    journey.submitInspectionAddress(address),
-                    Redirect(nextPage)
-                  )
+                  redirectToTheNextPage(journey.submitInspectionAddress(inspectionAddress = address))
                 }
                 .getOrElse(
                   (

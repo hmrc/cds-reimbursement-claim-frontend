@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
@@ -111,10 +112,11 @@ final class RejectedGoodsMultipleJourney private (
   def getReimbursementClaimFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     getReimbursementClaimsFor(mrn).flatMap(_.get(taxCode).flatten)
 
-  def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
+  def getReimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]] =
     answers.reimbursementClaims
       .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
-      .getOrElse(Map.empty)
+      .map(OrderedMap(_))
+      .getOrElse(OrderedMap.empty)
 
   def needsBanksAccountDetailsSubmission: Boolean =
     true
@@ -286,7 +288,7 @@ final class RejectedGoodsMultipleJourney private (
                       answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
                     reimbursementClaims = answers.reimbursementClaims
                       .map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
-                      .orElse(Some(Map(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
+                      .orElse(Some(OrderedMap(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
                   )
                 )
               )
@@ -432,7 +434,7 @@ final class RejectedGoodsMultipleJourney private (
                   answers.copy(reimbursementClaims =
                     answers.reimbursementClaims
                       .map(_ + (mrn -> newReimbursementClaims))
-                      .orElse(Some(Map(mrn -> newReimbursementClaims)))
+                      .orElse(Some(OrderedMap(mrn -> newReimbursementClaims)))
                   )
                 )
               )
@@ -471,7 +473,7 @@ final class RejectedGoodsMultipleJourney private (
                     answers.copy(reimbursementClaims =
                       answers.reimbursementClaims
                         .map(_ + (mrn -> newReimbursementClaims))
-                        .orElse(Some(Map(mrn -> newReimbursementClaims)))
+                        .orElse(Some(OrderedMap(mrn -> newReimbursementClaims)))
                     )
                   )
                 )
@@ -636,7 +638,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     basisOfClaimSpecialCircumstances: Option[String] = None,
     methodOfDisposal: Option[MethodOfDisposal] = None,
     detailsOfRejectedGoods: Option[String] = None,
-    reimbursementClaims: Option[Map[MRN, ReimbursementClaims]] = None,
+    reimbursementClaims: Option[OrderedMap[MRN, ReimbursementClaims]] = None,
     inspectionDate: Option[InspectionDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
@@ -658,7 +660,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     detailsOfRejectedGoods: String,
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
-    reimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]],
+    reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
     reimbursementMethod: ReimbursementMethodAnswer,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
@@ -760,8 +762,8 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     implicit lazy val mapFormat2: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
       MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
 
-    implicit lazy val mapFormat3: Format[Map[MRN, Map[TaxCode, Option[BigDecimal]]]] =
-      MapFormat.format[MRN, Map[TaxCode, Option[BigDecimal]]]
+    implicit lazy val mapFormat3: Format[OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]]] =
+      MapFormat.formatOrdered[MRN, Map[TaxCode, Option[BigDecimal]]]
 
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
@@ -775,8 +777,8 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     implicit lazy val mapFormat1: Format[Map[TaxCode, BigDecimal]] =
       MapFormat.format[TaxCode, BigDecimal]
 
-    implicit lazy val mapFormat2: Format[Map[MRN, Map[TaxCode, BigDecimal]]] =
-      MapFormat.format[MRN, Map[TaxCode, BigDecimal]]
+    implicit lazy val mapFormat2: Format[OrderedMap[MRN, Map[TaxCode, BigDecimal]]] =
+      MapFormat.formatOrdered[MRN, Map[TaxCode, BigDecimal]]
 
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
@@ -786,7 +788,6 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
   }
 
   import play.api.libs.functional.syntax._
-
   implicit val format: Format[RejectedGoodsMultipleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]

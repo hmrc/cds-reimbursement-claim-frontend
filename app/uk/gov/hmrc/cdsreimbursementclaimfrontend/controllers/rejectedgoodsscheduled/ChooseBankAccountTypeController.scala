@@ -48,31 +48,29 @@ class ChooseBankAccountTypeController @Inject() (
     ).asFuture
   }
 
-  def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    bankAccountTypeForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            BadRequest(
-              chooseBankAccountType(
-                formWithErrors,
-                postAction
+  def submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      bankAccountTypeForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(chooseBankAccountType(formWithErrors, postAction))
+            ).asFuture,
+          bankAccountType =>
+            journey
+              .submitBankAccountType(bankAccountType)
+              .fold(
+                error => {
+                  logger.warn(error)
+                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                },
+                updatedJourney => (updatedJourney, Redirect(routes.EnterBankAccountDetailsController.show()))
               )
-            )
-          ),
-        bankAccountType =>
-          journey
-            .submitBankAccountType(bankAccountType)
-            .fold(
-              error => {
-                logger warn error
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-              },
-              updatedJourney => (updatedJourney, Redirect("enter-bank-account-details"))
-            )
-      )
-      .asFuture
-  }
+              .asFuture
+        )
+    },
+    fastForwardToCYAEnabled = false
+  )
 }

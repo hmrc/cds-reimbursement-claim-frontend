@@ -21,9 +21,9 @@ import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
-final case class ScheduledDocumentAnswer(uploadDocument: UploadDocument) extends AnyVal
+final case class ScheduledDocumentAnswer(uploadDocument: UploadedFile) extends AnyVal
 
 object ScheduledDocumentAnswer {
 

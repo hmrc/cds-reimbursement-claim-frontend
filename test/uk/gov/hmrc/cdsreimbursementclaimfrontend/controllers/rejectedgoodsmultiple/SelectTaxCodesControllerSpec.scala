@@ -83,7 +83,7 @@ class SelectTaxCodesControllerSpec
     hasContinueButton(doc)
     formAction(
       doc
-    )                        shouldBe s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/select-duties/$pageIndex"
+    )                        shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/select-duties/$pageIndex"
   }
 
   "SelectTaxCodesController" when {
@@ -277,7 +277,7 @@ class SelectTaxCodesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -295,7 +295,7 @@ class SelectTaxCodesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -321,7 +321,7 @@ class SelectTaxCodesControllerSpec
 
               checkIsRedirect(
                 performAction(mrnIndex + 1, newSelectedTaxCodes),
-                s"/claim-for-reimbursement-of-import-duties/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
+                s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
               )
             }
           }
