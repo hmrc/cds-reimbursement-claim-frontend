@@ -168,7 +168,8 @@ class CheckDeclarationDetailsControllerSpec
           Seq(
             displayDeclaration.displayResponseDetail.declarationId,
             displayDeclaration.displayResponseDetail.acceptanceDate,
-            displayDeclaration.totalPaidCharges.toPoundSterlingString,
+            displayDeclaration.totalDutiesPaidCharges.toPoundSterlingString,
+            displayDeclaration.totalVatPaidCharges.toPoundSterlingString,
             displayDeclaration.declarantName
           ) ++ Seq(
             displayDeclaration.consigneeName,

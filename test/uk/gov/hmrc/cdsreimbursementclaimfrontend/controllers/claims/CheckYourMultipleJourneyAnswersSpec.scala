@@ -105,7 +105,8 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
               Seq(
                 ("Lead MRN"                                        -> claim.movementReferenceNumber.map(_.value)),
                 ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),
-                ("Duties and VAT paid"                             -> declaration.map(_.totalPaidCharges.toPoundSterlingString)),
+                ("Duties paid"                                     -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)),
+                ("VAT paid"                                        -> declaration.map(_.totalVatPaidCharges.toPoundSterlingString)),
                 ("Importer name"                                   -> declaration.flatMap(_.consigneeName)),
                 ("Importer email"                                  -> declaration.flatMap(_.consigneeEmail)),
                 ("Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone)),
