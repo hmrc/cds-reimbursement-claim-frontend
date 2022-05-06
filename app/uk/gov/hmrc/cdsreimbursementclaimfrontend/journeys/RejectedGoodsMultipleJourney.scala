@@ -247,7 +247,7 @@ final class RejectedGoodsMultipleJourney private (
             if (getIndexOfMovementReferenceNumber(mrn).exists(_ =!= index))
               Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
             else if (index === 0) {
-              // lead MRN change resets all the journey
+              // first MRN change resets all the journey
               Right(
                 new RejectedGoodsMultipleJourney(
                   RejectedGoodsMultipleJourney

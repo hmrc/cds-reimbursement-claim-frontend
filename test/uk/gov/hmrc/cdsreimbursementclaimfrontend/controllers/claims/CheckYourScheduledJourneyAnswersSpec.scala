@@ -86,7 +86,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
               claims.map(_.total).sum.toPoundSterlingString
 
             headers should containOnlyDefinedElementsOf(
-              "Lead Movement Reference Number (MRN)".expectedAlways,
+              "First Movement Reference Number (MRN)".expectedAlways,
               "Declaration details".expectedWhen(claim.displayDeclaration),
               "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
               "Basis for claim".expectedAlways,
@@ -102,7 +102,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
-                "Lead MRN"                                        -> claim.movementReferenceNumber.map(_.value),
+                "First MRN"                                       -> claim.movementReferenceNumber.map(_.value),
                 "Import date"                                     -> declarationDetails.map(_.acceptanceDate),
                 "Duties paid"                                     -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString),
                 "VAT paid"                                        -> declaration.map(_.totalVatPaidCharges.toPoundSterlingString),

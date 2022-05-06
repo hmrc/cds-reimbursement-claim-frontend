@@ -102,7 +102,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
-                ("Lead MRN"                                        -> claim.movementReferenceNumber.map(_.value)),
+                ("First MRN"                                       -> claim.movementReferenceNumber.map(_.value)),
                 ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),
                 ("Duties paid"                                     -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)),
                 ("VAT paid"                                        -> declaration.map(_.totalVatPaidCharges.toPoundSterlingString)),

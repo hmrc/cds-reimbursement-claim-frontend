@@ -258,7 +258,7 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      "redirect to the Select duties page when amending the non-lead MRN" in forAll(
+      "redirect to the Select duties page when amending the non-first MRN" in forAll(
         completeJourneyGen,
         arbitraryDisplayDeclaration.arbitrary
       ) { (journey, newDisplayDeclaration) =>
