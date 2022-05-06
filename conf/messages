@@ -1083,6 +1083,7 @@ supporting-evidence.upload.p1=Upload supporting evidence you have received for t
 supporting-evidence.upload.p2=The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
 supporting-evidence.upload.input-title=Select document
+supporting-evidence.upload.allowed-file-types=JPG, PNG, or PDF
 file.error.required=Select a file containing your supporting evidence
 supporting-evidence.scan-progress.title=We are checking your document
 supporting-evidence.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
@@ -1194,6 +1195,8 @@ schedule-document.check-your-answers.bullet2=the amount that was paid to HMRC fo
 schedule-document.check-your-answers.bullet3=the amount that should have been paid to HMRC for each MRN
 schedule-document.check-your-answers.remove=Remove
 schedule-document.check-your-answers.assistive=the file named {0}
+
+schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 
 
 #===================================================

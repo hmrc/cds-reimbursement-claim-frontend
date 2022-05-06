@@ -19,13 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 trait SubmitRoutes extends Product with Serializable {
@@ -78,7 +77,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case Yes =>
         journeyBindable match {
           case JourneyBindable.Scheduled =>
-            uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+            claimRoutes.UploadMrnListController.show()
           case JourneyBindable.Multiple  =>
             if (hasAssociatedMrns)
               claimRoutes.CheckMovementReferenceNumbersController.showMrns()

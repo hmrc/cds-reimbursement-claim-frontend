@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
@@ -48,7 +47,7 @@ object SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer
                     uploadDocument.fileName,
                     uploadDocument.documentType
                       .map { documentType =>
-                        messages(s"$supportingEvidenceKey.choose-document-type.document-type.$documentType")
+                        messages(s"supporting-evidence.choose-document-type.document-type.$documentType")
                       }
                       .getOrElse("")
                   ).toString
