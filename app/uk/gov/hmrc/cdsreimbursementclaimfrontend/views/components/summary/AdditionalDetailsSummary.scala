@@ -17,15 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
-object CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
+object AdditionalDetailsSummary extends AnswerSummary[AdditionalDetailsAnswer] {
 
-  override def render(answer: CommodityDetailsAnswer, key: String, subKey: Option[String], changeCallOpt: Option[Call])(
-    implicit messages: Messages
+  override def render(
+    answer: AdditionalDetailsAnswer,
+    key: String,
+    subKey: Option[String],
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
   ): SummaryList = {
     val label = messages(s"$key.label")
 

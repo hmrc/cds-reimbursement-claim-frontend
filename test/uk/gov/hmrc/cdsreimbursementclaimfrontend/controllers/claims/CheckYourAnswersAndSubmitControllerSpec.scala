@@ -292,7 +292,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(FillingOutClaim.from(fillingOutClaim)(_.copy(commoditiesDetailsAnswer = None))))
+          mockGetSession(SessionData(FillingOutClaim.from(fillingOutClaim)(_.copy(additionalDetailsAnswer = None))))
         }
 
         checkIsTechnicalErrorPage(controller.checkAllAnswersSubmit(journeyBindable)(FakeRequest()))

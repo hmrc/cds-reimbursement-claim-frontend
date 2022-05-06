@@ -51,7 +51,7 @@ final case class DraftClaim(
   documentTypeAnswer: Option[UploadDocumentType] = None,
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
-  commoditiesDetailsAnswer: Option[CommodityDetailsAnswer] = None,
+  additionalDetailsAnswer: Option[AdditionalDetailsAnswer] = None,
   whetherNorthernIrelandAnswer: Option[YesNo] = None,
   displayDeclaration: Option[DisplayDeclaration] = None,
   duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
@@ -140,7 +140,7 @@ final case class DraftClaim(
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
-        CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
         MRN.validator.validate(movementReferenceNumber).isValid
@@ -148,7 +148,7 @@ final case class DraftClaim(
     def isMultipleJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
-        CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         AssociatedMRNsClaimsAnswer.validator.validate(associatedMRNsClaimsAnswer).isValid &&
         AssociatedMRNsAnswer.validator.validate(associatedMRNsAnswer).isValid &&
@@ -159,7 +159,7 @@ final case class DraftClaim(
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
-        CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         ScheduledDocumentAnswer.validator.validate(scheduledDocumentAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&

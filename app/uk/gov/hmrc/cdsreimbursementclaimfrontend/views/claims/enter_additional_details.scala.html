@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 
 @this(
@@ -31,9 +31,9 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[CommodityDetailsAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, journey: JourneyBindable)
+@(form: Form[AdditionalDetailsAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, journey: JourneyBindable)
 
-@key = @{"enter-commodities-details"}
+@key = @{"enter-additional-details"}
 @title = @{messages(s"$key.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -42,7 +42,7 @@
 
     @errorSummary(form.errors)
 
-    @formWithCSRF(claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey), 'novalidate -> "novalidate") {
+    @formWithCSRF(claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit(journey), 'novalidate -> "novalidate") {
 
         @textArea(
             form = form,

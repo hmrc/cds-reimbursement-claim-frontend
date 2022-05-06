@@ -116,7 +116,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
                 ("This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
                   messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
                 )),
-                ("This is the reason for the claim"                -> claim.commoditiesDetailsAnswer.map(_.value)),
+                ("This is the reason for the claim"                -> claim.additionalDetailsAnswer.map(_.value)),
                 ("Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value)),
                 ("Sort code"                                       -> claim.bankAccountDetailsAnswer.map(_.sortCode.masked)),
                 ("Account number"                                  -> claim.bankAccountDetailsAnswer.map(_.accountNumber.masked)),

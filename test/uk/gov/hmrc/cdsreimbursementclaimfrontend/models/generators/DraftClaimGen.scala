@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AdditionalDetailsGen.arbitraryCompleteAdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddressOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetailsOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
@@ -54,7 +54,7 @@ object DraftClaimGen {
       basisOfClaimAnswer          <- arbitraryBasisOfClaimAnswer.arbitrary
       supportingEvidencesAnswer   <- arbitrarySupportingEvidenceAnswer.arbitrary
       dutiesSelectedAnswer        <- arbitraryDutiesSelectedAnswerGen.arbitrary
-      commoditiesDetailsAnswer    <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
+      additionalDetailsAnswer     <- arbitraryCompleteAdditionalDetailsAnswer.arbitrary
       whetherNorthernIrelandClaim <- arbitraryYesNo.arbitrary
       displayDeclaration          <- arbitraryDisplayDeclaration.arbitrary
       eori                        <- arbitraryEori.arbitrary
@@ -74,7 +74,7 @@ object DraftClaimGen {
       basisOfClaimAnswer = basisOfClaimAnswer.some,
       supportingEvidencesAnswer = supportingEvidencesAnswer.some,
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
-      commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
+      additionalDetailsAnswer = additionalDetailsAnswer.some,
       whetherNorthernIrelandAnswer = whetherNorthernIrelandClaim.some,
       displayDeclaration = displayDeclaration.some,
       importerEoriNumberAnswer = answers.ImporterEoriNumberAnswer(eori).some,

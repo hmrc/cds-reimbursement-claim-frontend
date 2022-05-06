@@ -590,16 +590,16 @@ enter-rejected-goods-details.rejected-goods.error.required=Enter details of reje
 enter-rejected-goods-details.rejected-goods.error.maxLength=Details of rejected goods must be 500 characters or fewer
 
 #===================================================
-#  ENTER COMMODITIES PAGE
+#  ENTER ADDITIONAL DETAILS PAGE
 #===================================================
-enter-commodities-details.title=Tell us the reason for this claim
-enter-commodities-details.label=
-enter-commodities-details.error.required=Enter claim reason
-enter-commodities-details.error.maxLength=Claim reason must be 500 characters or fewer
-enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
+enter-additional-details.title=Tell us the reason for this claim
+enter-additional-details.label=
+enter-additional-details.error.required=Enter claim reason
+enter-additional-details.error.maxLength=Claim reason must be 500 characters or fewer
+enter-additional-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
-enter-commodities-details.scheduled.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
-enter-commodities-details.multiple.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
+enter-additional-details.scheduled.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
+enter-additional-details.multiple.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
 
 #===================================================
 #  ENTER CLAIM REJECTED GOODS - SINGLE
@@ -1240,7 +1240,7 @@ check-your-answers.contact-details.l1=Contact address
 check-your-answers.basis.h2=Basis for claim
 check-your-answers.basis.l0=This is the basis behind the claim
 check-your-answers.northern-ireland-claim.label=Were your goods imported into Northern Ireland?
-check-your-answers.commodities-details.label=This is the reason for the claim
+check-your-answers.additional-details.label=This is the reason for the claim
 check-your-answers.claim-calculation.label=Claim calculation
 check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you:
@@ -1263,7 +1263,7 @@ check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number 
 check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (MRN)
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
-check-your-answers.commodity-details.h2=Reason for claim
+check-your-answers.additional-details.h2=Reason for claim
 check-your-answers.claim-calculation.h2=Claim total
 check-your-answers.claim-calculation.scheduled.h2=Total reimbursement claim for all MRNs
 check-your-answers.claim-calculation.uk-duty.label=UK Duty
