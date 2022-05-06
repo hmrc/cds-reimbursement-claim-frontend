@@ -99,7 +99,7 @@ class ChooseInspectionAddressTypeControllerSpec
         status(showPage()) shouldBe NOT_FOUND
       }
 
-      "Show the page when the lead Acc 14 Declaration does not have a consignee" in forAll {
+      "Show the page when the first Acc 14 Declaration does not have a consignee" in forAll {
         (contactDetails: ContactDetails, displayDeclaration: DisplayDeclaration) =>
           val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
           val displayResponseDetail = displayDeclaration.displayResponseDetail
@@ -131,7 +131,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
       }
 
-      "Show the page when the lead Acc 14 Declaration does has a consignee, with contact details, and the declarant does not have any contact details" in forAll {
+      "Show the page when the first Acc 14 Declaration does has a consignee, with contact details, and the declarant does not have any contact details" in forAll {
         (consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
           val displayResponseDetail = displayDeclaration.displayResponseDetail
             .copy(
@@ -162,7 +162,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
       }
 
-      "Show the page, with the existing value pre-selected, when the lead Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
+      "Show the page, with the existing value pre-selected, when the first Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
         (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
           val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
           val displayResponseDetail = displayDeclaration.displayResponseDetail
@@ -203,7 +203,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
       }
 
-      "Show the page when the lead Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
+      "Show the page when the first Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
         (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
           val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
           val displayResponseDetail = displayDeclaration.displayResponseDetail

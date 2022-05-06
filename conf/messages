@@ -193,12 +193,12 @@ enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is
 enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number
 enter-movement-reference-number.error.required=Enter a movement reference number
-enter-movement-reference-number.multiple.title=Enter the lead MRN
+enter-movement-reference-number.multiple.title=Enter the first MRN
 enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
-enter-movement-reference-number.scheduled.title=Enter the lead MRN
+enter-movement-reference-number.multiple.enter-mrn.label=Enter first MRN
+enter-movement-reference-number.scheduled.title=Enter the first MRN
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
+enter-movement-reference-number.scheduled.enter-mrn.label=Enter first MRN
 
 enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
@@ -440,7 +440,7 @@ check-declaration-details.no=No
 check-declaration-details.error.invalid=Select yes if you wish to continue with this MRN.
 check-declaration-details.error.number=Select yes if you wish to continue with this MRN.
 check-declaration-details.error.required=Select yes if you wish to continue with this MRN.
-check-declaration-details.scheduled.mrn-number.label=Lead MRN
+check-declaration-details.scheduled.mrn-number.label=First MRN
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
@@ -1007,12 +1007,6 @@ enter-inspection-date.rejected-goods.error.invalid=Inspection date must be a rea
 enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a real date
 
 #===================================================
-#  ENTER LEAD MRN OR ENTRY NUMBER PLACEHOLDER PAGE
-#===================================================
-enter-lead-mrn-or-entry-number.title=What is your lead MRN or entry number?
-enter-lead-mrn-or-entry-number.heading=This page is just a placeholder for the ENTER LEAD MRN OR ENTRY NUMBER page.
-
-#===================================================
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
@@ -1204,15 +1198,15 @@ check-your-answers.scheduled.title=Check your answers before sending your applic
 check-your-answers.rejectedgoods.scheduled.title=Check your answers before sending your claim
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
 check-your-answers.reference-number.label=MRN
-check-your-answers.reference-number.multiple.label=Lead MRN
-check-your-answers.reference-number.scheduled.label=Lead MRN
+check-your-answers.reference-number.multiple.label=First MRN
+check-your-answers.reference-number.scheduled.label=First MRN
 check-your-answers.reference-number.rejectedgoods.scheduled.label=First MRN
 check-your-answers.reference-number.associated-mrn-label={0} MRN
 check-your-answers.reference-number.rejectedgoodsmultiple.label={0} MRN
 check-your-answers.declaration-details.label=Declaration details
 check-your-answers.declaration-details.mrn-label=MRN
-check-your-answers.declaration-details.multiple.mrn-label=Lead MRN
-check-your-answers.declaration-details.scheduled.mrn-label=Lead MRN
+check-your-answers.declaration-details.multiple.mrn-label=First MRN
+check-your-answers.declaration-details.scheduled.mrn-label=First MRN
 check-your-answers.declaration-details.import-date-label=Import date
 check-your-answers.declaration-details.paid-charges-label=Duties and VAT paid
 check-your-answers.declaration-details.paid-duties-charges-label=Duties paid
@@ -1259,7 +1253,7 @@ check-your-answers.bank-details.account-number.label=Account number
 
 check-your-answers.reference-number.h2=Movement Reference Number (MRN)
 check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (MRNs)
-check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number (MRN)
+check-your-answers.reference-number.scheduled.h2=First Movement Reference Number (MRN)
 check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (MRN)
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?

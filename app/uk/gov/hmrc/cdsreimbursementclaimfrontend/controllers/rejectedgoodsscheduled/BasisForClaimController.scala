@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select
 
 import scala.concurrent.ExecutionContext
 import play.api.data.Form
-import play.api.mvc.Call
 
 @Singleton
 class BasisForClaimController @Inject() (

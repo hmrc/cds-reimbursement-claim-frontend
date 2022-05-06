@@ -305,7 +305,7 @@ class EnterMovementReferenceNumberControllerSpec
           )
         }
 
-      "Redirect back to Check Movement Numbers page when Lead MRN unchanged" in
+      "Redirect back to Check Movement Numbers page when First MRN unchanged" in
         forAll { mrn: MRN =>
           val mrnAnswer    = mrn.some
           val (session, _) =
