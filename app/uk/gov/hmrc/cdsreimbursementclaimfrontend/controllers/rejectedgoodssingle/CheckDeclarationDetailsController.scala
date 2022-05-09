@@ -18,15 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -37,7 +38,8 @@ class CheckDeclarationDetailsController @Inject() (
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  implicit val subKey: Option[String] = None
+  implicit val subKey: Option[String]                = Some("single")
+  val checkDeclarationDetailsAnswerForm: Form[YesNo] = YesOrNoQuestionForm("check-declaration-details")
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.CheckDeclarationDetailsController.submit()
