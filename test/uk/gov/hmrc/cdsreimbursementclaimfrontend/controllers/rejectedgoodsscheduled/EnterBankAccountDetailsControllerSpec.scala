@@ -27,7 +27,6 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.api.test.FakeRequest

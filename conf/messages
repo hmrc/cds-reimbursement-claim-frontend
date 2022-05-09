@@ -437,23 +437,21 @@ check-declaration-details.help-text=These are the declarant details we have from
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
-check-declaration-details.error.invalid=Select yes if you wish to continue with this MRN.
-check-declaration-details.error.number=Select yes if you wish to continue with this MRN.
-check-declaration-details.error.required=Select yes if you wish to continue with this MRN.
+check-declaration-details.error.invalid=Select ''yes'' if you wish to continue with this MRN.
+check-declaration-details.error.number=Select ''yes'' if you wish to continue with this MRN.
+check-declaration-details.error.required=Select ''yes'' if you wish to continue with this MRN.
 check-declaration-details.scheduled.mrn-number.label=Lead MRN
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
 #===================================================
-check-declaration-details.multiple.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the CDS team (opens in new tab)</a>
-check-declaration-details.scheduled.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the CDS team (opens in new tab)</a>
-check-declaration-details.multiple.error.invalid=Select ''yes'' if you want to continue with this MRN
-check-declaration-details.multiple.error.number=Select ''yes'' if you want to continue with this MRN
-check-declaration-details.multiple.error.required=Select ''yes'' if you want to continue with this MRN
+check-declaration-details.single.details.heading=Who is the importer and the declarant?
+check-declaration-details.single.details.paragraph.heading.1=Importer
+check-declaration-details.single.details.paragraph.text.1=The importer is the person or company that purchased the goods brought into the UK.
+check-declaration-details.single.details.paragraph.heading.2=Declarant
+check-declaration-details.single.details.paragraph.text.2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
+check-declaration-details.single.is-information-correct=Are these details correct?
 check-declaration-details.multiple.is-information-correct=Continue with this MRN?
-check-declaration-details.scheduled.error.invalid=Select ''yes'' if you want to continue with this MRN
-check-declaration-details.scheduled.error.number=Select ''yes'' if you want to continue with this MRN
-check-declaration-details.scheduled.error.required=Select ''yes'' if you want to continue with this MRN
 check-declaration-details.scheduled.is-information-correct=Are these details correct?
 
 #===================================================

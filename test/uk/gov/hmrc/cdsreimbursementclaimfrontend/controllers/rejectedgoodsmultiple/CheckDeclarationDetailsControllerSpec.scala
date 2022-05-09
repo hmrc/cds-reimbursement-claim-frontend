@@ -139,7 +139,7 @@ class CheckDeclarationDetailsControllerSpec
           performAction(controller.checkDeclarationDetailsKey -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.multiple.error.required")
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
           },
           expectedStatus = BAD_REQUEST
