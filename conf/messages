@@ -65,7 +65,7 @@ recruitment-banner.message=Help improve GOV.UK
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 
-exit-survey.link-text=<a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">What did you think of this service?</a>
+exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of this service?</a>
 
 #===================================================
 #  MESSAGES FOR PAGES
@@ -193,6 +193,7 @@ enter-movement-reference-number.help-text=The Movement Reference Number (<abbr t
 enter-movement-reference-number.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.invalid.number=Enter a movement reference number
 enter-movement-reference-number.error.required=Enter a movement reference number
+<<<<<<< HEAD
 enter-movement-reference-number.multiple.title=Enter the lead <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter lead <abbr title="Movement Reference Number">MRN</abbr>
@@ -202,6 +203,17 @@ enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead <abbr title
 
 enter-movement-reference-number.rejected-goods.single.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
+=======
+enter-movement-reference-number.multiple.title=Enter the first MRN
+enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.multiple.enter-mrn.label=Enter first MRN
+enter-movement-reference-number.scheduled.title=Enter the first MRN
+enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.scheduled.enter-mrn.label=Enter first MRN
+
+enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
+enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+>>>>>>> e9128f79de4ef138ed59a747f642b6357b17e435
 enter-movement-reference-number.rejected-goods.invalid.number=Enter a movement reference number in the correct format
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number
 enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=Try a different <abbr title="Movement Reference Number">MRN</abbr>
@@ -437,20 +449,37 @@ check-declaration-details.help-text=These are the declarant details we have from
 check-declaration-details.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
+<<<<<<< HEAD
 check-declaration-details.error.invalid=Select yes if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>.
 check-declaration-details.error.number=Select yes if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>.
 check-declaration-details.error.required=Select yes if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>.
 check-declaration-details.scheduled.mrn-number.label=Lead <abbr title="Movement Reference Number">MRN</abbr>
+=======
+check-declaration-details.error.invalid=Select ''yes'' if you wish to continue with this MRN.
+check-declaration-details.error.number=Select ''yes'' if you wish to continue with this MRN.
+check-declaration-details.error.required=Select ''yes'' if you wish to continue with this MRN.
+check-declaration-details.scheduled.mrn-number.label=First MRN
+>>>>>>> e9128f79de4ef138ed59a747f642b6357b17e435
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
 #===================================================
+<<<<<<< HEAD
 check-declaration-details.multiple.help-text=These are the declarant details we have from the <abbr title="Movement Reference Number">MRN</abbr> declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a>
 check-declaration-details.scheduled.help-text=These are the declarant details we have from the <abbr title="Movement Reference Number">MRN</abbr> declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a>
 check-declaration-details.multiple.error.invalid=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.multiple.error.number=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.multiple.error.required=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.multiple.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
+=======
+check-declaration-details.single.details.heading=Who is the importer and the declarant?
+check-declaration-details.single.details.paragraph.heading.1=Importer
+check-declaration-details.single.details.paragraph.text.1=The importer is the person or company that purchased the goods brought into the UK.
+check-declaration-details.single.details.paragraph.heading.2=Declarant
+check-declaration-details.single.details.paragraph.text.2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
+check-declaration-details.single.is-information-correct=Are these details correct?
+check-declaration-details.multiple.is-information-correct=Continue with this MRN?
+>>>>>>> e9128f79de4ef138ed59a747f642b6357b17e435
 check-declaration-details.scheduled.is-information-correct=Are these details correct?
 check-declaration-details.scheduled.error.invalid=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.scheduled.error.number=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
@@ -1007,12 +1036,15 @@ enter-inspection-date.rejected-goods.error.invalid=Inspection date must be a rea
 enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a real date
 
 #===================================================
+<<<<<<< HEAD
 #  ENTER LEAD MRN OR ENTRY NUMBER PLACEHOLDER PAGE
 #===================================================
 enter-lead-mrn-or-entry-number.title=What is your lead <abbr title="Movement Reference Number">MRN</abbr> or entry number?
 enter-lead-mrn-or-entry-number.heading=This page is just a placeholder for the ENTER LEAD <abbr title="Movement Reference Number">MRN</abbr> OR ENTRY NUMBER page.
 
 #===================================================
+=======
+>>>>>>> e9128f79de4ef138ed59a747f642b6357b17e435
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
@@ -1083,6 +1115,7 @@ supporting-evidence.upload.p1=Upload supporting evidence you have received for t
 supporting-evidence.upload.p2=The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
 supporting-evidence.upload.input-title=Select document
+supporting-evidence.upload.allowed-file-types=JPG, PNG, or PDF
 file.error.required=Select a file containing your supporting evidence
 supporting-evidence.scan-progress.title=We are checking your document
 supporting-evidence.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
@@ -1195,6 +1228,8 @@ schedule-document.check-your-answers.bullet3=the amount that should have been pa
 schedule-document.check-your-answers.remove=Remove
 schedule-document.check-your-answers.assistive=the file named {0}
 
+schedule-document.file-type.ScheduleOfMRNs=Scheduled document
+
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
@@ -1203,6 +1238,7 @@ check-your-answers.title=Check your answers before sending your application
 check-your-answers.scheduled.title=Check your answers before sending your application
 check-your-answers.rejectedgoods.scheduled.title=Check your answers before sending your claim
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
+<<<<<<< HEAD
 check-your-answers.reference-number.label=<abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.multiple.label=Lead <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.scheduled.label=Lead <abbr title="Movement Reference Number">MRN</abbr>
@@ -1213,6 +1249,18 @@ check-your-answers.declaration-details.label=Declaration details
 check-your-answers.declaration-details.mrn-label=<abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.multiple.mrn-label=Lead <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.scheduled.mrn-label=Lead <abbr title="Movement Reference Number">MRN</abbr>
+=======
+check-your-answers.reference-number.label=MRN
+check-your-answers.reference-number.multiple.label=First MRN
+check-your-answers.reference-number.scheduled.label=First MRN
+check-your-answers.reference-number.rejectedgoods.scheduled.label=First MRN
+check-your-answers.reference-number.associated-mrn-label={0} MRN
+check-your-answers.reference-number.rejectedgoodsmultiple.label={0} MRN
+check-your-answers.declaration-details.label=Declaration details
+check-your-answers.declaration-details.mrn-label=MRN
+check-your-answers.declaration-details.multiple.mrn-label=First MRN
+check-your-answers.declaration-details.scheduled.mrn-label=First MRN
+>>>>>>> e9128f79de4ef138ed59a747f642b6357b17e435
 check-your-answers.declaration-details.import-date-label=Import date
 check-your-answers.declaration-details.paid-charges-label=Duties and <abbr title="Value Added Tax">VAT</abbr> paid
 check-your-answers.declaration-details.paid-duties-charges-label=Duties paid
@@ -1257,10 +1305,17 @@ check-your-answers.bank-details.account-name.label=Name on the account
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
 
+<<<<<<< HEAD
 check-your-answers.reference-number.h2=Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
 check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (<abbr title="Movement Reference Numbers">MRNs</abbr>)
 check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
 check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
+=======
+check-your-answers.reference-number.h2=Movement Reference Number (MRN)
+check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (MRNs)
+check-your-answers.reference-number.scheduled.h2=First Movement Reference Number (MRN)
+check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (MRN)
+>>>>>>> e9128f79de4ef138ed59a747f642b6357b17e435
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
 check-your-answers.commodity-details.h2=Reason for claim

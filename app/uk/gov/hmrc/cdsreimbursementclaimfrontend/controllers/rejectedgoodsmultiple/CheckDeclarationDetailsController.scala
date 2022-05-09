@@ -41,7 +41,7 @@ class CheckDeclarationDetailsController @Inject() (
   implicit val subKey: Option[String] = Some("multiple")
 
   private val postAction: Call                       = routes.CheckDeclarationDetailsController.submit()
-  val checkDeclarationDetailsKey: String             = "check-declaration-details.multiple"
+  val checkDeclarationDetailsKey: String             = "check-declaration-details"
   val checkDeclarationDetailsAnswerForm: Form[YesNo] = YesOrNoQuestionForm(checkDeclarationDetailsKey)
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>

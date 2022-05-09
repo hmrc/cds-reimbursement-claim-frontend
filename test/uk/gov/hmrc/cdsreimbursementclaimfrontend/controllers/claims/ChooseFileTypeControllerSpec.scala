@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.syntax.all._
+import cats.syntax.option._
 import org.scalatest.OptionValues
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -33,14 +33,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -169,7 +166,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
         checkPageIsDisplayed(
           performAction(journey)(
-            Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> "FOO")
+            Seq(ChooseFileTypeController.chooseDocumentTypeDataKey -> "FOO")
           ),
           messageFromMessageKey(s"$pageKey.title"),
           doc =>
@@ -199,7 +196,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
         checkIsTechnicalErrorPage(
           performAction(journeyBindable)(
-            Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(answer))
+            Seq(ChooseFileTypeController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(answer))
           )
         )
       }
@@ -224,9 +221,9 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
         checkIsRedirect(
           performAction(journeyBindable)(
-            Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(answer))
+            Seq(ChooseFileTypeController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(answer))
           ),
-          fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journeyBindable)
+          routes.UploadFilesController.show(journeyBindable)
         )
       }
     }

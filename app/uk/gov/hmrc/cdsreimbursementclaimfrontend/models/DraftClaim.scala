@@ -64,7 +64,8 @@ final case class DraftClaim(
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
   associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None,
   associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer] = None,
-  selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
+  selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None,
+  nonce: Nonce = Nonce.random
 ) {
 
   lazy val multipleClaimsAnswer: List[(MRN, ClaimedReimbursementsAnswer)] = {

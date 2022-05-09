@@ -67,7 +67,7 @@
     }
 
     @pageHeading(Html(messages(s"$key.total.header")), "govuk-heading-m", "h2")
-    @summary(DutyAndTaxCodeReimbursementRejectedGoodsSummary(reimbursementTotal, key, subKey, None))
+    @summary(DutyAndTaxCodeReimbursementRejectedGoodsSummary(reimbursementTotal, key))
     <br/>
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {

@@ -22,16 +22,13 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 object DutyAndTaxCodeReimbursementRejectedGoodsSummary {
 
   def apply(
     reimbursementTotal: BigDecimal,
-    key: String,
-    subKey: Option[String],
-    changeCallOpt: Option[Call]
+    key: String
   )(implicit
     messages: Messages
   ): SummaryList = SummaryList(

@@ -135,7 +135,7 @@ class UploadMrnListController @Inject() (
       allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
       cargo = Some(UploadDocumentType.ScheduleOfMRNs),
       newFileDescription =
-        Some(messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(UploadDocumentType.ScheduleOfMRNs)}")),
+        Some(messages(s"schedule-document.file-type.${UploadDocumentType.keyOf(UploadDocumentType.ScheduleOfMRNs)}")),
       content = uploadDocumentsContent,
       features = UploadDocumentsSessionConfig.Features(
         showUploadMultiple = true,

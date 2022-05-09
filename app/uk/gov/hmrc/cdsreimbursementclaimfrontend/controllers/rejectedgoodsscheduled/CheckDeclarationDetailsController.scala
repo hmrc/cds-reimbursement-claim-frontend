@@ -40,7 +40,7 @@ class CheckDeclarationDetailsController @Inject() (
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  val checkDeclarationDetailsKey: String = s"check-declaration-details${subKey.fold("")(a => s".$a")}"
+  val checkDeclarationDetailsKey: String = s"check-declaration-details"
 
   val checkDeclarationDetailsAnswerForm: Form[YesNo] =
     YesOrNoQuestionForm(checkDeclarationDetailsKey)

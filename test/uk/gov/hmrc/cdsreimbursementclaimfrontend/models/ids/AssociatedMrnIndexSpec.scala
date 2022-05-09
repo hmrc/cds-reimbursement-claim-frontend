@@ -50,8 +50,8 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   }
 
   "Displaying ordinal numeral for the number 1" should {
-    "contain `lead`" in {
-      AssociatedMrnIndex(1).ordinalNumeral should be("lead")
+    "contain `first`" in {
+      AssociatedMrnIndex(1).ordinalNumeral should be("first")
     }
   }
 
