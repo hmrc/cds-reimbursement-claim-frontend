@@ -16,6 +16,7 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
@@ -25,6 +26,9 @@
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
@@ -42,14 +46,25 @@
 
     @errorSummary(form.errors)
 
+    @pageHeading(title)
+
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
+
+    @bulletList(
+        Seq(
+            Html(messages(s"$key.bullet.1")),
+            Html(messages(s"$key.bullet.2"))
+        )
+    )
+
     @formWithCSRF(claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit(journey), 'novalidate -> "novalidate") {
 
         @textArea(
             form = form,
             id = key,
             name = key,
-            isPageHeading = true,
-            label = s"$key.title",
+            isPageHeading = false,
+            label = s"$key.label",
             labelClasses = Some("govuk-label govuk-label--xl"),
             hint = combine(key, journey, "hint").headOption,
             value = form(key).value,
