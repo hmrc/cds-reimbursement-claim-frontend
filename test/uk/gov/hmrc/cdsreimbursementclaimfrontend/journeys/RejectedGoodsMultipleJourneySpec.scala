@@ -128,7 +128,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
-    "accept submission of a lead MRN and DisplayDeclaration" in {
+    "accept submission of a first MRN and DisplayDeclaration" in {
       forAll(mrnWithDisplayDeclarationGen) { case (mrn, displayDeclaration) =>
         val journey = emptyJourney
           .submitMovementReferenceNumberAndDeclaration(mrn, displayDeclaration)
@@ -183,7 +183,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
-    "accept change of the lead MRN" in {
+    "accept change of the first MRN" in {
       forAll(completeJourneyGen, mrnWithDisplayDeclarationGen) { case (journey, (mrn, displayDeclaration)) =>
         val modifiedJourney =
           journey
@@ -247,7 +247,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
-    "accept submission of the same lead MRN" in {
+    "accept submission of the same first MRN" in {
       forAll(completeJourneyGen) { journey =>
         val modifiedJourney = journey
           .submitMovementReferenceNumberAndDeclaration(
@@ -281,7 +281,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
-    "decline removal of a lead MRN" in {
+    "decline removal of a first MRN" in {
       forAll(completeJourneyGen) { journey =>
         val modifiedJourneyEither = journey
           .removeMovementReferenceNumberAndDisplayDeclaration(
@@ -291,7 +291,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       }
     }
 
-    "accept removal of non-lead MRN" in {
+    "accept removal of non-first MRN" in {
       forAll(buildCompleteJourneyGen(minNumberOfMRNs = 3)) { journey =>
         journey.answers.movementReferenceNumbers.get.drop(1).foreach { mrn =>
           val modifiedJourney = journey

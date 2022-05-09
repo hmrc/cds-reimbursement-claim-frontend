@@ -294,7 +294,7 @@ class EnterAssociatedMrnControllerSpec
         }
       }
 
-      "reject an MRN when entering the same as lead MRN" in {
+      "reject an MRN when entering the same as first MRN" in {
         forAll { (leadMrn: MRN, mrns: List[MRN]) =>
           val associatedMRNsAnswer = mrns
 
@@ -342,7 +342,7 @@ class EnterAssociatedMrnControllerSpec
         }
       }
 
-      "redirect to the MRN summary page if lead MRN is associated and second MRN's EORI matches user EORI" in {
+      "redirect to the MRN summary page if first MRN is associated and second MRN's EORI matches user EORI" in {
 
         val eori: Eori         = sample[Eori]
         val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = eori.value)
@@ -382,7 +382,7 @@ class EnterAssociatedMrnControllerSpec
         }
       }
 
-      "redirect to the MRN summary page if lead MRN not associated and second MRN's EORI matches consignee and declarant EORI" in {
+      "redirect to the MRN summary page if first MRN not associated and second MRN's EORI matches consignee and declarant EORI" in {
         val userEori: Eori   = sample[Eori]
         val mrnEori: Eori    = sample[Eori]
         val declarantDetails = sample[DeclarantDetails].copy(declarantEORI = mrnEori.value)
@@ -423,7 +423,7 @@ class EnterAssociatedMrnControllerSpec
         }
       }
 
-      "display error if lead MRN is associated and second MRN's EORI does not match user EORI" in {
+      "display error if first MRN is associated and second MRN's EORI does not match user EORI" in {
         val userEori: Eori   = sample[Eori]
         val mrnEori: Eori    = sample[Eori]
         val declarantDetails = sample[DeclarantDetails]
@@ -479,7 +479,7 @@ class EnterAssociatedMrnControllerSpec
         }
       }
 
-      "display error if lead MRN not associated and second MRN's EORI does not match consignee and declarant EORI" in {
+      "display error if first MRN not associated and second MRN's EORI does not match consignee and declarant EORI" in {
         val userEori: Eori   = sample[Eori]
         val leadEori: Eori   = sample[Eori]
         val mrnEori: Eori    = sample[Eori]

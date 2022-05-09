@@ -15,6 +15,7 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
@@ -44,7 +45,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
 import scala.concurrent.Future
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -105,9 +105,12 @@ class CheckDeclarationDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
+            val expectedMainParagraph = Jsoup.parse(messageFromMessageKey(s"$messagesKey.help-text")).text()
+
             doc
               .select("main p")
-              .text()                                    shouldBe messageFromMessageKey(s"$messagesKey.help-text")
+              .get(0)
+              .text()                                    shouldBe expectedMainParagraph
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
           }
         )

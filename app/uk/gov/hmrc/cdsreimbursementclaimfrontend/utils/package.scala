@@ -19,9 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend
 import play.api.mvc.Result
 
 import scala.concurrent.Future
+import cats.data.NonEmptyList
 
 package object util {
 
   implicit def toFuture: Result => Future[Result] = r => Future.successful(r)
+
+  implicit class SeqOpts[A](seq: Seq[A]) {
+
+    def someNelOrNone: Option[NonEmptyList[A]] =
+      if (seq.isEmpty) None else Some(NonEmptyList.fromListUnsafe(seq.toList))
+  }
 
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -42,7 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
 import scala.concurrent.Future
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -76,11 +76,9 @@ class CheckDeclarationDetailsControllerSpec
 
   val messagesKey: String = "check-declaration-details"
 
-  def performAction(data: (String, String)*)(implicit controller: CheckDeclarationDetailsController): Future[Result] =
-    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
   "Check Declaration Details Controller" when {
     "Check Declaration Details page" must {
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "does not find the page if the rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -101,18 +99,27 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(controller.checkDeclarationDetailsKey -> ""),
+          performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.scheduled.error.required")
+            val expectedMainParagraph = Jsoup.parse(messageFromMessageKey(s"$messagesKey.help-text")).text()
+
+            doc
+              .select("main p")
+              .get(0)
+              .text()                                    shouldBe expectedMainParagraph
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
-          },
-          expectedStatus = BAD_REQUEST
+          }
         )
       }
     }
 
     "Submit Check Declaration Details page" must {
+
+      def performAction(data: (String, String)*)(implicit
+        controller: CheckDeclarationDetailsController
+      ): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -136,7 +143,7 @@ class CheckDeclarationDetailsControllerSpec
           performAction(controller.checkDeclarationDetailsKey -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.scheduled.error.required")
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
           },
           expectedStatus = BAD_REQUEST
