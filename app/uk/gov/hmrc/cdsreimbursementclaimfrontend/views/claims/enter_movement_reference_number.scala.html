@@ -48,7 +48,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 

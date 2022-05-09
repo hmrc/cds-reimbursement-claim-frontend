@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
@@ -61,7 +62,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   def makeTotalRow(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] =
     SummaryListRow(
-      key = Key(Text(messages(s"$key.total")(lang))),
+      key = Key(HtmlContent(messages(s"$key.total")(lang))),
       value = Value(Text(claims.toList.map(_.claimAmount).sum.toPoundSterlingString)),
       classes = "govuk-!-margin-bottom-9"
     ) :: Nil

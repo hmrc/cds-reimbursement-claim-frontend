@@ -49,16 +49,16 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.multiple.label")), Some("govuk-body"))
 
     @for((mrn, index, claim) <- claims){
-        @pageHeading(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value), "govuk-heading-m heading-mrn", "h2")
+        @pageHeading(Html(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value)), "govuk-heading-m heading-mrn", "h2")
         @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_)))
     }
 
-    @pageHeading(messages(s"$key.multiple.overall-total.header"), "govuk-heading-m", "h2")
+    @pageHeading(Html(messages(s"$key.multiple.overall-total.header")), "govuk-heading-m", "h2")
     @summary(ReimbursementsClaimsSummary.multipleOverallTotalRow(claims, key))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {

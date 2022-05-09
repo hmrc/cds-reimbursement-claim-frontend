@@ -103,7 +103,7 @@ class EnterInspectionDateControllerSpec
           doc => {
             doc
               .select("main p")
-              .text()          shouldBe messageFromMessageKey(s"$messagesKey.help-text")
+              .html()          shouldBe messageFromMessageKey(s"$messagesKey.help-text")
             selectedInput(doc) shouldBe empty
           }
         )

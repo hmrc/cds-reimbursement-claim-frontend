@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.CdsDisplayDeclarationSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -51,7 +52,7 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)), Some("govuk-body govuk-!-margin-bottom-6"))
 
@@ -60,9 +61,9 @@
         @dropdownDetails(
             summary = s"$key.details.title",
             html(
-                pageHeading(messages(s"$key.details.h1"), classes = "govuk-heading-s", level = "h2"),
+                pageHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s", level = "h2"),
                 paragraph(Html(messages(s"$key.details.p1")), Some("govuk-body")),
-                pageHeading(messages(s"$key.details.h2"), classes = "govuk-heading-s", level = "h2"),
+                pageHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s", level = "h2"),
                 paragraph(Html(messages(s"$key.details.p2")), Some("govuk-body"))
             )
         )
@@ -79,12 +80,12 @@
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = HtmlContent(messages(s"$key.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = HtmlContent(messages(s"$key.no")),
                     checked = false
                 )
             )

@@ -56,17 +56,17 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
 
     @answer.map { claims =>
-        @pageHeading(messages(s"duty-type.${claims._1.repr}"), "govuk-heading-m", "h2")
+        @pageHeading(Html(messages(s"duty-type.${claims._1.repr}")), "govuk-heading-m", "h2")
         @summary(TaxCodeReimbursementRejectedGoodsSummary((claims._1, claims._2),key, subKey))
         <br/>
     }
 
-    @pageHeading(messages(s"$key.total.header"), "govuk-heading-m", "h2")
+    @pageHeading(Html(messages(s"$key.total.header")), "govuk-heading-m", "h2")
     @summary(DutyAndTaxCodeReimbursementRejectedGoodsSummary(reimbursementTotal, key))
     <br/>
 

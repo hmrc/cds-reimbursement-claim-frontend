@@ -36,7 +36,7 @@
 
 @layout(pageTitle = Some(s"$title"), timeOut = false) {
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.help")), Some("govuk-body"))
 

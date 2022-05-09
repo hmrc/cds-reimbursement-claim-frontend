@@ -225,7 +225,7 @@ class EnterDeclarantEoriNumberControllerSpec
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
+              .html() shouldBe messageFromMessageKey(
               s"enter-declarant-eori-number.error.required"
             ),
           BAD_REQUEST
@@ -261,7 +261,7 @@ class EnterDeclarantEoriNumberControllerSpec
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
+              .html() shouldBe messageFromMessageKey(
               s"enter-declarant-eori-number.error.required"
             ),
           BAD_REQUEST

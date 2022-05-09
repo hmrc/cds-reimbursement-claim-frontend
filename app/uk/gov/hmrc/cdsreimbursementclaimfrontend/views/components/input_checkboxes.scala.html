@@ -31,7 +31,7 @@
 
 @(
     field: Field,
-    legend: String,
+    legend: HtmlContent,
     items: Seq[CheckboxItem],
     legendAsHeading: Boolean = true,
     hint: Option[Html] = None,
@@ -43,7 +43,7 @@
 } else {
     Some(Fieldset(
         legend = Some(Legend(
-            content = Text(legend),
+            content = legend,
             isPageHeading = legendAsHeading,
             classes = if(legendAsHeading) "govuk-fieldset__legend--l" else "govuk-visually-hidden"
         ))

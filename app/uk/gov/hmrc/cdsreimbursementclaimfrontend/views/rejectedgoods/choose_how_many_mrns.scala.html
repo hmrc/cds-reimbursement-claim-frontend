@@ -47,7 +47,7 @@
 @title = @{messages(s"$key.title")}
 
 @inset = {
-    @pageHeading(messages(s"$key.inset.title"), classes = "govuk-heading-s", level = "h2")
+    @pageHeading(Html(messages(s"$key.inset.title")), classes = "govuk-heading-s", level = "h2")
     @paragraph(Html(messages(s"$key.inset.paragraph")))
 }
 
@@ -57,7 +57,7 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 
@@ -78,21 +78,21 @@
                 RadioItem(
                     id = Some(s"$key.individual"),
                     value = Some(Individual.toString),
-                    content = Text(messages(s"$key.individual.title")),
+                    content = HtmlContent(messages(s"$key.individual.title")),
                     checked = form.value.contains(Individual)
                 ),
                 RadioItem(
                     id = Some(s"$key.multiple"),
                     value = Some(Multiple.toString),
-                    content = Text(messages(s"$key.multiple.title")),
-                    hint = Some(Hint(content = Text(messages(s"$key.multiple.hint")))),
+                    content = HtmlContent(messages(s"$key.multiple.title")),
+                    hint = Some(Hint(content = HtmlContent(messages(s"$key.multiple.hint")))),
                     checked = form.value.contains(Multiple)
                 ),
                 RadioItem(
                     id = Some(s"$key.scheduled"),
                     value = Some(Scheduled.toString),
-                    content = Text(messages(s"$key.scheduled.title")),
-                    hint = Some(Hint(content = Text(messages(s"$key.scheduled.hint")))),
+                    content = HtmlContent(messages(s"$key.scheduled.title")),
+                    hint = Some(Hint(content = HtmlContent(messages(s"$key.scheduled.hint")))),
                     checked = form.value.contains(Scheduled)
                 )
             )

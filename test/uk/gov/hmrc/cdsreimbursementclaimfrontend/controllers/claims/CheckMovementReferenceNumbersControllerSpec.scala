@@ -201,7 +201,10 @@ class CheckMovementReferenceNumbersControllerSpec
         checkPageIsDisplayed(
           performActionWithData(Seq.empty),
           messageFromMessageKey(s"$checkMovementReferenceNumbersKey.title"),
-          getErrorSummary(_) shouldBe messageFromMessageKey(s"$checkMovementReferenceNumbersKey.error.invalid"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .html() shouldBe messageFromMessageKey(s"$checkMovementReferenceNumbersKey.error.invalid"),
           BAD_REQUEST
         )
       }

@@ -253,7 +253,7 @@ class CheckDeclarationDetailsControllerSpec
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
+              .html() shouldBe messageFromMessageKey(
               s"$checkDeclarationDetailsKey.error.required"
             ),
           BAD_REQUEST
@@ -274,7 +274,7 @@ class CheckDeclarationDetailsControllerSpec
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
+              .html() shouldBe messageFromMessageKey(
               s"$checkDeclarationDetailsKey.error.invalid"
             ),
           BAD_REQUEST

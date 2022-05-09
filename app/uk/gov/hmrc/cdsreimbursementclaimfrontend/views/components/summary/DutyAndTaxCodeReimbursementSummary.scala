@@ -22,6 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxC
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import play.api.mvc.Call
@@ -37,7 +38,7 @@ object DutyAndTaxCodeReimbursementSummary extends AnswerSummary[SelectedDutyTaxC
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.total"))),
+          key = Key(HtmlContent(messages(s"$key.total"))),
           value = Value(Text(reimbursements.total.toPoundSterlingString))
         )
       )

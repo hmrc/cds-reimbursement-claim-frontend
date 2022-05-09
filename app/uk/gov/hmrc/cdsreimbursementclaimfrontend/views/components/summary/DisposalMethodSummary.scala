@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 object DisposalMethodSummary extends AnswerSummary[MethodOfDisposal] {
@@ -35,7 +36,7 @@ object DisposalMethodSummary extends AnswerSummary[MethodOfDisposal] {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.l0"))),
+          key = Key(HtmlContent(messages(s"$key.l0"))),
           value = Value(Text(messages(s"select-method-of-disposal.rejected-goods.method.$answer"))),
           actions = changeCallOpt.map(changeCall =>
             Actions(

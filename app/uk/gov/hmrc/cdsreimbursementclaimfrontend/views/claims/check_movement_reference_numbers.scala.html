@@ -52,13 +52,13 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">@messages(s"$checkYourAnswersKey.reference-number.multiple.label")</dt>
+                <dt class="govuk-summary-list__key">@Html(messages(s"$checkYourAnswersKey.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href=@routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple).url>@{
@@ -70,7 +70,7 @@
             @references.drop(1).zipWithIndex.map { mrnWithIndex =>
                 @defining(AssociatedMrnIndex.fromListIndex(mrnWithIndex._2)) { index =>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@messages(s"$checkYourAnswersKey.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize)</dt>
+                        <dt class="govuk-summary-list__key">@Html(messages(s"$checkYourAnswersKey.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link" href=@routes.EnterAssociatedMrnController.changeMrn(index).url>@{
