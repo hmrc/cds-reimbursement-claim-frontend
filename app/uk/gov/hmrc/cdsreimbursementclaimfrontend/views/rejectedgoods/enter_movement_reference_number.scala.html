@@ -38,7 +38,7 @@
 @(form: Form[MRN], subKey: Option[String], pageOrdinalValue: Int, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number.rejected-goods"}
-@ordinalValueStr = @{ if (OrdinalNumeral(pageOrdinalValue) === "lead") "first" else OrdinalNumeral(pageOrdinalValue)}
+@ordinalValueStr = @{OrdinalNumeral(pageOrdinalValue)}
 @title = @{messages(combine(key, subKey, "title"), ordinalValueStr)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

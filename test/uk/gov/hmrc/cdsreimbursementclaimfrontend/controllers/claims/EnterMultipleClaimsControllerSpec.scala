@@ -222,7 +222,7 @@ class EnterMultipleClaimsControllerSpec
 
     }
 
-    "display the enter claim page for the lead MRN and the tax code" when {
+    "display the enter claim page for the first MRN and the tax code" when {
       (1 to 7).foreach { selectedMrnIndex =>
         s"the user has provided ${OrdinalNumeral(selectedMrnIndex)} MRN and has selected the duties" in {
 

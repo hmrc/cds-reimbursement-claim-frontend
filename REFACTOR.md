@@ -16,3 +16,4 @@ that the work done can be prioritised and tracked.
 | 8       | Remove redundant test data generators                                                                                                                               |               |
 | 9       | Refactor redundant signed in user details model to eliminate unused data                                                                                            |               |
 | 10      | Remove redundant user type model                                                                                                                                    |               |
+| 11      | Remove unused imports and params from twirl files to reduce compiler warnings                                                                                       |               |

@@ -84,7 +84,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
     }
 
     "be one" when {
-      "only lead MRN is added and no other MRNs present" in {
+      "only first MRN is added and no other MRNs present" in {
         forAll { mrn: MRN =>
           DraftClaim.blank
             .copy(movementReferenceNumber = mrn.some)
@@ -94,7 +94,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
       }
     }
 
-    "equal to size of added MRNs combined with lead MRN" in {
+    "equal to size of added MRNs combined with first MRN" in {
       forAll(genMRN, Gen.nonEmptyListOf(genMRN)) { (mrn: MRN, mrns: List[MRN]) =>
         DraftClaim.blank
           .copy(
@@ -112,7 +112,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
       DraftClaim.blank.MRNs() should be(Nil)
     }
 
-    "contain only lead MRN" when {
+    "contain only first MRN" when {
       "no other MRNs added" in {
         forAll { mrn: MRN =>
           DraftClaim.blank
@@ -157,7 +157,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
       }
     }
 
-    "contain lead MRN and declaration combined with associated MRNs and declarations" in {
+    "contain first MRN and declaration combined with associated MRNs and declarations" in {
       forAll {
         (
           mrn: MRN,

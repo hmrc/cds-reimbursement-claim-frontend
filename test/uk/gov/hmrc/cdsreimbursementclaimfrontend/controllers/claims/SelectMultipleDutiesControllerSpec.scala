@@ -218,8 +218,8 @@ class SelectMultipleDutiesControllerSpec
 
     }
 
-    "display the select duties page for the lead MRN" when {
-      "the user has provided lead MRN and is selecting the duties for the first time" in {
+    "display the select duties page for the first MRN" when {
+      "the user has provided first MRN and is selecting the duties for the first time" in {
 
         val taxCodes        = randomListOfTaxCodes.take(5)
         val (session, _, _) =
@@ -232,12 +232,12 @@ class SelectMultipleDutiesControllerSpec
 
         checkPageIsDisplayed(
           performActionGetSelectDuties(1),
-          messageFromMessageKey("multiple-select-duties.title", "lead"),
+          messageFromMessageKey("multiple-select-duties.title", "first"),
           doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, Nil)
         )
       }
 
-      "the user has provided lead MRN and is changing previous selection of duties" in {
+      "the user has provided first MRN and is changing previous selection of duties" in {
 
         val taxCodes         = randomListOfTaxCodes.take(5)
         val selectedTaxCodes = taxCodes.take(2)
@@ -252,7 +252,7 @@ class SelectMultipleDutiesControllerSpec
 
         checkPageIsDisplayed(
           performActionGetSelectDuties(1),
-          messageFromMessageKey("multiple-select-duties.title", "lead"),
+          messageFromMessageKey("multiple-select-duties.title", "first"),
           doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, selectedTaxCodes)
         )
       }
