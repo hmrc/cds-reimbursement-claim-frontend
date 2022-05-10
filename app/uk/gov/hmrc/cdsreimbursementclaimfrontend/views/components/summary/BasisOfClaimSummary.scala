@@ -33,7 +33,7 @@ object BasisOfClaimSummary extends AnswerSummary[BasisOfClaimAnswer] {
       Seq(
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.l0"))),
-          value = Value(Text(messages(s"select-basis-for-claim.reason.d${BasisOfClaims.indexOf(answer)}"))),
+          value = Value(HtmlContent(messages(s"select-basis-for-claim.reason.d${BasisOfClaims.indexOf(answer)}"))),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(

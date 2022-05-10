@@ -218,7 +218,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(journey, Seq(checkDeclarationDetailsKey -> "true")),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)
+          routes.EnterAdditionalDetailsController.enterAdditionalDetails(journey)
         )
       }
 

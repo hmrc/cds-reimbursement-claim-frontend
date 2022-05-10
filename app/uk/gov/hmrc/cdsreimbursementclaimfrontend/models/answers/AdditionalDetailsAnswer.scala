@@ -23,12 +23,12 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 
-final case class CommodityDetailsAnswer(value: String) extends AnyVal
+final case class AdditionalDetailsAnswer(value: String) extends AnyVal
 
-object CommodityDetailsAnswer {
+object AdditionalDetailsAnswer {
 
-  val validator: Validator[Id, CommodityDetailsAnswer] = (maybeCommodityDetails: Option[CommodityDetailsAnswer]) =>
-    maybeCommodityDetails.toValidNel(MissingAnswerError("Commodity Details"))
+  val validator: Validator[Id, AdditionalDetailsAnswer] = (maybeAdditionalDetails: Option[AdditionalDetailsAnswer]) =>
+    maybeAdditionalDetails.toValidNel(MissingAnswerError("Additional Details"))
 
-  implicit val commodityDetailsFormat: OFormat[CommodityDetailsAnswer] = Json.format[CommodityDetailsAnswer]
+  implicit val additionalDetailsFormat: OFormat[AdditionalDetailsAnswer] = Json.format[AdditionalDetailsAnswer]
 }

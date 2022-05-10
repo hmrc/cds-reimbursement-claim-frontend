@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen.genValidDraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -51,7 +51,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.concurrent.Future
 
-class EnterCommoditiesDetailsControllerSpec
+class EnterAdditionalDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -70,19 +70,19 @@ class EnterCommoditiesDetailsControllerSpec
     (TypeOfClaimAnswer.Scheduled, JourneyBindable.Scheduled)
   )
 
-  lazy val controller: EnterCommoditiesDetailsController = instanceOf[EnterCommoditiesDetailsController]
+  lazy val controller: EnterAdditionalDetailsController = instanceOf[EnterAdditionalDetailsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeCommoditiesDetailsAnswer: Option[CommodityDetailsAnswer],
+    maybeAdditionalDetailsAnswer: Option[AdditionalDetailsAnswer],
     maybeTypeOfClaim: Option[TypeOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) =
     sessionWithClaim(
       DraftClaim.blank.copy(
-        commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
+        additionalDetailsAnswer = maybeAdditionalDetailsAnswer,
         typeOfClaim = maybeTypeOfClaim
       )
     )
@@ -99,12 +99,12 @@ class EnterCommoditiesDetailsControllerSpec
     )
   }
 
-  "Enter Commodities Details Controller" must {
+  "Enter Additional Details Controller" must {
 
     "redirect to the start of the journey" when {
 
       "there is no journey status in the session" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
+        def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
 
         val (session, _, _) = sessionWithClaimState(None, Some(numberOfClaims))
 
@@ -125,7 +125,7 @@ class EnterCommoditiesDetailsControllerSpec
     "display the page" when {
 
       "the user has not answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
+        def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
@@ -143,14 +143,14 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-commodities-details.title")
+          messageFromMessageKey("enter-additional-details.title")
         )
       }
 
       "the user has answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
+        def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
 
-        val answers = CommodityDetailsAnswer("some package")
+        val answers = AdditionalDetailsAnswer("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
@@ -169,15 +169,15 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-commodities-details.title")
+          messageFromMessageKey("enter-additional-details.title")
         )
       }
 
       "the user has come from the CYA page and is amending their answer" in forAll(testCases) {
         (numberOfClaims, journeyBindable) =>
-          def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
+          def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
 
-          val answers = CommodityDetailsAnswer("some package")
+          val answers = AdditionalDetailsAnswer("some package")
 
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
@@ -196,7 +196,7 @@ class EnterCommoditiesDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-commodities-details.title")
+            messageFromMessageKey("enter-additional-details.title")
           )
       }
     }
@@ -205,11 +205,11 @@ class EnterCommoditiesDetailsControllerSpec
 
       "user enters some details" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterCommoditiesDetailsSubmit(journeyBindable)(
+          controller.enterAdditionalDetailsSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CommodityDetailsAnswer("some package")
+        val answers = AdditionalDetailsAnswer("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
@@ -227,7 +227,7 @@ class EnterCommoditiesDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("enter-commodities-details" -> "some package")),
+          performAction(Seq("enter-additional-details" -> "some package")),
           if (journeyBindable === JourneyBindable.Scheduled) {
             routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
           } else if (journeyBindable === JourneyBindable.Multiple) {
@@ -255,9 +255,9 @@ class EnterCommoditiesDetailsControllerSpec
         }
 
         checkIsRedirect(
-          controller.enterCommoditiesDetailsSubmit(journey)(
+          controller.enterAdditionalDetailsSubmit(journey)(
             FakeRequest().withFormUrlEncodedBody(
-              "enter-commodities-details" -> claim.commoditiesDetailsAnswer.fold("")(_.value)
+              "enter-additional-details" -> claim.additionalDetailsAnswer.fold("")(_.value)
             )
           ),
           routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
@@ -270,11 +270,11 @@ class EnterCommoditiesDetailsControllerSpec
 
       "the user enters more than 500 characters" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterCommoditiesDetailsSubmit(journeyBindable)(
+          controller.enterAdditionalDetailsSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CommodityDetailsAnswer(List.fill(600)('c').mkString(" "))
+        val answers = AdditionalDetailsAnswer(List.fill(600)('c').mkString(" "))
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
@@ -292,13 +292,13 @@ class EnterCommoditiesDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(Seq("enter-commodities-details" -> List.fill(600)('c').mkString(" "))),
-          messageFromMessageKey("enter-commodities-details.title"),
+          performAction(Seq("enter-additional-details" -> List.fill(600)('c').mkString(" "))),
+          messageFromMessageKey("enter-additional-details.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"enter-commodities-details.error.maxLength"
+              s"enter-additional-details.error.maxLength"
             ),
           BAD_REQUEST
         )
@@ -308,24 +308,24 @@ class EnterCommoditiesDetailsControllerSpec
   }
 
   "Form Validation" must {
-    val form             = EnterCommoditiesDetailsController.commoditiesDetailsForm
-    val commodityDetails = "enter-commodities-details"
-    val goodData         = Map(
-      commodityDetails -> "A box of biscuits"
+    val form              = EnterAdditionalDetailsController.additionalDetailsForm
+    val additionalDetails = "enter-additional-details"
+    val goodData          = Map(
+      additionalDetails -> "A box of biscuits"
     )
 
-    "accept good commodity details" in {
+    "accept good additional details" in {
       val errors = form.bind(goodData).errors
       errors shouldBe Nil
     }
 
-    "commodity details" should {
+    "additional details" should {
       "Accept longest possible details" in {
-        val errors = form.bind(goodData.updated(commodityDetails, List.fill(500)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(additionalDetails, List.fill(500)("a").mkString(""))).errors
         errors shouldBe Nil
       }
       "Reject details when it's too long" in {
-        val errors = form.bind(goodData.updated(commodityDetails, List.fill(501)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(additionalDetails, List.fill(501)("a").mkString(""))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
