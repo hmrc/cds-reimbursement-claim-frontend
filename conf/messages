@@ -433,7 +433,7 @@ check-declaration-details.details.h1=Importer
 check-declaration-details.details.p1=The importer is the person or company that purchased the goods brought into the UK.
 check-declaration-details.details.h2=Declarant
 check-declaration-details.details.p2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
-check-declaration-details.help-text=These are the declarant details we have from the <abbr title="Movement Reference Number">MRN</abbr> declaration. If they are incorrect, you can change them by <a href="{0}" class="govuk-link">contacting the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a>.
+check-declaration-details.help-text=These are the declarant details we have from the <abbr title="Movement Reference Number">MRN</abbr> declaration. If they are incorrect, you can change them by <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contacting the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a>.
 check-declaration-details.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
