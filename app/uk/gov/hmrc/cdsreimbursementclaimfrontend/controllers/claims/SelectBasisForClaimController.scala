@@ -113,7 +113,7 @@ class SelectBasisForClaimController @Inject() (
                           claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
                         case _                                 =>
                           CheckAnswers.when(updatedJourney.draftClaim.isComplete)(alternatively =
-                            claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
+                            claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetails(journeyBindable)
                           )
                       }
                     )

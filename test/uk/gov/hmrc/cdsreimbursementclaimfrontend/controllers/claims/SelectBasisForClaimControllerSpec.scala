@@ -249,7 +249,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           performAction(Seq(selectBasisForClaimKey -> "2")),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
+          routes.EnterAdditionalDetailsController.enterAdditionalDetails(JourneyBindable.Single)
         )
       }
 
