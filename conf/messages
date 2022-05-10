@@ -524,7 +524,7 @@ select-basis-for-claim.details.hint.13=
 select-basis-for-claim.details.bullet.14=Other reason:
 select-basis-for-claim.details.hint.14=For any other reason not listed
 
-select-basis-for-claim.reason.d0=Duplicate <abbr title="Movement Reference Number">MRN</abbr>
+select-basis-for-claim.reason.d0=Duplicate MRN
 select-basis-for-claim.reason.d1=Duty suspension
 select-basis-for-claim.reason.d2=End use relief
 select-basis-for-claim.reason.d3=Incorrect additional information code (excluding NIAID)
