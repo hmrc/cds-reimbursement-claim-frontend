@@ -22,7 +22,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -53,9 +52,13 @@
     @bulletList(
         Seq(
             Html(messages(s"$key.bullet.1")),
-            Html(messages(s"$key.bullet.2"))
+            Html(messages(s"$key.bullet.2")),
+            Html(messages(s"$key.bullet.3")),
+            Html(messages(s"$key.bullet.4"))
         )
     )
+
+    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 
     @formWithCSRF(claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit(journey), 'novalidate -> "novalidate") {
 
@@ -66,7 +69,7 @@
             isPageHeading = false,
             label = s"$key.label",
             labelClasses = Some("govuk-label govuk-label--xl"),
-            hint = combine(key, journey, "hint").headOption,
+            hint = Some(s"$key.hint"),
             value = form(key).value,
             maxLength = Some(500)
         )
