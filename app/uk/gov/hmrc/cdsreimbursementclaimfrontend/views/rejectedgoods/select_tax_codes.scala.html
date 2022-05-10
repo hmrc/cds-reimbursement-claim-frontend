@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
@@ -55,7 +56,7 @@
             name = Some(s"$key[]"),
             value = taxCode.value,
             content = Text(taxCode.value + " - " + messages(s"$key.duty.${taxCode.value}")),
-            hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = Text(messages(s"$key.duty.hint")))),
+            hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = HtmlContent(messages(s"$key.duty.hint")))),
             checked = form.data.exists(_._2 == taxCode.value)
         )
     }}
@@ -66,7 +67,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         @indexAndMrnOpt.map{ case(index,mrn) =>
             @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)), Some("govuk-body"))
@@ -77,7 +78,7 @@
             @checkboxes(
                 field = form(s"$key"),
                 legendAsHeading = false,
-                legend = title,
+                legend = HtmlContent(title),
                 items = options.toList,
                 hint = None
             )

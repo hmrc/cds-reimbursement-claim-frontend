@@ -48,11 +48,11 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.single.label")), Some("govuk-body"))
 
-    @pageHeading(messages(s"$key.single.mrn.label", mrn.value), "govuk-heading-m", "h2")
+    @pageHeading(Html(messages(s"$key.single.mrn.label", mrn.value)), "govuk-heading-m", "h2")
 
     @summary(ReimbursementsClaimsSummary.singleFull(claims, key, enterClaimAction))
 

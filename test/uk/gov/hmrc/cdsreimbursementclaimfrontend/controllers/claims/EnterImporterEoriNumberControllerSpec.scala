@@ -268,7 +268,7 @@ class EnterImporterEoriNumberControllerSpec
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
+              .html() shouldBe messageFromMessageKey(
               s"enter-importer-eori-number.error.required"
             ),
           BAD_REQUEST
@@ -304,7 +304,7 @@ class EnterImporterEoriNumberControllerSpec
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
-              .text() shouldBe messageFromMessageKey(
+              .html() shouldBe messageFromMessageKey(
               s"enter-importer-eori-number.error.required"
             ),
           BAD_REQUEST

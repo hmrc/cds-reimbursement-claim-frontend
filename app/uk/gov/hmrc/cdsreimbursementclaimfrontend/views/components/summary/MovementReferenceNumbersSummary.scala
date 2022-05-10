@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper.combine
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
@@ -35,7 +36,7 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
 
     def toLeadMrnSummary: LeadMrn => SummaryListRow = leadMrn =>
       SummaryListRow(
-        key = Key(Text(messages(combine(key, subKey, "label")))),
+        key = Key(HtmlContent(messages(combine(key, subKey, "label")))),
         value = Value(Text(leadMrn.value)),
         actions = changeCallOpt.map(changeCall =>
           Actions(items =
@@ -51,7 +52,7 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
 
     def toAssociatedMrnSummary: (AssociatedMrn, AssociatedMrnIndex) => SummaryListRow = (mrn, mrnIndex) => {
       SummaryListRow(
-        key = Key(Text(messages(s"$key.associated-mrn-label", mrnIndex.ordinalNumeral.capitalize))),
+        key = Key(HtmlContent(messages(s"$key.associated-mrn-label", mrnIndex.ordinalNumeral.capitalize))),
         value = Value(Text(mrn.value)),
         actions = Some(
           Actions(items =

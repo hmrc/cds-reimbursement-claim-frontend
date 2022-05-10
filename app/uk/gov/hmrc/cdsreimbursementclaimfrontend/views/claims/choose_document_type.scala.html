@@ -22,7 +22,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.ChooseSupportingEvidenceDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
@@ -63,7 +62,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(title)
+        @pageHeading(Html(title))
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 

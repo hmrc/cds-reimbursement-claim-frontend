@@ -21,7 +21,6 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
@@ -64,7 +63,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
             val expectedDocuments: String =
               claim.supportingEvidencesAnswer.value
                 .map { uploadDocument =>
-                  s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"$supportingEvidenceKey.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
+                  s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"supporting-evidence.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
                 }
                 .toList
                 .mkString(" ")
@@ -103,7 +102,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
-                ("Lead MRN"                                        -> claim.movementReferenceNumber.map(_.value)),
+                ("First MRN"                                       -> claim.movementReferenceNumber.map(_.value)),
                 ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),
                 ("Duties paid"                                     -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)),
                 ("VAT paid"                                        -> declaration.map(_.totalVatPaidCharges.toPoundSterlingString)),

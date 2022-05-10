@@ -24,6 +24,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(govukRadios: GovukRadios)
 
@@ -44,13 +45,13 @@
     name = name,
     fieldset = Some(Fieldset(
         legend = Some(Legend(
-            content = Text(legend),
+            content = HtmlContent(legend),
             isPageHeading = legendAsHeading,
             classes = classes
         ))
     )),
     hint = hintKey.map { hint => Hint(
-        content = Text(messages(hint))
+        content = HtmlContent(messages(hint))
     )},
     items = items,
     errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else Text(messages(s"${name}.${err.message}", err.args:_*)))))

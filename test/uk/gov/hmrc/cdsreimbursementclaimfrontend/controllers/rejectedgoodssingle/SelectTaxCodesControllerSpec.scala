@@ -67,7 +67,7 @@ class SelectTaxCodesControllerSpec
   def getHintText(document: Document, hintTextId: String) = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
-    if (hintTextElement.hasText) Some(hintTextElement.text()) else None
+    if (hintTextElement.hasText) Some(hintTextElement.html()) else None
   }
 
   private val messagesKey: String = "select-duties"
@@ -195,7 +195,7 @@ class SelectTaxCodesControllerSpec
     "have CMA Eligible flag/Duties hint text" should {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "Acc14 excise code where the CMA eligible flag is true" in {
+      "Acc14 excise code where the <abbr title=\"Current Month Adjustment\">CMA</abbr> eligible flag is true" in {
 
         val displayDeclaration = buildDisplayDeclaration(
           dutyDetails = Seq(
@@ -216,7 +216,8 @@ class SelectTaxCodesControllerSpec
           mockGetSession(updatedSession)
         }
 
-        val hintText = Some("This duty is not eligible for CMA reimbursement")
+        val hintText =
+          Some("This duty is not eligible for <abbr title=\"Current Month Adjustment\">CMA</abbr> reimbursement")
 
         checkPageIsDisplayed(
           performAction(),

@@ -24,6 +24,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -69,7 +70,7 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)), Some("govuk-body"))
 
@@ -77,13 +78,13 @@
 
         @checkboxes(
             field = form(s"$key-custom"),
-            legend = messages(s"$key.checkbox-legend.1"),
+            legend = HtmlContent(messages(s"$key.checkbox-legend.1")),
             items = customsOptions
         )
 
         @checkboxes(
             field = form(s"$key-excise"),
-            legend = messages(s"$key.checkbox-legend.2"),
+            legend = HtmlContent(messages(s"$key.checkbox-legend.2")),
             items = exciseOptions
         )
 

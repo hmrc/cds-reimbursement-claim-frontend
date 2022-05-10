@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
@@ -40,7 +41,7 @@ object ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimburse
       individualClaimSummaries
         .map { summary =>
           SummaryListRow(
-            key = Key(Text(messages(s"$key.${summary.messageKey}"))),
+            key = Key(HtmlContent(messages(s"$key.${summary.messageKey}"))),
             value = Value(Text(summary.total.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -57,7 +58,7 @@ object ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimburse
         } ++
         Seq(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.total"))),
+            key = Key(HtmlContent(messages(s"$key.total"))),
             value = Value(Text(individualClaimSummaries.map(_.total).sum.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(

@@ -139,21 +139,21 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
             val summaries = doc.select("dl > div")
 
-            summaries.get(0).select("dt").get(0).text() should be(messageOf(A30))
+            summaries.get(0).select("dt").get(0).html() should be(messageOf(A30))
             summaries.get(0).select("dd").get(0).text() should be(a30ClaimedFunds.toPoundSterlingString)
 
-            summaries.get(1).select("dt").get(0).text() should be(messageOf(B00))
+            summaries.get(1).select("dt").get(0).html() should be(messageOf(B00))
             summaries.get(1).select("dd").get(0).text() should be(b00ClaimedFunds.toPoundSterlingString)
 
-            summaries.get(2).select("dt").get(0).text() should be(
+            summaries.get(2).select("dt").get(0).html() should be(
               messages(s"$checkClaimSummaryKey.duty-code.total.key", messages(s"duty-type.${UkDuty.repr}"))
             )
             summaries.get(2).select("dd").get(0).text() should be(ukClaimedSubtotal.toPoundSterlingString)
 
-            summaries.get(3).select("dt").get(0).text() should be(messageOf(A70))
+            summaries.get(3).select("dt").get(0).html() should be(messageOf(A70))
             summaries.get(3).select("dd").get(0).text() should be(a70ClaimedFunds.toPoundSterlingString)
 
-            summaries.get(4).select("dt").get(0).text() should be(messages(s"$checkClaimSummaryKey.total"))
+            summaries.get(4).select("dt").get(0).html() should be(messages(s"$checkClaimSummaryKey.total"))
             summaries.get(4).select("dd").get(0).text() should be(total.toPoundSterlingString)
           }
         )

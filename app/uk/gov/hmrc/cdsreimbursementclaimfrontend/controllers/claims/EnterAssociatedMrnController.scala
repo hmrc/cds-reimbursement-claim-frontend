@@ -198,7 +198,7 @@ object EnterAssociatedMrnController {
     val declarantEORI: String                =
       displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI
 
-    // given the Lead MRN is associated to the EORI,
+    // given the First MRN is associated to the EORI,
     if (leadConsigneeEORIOpt.contains(userEori)) {
       // the second MRN must match the same EORI
       consigneeEORIOpt.contains(userEori)

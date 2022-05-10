@@ -46,7 +46,7 @@
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
-    @pageHeading(title)
+    @pageHeading(Html(title))
 
     @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
@@ -56,7 +56,7 @@
 
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">@messages(s"$key.reference-number.multiple.label")</dt>
+                <dt class="govuk-summary-list__key">@Html(messages(s"$key.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href=@changeUrl(1).url>@{
@@ -68,7 +68,7 @@
             @references.zipWithIndex.drop(1).map { mrnWithIndex =>
                 @defining(mrnWithIndex._2) { index =>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize)</dt>
+                        <dt class="govuk-summary-list__key">@Html(messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link" href=@changeUrl(index + 1).url>@{

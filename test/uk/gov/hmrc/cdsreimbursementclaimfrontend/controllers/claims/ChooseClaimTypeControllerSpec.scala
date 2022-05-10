@@ -192,7 +192,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
     buttons.asScala.filterNot(button => button.select(s"""input[value="$requiredValue"]""").isEmpty).head
 
   private def extractLabel(button: Element): String =
-    button.select("label").text()
+    button.select("label").html()
 
   private def extractHint(button: Element): String =
     button.select("div.govuk-hint").text()

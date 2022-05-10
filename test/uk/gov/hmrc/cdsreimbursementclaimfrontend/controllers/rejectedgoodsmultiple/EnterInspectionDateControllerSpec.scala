@@ -107,7 +107,7 @@ class EnterInspectionDateControllerSpec
           doc => {
             doc
               .select("main p")
-              .text()          shouldBe messageFromMessageKey(s"$messagesKey.help-text")
+              .html()          shouldBe messageFromMessageKey(s"$messagesKey.help-text")
             formAction(doc)    shouldBe routes.EnterInspectionDateController.submit().url
             selectedInput(doc) shouldBe empty
           }

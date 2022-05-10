@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
@@ -57,7 +58,7 @@ object MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimb
         } ++
         Seq(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.multiple.total"))),
+            key = Key(HtmlContent(messages(s"$key.multiple.total"))),
             value = Value(Text(totalAmount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(

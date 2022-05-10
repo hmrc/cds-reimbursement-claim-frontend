@@ -16,6 +16,7 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
@@ -23,6 +24,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -45,7 +47,7 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title, "govuk-heading-xl govuk-!-margin-bottom-6")
+    @pageHeading(Html(title), "govuk-heading-xl govuk-!-margin-bottom-6")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
@@ -59,13 +61,13 @@
                 RadioItem(
                     id = Some(s"$key-cma"),
                     value = Some("0"),
-                    content = Text(messages(s"$key.cma")),
+                    content = HtmlContent(messages(s"$key.cma")),
                     checked = form.value.contains(CurrentMonthAdjustment)
                 ),
                 RadioItem(
                     id = Some(s"$key-bank-transfer"),
                     value = Some("1"),
-                    content = Text(messages(s"$key.bank-transfer")),
+                    content = HtmlContent(messages(s"$key.bank-transfer")),
                     checked = form.value.contains(BankAccountTransfer)
                 )
             )

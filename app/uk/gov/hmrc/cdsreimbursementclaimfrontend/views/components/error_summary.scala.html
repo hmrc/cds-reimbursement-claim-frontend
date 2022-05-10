@@ -15,9 +15,12 @@
  *@
 
 @import play.api.i18n._
+
+@import play.twirl.api.Html
 @import play.api.data.FormError
 @import play.twirl.api.TwirlFeatureImports._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorLink
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorSummary
@@ -30,7 +33,7 @@
     @defining(errors.map { error =>
         ErrorLink(
             href = Some(s"#${error.key}"),
-            content = Text(messages(s"${error.key}.${error.message}", error.args:_*))
+            content = HtmlContent(messages(s"${error.key}.${error.message}", error.args:_*))
         )
     }) { errorLinks =>
         @govukErrorSummary(ErrorSummary(

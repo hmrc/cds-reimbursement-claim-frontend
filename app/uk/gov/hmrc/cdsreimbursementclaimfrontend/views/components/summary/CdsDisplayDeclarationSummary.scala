@@ -41,56 +41,56 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
   ): SummaryList = SummaryList(
     Seq(
       SummaryListRow(
-        key = Key(Text("")),
+        key = Key(HtmlContent("")),
         value = Value()
       ).some,
       SummaryListRow(
-        key = Key(Text(messages(combine(key, subKey, "mrn-label")))),
+        key = Key(HtmlContent(messages(combine(key, subKey, "mrn-label")))),
         value = Value(Text(declaration.displayResponseDetail.declarationId))
       ).some,
       SummaryListRow(
-        key = Key(Text(messages(s"$key.import-date-label"))),
+        key = Key(HtmlContent(messages(s"$key.import-date-label"))),
         value = Value(Text(declaration.displayResponseDetail.acceptanceDate))
       ).some,
       SummaryListRow(
-        key = Key(Text(messages(s"$key.paid-duties-charges-label"))),
+        key = Key(HtmlContent(messages(s"$key.paid-duties-charges-label"))),
         value = Value(Text(declaration.totalDutiesPaidCharges.toPoundSterlingString))
       ).some,
       SummaryListRow(
-        key = Key(Text(messages(s"$key.paid-vat-charges-label"))),
+        key = Key(HtmlContent(messages(s"$key.paid-vat-charges-label"))),
         value = Value(Text(declaration.totalVatPaidCharges.toPoundSterlingString))
       ).some,
       declaration.consigneeName.map { name =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.importer-name-label"))),
+          key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
           value = Value(Text(name))
         )
       },
       declaration.consigneeEmail.map { email =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.importer-email-label"))),
+          key = Key(HtmlContent(messages(s"$key.importer-email-label"))),
           value = Value(Text(email))
         )
       },
       declaration.consigneeTelephone.map { telephone =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.importer-telephone-label"))),
+          key = Key(HtmlContent(messages(s"$key.importer-telephone-label"))),
           value = Value(Text(telephone))
         )
       },
       declaration.consigneeAddress.map { address =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.importer-address-label"))),
+          key = Key(HtmlContent(messages(s"$key.importer-address-label"))),
           value = Value(HtmlContent(address))
         )
       },
       SummaryListRow(
-        key = Key(Text(messages(s"$key.declarant-name-label"))),
+        key = Key(HtmlContent(messages(s"$key.declarant-name-label"))),
         value = Value(Text(declaration.declarantName))
       ).some,
       declaration.declarantContactAddress.map { address =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.declarant-address-label"))),
+          key = Key(HtmlContent(messages(s"$key.declarant-address-label"))),
           value = Value(HtmlContent(address))
         )
       }

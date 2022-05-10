@@ -71,7 +71,7 @@ class ClaimantDetailsHelper @Inject() () {
     ).flattenOption
 
     SummaryListRow(
-      Key(Text(messages(s"$key.registered.details"))),
+      Key(HtmlContent(messages(s"$key.registered.details"))),
       Value(new HtmlContent(HtmlFormat.fill(data)))
     )
   }
@@ -87,7 +87,7 @@ class ClaimantDetailsHelper @Inject() () {
     ).flattenOption
 
     SummaryListRow(
-      Key(Text(messages(s"$key.registered.address"))),
+      Key(HtmlContent(messages(s"$key.registered.address"))),
       Value(new HtmlContent(HtmlFormat.fill(data)))
     )
   }
@@ -102,7 +102,7 @@ class ClaimantDetailsHelper @Inject() () {
     ).flattenOption
 
     SummaryListRow(
-      Key(Text(messages(s"$key.contact.details"))),
+      Key(HtmlContent(messages(s"$key.contact.details"))),
       Value(new HtmlContent(HtmlFormat.fill(data))),
       "",
       Some(
@@ -134,7 +134,7 @@ class ClaimantDetailsHelper @Inject() () {
     ).flattenOption
 
     SummaryListRow(
-      Key(Text(messages(s"$key.contact.address"))),
+      Key(HtmlContent(messages(s"$key.contact.address"))),
       Value(new HtmlContent(HtmlFormat.fill(data))),
       "",
       Some(

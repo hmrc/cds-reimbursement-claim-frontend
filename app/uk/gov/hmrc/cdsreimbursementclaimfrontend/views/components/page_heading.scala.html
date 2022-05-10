@@ -14,10 +14,12 @@
  * limitations under the License.
  *@
 
+@import play.twirl.api.Html
+
 @this()
 
 @(
-    heading: String,
+    heading: Html,
     classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content",
     level: String = "h1"
 )

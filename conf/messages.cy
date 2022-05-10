@@ -737,12 +737,6 @@ check-claim-timed-out.p2=
 check-claim-timed-out.button=
 
 #===================================================
-#  ENTER LEAD MRN OR ENTRY NUMBER PLACEHOLDER PAGE
-#===================================================
-enter-lead-mrn-or-entry-number.title=Beth yw’ch prif Gyfeirnod Symud neu rif mewnforio?
-enter-lead-mrn-or-entry-number.heading=Dalfan yw’r dudalen hon ar gyfer y dudalen NODWCH Y PRIF GYFEIRNOD SYMUD NEU RIF MEWNFORIO.
-
-#===================================================
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Gwnewch yn siŵr bod y manylion banc hyn yn gywir

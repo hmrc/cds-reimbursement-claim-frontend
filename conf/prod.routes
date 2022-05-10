@@ -1,7 +1,7 @@
 # Add all the application routes to the app.routes file
 ->          /claim-back-import-duty-vat                   app.Routes
+->          /claim-back-import-duty-vat                   upload_documents.Routes
 ->          /claim-back-import-duty-vat                   claims.Routes
-->          /claim-back-import-duty-vat                   file_upload.Routes
 ->          /claim-back-import-duty-vat                   rejected_goods.Routes
 ->          /claim-back-import-duty-vat                   rejected_goods_single.Routes
 ->          /claim-back-import-duty-vat                   rejected_goods_multiple.Routes

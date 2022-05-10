@@ -22,9 +22,9 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(govukInput: GovukInput)
 
@@ -50,7 +50,7 @@
     name,
     classes = classes.fold("")(x => x),
     label = Label(
-        content = Text(messages(label, headingMessageArgs:_*)),
+        content = HtmlContent(messages(label, headingMessageArgs:_*)),
         isPageHeading = isPageHeading,
         classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else "")
     ),
@@ -63,5 +63,5 @@
     autocomplete = autocomplete,
     spellcheck = spellcheck,
     prefix = prefix,
-    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"$name.${err.message}", err.args:_*))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = HtmlContent(messages(s"$name.${err.message}", err.args:_*))))
 ))
