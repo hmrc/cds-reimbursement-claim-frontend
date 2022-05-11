@@ -54,5 +54,5 @@
         content = HtmlContent(messages(hint))
     )},
     items = items,
-    errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else Text(messages(s"${name}.${err.message}", err.args:_*)))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else HtmlContent(messages(s"${name}.${err.message}", err.args:_*)))))
 ))

@@ -172,7 +172,12 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
         checkPageIsDisplayed(
           performAction(Seq(dataKey -> "HACKED_VALUE")),
           messageFromMessageKey(s"$formKey.title"),
-          doc => extractErrorMessage(doc) shouldBe "Error: " + messageFromMessageKey(s"$dataKey.error.required"),
+          doc =>
+            extractErrorMessage(
+              doc
+            ) shouldBe "<span class=\"govuk-visually-hidden\">Error:</span> " + messageFromMessageKey(
+              s"$dataKey.error.required"
+            ),
           expectedStatus = BAD_REQUEST
         )
 
@@ -182,7 +187,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
   }
 
   private def extractErrorMessage(doc: Document): String =
-    doc.select("span.govuk-error-message").text()
+    doc.select(".govuk-error-message").html()
 
   private def radioButtons(doc: Document): Elements =
     doc.select(s"div.govuk-radios div.govuk-radios__item")
