@@ -58,9 +58,6 @@ GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.
 GET         /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountType(journey: JourneyBindable)
 POST        /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)
 
-GET         /:journey/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey: JourneyBindable)
-POST        /:journey/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseFileTypeController.chooseSupportingEvidenceDocumentTypeSubmit(journey: JourneyBindable)
-
 GET         /:journey/check-answers-accept-send                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers(journey: JourneyBindable)
 POST        /:journey/check-answers-accept-send                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(journey: JourneyBindable)
 
