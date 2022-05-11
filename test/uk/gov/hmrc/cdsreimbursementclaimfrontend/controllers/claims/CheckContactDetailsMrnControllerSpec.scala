@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -60,7 +59,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
 
@@ -84,9 +82,6 @@ class CheckContactDetailsMrnControllerSpec
       bind[SessionCache].toInstance(mockSessionCache),
       bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
-
-  private val featureSwitch = instanceOf[FeatureSwitchService]
-  featureSwitch.enable(Feature.NorthernIreland)
 
   val controller: CheckContactDetailsMrnController = instanceOf[CheckContactDetailsMrnController]
 
@@ -276,31 +271,7 @@ class CheckContactDetailsMrnControllerSpec
 
     "handle submit requests" when {
 
-      "when contact and address answers provided and NorthernIreland feature switched off" in {
-        featureSwitch.disable(Feature.NorthernIreland)
-
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithAddresses
-        val session = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(toTypeOfClaim(journey)),
-          Some(sample[MrnContactDetails]),
-          Some(sample[ContactAddress].copy(country = Country.uk))
-        )._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkIsRedirect(
-          controller.submit(journey)(FakeRequest()),
-          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
-        )
-      }
-
-      "when contact and address answers provided and NorthernIreland feature switched on" in {
-        featureSwitch.enable(Feature.NorthernIreland)
+      "when contact and address answers provided" in {
 
         val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
@@ -322,46 +293,7 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "when contact and address answers not yet provided and NorthernIreland feature switched off" in {
-        featureSwitch.disable(Feature.NorthernIreland)
-
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithAddresses
-        val session = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(toTypeOfClaim(journey))
-        )._1
-
-        val updatedSession = session
-          .copy(journeyStatus =
-            session.journeyStatus
-              .map {
-                case claim: FillingOutClaim =>
-                  claim.copy(draftClaim =
-                    claim.draftClaim.copy(
-                      mrnContactDetailsAnswer = claim.draftClaim.computeContactDetails(claim.signedInUserDetails),
-                      mrnContactAddressAnswer = claim.draftClaim.computeAddressDetails(claim.signedInUserDetails)
-                    )
-                  )
-                case _                      =>
-                  fail("wrong C285 claim status")
-              }
-          )
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(updatedSession)(Right(()))
-        }
-
-        checkIsRedirect(
-          controller.submit(journey)(FakeRequest()),
-          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
-        )
-      }
-
-      "when contact and address answers not yet provided and NorthernIreland feature switched on" in {
-        featureSwitch.enable(Feature.NorthernIreland)
+      "when contact and address answers not yet provided" in {
 
         val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
@@ -395,89 +327,6 @@ class CheckContactDetailsMrnControllerSpec
         checkIsRedirect(
           controller.submit(journey)(FakeRequest()),
           routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
-        )
-      }
-
-      "when contact details answer not yet provided and NorthernIreland feature switched off" in {
-        featureSwitch.disable(Feature.NorthernIreland)
-
-        val previousContactAddress = sample[ContactAddress].copy(country = Country.uk)
-
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithAddresses
-        val session = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(toTypeOfClaim(journey)),
-          None,
-          Some(previousContactAddress)
-        )._1
-
-        val updatedSession = session
-          .copy(journeyStatus =
-            session.journeyStatus
-              .map {
-                case claim: FillingOutClaim =>
-                  claim.copy(draftClaim =
-                    claim.draftClaim.copy(
-                      mrnContactDetailsAnswer = claim.draftClaim.computeContactDetails(claim.signedInUserDetails),
-                      mrnContactAddressAnswer = Some(previousContactAddress)
-                    )
-                  )
-                case _                      =>
-                  fail("wrong C285 claim status")
-              }
-          )
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(updatedSession)(Right(()))
-        }
-
-        checkIsRedirect(
-          controller.submit(journey)(FakeRequest()),
-          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
-        )
-      }
-
-      "when contact address answer not yet provided and NorthernIreland feature switched off" in {
-        featureSwitch.disable(Feature.NorthernIreland)
-
-        val previousContactDetails = sample[MrnContactDetails]
-
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithAddresses
-        val session = getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(toTypeOfClaim(journey)),
-          Some(previousContactDetails)
-        )._1
-
-        val updatedSession = session
-          .copy(journeyStatus =
-            session.journeyStatus
-              .map {
-                case claim: FillingOutClaim =>
-                  claim.copy(draftClaim =
-                    claim.draftClaim.copy(
-                      mrnContactDetailsAnswer = Some(previousContactDetails),
-                      mrnContactAddressAnswer = claim.draftClaim.computeAddressDetails(claim.signedInUserDetails)
-                    )
-                  )
-                case _                      =>
-                  fail("wrong C285 claim status")
-              }
-          )
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(updatedSession)(Right(()))
-        }
-
-        checkIsRedirect(
-          controller.submit(journey)(FakeRequest()),
-          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
 

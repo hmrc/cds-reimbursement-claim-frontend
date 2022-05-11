@@ -41,7 +41,6 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val featureList =
       Table[Feature](
         "Features",
-        Feature.NorthernIreland,
         Feature.RejectedGoods
       )
 

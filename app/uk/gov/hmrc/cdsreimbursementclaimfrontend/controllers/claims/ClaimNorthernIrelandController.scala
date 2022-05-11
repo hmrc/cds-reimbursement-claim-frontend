@@ -70,7 +70,7 @@ class ClaimNorthernIrelandController @Inject() (
   implicit val dataExtractor: DraftClaim => Option[YesNo] = _.whetherNorthernIrelandAnswer
 
   def selectWhetherNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] =
-    (featureSwitch.hideIfNotEnabled(Feature.NorthernIreland) andThen authenticatedActionWithSessionData)
+    authenticatedActionWithSessionData
       .async { implicit request =>
         withAnswers[YesNo] { (_, answer) =>
           val emptyForm  = whetherNorthernIrelandClaim
@@ -80,7 +80,7 @@ class ClaimNorthernIrelandController @Inject() (
       }
 
   def selectWhetherNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
-    (featureSwitch.hideIfNotEnabled(Feature.NorthernIreland) andThen authenticatedActionWithSessionData)
+    authenticatedActionWithSessionData
       .async { implicit request =>
         withAnswersAndRoutes[YesNo] { (fillingOutClaim, previousAnswer, routes) =>
           import routes._
