@@ -578,15 +578,15 @@ select-basis-for-claim.reason.ern.d15=
 select-basis-for-claim.scheduled.help-text=
 
 #===================================================
-#  ENTER COMMODITIES PAGE
+#  ENTER ADDITIONAL DETAILS PAGE
 #===================================================
-enter-commodities-details.title=Nodwch fanylion y nwyddau yr hoffech ad-daliad ar eu cyfer
-enter-commodities-details.label=Nodwch fanylion y nwyddau
-enter-commodities-details.error.required=Nodwch fanylion y nwyddau
-enter-commodities-details.error.maxLength=Nodwch fanylion y nwyddau
-enter-commodities-details.hint=
+enter-additional-details.title=Nodwch fanylion y nwyddau yr hoffech ad-daliad ar eu cyfer
+enter-additional-details.label=Nodwch fanylion y nwyddau
+enter-additional-details.error.required=Nodwch fanylion y nwyddau
+enter-additional-details.error.maxLength=Nodwch fanylion y nwyddau
+enter-additional-details.hint=
 
-enter-commodities-details.scheduled.hint=
+enter-additional-details.scheduled.hint=
 
 #===================================================
 #  REIMBURSEMENT PAGES
@@ -928,8 +928,8 @@ check-your-answers.contact-details.l1=
 check-your-answers.basis.h2=
 check-your-answers.basis.l0=
 check-your-answers.northern-ireland-claim.label=
-check-your-answers.commodities-details.label=Manylion y nwyddau
-check-your-answers.commodities-details.scheduled.label=
+check-your-answers.additional-details.label=Manylion y nwyddau
+check-your-answers.additional-details.scheduled.label=
 check-your-answers.claim-calculation.label=Cyfrifo’r hawliad
 check-your-answers.claim-calculation.l0=Swm Tollau’r DU i’w ad-dalu yn ôl eich hawliad:
 check-your-answers.claim-calculation.l1=Swm Tollau’r UE i’w ad-dalu yn ôl eich hawliad:
@@ -952,8 +952,8 @@ check-your-answers.total-claim.label=Cyfanswm yr ad-daliad a hawliwyd
 check-your-answers.reference-number.h2=Cyfeirnod MRN neu rif mewnforio
 check-your-answers.declaration-details.h2=Manylion y datganiad
 check-your-answers.northern-ireland-claim.h2=
-check-your-answers.commodity-details.h2=Manylion y nwyddau
-check-your-answers.commodity-details.scheduled.h2=
+check-your-answers.additional-details.h2=Manylion y nwyddau
+check-your-answers.additional-details.scheduled.h2=
 check-your-answers.claim-calculation.h2=Cyfrifo’r hawliad
 check-your-answers.bank-details.h2=Manylion banc
 check-your-answers.attached-documents.h2=Dogfennau sydd wedi’u hatodi

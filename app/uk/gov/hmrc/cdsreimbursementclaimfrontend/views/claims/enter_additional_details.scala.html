@@ -16,24 +16,27 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[CommodityDetailsAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, journey: JourneyBindable)
+@(form: Form[AdditionalDetailsAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, journey: JourneyBindable)
 
-@key = @{"enter-commodities-details"}
+@key = @{"enter-additional-details"}
 @title = @{messages(s"$key.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -42,16 +45,31 @@
 
     @errorSummary(form.errors)
 
-    @formWithCSRF(claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey), 'novalidate -> "novalidate") {
+    @pageHeading(Html(title))
+
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
+
+    @bulletList(
+        Seq(
+            Html(messages(s"$key.bullet.1")),
+            Html(messages(s"$key.bullet.2")),
+            Html(messages(s"$key.bullet.3")),
+            Html(messages(s"$key.bullet.4"))
+        )
+    )
+
+    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
+
+    @formWithCSRF(claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit(journey), 'novalidate -> "novalidate") {
 
         @textArea(
             form = form,
             id = key,
             name = key,
-            isPageHeading = true,
-            label = s"$key.title",
+            isPageHeading = false,
+            label = s"$key.label",
             labelClasses = Some("govuk-label govuk-label--xl"),
-            hint = combine(key, journey, "hint").headOption,
+            hint = Some(s"$key.hint"),
             value = form(key).value,
             maxLength = Some(500)
         )

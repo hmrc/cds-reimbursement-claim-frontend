@@ -29,12 +29,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.commoditiesDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAdditionalDetailsController.additionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
@@ -46,13 +46,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EnterCommoditiesDetailsController @Inject() (
+class EnterAdditionalDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   cc: MessagesControllerComponents,
   val config: Configuration,
-  enterCommoditiesDetailsPage: pages.enter_commodities_details
+  enterAdditionalDetailsPage: pages.enter_additional_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -60,33 +60,33 @@ class EnterCommoditiesDetailsController @Inject() (
     with Logging
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftClaim => Option[CommodityDetailsAnswer] = _.commoditiesDetailsAnswer
+  implicit val dataExtractor: DraftClaim => Option[AdditionalDetailsAnswer] = _.additionalDetailsAnswer
 
-  def enterCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+  def enterAdditionalDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[CommodityDetailsAnswer] { (_, answers) =>
-        val form = answers.toList.foldLeft(commoditiesDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterCommoditiesDetailsPage(form))
+      withAnswers[AdditionalDetailsAnswer] { (_, answers) =>
+        val form = answers.toList.foldLeft(additionalDetailsForm)((form, answer) => form.fill(answer))
+        Ok(enterAdditionalDetailsPage(form))
       }
     }
 
-  def enterCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def enterAdditionalDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[CommodityDetailsAnswer] { (fillingOutClaim, _, router) =>
+      withAnswersAndRoutes[AdditionalDetailsAnswer] { (fillingOutClaim, _, router) =>
         import router._
 
-        commoditiesDetailsForm
+        additionalDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => BadRequest(enterCommoditiesDetailsPage(requestFormWithErrors)),
-            commodityDetails => {
-              val newDraftClaim  = fillingOutClaim.draftClaim.copy(commoditiesDetailsAnswer = Some(commodityDetails))
+            requestFormWithErrors => BadRequest(enterAdditionalDetailsPage(requestFormWithErrors)),
+            additionalDetails => {
+              val newDraftClaim  = fillingOutClaim.draftClaim.copy(additionalDetailsAnswer = Some(additionalDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
-                  logAndDisplayError("could not get commodity details"),
+                  logAndDisplayError("could not get additional details"),
                   _ =>
                     Redirect(
                       CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively = journeyBindable match {
@@ -105,11 +105,11 @@ class EnterCommoditiesDetailsController @Inject() (
     }
 }
 
-object EnterCommoditiesDetailsController {
+object EnterAdditionalDetailsController {
 
-  val commoditiesDetailsForm: Form[CommodityDetailsAnswer] = Form(
-    mapping("enter-commodities-details" -> nonEmptyText(maxLength = 500))(CommodityDetailsAnswer.apply)(
-      CommodityDetailsAnswer.unapply
+  val additionalDetailsForm: Form[AdditionalDetailsAnswer] = Form(
+    mapping("enter-additional-details" -> nonEmptyText(maxLength = 500))(AdditionalDetailsAnswer.apply)(
+      AdditionalDetailsAnswer.unapply
     )
   )
 }
