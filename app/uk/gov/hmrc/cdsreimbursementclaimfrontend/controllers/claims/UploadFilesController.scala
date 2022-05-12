@@ -80,11 +80,11 @@ class UploadFilesController @Inject() (
       request.using { case fillingOutClaim: FillingOutClaim =>
         fillingOutClaim.draftClaim.documentTypeAnswer match {
           case None =>
-            Redirect(routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey))
+            Redirect(OverpaymentsRouter.ChooseFileTypeController.show(journey))
 
           case Some(documentType) =>
             val continueAfterYesAnswerUrl =
-              selfUrl + routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey).url
+              selfUrl + OverpaymentsRouter.ChooseFileTypeController.show(journey).url
 
             val continueAfterNoAnswerUrl =
               selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url
@@ -158,11 +158,11 @@ class UploadFilesController @Inject() (
       request.using { case fillingOutClaim: FillingOutClaim =>
         fillingOutClaim.draftClaim.documentTypeAnswer match {
           case None =>
-            Redirect(routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey))
+            Redirect(OverpaymentsRouter.ChooseFileTypeController.show(journey))
 
           case Some(documentType) =>
             val continueAfterYesAnswerUrl =
-              selfUrl + routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey).url
+              selfUrl + OverpaymentsRouter.ChooseFileTypeController.show(journey).url
 
             val continueAfterNoAnswerUrl =
               selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url
@@ -226,7 +226,7 @@ class UploadFilesController @Inject() (
       continueUrl = continueAfterNoAnswerUrl,
       continueAfterYesAnswerUrl = Some(continueAfterYesAnswerUrl),
       continueWhenFullUrl = selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url,
-      backlinkUrl = selfUrl + routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey).url,
+      backlinkUrl = selfUrl + OverpaymentsRouter.ChooseFileTypeController.show(journey).url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadFilesController.callback(journey).url,
       minimumNumberOfFiles = 0, // user can skip uploading the files
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),

@@ -159,7 +159,7 @@ class ReimbursementMethodControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ReimbursementMethodController.reimbursementMethodKey -> "0")),
-          claimsRoutes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(JourneyBindable.Single)
+          OverpaymentsRouter.ChooseFileTypeController.show(JourneyBindable.Single)
         )
       }
 

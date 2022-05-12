@@ -121,7 +121,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
           checkIsRedirect(
             performAction(),
-            routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey)
+            OverpaymentsRouter.ChooseFileTypeController.show(journey)
           )
         }
 
@@ -139,7 +139,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
           checkIsRedirect(
             performAction(),
-            routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey)
+            OverpaymentsRouter.ChooseFileTypeController.show(journey)
           )
         }
 
@@ -202,7 +202,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
           checkIsRedirect(
             performAction(),
-            routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey)
+            OverpaymentsRouter.ChooseFileTypeController.show(journey)
           )
         }
 
@@ -220,7 +220,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
           checkIsRedirect(
             performAction(),
-            routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey)
+            OverpaymentsRouter.ChooseFileTypeController.show(journey)
           )
         }
 

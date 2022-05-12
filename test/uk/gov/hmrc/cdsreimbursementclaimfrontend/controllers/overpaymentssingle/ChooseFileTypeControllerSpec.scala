@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.syntax.option._
 import org.scalatest.OptionValues
@@ -33,13 +33,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -82,36 +82,32 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
   "handling requests to display the choose your document type page" must {
 
-    def performAction(journey: JourneyBindable): Future[Result] =
-      controller.chooseSupportingEvidenceDocumentType(journey)(FakeRequest())
+    def performAction(): Future[Result] = controller.show(FakeRequest())
 
     "display the page" when {
 
       val answer = sample[UploadDocumentType]
 
       "a user has not answered the question before" in {
-        val journey = sample[JourneyBindable]
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(sessionWithClaimState(None))
         }
         checkPageIsDisplayed(
-          performAction(journey),
+          performAction(),
           messageFromMessageKey(s"$pageKey.title"),
           assertThatNoneRadioButtonIsSelected
         )
       }
 
       "a user has answered the question before" in {
-        val journey = sample[JourneyBindable]
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(sessionWithClaimState(answer.some))
         }
 
         checkPageIsDisplayed(
-          performAction(journey),
+          performAction(),
           messageFromMessageKey(s"$pageKey.title"),
           assertThatNoneRadioButtonIsSelected
         )
@@ -121,17 +117,16 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
   "handling requests to chose evidence document type" must {
 
-    def performAction(journey: JourneyBindable)(
+    def performAction(
       data: Seq[(String, String)]
     ): Future[Result] =
-      controller.chooseSupportingEvidenceDocumentTypeSubmit(journey)(
+      controller.submit()(
         FakeRequest().withFormUrlEncodedBody(data: _*)
       )
 
     "redisplay the page" when {
       "document type is missing" in {
-        val journey = sample[JourneyBindable]
-        val answer  = sample[UploadDocumentType]
+        val answer = sample[UploadDocumentType]
 
         val session = sessionWithClaimState(answer.some)
 
@@ -141,7 +136,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
         }
 
         checkPageIsDisplayed(
-          performAction(journey)(Seq.empty),
+          performAction(Seq.empty),
           messageFromMessageKey(s"$pageKey.title"),
           doc =>
             doc
@@ -154,8 +149,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
       }
 
       "document type not found" in {
-        val journey = sample[JourneyBindable]
-        val answer  = sample[UploadDocumentType]
+        val answer = sample[UploadDocumentType]
 
         val session = sessionWithClaimState(answer.some)
 
@@ -165,8 +159,8 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
         }
 
         checkPageIsDisplayed(
-          performAction(journey)(
-            Seq(ChooseFileTypeController.chooseDocumentTypeDataKey -> "FOO")
+          performAction(
+            Seq("supporting-evidence.choose-document-type" -> "FOO")
           ),
           messageFromMessageKey(s"$pageKey.title"),
           doc =>
@@ -180,8 +174,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
       }
 
       "an error caught on session update" in {
-        val journeyBindable = sample[JourneyBindable]
-        val answer          = sample[UploadDocumentType]
+        val answer = sample[UploadDocumentType]
 
         val session = sessionWithClaimState(None)
 
@@ -195,8 +188,8 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
         }
 
         checkIsTechnicalErrorPage(
-          performAction(journeyBindable)(
-            Seq(ChooseFileTypeController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(answer))
+          performAction(
+            Seq("supporting-evidence.choose-document-type" -> UploadDocumentType.keyOf(answer))
           )
         )
       }
@@ -205,8 +198,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
     "redirect to file selection page" when {
 
       "document type is successfully selected" in {
-        val journeyBindable = sample[JourneyBindable]
-        val answer          = sample[UploadDocumentType]
+        val answer = sample[UploadDocumentType]
 
         val session = sessionWithClaimState(None)
 
@@ -220,10 +212,10 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
         }
 
         checkIsRedirect(
-          performAction(journeyBindable)(
-            Seq(ChooseFileTypeController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(answer))
+          performAction(
+            Seq("supporting-evidence.choose-document-type" -> UploadDocumentType.keyOf(answer))
           ),
-          routes.UploadFilesController.show(journeyBindable)
+          claimsRoutes.UploadFilesController.show(JourneyBindable.Single)
         )
       }
     }
