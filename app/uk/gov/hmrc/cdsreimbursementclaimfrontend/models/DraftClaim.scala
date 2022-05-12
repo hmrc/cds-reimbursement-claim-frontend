@@ -52,7 +52,7 @@ final case class DraftClaim(
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
   additionalDetailsAnswer: Option[AdditionalDetailsAnswer] = None,
-  whetherNorthernIrelandAnswer: YesNo,
+  whetherNorthernIrelandAnswer: Option[YesNo] = None,
   displayDeclaration: Option[DisplayDeclaration] = None,
   duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
   importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
