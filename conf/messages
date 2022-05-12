@@ -212,13 +212,13 @@ enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="gov
 enter-movement-reference-number.rejected-goods.multiple.help-text3=The first <abbr title="Movement Reference Number">MRN</abbr> is the one with the highest paid amount of duties.
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001
-enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=Try a different MRN
-enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=You have already entered this MRN. Enter a different MRN
-enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} MRN
-enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
-enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first MRN is the one with the highest paid amount of duties.
-enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} MRN
+enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=Try a different <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about <abbr title="Movement Reference Numbers">MRNs</abbr> (PDF, 581KB, opens in a new tab)</a>.
+enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first <abbr title="Movement Reference Number">MRN</abbr> is the one with the highest paid amount of duties.
+enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001
 
 #===================================================
