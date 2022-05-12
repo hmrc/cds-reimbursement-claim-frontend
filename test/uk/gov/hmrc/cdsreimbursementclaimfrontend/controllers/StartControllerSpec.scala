@@ -30,7 +30,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmittedClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.NonGovernmentGatewayJourney
@@ -168,7 +168,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result = performAction(authenticatedRequest)
-          checkIsRedirect(result, claimRoutes.CheckEoriDetailsController.show())
+          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
 
         }
 
@@ -262,7 +262,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result = performAction(authenticatedRequest)
-          checkIsRedirect(result, claimRoutes.CheckEoriDetailsController.show())
+          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
 
         }
 
