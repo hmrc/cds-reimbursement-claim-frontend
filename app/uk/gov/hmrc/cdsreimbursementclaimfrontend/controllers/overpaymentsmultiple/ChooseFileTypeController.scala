@@ -98,11 +98,7 @@ class ChooseFileTypeController @Inject() (
               )
                 .fold(
                   logAndDisplayError("Error assigning evidence document type"),
-                  _ =>
-                    Redirect(
-                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.UploadFilesController
-                        .show(JourneyBindable.Multiple)
-                    )
+                  _ => Redirect(routes.UploadFilesController.show)
                 )
           )
       }

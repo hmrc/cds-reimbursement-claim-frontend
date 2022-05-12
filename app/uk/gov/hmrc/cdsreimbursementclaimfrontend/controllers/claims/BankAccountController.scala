@@ -85,7 +85,7 @@ class BankAccountController @Inject() (
                 checkBankAccountDetailsPage(
                   bankAccountDetails,
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    OverpaymentsRouter.ChooseFileTypeController.show(journey)
+                    OverpaymentsRoutes.ChooseFileTypeController.show(journey)
                   ),
                   routes.SelectBankAccountTypeController.selectBankAccountType(journey)
                 )

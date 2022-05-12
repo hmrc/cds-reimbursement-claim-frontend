@@ -1,2 +1,7 @@
-GET         /single/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.show
-POST        /single/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.submit
+GET         /single/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.show
+POST        /single/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.submit
+
+GET         /single/supporting-evidence/choose-files                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.UploadFilesController.show
++nocsrf
+POST        /single/supporting-evidence/choose-files                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.UploadFilesController.callback
+GET         /single/supporting-evidence/summary                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.UploadFilesController.summary
