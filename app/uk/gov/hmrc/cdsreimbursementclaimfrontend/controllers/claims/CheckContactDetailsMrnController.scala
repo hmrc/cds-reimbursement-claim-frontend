@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
-import cats.syntax.all._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -35,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -124,9 +122,7 @@ class CheckContactDetailsMrnController @Inject() (
               val router = extractRoutes(fillingOutClaim.draftClaim, journey)
               Redirect(
                 router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                  if (featureSwitch.isEnabled(Feature.NorthernIreland))
-                    routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
-                  else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
+                  routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
                 )
               )
             }

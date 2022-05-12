@@ -39,12 +39,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.claim_northern_ireland
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
@@ -54,7 +52,6 @@ class ClaimNorthernIrelandController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val featureSwitch: FeatureSwitchService,
   northernIrelandAnswerPage: claim_northern_ireland
 )(implicit
   viewConfig: ViewConfig,
@@ -70,7 +67,7 @@ class ClaimNorthernIrelandController @Inject() (
   implicit val dataExtractor: DraftClaim => Option[YesNo] = _.whetherNorthernIrelandAnswer
 
   def selectWhetherNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] =
-    (featureSwitch.hideIfNotEnabled(Feature.NorthernIreland) andThen authenticatedActionWithSessionData)
+    authenticatedActionWithSessionData
       .async { implicit request =>
         withAnswers[YesNo] { (_, answer) =>
           val emptyForm  = whetherNorthernIrelandClaim
@@ -80,7 +77,7 @@ class ClaimNorthernIrelandController @Inject() (
       }
 
   def selectWhetherNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
-    (featureSwitch.hideIfNotEnabled(Feature.NorthernIreland) andThen authenticatedActionWithSessionData)
+    authenticatedActionWithSessionData
       .async { implicit request =>
         withAnswersAndRoutes[YesNo] { (fillingOutClaim, previousAnswer, routes) =>
           import routes._

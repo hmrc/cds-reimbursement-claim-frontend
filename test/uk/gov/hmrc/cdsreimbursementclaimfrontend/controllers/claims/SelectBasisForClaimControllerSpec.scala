@@ -48,7 +48,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -61,10 +60,6 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
     )
 
   lazy val controller: SelectBasisForClaimController = instanceOf[SelectBasisForClaimController]
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  featureSwitch.disable(Feature.NorthernIreland)
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -113,10 +108,8 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
     "display the page" when {
 
-      "the user has not answered this question before and the NI feature switch is enabled" in {
+      "the user has not answered this question before" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
-
-        featureSwitch.enable(Feature.NorthernIreland)
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)
@@ -134,58 +127,13 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
         )
       }
 
-      "the user has not answered this question before and the NI feature switch is disabled" in {
+      "the user has answered this question before" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
-        featureSwitch.disable(Feature.NorthernIreland)
-
-        val draftC285Claim                = sessionWithClaimState(None)._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$selectBasisForClaimKey.title")
-        )
-      }
-
-      "the user has answered this question before and the NI feature switch is enabled" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
-
-        featureSwitch.enable(Feature.NorthernIreland)
         val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
         val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$selectBasisForClaimKey.title")
-        )
-      }
-
-      "the user has answered this question before and the NI feature switch is disabled" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
-
-        featureSwitch.disable(Feature.NorthernIreland)
-
-        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief
-
-        val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer.some)._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer.some)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
