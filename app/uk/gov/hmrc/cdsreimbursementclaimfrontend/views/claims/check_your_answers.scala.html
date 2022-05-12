@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
@@ -124,7 +125,7 @@
 
     @claim.supportingEvidencesAnswer.map { evidences =>
         @pageHeading(Html(messages(s"$key.attached-documents.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SupportingEvidenceSummary(evidences,s"$key.attached-documents", subKey, claimRoutes.UploadFilesController.summary(journey)))
+        @summary(SupportingEvidenceSummary(evidences,s"$key.attached-documents", subKey, OverpaymentsRoutes.UploadFilesController.summary(journey)))
     }
 
     @pageHeading(Html(messages(s"$key.confirmation-statement.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")

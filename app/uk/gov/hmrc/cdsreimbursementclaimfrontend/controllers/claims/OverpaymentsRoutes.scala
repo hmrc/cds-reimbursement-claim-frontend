@@ -23,13 +23,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultipl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import play.api.mvc.Call
 
-object OverpaymentsRouter {
+object OverpaymentsRoutes {
 
   object ChooseFileTypeController {
     def show(journey: JourneyBindable): Call = journey match {
       case JourneyBindable.Single    => overpaymentsSingleRoutes.ChooseFileTypeController.show
       case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.ChooseFileTypeController.show
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.ChooseFileTypeController.show
+    }
+  }
+
+  object UploadFilesController {
+    def summary(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.UploadFilesController.summary
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.UploadFilesController.summary
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.UploadFilesController.summary
     }
   }
 

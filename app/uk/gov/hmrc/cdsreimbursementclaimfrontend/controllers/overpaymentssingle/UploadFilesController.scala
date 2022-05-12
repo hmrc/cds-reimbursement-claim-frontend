@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -75,19 +76,19 @@ class UploadFilesController @Inject() (
 
   final val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285EvidenceTypes
 
-  final def show(journey: JourneyBindable): Action[AnyContent] =
+  final val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         fillingOutClaim.draftClaim.documentTypeAnswer match {
           case None =>
-            Redirect(OverpaymentsRouter.ChooseFileTypeController.show(journey))
+            Redirect(routes.ChooseFileTypeController.show)
 
           case Some(documentType) =>
             val continueAfterYesAnswerUrl =
-              selfUrl + OverpaymentsRouter.ChooseFileTypeController.show(journey).url
+              selfUrl + routes.ChooseFileTypeController.show.url
 
             val continueAfterNoAnswerUrl =
-              selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url
+              selfUrl + claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single).url
 
             uploadDocumentsConnector
               .initialize(
@@ -98,7 +99,7 @@ class UploadFilesController @Inject() (
                       documentType,
                       continueAfterYesAnswerUrl,
                       continueAfterNoAnswerUrl,
-                      journey
+                      JourneyBindable.Single
                     ),
                     fillingOutClaim.draftClaim.supportingEvidencesAnswer
                       .map(_.toList)
@@ -123,13 +124,13 @@ class UploadFilesController @Inject() (
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  final def callback(journey: JourneyBindable): Action[AnyContent] =
+  final val callback: Action[AnyContent] =
     authenticatedCallbackWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         request.body.asJson
           .flatMap(_.asOpt[UploadDocumentsCallback]) match {
           case None =>
-            BadRequest(s"missing or invalid callback payload for $journey")
+            BadRequest(s"missing or invalid callback payload")
 
           case Some(callback) =>
             if (callback.nonce.equals(fillingOutClaim.draftClaim.nonce))
@@ -153,19 +154,19 @@ class UploadFilesController @Inject() (
       }
     }
 
-  final def summary(journey: JourneyBindable): Action[AnyContent] =
+  final val summary: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         fillingOutClaim.draftClaim.documentTypeAnswer match {
           case None =>
-            Redirect(OverpaymentsRouter.ChooseFileTypeController.show(journey))
+            Redirect(routes.ChooseFileTypeController.show)
 
           case Some(documentType) =>
             val continueAfterYesAnswerUrl =
-              selfUrl + OverpaymentsRouter.ChooseFileTypeController.show(journey).url
+              selfUrl + routes.ChooseFileTypeController.show.url
 
             val continueAfterNoAnswerUrl =
-              selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url
+              selfUrl + claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single).url
 
             uploadDocumentsConnector
               .initialize(
@@ -176,7 +177,7 @@ class UploadFilesController @Inject() (
                       documentType,
                       continueAfterYesAnswerUrl,
                       continueAfterNoAnswerUrl,
-                      journey
+                      JourneyBindable.Single
                     ),
                     fillingOutClaim.draftClaim.supportingEvidencesAnswer
                       .map(_.toList)
@@ -225,9 +226,9 @@ class UploadFilesController @Inject() (
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
       continueAfterYesAnswerUrl = Some(continueAfterYesAnswerUrl),
-      continueWhenFullUrl = selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url,
-      backlinkUrl = selfUrl + OverpaymentsRouter.ChooseFileTypeController.show(journey).url,
-      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadFilesController.callback(journey).url,
+      continueWhenFullUrl = selfUrl + claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url,
+      backlinkUrl = selfUrl + routes.ChooseFileTypeController.show.url,
+      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadFilesController.callback.url,
       minimumNumberOfFiles = 0, // user can skip uploading the files
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 1,
