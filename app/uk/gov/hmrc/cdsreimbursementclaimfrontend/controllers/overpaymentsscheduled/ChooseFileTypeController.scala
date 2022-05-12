@@ -61,7 +61,7 @@ class ChooseFileTypeController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       Ok(
         chooseDocumentTypePage(
-          JourneyBindable.Single,
+          JourneyBindable.Scheduled,
           Forms.chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
           DropdownHints.enumeration(evidenceTypes),
           evidenceTypes,
@@ -80,7 +80,7 @@ class ChooseFileTypeController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 chooseDocumentTypePage(
-                  JourneyBindable.Single,
+                  JourneyBindable.Scheduled,
                   requestFormWithErrors,
                   DropdownHints.enumeration(evidenceTypes),
                   evidenceTypes,
@@ -101,7 +101,7 @@ class ChooseFileTypeController @Inject() (
                   _ =>
                     Redirect(
                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.UploadFilesController
-                        .show(JourneyBindable.Single)
+                        .show(JourneyBindable.Scheduled)
                     )
                 )
           )
