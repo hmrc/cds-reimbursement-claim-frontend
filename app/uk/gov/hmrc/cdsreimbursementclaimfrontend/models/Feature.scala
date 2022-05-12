@@ -24,13 +24,11 @@ sealed trait Feature {
 
 object Feature {
 
-  case object NorthernIreland extends Feature { val name = "northern-ireland" }
   case object RejectedGoods extends Feature { val name = "rejected-goods" }
   case object InternalUploadDocuments extends Feature { val name = "internal-upload-documents" }
 
   def of(name: String): Option[Feature] =
     Seq[Feature](
-      NorthernIreland,
       RejectedGoods,
       InternalUploadDocuments
     ).find(_.name === name)

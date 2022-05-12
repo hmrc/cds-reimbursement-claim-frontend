@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
@@ -171,7 +172,7 @@ case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNum
   val subKey          = None
   val journeyBindable = JourneyBindable.Single
 
-  val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectTypeOfClaimController.show()
+  val selectNumberOfClaimsPage: Call                      = commonRoutes.SelectTypeOfClaimController.show()
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
 }

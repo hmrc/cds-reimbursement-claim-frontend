@@ -1,15 +1,3 @@
-GET         /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.show()
-POST        /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.submit()
-
-GET         /select-claim-type                                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.show()
-POST        /select-claim-type                                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.submit()
-
-GET         /choose-how-many-mrns                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectTypeOfClaimController.show()
-POST        /choose-how-many-mrns                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectTypeOfClaimController.submit()
-
-GET         /single/change-number-of-claims                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectTypeOfClaimController.show()
-POST        /single/change-number-of-claims                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectTypeOfClaimController.submit()
-
 GET         /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterJourneyMrn(journey: JourneyBindable)
 POST        /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit(journey: JourneyBindable)
 
@@ -57,9 +45,6 @@ GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.
 
 GET         /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountType(journey: JourneyBindable)
 POST        /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)
-
-GET         /:journey/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseFileTypeController.chooseSupportingEvidenceDocumentType(journey: JourneyBindable)
-POST        /:journey/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseFileTypeController.chooseSupportingEvidenceDocumentTypeSubmit(journey: JourneyBindable)
 
 GET         /:journey/check-answers-accept-send                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers(journey: JourneyBindable)
 POST        /:journey/check-answers-accept-send                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(journey: JourneyBindable)

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -33,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseFileTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
@@ -44,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.choose_docume
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
 @Singleton
 class ChooseFileTypeController @Inject() (
@@ -60,37 +57,34 @@ class ChooseFileTypeController @Inject() (
 
   val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285EvidenceTypes
 
-  def chooseSupportingEvidenceDocumentType(
-    journey: JourneyBindable
-  ): Action[AnyContent] =
+  val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       Ok(
         chooseDocumentTypePage(
-          journey,
-          chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
-          getSupportingEvidenceHints(evidenceTypes),
+          JourneyBindable.Single,
+          Forms.chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
+          DropdownHints.enumeration(evidenceTypes),
           evidenceTypes,
-          routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentTypeSubmit(journey)
+          routes.ChooseFileTypeController.submit
         )
       )
     }
 
-  def chooseSupportingEvidenceDocumentTypeSubmit(
-    journey: JourneyBindable
-  ): Action[AnyContent] =
+  val submit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
-        chooseSupportEvidenceDocumentTypeForm(evidenceTypes)
+        Forms
+          .chooseSupportEvidenceDocumentTypeForm(evidenceTypes)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
                 chooseDocumentTypePage(
-                  journey,
+                  JourneyBindable.Single,
                   requestFormWithErrors,
-                  getSupportingEvidenceHints(evidenceTypes),
+                  DropdownHints.enumeration(evidenceTypes),
                   evidenceTypes,
-                  routes.ChooseFileTypeController.chooseSupportingEvidenceDocumentTypeSubmit(journey)
+                  routes.ChooseFileTypeController.submit
                 )
               ),
             documentType =>
@@ -104,31 +98,14 @@ class ChooseFileTypeController @Inject() (
               )
                 .fold(
                   logAndDisplayError("Error assigning evidence document type"),
-                  _ => Redirect(routes.UploadFilesController.show(journey))
+                  _ =>
+                    Redirect(
+                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.UploadFilesController
+                        .show(JourneyBindable.Single)
+                    )
                 )
           )
       }
     }
 
-}
-
-object ChooseFileTypeController {
-
-  val chooseDocumentTypeDataKey: String = "supporting-evidence.choose-document-type"
-
-  def chooseSupportEvidenceDocumentTypeForm(
-    documentTypeList: Seq[UploadDocumentType]
-  ): Form[UploadDocumentType] =
-    Form(
-      mapping(
-        chooseDocumentTypeDataKey -> nonEmptyText
-          .verifying(
-            "error.invalid-document-type",
-            key => UploadDocumentType.parse(key).exists(v => documentTypeList.contains(v))
-          )
-      )(UploadDocumentType.tryParse)(dt => Some(UploadDocumentType.keyOf(dt)))
-    )
-
-  def getSupportingEvidenceHints(documentTypeList: Seq[UploadDocumentType]): DropdownHints =
-    DropdownHints.enumeration(documentTypeList)
 }

@@ -1,0 +1,2 @@
+GET         /scheduled/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseFileTypeController.show
+POST        /scheduled/supporting-evidence/select-supporting-evidence-type      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseFileTypeController.submit

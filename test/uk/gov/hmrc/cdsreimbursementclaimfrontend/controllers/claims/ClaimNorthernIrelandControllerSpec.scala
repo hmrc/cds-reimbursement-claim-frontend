@@ -49,7 +49,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
@@ -73,11 +72,6 @@ class ClaimNorthernIrelandControllerSpec
     JourneyBindable.Multiple,
     JourneyBindable.Scheduled
   )
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.NorthernIreland)
 
   lazy val errorHandler: ErrorHandler                 = instanceOf[ErrorHandler]
   lazy val controller: ClaimNorthernIrelandController = instanceOf[ClaimNorthernIrelandController]
@@ -125,14 +119,6 @@ class ClaimNorthernIrelandControllerSpec
     document.select("a.govuk-back-link").attr("href")
 
   "ClaimNorthernIrelandController" must {
-
-    "redirect to the error page" when {
-      "the feature switch NorthernIreland is disabled" in forAll(journeys) { journey =>
-        featureSwitch.disable(Feature.NorthernIreland)
-        val result = controller.selectWhetherNorthernIrelandClaim(journey)(FakeRequest())
-        status(result) shouldBe NOT_FOUND
-      }
-    }
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in forAll(journeys) { journey =>
