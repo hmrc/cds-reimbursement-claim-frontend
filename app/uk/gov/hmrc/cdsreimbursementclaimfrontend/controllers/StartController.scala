@@ -217,7 +217,7 @@ class StartController @Inject() (
       logAndDisplayError("could not initiate claim journey:"),
       _ =>
         Redirect(
-          controllers.claims.routes.CheckEoriDetailsController.show()
+          controllers.common.routes.CheckEoriDetailsController.show()
         )
     )
   }

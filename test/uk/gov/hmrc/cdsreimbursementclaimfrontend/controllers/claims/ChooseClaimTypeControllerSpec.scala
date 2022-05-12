@@ -39,14 +39,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.choose_claim_type
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 
 import scala.concurrent.Future
-
 import collection.JavaConverters._
 
 class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
@@ -133,7 +134,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
         }
 
         val result = performAction(Seq(dataKey -> C285.toString))
-        checkIsRedirect(result, routes.SelectTypeOfClaimController.show())
+        checkIsRedirect(result, commonRoutes.SelectTypeOfClaimController.show())
       }
 
       "Redirect to choose how many mrns if user chooses C&E1179" in {

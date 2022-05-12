@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
@@ -34,14 +34,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAnd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number_of_claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_number_of_claims
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Singleton
@@ -96,7 +97,7 @@ class SelectTypeOfClaimController @Inject() (
                     case TypeOfClaimAnswer.Multiple   => JourneyBindable.Multiple
                     case TypeOfClaimAnswer.Scheduled  => JourneyBindable.Scheduled
                   }
-                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
+                  Redirect(claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
                 }
               )
           }
