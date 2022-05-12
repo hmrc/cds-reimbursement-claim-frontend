@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
@@ -39,7 +40,7 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
       List(
         SummaryListRow(
           key = Key(Text(label)),
-          value = Value(Text(messages(answerKey(key, answer)))),
+          value = Value(HtmlContent(messages(answerKey(key, answer)))),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
