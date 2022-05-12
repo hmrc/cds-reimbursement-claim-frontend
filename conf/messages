@@ -922,9 +922,9 @@ enter-scheduled-claim.invalid.claim=The amount must be a number, like 30
 #===================================================
 #  ENTER CLAIM SCHEDULED PAGE C&E1179
 #===================================================
-enter-claim-scheduled.rejected-goods.title=Claim details for all MRNs under {0} {1}
+enter-claim-scheduled.rejected-goods.title=Claim details for all <abbr title="Movement Reference Numbers">MRNs</abbr> under {0} {1}
 enter-claim-scheduled.rejected-goods.help-text=Provide your claim details for {0}.
-enter-claim-scheduled.rejected-goods.inset-text=HMRC does not refund agents’ fees.
+enter-claim-scheduled.rejected-goods.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 enter-claim-scheduled.rejected-goods.paid-amount=How much was paid, in pounds?
 enter-claim-scheduled.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
 enter-claim-scheduled.rejected-goods.claim-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
