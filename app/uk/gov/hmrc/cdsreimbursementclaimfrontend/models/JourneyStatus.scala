@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
@@ -48,14 +47,12 @@ object JourneyStatus {
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
     claim: C285Claim,
-    submissionResponse: SubmitClaimResponse,
-    journey: JourneyBindable
+    submissionResponse: SubmitClaimResponse
   ) extends JourneyStatus
 
   final case class SubmitClaimFailed(
     ggCredId: GGCredId,
-    signedInUserDetails: SignedInUserDetails,
-    journey: JourneyBindable
+    signedInUserDetails: SignedInUserDetails
   ) extends JourneyStatus
 
   final case object NonGovernmentGatewayJourney extends JourneyStatus

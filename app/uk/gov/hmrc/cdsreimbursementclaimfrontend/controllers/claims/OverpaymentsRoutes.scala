@@ -41,4 +41,30 @@ object OverpaymentsRoutes {
     }
   }
 
+  object CheckYourAnswersAndSubmitController {
+    def checkAllAnswers(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers
+    }
+
+    def confirmationOfSubmission(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission
+    }
+
+    def submissionError(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.CheckYourAnswersAndSubmitController.submissionError
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.CheckYourAnswersAndSubmitController.submissionError
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.CheckYourAnswersAndSubmitController.submissionError
+    }
+  }
+
 }

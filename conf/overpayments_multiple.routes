@@ -5,3 +5,10 @@ GET         /multiple/supporting-evidence/choose-files                         @
 +nocsrf
 POST        /multiple/supporting-evidence/choose-files                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.callback
 GET         /multiple/supporting-evidence/summary                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.summary
+
+GET         /single/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.checkAllAnswers
+POST        /single/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit
+
+GET         /single/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.confirmationOfSubmission
+GET         /single/check-if-claim-was-sent                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.submissionError
+

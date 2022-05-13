@@ -67,7 +67,9 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   object CheckAnswers {
     def when(flag: Boolean)(alternatively: => Call): Call =
-      if (flag) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable) else alternatively
+      if (flag)
+        controllers.claims.OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      else alternatively
   }
 
   def nextPageForCheckDeclarationDetails(

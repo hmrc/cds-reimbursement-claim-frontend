@@ -537,7 +537,7 @@ class EnterSingleClaimControllerSpec
 
       checkIsRedirect(
         result,
-        routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+        OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
       )
     }
   }

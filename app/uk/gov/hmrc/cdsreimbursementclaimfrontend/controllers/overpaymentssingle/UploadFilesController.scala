@@ -28,13 +28,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -88,7 +86,7 @@ class UploadFilesController @Inject() (
               selfUrl + routes.ChooseFileTypeController.show.url
 
             val continueAfterNoAnswerUrl =
-              selfUrl + claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single).url
+              selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers.url
 
             uploadDocumentsConnector
               .initialize(
@@ -98,8 +96,7 @@ class UploadFilesController @Inject() (
                       fillingOutClaim.draftClaim.nonce,
                       documentType,
                       continueAfterYesAnswerUrl,
-                      continueAfterNoAnswerUrl,
-                      JourneyBindable.Single
+                      continueAfterNoAnswerUrl
                     ),
                     fillingOutClaim.draftClaim.supportingEvidencesAnswer
                       .map(_.toList)
@@ -166,7 +163,7 @@ class UploadFilesController @Inject() (
               selfUrl + routes.ChooseFileTypeController.show.url
 
             val continueAfterNoAnswerUrl =
-              selfUrl + claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single).url
+              selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers.url
 
             uploadDocumentsConnector
               .initialize(
@@ -176,8 +173,7 @@ class UploadFilesController @Inject() (
                       fillingOutClaim.draftClaim.nonce,
                       documentType,
                       continueAfterYesAnswerUrl,
-                      continueAfterNoAnswerUrl,
-                      JourneyBindable.Single
+                      continueAfterNoAnswerUrl
                     ),
                     fillingOutClaim.draftClaim.supportingEvidencesAnswer
                       .map(_.toList)
@@ -216,8 +212,7 @@ class UploadFilesController @Inject() (
     nonce: Nonce,
     documentType: UploadDocumentType,
     continueAfterYesAnswerUrl: String,
-    continueAfterNoAnswerUrl: String,
-    journey: JourneyBindable
+    continueAfterNoAnswerUrl: String
   )(implicit
     request: Request[_],
     messages: Messages
@@ -226,7 +221,7 @@ class UploadFilesController @Inject() (
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
       continueAfterYesAnswerUrl = Some(continueAfterYesAnswerUrl),
-      continueWhenFullUrl = selfUrl + claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url,
+      continueWhenFullUrl = selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers.url,
       backlinkUrl = selfUrl + routes.ChooseFileTypeController.show.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadFilesController.callback.url,
       minimumNumberOfFiles = 0, // user can skip uploading the files

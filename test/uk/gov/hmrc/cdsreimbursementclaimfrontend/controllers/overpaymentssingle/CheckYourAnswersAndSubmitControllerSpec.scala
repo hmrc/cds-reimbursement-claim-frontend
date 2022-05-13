@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import org.scalamock.handlers.CallHandler3
@@ -28,11 +28,8 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -42,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -50,6 +46,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult
 
 class CheckYourAnswersAndSubmitControllerSpec
     extends ControllerSpec
@@ -87,15 +84,13 @@ class CheckYourAnswersAndSubmitControllerSpec
       "redirect to the start of the journey" when {
 
         "there is no journey status in the session" in {
-          val journey = sample[JourneyBindable]
-
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData.empty)
           }
 
           checkIsRedirect(
-            controller.checkAllAnswers(journey)(FakeRequest()),
+            controller.checkAllAnswers(FakeRequest()),
             baseRoutes.StartController.start()
           )
         }
@@ -110,7 +105,7 @@ class CheckYourAnswersAndSubmitControllerSpec
         }
 
         checkPageIsDisplayed(
-          controller.confirmationOfSubmission(justSubmittedClaim.journey)(FakeRequest()),
+          controller.confirmationOfSubmission(FakeRequest()),
           messageFromMessageKey("confirmation-of-submission.title")
         )
       }
@@ -131,8 +126,6 @@ class CheckYourAnswersAndSubmitControllerSpec
             )
             .value
 
-          val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
-
           val submitClaimRequest = C285ClaimRequest(
             fillingOutClaim.draftClaim.id,
             claim,
@@ -149,8 +142,7 @@ class CheckYourAnswersAndSubmitControllerSpec
                 fillingOutClaim.ggCredId,
                 fillingOutClaim.signedInUserDetails,
                 claim,
-                submitClaimResponse,
-                journeyBindable
+                submitClaimResponse
               )
             )
           )
@@ -163,8 +155,8 @@ class CheckYourAnswersAndSubmitControllerSpec
           }
 
           checkIsRedirect(
-            controller.checkAllAnswersSubmit(journeyBindable)(FakeRequest()),
-            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journeyBindable)
+            controller.checkAllAnswersSubmit(FakeRequest()),
+            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission
           )
         }
       }
@@ -182,15 +174,13 @@ class CheckYourAnswersAndSubmitControllerSpec
             )
             .value
 
-          val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
-
           val submitClaimRequest = C285ClaimRequest(
             fillingOutClaim.draftClaim.id,
             claim,
             fillingOutClaim.signedInUserDetails
           )
 
-          val submitClaimError = sample[SubmitClaimError]
+          val submitClaimError = sample[SubmitClaimResult.SubmitClaimError]
 
           val session = SessionData(fillingOutClaim)
 
@@ -198,8 +188,7 @@ class CheckYourAnswersAndSubmitControllerSpec
             Some(
               SubmitClaimFailed(
                 fillingOutClaim.ggCredId,
-                fillingOutClaim.signedInUserDetails,
-                journeyBindable
+                fillingOutClaim.signedInUserDetails
               )
             )
           )
@@ -212,8 +201,8 @@ class CheckYourAnswersAndSubmitControllerSpec
           }
 
           checkIsRedirect(
-            controller.checkAllAnswersSubmit(journeyBindable)(FakeRequest()),
-            routes.CheckYourAnswersAndSubmitController.submissionError(journeyBindable)
+            controller.checkAllAnswersSubmit(FakeRequest()),
+            routes.CheckYourAnswersAndSubmitController.submissionError
           )
         }
       }
@@ -225,7 +214,6 @@ class CheckYourAnswersAndSubmitControllerSpec
 
         "the journey is other than a failed submission" in {
           val fillingOutClaim = sample[FillingOutClaim]
-          val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
           val session         = SessionData(fillingOutClaim)
 
           inSequence {
@@ -234,7 +222,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           }
 
           checkIsRedirect(
-            controller.submissionError(journeyBindable)(FakeRequest()),
+            controller.submissionError(FakeRequest()),
             baseRoutes.StartController.start()
           )
         }
@@ -253,8 +241,6 @@ class CheckYourAnswersAndSubmitControllerSpec
             )
             .value
 
-          val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
-
           val session = SessionData(fillingOutClaim)
 
           val submitClaimResponse = sample[SubmitClaimResponse]
@@ -265,8 +251,7 @@ class CheckYourAnswersAndSubmitControllerSpec
                 fillingOutClaim.ggCredId,
                 fillingOutClaim.signedInUserDetails,
                 claim,
-                submitClaimResponse,
-                journeyBindable
+                submitClaimResponse
               )
             )
           )
@@ -277,8 +262,8 @@ class CheckYourAnswersAndSubmitControllerSpec
           }
 
           checkIsRedirect(
-            controller.submissionError(journeyBindable)(FakeRequest()),
-            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journeyBindable)
+            controller.submissionError(FakeRequest()),
+            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission
           )
         }
       }
@@ -288,14 +273,13 @@ class CheckYourAnswersAndSubmitControllerSpec
 
       "the user has not completely filled in the claim" in {
         val fillingOutClaim = sample[FillingOutClaim]
-        val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(FillingOutClaim.from(fillingOutClaim)(_.copy(additionalDetailsAnswer = None))))
         }
 
-        checkIsTechnicalErrorPage(controller.checkAllAnswersSubmit(journeyBindable)(FakeRequest()))
+        checkIsTechnicalErrorPage(controller.checkAllAnswersSubmit(FakeRequest()))
 
       }
 
@@ -309,8 +293,6 @@ class CheckYourAnswersAndSubmitControllerSpec
             fillingOutClaim.signedInUserDetails.eori
           )
           .value
-
-        val journeyBindable = JourneyExtractor.extractJourney(fillingOutClaim)
 
         val session = SessionData(fillingOutClaim)
 
@@ -328,8 +310,7 @@ class CheckYourAnswersAndSubmitControllerSpec
               fillingOutClaim.ggCredId,
               fillingOutClaim.signedInUserDetails,
               claim,
-              submitClaimResponse,
-              journeyBindable
+              submitClaimResponse
             )
           )
         )
@@ -341,7 +322,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           mockStoreSession(justSubmittedJourney)(Left(Error("BOOM!")))
         }
 
-        checkIsTechnicalErrorPage(controller.checkAllAnswersSubmit(journeyBindable)(FakeRequest()))
+        checkIsTechnicalErrorPage(controller.checkAllAnswersSubmit(FakeRequest()))
       }
 
     }
@@ -355,7 +336,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           mockGetSession(SessionData(submitClaimFailed))
         }
 
-        val page = controller.submissionError(submitClaimFailed.journey)(FakeRequest())
+        val page = controller.submissionError(FakeRequest())
         checkPageIsDisplayed(page, messages("submit-claim-error.title"))
 
       }

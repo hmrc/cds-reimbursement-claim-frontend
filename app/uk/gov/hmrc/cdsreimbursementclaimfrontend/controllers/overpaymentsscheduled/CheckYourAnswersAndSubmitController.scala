@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.i18n.Lang
@@ -33,20 +32,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimSuccess
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -59,6 +51,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimSuccess
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 @Singleton
 class CheckYourAnswersAndSubmitController @Inject() (
@@ -77,7 +74,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
     with SessionUpdates
     with Logging {
 
-  def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
+  val journey: JourneyBindable = JourneyBindable.Scheduled
+
+  val checkAllAnswers: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
@@ -86,13 +85,15 @@ class CheckYourAnswersAndSubmitController @Inject() (
           checkYourAnswersPage(
             fillingOutClaim.draftClaim,
             fillingOutClaim.signedInUserDetails.verifiedEmail,
-            fillingOutClaim.signedInUserDetails.eori
+            fillingOutClaim.signedInUserDetails.eori,
+            journey,
+            routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit
           )
         )
       }
     }
 
-  def checkAllAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
+  val checkAllAnswersSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCompleteDraftClaim { (fillingOutClaim, completeClaim) =>
         val result =
@@ -109,8 +110,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                  case _: SubmitClaimError =>
                                    SubmitClaimFailed(
                                      fillingOutClaim.ggCredId,
-                                     fillingOutClaim.signedInUserDetails,
-                                     journey
+                                     fillingOutClaim.signedInUserDetails
                                    )
                                  case SubmitClaimSuccess(
                                        submitClaimResponse
@@ -119,8 +119,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                      fillingOutClaim.ggCredId,
                                      fillingOutClaim.signedInUserDetails,
                                      completeClaim,
-                                     submitClaimResponse,
-                                     journey
+                                     submitClaimResponse
                                    )
                                }
             _               <- EitherT(
@@ -136,14 +135,14 @@ class CheckYourAnswersAndSubmitController @Inject() (
             case SubmitClaimError(e) =>
               logger.warn(s"Could not submit return}", e)
               Redirect(
-                claimsRoutes.CheckYourAnswersAndSubmitController.submissionError(journey)
+                routes.CheckYourAnswersAndSubmitController.submissionError
               )
 
             case SubmitClaimSuccess(_) =>
               logger.info(
                 s"Successfully submitted claim with claim id :${completeClaim.id}"
               )
-              Redirect(claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey))
+              Redirect(routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission)
           }
         )
       }
@@ -168,17 +167,17 @@ class CheckYourAnswersAndSubmitController @Inject() (
         language
       )
       .bimap(
-        CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError,
-        CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimSuccess
+        SubmitClaimError(_),
+        SubmitClaimSuccess(_)
       )
       .merge
 
-  def submissionError(implicit journey: JourneyBindable): Action[AnyContent] =
+  val submissionError: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSubmitClaimFailed(_ => Ok(submitClaimFailedPage()))
     }
 
-  def confirmationOfSubmission(implicit journey: JourneyBindable): Action[AnyContent] =
+  val confirmationOfSubmission: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withJustSubmittedClaim(claim =>
         Ok(
@@ -189,19 +188,19 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   private def withJustSubmittedClaim(
     f: JustSubmittedClaim => Future[Result]
-  )(implicit request: RequestWithSessionData[_], journey: JourneyBindable): Future[Result] =
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(j: JustSubmittedClaim) if j.journey === journey => f(j)
-      case _                                                    => Redirect(baseRoutes.StartController.start())
+      case Some(j: JustSubmittedClaim) => f(j)
+      case _                           => Redirect(baseRoutes.StartController.start())
     }
 
   private def withSubmitClaimFailed(
     f: Either[SubmitClaimFailed, RetrievedUserType] => Future[Result]
-  )(implicit request: RequestWithSessionData[_], journey: JourneyBindable): Future[Result] =
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(s: SubmitClaimFailed)  => f(Left(s))
       case Some(_: JustSubmittedClaim) =>
-        Redirect(claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey))
+        Redirect(routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission)
       case _                           => Redirect(baseRoutes.StartController.start())
     }
 
@@ -216,16 +215,4 @@ class CheckYourAnswersAndSubmitController @Inject() (
           c285Claim => f(fillingOutClaim, c285Claim)
         )
     })
-}
-
-object CheckYourAnswersAndSubmitController {
-
-  val checkYourAnswersKey: String = "check-your-answers"
-
-  sealed trait SubmitClaimResult
-
-  object SubmitClaimResult {
-    final case class SubmitClaimError(error: Error) extends SubmitClaimResult
-    final case class SubmitClaimSuccess(response: SubmitClaimResponse) extends SubmitClaimResult
-  }
 }

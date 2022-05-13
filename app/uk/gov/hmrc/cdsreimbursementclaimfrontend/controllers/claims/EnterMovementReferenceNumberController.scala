@@ -110,7 +110,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 previousAnswer.exists(_.value === mrnNumber.value)
 
               if (isSameAsPrevious && fillingOutClaim.draftClaim.isComplete)
-                Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+                Redirect(OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
               else if (isSameAsPrevious && journey === JourneyBindable.Multiple)
                 Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
               else {

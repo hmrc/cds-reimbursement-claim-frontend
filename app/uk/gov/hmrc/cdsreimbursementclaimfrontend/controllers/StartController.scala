@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
@@ -67,9 +66,7 @@ class StartController @Inject() (
         request.authenticatedRequest.journeyUserType,
         request.sessionData.journeyStatus
       ) match {
-        case (_, Some(journeyStatus)) =>
-          handleSessionJourneyStatus(journeyStatus)
-        case (retrievedUserType, _)   =>
+        case (retrievedUserType, _) =>
           handleRetrievedUserType(retrievedUserType)
       }
     }
@@ -118,32 +115,6 @@ class StartController @Inject() (
 
   val timedOut: Action[AnyContent] =
     Action(implicit request => Ok(timedOutPage()))
-
-  private def handleSessionJourneyStatus(
-    journeyStatus: JourneyStatus
-  ): Future[Result] =
-    journeyStatus match {
-
-      case NonGovernmentGatewayJourney =>
-        Redirect(routes.StartController.weOnlySupportGG())
-
-      case claim: FillingOutClaim =>
-        Redirect(
-          controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(
-            JourneyExtractor.extractJourney(claim)
-          )
-        )
-
-      case claim: JustSubmittedClaim =>
-        Redirect(
-          controllers.claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(claim.journey)
-        )
-
-      case claim: SubmitClaimFailed =>
-        Redirect(
-          controllers.claims.routes.CheckYourAnswersAndSubmitController.submissionError(claim.journey)
-        )
-    }
 
   private def handleRetrievedUserType(
     retrievedUserType: RetrievedUserType
