@@ -59,10 +59,7 @@ abstract class CheckYourAnswersSummarySpec
       bind[ClaimService].toInstance(mockClaimService)
     )
 
-  protected val controller: CheckYourAnswersAndSubmitController =
-    instanceOf[CheckYourAnswersAndSubmitController]
-
-  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+  implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   protected def genData(maybeTypeOfClaim: TypeOfClaimAnswer): (SessionData, DraftClaim) = {

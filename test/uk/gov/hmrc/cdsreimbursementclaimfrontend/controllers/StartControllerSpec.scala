@@ -270,7 +270,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
       "there is a claim submission failure journey status" must {
 
-        "redirect the user to the submission error page" in {
+        "redirect the user to the start of the journey" in {
 
           val submitClaimFailed = sample[SubmitClaimFailed]
           val sessionData       = sample[SessionData].copy(journeyStatus = Some(submitClaimFailed))
@@ -278,13 +278,26 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
+            mockStoreSession(
+              sessionData.copy(
+                journeyStatus = Some(
+                  FillingOutClaim(
+                    GGCredId("gg-cred-id"),
+                    SignedInUserDetails(
+                      None,
+                      Eori("AB12345678901234Z"),
+                      Email(""),
+                      ContactName("John Smith")
+                    ),
+                    DraftClaim.blank
+                  )
+                )
+              )
+            )(Right(()))
           }
 
           val result = performAction()
-          checkIsRedirect(
-            result,
-            claims.routes.CheckYourAnswersAndSubmitController.submissionError(submitClaimFailed.journey)
-          )
+          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
 
         }
 
@@ -292,7 +305,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
       "there is just submitted claim journey status" must {
 
-        "redirect the user to the main CYA page" in {
+        "redirect the user to the start of the journey" in {
 
           val justSubmittedClaim = sample[JustSubmittedClaim]
           val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
@@ -300,31 +313,59 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
+            mockStoreSession(
+              sessionData.copy(
+                journeyStatus = Some(
+                  FillingOutClaim(
+                    GGCredId("gg-cred-id"),
+                    SignedInUserDetails(
+                      None,
+                      Eori("AB12345678901234Z"),
+                      Email(""),
+                      ContactName("John Smith")
+                    ),
+                    DraftClaim.blank
+                  )
+                )
+              )
+            )(Right(()))
           }
 
           val result = performAction()
-          checkIsRedirect(
-            result,
-            claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(justSubmittedClaim.journey)
-          )
+          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
         }
 
       }
 
       "there is filling out claim journey status" must {
 
-        "redirect the user to the main CYA page" in {
+        "redirect the user to the start of the journey" in {
           val fillingOutClaim = sample[FillingOutClaim]
           val sessionData     = sample[SessionData].copy(journeyStatus = Some(fillingOutClaim))
 
           inSequence {
-            mockAuthWithEoriEnrolmentRetrievals()
+            mockAuthWithOrgWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
+            mockStoreSession(
+              sessionData.copy(
+                journeyStatus = Some(
+                  FillingOutClaim(
+                    GGCredId("gg-cred-id"),
+                    SignedInUserDetails(
+                      None,
+                      Eori("AB12345678901234Z"),
+                      Email(""),
+                      ContactName("John Smith")
+                    ),
+                    DraftClaim.blank
+                  )
+                )
+              )
+            )(Right(()))
           }
 
-          val result  = performAction()
-          val journey = JourneyExtractor.extractJourney(fillingOutClaim)
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+          val result = performAction()
+          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
         }
       }
 
@@ -335,7 +376,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           val sessionData = sample[SessionData].copy(journeyStatus = Some(NonGovernmentGatewayJourney))
 
           inSequence {
-            mockAuthWithEoriEnrolmentRetrievals()
+            mockAuthWithNonGGUserRetrievals()
             mockGetSession(sessionData)
           }
 

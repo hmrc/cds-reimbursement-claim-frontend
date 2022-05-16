@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import org.jsoup.nodes
 import play.api.test.FakeRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
@@ -32,8 +30,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.Claima
 
 import scala.collection.JavaConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec
 
 class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with SummaryMatchers {
+
+  val controller = instanceOf[CheckYourAnswersAndSubmitController]
 
   "The C285 Multiple journey CYA page" should {
 
@@ -45,11 +46,11 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
           mockGetSession(session)
         }
 
-        val result = controller.checkAllAnswers(JourneyBindable.Multiple)(FakeRequest())
+        val result = controller.checkAllAnswers(FakeRequest())
 
         checkPageIsDisplayed(
           result,
-          messageFromMessageKey(s"$checkYourAnswersKey.title"),
+          messageFromMessageKey("check-your-answers.title"),
           (doc: nodes.Document) => {
 
             val headers       = doc.select("h2.govuk-heading-m").eachText().asScala

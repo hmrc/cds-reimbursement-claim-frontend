@@ -15,7 +15,6 @@
  *@
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
@@ -26,6 +25,7 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
+@import play.api.mvc.Call
 @import play.twirl.api.TwirlFeatureImports.defining
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
@@ -58,7 +58,7 @@
 
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">@Html(messages(s"$checkYourAnswersKey.reference-number.multiple.label"))</dt>
+                <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href=@routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple).url>@{
@@ -70,7 +70,7 @@
             @references.drop(1).zipWithIndex.map { mrnWithIndex =>
                 @defining(AssociatedMrnIndex.fromListIndex(mrnWithIndex._2)) { index =>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@Html(messages(s"$checkYourAnswersKey.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize))</dt>
+                        <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link" href=@routes.EnterAssociatedMrnController.changeMrn(index).url>@{

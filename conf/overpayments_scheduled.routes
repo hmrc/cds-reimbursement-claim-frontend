@@ -5,3 +5,9 @@ GET         /scheduled/supporting-evidence/choose-files                         
 +nocsrf
 POST        /scheduled/supporting-evidence/choose-files                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadFilesController.callback
 GET         /scheduled/supporting-evidence/summary                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadFilesController.summary
+
+GET         /scheduled/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.checkAllAnswers
+POST        /scheduled/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit
+
+GET         /scheduled/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.confirmationOfSubmission
+GET         /scheduled/check-if-claim-was-sent                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.submissionError

@@ -84,7 +84,7 @@ class ReimbursementMethodController @Inject() (
                 _ =>
                   Redirect((answer, isAmend(fillingOutClaim)) match {
                     case (_, true)                                             =>
-                      claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+                      OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
                     case (ReimbursementMethodAnswer.CurrentMonthAdjustment, _) =>
                       OverpaymentsRoutes.ChooseFileTypeController.show(JourneyBindable.Single)
                     case (ReimbursementMethodAnswer.BankAccountTransfer, _)    =>

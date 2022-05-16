@@ -225,7 +225,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           performAction(Seq(selectBasisForClaimKey -> idx.toString)),
-          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+          OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
         )
       }
 

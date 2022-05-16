@@ -378,7 +378,7 @@ class EnterMovementReferenceNumberControllerSpec
       status(result) shouldBe 303
       redirectLocation(
         result
-      ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable).url
+      ).value        shouldBe OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable).url
     }
 
     "start a new claim if a different MRN is submitted" in {

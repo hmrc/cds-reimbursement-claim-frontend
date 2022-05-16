@@ -260,7 +260,7 @@ class EnterAdditionalDetailsControllerSpec
               "enter-additional-details" -> claim.additionalDetailsAnswer.fold("")(_.value)
             )
           ),
-          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
+          OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
         )
       }
 

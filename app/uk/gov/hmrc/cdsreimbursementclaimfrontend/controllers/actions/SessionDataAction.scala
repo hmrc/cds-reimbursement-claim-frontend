@@ -45,9 +45,9 @@ final case class RequestWithSessionData[A](
   override def messagesApi: MessagesApi = authenticatedRequest.request.messagesApi
 
   val signedInUserDetails: Option[SignedInUserDetails] = sessionData.flatMap(_.journeyStatus).collect {
-    case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)          => signedInUserDetails
-    case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _, _) => signedInUserDetails
-    case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails, _)        => signedInUserDetails
+    case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => signedInUserDetails
+    case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => signedInUserDetails
+    case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => signedInUserDetails
   }
 
   def using(

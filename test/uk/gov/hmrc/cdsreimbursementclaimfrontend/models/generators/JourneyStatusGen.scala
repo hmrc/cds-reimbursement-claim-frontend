@@ -30,7 +30,6 @@ trait JourneyStatusLowerPriorityGen {
 
   import IdGen._
   import SignedInUserDetailsGen._
-  import JourneyBindableGen._
   import DraftClaimGen._
   import C285ClaimGen._
   import SubmissionResponseGen._

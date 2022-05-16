@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.jsoup.nodes
 import play.api.test.FakeRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
@@ -34,7 +32,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import scala.collection.JavaConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyTypeSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec
+
 class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with SummaryMatchers {
+
+  val controller = instanceOf[CheckYourAnswersAndSubmitController]
 
   "The C285 Single journey CYA page" should {
 
@@ -46,14 +48,14 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
           mockGetSession(session)
         }
 
-        val result = controller.checkAllAnswers(JourneyBindable.Single)(FakeRequest())
+        val result = controller.checkAllAnswers(FakeRequest())
 
         val bankDetailsExpected = claim.findNonEmptyBankAccountDetails.isDefined &&
           !claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)
 
         checkPageIsDisplayed(
           result,
-          messageFromMessageKey(s"$checkYourAnswersKey.title"),
+          messageFromMessageKey("check-your-answers.title"),
           (doc: nodes.Document) => {
 
             val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
@@ -121,9 +123,9 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
                   .expectedWhen(bankDetailsExpected),
                 ("Account number"                                  -> claim.bankAccountDetailsAnswer.map(_.accountNumber.masked))
                   .expectedWhen(bankDetailsExpected),
-                ("Method"                                          -> messages(s"$checkYourAnswersKey.reimbursement-method.cma"))
+                ("Method"                                          -> messages("check-your-answers.reimbursement-method.cma"))
                   .expectedWhen(claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)),
-                ("Method"                                          -> messages(s"$checkYourAnswersKey.reimbursement-method.bt"))
+                ("Method"                                          -> messages("check-your-answers.reimbursement-method.bt"))
                   .expectedWhen(claim.reimbursementMethodAnswer.contains(BankAccountTransfer)),
                 ("Contact details"                                 -> claim
                   .getClaimantInformation(user.eori)

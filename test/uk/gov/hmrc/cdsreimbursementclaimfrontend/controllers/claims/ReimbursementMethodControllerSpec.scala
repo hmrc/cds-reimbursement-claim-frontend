@@ -191,7 +191,7 @@ class ReimbursementMethodControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ReimbursementMethodController.reimbursementMethodKey -> "0")),
-          claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+          OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
         )
       }
 
@@ -207,7 +207,7 @@ class ReimbursementMethodControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ReimbursementMethodController.reimbursementMethodKey -> "1")),
-          claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+          OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
         )
       }
     }
