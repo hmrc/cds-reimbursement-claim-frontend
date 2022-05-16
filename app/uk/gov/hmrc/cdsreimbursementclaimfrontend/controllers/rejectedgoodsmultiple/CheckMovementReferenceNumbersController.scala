@@ -46,15 +46,18 @@ class CheckMovementReferenceNumbersController @Inject() (
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getMovementReferenceNumbers
       .map { mrns =>
-        Ok(
-          checkMovementReferenceNumbers(
-            mrns,
-            checkMovementReferenceNumbersForm,
-            postAction,
-            routes.EnterMovementReferenceNumberController.show,
-            routes.CheckMovementReferenceNumbersController.delete
+        if (journey.hasCompleteMovementReferenceNumbers)
+          Ok(
+            checkMovementReferenceNumbers(
+              mrns,
+              checkMovementReferenceNumbersForm,
+              postAction,
+              routes.EnterMovementReferenceNumberController.show,
+              routes.CheckMovementReferenceNumbersController.delete
+            )
           )
-        )
+        else
+          Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
       }
       .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
       .asFuture
@@ -81,7 +84,8 @@ class CheckMovementReferenceNumbersController @Inject() (
                 answer match {
                   case Yes =>
                     routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
-                  case No  => routes.CheckClaimantDetailsController.show()
+                  case No  =>
+                    routes.CheckClaimantDetailsController.show()
                 }
               )
           )
