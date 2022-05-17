@@ -1,3 +1,10 @@
+GET         /multiple/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterMovementReferenceNumberController.enterJourneyMrn
+POST        /multiple/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterMovementReferenceNumberController.enterMrnSubmit
+
+GET         /multiple/check-movement-reference-numbers                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.showMrns
+POST        /multiple/check-movement-reference-numbers                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.submitMrns
+GET         /multiple/delete-movement-reference-number/:index                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.deleteMrn(index: AssociatedMrnIndex)
+
 GET         /multiple/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.show
 POST        /multiple/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.submit
 

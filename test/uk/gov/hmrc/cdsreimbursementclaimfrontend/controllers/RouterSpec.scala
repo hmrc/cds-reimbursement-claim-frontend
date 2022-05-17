@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 
 class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyChecks {
 
@@ -82,7 +83,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
         whetherDeclarationDetailsCorrect = No,
         hasAssociatedMrns = false
       ) should be(
-        claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable)
+        OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable)
       )
     }
   }

@@ -277,7 +277,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "0")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
         )
       }
 
@@ -295,7 +295,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "1")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
         )
       }
 
@@ -313,7 +313,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
 
@@ -331,7 +331,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
     }

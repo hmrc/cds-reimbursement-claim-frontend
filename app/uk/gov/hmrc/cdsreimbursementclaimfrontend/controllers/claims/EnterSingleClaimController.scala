@@ -152,7 +152,7 @@ class EnterSingleClaimController @Inject() (
                 Redirect(routes.EnterSingleClaimController.startClaim())
             }
           case None      =>
-            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
+            Redirect(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
         }
       }
     }
@@ -186,7 +186,7 @@ class EnterSingleClaimController @Inject() (
               )
 
           case None =>
-            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
+            Redirect(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
         }
       }
     }
