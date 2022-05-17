@@ -85,7 +85,8 @@ class CheckMovementReferenceNumbersController @Inject() (
                   case Yes =>
                     routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
                   case No  =>
-                    routes.CheckClaimantDetailsController.show()
+                    if (shouldForwardToCYA(journey)) checkYourAnswers
+                    else routes.CheckClaimantDetailsController.show()
                 }
               )
           )
