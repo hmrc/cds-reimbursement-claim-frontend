@@ -125,6 +125,26 @@ class CheckMovementReferenceNumbersControllerSpec
         )
       }
 
+      "redirect to enter second mrn page if only one MRN in the journey" in forAll { (firstMrn: DisplayDeclaration) =>
+        val session =
+          SessionData(
+            RejectedGoodsMultipleJourney
+              .empty(exampleEori)
+              .submitMovementReferenceNumberAndDeclaration(firstMrn.getMRN, firstMrn)
+              .getOrFail
+          )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterMovementReferenceNumberController.show(2)
+        )
+      }
+
       "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
           val journey = (for {
