@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
+import cats.data.EitherT
+import cats.implicits.catsStdInstancesForFuture
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -31,25 +33,31 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.checkEoriDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SelectTypeOfClaimControllerSpec
@@ -59,16 +67,18 @@ class SelectTypeOfClaimControllerSpec
     with BeforeAndAfterEach
     with ScalaCheckDrivenPropertyChecks {
 
+  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
     )
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
   lazy val errorHandler: ErrorHandler              = instanceOf[ErrorHandler]
   lazy val controller: SelectTypeOfClaimController = instanceOf[SelectTypeOfClaimController]
@@ -115,8 +125,30 @@ class SelectTypeOfClaimControllerSpec
       .map(_.getKey)
       .contains("checked")
 
+  private def sessionWithClaimState(): (SessionData, FillingOutClaim, DraftClaim) = {
+    val draftC285Claim      = DraftClaim.blank
+    val ggCredId            = sample[GGCredId]
+    val email               = sample[Email]
+    val eori                = sample[Eori]
+    val signedInUserDetails =
+      SignedInUserDetails(Some(email), eori, Email("amina@email.com"), ContactName("Fred Bread"))
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(journeyStatus = Some(journey)),
+      journey,
+      draftC285Claim
+    )
+  }
+
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
+
+  def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
+    (mockCustomsDataStoreService
+      .getEmailByEori(_: Eori)(_: HeaderCarrier))
+      .expects(*, *)
+      .returning(EitherT.fromEither[Future](response))
+      .once()
 
   "SelectTypeOfClaimController" must {
     "redirect to the start of the journey" when {
@@ -223,67 +255,85 @@ class SelectTypeOfClaimControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
+      val verifiedEmail = "jex.belaran@xmail.com"
+
+      def sessionWithVerifiedUser(session: SessionData) =
+        session.copy(journeyStatus = session.journeyStatus.map { foc: JourneyStatus =>
+          val journeyStatus = foc.asInstanceOf[JourneyStatus.FillingOutClaim]
+          val siud          = journeyStatus.signedInUserDetails.copy(verifiedEmail = Email(verifiedEmail))
+          journeyStatus.copy(signedInUserDetails = siud)
+        })
+
+
       "user chooses the Individual option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, TypeOfClaimAnswer.Individual)
+        val updatedSession =
+          updateSession(sessionWithVerifiedUser(sessionWithVerifiedUser(session)), TypeOfClaimAnswer.Individual)
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "0")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
+          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
         )
       }
 
       "user chooses the Multiple option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, TypeOfClaimAnswer.Multiple)
+        val updatedSession =
+          updateSession(sessionWithVerifiedUser(sessionWithVerifiedUser(session)), TypeOfClaimAnswer.Multiple)
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "1")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
+          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
         )
       }
 
       "user chooses the Scheduled option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, TypeOfClaimAnswer.Scheduled)
+        val updatedSession =
+          updateSession(sessionWithVerifiedUser(sessionWithVerifiedUser(session)), TypeOfClaimAnswer.Scheduled)
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
 
       "the user amends their previous answer" in {
         val session        = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Individual))
-        val updatedSession = updateSession(session, TypeOfClaimAnswer.Scheduled)
+        val updatedSession =
+          updateSession(sessionWithVerifiedUser(sessionWithVerifiedUser(session)), TypeOfClaimAnswer.Scheduled)
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
     }

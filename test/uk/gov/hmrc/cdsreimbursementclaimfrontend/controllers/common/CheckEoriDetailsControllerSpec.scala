@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import cats.data.EitherT
 import org.jsoup.nodes.Document
@@ -30,13 +30,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.checkEoriDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.checkEoriDetailsKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
@@ -146,46 +145,6 @@ class CheckEoriDetailsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "Show error page when retrieve EORI by email request fails" in {
-        val (session, _, _) = sessionWithClaimState()
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetEmail(Left(Error(new Exception("Boom"))))
-        }
-
-        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
-      }
-
-      "Redirect to Customs Email Frontend when no email associated for the given EORI" in {
-        val (session, _, _) = sessionWithClaimState()
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetEmail(Right(None))
-        }
-
-        checkIsRedirect(
-          performAction(Seq(checkEoriDetailsKey -> "true")),
-          "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim"
-        )
-      }
-
-      "Show error page when session storage fails" in {
-        val (session, _, _) = sessionWithClaimState()
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail("someone@gmail.com", ""))))
-          mockStoreSession(Left(Error(new Exception("Wham"))))
-        }
-
-        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
-      }
-
       "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.RejectedGoods is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
         val (session, fillingOutClaim, _) = sessionWithClaimState()
@@ -193,8 +152,6 @@ class CheckEoriDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
-          mockStoreSession(Right(()))
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "true"))
@@ -208,8 +165,6 @@ class CheckEoriDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
-          mockStoreSession(Right(()))
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "true"))
