@@ -106,7 +106,7 @@ class EnterMovementReferenceNumberController @Inject() (
               if (isSameAsPrevious && fillingOutClaim.draftClaim.isComplete)
                 Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers)
               else if (isSameAsPrevious)
-                ??? //Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
+                Redirect(routes.CheckMovementReferenceNumbersController.showMrns)
               else {
                 val result: EitherT[Future, Error, MrnJourney] =
                   for {

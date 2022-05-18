@@ -253,25 +253,25 @@ class EnterMovementReferenceNumberControllerSpec
           )
       }
 
-      // "Redirect back to Check Movement Numbers page when First MRN unchanged" in
-      //   forAll { mrn: MRN =>
-      //     val mrnAnswer    = mrn.some
-      //     val (session, _) =
-      //       sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some( TypeOfClaimAnswer.Multiple(JourneyBindable.Multiple)))
+      "Redirect back to Check Movement Numbers page when First MRN unchanged" in
+        forAll { mrn: MRN =>
+          val mrnAnswer    = mrn.some
+          val (session, _) =
+            sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some(TypeOfClaimAnswer.Multiple))
 
-      //     inSequence {
-      //       mockAuthWithNoRetrievals()
-      //       mockGetSession(session)
-      //     }
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
 
-      //     val result = performAction(enterMovementReferenceNumberKey -> mrn.value)
+          val result = performAction(enterMovementReferenceNumberKey -> mrn.value)
 
-      //     status(result) shouldBe 303
-      //     checkIsRedirect(
-      //       result,
-      //       claimsRoutes.CheckMovementReferenceNumbersController.showMrns()
-      //     )
-      //   }
+          status(result) shouldBe 303
+          checkIsRedirect(
+            result,
+            routes.CheckMovementReferenceNumbersController.showMrns
+          )
+        }
 
       "start a new claim with an MRN, Eori is not the importer's Eori" in forAll {
         (
