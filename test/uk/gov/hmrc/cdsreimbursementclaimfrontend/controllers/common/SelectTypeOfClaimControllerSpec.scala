@@ -257,13 +257,11 @@ class SelectTypeOfClaimControllerSpec
 
       val verifiedEmail = "jex.belaran@xmail.com"
 
-      def sessionWithVerifiedUser(session: SessionData) =
-        session.copy(journeyStatus = session.journeyStatus.map { foc: JourneyStatus =>
-          val journeyStatus = foc.asInstanceOf[JourneyStatus.FillingOutClaim]
-          val siud          = journeyStatus.signedInUserDetails.copy(verifiedEmail = Email(verifiedEmail))
-          journeyStatus.copy(signedInUserDetails = siud)
+      def sessionWithVerifiedUser(session: SessionData): SessionData =
+        session.copy(journeyStatus = session.journeyStatus.map { case foc: FillingOutClaim =>
+          val siud = foc.signedInUserDetails.copy(verifiedEmail = Email(verifiedEmail))
+          foc.copy(signedInUserDetails = siud)
         })
-
 
       "user chooses the Individual option" in {
         val session        = getSessionWithPreviousAnswer(None)
