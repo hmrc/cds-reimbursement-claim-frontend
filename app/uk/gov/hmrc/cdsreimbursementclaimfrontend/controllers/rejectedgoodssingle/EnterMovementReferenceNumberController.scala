@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -39,6 +38,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
@@ -57,7 +57,7 @@ class EnterMovementReferenceNumberController @Inject() (
     Future.successful {
       Ok(
         enterMovementReferenceNumberPage(
-          movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
+          Forms.movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
           subKey,
           routes.EnterMovementReferenceNumberController.submit()
         )
@@ -66,7 +66,7 @@ class EnterMovementReferenceNumberController @Inject() (
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    movementReferenceNumberForm
+    Forms.movementReferenceNumberForm
       .bindFromRequest()
       .fold(
         formWithErrors =>

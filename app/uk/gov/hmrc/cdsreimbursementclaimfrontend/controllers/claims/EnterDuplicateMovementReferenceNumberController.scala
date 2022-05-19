@@ -22,27 +22,27 @@ import cats.data.EitherT.fromOption
 import cats.syntax.all._
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
+import play.api.data.FormError
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
 import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
-import play.api.data.Form
-import play.api.data.FormError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.evaluateMrnJourneyFlow
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -70,7 +70,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates
-    with Logging {
+    with Logging
+    with EnterMovementReferenceNumberMixin {
 
   implicit val dataExtractor: DraftClaim => Option[MRN] =
     _.duplicateMovementReferenceNumberAnswer
@@ -156,7 +157,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
 
-  def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftClaim): SessionDataTransform = {
+  override def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftClaim): SessionDataTransform = {
     val updatedJourney               = fillingOutClaim.copy(draftClaim = newDraftClaim)
     val update: SessionDataTransform = _.copy(journeyStatus = Some(updatedJourney))
     update

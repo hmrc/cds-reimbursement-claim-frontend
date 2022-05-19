@@ -33,15 +33,13 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.checkEoriDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
@@ -124,21 +122,6 @@ class SelectTypeOfClaimControllerSpec
       .asScala
       .map(_.getKey)
       .contains("checked")
-
-  private def sessionWithClaimState(): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftC285Claim      = DraftClaim.blank
-    val ggCredId            = sample[GGCredId]
-    val email               = sample[Email]
-    val eori                = sample[Eori]
-    val signedInUserDetails =
-      SignedInUserDetails(Some(email), eori, Email("amina@email.com"), ContactName("Fred Bread"))
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
-      journey,
-      draftC285Claim
-    )
-  }
 
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
@@ -258,9 +241,11 @@ class SelectTypeOfClaimControllerSpec
       val verifiedEmail = "jex.belaran@xmail.com"
 
       def sessionWithVerifiedUser(session: SessionData): SessionData =
-        session.copy(journeyStatus = session.journeyStatus.map { case foc: FillingOutClaim =>
-          val siud = foc.signedInUserDetails.copy(verifiedEmail = Email(verifiedEmail))
-          foc.copy(signedInUserDetails = siud)
+        session.copy(journeyStatus = session.journeyStatus.map {
+          case foc: FillingOutClaim =>
+            val siud = foc.signedInUserDetails.copy(verifiedEmail = Email(verifiedEmail))
+            foc.copy(signedInUserDetails = siud)
+          case other                => other
         })
 
       "user chooses the Individual option" in {
@@ -277,7 +262,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "0")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
         )
       }
 
@@ -295,7 +280,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "1")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
         )
       }
 
@@ -313,7 +298,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
 
@@ -331,7 +316,7 @@ class SelectTypeOfClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
-          claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
     }

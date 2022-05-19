@@ -67,4 +67,20 @@ object OverpaymentsRoutes {
     }
   }
 
+  object EnterMovementReferenceNumberController {
+    def enterJourneyMrn(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterMovementReferenceNumberController.enterJourneyMrn
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.enterJourneyMrn
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.enterJourneyMrn
+    }
+
+    def enterMrnSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterMovementReferenceNumberController.enterMrnSubmit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.enterMrnSubmit
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.enterMrnSubmit
+    }
+  }
+
 }

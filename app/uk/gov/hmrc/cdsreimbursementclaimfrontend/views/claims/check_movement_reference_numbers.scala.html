@@ -16,8 +16,8 @@
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -25,7 +25,6 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
-@import play.api.mvc.Call
 @import play.twirl.api.TwirlFeatureImports.defining
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
@@ -48,7 +47,7 @@
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
-    @formWithCSRF(routes.CheckMovementReferenceNumbersController.submitMrns(), 'novalidate -> "novalidate") {
+    @formWithCSRF(overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.submitMrns, 'novalidate -> "novalidate") {
 
         @errorSummary(form.errors)
 
@@ -61,7 +60,7 @@
                 <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href=@routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple).url>@{
+                    <a class="govuk-link" href=@overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.enterJourneyMrn.url>@{
                         messages(s"cya.change")
                     }</a>
                 </dd>
@@ -79,7 +78,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                         @if(references.size > 2) {
-                            <a class="govuk-link" href=@routes.CheckMovementReferenceNumbersController.deleteMrn(index).url>@{
+                            <a class="govuk-link" href=@overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.deleteMrn(index).url>@{
                                 messages(s"cya.remove")
                             }</a>
                         }

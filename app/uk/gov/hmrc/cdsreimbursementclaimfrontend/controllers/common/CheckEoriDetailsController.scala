@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import com.google.inject.Inject
-import play.api.Configuration
 import play.api.Environment
 import play.api.data.Form
 import play.api.i18n.Messages
@@ -28,14 +27,14 @@ import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -50,7 +49,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
@@ -65,7 +63,7 @@ class CheckEoriDetailsController @Inject() (
   val servicesConfig: ServicesConfig,
   val env: Environment,
   checkEoriDetailsPage: check_eori_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, config: Configuration)
+)(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates

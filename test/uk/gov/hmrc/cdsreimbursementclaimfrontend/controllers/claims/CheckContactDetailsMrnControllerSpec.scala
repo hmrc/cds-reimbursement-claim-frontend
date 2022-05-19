@@ -264,7 +264,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           showPageAction(journey),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
       }
     }

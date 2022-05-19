@@ -54,6 +54,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 object Forms {
 
@@ -318,5 +319,18 @@ object Forms {
             key => UploadDocumentType.parse(key).exists(v => documentTypeList.contains(v))
           )
       )(UploadDocumentType.tryParse)(dt => Some(UploadDocumentType.keyOf(dt)))
+    )
+
+  val movementReferenceNumberForm: Form[MRN] =
+    Form(
+      mapping(
+        "enter-movement-reference-number" ->
+          nonEmptyText
+            .verifying(
+              "invalid.number",
+              str => str.isEmpty || MRN(str).isValid
+            )
+            .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
     )
 }

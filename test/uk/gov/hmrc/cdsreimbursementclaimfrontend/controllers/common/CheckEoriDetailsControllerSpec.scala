@@ -103,8 +103,6 @@ class CheckEoriDetailsControllerSpec
 
   "Check Eori Details Controller" must {
 
-    val verifiedEmail = "jex.belaran@xmail.com"
-
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
         def performAction(): Future[Result] = controller.show()(FakeRequest())

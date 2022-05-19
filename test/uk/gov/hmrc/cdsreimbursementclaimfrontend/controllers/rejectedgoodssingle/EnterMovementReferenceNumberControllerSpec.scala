@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyWithMatchingUserEoriAndCMAEligibleGen
@@ -68,6 +67,8 @@ class EnterMovementReferenceNumberControllerSpec
     with ScalaCheckPropertyChecks {
 
   val mockClaimService: ClaimService = mock[ClaimService]
+
+  val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](

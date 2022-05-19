@@ -396,7 +396,7 @@ class EnterMultipleClaimsControllerSpec
 
         checkIsRedirect(
           performActionCheckClaimSummary(),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
         )
       }
 
