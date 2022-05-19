@@ -14,34 +14,26 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.data.EitherT.fromEither
 import cats.data.EitherT.fromOption
-import cats.syntax.all._
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.FormError
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
-import play.api.data.validation.Constraint
-import play.api.data.validation.Invalid
-import play.api.data.validation.Valid
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -57,6 +49,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import play.api.data.FormError
 
 @Singleton
 class EnterDuplicateMovementReferenceNumberController @Inject() (
@@ -73,28 +66,39 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     with Logging
     with EnterMovementReferenceNumberMixin {
 
+  implicit val journeyBindable: JourneyBindable = JourneyBindable.Single
+
   implicit val dataExtractor: DraftClaim => Option[MRN] =
     _.duplicateMovementReferenceNumberAnswer
 
-  def enterDuplicateMrn(implicit journey: JourneyBindable): Action[AnyContent] =
+  val duplicateMovementReferenceNumberKey: String = "enter-duplicate-movement-reference-number"
+
+  def processFormErrors(refKey: Option[String], errors: Seq[FormError]): FormError = {
+    val mainKey = duplicateMovementReferenceNumberKey + refKey.map(a => s".$a").getOrElse("")
+    errors.headOption
+      .map(fe => FormError(mainKey, fe.messages))
+      .getOrElse(FormError(mainKey, List("invalid")))
+  }
+
+  val enterDuplicateMrn: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MRN] { (_, previousAnswer, router) =>
-        val form = previousAnswer.fold(enterDuplicateMrnWithNoCheck)(enterDuplicateMrnWithNoCheck.fill)
+        val form = previousAnswer.fold(Forms.enterDuplicateMrnWithNoCheck)(Forms.enterDuplicateMrnWithNoCheck.fill)
         Ok(
           enterDuplicateMovementReferenceNumberPage(
             form,
             router.refNumberKey,
-            routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(router.journeyBindable)
+            routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
           )
         )
       }
     }
 
-  def enterDuplicateMrnSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val enterDuplicateMrnSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MRN] { (fillingOutClaim, _, router) =>
         fillingOutClaim.draftClaim.movementReferenceNumber
-          .fold(enterDuplicateMrnWithNoCheck)(enterDuplicateMrnCheckingAgainst)
+          .fold(Forms.enterDuplicateMrnWithNoCheck)(Forms.enterDuplicateMrnCheckingAgainst)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -103,7 +107,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                   requestFormWithErrors
                     .copy(errors = Seq(processFormErrors(router.refNumberKey, requestFormWithErrors.errors))),
                   router.refNumberKey,
-                  routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(router.journeyBindable)
+                  routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
                 )
               ),
             mrn => {
@@ -163,40 +167,4 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     update
   }
 
-}
-
-object EnterDuplicateMovementReferenceNumberController {
-
-  val duplicateMovementReferenceNumberKey: String = "enter-duplicate-movement-reference-number"
-  val invalidNumberError: String                  = "invalid.number"
-
-  val enterDuplicateMrnWithNoCheck: Form[MRN] =
-    Form(
-      mapping(
-        duplicateMovementReferenceNumberKey -> nonEmptyText
-          .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
-    )
-
-  def enterDuplicateMrnCheckingAgainst(mainMrn: MRN): Form[MRN] =
-    Form(
-      mapping(
-        duplicateMovementReferenceNumberKey ->
-          nonEmptyText
-            .verifying(Constraint[String] { str: String =>
-              if (str.isEmpty) Invalid("error.required")
-              else if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
-              else if (MRN(str).isValid) Valid
-              else Invalid(invalidNumberError)
-            })
-            .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
-    )
-
-  def processFormErrors(refKey: Option[String], errors: Seq[FormError]): FormError = {
-    val mainKey = duplicateMovementReferenceNumberKey + refKey.map(a => s".$a").getOrElse("")
-    errors.headOption
-      .map(fe => FormError(mainKey, fe.messages))
-      .getOrElse(FormError(mainKey, List("invalid")))
-  }
 }

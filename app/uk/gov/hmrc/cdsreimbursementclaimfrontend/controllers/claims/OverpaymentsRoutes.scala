@@ -83,4 +83,23 @@ object OverpaymentsRoutes {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  object EnterDuplicateMovementReferenceNumberController {
+    def enterDuplicateMrnSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
+      case JourneyBindable.Multiple  =>
+        throw new Exception("Route enterDuplicateMrnSubmit not defined for multiple journey")
+      case JourneyBindable.Scheduled =>
+        throw new Exception("Route enterDuplicateMrnSubmit not defined for scheduled journey")
+    }
+
+    def enterDuplicateMrn(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn
+      case JourneyBindable.Multiple  => throw new Exception("Route enterDuplicateMrn not defined for multiple journey")
+      case JourneyBindable.Scheduled => throw new Exception("Route enterDuplicateMrn not defined for scheduled journey")
+    }
+  }
+
 }
