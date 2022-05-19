@@ -24,7 +24,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 @this(
@@ -46,7 +45,7 @@
     @pageHeading(Html(title))
 
     @pageHeading(Html(messages(combine(s"$key.reference-number.multiple", subKey, "h2"))), "govuk-heading-m govuk-!-margin-top-7", "h2")
-    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"$key.reference-number.rejectedgoodsmultiple", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
+    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"$key.reference-number.rejectedgoodsmultiple", subKey, Some(routes.CheckMovementReferenceNumbersController.show())))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @pageHeading(Html(messages(s"$key.declaration-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
