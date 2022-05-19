@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc._
-import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
@@ -63,23 +62,22 @@ class SelectDutyTypesController @Inject() (
   implicit val dataExtractor: DraftClaim => Option[SelectedDutyTaxCodesReimbursementAnswer] =
     _.selectedDutyTaxCodesReimbursementAnswer
 
-  def showDutyTypes(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
-    implicit request =>
-      withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
-        val postAction: Call = claimsRoutes.SelectDutyTypesController.submitDutyTypes(journey)
-        Ok(
-          selectDutyTypesPage(
-            answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill),
-            postAction
-          )
+  def showDutyTypes: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
+      val postAction: Call = overpaymentsMultipleRoutes.SelectDutyTypesController.submitDutyTypes
+      Ok(
+        selectDutyTypesPage(
+          answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill),
+          postAction
         )
-      }
+      )
+    }
   }
 
-  def submitDutyTypes(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submitDutyTypes: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
-        val postAction: Call = claimsRoutes.SelectDutyTypesController.submitDutyTypes(journey)
+        val postAction: Call = overpaymentsMultipleRoutes.SelectDutyTypesController.submitDutyTypes
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
