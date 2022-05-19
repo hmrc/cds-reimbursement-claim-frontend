@@ -24,14 +24,14 @@ import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Request
 import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
@@ -48,15 +48,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_eori_details
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
 class CheckEoriDetailsController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
+  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
+  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   val featureSwitch: FeatureSwitchService,
@@ -67,7 +66,7 @@ class CheckEoriDetailsController @Inject() (
   checkEoriDetailsPage: check_eori_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, config: Configuration)
     extends FrontendController(cc)
-    with WithAuthAndSessionDataAction
+    with WithAuthRetrievalsAndSessionDataAction
     with SessionUpdates
     with Logging {
 
@@ -75,7 +74,7 @@ class CheckEoriDetailsController @Inject() (
     signedInUserDetails: SignedInUserDetails,
     form: Form[YesNo]
   )(implicit
-    request: RequestWithSessionData[_],
+    request: Request[_],
     messages: Messages
   ): Appendable = checkEoriDetailsPage(
     signedInUserDetails,
@@ -83,12 +82,12 @@ class CheckEoriDetailsController @Inject() (
     routes.CheckEoriDetailsController.submit()
   )
 
-  def show(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+  def show(): Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
     request.signedInUserDetails
       .fold(Redirect(baseRoutes.StartController.start()))(user => Ok(getPage(user, whetherEoriDetailsCorrect)))
   }
 
-  def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  def submit(): Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
     request.signedInUserDetails
       .map { user =>
         whetherEoriDetailsCorrect

@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.NonGovernmentGatewayRetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -170,12 +169,7 @@ class StartController @Inject() (
                  journeyStatus = Some(
                    FillingOutClaim(
                      ggCredId,
-                     SignedInUserDetails(
-                       email,
-                       eori,
-                       Email(""),
-                       ContactName(name.flatMap(_.name).getOrElse("No name"))
-                     ),
+                     request.signedInUserDetailsFromRequest(eori),
                      DraftClaim.blank
                    )
                  )
