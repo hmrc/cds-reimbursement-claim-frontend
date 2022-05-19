@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import cats.data.EitherT
-import cats.implicits._
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
@@ -33,20 +31,19 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.arbitraryBankAccountReputation
@@ -55,10 +52,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddres
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.genBankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.BadRequestException
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -67,30 +63,8 @@ class EnterBankAccountDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
-
-  val mockClaimService = mock[ClaimService]
-
-  def mockBusinessReputation(
-    bankAccountDetails: BankAccountDetails,
-    response: Either[Error, BankAccountReputation]
-  ) =
-    (mockClaimService
-      .getBusinessAccountReputation(_: BankAccountDetails)(_: HeaderCarrier))
-      .expects(bankAccountDetails, *)
-      .returning(EitherT.fromEither[Future](response))
-      .once()
-
-  def mockPersonalReputation(
-    bankAccountDetails: BankAccountDetails,
-    postCode: Option[String],
-    response: Either[Error, BankAccountReputation]
-  ) =
-    (mockClaimService
-      .getPersonalAccountReputation(_: BankAccountDetails, _: Option[String])(_: HeaderCarrier))
-      .expects(bankAccountDetails, postCode, *)
-      .returning(EitherT.fromEither[Future](response))
-      .once()
+    with BeforeAndAfterEach
+    with MockBankAccountReputationService {
 
   private def getInputBoxValue(doc: Document, inputBoxSubKey: String): Option[String] =
     selectedInputBox(doc, s"enter-bank-details.$inputBoxSubKey")
@@ -99,7 +73,7 @@ class EnterBankAccountDetailsControllerSpec
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[ClaimService].toInstance(mockClaimService)
+      bind[BankAccountReputationService].toInstance(mockBankAccountReputationService)
     )
 
   val controller: EnterBankAccountDetailsController = instanceOf[EnterBankAccountDetailsController]
@@ -198,7 +172,7 @@ class EnterBankAccountDetailsControllerSpec
             )
 
           inSequence(
-            mockPersonalReputation(bankDetails, postCode, Right(personalResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankDetails, postCode, Right(personalResponse))
           )
 
           checkIsRedirect(
@@ -217,7 +191,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -240,7 +214,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -263,7 +237,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -285,7 +259,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -313,7 +287,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -342,7 +316,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -370,7 +344,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -398,7 +372,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockPersonalReputation(bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -422,7 +396,7 @@ class EnterBankAccountDetailsControllerSpec
           genBankAccountDetails,
           Gen.option(genPostcode)
         ) { (bankDetails, postCode) =>
-          val personalResponse =
+          val expectedResponse =
             bankaccountreputation.BankAccountReputation(
               accountNumberWithSortCodeIsValid = Yes,
               accountExists = Some(Yes),
@@ -430,7 +404,7 @@ class EnterBankAccountDetailsControllerSpec
             )
 
           inSequence(
-            mockBusinessReputation(bankDetails, Right(personalResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -449,7 +423,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -472,7 +446,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -495,7 +469,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -523,7 +497,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -551,7 +525,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -580,7 +554,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -608,7 +582,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -636,7 +610,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBusinessReputation(bankAccountDetails, Right(expectedResponse))
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkPageIsDisplayed(
@@ -670,7 +644,7 @@ class EnterBankAccountDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockPersonalReputation(bankDetails, None, Right(expectedSuccessfulResponse))
+          mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -714,7 +688,12 @@ class EnterBankAccountDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockPersonalReputation(bankDetails, None, Left(Error(new BadRequestException("Boom!"))))
+          mockBankAccountReputation(
+            BankAccountType.Personal,
+            bankDetails,
+            None,
+            Left(ServiceUnavailableError(new BadRequestException("Boom!").message))
+          )
         }
 
         checkIsRedirect(
