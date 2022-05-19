@@ -28,7 +28,12 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.Enrolment
+import uk.gov.hmrc.auth.core.EnrolmentIdentifier
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.checkEoriDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
@@ -36,6 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
@@ -49,7 +56,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -101,15 +107,31 @@ class CheckEoriDetailsControllerSpec
       .returning(EitherT.fromEither[Future](response))
       .once()
 
+  def mockAuthRequiredRetrievals(eori: Eori, name: contactdetails.Name) =
+    mockAuthWithAllRetrievals(
+      Some(AffinityGroup.Individual),
+      Some("email"),
+      Set(Enrolment("HMRC-CUS-ORG", Seq(EnrolmentIdentifier("EORINumber", eori.value)), "Activated", None)),
+      Some(Credentials("credId", "GovernmentGateway")),
+      Some(Name(name.name, name.lastName))
+    )
+
+  def mockC285AuthRequiredRetrievals(eori: Eori, contactName: ContactName) =
+    mockAuthRequiredRetrievals(eori, contactdetails.Name(Some(contactName.value), None))
+
   "Check Eori Details Controller" must {
 
     "redirect to the start of the journey" when {
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
+
       "there is no journey status in the session" in {
-        def performAction(): Future[Result] = controller.show()(FakeRequest())
-        val (session, _, _)                 = sessionWithClaimState()
+        val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockC285AuthRequiredRetrievals(
+            fillingOutClaim.signedInUserDetails.eori,
+            fillingOutClaim.signedInUserDetails.contactName
+          )
           mockGetSession(session.copy(journeyStatus = None))
         }
 
@@ -121,23 +143,44 @@ class CheckEoriDetailsControllerSpec
     }
 
     "Render the page" when {
-      "The user is logged in" in {
-        def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
 
+      "The user is logged into a C285 journey" in forAll { (eori: Eori, name: contactdetails.Name) =>
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthRequiredRetrievals(eori, name)
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("check-eori-details.title")
+          messageFromMessageKey("check-eori-details.title"),
+          doc => {
+            doc.select("form dl div dd").get(0).text() shouldBe fillingOutClaim.signedInUserDetails.eori.value
+            doc.select("form dl div dd").get(1).text() shouldBe fillingOutClaim.signedInUserDetails.contactName.value
+          }
+        )
+      }
+
+      "The user is logged in with a C&E1179 journey" in forAll { (eori: Eori, name: contactdetails.Name) =>
+        val session = SessionData(RejectedGoodsSingleJourney.empty(eori))
+
+        inSequence {
+          mockAuthRequiredRetrievals(eori, name)
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("check-eori-details.title"),
+          doc => {
+            doc.select("form dl div dd").get(0).text() shouldBe eori.value
+            doc.select("form dl div dd").get(1).text() shouldBe name.name.get
+          }
         )
       }
     }
-
     "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
@@ -148,7 +191,10 @@ class CheckEoriDetailsControllerSpec
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockC285AuthRequiredRetrievals(
+            fillingOutClaim.signedInUserDetails.eori,
+            fillingOutClaim.signedInUserDetails.contactName
+          )
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
@@ -161,7 +207,10 @@ class CheckEoriDetailsControllerSpec
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockC285AuthRequiredRetrievals(
+            fillingOutClaim.signedInUserDetails.eori,
+            fillingOutClaim.signedInUserDetails.contactName
+          )
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
@@ -173,7 +222,10 @@ class CheckEoriDetailsControllerSpec
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockC285AuthRequiredRetrievals(
+            fillingOutClaim.signedInUserDetails.eori,
+            fillingOutClaim.signedInUserDetails.contactName
+          )
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
@@ -185,7 +237,10 @@ class CheckEoriDetailsControllerSpec
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockC285AuthRequiredRetrievals(
+            fillingOutClaim.signedInUserDetails.eori,
+            fillingOutClaim.signedInUserDetails.contactName
+          )
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
@@ -205,7 +260,10 @@ class CheckEoriDetailsControllerSpec
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockC285AuthRequiredRetrievals(
+            fillingOutClaim.signedInUserDetails.eori,
+            fillingOutClaim.signedInUserDetails.contactName
+          )
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
@@ -220,8 +278,6 @@ class CheckEoriDetailsControllerSpec
           BAD_REQUEST
         )
       }
-
     }
-
   }
 }

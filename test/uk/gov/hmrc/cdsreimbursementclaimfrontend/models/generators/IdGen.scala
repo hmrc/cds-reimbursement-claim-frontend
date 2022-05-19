@@ -64,6 +64,8 @@ object IdGen {
     lastName <- genStringWithMaxSizeOfN(20)
   } yield Name(Some(name), Some(lastName))
 
+  implicit lazy val arbitraryName: Typeclass[Name] = Arbitrary(genName)
+
   lazy val genGGCredId: Gen[GGCredId] = gen[GGCredId].arbitrary
 
   implicit lazy val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
