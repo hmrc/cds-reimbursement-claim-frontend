@@ -49,9 +49,6 @@ POST        /single/enter-claim/:id                                 uk.gov.hmrc.
 GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummary()
 POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummarySubmit()
 
-GET         /:journey/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAdditionalDetailsController.enterAdditionalDetails(journey: JourneyBindable)
-POST        /:journey/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit(journey: JourneyBindable)
-
 GET         /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterMrn(index: AssociatedMrnIndex)
 POST        /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitEnteredMrn(index: AssociatedMrnIndex)
 
