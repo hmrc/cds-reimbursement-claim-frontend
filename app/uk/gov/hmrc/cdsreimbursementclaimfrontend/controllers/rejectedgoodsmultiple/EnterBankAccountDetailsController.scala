@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import cats.data.EitherT
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -24,18 +23,19 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.http.BadRequestException
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,6 +46,7 @@ import scala.concurrent.Future
 class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val claimService: ClaimService,
+  val bankAccountReputationService: BankAccountReputationService,
   enterBankAccountDetailsPage: pages.enter_bank_account_details
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController {
@@ -120,16 +121,13 @@ class EnterBankAccountDetailsController @Inject() (
         )
     }
 
-  def checkBankAccountReputation(
-    bankAccountType: BankAccountType,
-    bankAccountDetails: BankAccountDetails,
-    postCode: Option[String]
-  )(implicit request: Request[_]): EitherT[Future, Error, BankAccountReputation] =
-    bankAccountType match {
-      case BankAccountType.Personal =>
-        claimService.getPersonalAccountReputation(bankAccountDetails, postCode)
-      case BankAccountType.Business =>
-        claimService.getBusinessAccountReputation(bankAccountDetails)
+  private def processCdsError[T : CdsError](error: T)(implicit request: Request[_]): Result =
+    error match {
+      case e @ ServiceUnavailableError(_, _) =>
+        logger.warn(s"could not contact bank account service: $e")
+        Redirect(rejectedGoodsRoutes.ServiceUnavailableController.show())
+      case e                                 =>
+        logAndDisplayError("could not process bank account details: ", e)
     }
 
   def validateBankAccountDetails(
@@ -139,15 +137,10 @@ class EnterBankAccountDetailsController @Inject() (
   )(implicit request: Request[_]): Future[(RejectedGoodsMultipleJourney, Result)] =
     journey.answers.bankAccountType.fold((journey, Redirect(routes.ChooseBankAccountTypeController.show())).asFuture) {
       bankAccountType =>
-        checkBankAccountReputation(bankAccountType, bankAccountDetails, postCode)
+        bankAccountReputationService
+          .checkBankAccountReputation(bankAccountType, bankAccountDetails, postCode)
           .fold(
-            {
-              case Error(_, Some(t: BadRequestException), _) =>
-                logger.warn("Could not contact bank account service: ", t)
-                (journey, Redirect(rejectedGoodsRoutes.ServiceUnavailableController.show()))
-              case error                                     =>
-                (journey, logAndDisplayError("Could not process bank account details: ")(errorHandler, request)(error))
-            },
+            e => (journey, processCdsError(e)),
             {
               case BankAccountReputation(Yes, Some(Yes), None) =>
                 journey

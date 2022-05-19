@@ -121,8 +121,6 @@ class CheckEoriDetailsControllerSpec
 
   "Check Eori Details Controller" must {
 
-    val verifiedEmail = "jex.belaran@xmail.com"
-
     "redirect to the start of the journey" when {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 

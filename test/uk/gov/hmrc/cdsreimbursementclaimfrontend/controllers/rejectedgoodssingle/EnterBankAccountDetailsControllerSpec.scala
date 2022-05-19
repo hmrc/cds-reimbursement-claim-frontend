@@ -34,11 +34,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
@@ -47,7 +49,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.arbitraryBankAccountReputation
@@ -56,10 +57,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddres
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.genBankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.BadRequestException
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -68,36 +68,14 @@ class EnterBankAccountDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
-
-  val mockClaimService: ClaimService = mock[ClaimService]
-
-  def mockBusinessReputation(
-    bankAccountDetails: BankAccountDetails,
-    response: Either[Error, BankAccountReputation]
-  ): CallHandler2[BankAccountDetails, HeaderCarrier, EitherT[Future, Error, BankAccountReputation]] =
-    (mockClaimService
-      .getBusinessAccountReputation(_: BankAccountDetails)(_: HeaderCarrier))
-      .expects(bankAccountDetails, *)
-      .returning(EitherT.fromEither[Future](response))
-      .once()
-
-  def mockPersonalReputation(
-    bankAccountDetails: BankAccountDetails,
-    postCode: Option[String],
-    response: Either[Error, BankAccountReputation]
-  ): CallHandler3[BankAccountDetails, Option[String], HeaderCarrier, EitherT[Future, Error, BankAccountReputation]] =
-    (mockClaimService
-      .getPersonalAccountReputation(_: BankAccountDetails, _: Option[String])(_: HeaderCarrier))
-      .expects(bankAccountDetails, postCode, *)
-      .returning(EitherT.fromEither[Future](response))
-      .once()
+    with BeforeAndAfterEach
+    with MockBankAccountReputationService {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[ClaimService].toInstance(mockClaimService)
+      bind[BankAccountReputationService].toInstance(mockBankAccountReputationService)
     )
 
   val controller: EnterBankAccountDetailsController = instanceOf[EnterBankAccountDetailsController]
@@ -524,11 +502,12 @@ class EnterBankAccountDetailsControllerSpec
         val initialJourney  =
           RejectedGoodsSingleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+        val boom            = new BadRequestException("Boom!")
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockPersonalReputation(bankDetails, None, Left(Error(new BadRequestException("Boom!"))))
+          mockPersonalReputation(bankDetails, None, Left(ServiceUnavailableError(boom.message, Some(boom))))
         }
 
         checkIsRedirect(

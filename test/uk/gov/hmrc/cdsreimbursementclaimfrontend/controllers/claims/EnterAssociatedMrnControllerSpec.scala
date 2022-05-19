@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -262,7 +263,7 @@ class EnterAssociatedMrnControllerSpec
               AssociatedMrnIndex.fromListIndex(0),
               enterAssociatedMrnKey -> mrn.value
             ),
-            routes.CheckMovementReferenceNumbersController.showMrns()
+            overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.showMrns
           )
         }
       }
@@ -377,7 +378,7 @@ class EnterAssociatedMrnControllerSpec
 
           checkIsRedirect(
             performActionWithData(associatedMrnIndex, enterAssociatedMrnKey -> mrn.value),
-            routes.CheckMovementReferenceNumbersController.showMrns()
+            overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.showMrns
           )
         }
       }
@@ -418,7 +419,7 @@ class EnterAssociatedMrnControllerSpec
 
           checkIsRedirect(
             performActionWithData(associatedMrnIndex, enterAssociatedMrnKey -> mrn.value),
-            routes.CheckMovementReferenceNumbersController.showMrns()
+            overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.showMrns
           )
         }
       }

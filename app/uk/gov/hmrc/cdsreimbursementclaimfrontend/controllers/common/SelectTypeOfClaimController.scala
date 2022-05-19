@@ -137,7 +137,7 @@ class SelectTypeOfClaimController @Inject() (
                                           .leftMap(logSelectClaimsError.andThen(returnErrorPage))
                   result             <- EitherT.rightT[Future, Result](
                                           Redirect(
-                                            claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(
+                                            claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(
                                               typeOfClaimAnswer match {
                                                 case TypeOfClaimAnswer.Individual => JourneyBindable.Single
                                                 case TypeOfClaimAnswer.Multiple   => JourneyBindable.Multiple

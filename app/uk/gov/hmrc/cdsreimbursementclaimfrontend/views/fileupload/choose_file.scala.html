@@ -16,21 +16,16 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
-@import play.api.mvc.Call
 @import play.api.mvc.Request    
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     inputFile: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_file,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
 @(upscanUpload : UpscanUpload, sessionConfig: UploadDocumentsSessionConfig, key: String)(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)

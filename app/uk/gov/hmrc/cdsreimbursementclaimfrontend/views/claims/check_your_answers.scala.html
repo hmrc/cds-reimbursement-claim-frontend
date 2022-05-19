@@ -51,10 +51,10 @@
 
 @mrnSummary = @{
     def leadMrnSummary(maybeLeadMrn: Option[MRN]): SummaryList =
-        maybeLeadMrn.fold(SummaryList())(mrn => MovementReferenceNumberSummary.single(mrn, s"$key.reference-number", subKey,Some(claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))))
+        maybeLeadMrn.fold(SummaryList())(mrn => MovementReferenceNumberSummary.single(mrn, s"$key.reference-number", subKey,Some(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))))
 
     def multipleMrnsSummary(maybeLeadMrn: Option[MRN]): AssociatedMRNsAnswer => SummaryList = mrns =>
-        MovementReferenceNumbersSummary(maybeLeadMrn.toList ++ mrns.toList, s"$key.reference-number", subKey,claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))
+        MovementReferenceNumbersSummary(maybeLeadMrn.toList ++ mrns.toList, s"$key.reference-number", subKey,OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))
 
     claim.associatedMRNsAnswer.fold(leadMrnSummary(claim.movementReferenceNumber))(
         multipleMrnsSummary(claim.movementReferenceNumber)

@@ -50,6 +50,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -173,7 +174,7 @@ class EnterAssociatedMrnController @Inject() (
             replaceOrAppendMrn(_)
               .fold(
                 identity,
-                _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
+                _ => Redirect(overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.showMrns)
               )
           )
       }

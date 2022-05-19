@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.data.EitherT
 import cats.data.NonEmptyList
@@ -35,12 +35,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.checkMovementReferenceNumbersKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.checkMovementReferenceNumbersKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -57,7 +58,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.asScalaBufferConverter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersControllerSpec.genMrnsWithRandomIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersControllerSpec.genMrnsWithRandomIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 
 class CheckMovementReferenceNumbersControllerSpec
@@ -266,7 +267,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performActionWithData(Seq(checkMovementReferenceNumbersKey -> true.toString)),
-            routes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(mrnForwardIndex))
+            claimsRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(mrnForwardIndex))
           )
         }
       }
@@ -290,7 +291,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performActionWithData(Seq(checkMovementReferenceNumbersKey -> false.toString)),
-            routes.CheckContactDetailsMrnController.show(JourneyBindable.Multiple)
+            claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Multiple)
           )
 
         }

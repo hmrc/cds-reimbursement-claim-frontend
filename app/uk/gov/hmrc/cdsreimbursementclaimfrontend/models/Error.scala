@@ -37,5 +37,14 @@ object Error {
 
   def apply(error: Throwable, identifiers: (IdKey, IdValue)*): Error =
     Error(error.getMessage, Some(error), identifiers.toMap)
+}
 
+trait CdsError[A] {
+  def message(error: A): String
+}
+object CdsError {
+  implicit val cdsError: CdsError[Error] =
+    new CdsError[Error] {
+      def message(error: Error): String = error.message
+    }
 }

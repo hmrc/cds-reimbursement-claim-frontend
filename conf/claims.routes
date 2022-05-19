@@ -1,6 +1,3 @@
-GET         /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterJourneyMrn(journey: JourneyBindable)
-POST        /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit(journey: JourneyBindable)
-
 GET         /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journey: JourneyBindable)
 POST        /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(journey: JourneyBindable)
 
@@ -63,11 +60,6 @@ POST        /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.
 
 GET         /multiple/change-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.changeMrn(index: AssociatedMrnIndex)
 POST        /multiple/change-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitChangedMrn(index: AssociatedMrnIndex)
-
-GET         /multiple/delete-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.deleteMrn(index: AssociatedMrnIndex)
-
-GET         /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.showMrns()
-POST        /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.submitMrns()
 
 GET         /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController.selectDuties(index: Int)
 POST        /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController.selectDutiesSubmit(index: Int)

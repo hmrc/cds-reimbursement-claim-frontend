@@ -136,7 +136,7 @@ class EnterMultipleClaimsController @Inject() (
       request.using { case fillingOutClaim: FillingOutClaim =>
         fillingOutClaim.draftClaim.MRNs.nonEmptyListOpt match {
           case None =>
-            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
+            Redirect(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
 
           case Some(mrns) =>
             fillingOutClaim.draftClaim.Claims.nonEmptyListOpt match {
@@ -170,7 +170,7 @@ class EnterMultipleClaimsController @Inject() (
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Multiple)
         fillingOutClaim.draftClaim.MRNs.nonEmptyListOpt match {
           case None       =>
-            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
+            Redirect(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
           case Some(mrns) =>
             fillingOutClaim.draftClaim.Claims.nonEmptyListOpt match {
               case None =>
