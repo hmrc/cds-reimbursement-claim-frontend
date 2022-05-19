@@ -62,9 +62,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
   private val journeys = Table(
     "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
+    JourneyBindable.Single
   )
 
   lazy val controller: CheckDuplicateDeclarationDetailsController =
@@ -206,7 +204,6 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
         controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      //TODO Update Redirect url when decision is made
       "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
         val displayDeclaration = sample[DisplayDeclaration]
         val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))
@@ -222,7 +219,6 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         )
       }
 
-      //TODO Update Redirect url when decision is made
       "the user confirms the details are incorrect" in forAll(journeys) { journey =>
         val displayDeclaration = sample[DisplayDeclaration]
         val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))

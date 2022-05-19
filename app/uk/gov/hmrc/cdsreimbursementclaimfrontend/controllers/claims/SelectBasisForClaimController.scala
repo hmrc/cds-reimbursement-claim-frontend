@@ -110,7 +110,8 @@ class SelectBasisForClaimController @Inject() (
                     Redirect(
                       answer match {
                         case BasisOfClaimAnswer.DuplicateEntry =>
-                          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+                          OverpaymentsRoutes.EnterDuplicateMovementReferenceNumberController
+                            .enterDuplicateMrn(journeyBindable)
                         case _                                 =>
                           CheckAnswers.when(updatedJourney.draftClaim.isComplete)(alternatively =
                             claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetails(journeyBindable)

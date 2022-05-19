@@ -55,6 +55,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import play.api.data.validation.Constraint
+import play.api.data.validation.Invalid
+import play.api.data.validation.Valid
 
 object Forms {
 
@@ -330,6 +333,29 @@ object Forms {
               "invalid.number",
               str => str.isEmpty || MRN(str).isValid
             )
+            .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+
+  val enterDuplicateMrnWithNoCheck: Form[MRN] =
+    Form(
+      mapping(
+        "enter-duplicate-movement-reference-number" -> nonEmptyText
+          .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+
+  def enterDuplicateMrnCheckingAgainst(mainMrn: MRN): Form[MRN] =
+    Form(
+      mapping(
+        "enter-duplicate-movement-reference-number" ->
+          nonEmptyText
+            .verifying(Constraint[String] { str: String =>
+              if (str.isEmpty) Invalid("error.required")
+              else if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
+              else if (MRN(str).isValid) Valid
+              else Invalid("invalid.number")
+            })
             .transform[MRN](MRN(_), _.value)
       )(identity)(Some(_))
     )
