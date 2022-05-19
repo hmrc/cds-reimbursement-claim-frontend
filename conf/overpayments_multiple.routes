@@ -28,6 +28,9 @@ GET         /multiple/supporting-evidence/choose-files                         @
 POST        /multiple/supporting-evidence/choose-files                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.callback
 GET         /multiple/supporting-evidence/summary                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.summary
 
+GET         /multiple/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterAdditionalDetailsController.enterAdditionalDetails
+POST        /multiple/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit
+
 GET         /multiple/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.checkAllAnswers
 POST        /multiple/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit
 
