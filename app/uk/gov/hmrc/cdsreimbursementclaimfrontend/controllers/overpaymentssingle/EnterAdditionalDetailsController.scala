@@ -17,18 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.Configuration
-import play.api.data.Form
-import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.additionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -51,17 +58,18 @@ class EnterAdditionalDetailsController @Inject() (
     with Logging
     with SessionUpdates {
 
+  implicit val journey: JourneyBindable                                     = JourneyBindable.Single
   implicit val dataExtractor: DraftClaim => Option[AdditionalDetailsAnswer] = _.additionalDetailsAnswer
 
-  def enterAdditionalDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+  val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AdditionalDetailsAnswer] { (_, answers) =>
         val form = answers.toList.foldLeft(additionalDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterAdditionalDetailsPage(form))
+        Ok(enterAdditionalDetailsPage(form, journey))
       }
     }
 
-  def enterAdditionalDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val submit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[AdditionalDetailsAnswer] { (fillingOutClaim, _, router) =>
         import router._
@@ -69,7 +77,7 @@ class EnterAdditionalDetailsController @Inject() (
         additionalDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => BadRequest(enterAdditionalDetailsPage(requestFormWithErrors)),
+            requestFormWithErrors => BadRequest(enterAdditionalDetailsPage(requestFormWithErrors, journey)),
             additionalDetails => {
               val newDraftClaim  = fillingOutClaim.draftClaim.copy(additionalDetailsAnswer = Some(additionalDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
@@ -94,13 +102,4 @@ class EnterAdditionalDetailsController @Inject() (
           )
       }
     }
-}
-
-object EnterAdditionalDetailsController {
-
-  val additionalDetailsForm: Form[AdditionalDetailsAnswer] = Form(
-    mapping("enter-additional-details" -> nonEmptyText(maxLength = 500))(AdditionalDetailsAnswer.apply)(
-      AdditionalDetailsAnswer.unapply
-    )
-  )
 }

@@ -114,7 +114,7 @@ class SelectBasisForClaimController @Inject() (
                             .enterDuplicateMrn(journeyBindable)
                         case _                                 =>
                           CheckAnswers.when(updatedJourney.draftClaim.isComplete)(alternatively =
-                            claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetails(journeyBindable)
+                            OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
                           )
                       }
                     )

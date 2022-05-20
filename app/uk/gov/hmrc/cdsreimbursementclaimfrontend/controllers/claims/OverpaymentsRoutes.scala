@@ -102,4 +102,19 @@ object OverpaymentsRoutes {
     }
   }
 
+  object EnterAdditionalDetailsController {
+
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterAdditionalDetailsController.show
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterAdditionalDetailsController.show
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterAdditionalDetailsController.show
+    }
+
+    def submit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterAdditionalDetailsController.submit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterAdditionalDetailsController.submit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterAdditionalDetailsController.submit
+    }
+  }
+
 }

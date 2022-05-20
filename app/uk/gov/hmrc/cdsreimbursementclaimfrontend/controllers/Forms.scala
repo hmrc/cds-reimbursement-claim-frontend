@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
@@ -160,6 +161,12 @@ object Forms {
 
   val enterRejectedGoodsDetailsForm: Form[String] = Form(
     "enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500)
+  )
+
+  val additionalDetailsForm: Form[AdditionalDetailsAnswer] = Form(
+    mapping("enter-additional-details" -> nonEmptyText(maxLength = 500))(AdditionalDetailsAnswer.apply)(
+      AdditionalDetailsAnswer.unapply
+    )
   )
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
