@@ -95,7 +95,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
     }
 
   def nextPageForCheckDuplicateDeclarationDetails(): Call =
-    claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetails(journeyBindable)
+    claims.OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)

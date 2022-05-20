@@ -20,8 +20,8 @@ GET         /scheduled/supporting-evidence/choose-files                         
 POST        /scheduled/supporting-evidence/choose-files                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadFilesController.callback
 GET         /scheduled/supporting-evidence/summary                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadFilesController.summary
 
-GET         /scheduled/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterAdditionalDetailsController.enterAdditionalDetails
-POST        /scheduled/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit
+GET         /scheduled/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterAdditionalDetailsController.show
+POST        /scheduled/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterAdditionalDetailsController.submit
 
 GET         /scheduled/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.checkAllAnswers
 POST        /scheduled/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit
