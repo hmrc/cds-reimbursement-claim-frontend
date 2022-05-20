@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.Functor
 import cats.Id
@@ -39,8 +39,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterAssociatedMrnController.enterAssociatedMrnKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer

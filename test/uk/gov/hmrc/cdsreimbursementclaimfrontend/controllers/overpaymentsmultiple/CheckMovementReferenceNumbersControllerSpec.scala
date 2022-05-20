@@ -267,7 +267,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performActionWithData(Seq(checkMovementReferenceNumbersKey -> true.toString)),
-            claimsRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(mrnForwardIndex))
+            routes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(mrnForwardIndex))
           )
         }
       }
