@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
@@ -125,7 +126,7 @@ class SelectDutyTypesControllerSpec
 
       checkIsRedirect(
         performAction(Seq("select-duty-types[0]" -> duty.repr)),
-        routes.SelectDutyCodesController.iterate()
+        overpaymentsScheduledRoutes.SelectDutyCodesController.iterate()
       )
     }
 
@@ -142,7 +143,7 @@ class SelectDutyTypesControllerSpec
 
       checkIsRedirect(
         performAction(Seq("select-duty-types[0]" -> duty.repr)),
-        routes.SelectDutyCodesController.iterate()
+        overpaymentsScheduledRoutes.SelectDutyCodesController.iterate()
       )
     }
 
@@ -166,7 +167,7 @@ class SelectDutyTypesControllerSpec
         performAction(
           Seq("select-duty-types[0]" -> duty.repr)
         ),
-        routes.SelectDutyCodesController.iterate()
+        overpaymentsScheduledRoutes.SelectDutyCodesController.iterate()
       )
     }
   }

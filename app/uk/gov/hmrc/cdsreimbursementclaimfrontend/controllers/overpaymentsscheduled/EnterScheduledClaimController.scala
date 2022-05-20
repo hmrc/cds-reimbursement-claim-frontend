@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.data.EitherT
 import cats.syntax.all._
@@ -70,12 +70,12 @@ class EnterScheduledClaimController @Inject() (
 
   def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     def redirectToSummaryPage: Future[Result] =
-      Future.successful(Redirect(claimRoutes.CheckScheduledClaimController.showReimbursements()))
+      Future.successful(Redirect(routes.CheckScheduledClaimController.showReimbursements()))
 
     def start(dutyAndTaxCode: (DutyType, TaxCode)): Future[Result] =
       Future.successful(
         Redirect(
-          claimRoutes.EnterScheduledClaimController.enterClaim(
+          routes.EnterScheduledClaimController.enterClaim(
             dutyAndTaxCode._1,
             dutyAndTaxCode._2
           )
@@ -92,7 +92,7 @@ class EnterScheduledClaimController @Inject() (
   def enterClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
-        val postAction: Call = claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, dutyCode)
+        val postAction: Call = routes.EnterScheduledClaimController.submitClaim(dutyType, dutyCode)
         Ok(
           enterScheduledClaimPage(
             dutyType,
@@ -110,7 +110,7 @@ class EnterScheduledClaimController @Inject() (
   def submitClaim(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
-        val postAction: Call                                             = claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, taxCode)
+        val postAction: Call                                             = routes.EnterScheduledClaimController.submitClaim(dutyType, taxCode)
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) =
           updateSession(sessionCache, request)(
             _.copy(journeyStatus =
@@ -137,13 +137,13 @@ class EnterScheduledClaimController @Inject() (
                   _.findUnclaimedReimbursement
                     .map { dutyAndTaxCode =>
                       Redirect(
-                        claimRoutes.EnterScheduledClaimController.enterClaim(
+                        routes.EnterScheduledClaimController.enterClaim(
                           dutyAndTaxCode._1,
                           dutyAndTaxCode._2
                         )
                       )
                     }
-                    .getOrElse(Redirect(claimRoutes.CheckScheduledClaimController.showReimbursements()))
+                    .getOrElse(Redirect(routes.CheckScheduledClaimController.showReimbursements()))
                 )
           )
       }

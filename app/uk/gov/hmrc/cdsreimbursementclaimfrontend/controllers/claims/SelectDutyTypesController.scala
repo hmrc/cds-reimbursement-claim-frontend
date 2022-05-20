@@ -29,7 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
@@ -65,7 +66,7 @@ class SelectDutyTypesController @Inject() (
   def showDutyTypes(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
-        val postAction: Call = claimRoutes.SelectDutyTypesController.submitDutyTypes(journey)
+        val postAction: Call = claimsRoutes.SelectDutyTypesController.submitDutyTypes(journey)
         Ok(
           selectDutyTypesPage(
             answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill),
@@ -78,7 +79,7 @@ class SelectDutyTypesController @Inject() (
   def submitDutyTypes(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
-        val postAction: Call = claimRoutes.SelectDutyTypesController.submitDutyTypes(journey)
+        val postAction: Call = claimsRoutes.SelectDutyTypesController.submitDutyTypes(journey)
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
@@ -98,7 +99,7 @@ class SelectDutyTypesController @Inject() (
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not get duty types selected"),
-                  _ => Redirect(claimRoutes.SelectDutyCodesController.iterate())
+                  _ => Redirect(overpaymentsScheduledRoutes.SelectDutyCodesController.iterate())
                 )
             }
           )
