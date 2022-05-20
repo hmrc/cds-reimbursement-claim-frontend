@@ -88,14 +88,9 @@ class EnterAdditionalDetailsController @Inject() (
                   logAndDisplayError("could not get additional details"),
                   _ =>
                     Redirect(
-                      CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively = journeyBindable match {
-                        case JourneyBindable.Scheduled =>
-                          claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
-                        case JourneyBindable.Multiple  =>
-                          claimRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
-                        case _                         =>
-                          claimRoutes.SelectDutiesController.selectDuties()
-                      })
+                      CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                        claimRoutes.SelectDutyTypesController.showDutyTypes(journey)
+                      )
                     )
                 )
             }
