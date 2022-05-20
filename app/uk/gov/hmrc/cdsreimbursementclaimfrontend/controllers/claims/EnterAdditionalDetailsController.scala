@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAdditionalDetailsController.additionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
@@ -93,7 +94,7 @@ class EnterAdditionalDetailsController @Inject() (
                         case JourneyBindable.Scheduled =>
                           claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
                         case JourneyBindable.Multiple  =>
-                          claimRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
+                          overpaymentsMultipleRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
                         case _                         =>
                           claimRoutes.SelectDutiesController.selectDuties()
                       })

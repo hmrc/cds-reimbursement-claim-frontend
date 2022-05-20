@@ -18,7 +18,7 @@
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes=>overpaymentsMultipleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
@@ -44,7 +44,7 @@
   @key = @{"select-duties"}
   @title = @{messages(s"multiple-$key.title",  OrdinalNumeral(mrnIndex))}
 
-  @postAction = @{routes.SelectMultipleDutiesController.selectDutiesSubmit(mrnIndex)}
+  @postAction = @{overpaymentsMultipleRoutes.SelectMultipleDutiesController.selectDutiesSubmit(mrnIndex)}
     @options = @{dutiesToDisplay.map { duty =>
 
         CheckboxItem(

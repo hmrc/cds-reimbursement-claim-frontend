@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -109,7 +110,7 @@
 
     @if(claim.typeOfClaim.contains(TypeOfClaimAnswer.Multiple)) {
         @pageHeading(Html(messages(s"$key.multiple-claim-totals.label")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(MultipleClaimsAnswerSummary(claim.multipleClaimsAnswer,s"$key.claim-calculation",subKey,claimRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag))
+        @summary(MultipleClaimsAnswerSummary(claim.multipleClaimsAnswer,s"$key.claim-calculation",subKey, overpaymentsMultipleRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag))
     }
 
     @claim.reimbursementMethodAnswer.map { rma =>

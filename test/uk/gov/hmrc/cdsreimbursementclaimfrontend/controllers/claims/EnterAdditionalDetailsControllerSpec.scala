@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -231,7 +232,7 @@ class EnterAdditionalDetailsControllerSpec
           if (journeyBindable === JourneyBindable.Scheduled) {
             routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
           } else if (journeyBindable === JourneyBindable.Multiple) {
-            routes.SelectMultipleDutiesController.selectDuties(1)
+            overpaymentsMultipleRoutes.SelectMultipleDutiesController.selectDuties(1)
           } else {
             routes.SelectDutiesController.selectDuties()
           }

@@ -72,7 +72,7 @@
                         <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href=@routes.EnterAssociatedMrnController.changeMrn(index).url>@{
+                            <a class="govuk-link" href=@overpaymentsMultipleRoutes.EnterAssociatedMrnController.changeMrn(index).url>@{
                                 messages(s"cya.change")
                             }</a>
                         </dd>

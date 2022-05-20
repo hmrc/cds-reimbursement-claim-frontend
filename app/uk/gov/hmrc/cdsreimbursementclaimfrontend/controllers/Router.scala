@@ -86,7 +86,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
             if (hasAssociatedMrns)
               overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.showMrns
             else
-              claimRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
+              overpaymentsMultipleRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
           case _                         =>
             claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
         }

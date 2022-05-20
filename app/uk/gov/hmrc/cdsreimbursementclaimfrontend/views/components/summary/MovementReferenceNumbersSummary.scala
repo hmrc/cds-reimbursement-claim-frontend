@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.LeadMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
@@ -58,7 +58,7 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
           Actions(items =
             Seq(
               ActionItem(
-                href = s"${routes.EnterAssociatedMrnController.changeMrn(mrnIndex).url}",
+                href = s"${overpaymentsMultipleRoutes.EnterAssociatedMrnController.changeMrn(mrnIndex).url}",
                 content = Text(messages("cya.change"))
               )
             )
