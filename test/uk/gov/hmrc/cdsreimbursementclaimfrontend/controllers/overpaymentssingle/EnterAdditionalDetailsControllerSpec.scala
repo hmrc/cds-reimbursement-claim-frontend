@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.Lang
@@ -28,28 +28,36 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.additionalDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+<<<<<<< HEAD:test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/claims/EnterAdditionalDetailsControllerSpec.scala
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+=======
+>>>>>>> bd22f7ea (CDSR-1697: Add test to overpayments single):test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/overpaymentssingle/EnterAdditionalDetailsControllerSpec.scala
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen.genValidDraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 
 import scala.concurrent.Future
 
@@ -67,9 +75,7 @@ class EnterAdditionalDetailsControllerSpec
 
   val testCases = Table(
     ("ClaimType", "JourneyBindable"),
-    (TypeOfClaimAnswer.Individual, JourneyBindable.Single),
-    (TypeOfClaimAnswer.Multiple, JourneyBindable.Multiple),
-    (TypeOfClaimAnswer.Scheduled, JourneyBindable.Scheduled)
+    (TypeOfClaimAnswer.Individual, JourneyBindable.Single)
   )
 
   lazy val controller: EnterAdditionalDetailsController = instanceOf[EnterAdditionalDetailsController]
@@ -105,8 +111,8 @@ class EnterAdditionalDetailsControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
+      "there is no journey status in the session" in forAll(testCases) { (numberOfClaims, _) =>
+        def performAction(): Future[Result] = controller.show(FakeRequest())
 
         val (session, _, _) = sessionWithClaimState(None, Some(numberOfClaims))
 
@@ -126,8 +132,8 @@ class EnterAdditionalDetailsControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
+      "the user has not answered this question before" in forAll(testCases) { (numberOfClaims, _) =>
+        def performAction(): Future[Result] = controller.show(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
@@ -149,8 +155,8 @@ class EnterAdditionalDetailsControllerSpec
         )
       }
 
-      "the user has answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
+      "the user has answered this question before" in forAll(testCases) { (numberOfClaims, _) =>
+        def performAction(): Future[Result] = controller.show(FakeRequest())
 
         val answers = AdditionalDetailsAnswer("some package")
 
@@ -175,39 +181,38 @@ class EnterAdditionalDetailsControllerSpec
         )
       }
 
-      "the user has come from the CYA page and is amending their answer" in forAll(testCases) {
-        (numberOfClaims, journeyBindable) =>
-          def performAction(): Future[Result] = controller.enterAdditionalDetails(journeyBindable)(FakeRequest())
+      "the user has come from the CYA page and is amending their answer" in forAll(testCases) { (numberOfClaims, _) =>
+        def performAction(): Future[Result] = controller.show(FakeRequest())
 
-          val answers = AdditionalDetailsAnswer("some package")
+        val answers = AdditionalDetailsAnswer("some package")
 
-          val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
-            .copy(
-              basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
-              movementReferenceNumber = Some(sample[MRN])
-            )
-
-          val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
-
-          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("enter-additional-details.title")
+        val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+          .copy(
+            basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
+            movementReferenceNumber = Some(sample[MRN])
           )
+
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("enter-additional-details.title")
+        )
       }
     }
 
     "handle submit requests" when {
 
-      "user enters some details" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "user enters some details" in forAll(testCases) { (numberOfClaims, _) =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterAdditionalDetailsSubmit(journeyBindable)(
+          controller.submit(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -230,6 +235,7 @@ class EnterAdditionalDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-additional-details" -> "some package")),
+<<<<<<< HEAD:test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/claims/EnterAdditionalDetailsControllerSpec.scala
           if (journeyBindable === JourneyBindable.Scheduled) {
             routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
           } else if (journeyBindable === JourneyBindable.Multiple) {
@@ -237,12 +243,15 @@ class EnterAdditionalDetailsControllerSpec
           } else {
             routes.SelectDutiesController.selectDuties()
           }
+=======
+          claimsRoutes.SelectDutiesController.selectDuties()
+>>>>>>> bd22f7ea (CDSR-1697: Add test to overpayments single):test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/overpaymentssingle/EnterAdditionalDetailsControllerSpec.scala
         )
       }
 
       "the user amends their answer" in {
 
-        val journey     = sample[JourneyBindable]
+        val journey     = JourneyBindable.Single
         val typeOfClaim = toTypeOfClaim(journey)
 
         val claim = sample(genValidDraftClaim(typeOfClaim))
@@ -257,7 +266,7 @@ class EnterAdditionalDetailsControllerSpec
         }
 
         checkIsRedirect(
-          controller.enterAdditionalDetailsSubmit(journey)(
+          controller.submit(
             FakeRequest().withFormUrlEncodedBody(
               "enter-additional-details" -> claim.additionalDetailsAnswer.fold("")(_.value)
             )
@@ -270,9 +279,9 @@ class EnterAdditionalDetailsControllerSpec
 
     "show an error summary" when {
 
-      "the user enters more than 500 characters" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "the user enters more than 500 characters" in forAll(testCases) { (numberOfClaims, _) =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterAdditionalDetailsSubmit(journeyBindable)(
+          controller.submit(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -310,7 +319,7 @@ class EnterAdditionalDetailsControllerSpec
   }
 
   "Form Validation" must {
-    val form              = EnterAdditionalDetailsController.additionalDetailsForm
+    val form              = additionalDetailsForm
     val additionalDetails = "enter-additional-details"
     val goodData          = Map(
       additionalDetails -> "A box of biscuits"
