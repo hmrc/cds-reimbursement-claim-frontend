@@ -227,7 +227,7 @@ class EnterAdditionalDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-additional-details" -> "some package")),
-          claimsRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Single)
+          routes.SelectDutiesController.selectDuties
         )
       }
 
