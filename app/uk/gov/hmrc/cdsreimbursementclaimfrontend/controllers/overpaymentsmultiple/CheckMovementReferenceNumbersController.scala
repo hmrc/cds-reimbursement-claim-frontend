@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
@@ -27,18 +27,18 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -61,7 +61,9 @@ class CheckMovementReferenceNumbersController @Inject() (
     with SessionUpdates
     with Logging {
 
-  def showMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  import CheckMovementReferenceNumbersController._
+
+  val showMrns: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using { case journey: FillingOutClaim =>
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), whetherAddAnotherMrnAnswerForm))
     }
@@ -71,7 +73,7 @@ class CheckMovementReferenceNumbersController @Inject() (
     implicit request =>
       request.using { case journey: FillingOutClaim =>
         def redirectToShowMrnsPage() =
-          Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
+          Redirect(routes.CheckMovementReferenceNumbersController.showMrns)
 
         val updatedAssociatedMRNsAnswer            = journey.draftClaim.associatedMRNsAnswer.remove(mrnIndex)
         val updatedAssociatedMRNsDeclarationAnswer = journey.draftClaim.associatedMRNsDeclarationAnswer.remove(mrnIndex)
@@ -91,7 +93,7 @@ class CheckMovementReferenceNumbersController @Inject() (
       }
   }
 
-  def submitMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  val submitMrns: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using { case journey: FillingOutClaim =>
       whetherAddAnotherMrnAnswerForm
         .bindFromRequest()
@@ -104,7 +106,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                   .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.length))
               )
             case No  =>
-              Redirect(routes.CheckContactDetailsMrnController.show(JourneyBindable.Multiple))
+              Redirect(claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Multiple))
           }
         )
     }

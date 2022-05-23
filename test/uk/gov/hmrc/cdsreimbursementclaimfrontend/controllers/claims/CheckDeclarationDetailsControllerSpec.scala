@@ -235,7 +235,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(journey, Seq(checkDeclarationDetailsKey -> "false")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
+          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
       }
 

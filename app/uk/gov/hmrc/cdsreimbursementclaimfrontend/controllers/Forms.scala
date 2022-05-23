@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
@@ -54,6 +55,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import play.api.data.validation.Constraint
+import play.api.data.validation.Invalid
+import play.api.data.validation.Valid
 
 object Forms {
 
@@ -156,6 +161,12 @@ object Forms {
 
   val enterRejectedGoodsDetailsForm: Form[String] = Form(
     "enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500)
+  )
+
+  val additionalDetailsForm: Form[AdditionalDetailsAnswer] = Form(
+    mapping("enter-additional-details" -> nonEmptyText(maxLength = 500))(AdditionalDetailsAnswer.apply)(
+      AdditionalDetailsAnswer.unapply
+    )
   )
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
@@ -318,5 +329,41 @@ object Forms {
             key => UploadDocumentType.parse(key).exists(v => documentTypeList.contains(v))
           )
       )(UploadDocumentType.tryParse)(dt => Some(UploadDocumentType.keyOf(dt)))
+    )
+
+  val movementReferenceNumberForm: Form[MRN] =
+    Form(
+      mapping(
+        "enter-movement-reference-number" ->
+          nonEmptyText
+            .verifying(
+              "invalid.number",
+              str => str.isEmpty || MRN(str).isValid
+            )
+            .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+
+  val enterDuplicateMrnWithNoCheck: Form[MRN] =
+    Form(
+      mapping(
+        "enter-duplicate-movement-reference-number" -> nonEmptyText
+          .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+
+  def enterDuplicateMrnCheckingAgainst(mainMrn: MRN): Form[MRN] =
+    Form(
+      mapping(
+        "enter-duplicate-movement-reference-number" ->
+          nonEmptyText
+            .verifying(Constraint[String] { str: String =>
+              if (str.isEmpty) Invalid("error.required")
+              else if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
+              else if (MRN(str).isValid) Valid
+              else Invalid("invalid.number")
+            })
+            .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
     )
 }

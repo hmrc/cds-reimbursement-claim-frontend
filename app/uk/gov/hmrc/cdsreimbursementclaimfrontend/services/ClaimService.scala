@@ -60,16 +60,6 @@ trait ClaimService {
   ): EitherT[Future, Error, SubmitClaimResponse]
 
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
-
-  def getBusinessAccountReputation(
-    bankAccountDetails: BankAccountDetails
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation]
-
-  def getPersonalAccountReputation(
-    bankAccountDetails: BankAccountDetails,
-    postCode: Option[String]
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation]
-
 }
 
 @Singleton
@@ -111,54 +101,5 @@ class DefaultClaimService @Inject() (
           Right(None)
         } else
           Left(Error(s"call to get declaration details ${response.status}"))
-      }
-
-  def getBusinessAccountReputation(
-    bankAccountDetails: BankAccountDetails
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation] = {
-    val barsAccount = BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-    val barsRequest = BarsBusinessAssessRequest(barsAccount, None)
-    getReputation[BarsBusinessAssessRequest, BusinessCompleteResponse](
-      barsRequest,
-      cdsReimbursementClaimConnector.getBusinessReputation
-    )
-  }
-
-  override def getPersonalAccountReputation(
-    bankAccountDetails: BankAccountDetails,
-    postCode: Option[String]
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BankAccountReputation] = {
-    val barsAccount = BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-    val address     = BarsAddress(Nil, None, postCode)
-    val accountName = Some(bankAccountDetails.accountName.value)
-    val subject     = BarsSubject(None, accountName, None, None, None, address)
-    val request     = BarsPersonalAssessRequest(barsAccount, subject)
-    getReputation[BarsPersonalAssessRequest, PersonalCompleteResponse](
-      request,
-      cdsReimbursementClaimConnector.getPersonalReputation
-    )
-  }
-
-  def getReputation[I, O <: ReputationResult](data: I, method: JsValue => EitherT[Future, Error, HttpResponse])(implicit
-    writes: Writes[I],
-    read: Reads[O]
-  ): EitherT[Future, Error, BankAccountReputation] =
-    method(Json.toJson(data))
-      .subflatMap { response =>
-        response.status match {
-          case OK          =>
-            response.parseJSON[O]().map(_.toCommonResponse()).leftMap(Error(_))
-          case BAD_REQUEST =>
-            response
-              .parseJSON[ReputationErrorResponse]()
-              .map(_.toCommonResponse())
-              .leftMap(msg => Error(new BadRequestException(msg)))
-          case status: Int =>
-            Left(
-              Error(
-                s"Call to Business Reputation Service (BARS) failed with: $status"
-              )
-            )
-        }
       }
 }

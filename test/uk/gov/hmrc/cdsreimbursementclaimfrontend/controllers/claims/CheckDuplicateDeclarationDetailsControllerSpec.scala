@@ -27,12 +27,17 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -40,11 +45,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 
 import scala.concurrent.Future
 
@@ -62,9 +62,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
   private val journeys = Table(
     "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
+    JourneyBindable.Single
   )
 
   lazy val controller: CheckDuplicateDeclarationDetailsController =
@@ -206,7 +204,6 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
         controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      //TODO Update Redirect url when decision is made
       "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
         val displayDeclaration = sample[DisplayDeclaration]
         val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))
@@ -218,11 +215,10 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(journey, Seq(checkDeclarationDetailsKey -> "true")),
-          routes.EnterAdditionalDetailsController.enterAdditionalDetails(journey)
+          OverpaymentsRoutes.EnterAdditionalDetailsController.show(journey)
         )
       }
 
-      //TODO Update Redirect url when decision is made
       "the user confirms the details are incorrect" in forAll(journeys) { journey =>
         val displayDeclaration = sample[DisplayDeclaration]
         val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))

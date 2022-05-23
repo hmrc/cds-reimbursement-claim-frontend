@@ -67,4 +67,54 @@ object OverpaymentsRoutes {
     }
   }
 
+  object EnterMovementReferenceNumberController {
+    def enterJourneyMrn(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterMovementReferenceNumberController.enterJourneyMrn
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.enterJourneyMrn
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.enterJourneyMrn
+    }
+
+    def enterMrnSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterMovementReferenceNumberController.enterMrnSubmit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.enterMrnSubmit
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.enterMrnSubmit
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  object EnterDuplicateMovementReferenceNumberController {
+    def enterDuplicateMrnSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
+      case JourneyBindable.Multiple  =>
+        throw new Exception("Route enterDuplicateMrnSubmit not defined for multiple journey")
+      case JourneyBindable.Scheduled =>
+        throw new Exception("Route enterDuplicateMrnSubmit not defined for scheduled journey")
+    }
+
+    def enterDuplicateMrn(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn
+      case JourneyBindable.Multiple  => throw new Exception("Route enterDuplicateMrn not defined for multiple journey")
+      case JourneyBindable.Scheduled => throw new Exception("Route enterDuplicateMrn not defined for scheduled journey")
+    }
+  }
+
+  object EnterAdditionalDetailsController {
+
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterAdditionalDetailsController.show
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterAdditionalDetailsController.show
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterAdditionalDetailsController.show
+    }
+
+    def submit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterAdditionalDetailsController.submit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterAdditionalDetailsController.submit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterAdditionalDetailsController.submit
+    }
+  }
+
 }

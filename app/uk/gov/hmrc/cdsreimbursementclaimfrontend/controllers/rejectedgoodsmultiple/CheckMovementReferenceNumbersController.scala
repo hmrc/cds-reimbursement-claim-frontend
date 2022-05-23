@@ -22,14 +22,17 @@ import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_movement_reference_numbers
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -85,7 +88,8 @@ class CheckMovementReferenceNumbersController @Inject() (
                   case Yes =>
                     routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
                   case No  =>
-                    routes.CheckClaimantDetailsController.show()
+                    if (shouldForwardToCYA(journey)) checkYourAnswers
+                    else routes.CheckClaimantDetailsController.show()
                 }
               )
           )
@@ -94,16 +98,25 @@ class CheckMovementReferenceNumbersController @Inject() (
       .asFuture
   }
 
-  def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney { _ => journey =>
-    journey
-      .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
-      .fold(
-        error => {
-          logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-        },
-        updatedJourney => (updatedJourney, Redirect(routes.CheckMovementReferenceNumbersController.show()))
-      )
-      .asFuture
-  }
+  def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney(
+    _ =>
+      journey =>
+        journey
+          .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+          .fold(
+            error => {
+              logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
+              (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+            },
+            updatedJourney => (nextPageOnDelete(updatedJourney))
+          )
+          .asFuture,
+    fastForwardToCYAEnabled = false
+  )
+
+  private def nextPageOnDelete(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) = (
+    journey,
+    if (journey.hasCompleteAnswers) Redirect(routes.CheckClaimDetailsController.show())
+    else Redirect(routes.CheckMovementReferenceNumbersController.show())
+  )
 }

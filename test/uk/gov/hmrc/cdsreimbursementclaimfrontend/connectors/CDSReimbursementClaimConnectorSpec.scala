@@ -51,14 +51,6 @@ class CDSReimbursementClaimConnectorSpec
         |        host     = localhost
         |        port     = 7501
         |      }
-        |      bank-account-reputation {
-        |        protocol = http
-        |        host = localhost
-        |        port = 9871
-        |        business = /business/v2/assess
-        |        personal = /personal/v3/assess
-        |     }
-        |
         |   }
         |}
         |""".stripMargin
@@ -77,26 +69,6 @@ class CDSReimbursementClaimConnectorSpec
       behave like connectorBehaviour(
         mockGet(url)(_),
         () => connector.getDeclaration(mrn)
-      )
-    }
-
-    "handling requests to verify a business bank account" must {
-      val url     = "http://localhost:9871/business/v2/assess"
-      val jsValue = sample[JsValue]
-
-      behave like connectorBehaviour(
-        mockPost(url, Seq.empty, *)(_),
-        () => connector.getBusinessReputation(jsValue)
-      )
-    }
-
-    "handling requests to verify a personal bank account" must {
-      val url     = "http://localhost:9871/personal/v3/assess"
-      val jsValue = sample[JsValue]
-
-      behave like connectorBehaviour(
-        mockPost(url, Seq.empty, *)(_),
-        () => connector.getPersonalReputation(jsValue)
       )
     }
   }

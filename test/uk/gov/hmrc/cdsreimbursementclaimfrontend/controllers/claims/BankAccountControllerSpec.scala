@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -29,11 +28,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
@@ -58,18 +59,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.http.BadGatewayException
-import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class BankAccountControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with TableDrivenPropertyChecks
-    with MockFactory {
+    with MockFactory
+    with MockBankAccountReputationService {
 
   private val journeys = Table(
     "JourneyBindable",
@@ -78,29 +79,13 @@ class BankAccountControllerSpec
     JourneyBindable.Scheduled
   )
 
-  private val claimService = mock[ClaimService]
-
-  private def mockBusinessReputation(response: Either[Error, BankAccountReputation]) =
-    (claimService
-      .getBusinessAccountReputation(_: BankAccountDetails)(_: HeaderCarrier))
-      .expects(*, *)
-      .returning(EitherT.fromEither[Future](response))
-      .once()
-
-  private def mockPersonalReputation(response: Either[Error, BankAccountReputation]) =
-    (claimService
-      .getPersonalAccountReputation(_: BankAccountDetails, _: Option[String])(_: HeaderCarrier))
-      .expects(*, *, *)
-      .returning(EitherT.fromEither[Future](response))
-      .once()
-
   lazy val controller: BankAccountController = instanceOf[BankAccountController]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[ClaimService].toInstance(claimService)
+      bind[BankAccountReputationService].toInstance(mockBankAccountReputationService)
     )
 
   private def sessionWithClaimState(
@@ -257,7 +242,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockBusinessReputation(Right(businessResponse))
+          mockBusinessReputation(updatedBankAccount, Right(businessResponse))
           mockStoreSession(updatedSession)(Right(()))
         }
         val form               = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
@@ -288,7 +273,7 @@ class BankAccountControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockBusinessReputation(Right(businessResponse))
+            mockBusinessReputation(answers, Right(businessResponse))
             mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -323,7 +308,7 @@ class BankAccountControllerSpec
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(session)
-              mockBusinessReputation(Right(businessResponse))
+              mockBusinessReputation(answers, Right(businessResponse))
               mockStoreSessionNotCalled
             }
             val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -354,7 +339,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockBusinessReputation(Right(businessResponse))
+          mockBusinessReputation(answers, Right(businessResponse))
           mockStoreSessionNotCalled
         }
         val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -385,7 +370,7 @@ class BankAccountControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockBusinessReputation(Right(businessResponse))
+            mockBusinessReputation(answers, Right(businessResponse))
             mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -412,7 +397,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockBusinessReputation(Right(businessResponse))
+          mockBusinessReputation(answers, Right(businessResponse))
           mockStoreSessionNotCalled
         }
         val form             = enterBankDetailsForm.fill(Business).data.toSeq
@@ -426,11 +411,11 @@ class BankAccountControllerSpec
       }
 
       "Redirect to error page if the bank reputation service is down" in forAll(journeys) { journey =>
-        val errorResponse   = Error(
+        val error           =
           new BadGatewayException(
             "POST of 'http://localhost:7502/personal/v3/assess' failed. Caused by: 'Connection refused: localhost/0:0:0:0:0:0:0:1:7502'"
           )
-        )
+        val errorResponse   = ServiceUnavailableError(error.message)
         val answers         = Business
         val (session, _, _) =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
@@ -438,7 +423,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockBusinessReputation(Left(errorResponse))
+          mockBusinessReputation(answers, Left(errorResponse))
           mockStoreSessionNotCalled
         }
 
@@ -472,7 +457,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockPersonalReputation(Right(personalResponse))
+          mockPersonalReputation(updatedBankAccount, None, Right(personalResponse))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -503,7 +488,7 @@ class BankAccountControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockPersonalReputation(Right(personalResponse))
+            mockPersonalReputation(answers, None, Right(personalResponse))
             mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -537,7 +522,7 @@ class BankAccountControllerSpec
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(session)
-              mockPersonalReputation(Right(personalResponse))
+              mockPersonalReputation(answers, None, Right(personalResponse))
               mockStoreSessionNotCalled
             }
             val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -568,7 +553,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockPersonalReputation(Right(personalResponse))
+          mockPersonalReputation(answers, None, Right(personalResponse))
           mockStoreSessionNotCalled
         }
         val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -600,7 +585,7 @@ class BankAccountControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockPersonalReputation(Right(personalResponse))
+            mockPersonalReputation(answers, None, Right(personalResponse))
             mockStoreSessionNotCalled
           }
           val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
@@ -626,7 +611,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockPersonalReputation(Right(personalResponse))
+          mockPersonalReputation(answers, None, Right(personalResponse))
           mockStoreSessionNotCalled
         }
         val form             = enterBankDetailsForm.fill(Personal).data.toSeq
@@ -640,11 +625,11 @@ class BankAccountControllerSpec
       }
 
       "Redirect to error page if the bank reputation service is down" in forAll(journeys) { journey =>
-        val errorResponse   = Error(
+        val error           =
           new BadGatewayException(
             "POST of 'http://localhost:7502/personal/v3/assess' failed. Caused by: 'Connection refused: localhost/0:0:0:0:0:0:0:1:7502'"
           )
-        )
+        val errorResponse   = ServiceUnavailableError(error.message)
         val answers         = Personal
         val (session, _, _) =
           sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
@@ -652,7 +637,7 @@ class BankAccountControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockPersonalReputation(Left(errorResponse))
+          mockPersonalReputation(answers, None, Left(errorResponse))
           mockStoreSessionNotCalled
         }
 

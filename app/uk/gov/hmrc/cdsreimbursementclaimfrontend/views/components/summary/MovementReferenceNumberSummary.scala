@@ -50,7 +50,7 @@ object MovementReferenceNumberSummary {
       )
     )
 
-  def multiple(mrns: Seq[MRN], key: String, subKey: Option[String], changeCallOpt: Option[Int => Call])(implicit
+  def multiple(mrns: Seq[MRN], key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -58,11 +58,11 @@ object MovementReferenceNumberSummary {
         SummaryListRow(
           key = Key(HtmlContent(messages(combine(key, subKey, "label"), OrdinalNumber.label(index + 1).capitalize))),
           value = Value(Text(mrn.value)),
-          actions = changeCallOpt.map(changeCallFx =>
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = changeCallFx(index + 1).url,
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(combine(key, subKey, "label"), OrdinalNumber.label(index)))
                 )

@@ -84,7 +84,7 @@ class CheckContactDetailsMrnController @Inject() (
             Ok(view)
 
           case _ =>
-            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))
+            Redirect(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey))
         }
       }
     }

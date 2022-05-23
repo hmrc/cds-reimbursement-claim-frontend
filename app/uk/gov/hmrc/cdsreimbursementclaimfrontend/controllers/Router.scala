@@ -19,6 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
@@ -35,7 +37,7 @@ trait SubmitRoutes extends Product with Serializable {
     claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForEnterMovementReferenceNumber(): Call =
-    claimRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
+    claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
 
   def submitUrlForCheckDeclarationDetails(): Call =
     claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
@@ -80,21 +82,21 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case Yes =>
         journeyBindable match {
           case JourneyBindable.Scheduled =>
-            claimRoutes.UploadMrnListController.show()
+            overpaymentsScheduledRoutes.UploadMrnListController.show
           case JourneyBindable.Multiple  =>
             if (hasAssociatedMrns)
-              claimRoutes.CheckMovementReferenceNumbersController.showMrns()
+              overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.showMrns
             else
-              claimRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
+              overpaymentsMultipleRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
           case _                         =>
             claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
         }
       case No  =>
-        claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
+        claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
     }
 
   def nextPageForCheckDuplicateDeclarationDetails(): Call =
-    claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetails(journeyBindable)
+    claims.OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)

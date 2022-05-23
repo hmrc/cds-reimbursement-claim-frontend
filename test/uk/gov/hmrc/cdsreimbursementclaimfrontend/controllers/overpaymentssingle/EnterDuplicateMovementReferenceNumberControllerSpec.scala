@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.implicits._
@@ -29,11 +29,10 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.duplicateMovementReferenceNumberKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -49,6 +48,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 class EnterDuplicateMovementReferenceNumberControllerSpec
     extends ControllerSpec
@@ -58,6 +58,8 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     with TableDrivenPropertyChecks {
 
   val claimService = mock[ClaimService]
+
+  val duplicateMovementReferenceNumberKey: String = "enter-duplicate-movement-reference-number"
 
   lazy val controller: EnterDuplicateMovementReferenceNumberController =
     instanceOf[EnterDuplicateMovementReferenceNumberController]
@@ -79,11 +81,10 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     .once()
 
   "enterDuplicateMrn" should {
-    def performAction(journey: JourneyBindable) = controller.enterDuplicateMrn(journey)(FakeRequest())
+    def performAction() = controller.enterDuplicateMrn(FakeRequest())
 
     "display the page" in {
-      val journey      = JourneyBindable.Multiple
-      val (session, _) = getSession(Some(TypeOfClaimAnswer.Multiple))
+      val (session, _) = getSession(Some(TypeOfClaimAnswer.Individual))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -91,20 +92,19 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       checkPageIsDisplayed(
-        performAction(journey),
+        performAction(),
         messageFromMessageKey("enter-duplicate-movement-reference-number.mrn.title")
       )
     }
   }
 
   "enterDuplicateMrnSubmit" should {
-    def performAction(journey: JourneyBindable, data: (String, String)*) =
-      controller.enterDuplicateMrnSubmit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+    def performAction(data: (String, String)*) =
+      controller.enterDuplicateMrnSubmit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "update the duplicate MRN" in {
-      val journey          = JourneyBindable.Multiple
       val updatedMrn       = sample[MRN]
-      val (session, claim) = getSession(Some(TypeOfClaimAnswer.Multiple))
+      val (session, claim) = getSession(Some(TypeOfClaimAnswer.Individual))
 
       val displayDeclaration = sample[DisplayDeclaration]
       val updatedClaim       =
@@ -122,8 +122,8 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       checkIsRedirect(
-        performAction(journey, duplicateMovementReferenceNumberKey -> updatedMrn.value),
-        routes.EnterImporterEoriNumberController.enterImporterEoriNumber(journey)
+        performAction(duplicateMovementReferenceNumberKey -> updatedMrn.value),
+        claimsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(JourneyBindable.Single)
       )
     }
   }

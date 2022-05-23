@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.data.EitherT
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
-import play.api.data.Form
-import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.additionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAdditionalDetailsController.additionalDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
@@ -60,17 +59,19 @@ class EnterAdditionalDetailsController @Inject() (
     with Logging
     with SessionUpdates {
 
+  implicit val journey: JourneyBindable                                     = JourneyBindable.Scheduled
   implicit val dataExtractor: DraftClaim => Option[AdditionalDetailsAnswer] = _.additionalDetailsAnswer
+  private val postAction: Call                                              = OverpaymentsRoutes.EnterAdditionalDetailsController.submit(journey)
 
-  def enterAdditionalDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+  val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AdditionalDetailsAnswer] { (_, answers) =>
         val form = answers.toList.foldLeft(additionalDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterAdditionalDetailsPage(form))
+        Ok(enterAdditionalDetailsPage(form, postAction))
       }
     }
 
-  def enterAdditionalDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val submit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[AdditionalDetailsAnswer] { (fillingOutClaim, _, router) =>
         import router._
@@ -78,7 +79,7 @@ class EnterAdditionalDetailsController @Inject() (
         additionalDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => BadRequest(enterAdditionalDetailsPage(requestFormWithErrors)),
+            requestFormWithErrors => BadRequest(enterAdditionalDetailsPage(requestFormWithErrors, postAction)),
             additionalDetails => {
               val newDraftClaim  = fillingOutClaim.draftClaim.copy(additionalDetailsAnswer = Some(additionalDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
@@ -89,27 +90,13 @@ class EnterAdditionalDetailsController @Inject() (
                   logAndDisplayError("could not get additional details"),
                   _ =>
                     Redirect(
-                      CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively = journeyBindable match {
-                        case JourneyBindable.Scheduled =>
-                          claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
-                        case JourneyBindable.Multiple  =>
-                          claimRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
-                        case _                         =>
-                          claimRoutes.SelectDutiesController.selectDuties()
-                      })
+                      CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                        claimRoutes.SelectDutyTypesController.showDutyTypes(journey)
+                      )
                     )
                 )
             }
           )
       }
     }
-}
-
-object EnterAdditionalDetailsController {
-
-  val additionalDetailsForm: Form[AdditionalDetailsAnswer] = Form(
-    mapping("enter-additional-details" -> nonEmptyText(maxLength = 500))(AdditionalDetailsAnswer.apply)(
-      AdditionalDetailsAnswer.unapply
-    )
-  )
 }

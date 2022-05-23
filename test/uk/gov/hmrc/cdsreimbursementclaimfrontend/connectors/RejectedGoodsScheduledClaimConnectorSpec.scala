@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
+import org.scalacheck.Gen
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
@@ -35,6 +36,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 import scala.util.Failure
 import org.scalamock.handlers.CallHandler
+
 import scala.concurrent.Future
 
 class RejectedGoodsScheduledClaimConnectorSpec
@@ -77,7 +79,7 @@ class RejectedGoodsScheduledClaimConnectorSpec
 
   val expectedUrl = "http://host-2:312/foo-claim-scheduled/claims/rejected-goods-scheduled"
 
-  val requestGen = for {
+  val requestGen: Gen[RejectedGoodsScheduledClaimConnector.Request] = for {
     journey <- RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
   } yield RejectedGoodsScheduledClaimConnector.Request(
     journey.toOutput.getOrElse(fail("Could not generate journey output!"))

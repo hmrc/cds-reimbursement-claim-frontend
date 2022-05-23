@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnWithNoCheck
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
@@ -39,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
 import scala.concurrent.Future
 
@@ -106,9 +106,9 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
               case YesNo.No  =>
                 Ok(
                   enterDuplicateMovementReferenceNumberPage(
-                    enterDuplicateMrnWithNoCheck,
+                    Forms.enterDuplicateMrnWithNoCheck,
                     router.refNumberKey,
-                    routes.EnterDuplicateMovementReferenceNumberController
+                    OverpaymentsRoutes.EnterDuplicateMovementReferenceNumberController
                       .enterDuplicateMrnSubmit(router.journeyBindable)
                   )
                 )
