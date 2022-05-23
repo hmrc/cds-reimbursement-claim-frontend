@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
@@ -60,12 +61,13 @@ class EnterAdditionalDetailsController @Inject() (
 
   implicit val journey: JourneyBindable                                     = JourneyBindable.Scheduled
   implicit val dataExtractor: DraftClaim => Option[AdditionalDetailsAnswer] = _.additionalDetailsAnswer
+  private val postAction: Call                                              = OverpaymentsRoutes.EnterAdditionalDetailsController.submit(journey)
 
   val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AdditionalDetailsAnswer] { (_, answers) =>
         val form = answers.toList.foldLeft(additionalDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterAdditionalDetailsPage(form, journey))
+        Ok(enterAdditionalDetailsPage(form, postAction))
       }
     }
 
@@ -77,7 +79,7 @@ class EnterAdditionalDetailsController @Inject() (
         additionalDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => BadRequest(enterAdditionalDetailsPage(requestFormWithErrors, journey)),
+            requestFormWithErrors => BadRequest(enterAdditionalDetailsPage(requestFormWithErrors, postAction)),
             additionalDetails => {
               val newDraftClaim  = fillingOutClaim.draftClaim.copy(additionalDetailsAnswer = Some(additionalDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)

@@ -16,11 +16,10 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
+@import play.api.mvc.Call
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 
 
@@ -35,7 +34,7 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[AdditionalDetailsAnswer], journey: JourneyBindable)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[AdditionalDetailsAnswer], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-additional-details"}
 @title = @{messages(s"$key.title")}
@@ -61,7 +60,7 @@
 
     @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 
-    @formWithCSRF(OverpaymentsRoutes.EnterAdditionalDetailsController.show(journey), 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @textArea(
             form = form,
