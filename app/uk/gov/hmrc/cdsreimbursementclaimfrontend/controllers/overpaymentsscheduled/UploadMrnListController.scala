@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -72,7 +73,7 @@ class UploadMrnListController @Inject() (
   final val pageKey: String = "schedule-document"
 
   final val selfUrl: String     = servicesConfig.getString("self.url")
-  final val continueUrl: String = selfUrl + routes.UploadMrnListController.continue().url
+  final val continueUrl: String = selfUrl + routes.UploadMrnListController.continue.url
 
   final val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -146,7 +147,7 @@ class UploadMrnListController @Inject() (
         request
           .routeToCheckAnswers(JourneyBindable.Scheduled)
           .whenComplete(journey.draftClaim)(alternatively =
-            routes.CheckContactDetailsMrnController.show(JourneyBindable.Scheduled)
+            claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Scheduled)
           )
       }
     }
@@ -162,8 +163,8 @@ class UploadMrnListController @Inject() (
       nonce = nonce,
       continueUrl = continueUrl,
       continueWhenFullUrl = continueUrl,
-      backlinkUrl = selfUrl + routes.CheckDeclarationDetailsController.show(JourneyBindable.Scheduled).url,
-      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadMrnListController.callback().url,
+      backlinkUrl = selfUrl + claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Scheduled).url,
+      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadMrnListController.callback.url,
       minimumNumberOfFiles = 1,
       maximumNumberOfFiles = 1,
       initialNumberOfEmptyRows = 1,

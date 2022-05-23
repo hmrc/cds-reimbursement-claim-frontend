@@ -57,8 +57,3 @@ POST        /:journey/select-duties/select-duty-types              uk.gov.hmrc.c
 
 GET         /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.showReimbursementMethod()
 POST        /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.submitReimbursementMethod()
-
-GET         /scheduled/scheduled-document-upload/choose-files       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.UploadMrnListController.show()
-+nocsrf
-POST        /scheduled/scheduled-document-upload/choose-files       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.UploadMrnListController.callback()
-GET         /scheduled/scheduled-document-upload/continue           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.UploadMrnListController.continue()

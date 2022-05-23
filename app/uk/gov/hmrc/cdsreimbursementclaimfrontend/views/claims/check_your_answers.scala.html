@@ -72,7 +72,7 @@
 
     @claim.scheduledDocumentAnswer.map { scheduledDocument =>
         @pageHeading(Html(messages(s"$key.scheduled-document.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey, claimRoutes.UploadMrnListController.show()))
+        @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey, overpaymentsScheduledRoutes.UploadMrnListController.show))
     }
 
     @claim.displayDeclaration.map { displayDeclaration =>

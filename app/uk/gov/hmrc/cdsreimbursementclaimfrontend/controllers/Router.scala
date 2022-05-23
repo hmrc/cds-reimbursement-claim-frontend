@@ -20,6 +20,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
@@ -81,7 +82,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case Yes =>
         journeyBindable match {
           case JourneyBindable.Scheduled =>
-            claimRoutes.UploadMrnListController.show()
+            overpaymentsScheduledRoutes.UploadMrnListController.show
           case JourneyBindable.Multiple  =>
             if (hasAssociatedMrns)
               overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.showMrns
