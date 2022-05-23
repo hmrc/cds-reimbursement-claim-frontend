@@ -20,6 +20,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.ThirdPartyImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
@@ -65,7 +66,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
         whetherDeclarationDetailsCorrect = Yes,
         hasAssociatedMrns = false
       ) should be(
-        claimRoutes.UploadMrnListController.show()
+        overpaymentsScheduledRoutes.UploadMrnListController.show
       )
     }
 

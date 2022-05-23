@@ -1,6 +1,11 @@
 GET         /scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.enterJourneyMrn
 POST        /scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.enterMrnSubmit
 
+GET         /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.show
++nocsrf
+POST        /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.callback
+GET         /scheduled/scheduled-document-upload/continue                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.continue
+
 GET         /scheduled/select-duties/start                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyCodesController.iterate()
 GET         /scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyCodesController.showDutyCodes(dutyType: DutyType)
 POST        /scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyCodesController.submitDutyCodes(dutyType: DutyType)
