@@ -56,7 +56,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        <dl class="govuk-summary-list">
+        <dl class="govuk-summary-list cds-multi-action">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
@@ -77,13 +77,13 @@
                                 messages(s"cya.change")
                             }</a>
                         </dd>
-                        <dd class="govuk-summary-list__actions">
                         @if(references.size > 2) {
+                        <dd class="govuk-summary-list__actions">
                             <a class="govuk-link" href=@routes.CheckMovementReferenceNumbersController.deleteMrn(index).url>@{
                                 messages(s"cya.remove")
                             }</a>
-                        }
                         </dd>
+                        }
                     </div>
                 }
             }
