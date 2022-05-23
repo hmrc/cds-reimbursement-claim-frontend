@@ -22,12 +22,17 @@ $hmrc-assets-path: "/claim-back-import-duty-vat/assets/lib/hmrc-frontend/hmrc/";
 
 // Custom CDS styles
 
-.govuk-summary-list__key {
-    width:40%;
-}
 
-.cds-multi-action .govuk-summary-list__key {
-    width:20%;
+@media only screen and (max-width: 1024px) {
+
+    .govuk-summary-list__key {
+        width:40%;
+    }
+
+    .cds-multi-action .govuk-summary-list__key {
+        width:20%;
+    }
+
 }
 
 .cds-no-border {
