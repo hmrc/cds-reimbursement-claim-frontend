@@ -49,21 +49,6 @@ POST        /single/enter-claim/:id                                 uk.gov.hmrc.
 GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummary()
 POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummarySubmit()
 
-GET         /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterMrn(index: AssociatedMrnIndex)
-POST        /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitEnteredMrn(index: AssociatedMrnIndex)
-
-GET         /multiple/change-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.changeMrn(index: AssociatedMrnIndex)
-POST        /multiple/change-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitChangedMrn(index: AssociatedMrnIndex)
-
-GET         /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController.selectDuties(index: Int)
-POST        /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController.selectDutiesSubmit(index: Int)
-
-GET         /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.enterClaim(index: Int, taxCode: TaxCode)
-POST        /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.enterClaimSubmit(index: Int, taxCode: TaxCode)
-
-GET         /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummary
-POST        /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummarySubmit
-
 GET         /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.showDutyTypes(journey: JourneyBindable)
 POST        /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.submitDutyTypes(journey: JourneyBindable)
 

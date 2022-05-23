@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
@@ -227,7 +228,7 @@ class EnterAdditionalDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-additional-details" -> "some package")),
-          claimsRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
+          overpaymentsMultipleRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
         )
       }
 

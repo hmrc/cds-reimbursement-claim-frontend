@@ -31,19 +31,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.additionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-<<<<<<< HEAD:test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/claims/EnterAdditionalDetailsControllerSpec.scala
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
-=======
->>>>>>> bd22f7ea (CDSR-1697: Add test to overpayments single):test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/overpaymentssingle/EnterAdditionalDetailsControllerSpec.scala
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
@@ -235,17 +228,7 @@ class EnterAdditionalDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-additional-details" -> "some package")),
-<<<<<<< HEAD:test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/claims/EnterAdditionalDetailsControllerSpec.scala
-          if (journeyBindable === JourneyBindable.Scheduled) {
-            routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
-          } else if (journeyBindable === JourneyBindable.Multiple) {
-            overpaymentsMultipleRoutes.SelectMultipleDutiesController.selectDuties(1)
-          } else {
-            routes.SelectDutiesController.selectDuties()
-          }
-=======
-          claimsRoutes.SelectDutiesController.selectDuties()
->>>>>>> bd22f7ea (CDSR-1697: Add test to overpayments single):test/uk/gov/hmrc/cdsreimbursementclaimfrontend/controllers/overpaymentssingle/EnterAdditionalDetailsControllerSpec.scala
+          claimsRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Single)
         )
       }
 
