@@ -4,6 +4,9 @@ POST        /single/enter-movement-reference-number                          @uk
 GET         /single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn
 POST        /single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
 
+GET         /single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController.show
+POST        /single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController.submit
+
 GET         /single/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.show
 POST        /single/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.submit
 
@@ -11,9 +14,6 @@ GET         /single/supporting-evidence/choose-files                         @uk
 +nocsrf
 POST        /single/supporting-evidence/choose-files                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.UploadFilesController.callback
 GET         /single/supporting-evidence/summary                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.UploadFilesController.summary
-
-GET         /single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController.show
-POST        /single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController.submit
 
 GET         /single/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersAndSubmitController.checkAllAnswers
 POST        /single/check-answers-accept-send                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit
