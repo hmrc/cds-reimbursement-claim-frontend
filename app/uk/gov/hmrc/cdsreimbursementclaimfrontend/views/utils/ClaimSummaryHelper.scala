@@ -20,7 +20,7 @@ import cats.data.NonEmptyList
 import play.api.i18n.Lang
 import play.api.i18n.Langs
 import play.api.i18n.MessagesApi
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -50,7 +50,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterSingleClaimController.enterClaim(claim.id).url}",
+                href = s"${overpaymentsSingleRoutes.EnterSingleClaimController.enterClaim(claim.id).url}",
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"select-duties.duty.${claim.taxCode}")(lang))
               )

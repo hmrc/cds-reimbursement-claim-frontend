@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.Functor
 import cats.Id
@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
@@ -64,6 +65,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genN
 
 import scala.concurrent.Future
 import scala.util.Random
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 
 class EnterSingleClaimControllerSpec
     extends ControllerSpec
@@ -164,7 +166,7 @@ class EnterSingleClaimControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.SelectDutiesController.selectDuties()
+        routes.SelectDutiesController.selectDuties
       )
     }
 
@@ -185,7 +187,7 @@ class EnterSingleClaimControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.EnterSingleClaimController.checkClaimSummary()
+        routes.EnterSingleClaimController.checkClaimSummary
       )
 
     }
@@ -354,7 +356,7 @@ class EnterSingleClaimControllerSpec
             "enter-claim" -> "5.00"
           )
         ),
-        routes.EnterSingleClaimController.checkClaimSummary()
+        routes.EnterSingleClaimController.checkClaimSummary
       )
     }
 
@@ -460,7 +462,7 @@ class EnterSingleClaimControllerSpec
       val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
-        routes.ReimbursementMethodController.showReimbursementMethod()
+        claimsRoutes.ReimbursementMethodController.showReimbursementMethod
       )
     }
 
@@ -486,7 +488,7 @@ class EnterSingleClaimControllerSpec
       val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
-        routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
+        claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
       )
     }
 
@@ -513,7 +515,7 @@ class EnterSingleClaimControllerSpec
       val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "false"))
       checkIsRedirect(
         result,
-        routes.SelectDutiesController.selectDuties()
+        routes.SelectDutiesController.selectDuties
       )
     }
 

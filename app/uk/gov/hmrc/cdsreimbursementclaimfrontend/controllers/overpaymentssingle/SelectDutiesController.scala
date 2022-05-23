@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesF
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectDutiesController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -80,7 +80,14 @@ class SelectDutiesController @Inject() (
           dutiesAvailable => {
             val emptyForm  = selectDutiesForm(dutiesAvailable)
             val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill)
-            Ok(selectDutiesPage(filledForm, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible))
+            Ok(
+              selectDutiesPage(
+                filledForm,
+                dutiesAvailable,
+                cmaEligibleDutiesMap.isCmaEligible,
+                routes.SelectDutiesController.selectDutiesSubmit
+              )
+            )
           }
         )
       }
@@ -101,7 +108,14 @@ class SelectDutiesController @Inject() (
               .bindFromRequest()
               .fold(
                 formWithErrors =>
-                  BadRequest(selectDutiesPage(formWithErrors, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible)),
+                  BadRequest(
+                    selectDutiesPage(
+                      formWithErrors,
+                      dutiesAvailable,
+                      cmaEligibleDutiesMap.isCmaEligible,
+                      routes.SelectDutiesController.selectDutiesSubmit
+                    )
+                  ),
                 dutiesSelected => {
                   val newDraftClaim  =
                     fillingOutClaim.draftClaim.copy(dutiesSelectedAnswer = Some(dutiesSelected))
@@ -111,7 +125,7 @@ class SelectDutiesController @Inject() (
                     .leftMap(_ => Error("could not update session"))
                     .fold(
                       logAndDisplayError("could not get duties selected "),
-                      _ => Redirect(routes.EnterSingleClaimController.startClaim())
+                      _ => Redirect(routes.EnterSingleClaimController.startClaim)
                     )
                 }
               )
