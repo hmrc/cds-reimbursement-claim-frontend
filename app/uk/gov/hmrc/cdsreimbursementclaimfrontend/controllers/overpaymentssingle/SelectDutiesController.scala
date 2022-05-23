@@ -80,7 +80,14 @@ class SelectDutiesController @Inject() (
           dutiesAvailable => {
             val emptyForm  = selectDutiesForm(dutiesAvailable)
             val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill)
-            Ok(selectDutiesPage(filledForm, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible))
+            Ok(
+              selectDutiesPage(
+                filledForm,
+                dutiesAvailable,
+                cmaEligibleDutiesMap.isCmaEligible,
+                routes.SelectDutiesController.selectDutiesSubmit
+              )
+            )
           }
         )
       }
@@ -101,7 +108,14 @@ class SelectDutiesController @Inject() (
               .bindFromRequest()
               .fold(
                 formWithErrors =>
-                  BadRequest(selectDutiesPage(formWithErrors, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible)),
+                  BadRequest(
+                    selectDutiesPage(
+                      formWithErrors,
+                      dutiesAvailable,
+                      cmaEligibleDutiesMap.isCmaEligible,
+                      routes.SelectDutiesController.selectDutiesSubmit
+                    )
+                  ),
                 dutiesSelected => {
                   val newDraftClaim  =
                     fillingOutClaim.draftClaim.copy(dutiesSelectedAnswer = Some(dutiesSelected))

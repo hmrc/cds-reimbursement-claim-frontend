@@ -17,6 +17,7 @@
 @import play.api.data.Form
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -38,7 +39,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(id: UUID, form: Form[ClaimAmount], reimbursement: ClaimedReimbursement)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ClaimAmount], reimbursement: ClaimedReimbursement, postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim"}
 @title = @{messages(s"$key.title", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}"))}
@@ -55,7 +56,7 @@
 
     @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-    @formWithCSRF(overpaymentsSingleRoutes.EnterSingleClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @paragraph(Html(messages(s"$key.paid-amount-label", reimbursement.paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
 

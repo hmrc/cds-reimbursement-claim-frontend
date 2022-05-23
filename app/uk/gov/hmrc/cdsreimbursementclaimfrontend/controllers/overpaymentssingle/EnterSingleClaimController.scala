@@ -105,7 +105,9 @@ class EnterSingleClaimController @Inject() (
           .map { claim =>
             val emptyForm = mrnClaimAmountForm(claim.paidAmount)
             val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.correctedAmount)), emptyForm).merge
-            Future.successful(Ok(enterSingleClaimPage(id, form, claim)))
+            Future.successful(
+              Ok(enterSingleClaimPage(form, claim, routes.EnterSingleClaimController.enterClaimSubmit(id)))
+            )
           }
           .getOrElse(Future.successful(Redirect(baseRoutes.IneligibleController.ineligible())))
       }
@@ -127,7 +129,13 @@ class EnterSingleClaimController @Inject() (
                   .fold(
                     formWithErrors => {
                       val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
-                      BadRequest(enterSingleClaimPage(id, formWithErrors.copy(errors = updatedErrors), reimbursement))
+                      BadRequest(
+                        enterSingleClaimPage(
+                          formWithErrors.copy(errors = updatedErrors),
+                          reimbursement,
+                          routes.EnterSingleClaimController.enterClaimSubmit(id)
+                        )
+                      )
                     },
                     formOk => {
                       val newClaim =
