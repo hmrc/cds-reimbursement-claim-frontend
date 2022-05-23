@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 
 sealed trait ConnectorError {
   def message: String

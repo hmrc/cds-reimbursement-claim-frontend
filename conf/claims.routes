@@ -40,14 +40,8 @@ GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.
 GET         /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountType(journey: JourneyBindable)
 POST        /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)
 
-GET         /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
-POST        /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
-
-GET         /single/start-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.startClaim()
-GET         /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaim(id: UUID)
-POST        /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaimSubmit(id: UUID)
-GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummary()
-POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummarySubmit()
+GET         /:journey/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAdditionalDetailsController.enterAdditionalDetails(journey: JourneyBindable)
+POST        /:journey/enter-additional-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAdditionalDetailsController.enterAdditionalDetailsSubmit(journey: JourneyBindable)
 
 GET         /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.showDutyTypes(journey: JourneyBindable)
 POST        /:journey/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.submitDutyTypes(journey: JourneyBindable)

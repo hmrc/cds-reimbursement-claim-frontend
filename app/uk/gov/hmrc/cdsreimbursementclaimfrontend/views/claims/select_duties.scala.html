@@ -20,6 +20,7 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes=>overpaymentsSingleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -42,7 +43,7 @@
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
 
-  @postAction = @{routes.SelectDutiesController.selectDutiesSubmit}
+  @postAction = @{overpaymentsSingleRoutes.SelectDutiesController.selectDutiesSubmit}
   @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
 
         val isCmaEligible: Boolean = cmaEligibleList.nonEmpty && cmaEligibleList(index)
