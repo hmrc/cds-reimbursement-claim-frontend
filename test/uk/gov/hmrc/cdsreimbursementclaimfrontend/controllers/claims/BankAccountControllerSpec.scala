@@ -158,100 +158,10 @@ class BankAccountControllerSpec
 
   "Bank Account Controller" when {
 
-    "Check Bank Account Details" should {
-
-      "Redirect when MaskedBankDetails is empty" in forAll(journeys) { journey =>
-        val maskedBankDetails = BankDetails(None, None)
-        val (session, _, _)   =
-          sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-
-        }
-
-        val request = FakeRequest()
-        val result  = controller.checkBankAccountDetails(journey)(request)
-
-        checkIsRedirect(result, routes.SelectBankAccountTypeController.selectBankAccountType(journey))
-
-      }
-
-      "Redirect when MaskedBankDetails is None" in forAll(journeys) { journey =>
-        val (session, _, _) = sessionWithMaskedBankDetails(None, toTypeOfClaim(journey).some)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        val request = FakeRequest()
-        val result  = controller.checkBankAccountDetails(journey)(request)
-        checkIsRedirect(result, routes.SelectBankAccountTypeController.selectBankAccountType(journey))
-      }
-
-      "Ok when MaskedBankDetails has consigneeBankDetails" in forAll(journeys) { journey =>
-        val consigneeDetails  = sample[BankAccountDetails]
-        val maskedBankDetails = BankDetails(Some(consigneeDetails), None)
-        val (session, _, _)   =
-          sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-        val request           = FakeRequest()
-        val result            = controller.checkBankAccountDetails(journey)(request)
-        status(result) shouldBe OK
-      }
-
-      "Ok when MaskedBankDetails has declarantBankDetails" in forAll(journeys) { journey =>
-        val declarantBankDetails = sample[BankAccountDetails]
-        val maskedBankDetails    = BankDetails(None, Some(declarantBankDetails))
-        val (session, _, _)      =
-          sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-        val request              = FakeRequest()
-        val result               = controller.checkBankAccountDetails(journey)(request)
-        status(result) shouldBe OK
-
-      }
-    }
-
     "Business Bank Account" should {
 
       val Business        = sample[BankAccountDetails]
       val bankAccountType = BankAccountType.Business
-
-      "Let users check their bank details when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in forAll(
-        journeys
-      ) { journey =>
-        val businessResponse   =
-          BankAccountReputation(
-            accountNumberWithSortCodeIsValid = Yes,
-            accountExists = Some(Yes),
-            otherError = None
-          )
-        val answers            = Business
-        val (session, _, _)    =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val updatedBankAccount = Business.copy(accountNumber = sample[AccountNumber])
-        val updatedSession     = updateSession(session, updatedBankAccount)
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockBusinessReputation(updatedBankAccount, Right(businessResponse))
-          mockStoreSession(updatedSession)(Right(()))
-        }
-        val form               = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
-        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result             = controller.enterBankAccountDetailsSubmit(journey)(request)
-
-        checkIsRedirect(result, routes.BankAccountController.checkBankAccountDetails(journey))
-      }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
         journeys
@@ -440,34 +350,6 @@ class BankAccountControllerSpec
 
       val Personal        = sample[BankAccountDetails]
       val bankAccountType = BankAccountType.Personal
-
-      "Let users check their bank details when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in forAll(
-        journeys
-      ) { journey =>
-        val personalResponse   =
-          BankAccountReputation(
-            accountNumberWithSortCodeIsValid = Yes,
-            accountExists = Some(Yes),
-            otherError = None
-          )
-        val answers            = Personal
-        val (session, _, _)    =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-        val updatedBankAccount = Personal.copy(accountNumber = sample[AccountNumber])
-        val updatedSession     = updateSession(session, updatedBankAccount)
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockPersonalReputation(updatedBankAccount, None, Right(personalResponse))
-          mockStoreSession(updatedSession)(Right(()))
-        }
-
-        val form    = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
-        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
-
-        checkIsRedirect(result, routes.BankAccountController.checkBankAccountDetails(journey))
-      }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
         journeys
