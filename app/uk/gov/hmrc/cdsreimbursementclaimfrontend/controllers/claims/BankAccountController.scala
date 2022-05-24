@@ -1,8 +1,23 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.implicits._
-import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
@@ -14,25 +29,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.extractRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, DraftClaim, upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -46,23 +56,23 @@ import scala.concurrent.Future
 
 @Singleton
 class BankAccountController @Inject() (
-                                        val authenticatedAction: AuthenticatedAction,
-                                        val sessionDataAction: SessionDataAction,
-                                        val sessionStore: SessionCache,
-                                        cc: MessagesControllerComponents,
-                                        val config: Configuration,
-                                        val claimService: ClaimService,
-                                        val bankAccountReputationService: BankAccountReputationService,
-                                        checkBankAccountDetailsPage: pages.check_bank_account_details,
-                                        enterBankAccountDetailsPage: pages.enter_bank_account_details
-                                      )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
-  extends FrontendController(cc)
+  val authenticatedAction: AuthenticatedAction,
+  val sessionDataAction: SessionDataAction,
+  val sessionStore: SessionCache,
+  cc: MessagesControllerComponents,
+  val config: Configuration,
+  val claimService: ClaimService,
+  val bankAccountReputationService: BankAccountReputationService,
+  checkBankAccountDetailsPage: pages.check_bank_account_details,
+  enterBankAccountDetailsPage: pages.enter_bank_account_details
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+    extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
 
   implicit val dataExtractor: DraftClaim => Option[BankAccountDetails] = _.bankAccountDetailsAnswer
-  
+
   def enterBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BankAccountDetails] { (_, answers, router) =>
@@ -73,10 +83,10 @@ class BankAccountController @Inject() (
     }
 
   private def getBankAccountReputation(
-                                        bankAccountType: BankAccountType,
-                                        bankAccountDetails: BankAccountDetails,
-                                        fillingOutClaim: FillingOutClaim
-                                      )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] =
+    bankAccountType: BankAccountType,
+    bankAccountDetails: BankAccountDetails,
+    fillingOutClaim: FillingOutClaim
+  )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] =
     if (bankAccountType === BankAccountType.Business) {
       bankAccountReputationService.getBusinessAccountReputation(bankAccountDetails)
     } else {
@@ -87,8 +97,8 @@ class BankAccountController @Inject() (
     }
 
   private def processCdsError[T : CdsError](
-                                             error: T
-                                           )(implicit request: RequestWithSessionData[AnyContent], journeyBindable: JourneyBindable): Result =
+    error: T
+  )(implicit request: RequestWithSessionData[AnyContent], journeyBindable: JourneyBindable): Result =
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
@@ -99,10 +109,10 @@ class BankAccountController @Inject() (
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   private def addBankAccount(
-                              bankAccountReputation: BankAccountReputation,
-                              request: RequestWithSessionData[AnyContent],
-                              updatedJourney: FillingOutClaim
-                            )(implicit hc: HeaderCarrier): EitherT[Future, Error, Unit] =
+    bankAccountReputation: BankAccountReputation,
+    request: RequestWithSessionData[AnyContent],
+    updatedJourney: FillingOutClaim
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, Unit] =
     if (bankAccountReputation.accountExists.contains(Yes)) {
       EitherT[Future, Error, Unit](
         updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
@@ -112,10 +122,10 @@ class BankAccountController @Inject() (
     }
 
   private def processBankAccountReputation(
-                                            bankAccountReputation: BankAccountReputation,
-                                            bankAccountDetails: BankAccountDetails,
-                                            router: ReimbursementRoutes
-                                          )(implicit journeyBindable: JourneyBindable, request: Request[_], mesaages: Messages) =
+    bankAccountReputation: BankAccountReputation,
+    bankAccountDetails: BankAccountDetails,
+    router: ReimbursementRoutes
+  )(implicit journeyBindable: JourneyBindable, request: Request[_], mesaages: Messages) =
     if (bankAccountReputation.otherError.isDefined) {
       val errorKey = bankAccountReputation.otherError.map(_.code).getOrElse("account-does-not-exist")
       val form     = enterBankDetailsForm
@@ -140,7 +150,7 @@ class BankAccountController @Inject() (
         .withError("enter-bank-details", s"error.account-does-not-exist")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else {
-      Redirect(claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
+      Redirect(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
     }
 
   def enterBankAccountDetailsSubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
@@ -148,7 +158,7 @@ class BankAccountController @Inject() (
       withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim: FillingOutClaim, _, router) =>
         fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
           case None =>
-            Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable))
+            Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
 
           case Some(bankAccount: BankAccountType) =>
             enterBankDetailsForm

@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckScheduledClaimController.whetherDutiesCorrectForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
@@ -113,7 +114,7 @@ class CheckScheduledClaimController @Inject() (
                     _ =>
                       Redirect(
                         CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                          claimRoutes.BankAccountController.checkBankAccountDetails(Scheduled)
+                          OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(Scheduled)
                         )
                       )
                   )
