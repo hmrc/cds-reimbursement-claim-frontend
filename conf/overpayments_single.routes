@@ -4,6 +4,9 @@ POST        /single/enter-movement-reference-number                          @uk
 GET         /single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn
 POST        /single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
 
+GET         /single/enter-declarant-eori                                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+POST        /single/enter-declarant-eori                                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+
 GET         /single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController.show
 POST        /single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController.submit
 

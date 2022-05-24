@@ -117,7 +117,11 @@ class EnterImporterEoriNumberController @Inject() (
                 status     <-
                   if (eorisMatch)
                     updateJourney()
-                      .map(_ => Redirect(routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journey)))
+                      .map(_ =>
+                        Redirect(
+                          OverpaymentsRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journey)
+                        )
+                      )
                       .leftMap(logAndDisplayError("could not get importer eori number"))
                   else
                     EitherT.rightT[Future, Result](Redirect(controllers.routes.IneligibleController.ineligible()))
