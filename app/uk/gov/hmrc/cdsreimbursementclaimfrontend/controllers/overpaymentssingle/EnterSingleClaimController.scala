@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtracto
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
@@ -188,7 +189,7 @@ class EnterSingleClaimController @Inject() (
                         case claim: DraftClaim if isCmaEligible(claim) =>
                           claimsRoutes.ReimbursementMethodController.showReimbursementMethod()
                         case _                                         =>
-                          claimsRoutes.BankAccountController.checkBankAccountDetails(Single)
+                          OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey)
                       })
                   case No  => Redirect(routes.SelectDutiesController.selectDuties)
                 }

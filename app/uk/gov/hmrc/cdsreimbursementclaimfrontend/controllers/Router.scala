@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
@@ -35,7 +36,7 @@ trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
   def submitUrlForEnterBankAccountDetails(): Call =
-    claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
+    OverpaymentsRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForEnterMovementReferenceNumber(): Call =
     claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
