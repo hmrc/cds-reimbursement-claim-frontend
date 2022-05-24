@@ -210,8 +210,6 @@ class SelectBankAccountTypeControllerSpec
             mockStoreSession(sessionAfter)(Right(()))
           }
 
-          println(s"The bank account type $bankAccountType was ${bankAccountType.toString}")
-
           checkIsRedirect(
             performAction(Seq("select-bank-account-type" -> bankAccountType.toString)),
             claimsRoutes.BankAccountController.enterBankAccountDetails(JourneyBindable.Multiple)

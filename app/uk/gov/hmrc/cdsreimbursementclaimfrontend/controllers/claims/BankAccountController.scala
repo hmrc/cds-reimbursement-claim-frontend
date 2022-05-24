@@ -102,7 +102,7 @@ class BankAccountController @Inject() (
             )
           }
           .getOrElse {
-            Future.successful(Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)))
+            Future.successful(Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(journey)))
           }
       }
     }
@@ -193,7 +193,7 @@ class BankAccountController @Inject() (
         val x: ReimbursementRoutes = router
         fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
           case None =>
-            Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
+            Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable))
 
           case Some(bankAccount: BankAccountType) =>
             enterBankDetailsForm
