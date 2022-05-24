@@ -93,7 +93,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
               "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
               "Basis for claim".expectedAlways,
               "Reason for claim".expectedAlways,
-              "Total reimbursement claim".expectedAlways,
+              "Claim total".expectedAlways,
               "Bank details".expectedAlways,
               "Supporting documents".expectedAlways,
               "Were your goods imported into Northern Ireland?".expectedWhen(claim.whetherNorthernIrelandAnswer),
