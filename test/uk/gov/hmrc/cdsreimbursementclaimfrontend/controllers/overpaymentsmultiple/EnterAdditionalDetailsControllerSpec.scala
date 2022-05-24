@@ -36,6 +36,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer

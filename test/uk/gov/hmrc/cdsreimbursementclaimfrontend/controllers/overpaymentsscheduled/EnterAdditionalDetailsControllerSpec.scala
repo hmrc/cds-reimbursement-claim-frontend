@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.additionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -227,7 +228,7 @@ class EnterAdditionalDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-additional-details" -> "some package")),
-          claimsRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
+          overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes
         )
       }
 

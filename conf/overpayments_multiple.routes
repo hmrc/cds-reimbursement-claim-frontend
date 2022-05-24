@@ -37,3 +37,6 @@ POST        /multiple/check-answers-accept-send                                @
 GET         /multiple/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.confirmationOfSubmission
 GET         /multiple/check-if-claim-was-sent                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.submissionError
 
+GET         /single/select-duties/select-duty-types                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectDutyTypesController.showDutyTypes
+POST        /single/select-duties/select-duty-types                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectDutyTypesController.submitDutyTypes
+

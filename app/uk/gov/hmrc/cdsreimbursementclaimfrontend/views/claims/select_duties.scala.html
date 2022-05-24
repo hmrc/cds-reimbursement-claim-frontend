@@ -18,8 +18,10 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import play.twirl.api.Html
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes=>overpaymentsSingleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -37,12 +39,11 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], cmaEligibleList: Seq[Boolean])(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], cmaEligibleList: Seq[Boolean], postAction: Call)(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
 
-  @postAction = @{routes.SelectDutiesController.selectDutiesSubmit}
   @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
 
         val isCmaEligible: Boolean = cmaEligibleList.nonEmpty && cmaEligibleList(index)

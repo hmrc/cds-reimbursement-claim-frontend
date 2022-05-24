@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
@@ -33,11 +33,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterSingleClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -85,10 +86,10 @@ class EnterSingleClaimController @Inject() (
         generateReimbursementsFromDuties(fillingOutClaim.draftClaim).map(ClaimedReimbursementsAnswer(_)) match {
           case Left(error)         =>
             logger.warn("Error generating claims: ", error)
-            Redirect(routes.SelectDutiesController.selectDuties())
+            Redirect(routes.SelectDutiesController.selectDuties)
           case Right(None)         =>
             logger.warn("No duties found to create claims ")
-            Redirect(routes.SelectDutiesController.selectDuties())
+            Redirect(routes.SelectDutiesController.selectDuties)
           case Right(Some(claims)) =>
             val nextPage = calculateNextPage(claims)
             updateClaimedReimbursementsAnswer(claims, fillingOutClaim, nextPage)
@@ -104,7 +105,9 @@ class EnterSingleClaimController @Inject() (
           .map { claim =>
             val emptyForm = mrnClaimAmountForm(claim.paidAmount)
             val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.correctedAmount)), emptyForm).merge
-            Future.successful(Ok(enterSingleClaimPage(id, form, claim)))
+            Future.successful(
+              Ok(enterSingleClaimPage(form, claim, routes.EnterSingleClaimController.enterClaimSubmit(id)))
+            )
           }
           .getOrElse(Future.successful(Redirect(baseRoutes.IneligibleController.ineligible())))
       }
@@ -115,18 +118,24 @@ class EnterSingleClaimController @Inject() (
       withAnswers[ClaimedReimbursementsAnswer] { (fillingOutClaim, answers) =>
         answers match {
           case None                 =>
-            Redirect(routes.EnterSingleClaimController.startClaim())
+            Redirect(routes.EnterSingleClaimController.startClaim)
           case Some(reimbursements) =>
             reimbursements.find(_.id === id) match {
               case None                =>
-                Redirect(routes.EnterSingleClaimController.startClaim())
+                Redirect(routes.EnterSingleClaimController.startClaim)
               case Some(reimbursement) =>
                 mrnClaimAmountForm(reimbursement.paidAmount)
                   .bindFromRequest()
                   .fold(
                     formWithErrors => {
                       val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
-                      BadRequest(enterSingleClaimPage(id, formWithErrors.copy(errors = updatedErrors), reimbursement))
+                      BadRequest(
+                        enterSingleClaimPage(
+                          formWithErrors.copy(errors = updatedErrors),
+                          reimbursement,
+                          routes.EnterSingleClaimController.enterClaimSubmit(id)
+                        )
+                      )
                     },
                     formOk => {
                       val newClaim =
@@ -149,10 +158,10 @@ class EnterSingleClaimController @Inject() (
                 Ok(checkSingleClaimSummaryPage(mrn, claims, whetherClaimCorrect))
 
               case None =>
-                Redirect(routes.EnterSingleClaimController.startClaim())
+                Redirect(routes.EnterSingleClaimController.startClaim)
             }
           case None      =>
-            Redirect(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
+            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn)
         }
       }
     }
@@ -177,16 +186,16 @@ class EnterSingleClaimController @Inject() (
                       .routeToCheckAnswers(Single)
                       .whenComplete(journey.draftClaim)(alternatively = journey.draftClaim match {
                         case claim: DraftClaim if isCmaEligible(claim) =>
-                          routes.ReimbursementMethodController.showReimbursementMethod()
+                          claimsRoutes.ReimbursementMethodController.showReimbursementMethod()
                         case _                                         =>
-                          routes.BankAccountController.checkBankAccountDetails(Single)
+                          claimsRoutes.BankAccountController.checkBankAccountDetails(Single)
                       })
-                  case No  => Redirect(routes.SelectDutiesController.selectDuties())
+                  case No  => Redirect(routes.SelectDutiesController.selectDuties)
                 }
               )
 
           case None =>
-            Redirect(OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
+            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn)
         }
       }
     }
@@ -196,7 +205,7 @@ class EnterSingleClaimController @Inject() (
       case Some(claim) =>
         Redirect(routes.EnterSingleClaimController.enterClaim(claim.id))
       case None        =>
-        Redirect(routes.EnterSingleClaimController.checkClaimSummary())
+        Redirect(routes.EnterSingleClaimController.checkClaimSummary)
     }
 
   protected def updateClaimedReimbursementsAnswer(

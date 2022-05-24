@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectDutiesController.selectDutiesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectTaxCodesController.selectTaxCodesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
