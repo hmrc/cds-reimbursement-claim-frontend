@@ -30,10 +30,10 @@ POST        /:journey/check-declaration-details                     uk.gov.hmrc.
 GET         /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.show(journey: JourneyBindable)
 POST        /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.submit(journey: JourneyBindable)
 
-GET         /:journey/check-these-bank-details-are-correct          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails(journey: JourneyBindable)
+GET         /:journey/check-these-bank-details-are-correct          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController.checkBankAccountDetails(journey: JourneyBindable)
 
-GET         /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails(journey: JourneyBindable)
-POST        /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController.enterBankAccountDetails(journey: JourneyBindable)
+POST        /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)
 
 GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ServiceUnavailableController.unavailable(journey: JourneyBindable)
 

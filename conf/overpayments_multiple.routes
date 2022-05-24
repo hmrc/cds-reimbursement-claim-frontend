@@ -20,7 +20,7 @@ POST        /multiple/select-duties/:index/:taxCode                            @
 GET         /multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterMultipleClaimsController.checkClaimSummary
 POST        /multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterMultipleClaimsController.checkClaimSummarySubmit
 
-GET         /multiple/check-these-bank-details-are-correct                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.BankAccountController.show
+GET         /multiple/check-these-bank-details-are-correct                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.BankAccountController.che
 
 GET         /multiple/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.show
 POST        /multiple/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.submit

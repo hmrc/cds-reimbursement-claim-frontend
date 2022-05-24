@@ -17,7 +17,7 @@ POST        /scheduled/select-duties/:dutyType/:taxCode                         
 GET         /scheduled/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckScheduledClaimController.showReimbursements()
 POST        /scheduled/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckScheduledClaimController.submitReimbursements()
 
-GET         /scheduled/check-these-bank-details-are-correct                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentscheduled.BankAccountController.show
+GET         /scheduled/check-these-bank-details-are-correct                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentscheduled.BankAccountController.checkBankAccountDetails
 
 GET         /scheduled/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseFileTypeController.show
 POST        /scheduled/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseFileTypeController.submit
