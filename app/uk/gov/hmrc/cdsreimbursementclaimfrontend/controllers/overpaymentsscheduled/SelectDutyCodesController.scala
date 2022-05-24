@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
@@ -64,7 +64,7 @@ class SelectDutyCodesController @Inject() (
 
   def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     def selectDuties: Future[Result] =
-      Future.successful(Redirect(overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes))
+      Future.successful(Redirect(overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes))
 
     def start(dutyType: DutyType): Future[Result] =
       Future(Redirect(routes.SelectDutyCodesController.showDutyCodes(dutyType)))
@@ -120,7 +120,7 @@ class SelectDutyCodesController @Inject() (
                         )
                   )
                 )
-                .getOrElse(Redirect(overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes))
+                .getOrElse(Redirect(overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes))
           )
       }
     }

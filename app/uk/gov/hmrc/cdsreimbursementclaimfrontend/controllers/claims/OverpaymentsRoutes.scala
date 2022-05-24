@@ -127,18 +127,4 @@ object OverpaymentsRoutes {
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterAdditionalDetailsController.submit
     }
   }
-
-  object SelectDutyTypesController {
-    def submitDutyTypes(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single    => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-      case JourneyBindable.Multiple  => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-      case JourneyBindable.Scheduled => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-    }
-
-    def showDutyTypes(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single    => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
-      case JourneyBindable.Multiple  => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
-      case JourneyBindable.Scheduled => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
-    }
-  }
 }

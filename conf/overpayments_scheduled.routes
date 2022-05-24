@@ -6,6 +6,9 @@ GET         /scheduled/scheduled-document-upload/choose-files                   
 POST        /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.callback
 GET         /scheduled/scheduled-document-upload/continue                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.continue
 
+GET         /scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.showDutyTypes
+POST        /scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.submitDutyTypes
+
 GET         /scheduled/select-duties/start                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyCodesController.iterate()
 GET         /scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyCodesController.showDutyCodes(dutyType: DutyType)
 POST        /scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyCodesController.submitDutyCodes(dutyType: DutyType)
@@ -33,10 +36,6 @@ POST        /scheduled/check-answers-accept-send                                
 
 GET         /scheduled/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.confirmationOfSubmission
 GET         /scheduled/check-if-claim-was-sent                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.submissionError
-
-GET         /single/select-duties/select-duty-types                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.showDutyTypes
-POST        /single/select-duties/select-duty-types                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.submitDutyTypes
-
 
 GET         /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.show()
 POST        /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.submit()
