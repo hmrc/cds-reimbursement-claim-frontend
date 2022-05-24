@@ -54,7 +54,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreServic
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

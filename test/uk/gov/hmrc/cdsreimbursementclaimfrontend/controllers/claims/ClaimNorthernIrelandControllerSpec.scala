@@ -50,7 +50,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
-import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 class ClaimNorthernIrelandControllerSpec
