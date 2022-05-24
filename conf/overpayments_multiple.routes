@@ -11,6 +11,9 @@ POST        /multiple/enter-movement-reference-number/:index                   @
 GET         /multiple/change-movement-reference-number/:index                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterAssociatedMrnController.changeMrn(index: AssociatedMrnIndex)
 POST        /multiple/change-movement-reference-number/:index                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterAssociatedMrnController.submitChangedMrn(index: AssociatedMrnIndex)
 
+GET         /multiple/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+POST        /multiple/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+
 GET         /multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectMultipleDutiesController.selectDuties(index: Int)
 POST        /multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectMultipleDutiesController.selectDutiesSubmit(index: Int)
 

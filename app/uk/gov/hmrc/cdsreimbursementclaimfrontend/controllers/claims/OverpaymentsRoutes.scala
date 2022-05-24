@@ -127,4 +127,24 @@ object OverpaymentsRoutes {
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterAdditionalDetailsController.submit
     }
   }
+
+  object EnterDeclarantEoriNumberController {
+    def enterDeclarantEoriNumber(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+    }
+
+    def enterDeclarantEoriNumberSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+    }
+  }
 }

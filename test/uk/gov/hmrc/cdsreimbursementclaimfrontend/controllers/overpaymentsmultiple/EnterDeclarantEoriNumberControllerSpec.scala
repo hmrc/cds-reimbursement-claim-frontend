@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.Lang
@@ -30,7 +30,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
@@ -58,13 +57,6 @@ class EnterDeclarantEoriNumberControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
-  val testCases = Table(
-    "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
-  )
 
   lazy val controller: EnterDeclarantEoriNumberController = instanceOf[EnterDeclarantEoriNumberController]
 
@@ -98,8 +90,8 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in forAll(testCases) { journeyBindable =>
-        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(journeyBindable)(FakeRequest())
+      "there is no journey status in the session" in {
+        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(FakeRequest())
 
         val (session, _, _) = sessionWithClaimState(None)
 
@@ -119,8 +111,8 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in forAll(testCases) { journeyBindable =>
-        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(journeyBindable)(FakeRequest())
+      "the user has not answered this question before" in {
+        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(FakeRequest())
 
         val draftC285Claim = sessionWithClaimState(None)._3
 
@@ -139,8 +131,8 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       }
 
-      "the user has answered this question before" in forAll(testCases) { journeyBindable =>
-        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(journeyBindable)(FakeRequest())
+      "the user has answered this question before" in {
+        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(FakeRequest())
 
         val answers = models.answers.DeclarantEoriNumberAnswer(Eori("GB03152858027018"))
 
@@ -165,9 +157,9 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "handle submit requests" when {
 
-      "user chooses enters a valid eori but there is no match" in forAll(testCases) { journeyBindable =>
+      "user chooses enters a valid eori but there is no match" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarantEoriNumberSubmit(journeyBindable)(
+          controller.enterDeclarantEoriNumberSubmit(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -196,9 +188,9 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "show an error summary" when {
 
-      "the user does not select an option" in forAll(testCases) { journeyBindable =>
+      "the user does not select an option" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarantEoriNumberSubmit(journeyBindable)(
+          controller.enterDeclarantEoriNumberSubmit(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -232,9 +224,9 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       }
 
-      "an invalid option value is submitted" in forAll(testCases) { journeyBindable =>
+      "an invalid option value is submitted" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarantEoriNumberSubmit(journeyBindable)(
+          controller.enterDeclarantEoriNumberSubmit(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 

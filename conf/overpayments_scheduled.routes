@@ -1,6 +1,9 @@
 GET         /scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.enterJourneyMrn
 POST        /scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.enterMrnSubmit
 
+GET         /scheduled/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+POST        /scheduled/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+
 GET         /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.show
 +nocsrf
 POST        /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.callback
