@@ -180,7 +180,7 @@ class BankAccountController @Inject() (
         .withError("enter-bank-details", s"error.account-does-not-exist")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else {
-      Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
+      Redirect(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
     }
 
   def enterBankAccountDetailsSubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
