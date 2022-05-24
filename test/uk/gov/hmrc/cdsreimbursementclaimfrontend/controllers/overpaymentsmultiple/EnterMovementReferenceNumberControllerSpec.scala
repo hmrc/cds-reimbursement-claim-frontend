@@ -301,7 +301,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            claimsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(JourneyBindable.Multiple)
+            routes.EnterImporterEoriNumberController.enterImporterEoriNumber
           )
       }
     }
@@ -348,9 +348,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe claimsRoutes.EnterImporterEoriNumberController
-          .enterImporterEoriNumber(JourneyBindable.Multiple)
-          .url
+        ).value        shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber.url
     }
   }
 

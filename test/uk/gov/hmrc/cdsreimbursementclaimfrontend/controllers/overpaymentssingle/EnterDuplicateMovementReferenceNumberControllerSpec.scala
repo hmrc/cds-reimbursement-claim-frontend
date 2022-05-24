@@ -123,7 +123,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       checkIsRedirect(
         performAction(duplicateMovementReferenceNumberKey -> updatedMrn.value),
-        claimsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(JourneyBindable.Single)
+        routes.EnterImporterEoriNumberController.enterImporterEoriNumber
       )
     }
   }

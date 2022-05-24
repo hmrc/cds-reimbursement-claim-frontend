@@ -26,7 +26,7 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
@@ -66,22 +66,28 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   val eoriNumberFormKey: String = "enter-declarant-eori-number"
 
-  implicit val journey: JourneyBindable                                       = JourneyBindable.Single
+  implicit val journey: JourneyBindable = JourneyBindable.Single
+
   implicit val dataExtractor: DraftClaim => Option[DeclarantEoriNumberAnswer] = _.declarantEoriNumberAnswer
 
   val enterDeclarantEoriNumber: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (_, answers, router) =>
+      withAnswers[DeclarantEoriNumberAnswer] { (_, answers) =>
         val emptyForm              = eoriNumberForm(eoriNumberFormKey)
         val filledForm: Form[Eori] =
           answers.fold(emptyForm)(declarantEoriNumberAnswer => emptyForm.fill(declarantEoriNumberAnswer.value))
-        Ok(enterDeclarantEoriNumberPage(filledForm, router.submitUrlForEnterDeclarantEoriNumber()))
+        Ok(
+          enterDeclarantEoriNumberPage(
+            filledForm,
+            routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+          )
+        )
       }
     }
 
   val enterDeclarantEoriNumberSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (fillingOutClaim, _, router) =>
+      withAnswers[DeclarantEoriNumberAnswer] { (fillingOutClaim, _) =>
         eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
           .fold(
@@ -89,7 +95,7 @@ class EnterDeclarantEoriNumberController @Inject() (
               BadRequest(
                 enterDeclarantEoriNumberPage(
                   requestFormWithErrors,
-                  router.submitUrlForEnterDeclarantEoriNumber()
+                  routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
                 )
               ),
             declarantEoriNumber => {

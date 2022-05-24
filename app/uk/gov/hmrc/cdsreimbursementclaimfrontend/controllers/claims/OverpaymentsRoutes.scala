@@ -147,4 +147,15 @@ object OverpaymentsRoutes {
         overpaymentsScheduledRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
     }
   }
+
+  object EnterImporterEoriNumberController {
+    def enterImporterEoriNumber(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
+    }
+  }
 }
