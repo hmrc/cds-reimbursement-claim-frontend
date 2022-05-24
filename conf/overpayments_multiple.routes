@@ -19,3 +19,6 @@ POST        /multiple/check-answers-accept-send                                @
 GET         /multiple/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.confirmationOfSubmission
 GET         /multiple/check-if-claim-was-sent                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersAndSubmitController.submissionError
 
+GET         /multiple/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBankAccountTypeController.show()
+POST        /multiple/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBankAccountTypeController.submit()
+

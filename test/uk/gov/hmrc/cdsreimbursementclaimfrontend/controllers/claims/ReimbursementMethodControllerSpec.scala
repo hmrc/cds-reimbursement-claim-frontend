@@ -255,8 +255,10 @@ class ReimbursementMethodControllerSpec
     SessionData.empty.copy(journeyStatus = Some(journey))
   }
 
-  private def isCurrentMonthAjustmentChecked(document: Document): Boolean = isChecked(document, "reimbursement-method-cma")
-  private def isBankTransferChecked(document: Document): Boolean          = isChecked(document, "reimbursement-method-bank-transfer")
+  private def isCurrentMonthAjustmentChecked(document: Document): Boolean =
+    isChecked(document, "reimbursement-method-cma")
+  private def isBankTransferChecked(document: Document): Boolean          =
+    isChecked(document, "reimbursement-method-bank-transfer")
 
   private def updateSession(sessionData: SessionData, reimbusementMethod: ReimbursementMethodAnswer): SessionData =
     sessionData.journeyStatus match {

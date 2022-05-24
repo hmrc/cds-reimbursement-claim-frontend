@@ -85,8 +85,10 @@ object OverpaymentsRoutes {
 
   object SelectBankAccountTypeController {
     def show(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single =>
+      case JourneyBindable.Single   =>
         overpaymentsSingleRoutes.SelectBankAccountTypeController.show()
+      case JourneyBindable.Multiple =>
+        overpaymentsMultipleRoutes.SelectBankAccountTypeController.show()
     }
   }
 
