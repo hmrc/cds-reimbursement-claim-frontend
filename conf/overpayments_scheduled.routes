@@ -14,3 +14,6 @@ POST        /scheduled/check-answers-accept-send                                
 
 GET         /scheduled/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.confirmationOfSubmission
 GET         /scheduled/check-if-claim-was-sent                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersAndSubmitController.submissionError
+
+GET         /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.show()
+POST        /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.submit()
