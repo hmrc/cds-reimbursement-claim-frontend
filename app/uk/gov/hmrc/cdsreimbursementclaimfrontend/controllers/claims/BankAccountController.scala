@@ -96,7 +96,7 @@ class BankAccountController @Inject() (
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                     OverpaymentsRoutes.ChooseFileTypeController.show(journey)
                   ),
-                  routes.SelectBankAccountTypeController.selectBankAccountType(journey)
+                  OverpaymentsRoutes.SelectBankAccountTypeController.show(journey)
                 )
               )
             )

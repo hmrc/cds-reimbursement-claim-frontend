@@ -83,6 +83,13 @@ object OverpaymentsRoutes {
     }
   }
 
+  object SelectBankAccountTypeController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single =>
+        overpaymentsSingleRoutes.SelectBankAccountTypeController.show()
+    }
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   object EnterDuplicateMovementReferenceNumberController {
     def enterDuplicateMrnSubmit(journey: JourneyBindable): Call = journey match {

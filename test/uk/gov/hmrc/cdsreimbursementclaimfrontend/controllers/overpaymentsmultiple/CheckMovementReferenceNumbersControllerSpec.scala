@@ -118,15 +118,6 @@ class CheckMovementReferenceNumbersControllerSpec
 
   def isNoChecked(document: Document): Boolean = isChecked(document, s"$checkMovementReferenceNumbersKey-2")
 
-  def isChecked(document: Document, fieldId: String): Boolean =
-    document
-      .getElementById(fieldId)
-      .attributes()
-      .asList()
-      .asScala
-      .map(_.getKey)
-      .contains("checked")
-
   "CheckMovementReferenceNumbersController" must {
     def performAction(): Future[Result] = controller.showMrns()(FakeRequest())
 

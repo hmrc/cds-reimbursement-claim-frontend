@@ -118,15 +118,6 @@ class SelectBankAccountTypeControllerSpec
   def isPersonalChecked(document: Document): Boolean =
     isChecked(document, s"$messageKey-personal-bank-account")
 
-  def isChecked(document: Document, fieldId: String): Boolean =
-    document
-      .getElementById(fieldId)
-      .attributes()
-      .asList()
-      .asScala
-      .map(_.getKey)
-      .contains("checked")
-
   "SelectBankAccountTypeController" must {
 
     "redirect to the start of the journey" when {
