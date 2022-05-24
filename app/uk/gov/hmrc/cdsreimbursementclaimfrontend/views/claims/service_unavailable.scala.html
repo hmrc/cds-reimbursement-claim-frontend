@@ -18,7 +18,7 @@
 @import play.twirl.api.Html
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 @this(
@@ -36,5 +36,5 @@
 @layout(pageTitle = Some(s"$title")) {
     @pageHeading(Html(title))
     @paragraph(Html(messages(s"$key.help", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
-    @button(s"button.go-back", href = Some(routes.BankAccountController.checkBankAccountDetails(journey).url))
+    @button(s"button.go-back", href = Some(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey).url))
 }
