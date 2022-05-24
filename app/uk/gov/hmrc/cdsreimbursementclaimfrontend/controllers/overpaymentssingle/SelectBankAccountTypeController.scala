@@ -19,9 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import cats.data.EitherT
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -39,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.SelectBankAccountTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import scala.concurrent.ExecutionContext
@@ -49,42 +48,15 @@ class SelectBankAccountTypeController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   cc: MessagesControllerComponents,
-  selectBankAccountTypePage: pages.select_bank_account_type
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+  val selectBankAccountTypePage: pages.select_bank_account_type
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates
-    with Logging {
+      with Logging
+      with SelectBankAccountTypeMixin {
 
-  implicit val dataExtractor: DraftClaim => Option[BankAccountType] = _.bankAccountTypeAnswer
-  private val emptyForm                                             = Forms.bankAccountTypeForm
-  private val postAction                                            = routes.SelectBankAccountTypeController.submit()
-
-  def show(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[BankAccountType] { (_, answer) =>
-      val filledForm = answer.fold(emptyForm)(emptyForm.fill)
-      Ok(selectBankAccountTypePage(filledForm, postAction))
-    }
-  }
-
-  def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[BankAccountType] { (fillingOutClaim, _) =>
-      emptyForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors => BadRequest(selectBankAccountTypePage(formWithErrors, postAction)),
-          bankAccountType => {
-            val updatedJourney =
-              FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountTypeAnswer = Some(bankAccountType)))
-            EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-              .leftMap(_ => Error("could not update session"))
-              .fold(
-                logAndDisplayError("could not capture bank account type answer"),
-                _ => Redirect(claimsRoutes.BankAccountController.enterBankAccountDetails(JourneyBindable.Single))
-              )
-          }
-        )
-    }
-  }
+  val postAction: Call = routes.SelectBankAccountTypeController.submit()
+  val nextPageAction: Call = claimsRoutes.BankAccountController.enterBankAccountDetails(JourneyBindable.Single)
 }
