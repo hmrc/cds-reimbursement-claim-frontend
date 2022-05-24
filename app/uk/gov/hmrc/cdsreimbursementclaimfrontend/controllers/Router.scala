@@ -46,12 +46,6 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForCheckDuplicateDeclarationDetails(): Call =
     claimRoutes.CheckDuplicateDeclarationDetailsController.submit(journeyBindable)
 
-  def submitUrlForEnterImporterEoriNumber(): Call =
-    claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(journeyBindable)
-
-  def submitUrlForEnterDeclarantEoriNumber(): Call =
-    OverpaymentsRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journeyBindable)
-
   def submitUrlForChangeMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
 
@@ -147,11 +141,11 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   val journeyBindable: JourneyBindable
   def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
     case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.show(journeyBindable)
-    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
+    case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
     case _: MrnImporter => claimRoutes.CheckDuplicateDeclarationDetailsController.show(journeyBindable)
-    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
+    case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
 }
 

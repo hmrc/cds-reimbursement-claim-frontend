@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
@@ -66,21 +66,28 @@ class EnterImporterEoriNumberController @Inject() (
 
   val eoriNumberFormKey: String = "enter-importer-eori-number"
 
+  implicit val journey: JourneyBindable = JourneyBindable.Multiple
+
   implicit val dataExtractor: DraftClaim => Option[ImporterEoriNumberAnswer] = _.importerEoriNumberAnswer
 
-  def enterImporterEoriNumber(implicit journey: JourneyBindable): Action[AnyContent] =
+  val enterImporterEoriNumber: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[ImporterEoriNumberAnswer] { (_, answers, router) =>
+      withAnswers[ImporterEoriNumberAnswer] { (_, answers) =>
         val emptyForm              = Forms.eoriNumberForm(eoriNumberFormKey)
         val filledForm: Form[Eori] =
           answers.fold(emptyForm)(importerEoriNumberAnswer => emptyForm.fill(importerEoriNumberAnswer.value))
-        Ok(enterImporterEoriNumberPage(filledForm, router.submitUrlForEnterImporterEoriNumber()))
+        Ok(
+          enterImporterEoriNumberPage(
+            filledForm,
+            routes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit
+          )
+        )
       }
     }
 
-  def enterImporterEoriNumberSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val enterImporterEoriNumberSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[ImporterEoriNumberAnswer] { (fillingOutClaim, _, router) =>
+      withAnswers[ImporterEoriNumberAnswer] { (fillingOutClaim, _) =>
         Forms
           .eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
@@ -89,7 +96,7 @@ class EnterImporterEoriNumberController @Inject() (
               BadRequest(
                 enterImporterEoriNumberPage(
                   requestFormWithErrors.fill(Eori("")),
-                  router.submitUrlForEnterImporterEoriNumber()
+                  routes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit
                 )
               ),
             importerEoriNumber => {
@@ -119,7 +126,7 @@ class EnterImporterEoriNumberController @Inject() (
                     updateJourney()
                       .map(_ =>
                         Redirect(
-                          OverpaymentsRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journey)
+                          routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
                         )
                       )
                       .leftMap(logAndDisplayError("could not get importer eori number"))
