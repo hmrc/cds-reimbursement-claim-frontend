@@ -54,7 +54,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreServic
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -113,15 +112,6 @@ class SelectTypeOfClaimControllerSpec
 
   def isScheduledChecked(document: Document): Boolean =
     isChecked(document, "select-number-of-claims-scheduled")
-
-  def isChecked(document: Document, fieldId: String): Boolean =
-    document
-      .getElementById(fieldId)
-      .attributes()
-      .asList()
-      .asScala
-      .map(_.getKey)
-      .contains("checked")
 
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")

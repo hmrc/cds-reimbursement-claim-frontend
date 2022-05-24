@@ -186,7 +186,7 @@ class EnterSingleClaimController @Inject() (
                       .routeToCheckAnswers(Single)
                       .whenComplete(journey.draftClaim)(alternatively = journey.draftClaim match {
                         case claim: DraftClaim if isCmaEligible(claim) =>
-                          claimsRoutes.ReimbursementMethodController.showReimbursementMethod()
+                          routes.ReimbursementMethodController.show
                         case _                                         =>
                           claimsRoutes.BankAccountController.checkBankAccountDetails(Single)
                       })

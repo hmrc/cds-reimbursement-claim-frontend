@@ -18,11 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
@@ -59,10 +59,8 @@ trait SubmitRoutes extends Product with Serializable {
     claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
 
   def submitUrlForSelectBankAccountType(): Call =
-    claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
+    OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable)
 
-  def submitUrlForSelectDutyTypes(): Call =
-    claims.OverpaymentsRoutes.SelectDutyTypesController.submitDutyTypes(journeyBindable)
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {

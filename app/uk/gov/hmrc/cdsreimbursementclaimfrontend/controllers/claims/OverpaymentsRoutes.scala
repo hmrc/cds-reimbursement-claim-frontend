@@ -83,6 +83,17 @@ object OverpaymentsRoutes {
     }
   }
 
+  object SelectBankAccountTypeController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.SelectBankAccountTypeController.show()
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.SelectBankAccountTypeController.show()
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.SelectBankAccountTypeController.show()
+    }
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   object EnterDuplicateMovementReferenceNumberController {
     def enterDuplicateMrnSubmit(journey: JourneyBindable): Call = journey match {
@@ -114,20 +125,6 @@ object OverpaymentsRoutes {
       case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterAdditionalDetailsController.submit
       case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterAdditionalDetailsController.submit
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterAdditionalDetailsController.submit
-    }
-  }
-
-  object SelectDutyTypesController {
-    def submitDutyTypes(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single    => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-      case JourneyBindable.Multiple  => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-      case JourneyBindable.Scheduled => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-    }
-
-    def showDutyTypes(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single    => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
-      case JourneyBindable.Multiple  => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
-      case JourneyBindable.Scheduled => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
     }
   }
 }

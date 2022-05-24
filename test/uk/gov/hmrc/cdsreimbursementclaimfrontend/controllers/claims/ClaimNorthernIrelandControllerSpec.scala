@@ -50,7 +50,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
-import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 class ClaimNorthernIrelandControllerSpec
@@ -105,15 +104,6 @@ class ClaimNorthernIrelandControllerSpec
 
   def isNoChecked(document: Document): Boolean =
     isChecked(document, "claim-northern-ireland-no")
-
-  def isChecked(document: Document, fieldId: String): Boolean =
-    document
-      .getElementById(fieldId)
-      .attributes()
-      .asList()
-      .asScala
-      .map(_.getKey)
-      .contains("checked")
 
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
