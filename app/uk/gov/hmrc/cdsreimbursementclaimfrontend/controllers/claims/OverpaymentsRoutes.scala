@@ -130,4 +130,12 @@ object OverpaymentsRoutes {
       case JourneyBindable.Scheduled => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
     }
   }
+
+  object BankAccountController {
+    def checkBankAccountDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single => overpaymentsSingleRoutes.BankAccountController.checkBankAccountDetails
+      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.BankAccountController.checkBankAccountDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.BankAccountController.checkBankAccountDetails
+    }
+  }
 }

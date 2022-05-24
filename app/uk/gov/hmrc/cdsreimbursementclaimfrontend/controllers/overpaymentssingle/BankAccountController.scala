@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.{e
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{OverpaymentsRoutes, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{OverpaymentsRoutes, routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
@@ -63,9 +63,10 @@ class BankAccountController @Inject() (
     with Logging
     with SessionUpdates {
 
+  implicit val journey: JourneyBindable = JourneyBindable.Single
   implicit val dataExtractor: DraftClaim => Option[BankAccountDetails] = _.bankAccountDetailsAnswer
 
-  def checkBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+  def checkBankAccountDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
@@ -81,13 +82,13 @@ class BankAccountController @Inject() (
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                     OverpaymentsRoutes.ChooseFileTypeController.show(journey)
                   ),
-                  routes.SelectBankAccountTypeController.selectBankAccountType(journey)
+                  claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)
                 )
               )
             )
           }
           .getOrElse {
-            Future.successful(Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)))
+            Future.successful(Redirect(claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)))
           }
       }
     }
@@ -121,7 +122,7 @@ class BankAccountController @Inject() (
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
-        Redirect(routes.ServiceUnavailableController.unavailable(journeyBindable))
+        Redirect(claimsRoutes.ServiceUnavailableController.unavailable(journeyBindable))
       case e                                 =>
         logAndDisplayError("could not process bank account details: ", e)
     }
@@ -169,7 +170,7 @@ class BankAccountController @Inject() (
         .withError("enter-bank-details", s"error.account-does-not-exist")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else {
-      Redirect(claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
+      Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
     }
 
   def enterBankAccountDetailsSubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
@@ -177,7 +178,7 @@ class BankAccountController @Inject() (
       withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim: FillingOutClaim, _, router) =>
         fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
           case None =>
-            Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
+            Redirect(claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
 
           case Some(bankAccount: BankAccountType) =>
             enterBankDetailsForm
