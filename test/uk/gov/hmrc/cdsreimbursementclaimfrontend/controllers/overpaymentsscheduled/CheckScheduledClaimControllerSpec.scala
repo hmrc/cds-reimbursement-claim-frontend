@@ -177,7 +177,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
       checkIsRedirect(
         controller.submitReimbursements()(FakeRequest().withFormUrlEncodedBody(checkClaimSummaryKey -> "true")),
-        claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Scheduled)
+        OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Scheduled)
       )
     }
 

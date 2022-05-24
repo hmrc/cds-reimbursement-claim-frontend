@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.implicits._
@@ -19,7 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{OverpaymentsRoutes, BankAccountController => ClaimsBankAccountController, routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController => ClaimsBankAccountController}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
@@ -51,7 +69,7 @@ import uk.gov.hmrc.http.BadGatewayException
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class BankAccountControllerSpec
-  extends ControllerSpec
+    extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with TableDrivenPropertyChecks
@@ -65,7 +83,7 @@ class BankAccountControllerSpec
     JourneyBindable.Scheduled
   )
 
-  lazy val controller: BankAccountController = instanceOf[BankAccountController]
+  lazy val controller: BankAccountController             = instanceOf[BankAccountController]
   lazy val claimsController: ClaimsBankAccountController = instanceOf[ClaimsBankAccountController]
 
   override val overrideBindings: List[GuiceableModule] =
@@ -76,11 +94,11 @@ class BankAccountControllerSpec
     )
 
   private def sessionWithClaimState(
-                                     maybeBankAccountDetails: Option[BankAccountDetails],
-                                     bankAccountType: Option[BankAccountType],
-                                     maybeTypeOfClaim: Option[TypeOfClaimAnswer],
-                                     supportingEvidences: Option[SupportingEvidencesAnswer] = None
-                                   ): (SessionData, FillingOutClaim, DraftClaim) = {
+    maybeBankAccountDetails: Option[BankAccountDetails],
+    bankAccountType: Option[BankAccountType],
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer],
+    supportingEvidences: Option[SupportingEvidencesAnswer] = None
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
 
     val draftC285Claim =
       DraftClaim.blank.copy(
@@ -105,9 +123,9 @@ class BankAccountControllerSpec
   }
 
   private def sessionWithMaskedBankDetails(
-                                            maybeMaskedBankDetails: Option[BankDetails],
-                                            maybeTypeOfClaim: Option[TypeOfClaimAnswer]
-                                          ): (SessionData, FillingOutClaim, DraftClaim) = {
+    maybeMaskedBankDetails: Option[BankDetails],
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer]
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
     val draftC285Claim        =
       DraftClaim.blank.copy(
@@ -450,9 +468,9 @@ class BankAccountControllerSpec
 
         val form    = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result  = claimsController.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, routes.BankAccountController.checkBankAccountDetails(journey))
+        checkIsRedirect(result, OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
       }
 
 //      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
@@ -725,4 +743,3 @@ class BankAccountControllerSpec
 //    }
 //  }
 }
-

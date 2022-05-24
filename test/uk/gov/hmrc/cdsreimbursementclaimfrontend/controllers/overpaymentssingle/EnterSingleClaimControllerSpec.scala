@@ -488,7 +488,7 @@ class EnterSingleClaimControllerSpec
       val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
-        claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
+        OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
       )
     }
 

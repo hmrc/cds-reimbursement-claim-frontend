@@ -175,7 +175,7 @@ class ReimbursementMethodControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ReimbursementMethodController.reimbursementMethodKey -> "1")),
-          claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
+          OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
         )
       }
 
