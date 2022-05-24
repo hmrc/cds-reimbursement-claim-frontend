@@ -83,6 +83,17 @@ object OverpaymentsRoutes {
     }
   }
 
+  object SelectBankAccountTypeController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.SelectBankAccountTypeController.show()
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.SelectBankAccountTypeController.show()
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.SelectBankAccountTypeController.show()
+    }
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   object EnterDuplicateMovementReferenceNumberController {
     def enterDuplicateMrnSubmit(journey: JourneyBindable): Call = journey match {

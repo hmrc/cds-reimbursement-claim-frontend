@@ -256,14 +256,10 @@ class ReimbursementMethodControllerSpec
     SessionData.empty.copy(journeyStatus = Some(journey))
   }
 
-  private def isCurrentMonthAjustmentChecked(document: Document): Boolean = isChecked(document, "cma")
-  private def isBankTransferChecked(document: Document): Boolean          = isChecked(document, "bank-transfer")
-
-  private def isChecked(document: Document, option: String): Boolean =
-    document.select(s"input#reimbursement-method-$option[type='radio']") match {
-      case elems if !elems.isEmpty => elems.first().hasAttr("checked")
-      case _                       => false
-    }
+  private def isCurrentMonthAjustmentChecked(document: Document): Boolean =
+    isChecked(document, "reimbursement-method-cma")
+  private def isBankTransferChecked(document: Document): Boolean          =
+    isChecked(document, "reimbursement-method-bank-transfer")
 
   private def updateSession(sessionData: SessionData, reimbusementMethod: ReimbursementMethodAnswer): SessionData =
     sessionData.journeyStatus match {

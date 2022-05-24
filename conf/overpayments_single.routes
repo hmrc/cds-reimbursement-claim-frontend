@@ -36,3 +36,6 @@ GET         /single/check-if-claim-was-sent                                  @uk
 
 GET         /single/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectDutyTypesController.showDutyTypes
 POST        /single/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectDutyTypesController.submitDutyTypes
+
+GET         /single/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectBankAccountTypeController.show()
+POST        /single/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectBankAccountTypeController.submit()

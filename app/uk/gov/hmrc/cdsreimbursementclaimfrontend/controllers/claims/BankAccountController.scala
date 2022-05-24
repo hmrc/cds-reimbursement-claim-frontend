@@ -95,13 +95,13 @@ class BankAccountController @Inject() (
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                     OverpaymentsRoutes.ChooseFileTypeController.show(journey)
                   ),
-                  routes.SelectBankAccountTypeController.selectBankAccountType(journey)
+                  OverpaymentsRoutes.SelectBankAccountTypeController.show(journey)
                 )
               )
             )
           }
           .getOrElse {
-            Future.successful(Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)))
+            Future.successful(Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(journey)))
           }
       }
     }
@@ -191,7 +191,7 @@ class BankAccountController @Inject() (
       withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim: FillingOutClaim, _, router) =>
         fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
           case None =>
-            Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
+            Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable))
 
           case Some(bankAccount: BankAccountType) =>
             enterBankDetailsForm

@@ -36,6 +36,3 @@ GET         /:journey/enter-bank-account-details                    uk.gov.hmrc.
 POST        /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)
 
 GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ServiceUnavailableController.unavailable(journey: JourneyBindable)
-
-GET         /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountType(journey: JourneyBindable)
-POST        /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)

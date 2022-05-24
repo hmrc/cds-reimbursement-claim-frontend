@@ -106,15 +106,6 @@ class ClaimNorthernIrelandControllerSpec
   def isNoChecked(document: Document): Boolean =
     isChecked(document, "claim-northern-ireland-no")
 
-  def isChecked(document: Document, fieldId: String): Boolean =
-    document
-      .getElementById(fieldId)
-      .attributes()
-      .asList()
-      .asScala
-      .map(_.getKey)
-      .contains("checked")
-
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 

@@ -21,7 +21,7 @@ GET         /scheduled/supporting-evidence/select-supporting-evidence-type      
 POST        /scheduled/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseFileTypeController.submit
 
 GET         /scheduled/supporting-evidence/choose-files                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadFilesController.show
-+nocsrf            
++nocsrf
 POST        /scheduled/supporting-evidence/choose-files                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadFilesController.callback
 GET         /scheduled/supporting-evidence/summary                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadFilesController.summary
 
@@ -36,3 +36,7 @@ GET         /scheduled/check-if-claim-was-sent                                  
 
 GET         /single/select-duties/select-duty-types                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.showDutyTypes
 POST        /single/select-duties/select-duty-types                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.submitDutyTypes
+
+
+GET         /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.show()
+POST        /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.submit()
