@@ -78,9 +78,7 @@ class BankAccountControllerSpec
 
   private val journeys = Table(
     "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
+    JourneyBindable.Multiple
   )
 
   lazy val controller: BankAccountController             = instanceOf[BankAccountController]
