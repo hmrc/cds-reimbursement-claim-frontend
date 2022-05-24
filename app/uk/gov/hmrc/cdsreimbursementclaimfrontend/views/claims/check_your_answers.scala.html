@@ -24,7 +24,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
@@ -117,7 +116,7 @@
 
     @claim.reimbursementMethodAnswer.map { rma =>
         @pageHeading(Html(messages(s"$key.reimbursement-method.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(ReimbursementMethodAnswerSummary(rma,s"$key.reimbursement-method",subKey,claimRoutes.ReimbursementMethodController.showReimbursementMethod()))
+        @summary(ReimbursementMethodAnswerSummary(rma,s"$key.reimbursement-method",subKey,overpaymentsSingleRoutes.ReimbursementMethodController.show))
     }
 
     @claim.findNonEmptyBankAccountDetails.map { bankAccountDetails =>

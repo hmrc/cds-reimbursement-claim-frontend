@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.jsoup.nodes.Document
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -49,6 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arb
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 
 class ReimbursementMethodControllerSpec
     extends ControllerSpec
@@ -70,7 +71,7 @@ class ReimbursementMethodControllerSpec
 
   "Reimbursement Method Controller" must {
 
-    def performAction: Future[Result] = controller.showReimbursementMethod()(FakeRequest())
+    def performAction: Future[Result] = controller.show(FakeRequest())
 
     "redirect to the start of the journey" when {
 
@@ -145,7 +146,7 @@ class ReimbursementMethodControllerSpec
     "handle submit requests" when {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submitReimbursementMethod()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "User chooses the Current Month Adjustment Option" in {
         val initialSession = session
@@ -215,7 +216,7 @@ class ReimbursementMethodControllerSpec
     "show an error summary" when {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submitReimbursementMethod()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user does not select an option and submits the page" in {
         inSequence {
