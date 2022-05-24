@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
@@ -63,7 +62,7 @@ class SelectDutyTypesController @Inject() (
 
   def showDutyTypes: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
-      val postAction: Call = overpaymentsMultipleRoutes.SelectDutyTypesController.submitDutyTypes
+      val postAction: Call = overpaymentsScheduledRoutes.SelectDutyTypesController.submitDutyTypes
       Ok(
         selectDutyTypesPage(
           answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill),
@@ -76,7 +75,7 @@ class SelectDutyTypesController @Inject() (
   def submitDutyTypes: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
-        val postAction: Call = overpaymentsMultipleRoutes.SelectDutyTypesController.submitDutyTypes
+        val postAction: Call = overpaymentsScheduledRoutes.SelectDutyTypesController.submitDutyTypes
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
