@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Lang
@@ -27,8 +27,9 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.checkClaimSummaryKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckScheduledClaimController.checkClaimSummaryKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -56,6 +57,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 
 class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
@@ -83,7 +85,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           controller.showReimbursements()(FakeRequest()),
-          routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
+          overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes
         )
       }
 
@@ -97,7 +99,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           controller.submitReimbursements()(FakeRequest().withFormUrlEncodedBody(checkClaimSummaryKey -> "false")),
-          routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
+          overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes
         )
       }
     }

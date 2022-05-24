@@ -20,6 +20,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -70,7 +73,7 @@
 
     @claim.scheduledDocumentAnswer.map { scheduledDocument =>
         @pageHeading(Html(messages(s"$key.scheduled-document.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey, claimRoutes.UploadMrnListController.show()))
+        @summary(ScheduledDocumentSummary(scheduledDocument,s"$key.scheduled-document",subKey, overpaymentsScheduledRoutes.UploadMrnListController.show))
     }
 
     @claim.displayDeclaration.map { displayDeclaration =>
@@ -95,7 +98,7 @@
 
     @claim.additionalDetailsAnswer.map { additionalDetails =>
         @pageHeading(Html(messages(s"$key.additional-details.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(AdditionalDetailsSummary(additionalDetails,s"$key.additional-details",subKey,claimRoutes.EnterAdditionalDetailsController.enterAdditionalDetails(journey)))
+        @summary(AdditionalDetailsSummary(additionalDetails,s"$key.additional-details",subKey,OverpaymentsRoutes.EnterAdditionalDetailsController.show(journey)))
     }
 
     @claim.claimedReimbursementsAnswer.map { reimbursement =>
@@ -103,13 +106,13 @@
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Individual) ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Scheduled)) {
             @pageHeading(Html(messages(combine(s"$key.claim-calculation", subKey, "h2"))), "govuk-heading-m govuk-!-margin-top-9", "h2")
-            @summary(ClaimedReimbursementsAnswerSummary(reimbursement,s"$key.claim-calculation",subKey, if (journey == JourneyBindable.Scheduled) claimRoutes.CheckScheduledClaimController.showReimbursements() else claimRoutes.EnterSingleClaimController.checkClaimSummary()))
+            @summary(ClaimedReimbursementsAnswerSummary(reimbursement,s"$key.claim-calculation",subKey, if (journey == JourneyBindable.Scheduled) overpaymentsScheduledRoutes.CheckScheduledClaimController.showReimbursements() else overpaymentsSingleRoutes.EnterSingleClaimController.checkClaimSummary))
         }
     }
 
     @if(claim.typeOfClaim.contains(TypeOfClaimAnswer.Multiple)) {
         @pageHeading(Html(messages(s"$key.multiple-claim-totals.label")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(MultipleClaimsAnswerSummary(claim.multipleClaimsAnswer,s"$key.claim-calculation",subKey,claimRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag))
+        @summary(MultipleClaimsAnswerSummary(claim.multipleClaimsAnswer,s"$key.claim-calculation",subKey, overpaymentsMultipleRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag))
     }
 
     @claim.reimbursementMethodAnswer.map { rma =>

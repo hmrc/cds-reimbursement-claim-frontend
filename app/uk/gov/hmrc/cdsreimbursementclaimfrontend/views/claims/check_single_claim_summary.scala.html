@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import cats.data.NonEmptyList
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
@@ -58,7 +58,7 @@
     @pageHeading(Html(messages(s"$key.duty.label",mrn.value)), "govuk-heading-m", "h2")
     @summary(SummaryList(claimSummaryHelper.makeClaimSummary(claims)))
 
-    @formWithCSRF(routes.EnterSingleClaimController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
+    @formWithCSRF(overpaymentsSingleRoutes.EnterSingleClaimController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,

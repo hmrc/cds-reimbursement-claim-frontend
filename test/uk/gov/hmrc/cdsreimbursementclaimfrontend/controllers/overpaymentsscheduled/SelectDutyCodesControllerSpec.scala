@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.Gen
@@ -29,11 +29,13 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.dutyTypesOrdering
@@ -87,7 +89,7 @@ class SelectDutyCodesControllerSpec
 
         checkIsRedirect(
           controller.iterate()(FakeRequest()),
-          routes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
+          overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes
         )
       }
     }

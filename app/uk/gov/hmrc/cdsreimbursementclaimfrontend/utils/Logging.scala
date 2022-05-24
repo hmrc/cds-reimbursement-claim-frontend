@@ -22,7 +22,6 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 
 trait Logging {

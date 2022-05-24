@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.data.OptionT
 import cats.implicits.catsSyntaxOptionId
@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
@@ -65,10 +66,10 @@ class SelectDutyCodesController @Inject() (
 
   def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     def selectDuties: Future[Result] =
-      Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)))
+      Future.successful(Redirect(overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes))
 
     def start(dutyType: DutyType): Future[Result] =
-      Future(Redirect(claimRoutes.SelectDutyCodesController.showDutyCodes(dutyType)))
+      Future(Redirect(routes.SelectDutyCodesController.showDutyCodes(dutyType)))
 
     withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
       maybeAnswer.flatMap(_.value.headOption).fold(selectDuties) { selectedDutyTaxCodesReimbursement =>
@@ -81,7 +82,7 @@ class SelectDutyCodesController @Inject() (
     implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
         val maybeSelectedTaxCodes = maybeAnswer.map(_.getTaxCodes(dutyType))
-        val postAction: Call      = claimRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)
+        val postAction: Call      = routes.SelectDutyCodesController.submitDutyCodes(dutyType)
         Ok(
           selectDutyCodesPage(
             dutyType,
@@ -95,7 +96,7 @@ class SelectDutyCodesController @Inject() (
   def submitDutyCodes(currentDuty: DutyType): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
-        val postAction: Call = claimRoutes.SelectDutyCodesController.submitDutyCodes(currentDuty)
+        val postAction: Call = routes.SelectDutyCodesController.submitDutyCodes(currentDuty)
 
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) = {
           val claim = from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = answer.some))
@@ -116,12 +117,12 @@ class SelectDutyCodesController @Inject() (
                     _ =>
                       maybeAnswer
                         .flatMap(_.findNextSelectedDutyAfter(currentDuty))
-                        .fold(Redirect(claimRoutes.EnterScheduledClaimController.iterate()))(nextDuty =>
-                          Redirect(claimRoutes.SelectDutyCodesController.showDutyCodes(nextDuty))
+                        .fold(Redirect(routes.EnterScheduledClaimController.iterate()))(nextDuty =>
+                          Redirect(routes.SelectDutyCodesController.showDutyCodes(nextDuty))
                         )
                   )
                 )
-                .getOrElse(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)))
+                .getOrElse(Redirect(overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes))
           )
       }
     }

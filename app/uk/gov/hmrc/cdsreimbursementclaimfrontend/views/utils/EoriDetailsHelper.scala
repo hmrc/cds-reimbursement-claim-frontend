@@ -20,7 +20,6 @@ import cats.implicits._
 import play.api.i18n.Lang
 import play.api.i18n.Langs
 import play.api.i18n.MessagesApi
-import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent

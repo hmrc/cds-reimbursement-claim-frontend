@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -193,7 +194,7 @@ class UploadMrnListControllerSpec extends PropertyBasedControllerSpec with AuthS
         }
         checkIsRedirect(
           performAction(),
-          routes.CheckContactDetailsMrnController.show(JourneyBindable.Scheduled)
+          claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Scheduled)
         )
       }
     }

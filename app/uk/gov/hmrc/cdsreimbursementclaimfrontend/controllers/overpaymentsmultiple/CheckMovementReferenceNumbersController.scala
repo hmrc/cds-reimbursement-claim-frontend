@@ -102,7 +102,7 @@ class CheckMovementReferenceNumbersController @Inject() (
           {
             case Yes =>
               Redirect(
-                claimsRoutes.EnterAssociatedMrnController
+                routes.EnterAssociatedMrnController
                   .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.length))
               )
             case No  =>
