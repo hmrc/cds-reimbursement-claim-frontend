@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckScheduledClaimController.checkClaimSummaryKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -84,7 +85,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           controller.showReimbursements()(FakeRequest()),
-          claimsRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
+          overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes
         )
       }
 
@@ -98,7 +99,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           controller.submitReimbursements()(FakeRequest().withFormUrlEncodedBody(checkClaimSummaryKey -> "false")),
-          claimsRoutes.SelectDutyTypesController.showDutyTypes(JourneyBindable.Scheduled)
+          overpaymentsScheduledRoutes.SelectDutyTypesController.showDutyTypes
         )
       }
     }

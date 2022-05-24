@@ -189,7 +189,6 @@ class BankAccountController @Inject() (
   def enterBankAccountDetailsSubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
       withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim: FillingOutClaim, _, router) =>
-        val x: ReimbursementRoutes = router
         fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
           case None =>
             Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
