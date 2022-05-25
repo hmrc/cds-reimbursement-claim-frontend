@@ -193,6 +193,7 @@ enter-movement-reference-number.help-text=The Movement Reference Number (<abbr t
 enter-movement-reference-number.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.invalid.number=Enter a movement reference number
 enter-movement-reference-number.error.required=Enter a movement reference number
+enter-movement-reference-number.multiple.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.title=Enter the first <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter first <abbr title="Movement Reference Number">MRN</abbr>

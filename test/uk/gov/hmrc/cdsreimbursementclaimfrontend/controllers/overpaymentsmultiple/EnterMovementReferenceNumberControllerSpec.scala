@@ -42,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -186,6 +187,32 @@ class EnterMovementReferenceNumberControllerSpec
           ),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterMovementReferenceNumberKey.invalid.number"),
+          expectedStatus = 400
+        )
+      }
+
+      "reject change of first MRN if the new MRN is already associated" in forAll { (mrn: MRN) =>
+        val typeOfClaim    = TypeOfClaimAnswer.Multiple
+        val router         = JourneyExtractor.getRoutes(typeOfClaim, JourneyBindable.Multiple)
+        val associatedMRNs = AssociatedMRNsAnswer(genOtherThan(mrn))
+
+        val (session, _) = sessionWithMRNTypeOfClaimAndAssociatedMRNs(Some(mrn), Some(typeOfClaim), associatedMRNs)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result = performAction(enterMovementReferenceNumberKey -> associatedMRNs.head.value)
+
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey(
+            s"$enterMovementReferenceNumberKey${router.subKey.map(a => s".$a").getOrElse("")}.title"
+          ),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterMovementReferenceNumberKey.multiple.error.existingMRN"
+            ),
           expectedStatus = 400
         )
       }
