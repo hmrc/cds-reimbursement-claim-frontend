@@ -20,20 +20,24 @@ import cats.data.EitherT
 import cats.syntax.all._
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.EnterMovementReferenceNumberMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -42,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -64,35 +69,33 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftClaim => Option[MRN] = _.movementReferenceNumber
 
+  def showMRNPage(status: Status, formWithErrors: Form[MRN])(implicit
+    request: RequestWithSessionData[AnyContent]
+  ): Result =
+    status(
+      enterMovementReferenceNumberPage(
+        formWithErrors,
+        MRNMultipleRoutes.subKey,
+        routes.EnterMovementReferenceNumberController.enterMrnSubmit
+      )
+    )
+
   val enterJourneyMrn: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MRN] { (_, previousAnswer) =>
-        val emptyForm = Forms.movementReferenceNumberForm
+        val emptyForm = movementReferenceNumberForm
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
-        Ok(
-          enterMovementReferenceNumberPage(
-            form,
-            Some("multiple"),
-            routes.EnterMovementReferenceNumberController.enterMrnSubmit
-          )
-        )
+        showMRNPage(Ok, form)
       }
     }
 
   val enterMrnSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MRN] { (fillingOutClaim, previousAnswer) =>
-        Forms.movementReferenceNumberForm
+        movementReferenceNumberForm
           .bindFromRequest()
           .fold(
-            formWithErrors =>
-              BadRequest(
-                enterMovementReferenceNumberPage(
-                  formWithErrors,
-                  Some("multiple"),
-                  routes.EnterMovementReferenceNumberController.enterMrnSubmit
-                )
-              ),
+            formWithErrors => showMRNPage(BadRequest, formWithErrors),
             mrnNumber => {
 
               def getDeclaration(mrn: MRN): EitherT[Future, Error, Option[DisplayDeclaration]] =
@@ -103,7 +106,10 @@ class EnterMovementReferenceNumberController @Inject() (
               val isSameAsPrevious: Boolean =
                 previousAnswer.exists(_.value === mrnNumber.value)
 
-              if (isSameAsPrevious && fillingOutClaim.draftClaim.isComplete)
+              if (fillingOutClaim.draftClaim.associatedMRNsAnswer.list.exists(_ === mrnNumber)) {
+                val (key, message) = ("enter-movement-reference-number", "multiple.error.existingMRN")
+                showMRNPage(BadRequest, movementReferenceNumberForm.withError(key, message))
+              } else if (isSameAsPrevious && fillingOutClaim.draftClaim.isComplete)
                 Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers)
               else if (isSameAsPrevious)
                 Redirect(routes.CheckMovementReferenceNumbersController.showMrns)

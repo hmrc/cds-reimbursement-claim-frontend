@@ -21,6 +21,7 @@ import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectTaxCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
@@ -56,7 +57,7 @@ class SelectTaxCodesController @Inject() (
               availableDuties,
               Some((pageIndex, mrn)),
               false,
-              Some("multiple"),
+              MRNMultipleRoutes.subKey,
               routes.SelectTaxCodesController.submit(pageIndex)
             )
           )
@@ -88,7 +89,7 @@ class SelectTaxCodesController @Inject() (
                         availableDuties,
                         Some((pageIndex, mrn)),
                         false,
-                        Some("multiple"),
+                        MRNMultipleRoutes.subKey,
                         routes.SelectTaxCodesController.submit(pageIndex)
                       )
                     )
