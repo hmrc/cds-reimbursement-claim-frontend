@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWith
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
@@ -132,7 +132,7 @@ class BankAccountController @Inject() (
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
-        Redirect(claimsRoutes.ServiceUnavailableController.unavailable(journey))
+        Redirect(commonRoutes.ServiceUnavailableController.show)
       case e                                 =>
         logAndDisplayError("could not process bank account details: ", e)
     }
@@ -148,7 +148,7 @@ class BankAccountController @Inject() (
         updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
       ).leftMap(_ => Error("could not update session"))
     } else {
-      EitherT.rightT[Future, Error](Unit)
+      EitherT.rightT[Future, Error](())
     }
 
   private def processBankAccountReputation(

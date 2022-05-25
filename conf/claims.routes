@@ -15,13 +15,8 @@ GET         /:journey/claimant-details/problem-with-address         uk.gov.hmrc.
 GET         /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey: JourneyBindable)
 POST        /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaimSubmit(journey: JourneyBindable)
 
-GET         /:journey/choose-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim(journey: JourneyBindable)
-POST        /:journey/choose-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit(journey: JourneyBindable)
-
 GET         /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.show(journey: JourneyBindable)
 POST        /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.submit(journey: JourneyBindable)
 
 GET         /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.show(journey: JourneyBindable)
 POST        /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.submit(journey: JourneyBindable)
-
-GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ServiceUnavailableController.unavailable(journey: JourneyBindable)

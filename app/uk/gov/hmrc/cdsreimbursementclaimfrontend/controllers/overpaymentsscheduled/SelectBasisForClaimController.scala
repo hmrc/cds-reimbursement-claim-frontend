@@ -14,30 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import cats.implicits.catsSyntaxOptionId
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Forms.mapping
-import play.api.data.Forms.number
-import play.api.data._
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
@@ -66,37 +60,47 @@ class SelectBasisForClaimController @Inject() (
     with SessionDataExtractor
     with Logging {
 
+  private val basisOfClaimsHints: DropdownHints =
+    DropdownHints.range(elementIndex = 1, maxHints = 14)
+
+  private def getPossibleClaimTypes(draftClaim: DraftClaim): BasisOfClaims =
+    BasisOfClaims
+      .withoutDuplicateEntry()
+      .excludeNorthernIrelandClaims(draftClaim)
+
   implicit val dataExtractor: DraftClaim => Option[BasisOfClaimAnswer] = _.basisOfClaimAnswer
 
-  def selectBasisForClaim(implicit journey: JourneyBindable): Action[AnyContent] =
+  val selectBasisForClaim: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, answer) =>
-        val emptyForm  = SelectBasisForClaimController.reasonForClaimForm
+        val emptyForm  = Forms.reasonForClaimForm
         val filledForm = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(basisOfClaim))
         Ok(
           selectReasonForClaimPage(
             filledForm,
-            getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-            getBasisOfClaimsHints(journey)
+            getPossibleClaimTypes(fillingOutClaim.draftClaim),
+            basisOfClaimsHints,
+            Some("scheduled"),
+            routes.SelectBasisForClaimController.selectBasisForClaimSubmit
           )
         )
       }
     }
 
-  def selectBasisForClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val selectBasisForClaimSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[BasisOfClaimAnswer] { (fillingOutClaim, _, routes) =>
-        import routes._
-
-        SelectBasisForClaimController.reasonForClaimForm
+      withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, _) =>
+        Forms.reasonForClaimForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
               BadRequest(
                 selectReasonForClaimPage(
                   formWithErrors,
-                  getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-                  getBasisOfClaimsHints(journey)
+                  getPossibleClaimTypes(fillingOutClaim.draftClaim),
+                  basisOfClaimsHints,
+                  Some("scheduled"),
+                  routes.SelectBasisForClaimController.selectBasisForClaimSubmit
                 )
               ),
             answer => {
@@ -108,44 +112,14 @@ class SelectBasisForClaimController @Inject() (
                   logAndDisplayError("could not store reason for claim answer"),
                   _ =>
                     Redirect(
-                      answer match {
-                        case BasisOfClaimAnswer.DuplicateEntry =>
-                          OverpaymentsRoutes.EnterDuplicateMovementReferenceNumberController
-                            .enterDuplicateMrn(journeyBindable)
-                        case _                                 =>
-                          CheckAnswers.when(updatedJourney.draftClaim.isComplete)(alternatively =
-                            OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
-                          )
-                      }
+                      CheckAnswers.when(updatedJourney.draftClaim.isComplete)(alternatively =
+                        routes.EnterAdditionalDetailsController.show
+                      )
                     )
                 )
             }
           )
       }
     }
-}
 
-object SelectBasisForClaimController {
-
-  val selectBasisForClaimKey: String = "select-basis-for-claim"
-
-  val reasonForClaimForm: Form[BasisOfClaimAnswer] =
-    Form(
-      mapping(
-        selectBasisForClaimKey -> number
-          .verifying("invalid reason for claim", idx => BasisOfClaims.contains(idx))
-          .transform[BasisOfClaimAnswer](BasisOfClaims.all(_), BasisOfClaims.indexOf)
-      )(identity)(Some(_))
-    )
-
-  def getPossibleClaimTypes(draftClaim: DraftClaim, journey: JourneyBindable): BasisOfClaims =
-    BasisOfClaims
-      .excludeNonJourneyClaims(journey)
-      .excludeNorthernIrelandClaims(draftClaim)
-
-  def getBasisOfClaimsHints(journey: JourneyBindable): DropdownHints =
-    DropdownHints.range(
-      if (journey === JourneyBindable.Scheduled || journey === JourneyBindable.Multiple) 1 else 0,
-      maxHints = 14
-    )
 }

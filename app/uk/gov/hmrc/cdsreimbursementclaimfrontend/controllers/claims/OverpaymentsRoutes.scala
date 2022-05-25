@@ -18,9 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 
 object OverpaymentsRoutes {
 
@@ -155,6 +156,17 @@ object OverpaymentsRoutes {
         overpaymentsMultipleRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
       case JourneyBindable.Scheduled =>
         overpaymentsScheduledRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
+    }
+  }
+
+  object SelectBasisForClaimController {
+    def selectBasisForClaim(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.SelectBasisForClaimController.selectBasisForClaim
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.SelectBasisForClaimController.selectBasisForClaim
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.SelectBasisForClaimController.selectBasisForClaim
     }
   }
 

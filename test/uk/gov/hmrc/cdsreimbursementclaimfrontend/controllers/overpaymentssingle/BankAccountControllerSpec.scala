@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
@@ -644,7 +644,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, claimsRoutes.ServiceUnavailableController.unavailable(journey))
+        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show)
       }
 
     }

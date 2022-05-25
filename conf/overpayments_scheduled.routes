@@ -12,6 +12,9 @@ GET         /scheduled/scheduled-document-upload/choose-files                   
 POST        /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.callback
 GET         /scheduled/scheduled-document-upload/continue                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.continue
 
+GET         /scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBasisForClaimController.selectBasisForClaim
+POST        /scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBasisForClaimController.selectBasisForClaimSubmit
+
 GET         /scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.showDutyTypes
 POST        /scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.submitDutyTypes
 
