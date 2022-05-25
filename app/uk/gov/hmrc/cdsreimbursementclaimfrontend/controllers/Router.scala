@@ -86,11 +86,11 @@ trait JourneyTypeRoutes extends Product with Serializable {
             claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
         }
       case No  =>
-        claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
+        OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
     }
 
   def nextPageForCheckDuplicateDeclarationDetails(): Call =
-    claims.OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
+    OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
@@ -108,7 +108,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case Some(declarantType) =>
         declarantType match {
           case _ =>
-            claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+            OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
       case None                =>
         claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)

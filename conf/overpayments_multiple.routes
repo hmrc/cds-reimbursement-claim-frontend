@@ -17,6 +17,9 @@ POST        /multiple/enter-declarant-eori                                     @
 GET         /multiple/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterImporterEoriNumberController.enterImporterEoriNumber
 POST        /multiple/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit
 
+GET         /multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBasisForClaimController.selectBasisForClaim
+POST        /multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBasisForClaimController.selectBasisForClaimSubmit
+
 GET         /multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectMultipleDutiesController.selectDuties(index: Int)
 POST        /multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectMultipleDutiesController.selectDutiesSubmit(index: Int)
 

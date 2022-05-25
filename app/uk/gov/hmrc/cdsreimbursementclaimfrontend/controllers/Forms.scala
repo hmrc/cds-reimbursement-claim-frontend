@@ -59,6 +59,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 
 object Forms {
 
@@ -364,6 +366,15 @@ object Forms {
               else Invalid("invalid.number")
             })
             .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+
+  val reasonForClaimForm: Form[BasisOfClaimAnswer] =
+    Form(
+      mapping(
+        "select-basis-for-claim" -> number
+          .verifying("invalid reason for claim", idx => BasisOfClaims.contains(idx))
+          .transform[BasisOfClaimAnswer](BasisOfClaims.all(_), BasisOfClaims.indexOf)
       )(identity)(Some(_))
     )
 }
