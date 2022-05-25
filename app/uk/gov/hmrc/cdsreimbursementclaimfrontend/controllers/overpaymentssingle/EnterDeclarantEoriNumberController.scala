@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.instances.future.catsStdInstancesForFuture
 import play.api.data.Form
@@ -26,13 +26,15 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantEoriNumberAnswer
@@ -64,21 +66,28 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   val eoriNumberFormKey: String = "enter-declarant-eori-number"
 
+  implicit val journey: JourneyBindable = JourneyBindable.Single
+
   implicit val dataExtractor: DraftClaim => Option[DeclarantEoriNumberAnswer] = _.declarantEoriNumberAnswer
 
-  def enterDeclarantEoriNumber(implicit journey: JourneyBindable): Action[AnyContent] =
+  val enterDeclarantEoriNumber: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (_, answers, router) =>
+      withAnswers[DeclarantEoriNumberAnswer] { (_, answers) =>
         val emptyForm              = eoriNumberForm(eoriNumberFormKey)
         val filledForm: Form[Eori] =
           answers.fold(emptyForm)(declarantEoriNumberAnswer => emptyForm.fill(declarantEoriNumberAnswer.value))
-        Ok(enterDeclarantEoriNumberPage(filledForm, router.submitUrlForEnterDeclarantEoriNumber()))
+        Ok(
+          enterDeclarantEoriNumberPage(
+            filledForm,
+            routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+          )
+        )
       }
     }
 
-  def enterDeclarantEoriNumberSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val enterDeclarantEoriNumberSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (fillingOutClaim, _, router) =>
+      withAnswers[DeclarantEoriNumberAnswer] { (fillingOutClaim, _) =>
         eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
           .fold(
@@ -86,7 +95,7 @@ class EnterDeclarantEoriNumberController @Inject() (
               BadRequest(
                 enterDeclarantEoriNumberPage(
                   requestFormWithErrors,
-                  router.submitUrlForEnterDeclarantEoriNumber()
+                  routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
                 )
               ),
             declarantEoriNumber => {
@@ -109,7 +118,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                       Redirect(baseRoutes.IneligibleController.ineligible())
                     case Right(b) =>
                       if (b) {
-                        Redirect(routes.CheckDeclarationDetailsController.show(journey))
+                        Redirect(claimsRoutes.CheckDeclarationDetailsController.show(journey))
                       } else {
                         logger.warn("could not match Eoris for third party flow")
                         Redirect(baseRoutes.IneligibleController.ineligible())

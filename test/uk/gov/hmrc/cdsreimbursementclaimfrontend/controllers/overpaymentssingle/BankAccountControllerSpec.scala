@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController => ClaimsBankAccountController}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController
@@ -176,7 +175,7 @@ class BankAccountControllerSpec
         val request = FakeRequest()
         val result  = controller.checkBankAccountDetails(request)
 
-        checkIsRedirect(result, claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journey))
+        checkIsRedirect(result, OverpaymentsRoutes.SelectBankAccountTypeController.show(journey))
 
       }
 
@@ -190,7 +189,7 @@ class BankAccountControllerSpec
 
         val request = FakeRequest()
         val result  = controller.checkBankAccountDetails(request)
-        checkIsRedirect(result, claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journey))
+        checkIsRedirect(result, OverpaymentsRoutes.SelectBankAccountTypeController.show(journey))
       }
 
       "Ok when MaskedBankDetails has consigneeBankDetails" in forAll(journeys) { journey =>

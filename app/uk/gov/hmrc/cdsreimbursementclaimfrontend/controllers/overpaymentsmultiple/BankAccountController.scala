@@ -92,130 +92,130 @@ class BankAccountController @Inject() (
                   CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                     OverpaymentsRoutes.ChooseFileTypeController.show(journey)
                   ),
-                  claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)
+                  OverpaymentsRoutes.SelectBankAccountTypeController.show(journey)
                 )
               )
             )
           }
           .getOrElse {
-            Future.successful(Redirect(claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)))
+            Future.successful(Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(journey)))
           }
       }
     }
 
-//  def enterBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
-//    authenticatedActionWithSessionData.async { implicit request =>
-//      withAnswersAndRoutes[BankAccountDetails] { (_, answers, router) =>
-//        val bankDetailsForm =
-//          answers.toList.foldLeft(enterBankDetailsForm)((form, answer) => form.fill(answer))
-//        Ok(enterBankAccountDetailsPage(bankDetailsForm, router.submitUrlForEnterBankAccountDetails()))
-//      }
-//    }
-//
-//  private def getBankAccountReputation(
-//    bankAccountType: BankAccountType,
-//    bankAccountDetails: BankAccountDetails,
-//    fillingOutClaim: FillingOutClaim
-//  )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] =
-//    if (bankAccountType === BankAccountType.Business) {
-//      bankAccountReputationService.getBusinessAccountReputation(bankAccountDetails)
-//    } else {
-//      val postCode = fillingOutClaim.draftClaim
-//        .extractEstablishmentAddress(fillingOutClaim.signedInUserDetails)
-//        .flatMap(_.postalCode)
-//      bankAccountReputationService.getPersonalAccountReputation(bankAccountDetails, postCode)
-//    }
-//
-//  private def processCdsError[T : CdsError](
-//    error: T
-//  )(implicit request: RequestWithSessionData[AnyContent]): Result =
-//    error match {
-//      case e @ ServiceUnavailableError(_, _) =>
-//        logger.warn(s"could not contact bank account service: $e")
-//        Redirect(claimsRoutes.ServiceUnavailableController.unavailable(journey))
-//      case e                                 =>
-//        logAndDisplayError("could not process bank account details: ", e)
-//    }
-//
-//  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-//  private def addBankAccount(
-//    bankAccountReputation: BankAccountReputation,
-//    request: RequestWithSessionData[AnyContent],
-//    updatedJourney: FillingOutClaim
-//  )(implicit hc: HeaderCarrier): EitherT[Future, Error, Unit] =
-//    if (bankAccountReputation.accountExists.contains(Yes)) {
-//      EitherT[Future, Error, Unit](
-//        updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
-//      ).leftMap(_ => Error("could not update session"))
-//    } else {
-//      EitherT.rightT[Future, Error](Unit)
-//    }
-//
-//  private def processBankAccountReputation(
-//    bankAccountReputation: BankAccountReputation,
-//    bankAccountDetails: BankAccountDetails,
-//    router: ReimbursementRoutes
-//  )(implicit request: Request[_], mesaages: Messages) =
-//    if (bankAccountReputation.otherError.isDefined) {
-//      val errorKey = bankAccountReputation.otherError.map(_.code).getOrElse("account-does-not-exist")
-//      val form     = enterBankDetailsForm
-//        .fill(bankAccountDetails)
-//        .withError("enter-bank-details", s"error.$errorKey")
-//      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
-//    } else if (bankAccountReputation.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
-//      val form = enterBankDetailsForm
-//        .withError("enter-bank-details", "error.moc-check-no")
-//      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
-//    } else if (bankAccountReputation.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
-//      val form = enterBankDetailsForm
-//        .withError("enter-bank-details", "error.moc-check-failed")
-//      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
-//    } else if (bankAccountReputation.accountExists === Some(ReputationResponse.Error)) {
-//      val form = enterBankDetailsForm
-//        .fill(bankAccountDetails)
-//        .withError("enter-bank-details", s"error.account-exists-error")
-//      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
-//    } else if (bankAccountReputation.accountExists =!= Some(ReputationResponse.Yes)) {
-//      val form = enterBankDetailsForm
-//        .withError("enter-bank-details", s"error.account-does-not-exist")
-//      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
-//    } else {
-//      Redirect(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
-//    }
-//
-//  def enterBankAccountDetailsSubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
-//    authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
-//      withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim: FillingOutClaim, _, router) =>
-//        fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
-//          case None =>
-//            Redirect(claimsRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
-//
-//          case Some(bankAccount: BankAccountType) =>
-//            enterBankDetailsForm
-//              .bindFromRequest()
-//              .fold(
-//                requestFormWithErrors =>
-//                  BadRequest(
-//                    enterBankAccountDetailsPage(requestFormWithErrors, router.submitUrlForEnterBankAccountDetails())
-//                  ),
-//                bankAccountDetails => {
-//                  val updatedJourney: FillingOutClaim =
-//                    FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountDetailsAnswer = Some(bankAccountDetails)))
-//
-//                  getBankAccountReputation(bankAccount, bankAccountDetails, fillingOutClaim).value.map {
-//                    case Left(error)                  =>
-//                      Future.successful(processCdsError(error))
-//                    case Right(bankAccountReputation) =>
-//                      addBankAccount(bankAccountReputation, request, updatedJourney).value.map {
-//                        case Left(error) =>
-//                          processCdsError(error)
-//                        case Right(_)    =>
-//                          processBankAccountReputation(bankAccountReputation, bankAccountDetails, router)
-//                      }
-//                  }.flatten
-//                }
-//              )
-//        }
-//      }
-//    }
+  val enterBankAccountDetails: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[BankAccountDetails] { (_, answers, router) =>
+        val bankDetailsForm =
+          answers.toList.foldLeft(enterBankDetailsForm)((form, answer) => form.fill(answer))
+        Ok(enterBankAccountDetailsPage(bankDetailsForm, router.submitUrlForEnterBankAccountDetails()))
+      }
+    }
+
+  private def getBankAccountReputation(
+    bankAccountType: BankAccountType,
+    bankAccountDetails: BankAccountDetails,
+    fillingOutClaim: FillingOutClaim
+  )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] =
+    if (bankAccountType === BankAccountType.Business) {
+      bankAccountReputationService.getBusinessAccountReputation(bankAccountDetails)
+    } else {
+      val postCode = fillingOutClaim.draftClaim
+        .extractEstablishmentAddress(fillingOutClaim.signedInUserDetails)
+        .flatMap(_.postalCode)
+      bankAccountReputationService.getPersonalAccountReputation(bankAccountDetails, postCode)
+    }
+
+  private def processCdsError[T : CdsError](
+    error: T
+  )(implicit request: RequestWithSessionData[AnyContent]): Result =
+    error match {
+      case e @ ServiceUnavailableError(_, _) =>
+        logger.warn(s"could not contact bank account service: $e")
+        Redirect(claimsRoutes.ServiceUnavailableController.unavailable(journey))
+      case e                                 =>
+        logAndDisplayError("could not process bank account details: ", e)
+    }
+
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  private def addBankAccount(
+    bankAccountReputation: BankAccountReputation,
+    request: RequestWithSessionData[AnyContent],
+    updatedJourney: FillingOutClaim
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, Unit] =
+    if (bankAccountReputation.accountExists.contains(Yes)) {
+      EitherT[Future, Error, Unit](
+        updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
+      ).leftMap(_ => Error("could not update session"))
+    } else {
+      EitherT.rightT[Future, Error](Unit)
+    }
+
+  private def processBankAccountReputation(
+    bankAccountReputation: BankAccountReputation,
+    bankAccountDetails: BankAccountDetails,
+    router: ReimbursementRoutes
+  )(implicit request: Request[_], mesaages: Messages) =
+    if (bankAccountReputation.otherError.isDefined) {
+      val errorKey = bankAccountReputation.otherError.map(_.code).getOrElse("account-does-not-exist")
+      val form     = enterBankDetailsForm
+        .fill(bankAccountDetails)
+        .withError("enter-bank-details", s"error.$errorKey")
+      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
+    } else if (bankAccountReputation.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
+      val form = enterBankDetailsForm
+        .withError("enter-bank-details", "error.moc-check-no")
+      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
+    } else if (bankAccountReputation.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
+      val form = enterBankDetailsForm
+        .withError("enter-bank-details", "error.moc-check-failed")
+      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
+    } else if (bankAccountReputation.accountExists === Some(ReputationResponse.Error)) {
+      val form = enterBankDetailsForm
+        .fill(bankAccountDetails)
+        .withError("enter-bank-details", s"error.account-exists-error")
+      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
+    } else if (bankAccountReputation.accountExists =!= Some(ReputationResponse.Yes)) {
+      val form = enterBankDetailsForm
+        .withError("enter-bank-details", s"error.account-does-not-exist")
+      BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
+    } else {
+      Redirect(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
+    }
+
+  val enterBankAccountDetailsSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
+      withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim: FillingOutClaim, _, router) =>
+        fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
+          case None =>
+            Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(JourneyBindable.Multiple))
+
+          case Some(bankAccount: BankAccountType) =>
+            enterBankDetailsForm
+              .bindFromRequest()
+              .fold(
+                requestFormWithErrors =>
+                  BadRequest(
+                    enterBankAccountDetailsPage(requestFormWithErrors, router.submitUrlForEnterBankAccountDetails())
+                  ),
+                bankAccountDetails => {
+                  val updatedJourney: FillingOutClaim =
+                    FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountDetailsAnswer = Some(bankAccountDetails)))
+
+                  getBankAccountReputation(bankAccount, bankAccountDetails, fillingOutClaim).value.map {
+                    case Left(error)                  =>
+                      Future.successful(processCdsError(error))
+                    case Right(bankAccountReputation) =>
+                      addBankAccount(bankAccountReputation, request, updatedJourney).value.map {
+                        case Left(error) =>
+                          processCdsError(error)
+                        case Right(_)    =>
+                          processBankAccountReputation(bankAccountReputation, bankAccountDetails, router)
+                      }
+                  }.flatten
+                }
+              )
+        }
+      }
+    }
 }

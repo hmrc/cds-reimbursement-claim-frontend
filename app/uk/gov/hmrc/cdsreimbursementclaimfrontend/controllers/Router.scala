@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
@@ -34,7 +35,7 @@ trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
   def submitUrlForEnterBankAccountDetails(): Call =
-    claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
+    OverpaymentsRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForEnterMovementReferenceNumber(): Call =
     claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
@@ -45,12 +46,6 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForCheckDuplicateDeclarationDetails(): Call =
     claimRoutes.CheckDuplicateDeclarationDetailsController.submit(journeyBindable)
 
-  def submitUrlForEnterImporterEoriNumber(): Call =
-    claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(journeyBindable)
-
-  def submitUrlForEnterDeclarantEoriNumber(): Call =
-    claimRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journeyBindable)
-
   def submitUrlForChangeMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
 
@@ -58,10 +53,8 @@ trait SubmitRoutes extends Product with Serializable {
     claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
 
   def submitUrlForSelectBankAccountType(): Call =
-    claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
+    OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable)
 
-  def submitUrlForSelectDutyTypes(): Call =
-    claims.OverpaymentsRoutes.SelectDutyTypesController.submitDutyTypes(journeyBindable)
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
@@ -104,7 +97,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
     else claimRoutes.CheckContactDetailsMrnController.redirectToALF(journeyBindable)
 
   def nextPageForSelectBankAccountType(): Call =
-    claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
+    OverpaymentsRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
 
   def nextPageForDetailsRegisteredWithCDS(
     declarantType: Option[DeclarantTypeAnswer]
@@ -148,11 +141,11 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   val journeyBindable: JourneyBindable
   def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
     case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.show(journeyBindable)
-    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
+    case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
     case _: MrnImporter => claimRoutes.CheckDuplicateDeclarationDetailsController.show(journeyBindable)
-    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
+    case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
 }
 

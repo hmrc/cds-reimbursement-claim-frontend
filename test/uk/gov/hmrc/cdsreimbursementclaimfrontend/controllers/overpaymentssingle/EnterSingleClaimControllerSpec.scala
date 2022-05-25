@@ -462,7 +462,7 @@ class EnterSingleClaimControllerSpec
       val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
-        claimsRoutes.ReimbursementMethodController.showReimbursementMethod
+        routes.ReimbursementMethodController.show
       )
     }
 

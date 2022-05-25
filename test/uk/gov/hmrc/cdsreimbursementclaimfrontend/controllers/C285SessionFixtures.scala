@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -62,6 +63,28 @@ trait C285JourneySessionFixtures {
       DraftClaim.blank.copy(
         movementReferenceNumber = maybeMovementReferenceNumberAnswer,
         typeOfClaim = typeOfClaim
+      )
+    val ggCredId            = sample[GGCredId]
+    val signedInUserDetails = sample[SignedInUserDetails]
+    val journey             = JourneyStatus.FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(
+        journeyStatus = Some(journey)
+      ),
+      journey
+    )
+  }
+
+  def sessionWithMRNTypeOfClaimAndAssociatedMRNs(
+    maybeMovementReferenceNumberAnswer: Option[MRN],
+    typeOfClaim: Option[TypeOfClaimAnswer],
+    associatedMRNsAnswer: AssociatedMRNsAnswer
+  ): (SessionData, JourneyStatus.FillingOutClaim) = {
+    val draftC285Claim      =
+      DraftClaim.blank.copy(
+        movementReferenceNumber = maybeMovementReferenceNumberAnswer,
+        typeOfClaim = typeOfClaim,
+        associatedMRNsAnswer = Some(associatedMRNsAnswer)
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]

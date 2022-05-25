@@ -1,9 +1,3 @@
-GET         /:journey/enter-importer-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumber(journey: JourneyBindable)
-POST        /:journey/enter-importer-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(journey: JourneyBindable)
-
-GET         /:journey/enter-declarant-eori                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journey:JourneyBindable)
-POST        /:journey/enter-declarant-eori                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journey: JourneyBindable)
-
 GET         /:journey/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.show(journey: JourneyBindable)
 POST        /:journey/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.submit(journey: JourneyBindable)
 
@@ -30,13 +24,4 @@ POST        /:journey/check-declaration-details                     uk.gov.hmrc.
 GET         /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.show(journey: JourneyBindable)
 POST        /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.submit(journey: JourneyBindable)
 
-GET         /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails(journey: JourneyBindable)
-POST        /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)
-
 GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ServiceUnavailableController.unavailable(journey: JourneyBindable)
-
-GET         /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountType(journey: JourneyBindable)
-POST        /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)
-
-GET         /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.showReimbursementMethod()
-POST        /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.submitReimbursementMethod()

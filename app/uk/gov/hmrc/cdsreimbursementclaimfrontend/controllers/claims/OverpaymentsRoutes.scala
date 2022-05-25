@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
-import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 
 object OverpaymentsRoutes {
 
@@ -83,6 +82,17 @@ object OverpaymentsRoutes {
     }
   }
 
+  object SelectBankAccountTypeController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.SelectBankAccountTypeController.show()
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.SelectBankAccountTypeController.show()
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.SelectBankAccountTypeController.show()
+    }
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   object EnterDuplicateMovementReferenceNumberController {
     def enterDuplicateMrnSubmit(journey: JourneyBindable): Call = journey match {
@@ -117,17 +127,34 @@ object OverpaymentsRoutes {
     }
   }
 
-  object SelectDutyTypesController {
-    def submitDutyTypes(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single    => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-      case JourneyBindable.Multiple  => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
-      case JourneyBindable.Scheduled => overpaymentsSingleRoutes.SelectDutyTypesController.submitDutyTypes
+  object EnterDeclarantEoriNumberController {
+    def enterDeclarantEoriNumber(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
     }
 
-    def showDutyTypes(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single    => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
-      case JourneyBindable.Multiple  => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
-      case JourneyBindable.Scheduled => overpaymentsSingleRoutes.SelectDutyTypesController.showDutyTypes
+    def enterDeclarantEoriNumberSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit
+    }
+  }
+
+  object EnterImporterEoriNumberController {
+    def enterImporterEoriNumber(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
     }
   }
 
@@ -137,5 +164,18 @@ object OverpaymentsRoutes {
       case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.BankAccountController.checkBankAccountDetails
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.BankAccountController.checkBankAccountDetails
     }
+
+    def enterBankAccountDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.BankAccountController.enterBankAccountDetails
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.BankAccountController.enterBankAccountDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.BankAccountController.enterBankAccountDetails
+    }
+
+    def enterBankAccountDetailsSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.BankAccountController.enterBankAccountDetailsSubmit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.BankAccountController.enterBankAccountDetailsSubmit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.BankAccountController.enterBankAccountDetailsSubmit
+    }
+
   }
 }

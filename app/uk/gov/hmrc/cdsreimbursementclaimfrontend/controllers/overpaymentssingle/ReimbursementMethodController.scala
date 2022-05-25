@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
@@ -26,17 +26,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursementMethodForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.reimbursementMethodKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ReimbursementMethodController.reimbursementMethodKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -61,20 +62,30 @@ class ReimbursementMethodController @Inject() (
 
   private val form = reimbursementMethodForm(reimbursementMethodKey)
 
-  def showReimbursementMethod(): Action[AnyContent] =
+  val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ReimbursementMethodAnswer] { (_, answers) =>
         val filledForm = answers.fold(form)(form.fill)
-        Future.successful(Ok(selectReimbursementMethod(filledForm)))
+        Future.successful(
+          Ok(selectReimbursementMethod(filledForm, routes.ReimbursementMethodController.submit))
+        )
       }
     }
 
-  def submitReimbursementMethod(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  val submit: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementMethodAnswer] { (fillingOutClaim, _) =>
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(selectReimbursementMethod(formWithErrors))),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(
+                selectReimbursementMethod(
+                  formWithErrors,
+                  routes.ReimbursementMethodController.submit
+                )
+              )
+            ),
           answer => {
             val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(reimbursementMethodAnswer = Some(answer)))
             EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -84,11 +95,11 @@ class ReimbursementMethodController @Inject() (
                 _ =>
                   Redirect((answer, isAmend(fillingOutClaim)) match {
                     case (_, true)                                             =>
-                      OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+                      routes.CheckYourAnswersAndSubmitController.checkAllAnswers
                     case (ReimbursementMethodAnswer.CurrentMonthAdjustment, _) =>
-                      OverpaymentsRoutes.ChooseFileTypeController.show(JourneyBindable.Single)
+                      routes.ChooseFileTypeController.show
                     case (ReimbursementMethodAnswer.BankAccountTransfer, _)    =>
-                      OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
+                      routes.BankAccountController.checkBankAccountDetails
                   })
               )
           }

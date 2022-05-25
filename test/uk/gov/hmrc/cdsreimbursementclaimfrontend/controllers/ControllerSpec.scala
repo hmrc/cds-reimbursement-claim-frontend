@@ -216,6 +216,15 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def isCheckboxChecked(document: Document, fieldValue: String): Boolean =
     document.select(s"""input[value="$fieldValue"] """).hasAttr("checked")
 
+  def isChecked(document: Document, fieldId: String): Boolean =
+    document
+      .getElementById(fieldId)
+      .attributes()
+      .asList()
+      .asScala
+      .map(_.getKey)
+      .contains("checked")
+
   import cats.instances.int._
   import cats.syntax.eq._
 

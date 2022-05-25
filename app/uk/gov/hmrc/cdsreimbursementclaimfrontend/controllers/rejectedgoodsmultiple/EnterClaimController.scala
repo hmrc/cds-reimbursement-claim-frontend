@@ -22,6 +22,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -40,7 +41,7 @@ class EnterClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val subKey: Some[String] = Some("multiple")
+  val subKey: Option[String] = MRNMultipleRoutes.subKey
 
   val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show()
   val selectDutiesAction: Int => Call           = routes.SelectTaxCodesController.show(_)

@@ -22,6 +22,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
@@ -38,7 +39,7 @@ class CheckDeclarationDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  implicit val subKey: Option[String] = Some("multiple")
+  implicit val subKey: Option[String] = MRNMultipleRoutes.subKey
 
   private val postAction: Call                       = routes.CheckDeclarationDetailsController.submit()
   val checkDeclarationDetailsKey: String             = "check-declaration-details"

@@ -100,18 +100,18 @@ class SelectDutiesControllerSpec
   }
 
   def isA00Checked(document: Document): Boolean =
-    isChecked(document, TaxCode.A00.value)
+    isFieldValueChecked(document, TaxCode.A00.value)
 
   def isA30Checked(document: Document): Boolean =
-    isChecked(document, TaxCode.A30.value)
+    isFieldValueChecked(document, TaxCode.A30.value)
 
   def isA90Checked(document: Document): Boolean =
-    isChecked(document, TaxCode.A90.value)
+    isFieldValueChecked(document, TaxCode.A90.value)
 
   def isB00Checked(document: Document): Boolean =
-    isChecked(document, TaxCode.B00.value)
+    isFieldValueChecked(document, TaxCode.B00.value)
 
-  def isChecked(document: Document, fieldValue: String): Boolean =
+  def isFieldValueChecked(document: Document, fieldValue: String): Boolean =
     document.select(s"""input[value="$fieldValue"] """).hasAttr("checked")
 
   def getBackLink(document: Document): String =

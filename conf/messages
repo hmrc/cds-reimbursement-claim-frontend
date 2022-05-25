@@ -193,6 +193,7 @@ enter-movement-reference-number.help-text=The Movement Reference Number (<abbr t
 enter-movement-reference-number.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.invalid.number=Enter a movement reference number
 enter-movement-reference-number.error.required=Enter a movement reference number
+enter-movement-reference-number.multiple.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.title=Enter the first <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter first <abbr title="Movement Reference Number">MRN</abbr>
@@ -1247,7 +1248,7 @@ check-your-answers.claim-calculation.label=Claim calculation
 check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l2=Total claimed reimbursement
-check-your-answers.multiple-claim-totals.label=Total reimbursement claim
+check-your-answers.multiple-claim-totals.label=Claim total
 check-your-answers.bank-details.label=Bank details
 check-your-answers.bank-details.l0=Bank account name
 check-your-answers.bank-details.l1=Type of bank account

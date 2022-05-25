@@ -22,7 +22,7 @@ $hmrc-assets-path: "/claim-back-import-duty-vat/assets/lib/hmrc-frontend/hmrc/";
 
 // Custom CDS styles
 
-@media only screen and (max-width: 1024px) {
+@media only screen and (min-width: 1024px) {
 
     .govuk-summary-list__key {
         width:40%;
