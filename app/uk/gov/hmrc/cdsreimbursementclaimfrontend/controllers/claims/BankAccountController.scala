@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWith
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
@@ -131,11 +132,11 @@ class BankAccountController @Inject() (
 
   private def processCdsError[T : CdsError](
     error: T
-  )(implicit request: RequestWithSessionData[AnyContent], journeyBindable: JourneyBindable): Result =
+  )(implicit request: RequestWithSessionData[AnyContent]): Result =
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
-        Redirect(routes.ServiceUnavailableController.unavailable(journeyBindable))
+        Redirect(commonRoutes.ServiceUnavailableController.show())
       case e                                 =>
         logAndDisplayError("could not process bank account details: ", e)
     }

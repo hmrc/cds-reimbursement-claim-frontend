@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
@@ -430,7 +431,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, routes.ServiceUnavailableController.unavailable(journey))
+        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show())
       }
     }
 
@@ -644,7 +645,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, routes.ServiceUnavailableController.unavailable(journey))
+        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show())
       }
 
     }
