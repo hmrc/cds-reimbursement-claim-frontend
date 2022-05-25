@@ -14,35 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ServiceUnavailableController
-import org.scalatest.prop.TableDrivenPropertyChecks
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 
-class ServiceUnavailableControllerSpec extends ControllerSpec with TableDrivenPropertyChecks {
+class ServiceUnavailableControllerSpec extends ControllerSpec {
 
   lazy val controller: ServiceUnavailableController = instanceOf[ServiceUnavailableController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
-  private val journeys = Table(
-    "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
-  )
+  "Service unavailable controller" must {
 
-  "Ineligible controller" must {
+    "handling requests to display the service unavailable page" must {
 
-    "handling requests to display the ineligible page" must {
-
-      "display the page" in forAll(
-        journeys
-      ) { journey =>
+      "display the page" in {
         checkPageIsDisplayed(
-          controller.unavailable(journey)(FakeRequest()),
+          controller.show()(FakeRequest()),
           messageFromMessageKey("bank-service-unavailable.title")
         )
       }
