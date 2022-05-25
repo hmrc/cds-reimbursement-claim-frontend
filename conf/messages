@@ -179,8 +179,8 @@ select-number-of-claims.multiple.title=Enter multiple <abbr title="Movement Refe
 select-number-of-claims.multiple.hint=Manually enter details for each <abbr title="Movement Reference Number">MRN</abbr>
 select-number-of-claims.scheduled.title=Upload multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
 select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all <abbr title="Movement Reference Numbers">MRNs</abbr>
-select-number-of-claims.error.required=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim.
-select-number-of-claims.invalid=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim.
+select-number-of-claims.error.required=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+select-number-of-claims.invalid=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
 #  ENTER MRN PAGE
@@ -660,7 +660,7 @@ enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact
 enter-contact-details-rejected-goods.contact-name.error.maxLength=Enter a shorter name
 enter-contact-details-rejected-goods.contact-email.label=Email address
 enter-contact-details-rejected-goods.contact-email.error.required=Enter a contact email address
-enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com.
+enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com
 enter-contact-details-rejected-goods.contact-email.error.maxLength=Enter a shorter email
 enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optional)
 enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
@@ -1089,19 +1089,19 @@ supporting-evidence.scan-progress.title=We are checking your document
 supporting-evidence.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
 supporting-evidence.scan-progress.p2=You’ll need to keep selecting ’continue’ every few seconds until the check is complete to go to the next page.
 supporting-evidence.upload-failed.title=There is a problem with the file you uploaded
-supporting-evidence.upload-failed.p1=We could not scan your file.
+supporting-evidence.upload-failed.p1=We could not scan your file
 supporting-evidence.upload-failed.p2=This could be because:
 supporting-evidence.upload-failed.bullet1=the service has experienced technical issues
 supporting-evidence.upload-failed.bullet2=your file was larger than 10MB
-supporting-evidence.upload-failed.p3=You’ll need to try again.
+supporting-evidence.upload-failed.p3=You’ll need to try again
 supporting-evidence.upload-failed.button.tryAgain=Try again
 supporting-evidence.scan-failed.title=There is a problem with your file
 supporting-evidence.scan-failed.p1=The problem could be that:
 supporting-evidence.scan-failed.l1=the file had a virus or was corrupt
 supporting-evidence.scan-failed.l2=you did not select a file to upload
 supporting-evidence.scan-failed.l3=you uploaded the wrong type of file
-supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG and PDF.
-supporting-evidence.scan-failed.p3=You’ll need to try again.
+supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG and PDF
+supporting-evidence.scan-failed.p3=You’ll need to try again
 supporting-evidence.scan-failed.button.tryAgain=Try again
 supporting-evidence.choose-document-type.title=Add supporting documents to your claim
 supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
