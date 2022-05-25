@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -22,8 +22,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.service_unavailable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.service_unavailable
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
@@ -33,7 +32,5 @@ class ServiceUnavailableController @Inject() (
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc) {
 
-  def unavailable(journey: JourneyBindable): Action[AnyContent] = Action { implicit request =>
-    Ok(serviceUnavailablePage(journey))
-  }
+  val show: Action[AnyContent] = Action(implicit request => Ok(serviceUnavailablePage()))
 }
