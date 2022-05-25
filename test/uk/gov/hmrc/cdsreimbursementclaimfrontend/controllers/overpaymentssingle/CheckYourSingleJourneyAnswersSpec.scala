@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.jsoup.nodes
 import play.api.test.FakeRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
@@ -114,7 +113,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
                 ("Declarant name"                                  -> declaration.map(_.declarantName)),
                 ("Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " "))),
                 ("This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
-                  messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
+                  messages(s"select-basis-for-claim.reason.d${BasisOfClaims.indexOf(answer)}")
                 )),
                 ("This is the reason for the claim"                -> claim.additionalDetailsAnswer.map(_.value)),
                 ("Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value))

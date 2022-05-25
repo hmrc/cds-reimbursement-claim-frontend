@@ -158,4 +158,15 @@ object OverpaymentsRoutes {
         overpaymentsScheduledRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber
     }
   }
+
+  object SelectBasisForClaimController {
+    def selectBasisForClaim(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.SelectBasisForClaimController.selectBasisForClaim
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.SelectBasisForClaimController.selectBasisForClaim
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.SelectBasisForClaimController.selectBasisForClaim
+    }
+  }
 }

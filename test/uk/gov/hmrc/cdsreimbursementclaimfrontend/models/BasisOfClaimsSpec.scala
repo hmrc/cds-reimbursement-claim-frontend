@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -96,8 +95,8 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     )
   }
 
-  "filter duplicate entry claim and incorrect EORI for scheduled journey" in {
-    BasisOfClaims.excludeNonJourneyClaims(JourneyBindable.Scheduled).claims should be(
+  "filter DuplicateEntry basis of claim" in {
+    BasisOfClaims.withoutDuplicateEntry.claims should be(
       List(
         DutySuspension,
         EndUseRelief,
@@ -117,29 +116,8 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     )
   }
 
-  "filter duplicate entry claim and incorrect EORI for multiple journey" in {
-    BasisOfClaims.excludeNonJourneyClaims(JourneyBindable.Multiple).claims should be(
-      List(
-        DutySuspension,
-        EndUseRelief,
-        IncorrectAdditionalInformationCode,
-        IncorrectCommodityCode,
-        IncorrectCpc,
-        IncorrectExciseValue,
-        IncorrectValue,
-        InwardProcessingReliefFromCustomsDuty,
-        OutwardProcessingRelief,
-        PersonalEffects,
-        Preference,
-        ProofOfReturnRefundGiven,
-        RGR,
-        Miscellaneous
-      )
-    )
-  }
-
-  "contain duplicate entry and incorrect EORI claim for single journey" in {
-    BasisOfClaims.excludeNonJourneyClaims(JourneyBindable.Single).claims should be(
+  "contain DuplicateEntry basis of claim" in {
+    BasisOfClaims.all should be(
       List(
         DuplicateEntry,
         DutySuspension,

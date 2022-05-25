@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.implicits.catsSyntaxOptionId
 import org.scalatest.OptionValues
@@ -29,10 +29,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -58,6 +56,8 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  val selectBasisForClaimKey: String = "select-basis-for-claim"
 
   lazy val controller: SelectBasisForClaimController = instanceOf[SelectBasisForClaimController]
 
@@ -87,7 +87,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
   "Select basis of claim controller" must {
 
-    def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
+    def performAction(): Future[Result] = controller.selectBasisForClaim(FakeRequest())
 
     "redirect to the start of the journey" when {
 
@@ -109,7 +109,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
     "display the page" when {
 
       "the user has not answered this question before" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)
@@ -128,7 +128,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
       }
 
       "the user has answered this question before" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(FakeRequest())
 
         val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
@@ -178,7 +178,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
       "user chooses a valid option" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.selectBasisForClaimSubmit(JourneyBindable.Single)(
+          controller.selectBasisForClaimSubmit(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -197,13 +197,13 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           performAction(Seq(selectBasisForClaimKey -> "2")),
-          OverpaymentsRoutes.EnterAdditionalDetailsController.show(JourneyBindable.Single)
+          routes.EnterAdditionalDetailsController.show
         )
       }
 
       "the user amends their answer" ignore {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.selectBasisForClaimSubmit(JourneyBindable.Single)(
+          controller.selectBasisForClaimSubmit(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -225,7 +225,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         checkIsRedirect(
           performAction(Seq(selectBasisForClaimKey -> idx.toString)),
-          OverpaymentsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers
         )
       }
 
@@ -234,7 +234,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
     "show an error summary" when {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.selectBasisForClaimSubmit(JourneyBindable.Single)(
+        controller.selectBasisForClaimSubmit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 

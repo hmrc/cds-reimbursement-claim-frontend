@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.implicits.catsSyntaxEq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims.all
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
@@ -66,17 +64,10 @@ object BasisOfClaims {
 
   def apply(): Builder = Builder(all)
 
-  def excludeNonJourneyClaims(journey: JourneyBindable): Builder =
-    BasisOfClaims().filterUsing(journey)
+  def withoutDuplicateEntry(): Builder =
+    Builder(all.diff(DuplicateEntry :: Nil))
 
   final case class Builder(claims: List[BasisOfClaimAnswer]) {
-
-    def filterUsing(journey: JourneyBindable): Builder =
-      copy(
-        if (journey === JourneyBindable.Scheduled || journey === JourneyBindable.Multiple)
-          claims.diff(DuplicateEntry :: Nil)
-        else claims
-      )
 
     def excludeNorthernIrelandClaims(claim: DraftClaim): BasisOfClaims = {
 
