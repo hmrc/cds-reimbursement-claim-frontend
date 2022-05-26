@@ -33,7 +33,7 @@ final case class DisplayResponseDetail(
   bankDetails: Option[BankDetails],
   maskedBankDetails: Option[BankDetails],
   ndrcDetails: Option[List[NdrcDetails]],
-  securityDetails: Option[List[SecurityDetails]]
+  securityDetails: Option[List[SecurityDetails]] = None
 )
 
 object DisplayResponseDetail {

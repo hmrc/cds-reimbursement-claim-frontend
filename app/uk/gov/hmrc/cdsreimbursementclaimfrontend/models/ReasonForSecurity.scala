@@ -60,8 +60,6 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
   // Set of ReasonForSecurity demanding DEC91 call for export declaration status check
   val requiresExportDeclaration: Set[ReasonForSecurity] =
     Set(
-      InwardProcessingRelief,
-      OutwardProcessingRelief,
       TemporaryAdmission2Y,
       TemporaryAdmission6M,
       TemporaryAdmission3M,
