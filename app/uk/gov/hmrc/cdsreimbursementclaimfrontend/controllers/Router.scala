@@ -42,7 +42,7 @@ trait SubmitRoutes extends Product with Serializable {
     claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
 
   def submitUrlForCheckDeclarationDetails(): Call =
-    claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
+    claims.OverpaymentsRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 
   def submitUrlForCheckDuplicateDeclarationDetails(): Call =
     overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.submit
@@ -141,7 +141,7 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   val refNumberKey                                        = Some("mrn")
   val journeyBindable: JourneyBindable
   def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
-    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.show(journeyBindable)
+    case _: MrnImporter => OverpaymentsRoutes.CheckDeclarationDetailsController.show(journeyBindable)
     case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {

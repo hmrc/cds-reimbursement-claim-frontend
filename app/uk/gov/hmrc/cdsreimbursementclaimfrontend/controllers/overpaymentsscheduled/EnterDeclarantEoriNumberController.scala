@@ -32,9 +32,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantEoriNumberAnswer
@@ -117,7 +117,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                       Redirect(baseRoutes.IneligibleController.ineligible())
                     case Right(b) =>
                       if (b) {
-                        Redirect(claimsRoutes.CheckDeclarationDetailsController.show(journey))
+                        Redirect(overpaymentsScheduledRoutes.CheckDeclarationDetailsController.show)
                       } else {
                         logger.warn("could not match Eoris for third party flow")
                         Redirect(baseRoutes.IneligibleController.ineligible())

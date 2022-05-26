@@ -83,6 +83,20 @@ object OverpaymentsRoutes {
     }
   }
 
+  object CheckDeclarationDetailsController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckDeclarationDetailsController.show
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckDeclarationDetailsController.show
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckDeclarationDetailsController.show
+    }
+
+    def submit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckDeclarationDetailsController.submit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckDeclarationDetailsController.submit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckDeclarationDetailsController.submit
+    }
+  }
+
   object SelectBankAccountTypeController {
     def show(journey: JourneyBindable): Call = journey match {
       case JourneyBindable.Single    =>

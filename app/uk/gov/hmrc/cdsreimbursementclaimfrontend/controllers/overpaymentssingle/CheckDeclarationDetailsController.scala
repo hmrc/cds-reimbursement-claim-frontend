@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -28,8 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAnd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
@@ -38,55 +40,50 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
 
 import scala.concurrent.Future
 
 @Singleton
-class CheckDuplicateDeclarationDetailsController @Inject() (
+class CheckDeclarationDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  checkDeclarationDetailsPage: pages.check_declaration_details,
-  enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number
-)(implicit viewConfig: ViewConfig)
+  checkDeclarationDetailsPage: pages.check_declaration_details
+)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates
     with Logging {
 
-  implicit val journey: JourneyBindable                                                = JourneyBindable.Single
-  implicit val duplicateDeclarationExtractor: DraftClaim => Option[DisplayDeclaration] =
-    _.duplicateDisplayDeclaration
+  implicit val journey: JourneyBindable = JourneyBindable.Single
 
-  def show(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-        val postAction: Call                = router.submitUrlForCheckDuplicateDeclarationDetails()
-        implicit val subKey: Option[String] = router.subKey
-        maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-          Ok(
-            checkDeclarationDetailsPage(
-              declaration,
-              checkDeclarationDetailsAnswerForm,
-              isDuplicate = true,
-              postAction
-            )
+  implicit val declarationExtractor: DraftClaim => Option[DisplayDeclaration] = _.displayDeclaration
+
+  def show(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
+      val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
+      implicit val subKey: Option[String] = router.subKey
+      maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
+        Ok(
+          checkDeclarationDetailsPage(
+            declaration,
+            checkDeclarationDetailsAnswerForm,
+            isDuplicate = false,
+            postAction
           )
         )
-      }
+      )
     }
+  }
 
   def submit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (_, answer, router) =>
-        val postAction: Call                = router.submitUrlForCheckDuplicateDeclarationDetails()
+      withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
+        val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
         implicit val subKey: Option[String] = router.subKey
-        checkDeclarationDetailsAnswerForm
+        CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
@@ -97,26 +94,29 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
                       checkDeclarationDetailsPage(
                         declaration,
                         formWithErrors,
-                        isDuplicate = true,
+                        isDuplicate = false,
                         postAction
                       )
                     )
                   )
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),
-            {
-              case YesNo.No  =>
-                Ok(
-                  enterDuplicateMovementReferenceNumberPage(
-                    Forms.enterDuplicateMrnWithNoCheck,
-                    router.refNumberKey,
-                    OverpaymentsRoutes.EnterDuplicateMovementReferenceNumberController
-                      .enterDuplicateMrnSubmit(router.journeyBindable)
-                  )
+            answer =>
+              Redirect(
+                router.nextPageForCheckDeclarationDetails(
+                  answer,
+                  fillingOutClaim.draftClaim.associatedMRNsAnswer.isDefined
                 )
-              case YesNo.Yes => Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
-            }
+              )
           )
       }
     }
+}
+
+object CheckDeclarationDetailsController {
+
+  val checkDeclarationDetailsKey: String = "check-declaration-details"
+
+  val checkDeclarationDetailsAnswerForm: Form[YesNo] =
+    YesOrNoQuestionForm(checkDeclarationDetailsKey)
 }
