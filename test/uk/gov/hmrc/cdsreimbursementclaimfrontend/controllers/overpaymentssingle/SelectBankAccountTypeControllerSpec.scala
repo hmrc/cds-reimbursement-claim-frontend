@@ -115,7 +115,7 @@ class SelectBankAccountTypeControllerSpec
             performAction(),
             messageFromMessageKey(s"$messageKey.title"),
             doc => {
-              formAction(doc)        shouldBe routes.SelectBankAccountTypeController.submit().url
+              formAction(doc)        shouldBe routes.SelectBankAccountTypeController.submit.url
               isBusinessChecked(doc) shouldBe false
               isPersonalChecked(doc) shouldBe false
             }
@@ -233,7 +233,7 @@ class SelectBankAccountTypeControllerSpec
             performAction(Seq()),
             messageFromMessageKey(s"$messageKey.title"),
             doc => {
-              formAction(doc)      shouldBe routes.SelectBankAccountTypeController.submit().url
+              formAction(doc)      shouldBe routes.SelectBankAccountTypeController.submit.url
               getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required")
             },
             expectedStatus = BAD_REQUEST

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.Lang
@@ -28,6 +28,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -99,7 +100,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     "redirect to the start of the journey" when {
 
       "there is no journey status in the session for duplicate declaration details" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
+        def performAction(): Future[Result] = controller.show()(FakeRequest())
 
         val (session, _, _) = sessionWithClaimStateForDuplicate(None, Some(toTypeOfClaim(journey)))
 
@@ -119,7 +120,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
     "display the page" when {
       "there is a duplicate declaration" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
+        def performAction(): Future[Result] = controller.show()(FakeRequest())
 
         val displayDeclaration = DisplayDeclaration(
           displayResponseDetail = DisplayResponseDetail(
@@ -179,7 +180,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       }
 
       "there is no duplicate declaration" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
+        def performAction(): Future[Result] = controller.show()(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimStateForDuplicate(None, Some(toTypeOfClaim(journey)))._3
         val (session, fillingOutClaim, _) =
@@ -201,8 +202,8 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
     "handle submit requests" when {
 
-      def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
-        controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(data: Seq[(String, String)]): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
         val displayDeclaration = sample[DisplayDeclaration]
@@ -214,7 +215,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "true")),
+          performAction(Seq(checkDeclarationDetailsKey -> "true")),
           OverpaymentsRoutes.EnterAdditionalDetailsController.show(journey)
         )
       }
@@ -229,7 +230,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "false")),
+          performAction(Seq(checkDeclarationDetailsKey -> "false")),
           "Enter the duplicate <abbr title=\"Movement Reference Number\">MRN</abbr>"
         )
       }

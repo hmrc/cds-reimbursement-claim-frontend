@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
@@ -44,7 +45,7 @@ trait SubmitRoutes extends Product with Serializable {
     claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 
   def submitUrlForCheckDuplicateDeclarationDetails(): Call =
-    claimRoutes.CheckDuplicateDeclarationDetailsController.submit(journeyBindable)
+    overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.submit
 
   def submitUrlForChangeMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
@@ -144,8 +145,8 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
     case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
-    case _: MrnImporter => claimRoutes.CheckDuplicateDeclarationDetailsController.show(journeyBindable)
-    case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
+    case _: MrnImporter => overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.show
+    case _              => claims.OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
 }
 

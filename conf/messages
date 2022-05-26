@@ -179,8 +179,8 @@ select-number-of-claims.multiple.title=Enter multiple <abbr title="Movement Refe
 select-number-of-claims.multiple.hint=Manually enter details for each <abbr title="Movement Reference Number">MRN</abbr>
 select-number-of-claims.scheduled.title=Upload multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
 select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all <abbr title="Movement Reference Numbers">MRNs</abbr>
-select-number-of-claims.error.required=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim.
-select-number-of-claims.invalid=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim.
+select-number-of-claims.error.required=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+select-number-of-claims.invalid=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
 #  ENTER MRN PAGE
@@ -297,8 +297,8 @@ enter-importer-eori-number.title=Enter the importer’s <abbr title="Economic Op
 enter-importer-eori-number.caption=Importer <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-importer-eori-number.help=You can get the <abbr title="Economic Operator Registration and Identification">EORI</abbr> number from the importer, otherwise you will be unable to make a claim.
 enter-importer-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
-enter-importer-eori-number.invalid.number=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format.
-enter-importer-eori-number.error.maxLength=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format.
+enter-importer-eori-number.invalid.number=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
+enter-importer-eori-number.error.maxLength=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
 enter-importer-eori-number.invalid=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-importer-eori-number.error.required=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-importer-eori-number.input-label=Enter importer <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
@@ -310,8 +310,8 @@ enter-declarant-eori-number.title=Enter the declarant’s EORI number
 enter-declarant-eori-number.caption=Declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-declarant-eori-number.help=You can get the <abbr title="Economic Operator Registration and Identification">EORI</abbr> number from the declarant, otherwise you will be unable to make a claim.
 enter-declarant-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
-enter-declarant-eori-number.invalid.number=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format.
-enter-declarant-eori-number.error.maxLength=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format.
+enter-declarant-eori-number.invalid.number=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
+enter-declarant-eori-number.error.maxLength=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
 enter-declarant-eori-number.invalid=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-declarant-eori-number.error.required=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
@@ -370,7 +370,7 @@ claimant-details.want-to-continue.title=Do you want to continue using these cont
 claimant-details.want-to-continue.hint=If you select No we will contact you using your <abbr title="Customs Declaration Service">CDS</abbr> registered details.
 claimant-details.yes=Yes
 claimant-details.no=No
-claimant-details.error.required.change=Select yes if you wish to continue using these contact details.
+claimant-details.error.required.change=Select yes if you wish to continue using these contact details
 claimant-details.error.invalid=Select yes if you wish to add different contact details
 claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
 claimant-details.add-different.hint=Adding different contact details will not amend the contact details registered with <abbr title="Customs Declaration Service">CDS</abbr>.
@@ -438,9 +438,9 @@ check-declaration-details.help-text=These are the declarant details we have from
 check-declaration-details.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
-check-declaration-details.error.invalid=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>.
-check-declaration-details.error.number=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>.
-check-declaration-details.error.required=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>.
+check-declaration-details.error.invalid=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.error.number=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.error.required=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.scheduled.mrn-number.label=First <abbr title="Movement Reference Number">MRN</abbr>
 
 #===================================================
@@ -465,8 +465,8 @@ claim-northern-ireland.title=Were your goods moved through or imported to Northe
 claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
-claim-northern-ireland.error.required=Select Yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were imported to or moved through Northern Ireland.
-claim-northern-ireland.error.invalid=Select Yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were imported to or moved through Northern Ireland.
+claim-northern-ireland.error.required=Select Yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were imported to or moved through Northern Ireland
+claim-northern-ireland.error.invalid=Select Yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were imported to or moved through Northern Ireland
 
 claim-northern-ireland.scheduled.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
 claim-northern-ireland.multiple.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
@@ -616,9 +616,9 @@ enter-claim.rejected-goods.inset-text=<abbr title="Her Majesty’s Revenue and C
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
 enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
-enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds.
-enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30.
-enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid.
+enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
+enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30
+enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid
 enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be 0.01 or more
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 
@@ -631,11 +631,11 @@ check-claim.rejected-goods.single.label=Your repayment or remission calculations
 check-claim.rejected-goods.multiple.label=These are the calculations based on the information you gave us.
 check-claim.rejected-goods.single.mrn.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
 check-claim.rejected-goods.single.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
-check-claim.rejected-goods.error.required=Select Yes if these duties are correct.
+check-claim.rejected-goods.error.required=Select Yes if these duties are correct
 check-claim.rejected-goods.are-duties-correct=Are these duties correct?
 check-claim.rejected-goods.yes=Yes
 check-claim.rejected-goods.no=No, select different duties
-check-claim.rejected-goods.error.invalid=Select Yes if these duties are correct.
+check-claim.rejected-goods.error.invalid=Select Yes if these duties are correct
 check-claim.rejected-goods.multiple.duty.label={0} MRN: {1}
 check-claim.rejected-goods.multiple.overall-total.header=Total
 check-claim.rejected-goods.multiple.overall-total.label=Total repayment
@@ -646,8 +646,8 @@ check-claim.rejected-goods.multiple.overall-total.label=Total repayment
 choose-payment-method.rejected-goods.single.title=Choose repayment method
 choose-payment-method.rejected-goods.single.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
-choose-payment-method.rejected-goods.single.error.required=Choose if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer.
-choose-payment-method.rejected-goods.single.error.number=Choose if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer.
+choose-payment-method.rejected-goods.single.error.required=Choose if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
+choose-payment-method.rejected-goods.single.error.number=Choose if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
 
 #===================================================
 #  CONTACT DETAILS REJECTED GOODS
@@ -660,12 +660,12 @@ enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact
 enter-contact-details-rejected-goods.contact-name.error.maxLength=Enter a shorter name
 enter-contact-details-rejected-goods.contact-email.label=Email address
 enter-contact-details-rejected-goods.contact-email.error.required=Enter a contact email address
-enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com.
+enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com
 enter-contact-details-rejected-goods.contact-email.error.maxLength=Enter a shorter email
 enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optional)
-enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
-enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
-enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192.
+enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 
 #===================================================
 #  REIMBURSEMENT PAGES
@@ -795,7 +795,7 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 reimbursement-method.title=Select repayment method
 reimbursement-method.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 reimbursement-method.bank-transfer=Bank account transfer
-reimbursement-method.error.required=Select if you would like to be reimbursed via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer.
+reimbursement-method.error.required=Select if you would like to be reimbursed via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -985,7 +985,7 @@ multiple-check-claim-summary.overall-total.label=Total reimbursement
 multiple-check-claim-summary.are-duties-correct=Are these duties correct?
 multiple-check-claim-summary.yes=Yes
 multiple-check-claim-summary.no=No, select different duties
-multiple-check-claim-summary.error.invalid=Select Yes if these duties are correct.
+multiple-check-claim-summary.error.invalid=Select Yes if these duties are correct
 
 #===================================================
 #  CHECK CLAIM TIMEOUT PAGE
@@ -1056,7 +1056,7 @@ enter-bank-details.account-number.error.required=Enter an account number
 enter-bank-details.account-number.error.length=Account number must be between 6 and 8 digits
 enter-bank-details.account-number.error.invalid=Enter a valid account number like 00733445
 enter-bank-details.error.moc-check-failed=We were unable to verify your sort code and account no. Try again using different details
-enter-bank-details.error.moc-check-no=Enter a valid combination of bank account number and sort code.
+enter-bank-details.error.moc-check-no=Enter a valid combination of bank account number and sort code
 enter-bank-details.error.account-does-not-exist=We were unable to verify your sort code and account no. Try again using different details
 enter-bank-details.error.account-exists-error=The service was unavailable to verify your bank details. Try again later
 enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Invalid account number
@@ -1373,8 +1373,8 @@ choose-claim-type.title=Choose type of claim
 choose-claim-type.c285.title=Repayment of import duties and <abbr title="Value Added Tax">VAT</abbr> overpayment (C285)
 choose-claim-type.ce1179.title=Repayment or remission of import duties and <abbr title="Value Added Tax">VAT</abbr> on rejected imports (C&amp;E1179)
 choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
-choose-claim-type.error.required=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
-choose-claim-type.error.unknown=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
+choose-claim-type.error.required=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports
+choose-claim-type.error.unknown=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports
 
 #===================================================
 #  CHOOSE FILE TYPE - PAGE

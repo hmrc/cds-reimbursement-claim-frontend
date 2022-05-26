@@ -52,6 +52,6 @@ class SelectBankAccountTypeController @Inject() (
     with Logging
     with SelectBankAccountTypeMixin {
 
-  val postAction: Call     = routes.SelectBankAccountTypeController.submit()
+  val postAction: Call     = routes.SelectBankAccountTypeController.submit
   val nextPageAction: Call = OverpaymentsRoutes.BankAccountController.enterBankAccountDetails(JourneyBindable.Single)
 }
