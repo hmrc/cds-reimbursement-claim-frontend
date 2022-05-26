@@ -27,12 +27,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesReimbursementMethod
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -58,8 +58,7 @@ object SecuritiesJourney {
     reclaimingFullAmount: Option[Boolean] = None,
     securitiesReclaims: Option[SecuritiesReclaims] = None, // mandatory if NOT reclaimingFullAmount
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    additionalComments: Option[String] = None,
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None, // mandatory if guarantee is eligible
+    reimbursementMethod: Option[SecuritiesReimbursementMethod] = None, // mandatory if guarantee is eligible
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     checkYourAnswersChangeMode: Boolean = false
@@ -71,8 +70,7 @@ object SecuritiesJourney {
     claimantInformation: ClaimantInformation,
     reasonForSecurity: ReasonForSecurity,
     securitiesReclaims: Map[TaxCode, BigDecimal],
-    additionalComments: Option[String],
-    reimbursementMethod: ReimbursementMethodAnswer,
+    reimbursementMethod: SecuritiesReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
   )
