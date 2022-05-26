@@ -57,7 +57,7 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       UKAPSafeguardDuties
     )
 
-  // Set of ReasonForSecurity demending DEC91 call for export declaration check
+  // Set of ReasonForSecurity demanding DEC91 call for export declaration status check
   val requiresExportDeclaration: Set[ReasonForSecurity] =
     Set(
       InwardProcessingRelief,
