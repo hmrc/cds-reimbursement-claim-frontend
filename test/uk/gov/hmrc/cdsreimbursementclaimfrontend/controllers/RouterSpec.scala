@@ -20,6 +20,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.ThirdPartyImporter
@@ -101,8 +102,8 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
     "CheckDuplicateDeclarationDetails" in {
       forAll(allRoutes) { router =>
-        router.submitUrlForCheckDuplicateDeclarationDetails() shouldBe claimRoutes.CheckDuplicateDeclarationDetailsController
-          .submit(router.journeyBindable)
+        router
+          .submitUrlForCheckDuplicateDeclarationDetails() shouldBe overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.submit
       }
     }
 

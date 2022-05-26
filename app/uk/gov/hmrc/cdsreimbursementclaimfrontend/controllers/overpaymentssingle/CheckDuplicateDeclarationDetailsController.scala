@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
@@ -58,10 +59,11 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
+  implicit val journey: JourneyBindable                                                = JourneyBindable.Single
   implicit val duplicateDeclarationExtractor: DraftClaim => Option[DisplayDeclaration] =
     _.duplicateDisplayDeclaration
 
-  def show(implicit journey: JourneyBindable): Action[AnyContent] =
+  def show(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
         val postAction: Call                = router.submitUrlForCheckDuplicateDeclarationDetails()
@@ -79,7 +81,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
       }
     }
 
-  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, answer, router) =>
         val postAction: Call                = router.submitUrlForCheckDuplicateDeclarationDetails()
