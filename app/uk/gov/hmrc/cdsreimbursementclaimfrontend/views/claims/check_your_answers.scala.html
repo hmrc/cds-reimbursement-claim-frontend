@@ -87,7 +87,7 @@
     
     @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
         @pageHeading(Html(messages(s"$key.northern-ireland-claim.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(NorthernIrelandAnswerSummary(whetherNorthernIrelandClaim,s"$key.northern-ireland-claim",subKey,claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)))
+        @summary(NorthernIrelandAnswerSummary(whetherNorthernIrelandClaim,s"$key.northern-ireland-claim",subKey,OverpaymentsRoutes.NorthernIrelandController.show(journey)))
     }
 
     @claim.basisOfClaimAnswer.map { basisOfClaim =>

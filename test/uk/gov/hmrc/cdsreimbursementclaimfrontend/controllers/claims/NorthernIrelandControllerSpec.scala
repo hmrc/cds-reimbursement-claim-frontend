@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -52,7 +53,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
 
-class ClaimNorthernIrelandControllerSpec
+class NorthernIrelandControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -72,8 +73,8 @@ class ClaimNorthernIrelandControllerSpec
     JourneyBindable.Scheduled
   )
 
-  lazy val errorHandler: ErrorHandler                 = instanceOf[ErrorHandler]
-  lazy val controller: ClaimNorthernIrelandController = instanceOf[ClaimNorthernIrelandController]
+  lazy val errorHandler: ErrorHandler            = instanceOf[ErrorHandler]
+  lazy val controller: NorthernIrelandController = instanceOf[NorthernIrelandController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -108,7 +109,7 @@ class ClaimNorthernIrelandControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
-  "ClaimNorthernIrelandController" must {
+  "NorthernIrelandController" must {
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in forAll(journeys) { journey =>
@@ -224,7 +225,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(ClaimNorthernIrelandController.dataKey -> "true")),
+          performAction(journey, Seq(NorthernIrelandController.dataKey -> "true")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
@@ -240,7 +241,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(ClaimNorthernIrelandController.dataKey -> "false")),
+          performAction(journey, Seq(NorthernIrelandController.dataKey -> "false")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
@@ -256,7 +257,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(ClaimNorthernIrelandController.dataKey -> "true")),
+          performAction(journey, Seq(NorthernIrelandController.dataKey -> "true")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }

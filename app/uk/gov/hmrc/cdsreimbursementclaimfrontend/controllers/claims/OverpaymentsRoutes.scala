@@ -159,6 +159,20 @@ object OverpaymentsRoutes {
     }
   }
 
+  object NorthernIrelandController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.NorthernIrelandController.show
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.NorthernIrelandController.show
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.NorthernIrelandController.show
+    }
+
+    def submit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.NorthernIrelandController.submit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.NorthernIrelandController.submit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.NorthernIrelandController.submit
+    }
+  }
+
   object SelectBasisForClaimController {
     def selectBasisForClaim(journey: JourneyBindable): Call = journey match {
       case JourneyBindable.Single    =>
