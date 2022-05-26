@@ -14,6 +14,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -44,6 +47,18 @@ object SecuritiesJourney {
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     checkYourAnswersChangeMode: Boolean = false
+  )
+
+  final case class Output(
+    movementReferenceNumber: MRN,
+    claimantType: ClaimantType,
+    claimantInformation: ClaimantInformation,
+    reasonForSecurity: ReasonForSecurity,
+    securitiesReclaims: Map[TaxCode, BigDecimal],
+    additionalComments: Option[String],
+    reimbursementMethod: ReimbursementMethodAnswer,
+    bankAccountDetails: Option[BankAccountDetails],
+    supportingEvidences: Seq[EvidenceDocument]
   )
 
 }
