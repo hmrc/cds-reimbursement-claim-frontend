@@ -32,7 +32,8 @@ final case class DisplayResponseDetail(
   accountDetails: Option[List[AccountDetails]],
   bankDetails: Option[BankDetails],
   maskedBankDetails: Option[BankDetails],
-  ndrcDetails: Option[List[NdrcDetails]]
+  ndrcDetails: Option[List[NdrcDetails]],
+  securityDetails: Option[List[SecurityDetails]]
 )
 
 object DisplayResponseDetail {
