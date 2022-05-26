@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.implicits._
 import org.jsoup.Jsoup
@@ -29,18 +29,19 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
@@ -74,9 +75,7 @@ class BankAccountControllerSpec
 
   private val journeys = Table(
     "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
+    JourneyBindable.Multiple
   )
 
   lazy val controller: BankAccountController = instanceOf[BankAccountController]
@@ -171,7 +170,7 @@ class BankAccountControllerSpec
         }
 
         val request = FakeRequest()
-        val result  = controller.checkBankAccountDetails(journey)(request)
+        val result  = controller.checkBankAccountDetails(request)
 
         checkIsRedirect(result, OverpaymentsRoutes.SelectBankAccountTypeController.show(journey))
 
@@ -186,7 +185,7 @@ class BankAccountControllerSpec
         }
 
         val request = FakeRequest()
-        val result  = controller.checkBankAccountDetails(journey)(request)
+        val result  = controller.checkBankAccountDetails(request)
         checkIsRedirect(result, OverpaymentsRoutes.SelectBankAccountTypeController.show(journey))
       }
 
@@ -200,7 +199,7 @@ class BankAccountControllerSpec
           mockGetSession(session)
         }
         val request           = FakeRequest()
-        val result            = controller.checkBankAccountDetails(journey)(request)
+        val result            = controller.checkBankAccountDetails(request)
         status(result) shouldBe OK
       }
 
@@ -214,7 +213,7 @@ class BankAccountControllerSpec
           mockGetSession(session)
         }
         val request              = FakeRequest()
-        val result               = controller.checkBankAccountDetails(journey)(request)
+        val result               = controller.checkBankAccountDetails(request)
         status(result) shouldBe OK
 
       }
@@ -247,9 +246,9 @@ class BankAccountControllerSpec
         }
         val form               = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result             = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result             = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, routes.BankAccountController.checkBankAccountDetails(journey))
+        checkIsRedirect(result, OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
@@ -276,7 +275,7 @@ class BankAccountControllerSpec
             mockBusinessReputation(answers, Right(businessResponse))
             mockStoreSessionNotCalled
           }
-          val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+          val result           = controller.enterBankAccountDetailsSubmit(request)
           val doc              = Jsoup.parse(contentAsString(result))
           getAccountNameValue(doc) shouldBe ""
           val error = getGlobalErrors(doc).text()
@@ -311,7 +310,7 @@ class BankAccountControllerSpec
               mockBusinessReputation(answers, Right(businessResponse))
               mockStoreSessionNotCalled
             }
-            val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+            val result           = controller.enterBankAccountDetailsSubmit(request)
             val doc              = Jsoup.parse(contentAsString(result))
             getAccountNameValue(doc) shouldBe ""
             val error = getGlobalErrors(doc).text()
@@ -342,7 +341,7 @@ class BankAccountControllerSpec
           mockBusinessReputation(answers, Right(businessResponse))
           mockStoreSessionNotCalled
         }
-        val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
         getAccountNameValue(doc) shouldBe Business.accountName.value
         val error = getGlobalErrors(doc).text()
@@ -373,7 +372,7 @@ class BankAccountControllerSpec
             mockBusinessReputation(answers, Right(businessResponse))
             mockStoreSessionNotCalled
           }
-          val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+          val result           = controller.enterBankAccountDetailsSubmit(request)
           val doc              = Jsoup.parse(contentAsString(result))
           getAccountNameValue(doc) shouldBe ""
           val error = getGlobalErrors(doc).text()
@@ -402,7 +401,7 @@ class BankAccountControllerSpec
         }
         val form             = enterBankDetailsForm.fill(Business).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
         val error = getGlobalErrors(doc).text()
@@ -429,9 +428,9 @@ class BankAccountControllerSpec
 
         val form    = enterBankDetailsForm.fill(Business).data.toSeq
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show())
+        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show)
       }
     }
 
@@ -463,9 +462,9 @@ class BankAccountControllerSpec
 
         val form    = enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, routes.BankAccountController.checkBankAccountDetails(journey))
+        checkIsRedirect(result, OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
@@ -491,7 +490,7 @@ class BankAccountControllerSpec
             mockPersonalReputation(answers, None, Right(personalResponse))
             mockStoreSessionNotCalled
           }
-          val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+          val result           = controller.enterBankAccountDetailsSubmit(request)
           val doc              = Jsoup.parse(contentAsString(result))
           getAccountNameValue(doc) shouldBe ""
           val error = getGlobalErrors(doc).text()
@@ -525,7 +524,7 @@ class BankAccountControllerSpec
               mockPersonalReputation(answers, None, Right(personalResponse))
               mockStoreSessionNotCalled
             }
-            val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+            val result           = controller.enterBankAccountDetailsSubmit(request)
             val doc              = Jsoup.parse(contentAsString(result))
             getAccountNameValue(doc) shouldBe ""
             val error = getGlobalErrors(doc).text()
@@ -556,7 +555,7 @@ class BankAccountControllerSpec
           mockPersonalReputation(answers, None, Right(personalResponse))
           mockStoreSessionNotCalled
         }
-        val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
         getAccountNameValue(doc) shouldBe Personal.accountName.value
         val error = getGlobalErrors(doc).text()
@@ -588,7 +587,7 @@ class BankAccountControllerSpec
             mockPersonalReputation(answers, None, Right(personalResponse))
             mockStoreSessionNotCalled
           }
-          val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+          val result           = controller.enterBankAccountDetailsSubmit(request)
           val doc              = Jsoup.parse(contentAsString(result))
           getAccountNameValue(doc) shouldBe ""
           val error = getGlobalErrors(doc).text()
@@ -616,7 +615,7 @@ class BankAccountControllerSpec
         }
         val form             = enterBankDetailsForm.fill(Personal).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
         val error = getGlobalErrors(doc).text()
@@ -643,9 +642,9 @@ class BankAccountControllerSpec
 
         val form    = enterBankDetailsForm.fill(Personal).data.toSeq
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
+        val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show())
+        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show)
       }
 
     }

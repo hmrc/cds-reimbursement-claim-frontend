@@ -201,7 +201,7 @@ class EnterMultipleClaimsController @Inject() (
                           case Yes =>
                             Redirect(
                               router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                                claimsRoutes.BankAccountController.checkBankAccountDetails(Multiple)
+                                OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(Multiple)
                               )
                             )
 

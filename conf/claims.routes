@@ -17,8 +17,3 @@ POST        /:journey/claim-northern-ireland                        uk.gov.hmrc.
 
 GET         /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.show(journey: JourneyBindable)
 POST        /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.submit(journey: JourneyBindable)
-
-GET         /:journey/check-these-bank-details-are-correct          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails(journey: JourneyBindable)
-
-GET         /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails(journey: JourneyBindable)
-POST        /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)

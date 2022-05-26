@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -29,11 +27,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.SelectBankAccountTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -52,5 +53,5 @@ class SelectBankAccountTypeController @Inject() (
     with SelectBankAccountTypeMixin {
 
   val postAction: Call     = routes.SelectBankAccountTypeController.submit
-  val nextPageAction: Call = claimsRoutes.BankAccountController.enterBankAccountDetails(JourneyBindable.Single)
+  val nextPageAction: Call = OverpaymentsRoutes.BankAccountController.enterBankAccountDetails(JourneyBindable.Single)
 }

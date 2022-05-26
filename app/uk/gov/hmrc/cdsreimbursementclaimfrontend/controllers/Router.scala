@@ -36,7 +36,7 @@ trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
   def submitUrlForEnterBankAccountDetails(): Call =
-    claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
+    OverpaymentsRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForEnterMovementReferenceNumber(): Call =
     claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
@@ -98,7 +98,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
     else claimRoutes.CheckContactDetailsMrnController.redirectToALF(journeyBindable)
 
   def nextPageForSelectBankAccountType(): Call =
-    claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
+    OverpaymentsRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
 
   def nextPageForDetailsRegisteredWithCDS(
     declarantType: Option[DeclarantTypeAnswer]

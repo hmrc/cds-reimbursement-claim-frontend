@@ -29,6 +29,11 @@ POST        /single/check-claim                                              @uk
 GET         /single/select-reimbursement-method                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ReimbursementMethodController.show
 POST        /single/select-reimbursement-method                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ReimbursementMethodController.submit
 
+GET         /single/check-these-bank-details-are-correct                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController.checkBankAccountDetails
+
+GET         /single/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController.enterBankAccountDetails
+POST        /single/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController.enterBankAccountDetailsSubmit
+
 GET         /single/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.show
 POST        /single/supporting-evidence/select-supporting-evidence-type      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.submit
 

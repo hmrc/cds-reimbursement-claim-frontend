@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
-import play.api.mvc.Call
 
 object OverpaymentsRoutes {
 
@@ -168,5 +168,26 @@ object OverpaymentsRoutes {
       case JourneyBindable.Scheduled =>
         overpaymentsScheduledRoutes.SelectBasisForClaimController.selectBasisForClaim
     }
+  }
+
+  object BankAccountController {
+    def checkBankAccountDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.BankAccountController.checkBankAccountDetails
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.BankAccountController.checkBankAccountDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.BankAccountController.checkBankAccountDetails
+    }
+
+    def enterBankAccountDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.BankAccountController.enterBankAccountDetails
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.BankAccountController.enterBankAccountDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.BankAccountController.enterBankAccountDetails
+    }
+
+    def enterBankAccountDetailsSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.BankAccountController.enterBankAccountDetailsSubmit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.BankAccountController.enterBankAccountDetailsSubmit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.BankAccountController.enterBankAccountDetailsSubmit
+    }
+
   }
 }

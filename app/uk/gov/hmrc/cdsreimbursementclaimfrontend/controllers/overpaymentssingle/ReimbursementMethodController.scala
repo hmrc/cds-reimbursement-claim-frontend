@@ -34,13 +34,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => c
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -98,7 +99,7 @@ class ReimbursementMethodController @Inject() (
                     case (ReimbursementMethodAnswer.CurrentMonthAdjustment, _) =>
                       routes.ChooseFileTypeController.show
                     case (ReimbursementMethodAnswer.BankAccountTransfer, _)    =>
-                      claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
+                      routes.BankAccountController.checkBankAccountDetails
                   })
               )
           }

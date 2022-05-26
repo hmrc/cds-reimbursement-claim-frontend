@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.data.EitherT
 import cats.implicits._
-import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
@@ -30,26 +29,22 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.extractRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, DraftClaim, upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -78,9 +73,10 @@ class BankAccountController @Inject() (
     with Logging
     with SessionUpdates {
 
+  implicit val journey: JourneyBindable                                = JourneyBindable.Multiple
   implicit val dataExtractor: DraftClaim => Option[BankAccountDetails] = _.bankAccountDetailsAnswer
 
-  def checkBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+  val checkBankAccountDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
@@ -107,7 +103,7 @@ class BankAccountController @Inject() (
       }
     }
 
-  def enterBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+  val enterBankAccountDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BankAccountDetails] { (_, answers, router) =>
         val bankDetailsForm =
@@ -136,7 +132,7 @@ class BankAccountController @Inject() (
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
-        Redirect(commonRoutes.ServiceUnavailableController.show())
+        Redirect(commonRoutes.ServiceUnavailableController.show)
       case e                                 =>
         logAndDisplayError("could not process bank account details: ", e)
     }
@@ -159,7 +155,7 @@ class BankAccountController @Inject() (
     bankAccountReputation: BankAccountReputation,
     bankAccountDetails: BankAccountDetails,
     router: ReimbursementRoutes
-  )(implicit journeyBindable: JourneyBindable, request: Request[_], mesaages: Messages) =
+  )(implicit request: Request[_], mesaages: Messages) =
     if (bankAccountReputation.otherError.isDefined) {
       val errorKey = bankAccountReputation.otherError.map(_.code).getOrElse("account-does-not-exist")
       val form     = enterBankDetailsForm
@@ -184,15 +180,15 @@ class BankAccountController @Inject() (
         .withError("enter-bank-details", s"error.account-does-not-exist")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else {
-      Redirect(claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
+      Redirect(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
     }
 
-  def enterBankAccountDetailsSubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
+  val enterBankAccountDetailsSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
       withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim: FillingOutClaim, _, router) =>
         fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
           case None =>
-            Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable))
+            Redirect(OverpaymentsRoutes.SelectBankAccountTypeController.show(JourneyBindable.Multiple))
 
           case Some(bankAccount: BankAccountType) =>
             enterBankDetailsForm

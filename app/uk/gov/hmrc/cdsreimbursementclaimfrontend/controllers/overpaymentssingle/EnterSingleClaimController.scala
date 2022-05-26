@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import cats.implicits._
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -33,17 +32,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterSingleClaimController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
@@ -56,7 +58,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
@@ -188,7 +189,7 @@ class EnterSingleClaimController @Inject() (
                         case claim: DraftClaim if isCmaEligible(claim) =>
                           routes.ReimbursementMethodController.show
                         case _                                         =>
-                          claimsRoutes.BankAccountController.checkBankAccountDetails(Single)
+                          OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
                       })
                   case No  => Redirect(routes.SelectDutiesController.selectDuties)
                 }
