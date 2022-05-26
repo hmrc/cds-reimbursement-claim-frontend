@@ -64,7 +64,7 @@ class NorthernIrelandController @Inject() (
 
   implicit val journey: JourneyBindable                   = JourneyBindable.Single
   implicit val dataExtractor: DraftClaim => Option[YesNo] = _.whetherNorthernIrelandAnswer
-  private val postAction: Call                            = OverpaymentsRoutes.NorthernIrelandController.show(journey)
+  private val postAction: Call                            = OverpaymentsRoutes.NorthernIrelandController.submit(journey)
 
   val show: Action[AnyContent] =
     authenticatedActionWithSessionData
