@@ -289,7 +289,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           controller.submit(journey)(FakeRequest()),
-          routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+          OverpaymentsRoutes.NorthernIrelandController.show(journey)
         )
       }
 
@@ -326,7 +326,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           controller.submit(journey)(FakeRequest()),
-          routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+          OverpaymentsRoutes.NorthernIrelandController.show(journey)
         )
       }
 
