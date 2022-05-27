@@ -1202,8 +1202,8 @@ schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
-check-your-answers.title=Check your answers before sending your application
-check-your-answers.scheduled.title=Check your answers before sending your application
+check-your-answers.title=Check your answers before sending your claim
+check-your-answers.scheduled.title=Check your answers before sending your claim
 check-your-answers.rejectedgoods.scheduled.title=Check your answers before sending your claim
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
 check-your-answers.reference-number.label=<abbr title="Movement Reference Number">MRN</abbr>

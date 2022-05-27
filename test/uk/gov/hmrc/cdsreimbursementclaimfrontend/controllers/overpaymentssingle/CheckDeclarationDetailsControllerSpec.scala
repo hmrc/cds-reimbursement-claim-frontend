@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.Functor
 import cats.Id
 import org.jsoup.Jsoup
-import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -31,12 +30,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -60,8 +61,7 @@ class CheckDeclarationDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with HtmlParseSupport
-    with TableDrivenPropertyChecks {
+    with HtmlParseSupport {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -69,12 +69,7 @@ class CheckDeclarationDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  private val journeys = Table(
-    "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
-  )
+  private val journey = JourneyBindable.Single
 
   lazy val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
 
@@ -108,8 +103,8 @@ class CheckDeclarationDetailsControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
+      "there is no journey status in the session" in {
+        def performAction(): Future[Result] = controller.show()(FakeRequest())
 
         val (session, _, _) = sessionWithClaimState(None, Some(toTypeOfClaim(journey)))
 
@@ -135,8 +130,8 @@ class CheckDeclarationDetailsControllerSpec
 
     "display the page" when {
 
-      "there is a declaration" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
+      "there is a declaration" in {
+        def performAction(): Future[Result] = controller.show()(FakeRequest())
 
         val displayDeclaration = sample[DisplayDeclaration]
 
@@ -184,8 +179,8 @@ class CheckDeclarationDetailsControllerSpec
 
     "redirect user" when {
 
-      "there is no declaration" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
+      "there is no declaration" in {
+        def performAction(): Future[Result] = controller.show()(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimState(None, Some(toTypeOfClaim(journey)))._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(toTypeOfClaim(journey)))
@@ -207,8 +202,8 @@ class CheckDeclarationDetailsControllerSpec
 
     "handle submit requests" when {
 
-      def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
-        controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(data: Seq[(String, String)]): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user confirms the details are correct" in {
         val session =
@@ -220,12 +215,12 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(JourneyBindable.Single, Seq(checkDeclarationDetailsKey -> "true")),
-          routes.CheckContactDetailsMrnController.show(JourneyBindable.Single)
+          performAction(Seq(checkDeclarationDetailsKey -> "true")),
+          claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Single)
         )
       }
 
-      "the user confirms the details are incorrect" in forAll(journeys) { journey =>
+      "the user confirms the details are incorrect" in {
         val session = sessionWithClaimState(Some(getAcc14Response()), Some(toTypeOfClaim(journey)))
 
         inSequence {
@@ -234,12 +229,12 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "false")),
+          performAction(Seq(checkDeclarationDetailsKey -> "false")),
           OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
       }
 
-      "the user sumbits no answer" in forAll(journeys) { journey =>
+      "the user sumbits no answer" in {
         val session = sessionWithClaimState(Some(getAcc14Response()), Some(toTypeOfClaim(journey)))
 
         inSequence {
@@ -248,7 +243,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey, Seq.empty),
+          performAction(Seq.empty),
           messageFromMessageKey("check-declaration-details.title"),
           doc =>
             doc
@@ -260,7 +255,7 @@ class CheckDeclarationDetailsControllerSpec
         )
       }
 
-      "the user submits an incorrect answer" in forAll(journeys) { journey =>
+      "the user submits an incorrect answer" in {
         val session = sessionWithClaimState(Some(getAcc14Response()), Some(toTypeOfClaim(journey)))
 
         inSequence {
@@ -269,7 +264,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey, Seq.empty),
+          performAction(Seq.empty),
           messageFromMessageKey("check-declaration-details.title"),
           doc =>
             doc

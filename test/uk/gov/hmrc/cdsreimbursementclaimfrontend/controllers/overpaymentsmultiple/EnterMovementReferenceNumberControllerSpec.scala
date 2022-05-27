@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
@@ -164,6 +165,23 @@ class EnterMovementReferenceNumberControllerSpec
 
     "We enter an MRN for the first time or update it with the back button (enterMrnSubmit)" must {
 
+      def updatedDisplayDeclaration(
+        displayDeclaration: DisplayDeclaration,
+        consigneeDetails: ConsigneeDetails,
+        eori: Eori
+      ): Either[Error, Option[DisplayDeclaration]] = {
+        val updatedConsigneeDetails = consigneeDetails.copy(consigneeEORI = eori.value)
+        Right(
+          Some(
+            Functor[Id].map(displayDeclaration)(dd =>
+              dd.copy(displayResponseDetail =
+                dd.displayResponseDetail.copy(consigneeDetails = Some(updatedConsigneeDetails))
+              )
+            )
+          )
+        )
+      }
+
       def performAction(data: (String, String)*): Future[Result] =
         controller.enterMrnSubmit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
@@ -225,18 +243,12 @@ class EnterMovementReferenceNumberControllerSpec
         ) =>
           val (session, foc) =
             sessionWithMRNAndTypeOfClaimOnly(None, Some(TypeOfClaimAnswer.Multiple))
-
-          val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = foc.signedInUserDetails.eori.value)
-          val updatedDisplayDeclaration = Functor[Id].map(displayDeclaration)(dd =>
-            dd.copy(displayResponseDetail =
-              dd.displayResponseDetail.copy(consigneeDetails = Some(updatedConsigneeDetails))
-            )
-          )
+          val updatedDD      = updatedDisplayDeclaration(displayDeclaration, consigneeDetails, foc.signedInUserDetails.eori)
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
+            mockGetDisplayDeclaration(updatedDD)
             mockStoreSession(Right(()))
           }
           val result = performAction(enterMovementReferenceNumberKey -> mrn.value)
@@ -244,7 +256,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Multiple)
+            overpaymentsMultipleRoutes.CheckDeclarationDetailsController.show
           )
       }
 
@@ -258,17 +270,12 @@ class EnterMovementReferenceNumberControllerSpec
           val (session, foc) =
             sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some(TypeOfClaimAnswer.Multiple))
 
-          val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = foc.signedInUserDetails.eori.value)
-          val updatedDisplayDeclaration = Functor[Id].map(displayDeclaration)(dd =>
-            dd.copy(displayResponseDetail =
-              dd.displayResponseDetail.copy(consigneeDetails = Some(updatedConsigneeDetails))
-            )
-          )
+          val updatedDD = updatedDisplayDeclaration(displayDeclaration, consigneeDetails, foc.signedInUserDetails.eori)
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
+            mockGetDisplayDeclaration(updatedDD)
             mockStoreSession(Right(()))
           }
           val result = performAction(enterMovementReferenceNumberKey -> genOtherThan(mrn).value)
@@ -276,19 +283,21 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Multiple)
+            overpaymentsMultipleRoutes.CheckDeclarationDetailsController.show
           )
       }
 
-      "Redirect back to Check Movement Numbers page when First MRN unchanged" in
-        forAll { mrn: MRN =>
-          val mrnAnswer    = mrn.some
-          val (session, _) =
-            sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some(TypeOfClaimAnswer.Multiple))
+      "Redirect back to Check Declaration Details page when First MRN unchanged" in forAll {
+        (mrn: MRN, consigneeDetails: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
+          val mrnAnswer      = mrn.some
+          val (session, foc) = sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some(TypeOfClaimAnswer.Multiple))
+
+          val updatedDD = updatedDisplayDeclaration(displayDeclaration, consigneeDetails, foc.signedInUserDetails.eori)
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
+            mockGetDisplayDeclaration(updatedDD)
           }
 
           val result = performAction(enterMovementReferenceNumberKey -> mrn.value)
@@ -296,9 +305,9 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            routes.CheckMovementReferenceNumbersController.showMrns
+            overpaymentsMultipleRoutes.CheckDeclarationDetailsController.show
           )
-        }
+      }
 
       "start a new claim with an MRN, Eori is not the importer's Eori" in forAll {
         (
@@ -309,17 +318,12 @@ class EnterMovementReferenceNumberControllerSpec
         ) =>
           val (session, _) = sessionWithMRNAndTypeOfClaimOnly(None, Some(TypeOfClaimAnswer.Multiple))
 
-          val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = eori.value)
-          val updatedDisplayDeclaration = Functor[Id].map(displayDeclaration)(dd =>
-            dd.copy(displayResponseDetail =
-              dd.displayResponseDetail.copy(consigneeDetails = Some(updatedConsigneeDetails))
-            )
-          )
+          val updatedDD = updatedDisplayDeclaration(displayDeclaration, consigneeDetails, eori)
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
+            mockGetDisplayDeclaration(updatedDD)
             mockStoreSession(Right(()))
           }
 

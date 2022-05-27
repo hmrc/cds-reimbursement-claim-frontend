@@ -56,3 +56,6 @@ GET         /scheduled/check-if-claim-was-sent                                  
 
 GET         /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.show()
 POST        /scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBankAccountTypeController.submit()
+
+GET         /scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.show
+POST        /scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.submit
