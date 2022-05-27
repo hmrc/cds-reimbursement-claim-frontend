@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
-/** Common properties and computations of all of the claim types. */
+/** Common properties and computations of all of the journeys. */
 trait CommonJourneyProperties {
 
   def answers: CommonAnswers
