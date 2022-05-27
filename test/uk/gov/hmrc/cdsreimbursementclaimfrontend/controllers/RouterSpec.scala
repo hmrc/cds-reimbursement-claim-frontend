@@ -45,7 +45,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
     "check declaration details when the user is the importer" in {
       forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(MrnImporter(sample[DisplayDeclaration])) shouldBe
-          claimRoutes.CheckDeclarationDetailsController.show(router.journeyBindable)
+          OverpaymentsRoutes.CheckDeclarationDetailsController.show(router.journeyBindable)
       }
     }
 
@@ -94,9 +94,10 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
     "CheckDeclarationDetails" in {
       forAll(allRoutes) { router =>
-        router.submitUrlForCheckDeclarationDetails() shouldBe claimRoutes.CheckDeclarationDetailsController.submit(
-          router.journeyBindable
-        )
+        router.submitUrlForCheckDeclarationDetails() shouldBe OverpaymentsRoutes.CheckDeclarationDetailsController
+          .submit(
+            router.journeyBindable
+          )
       }
     }
 

@@ -53,3 +53,7 @@ POST        /single/bank-account-type                                        @uk
 
 GET         /single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.show
 POST        /single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.submit
+
+GET         /single/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.show
+POST        /single/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.submit
+

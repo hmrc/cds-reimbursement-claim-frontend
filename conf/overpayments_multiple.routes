@@ -53,3 +53,6 @@ GET         /multiple/check-if-claim-was-sent                                  @
 
 GET         /multiple/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBankAccountTypeController.show()
 POST        /multiple/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBankAccountTypeController.submit()
+
+GET         /multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.show
+POST        /multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.submit

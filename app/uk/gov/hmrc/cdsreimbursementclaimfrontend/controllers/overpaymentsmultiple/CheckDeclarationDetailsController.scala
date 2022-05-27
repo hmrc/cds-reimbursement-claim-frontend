@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -26,11 +26,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -57,27 +57,28 @@ class CheckDeclarationDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
+  implicit val journey: JourneyBindable = JourneyBindable.Multiple
+
   implicit val declarationExtractor: DraftClaim => Option[DisplayDeclaration] = _.displayDeclaration
 
-  def show(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
-    implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-        val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
-        implicit val subKey: Option[String] = router.subKey
-        maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-          Ok(
-            checkDeclarationDetailsPage(
-              declaration,
-              checkDeclarationDetailsAnswerForm,
-              isDuplicate = false,
-              postAction
-            )
+  def show(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
+      val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
+      implicit val subKey: Option[String] = router.subKey
+      maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
+        Ok(
+          checkDeclarationDetailsPage(
+            declaration,
+            checkDeclarationDetailsAnswerForm,
+            isDuplicate = false,
+            postAction
           )
         )
-      }
+      )
+    }
   }
 
-  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
         val postAction: Call                = router.submitUrlForCheckDeclarationDetails()

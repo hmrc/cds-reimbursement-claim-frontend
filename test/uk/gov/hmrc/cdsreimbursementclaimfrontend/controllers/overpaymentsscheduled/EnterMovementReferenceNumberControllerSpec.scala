@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
@@ -217,7 +218,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Scheduled)
+            overpaymentsScheduledRoutes.CheckDeclarationDetailsController.show
           )
       }
 
@@ -249,7 +250,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Scheduled)
+            overpaymentsScheduledRoutes.CheckDeclarationDetailsController.show
           )
       }
 
@@ -281,7 +282,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Scheduled)
+            overpaymentsScheduledRoutes.CheckDeclarationDetailsController.show
           )
         }
 

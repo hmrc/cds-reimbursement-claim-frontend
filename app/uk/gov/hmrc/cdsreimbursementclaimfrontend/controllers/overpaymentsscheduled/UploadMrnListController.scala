@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -163,7 +164,7 @@ class UploadMrnListController @Inject() (
       nonce = nonce,
       continueUrl = continueUrl,
       continueWhenFullUrl = continueUrl,
-      backlinkUrl = selfUrl + claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Scheduled).url,
+      backlinkUrl = selfUrl + overpaymentsScheduledRoutes.CheckDeclarationDetailsController.show.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadMrnListController.callback.url,
       minimumNumberOfFiles = 1,
       maximumNumberOfFiles = 1,
