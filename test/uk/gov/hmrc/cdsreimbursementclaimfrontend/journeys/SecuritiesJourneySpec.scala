@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 
 import SecuritiesJourneyGenerators._
-import RejectedGoods.ValidationErrors._
+import JourneyValidationErrors._
 
 class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 

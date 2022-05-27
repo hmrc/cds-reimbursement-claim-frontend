@@ -161,7 +161,7 @@ final class RejectedGoodsScheduledJourney private (
   def whileJourneyIsAmendable(
     body: => Either[String, RejectedGoodsScheduledJourney]
   ): Either[String, RejectedGoodsScheduledJourney] =
-    if (isFinalized) Left(RejectedGoods.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
+    if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -567,7 +567,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
   )
 
   import com.github.arturopala.validator.Validator._
-  import RejectedGoods.ValidationErrors._
+  import JourneyValidationErrors._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   val validator: Validate[RejectedGoodsScheduledJourney] =

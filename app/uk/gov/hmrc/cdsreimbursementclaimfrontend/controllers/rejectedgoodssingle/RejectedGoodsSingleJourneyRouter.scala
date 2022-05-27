@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoods.ValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 
 trait RejectedGoodsSingleJourneyRouter {
 

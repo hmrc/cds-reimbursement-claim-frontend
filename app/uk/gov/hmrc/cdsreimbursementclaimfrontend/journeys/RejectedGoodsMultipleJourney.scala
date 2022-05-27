@@ -205,7 +205,7 @@ final class RejectedGoodsMultipleJourney private (
   def whileJourneyIsAmendable(
     body: => Either[String, RejectedGoodsMultipleJourney]
   ): Either[String, RejectedGoodsMultipleJourney] =
-    if (isFinalized) Left(RejectedGoods.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
+    if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -667,7 +667,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
   )
 
   import com.github.arturopala.validator.Validator._
-  import RejectedGoods.ValidationErrors._
+  import JourneyValidationErrors._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   val validator: Validate[RejectedGoodsMultipleJourney] =

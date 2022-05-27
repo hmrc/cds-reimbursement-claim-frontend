@@ -209,45 +209,4 @@ object RejectedGoods {
     }
   }
 
-  /** Final journey validation errors. */
-  object ValidationErrors {
-    val JOURNEY_ALREADY_FINALIZED: String                                = "journeyAlreadyFinalized"
-    val MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER: String                  = "missingFirstMovementReferenceNumber"
-    val MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER: String                 = "missingSecondMovementReferenceNumber"
-    val MISSING_DISPLAY_DECLARATION: String                              = "missingDisplayDeclaration"
-    val MISSING_BASIS_OF_CLAIM: String                                   = "missingBasisOfClaim"
-    val MISSING_DETAILS_OF_REJECTED_GOODS: String                        = "missingDetailsOfRejectedGoods"
-    val MISSING_INSPECTION_DATE: String                                  = "missingInspectionDate"
-    val MISSING_INSPECTION_ADDRESS: String                               = "missingInspectionAddress"
-    val MISSING_METHOD_OF_DISPOSAL: String                               = "missingMethodOfDisposal"
-    val INCOMPLETE_REIMBURSEMENT_CLAIMS: String                          = "incompleteReimbursementClaims"
-    val INCOMPLETE_SUPPORTING_EVIDENCES: String                          = "incompleteSupportingEvidences"
-    val MISSING_CONTACT_DETAILS: String                                  = "missingContactDetails"
-    val MISSING_CONTACT_ADDRESS: String                                  = "missingContactAddress"
-    val MISSING_SCHEDULED_DOCUMENT: String                               = "missingScheduledDocument"
-    val TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO: String     = "totalReimbursementAmountMustBeGreaterThanZero"
-    val DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED: String                   =
-      "declarantEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"
-    val DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14: String     = "declarantEoriNumberMustBeEqualToThatOfACC14"
-    val CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED: String                   =
-      "consigneeEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"
-    val CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14: String     = "consigneeEoriNumberMustBeEqualToThatOfACC14"
-    val DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED: String       =
-      "declarantEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
-    val CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED: String       =
-      "consigneeEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
-    val BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED: String                     =
-      "bankAccountDetailsMustBeDefined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
-    val BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED: String                 =
-      "bankAccountDetailsMustNotBeDefined when reimbursementMethodAnswer is CurrentMonthAdjustment"
-    val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED: String     =
-      "basisOfClaimSpecialCircumstancesMustBeDefined when basisOfClaim value is SpecialCircumstances"
-    val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED: String =
-      "basisOfClaimSpecialCircumstancesMustNotBeDefined when basisOfClaim value is not SpecialCircumstances"
-    val REIMBURSEMENT_METHOD_MUST_BE_DEFINED: String                     =
-      "reimbursementMethodMustBeDefined when all selected duties are CMA eligible"
-    val REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED: String          =
-      "reimbursementMethodAnswerMustNotBeDefined when not all of selected duties are CMA eligible"
-  }
-
 }

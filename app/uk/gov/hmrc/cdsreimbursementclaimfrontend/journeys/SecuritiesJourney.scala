@@ -44,27 +44,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
-) extends FluentSyntax[SecuritiesJourney] {
-
-  /** Check if the journey is ready to finalize, i.e. to get the output. */
-  def hasCompleteAnswers: Boolean =
-    SecuritiesJourney.validator.apply(this).isValid
-
-  def isFinalized: Boolean = caseNumber.isDefined
-
-  def whileJourneyIsAmendable(body: => SecuritiesJourney): SecuritiesJourney =
-    if (isFinalized) this else body
-
-  def whileJourneyIsAmendable(
-    body: => Either[String, SecuritiesJourney]
-  ): Either[String, SecuritiesJourney] =
-    if (isFinalized) Left(RejectedGoods.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
+) extends BaseJourney[SecuritiesJourney]
+    with FluentSyntax[SecuritiesJourney] {
 
   def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileJourneyIsAmendable {
-      SecuritiesJourney.validator
-        .apply(this)
-        .toEither
+      validate(this).toEither
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
           _ => Right(new SecuritiesJourney(answers = this.answers, caseNumber = Some(caseNumber)))
@@ -131,7 +116,7 @@ object SecuritiesJourney {
 
   import com.github.arturopala.validator.Validator._
 
-  val validator: Validate[SecuritiesJourney] =
+  implicit val validator: Validate[SecuritiesJourney] =
     Validator.always
 
   object Answers {
