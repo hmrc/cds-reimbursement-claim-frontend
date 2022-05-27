@@ -140,9 +140,9 @@ class CheckMovementReferenceNumbersControllerSpec
       }
     }
 
-    "display the page title" in forAll { reference: MRN =>
+    "display the page title" in forAll(Gen.nonEmptyListOf(genMRN), genMRN) { (associatedMRNs, leadMrn) =>
       val (session, _, _) =
-        sessionWithClaimState(Nil, reference, Some(TypeOfClaimAnswer.Multiple))
+        sessionWithClaimState(associatedMRNs, leadMrn, Some(TypeOfClaimAnswer.Multiple))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -155,9 +155,9 @@ class CheckMovementReferenceNumbersControllerSpec
       )
     }
 
-    "display the page" when {
+    "redirect to second 'Enter MRN' page" when {
 
-      "the user has not answered this question before" in forAll { reference: MRN =>
+      "the user attempts to navigate to 'Show MRNs' page after entering only the lead MRN" in forAll { reference: MRN =>
         val (session, _, _) =
           sessionWithClaimState(Nil, reference, Some(TypeOfClaimAnswer.Multiple))
 
@@ -166,13 +166,9 @@ class CheckMovementReferenceNumbersControllerSpec
           mockGetSession(session)
         }
 
-        checkPageIsDisplayed(
+        checkIsRedirect(
           performAction(),
-          messageFromMessageKey(s"$checkMovementReferenceNumbersKey.title"),
-          doc => {
-            isYesChecked(doc) shouldBe false
-            isNoChecked(doc)  shouldBe false
-          }
+          routes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex(2))
         )
       }
 
