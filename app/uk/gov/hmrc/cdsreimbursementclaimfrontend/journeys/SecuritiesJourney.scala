@@ -48,8 +48,34 @@ final class SecuritiesJourney private (
     with CommonJourneyProperties
     with FluentSyntax[SecuritiesJourney] {
 
+  override def getLeadMovementReferenceNumber: Option[MRN] =
+    answers.movementReferenceNumber
+
   override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
+
+  /** Resets the journey with the new MRN
+    * or keep an existing journey if submitted the same MRN.
+    */
+  def submitMovementReferenceNumber(
+    mrn: MRN
+  ): SecuritiesJourney =
+    whileJourneyIsAmendable {
+      getLeadMovementReferenceNumber match {
+        case Some(existingMrn) if existingMrn === mrn =>
+          this
+
+        case _ =>
+          new SecuritiesJourney(
+            SecuritiesJourney
+              .Answers(
+                userEoriNumber = answers.userEoriNumber,
+                movementReferenceNumber = Some(mrn),
+                nonce = answers.nonce
+              )
+          )
+      }
+    }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileJourneyIsAmendable {
@@ -123,7 +149,7 @@ object SecuritiesJourney {
   import com.github.arturopala.validator.Validator._
 
   implicit val validator: Validate[SecuritiesJourney] =
-    Validator.always
+    Validator.never
 
   object Answers {
     implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =

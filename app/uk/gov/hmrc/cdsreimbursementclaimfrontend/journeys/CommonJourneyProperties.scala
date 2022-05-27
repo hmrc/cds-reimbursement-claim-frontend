@@ -27,11 +27,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 /** Common properties and computations of all of the journeys. */
 trait CommonJourneyProperties {
 
   def answers: CommonAnswers
+
+  def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
 
   final val ZERO: BigDecimal = BigDecimal("0")

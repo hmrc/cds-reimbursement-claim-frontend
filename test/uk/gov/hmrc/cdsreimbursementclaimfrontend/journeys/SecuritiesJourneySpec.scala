@@ -28,9 +28,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 
 import SecuritiesJourneyGenerators._
 import JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
@@ -45,10 +47,9 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       emptyJourney.answers.contactAddress             shouldBe None
       emptyJourney.answers.contactDetails             shouldBe None
       emptyJourney.answers.contactAddress             shouldBe None
-      // emptyJourney.answers.declarantEoriNumber        shouldBe None
-      // emptyJourney.answers.detailsOfRejectedGoods     shouldBe None
+      emptyJourney.answers.declarantEoriNumber        shouldBe None
       emptyJourney.answers.displayDeclaration         shouldBe None
-      //emptyJourney.answers.consigneeEoriNumber        shouldBe None
+      emptyJourney.answers.consigneeEoriNumber        shouldBe None
       emptyJourney.answers.reimbursementMethod        shouldBe None
       emptyJourney.answers.selectedDocumentType       shouldBe None
       emptyJourney.answers.supportingEvidences        shouldBe Seq.empty
@@ -102,18 +103,17 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     //   }
     // }
 
-    // "accept submission of a new MRN" in {
-    //   forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
-    //     val journey = emptyJourney
-    //       .submitMovementReferenceNumberAndDeclaration(mrn, decl)
-    //       .getOrFail
-    //     journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
-    //     journey.hasCompleteAnswers                            shouldBe false
-    //     journey.hasCompleteReimbursementClaims                shouldBe false
-    //     journey.hasCompleteSupportingEvidences                shouldBe true
-    //     journey.isFinalized                                   shouldBe false
-    //   }
-    // }
+    "accept submission of a new MRN" in {
+      forAll { (mrn: MRN) =>
+        val journey = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.hasCompleteAnswers                            shouldBe false
+        //journey.hasCompleteReimbursementClaims                shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.isFinalized                                   shouldBe false
+      }
+    }
 
     // "decline submission of a wrong display declaration" in {
     //   forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
@@ -124,18 +124,16 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     //   }
     // }
 
-    // "accept change of the MRN" in {
-    //   forAll(completeJourneyGen, displayDeclarationGen) { (journey, decl) =>
-    //     val decl2           = decl.withDeclarationId(exampleMrnAsString)
-    //     val modifiedJourney = journey
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
-    //       .getOrFail
-    //     modifiedJourney.answers.displayDeclaration     shouldBe Some(decl2)
-    //     modifiedJourney.hasCompleteAnswers             shouldBe false
-    //     modifiedJourney.hasCompleteReimbursementClaims shouldBe false
-    //     modifiedJourney.hasCompleteSupportingEvidences shouldBe true
-    //   }
-    // }
+    "accept change of the MRN" in {
+      forAll(completeJourneyGen, genMRN) { (journey, mrn) =>
+        val modifiedJourney = journey
+          .submitMovementReferenceNumber(mrn)
+        modifiedJourney.hasCompleteAnswers             shouldBe false
+        //modifiedJourney.hasCompleteReimbursementClaims shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        modifiedJourney.getLeadMovementReferenceNumber shouldBe Some(mrn)
+      }
+    }
 
     // "accept submission of the same MRN" in {
     //   forAll(completeJourneyGen) { journey =>

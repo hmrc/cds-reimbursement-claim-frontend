@@ -35,6 +35,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     Right(
       SecuritiesJourney
         .empty(userEoriNumber)
+        .submitMovementReferenceNumber(mrn)
     )
 
 }
