@@ -12,6 +12,9 @@ GET         /scheduled/scheduled-document-upload/choose-files                   
 POST        /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.callback
 GET         /scheduled/scheduled-document-upload/continue                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.continue
 
+GET         /scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.show
+POST        /scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.submit
+
 GET         /scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBasisForClaimController.selectBasisForClaim
 POST        /scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectBasisForClaimController.selectBasisForClaimSubmit
 

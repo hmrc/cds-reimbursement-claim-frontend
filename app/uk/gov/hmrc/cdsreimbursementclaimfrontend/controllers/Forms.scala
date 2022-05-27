@@ -47,8 +47,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -59,8 +62,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.dataKey
 
 object Forms {
 
@@ -77,6 +79,8 @@ object Forms {
         .verifying("error.required", journey => journey.isEmpty || RejectedGoodsJourneyType.has(journey))
     )(RejectedGoodsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
   )
+
+  val northernIrelandForm: Form[YesNo] = YesOrNoQuestionForm(dataKey)
 
   val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
     mapping(

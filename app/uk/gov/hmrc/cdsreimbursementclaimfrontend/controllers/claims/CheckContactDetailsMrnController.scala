@@ -122,7 +122,7 @@ class CheckContactDetailsMrnController @Inject() (
               val router = extractRoutes(fillingOutClaim.draftClaim, journey)
               Redirect(
                 router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                  routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+                  OverpaymentsRoutes.NorthernIrelandController.show(journey)
                 )
               )
             }

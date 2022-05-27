@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
@@ -28,10 +28,10 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
-import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -52,7 +52,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
 
-class ClaimNorthernIrelandControllerSpec
+class NorthernIrelandControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -67,13 +67,11 @@ class ClaimNorthernIrelandControllerSpec
 
   private val journeys = Table(
     "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
+    JourneyBindable.Multiple
   )
 
-  lazy val errorHandler: ErrorHandler                 = instanceOf[ErrorHandler]
-  lazy val controller: ClaimNorthernIrelandController = instanceOf[ClaimNorthernIrelandController]
+  lazy val errorHandler: ErrorHandler            = instanceOf[ErrorHandler]
+  lazy val controller: NorthernIrelandController = instanceOf[NorthernIrelandController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -108,11 +106,11 @@ class ClaimNorthernIrelandControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
-  "ClaimNorthernIrelandController" must {
+  "NorthernIrelandController" must {
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.selectWhetherNorthernIrelandClaim(journey)(FakeRequest())
+        def performAction(): Future[Result] = controller.show(FakeRequest())
         val session                         = getSessionWithPreviousAnswer(None)
 
         inSequence {
@@ -129,7 +127,7 @@ class ClaimNorthernIrelandControllerSpec
 
     "display the page" when {
       def performAction(journeyBindable: JourneyBindable): Future[Result] =
-        controller.selectWhetherNorthernIrelandClaim(journeyBindable)(FakeRequest())
+        controller.show(FakeRequest())
 
       "the user has not answered this question before" in forAll(journeys) { journey =>
         val session = getSessionWithPreviousAnswer(None)
@@ -209,7 +207,7 @@ class ClaimNorthernIrelandControllerSpec
     "handle submit requests" when {
 
       def performAction(journeyBindable: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
-        controller.selectWhetherNorthernIrelandClaimSubmit(journeyBindable)(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -224,7 +222,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(ClaimNorthernIrelandController.dataKey -> "true")),
+          performAction(journey, Seq(NorthernIrelandController.dataKey -> "true")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
@@ -240,7 +238,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(ClaimNorthernIrelandController.dataKey -> "false")),
+          performAction(journey, Seq(NorthernIrelandController.dataKey -> "false")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
@@ -256,7 +254,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(ClaimNorthernIrelandController.dataKey -> "true")),
+          performAction(journey, Seq(NorthernIrelandController.dataKey -> "true")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
@@ -265,7 +263,7 @@ class ClaimNorthernIrelandControllerSpec
     "show an error summary" when {
 
       def performAction(journeyBindable: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
-        controller.selectWhetherNorthernIrelandClaimSubmit(journeyBindable)(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 

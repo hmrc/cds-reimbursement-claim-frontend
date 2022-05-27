@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
-import play.api.data.Form
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.northernIrelandForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.whetherNorthernIrelandClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
@@ -47,7 +46,7 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ClaimNorthernIrelandController @Inject() (
+class NorthernIrelandController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -63,28 +62,30 @@ class ClaimNorthernIrelandController @Inject() (
     with SessionDataExtractor
     with Logging {
 
+  implicit val journey: JourneyBindable                   = JourneyBindable.Single
   implicit val dataExtractor: DraftClaim => Option[YesNo] = _.whetherNorthernIrelandAnswer
+  private val postAction: Call                            = OverpaymentsRoutes.NorthernIrelandController.submit(journey)
 
-  def selectWhetherNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] =
+  val show: Action[AnyContent] =
     authenticatedActionWithSessionData
       .async { implicit request =>
         withAnswers[YesNo] { (_, answer) =>
-          val emptyForm  = whetherNorthernIrelandClaim
+          val emptyForm  = northernIrelandForm
           val filledForm = answer.fold(emptyForm)(emptyForm.fill)
-          Ok(northernIrelandAnswerPage(filledForm))
+          Ok(northernIrelandAnswerPage(filledForm, postAction))
         }
       }
 
-  def selectWhetherNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val submit: Action[AnyContent] =
     authenticatedActionWithSessionData
       .async { implicit request =>
         withAnswersAndRoutes[YesNo] { (fillingOutClaim, previousAnswer, routes) =>
           import routes._
 
-          whetherNorthernIrelandClaim
+          northernIrelandForm
             .bindFromRequest()
             .fold(
-              formWithErrors => BadRequest(northernIrelandAnswerPage(formWithErrors)),
+              formWithErrors => BadRequest(northernIrelandAnswerPage(formWithErrors, postAction)),
               currentAnswer => {
                 val updatedJourney = from(fillingOutClaim)(
                   _.copy(
@@ -115,9 +116,8 @@ class ClaimNorthernIrelandController @Inject() (
       }
 }
 
-object ClaimNorthernIrelandController {
+object NorthernIrelandController {
 
   val dataKey: String = "claim-northern-ireland"
 
-  val whetherNorthernIrelandClaim: Form[YesNo] = YesOrNoQuestionForm(dataKey)
 }
