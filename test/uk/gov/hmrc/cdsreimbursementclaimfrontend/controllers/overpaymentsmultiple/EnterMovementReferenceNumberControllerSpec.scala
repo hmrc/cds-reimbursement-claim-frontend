@@ -165,14 +165,19 @@ class EnterMovementReferenceNumberControllerSpec
 
     "We enter an MRN for the first time or update it with the back button (enterMrnSubmit)" must {
 
-      def updatedDisplayDeclaration(displayDeclaration: DisplayDeclaration,
-                                    consigneeDetails: ConsigneeDetails,
-                                    eori: Eori): Either[Error, Option[DisplayDeclaration]] = {
-        val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = eori.value)
+      def updatedDisplayDeclaration(
+        displayDeclaration: DisplayDeclaration,
+        consigneeDetails: ConsigneeDetails,
+        eori: Eori
+      ): Either[Error, Option[DisplayDeclaration]] = {
+        val updatedConsigneeDetails = consigneeDetails.copy(consigneeEORI = eori.value)
         Right(
           Some(
-            Functor[Id].map(displayDeclaration)(dd => dd.copy(displayResponseDetail =
-              dd.displayResponseDetail.copy(consigneeDetails = Some(updatedConsigneeDetails))))
+            Functor[Id].map(displayDeclaration)(dd =>
+              dd.copy(displayResponseDetail =
+                dd.displayResponseDetail.copy(consigneeDetails = Some(updatedConsigneeDetails))
+              )
+            )
           )
         )
       }
@@ -238,7 +243,7 @@ class EnterMovementReferenceNumberControllerSpec
         ) =>
           val (session, foc) =
             sessionWithMRNAndTypeOfClaimOnly(None, Some(TypeOfClaimAnswer.Multiple))
-          val updatedDD = updatedDisplayDeclaration(displayDeclaration, consigneeDetails, foc.signedInUserDetails.eori)
+          val updatedDD      = updatedDisplayDeclaration(displayDeclaration, consigneeDetails, foc.signedInUserDetails.eori)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -300,7 +305,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            claimsRoutes.CheckDeclarationDetailsController.show(JourneyBindable.Multiple)
+            overpaymentsMultipleRoutes.CheckDeclarationDetailsController.show
           )
       }
 

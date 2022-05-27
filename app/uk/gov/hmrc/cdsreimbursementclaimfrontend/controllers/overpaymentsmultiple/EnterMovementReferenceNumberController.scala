@@ -131,7 +131,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     mrnJourneyFlow <-
                       fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, acc14))
                         .leftMap(_ => Error("could not evaluate MRN flow"))
-                } yield mrnJourneyFlow
+                  } yield mrnJourneyFlow
 
                 nextPage(MRNJourneyFlow)
               } else {
