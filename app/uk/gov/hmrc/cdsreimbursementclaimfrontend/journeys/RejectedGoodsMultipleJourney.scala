@@ -59,12 +59,9 @@ import java.time.LocalDate
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends RejectedGoods.CommonJourneyProperties
+) extends JourneyBase[RejectedGoodsMultipleJourney]
+    with RejectedGoods.CommonJourneyProperties
     with FluentSyntax[RejectedGoodsMultipleJourney] {
-
-  /** Check if the journey is ready to finalize, i.e. to get the output. */
-  def hasCompleteAnswers: Boolean =
-    RejectedGoodsMultipleJourney.validator.apply(this).isValid
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -196,16 +193,6 @@ final class RejectedGoodsMultipleJourney private (
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
     new RejectedGoodsMultipleJourney(answers.copy(dutiesChangeMode = enabled))
-
-  def isFinalized: Boolean = caseNumber.isDefined
-
-  def whileJourneyIsAmendable(body: => RejectedGoodsMultipleJourney): RejectedGoodsMultipleJourney =
-    if (isFinalized) this else body
-
-  def whileJourneyIsAmendable(
-    body: => Either[String, RejectedGoodsMultipleJourney]
-  ): Either[String, RejectedGoodsMultipleJourney] =
-    if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -549,8 +536,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
     whileJourneyIsAmendable {
-      RejectedGoodsMultipleJourney.validator
-        .apply(this)
+      validate(this)
         .fold(
           _ => this,
           _ => new RejectedGoodsMultipleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
@@ -559,8 +545,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsMultipleJourney] =
     whileJourneyIsAmendable {
-      RejectedGoodsMultipleJourney.validator
-        .apply(this)
+      validate(this)
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
           _ => Right(new RejectedGoodsMultipleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
@@ -580,9 +565,7 @@ final class RejectedGoodsMultipleJourney private (
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def toOutput: Either[List[String], RejectedGoodsMultipleJourney.Output] =
-    RejectedGoodsMultipleJourney.validator
-      .apply(this)
-      .toEither
+    validate(this).toEither
       .flatMap(_ =>
         (for {
           movementReferenceNumbers <- answers.movementReferenceNumbers
@@ -670,7 +653,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
   import JourneyValidationErrors._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  val validator: Validate[RejectedGoodsMultipleJourney] =
+  implicit val validator: Validate[RejectedGoodsMultipleJourney] =
     all(
       check(_.answers.movementReferenceNumbers.exists(_.nonEmpty), MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
       check(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER),

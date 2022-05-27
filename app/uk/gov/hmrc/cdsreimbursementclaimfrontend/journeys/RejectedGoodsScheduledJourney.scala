@@ -59,12 +59,9 @@ import scala.collection.immutable.SortedMap
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None
-) extends RejectedGoods.CommonJourneyProperties
+) extends JourneyBase[RejectedGoodsScheduledJourney]
+    with RejectedGoods.CommonJourneyProperties
     with FluentSyntax[RejectedGoodsScheduledJourney] {
-
-  /** Check if the journey is ready to finalize, i.e. to get the output. */
-  def hasCompleteAnswers: Boolean =
-    RejectedGoodsScheduledJourney.validator.apply(this).isValid
 
   /** Check if all the selected duties have reimbursement and paid amounts provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -152,16 +149,6 @@ final class RejectedGoodsScheduledJourney private (
 
   def getTotalPaidAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
-
-  def isFinalized: Boolean = caseNumber.isDefined
-
-  def whileJourneyIsAmendable(body: => RejectedGoodsScheduledJourney): RejectedGoodsScheduledJourney =
-    if (isFinalized) this else body
-
-  def whileJourneyIsAmendable(
-    body: => Either[String, RejectedGoodsScheduledJourney]
-  ): Either[String, RejectedGoodsScheduledJourney] =
-    if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -445,8 +432,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
     whileJourneyIsAmendable {
-      RejectedGoodsScheduledJourney.validator
-        .apply(this)
+      validate(this)
         .fold(
           _ => this,
           _ => new RejectedGoodsScheduledJourney(answers.copy(checkYourAnswersChangeMode = enabled))
@@ -455,9 +441,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsScheduledJourney] =
     whileJourneyIsAmendable {
-      RejectedGoodsScheduledJourney.validator
-        .apply(this)
-        .toEither
+      validate(this).toEither
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
           _ => Right(new RejectedGoodsScheduledJourney(answers = this.answers, caseNumber = Some(caseNumber)))
@@ -477,9 +461,7 @@ final class RejectedGoodsScheduledJourney private (
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def toOutput: Either[List[String], RejectedGoodsScheduledJourney.Output] =
-    RejectedGoodsScheduledJourney.validator
-      .apply(this)
-      .toEither
+    validate(this).toEither
       .flatMap(_ =>
         (for {
           mrn                    <- getLeadMovementReferenceNumber
@@ -570,7 +552,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
   import JourneyValidationErrors._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  val validator: Validate[RejectedGoodsScheduledJourney] =
+  implicit val validator: Validate[RejectedGoodsScheduledJourney] =
     all(
       checkIsDefined(_.getLeadMovementReferenceNumber, MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
       checkIsDefined(_.getLeadDisplayDeclaration, MISSING_DISPLAY_DECLARATION),

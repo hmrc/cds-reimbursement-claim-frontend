@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
-) extends BaseJourney[SecuritiesJourney]
+) extends JourneyBase[SecuritiesJourney]
     with FluentSyntax[SecuritiesJourney] {
 
   def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
