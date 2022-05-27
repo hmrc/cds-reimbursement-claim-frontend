@@ -16,9 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import cats.Eq
+import cats.syntax.eq._
+import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DEC91ResponseDetail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DEC91Response
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -35,6 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import com.github.arturopala.validator.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -46,6 +51,35 @@ final class SecuritiesJourney private (
     SecuritiesJourney.validator.apply(this).isValid
 
   def isFinalized: Boolean = caseNumber.isDefined
+
+  def whileJourneyIsAmendable(body: => SecuritiesJourney): SecuritiesJourney =
+    if (isFinalized) this else body
+
+  def whileJourneyIsAmendable(
+    body: => Either[String, SecuritiesJourney]
+  ): Either[String, SecuritiesJourney] =
+    if (isFinalized) Left(RejectedGoods.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
+
+  def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
+    whileJourneyIsAmendable {
+      SecuritiesJourney.validator
+        .apply(this)
+        .toEither
+        .fold(
+          errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
+          _ => Right(new SecuritiesJourney(answers = this.answers, caseNumber = Some(caseNumber)))
+        )
+    }
+
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
+  override def equals(obj: Any): Boolean =
+    if (obj.isInstanceOf[SecuritiesJourney]) {
+      val that = obj.asInstanceOf[SecuritiesJourney]
+      that.answers === this.answers && that.caseNumber === this.caseNumber
+    } else false
+
+  override def hashCode(): Int    = answers.hashCode
+  override def toString(): String = s"SecuritiesJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -71,7 +105,7 @@ object SecuritiesJourney {
     selectedSecurityDepositIds: Seq[String] = Seq.empty,
     exportMovementReferenceNumber: Option[MRN] =
       None, // mandatory if reasonForSecurity is T/A, see ReasonForSecurity.requiresExportDeclaration
-    exportDeclaration: Option[DEC91ResponseDetail] = None, // mandatory as above
+    exportDeclaration: Option[DEC91Response] = None, // mandatory as above
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     reclaimingFullAmount: Option[Boolean] = None,
@@ -99,5 +133,44 @@ object SecuritiesJourney {
 
   val validator: Validate[SecuritiesJourney] =
     Validator.always
+
+  object Answers {
+    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
+      MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
+
+    implicit lazy val mapFormat2: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
+      MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
+
+    implicit val amountFormat: Format[BigDecimal] =
+      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
+
+    implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
+    implicit val format: Format[Answers] = Json.using[Json.WithDefaultValues].format[Answers]
+  }
+
+  object Output {
+
+    implicit lazy val mapFormat1: Format[Map[TaxCode, BigDecimal]] =
+      MapFormat.format[TaxCode, BigDecimal]
+
+    implicit val amountFormat: Format[BigDecimal] =
+      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
+
+    implicit val equality: Eq[Output]   = Eq.fromUniversalEquals[Output]
+    implicit val format: Format[Output] = Json.format[Output]
+  }
+
+  import play.api.libs.functional.syntax._
+
+  implicit val format: Format[SecuritiesJourney] =
+    Format(
+      ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "caseNumber").readNullable[String])(new SecuritiesJourney(_, _)),
+      ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
+    )
+
+  implicit val equality: Eq[SecuritiesJourney] =
+    Eq.fromUniversalEquals[SecuritiesJourney]
 
 }

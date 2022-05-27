@@ -20,7 +20,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait SecuritiesReimbursementMethod
 
-object Guarantee extends EnumerationFormat[SecuritiesReimbursementMethod] {
+object SecuritiesReimbursementMethod extends EnumerationFormat[SecuritiesReimbursementMethod] {
 
   case object Guarantee extends SecuritiesReimbursementMethod
   case object BankAccountTransfer extends SecuritiesReimbursementMethod
