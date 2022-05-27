@@ -59,8 +59,8 @@ import java.time.LocalDate
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[RejectedGoodsMultipleJourney]
-    with RejectedGoods.CommonJourneyProperties
+) extends Claim[RejectedGoodsMultipleJourney]
+    with RejectedGoodsCommonJourneyProperties
     with FluentSyntax[RejectedGoodsMultipleJourney] {
 
   /** Check if all the selected duties have reimbursement amount provided. */
@@ -71,7 +71,8 @@ final class RejectedGoodsMultipleJourney private (
       }
     )
 
-  def getMovementReferenceNumbers: Option[Seq[MRN]] = answers.movementReferenceNumbers
+  def getMovementReferenceNumbers: Option[Seq[MRN]] =
+    answers.movementReferenceNumbers
 
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumbers.flatMap(_.headOption)
@@ -630,7 +631,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false,
     dutiesChangeMode: Boolean = false
-  ) extends RejectedGoods.CommonAnswers
+  ) extends RejectedGoodsCommonAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(

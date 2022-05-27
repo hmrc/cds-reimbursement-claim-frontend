@@ -58,8 +58,8 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[RejectedGoodsSingleJourney]
-    with RejectedGoods.CommonJourneyProperties
+) extends Claim[RejectedGoodsSingleJourney]
+    with RejectedGoodsCommonJourneyProperties
     with FluentSyntax[RejectedGoodsSingleJourney] {
 
   /** Check if all the selected duties have reimbursement amount provided. */
@@ -486,7 +486,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false
-  ) extends RejectedGoods.CommonAnswers
+  ) extends RejectedGoodsCommonAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(

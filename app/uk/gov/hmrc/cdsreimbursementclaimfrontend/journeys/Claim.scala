@@ -18,10 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import com.github.arturopala.validator.Validator._
 
-/** The common base of a claim journey model
-  * @tparam A the type of the journey
+/** The common base of the claim models
+  * @tparam A the type of the claim
   */
-abstract class JourneyBase[A : Validate] {
+abstract class Claim[A : Validate] {
   self: A =>
 
   /** Case numer is the final result of successfully submitting the claim. */

@@ -59,8 +59,8 @@ import scala.collection.immutable.SortedMap
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[RejectedGoodsScheduledJourney]
-    with RejectedGoods.CommonJourneyProperties
+) extends Claim[RejectedGoodsScheduledJourney]
+    with RejectedGoodsCommonJourneyProperties
     with FluentSyntax[RejectedGoodsScheduledJourney] {
 
   /** Check if all the selected duties have reimbursement and paid amounts provided. */
@@ -528,7 +528,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
     scheduledDocument: Option[UploadedFile] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false
-  ) extends RejectedGoods.CommonAnswers
+  ) extends RejectedGoodsCommonAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(

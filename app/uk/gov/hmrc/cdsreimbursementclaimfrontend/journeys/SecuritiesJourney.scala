@@ -44,10 +44,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[SecuritiesJourney]
+) extends Claim[SecuritiesJourney]
+    with CommonJourneyProperties
     with FluentSyntax[SecuritiesJourney] {
 
-  def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
+  override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
+    answers.displayDeclaration
+
+  final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileJourneyIsAmendable {
       validate(this).toEither
         .fold(
@@ -87,6 +91,8 @@ object SecuritiesJourney {
     movementReferenceNumber: Option[MRN] = None,
     reasonForSecurity: Option[ReasonForSecurity] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
+    consigneeEoriNumber: Option[Eori] = None,
+    declarantEoriNumber: Option[Eori] = None,
     selectedSecurityDepositIds: Seq[String] = Seq.empty,
     exportMovementReferenceNumber: Option[MRN] =
       None, // mandatory if reasonForSecurity is T/A, see ReasonForSecurity.requiresExportDeclaration
@@ -101,7 +107,7 @@ object SecuritiesJourney {
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     checkYourAnswersChangeMode: Boolean = false
-  )
+  ) extends CommonAnswers
 
   final case class Output(
     movementReferenceNumber: MRN,
