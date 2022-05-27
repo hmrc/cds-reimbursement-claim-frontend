@@ -65,7 +65,14 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   val showMrns: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using { case journey: FillingOutClaim =>
-      Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), whetherAddAnotherMrnAnswerForm))
+      val associatedMRNList = journey.draftClaim.associatedMRNsAnswer
+      if (associatedMRNList.isEmpty) {
+        Redirect(
+          routes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(associatedMRNList.length))
+        )
+      } else {
+        Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), whetherAddAnotherMrnAnswerForm))
+      }
     }
   }
 
