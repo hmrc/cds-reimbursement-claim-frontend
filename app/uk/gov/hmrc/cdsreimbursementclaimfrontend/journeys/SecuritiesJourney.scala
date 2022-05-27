@@ -33,13 +33,32 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import com.github.arturopala.validator.Validator
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
-) extends FluentSyntax[SecuritiesJourney] {}
+) extends FluentSyntax[SecuritiesJourney] {
+
+  /** Check if the journey is ready to finalize, i.e. to get the output. */
+  def hasCompleteAnswers: Boolean =
+    SecuritiesJourney.validator.apply(this).isValid
+
+  def isFinalized: Boolean = caseNumber.isDefined
+
+  /** Validates the journey and retrieves the output. */
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  def toOutput: Either[List[String], SecuritiesJourney.Output] =
+    Left(Nil)
+
+}
 
 object SecuritiesJourney {
+
+  /** A starting point to build new instance of the journey. */
+  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): SecuritiesJourney =
+    new SecuritiesJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type SecuritiesReclaims = Map[TaxCode, Option[BigDecimal]]
 
@@ -47,9 +66,9 @@ object SecuritiesJourney {
     nonce: Nonce = Nonce.random,
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
-    displayDeclaration: Option[DisplayDeclaration] = None,
     reasonForSecurity: Option[ReasonForSecurity] = None,
-    selectedPaymentReferences: Seq[String] = Seq.empty,
+    displayDeclaration: Option[DisplayDeclaration] = None,
+    selectedSecurityDepositIds: Seq[String] = Seq.empty,
     exportMovementReferenceNumber: Option[MRN] =
       None, // mandatory if reasonForSecurity is T/A, see ReasonForSecurity.requiresExportDeclaration
     exportDeclaration: Option[DEC91ResponseDetail] = None, // mandatory as above
@@ -57,6 +76,7 @@ object SecuritiesJourney {
     contactAddress: Option[ContactAddress] = None,
     reclaimingFullAmount: Option[Boolean] = None,
     securitiesReclaims: Option[SecuritiesReclaims] = None, // mandatory if NOT reclaimingFullAmount
+    selectedDocumentType: Option[UploadDocumentType] = None, // ??? depending on the RfS and ....
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     reimbursementMethod: Option[SecuritiesReimbursementMethod] = None, // mandatory if guarantee is eligible
     bankAccountDetails: Option[BankAccountDetails] = None,
@@ -74,5 +94,10 @@ object SecuritiesJourney {
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
   )
+
+  import com.github.arturopala.validator.Validator._
+
+  val validator: Validate[SecuritiesJourney] =
+    Validator.always
 
 }
