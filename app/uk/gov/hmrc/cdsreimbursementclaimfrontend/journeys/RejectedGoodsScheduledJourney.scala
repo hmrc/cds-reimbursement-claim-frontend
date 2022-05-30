@@ -157,7 +157,7 @@ final class RejectedGoodsScheduledJourney private (
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
   ): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn)
             if existingMrn === mrn &&
@@ -184,7 +184,7 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
           Right(
@@ -197,7 +197,7 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
@@ -208,21 +208,21 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(
         answers.copy(contactAddress = Some(contactAddress))
       )
     }
 
   def submitBasisOfClaim(basisOfClaim: BasisOfRejectedGoodsClaim): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       basisOfClaim match {
         case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
           new RejectedGoodsScheduledJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
@@ -240,7 +240,7 @@ final class RejectedGoodsScheduledJourney private (
   def submitBasisOfClaimSpecialCircumstancesDetails(
     basisOfClaimSpecialCircumstancesDetails: String
   ): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       answers.basisOfClaim match {
         case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
           Right(
@@ -254,14 +254,14 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(
         answers.copy(methodOfDisposal = Some(methodOfDisposal))
       )
     }
 
   def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(
         answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
       )
@@ -270,7 +270,7 @@ final class RejectedGoodsScheduledJourney private (
   def selectAndReplaceDutyTypeSetForReimbursement(
     dutyTypes: Seq[DutyType]
   ): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (dutyTypes.isEmpty)
         Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
       else {
@@ -290,7 +290,7 @@ final class RejectedGoodsScheduledJourney private (
     dutyType: DutyType,
     taxCodes: Seq[TaxCode]
   ): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (!getSelectedDutyTypes.exists(_.contains(dutyType)))
         Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
       else if (taxCodes.isEmpty)
@@ -324,7 +324,7 @@ final class RejectedGoodsScheduledJourney private (
     claimAmount: BigDecimal,
     paidAmount: BigDecimal
   ): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (dutyType.taxCodes.contains(taxCode)) {
         if (isDutySelected(dutyType, taxCode)) {
           if (isValidClaimAmounts(claimAmount, paidAmount)) {
@@ -353,21 +353,21 @@ final class RejectedGoodsScheduledJourney private (
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(
         answers.copy(inspectionDate = Some(inspectionDate))
       )
     }
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(
         answers.copy(inspectionAddress = Some(inspectionAddress))
       )
     }
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
           new RejectedGoodsScheduledJourney(
@@ -378,7 +378,7 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
           new RejectedGoodsScheduledJourney(
@@ -393,7 +393,7 @@ final class RejectedGoodsScheduledJourney private (
     requestNonce: Nonce,
     uploadedFile: UploadedFile
   ): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         Right(
           new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
@@ -403,12 +403,12 @@ final class RejectedGoodsScheduledJourney private (
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def removeScheduledDocument: RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = None))
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsScheduledJourney(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
@@ -418,7 +418,7 @@ final class RejectedGoodsScheduledJourney private (
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
@@ -431,7 +431,7 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       validate(this)
         .fold(
           _ => this,
@@ -440,7 +440,7 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsScheduledJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       validate(this).toEither
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),

@@ -66,7 +66,7 @@ final class SecuritiesJourney private (
   final def submitMovementReferenceNumber(
     mrn: MRN
   ): SecuritiesJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn) if existingMrn === mrn =>
           this
@@ -86,7 +86,7 @@ final class SecuritiesJourney private (
     reasonForSecurity: ReasonForSecurity,
     displayDeclaration: DisplayDeclaration
   ): Either[String, SecuritiesJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (!answers.movementReferenceNumber.contains(displayDeclaration.getMRN))
         Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationMrn")
       else if (!displayDeclaration.getReasonForSecurity.contains(reasonForSecurity))
@@ -107,7 +107,7 @@ final class SecuritiesJourney private (
     }
 
   final def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (securityDepositIds.isEmpty)
         Left("selectSecurityDepositIds.emptySelection")
       else if (securityDepositIds.forall(getSecurityDepositIds.contains(_)))
@@ -121,8 +121,16 @@ final class SecuritiesJourney private (
       else Left("selectSecurityDepositIds.invalidSecurityDepositId")
     }
 
+  final def submitExportMovementReferenceNumberAndDeclaration(
+    mrn: MRN,
+    exportDeclaration: DEC91Response
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      ???
+    }
+
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       validate(this).toEither
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),

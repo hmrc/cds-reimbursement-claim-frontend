@@ -37,11 +37,11 @@ abstract class Claim[A : Validate] {
   final def isFinalized: Boolean = caseNumber.isDefined
 
   /** Execute the following code only when claim wasn't submitted yet. */
-  final def whileJourneyIsAmendable(body: => A): A =
+  final def whileClaimIsAmendable(body: => A): A =
     if (isFinalized) this else body
 
   /** Execute the following code only when claim wasn't submitted yet. */
-  final def whileJourneyIsAmendable(
+  final def whileClaimIsAmendable(
     body: => Either[String, A]
   ): Either[String, A] =
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
