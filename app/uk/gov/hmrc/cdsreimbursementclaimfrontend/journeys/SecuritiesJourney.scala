@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import com.github.arturopala.validator.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
+import SecuritiesJourney.Answers
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -57,7 +58,7 @@ final class SecuritiesJourney private (
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
     */
-  def submitMovementReferenceNumber(
+  final def submitMovementReferenceNumber(
     mrn: MRN
   ): SecuritiesJourney =
     whileJourneyIsAmendable {
@@ -67,14 +68,37 @@ final class SecuritiesJourney private (
 
         case _ =>
           new SecuritiesJourney(
-            SecuritiesJourney
-              .Answers(
-                userEoriNumber = answers.userEoriNumber,
-                movementReferenceNumber = Some(mrn),
-                nonce = answers.nonce
-              )
+            Answers(
+              userEoriNumber = answers.userEoriNumber,
+              movementReferenceNumber = Some(mrn),
+              nonce = answers.nonce
+            )
           )
       }
+    }
+
+  final def submitReasonForSecurityAndDeclaration(
+    reasonForSecurity: ReasonForSecurity,
+    displayDeclaration: DisplayDeclaration
+  ): Either[String, SecuritiesJourney] =
+    whileJourneyIsAmendable {
+      if (!answers.movementReferenceNumber.contains(displayDeclaration.getMRN))
+        Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationMrn")
+      else if (!displayDeclaration.getReasonForSecurity.contains(reasonForSecurity))
+        Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationRfS")
+      else if (
+        answers.reasonForSecurity.contains(reasonForSecurity) &&
+        answers.displayDeclaration.contains(displayDeclaration)
+      ) Right(this) // unchanged
+      else
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              reasonForSecurity = Some(reasonForSecurity),
+              displayDeclaration = Some(displayDeclaration)
+            )
+          )
+        )
     }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =

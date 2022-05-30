@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -56,8 +57,16 @@ final case class DisplayDeclaration(
 
   def getMRN: MRN = MRN(displayResponseDetail.declarationId)
 
+  def getReasonForSecurity: Option[ReasonForSecurity] =
+    displayResponseDetail.securityReason.flatMap(ReasonForSecurity.fromACC14Code)
+
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
+
+  def optionallyWithMRN(maybeMRN: Option[MRN]): DisplayDeclaration =
+    maybeMRN
+      .map(mrn => copy(displayResponseDetail = displayResponseDetail.copy(declarationId = mrn.value)))
+      .getOrElse(this)
 
   def withDeclarantEori(eori: Eori): DisplayDeclaration =
     copy(displayResponseDetail =
@@ -75,6 +84,9 @@ final case class DisplayDeclaration(
 
   def withBankDetails(bankDetails: Option[BankDetails]): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(bankDetails = bankDetails))
+
+  def withReasonForSecurity(reasonForSecurity: ReasonForSecurity): DisplayDeclaration =
+    copy(displayResponseDetail = displayResponseDetail.copy(securityReason = Some(reasonForSecurity.acc14Code)))
 
   def hasSameEoriAs(other: DisplayDeclaration): Boolean =
     this.getDeclarantEori === other.getDeclarantEori ||

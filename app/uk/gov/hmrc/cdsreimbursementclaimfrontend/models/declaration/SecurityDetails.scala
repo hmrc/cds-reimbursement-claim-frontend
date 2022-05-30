@@ -23,7 +23,7 @@ final case class SecurityDetails(
   securityDepositId: String,
   totalAmount: String,
   amountPaid: String,
-  paymentMethod: String,
+  paymentMethod: String, // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account, 004 = Guarantee Account, 005 = Individual Guarantee"
   paymentReference: String,
   taxDetails: List[TaxDetails]
 )

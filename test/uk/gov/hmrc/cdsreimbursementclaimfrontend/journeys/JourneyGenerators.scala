@@ -22,15 +22,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 trait JourneyGenerators extends JourneyTestData {
 
-  implicit val bigDecimalChoose = new Gen.Choose[BigDecimal] {
+  implicit final val bigDecimalChoose = new Gen.Choose[BigDecimal] {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
       Gen.choose(1, 10000).map(i => (min + (i * ((max - min) / 10000))).round(min.mc))
   }
 
-  val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
+  final lazy val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN
       acc14 <- displayDeclarationGen.map(
@@ -39,32 +40,85 @@ trait JourneyGenerators extends JourneyTestData {
                )
     } yield (mrn, acc14)
 
-  val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
+  final lazy val rfsWithDisplayDeclarationGen: Gen[(ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      rfs   <- Gen.oneOf(ReasonForSecurity.values)
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (rfs, acc14)
+
+  final lazy val mrnWithRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.values)
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
+  final val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = true)
 
-  val displayDeclarationNotCMAEligibleGen: Gen[DisplayDeclaration] =
+  final val displayDeclarationNotCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = false)
 
-  val displayDeclarationGen: Gen[DisplayDeclaration] =
+  final lazy val displayDeclarationGen: Gen[DisplayDeclaration] =
     Gen.oneOf(
       displayDeclarationCMAEligibleGen,
       displayDeclarationNotCMAEligibleGen
     )
 
-  val exampleDisplayDeclaration: DisplayDeclaration =
+  final val securitiesDisplayDeclarationGuaranteeEligibleGen: Gen[DisplayDeclaration] =
+    buildSecuritiesDisplayDeclarationGen(guaranteeEligible = true)
+
+  final val securitiesDisplayDeclarationNotGuaranteeEligibleGen: Gen[DisplayDeclaration] =
+    buildSecuritiesDisplayDeclarationGen(guaranteeEligible = false)
+
+  final lazy val securitiesDisplayDeclarationGen: Gen[DisplayDeclaration] =
+    Gen.oneOf(
+      securitiesDisplayDeclarationGuaranteeEligibleGen,
+      securitiesDisplayDeclarationNotGuaranteeEligibleGen
+    )
+
+  final val exampleDisplayDeclaration: DisplayDeclaration =
     displayDeclarationGen.sample.get
 
-  def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
+  final def taxCodesWithAmountsGen: Gen[Seq[(TaxCode, BigDecimal)]] =
     for {
-      declarantEORI    <- IdGen.genEori
-      consigneeEORI    <- IdGen.genEori
-      numberOfTaxCodes <- Gen.choose(2, 5)
+      numberOfTaxCodes <- Gen.choose(1, 5)
       taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
-      paidAmounts      <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
-    } yield {
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, cmaEligible) }
-      buildDisplayDeclaration(exampleMrnAsString, declarantEORI, Some(consigneeEORI), paidDuties)
-    }
+      amounts          <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
+    } yield taxCodes.zip(amounts)
+
+  final def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
+    for {
+      declarantEORI <- IdGen.genEori
+      consigneeEORI <- IdGen.genEori
+      paidAmounts   <- taxCodesWithAmountsGen
+    } yield buildDisplayDeclaration(
+      declarantEORI = declarantEORI,
+      consigneeEORI = Some(consigneeEORI),
+      dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) }
+    )
+
+  final def buildSecuritiesDisplayDeclarationGen(guaranteeEligible: Boolean): Gen[DisplayDeclaration] =
+    for {
+      declarantEORI      <- IdGen.genEori
+      consigneeEORI      <- IdGen.genEori
+      numberOfSecurities <- Gen.choose(1, 3)
+      reclaimsDetails    <- Gen.listOfN(
+                              numberOfSecurities,
+                              Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
+                            )
+    } yield buildSecuritiesDisplayDeclaration(
+      declarantEORI = declarantEORI,
+      consigneeEORI = Some(consigneeEORI),
+      reclaimsDetails = reclaimsDetails,
+      guaranteeEligible = guaranteeEligible
+    )
 
 }

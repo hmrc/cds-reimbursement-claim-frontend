@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
@@ -82,8 +83,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     // reimbursementMethod: Option[ReimbursementMethodAnswer] = None
   ): Gen[Either[String, SecuritiesJourney]] =
     for {
-      userEoriNumber <- IdGen.genEori
-      mrn            <- IdGen.genMRN
+      userEoriNumber   <- IdGen.genEori
+      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGen
       // declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // numberOfTaxCodes            <- Gen.choose(1, 5)
@@ -132,7 +133,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     // val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
     tryBuildSecuritiesJourney(
       userEoriNumber,
-      mrn
+      mrn,
+      rfs,
+      decl
       // displayDeclaration,
       // basisOfClaim,
       // "rejected goods details",

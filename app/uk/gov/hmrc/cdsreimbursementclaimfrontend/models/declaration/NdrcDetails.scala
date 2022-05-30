@@ -23,7 +23,7 @@ import play.api.libs.json.OFormat
 final case class NdrcDetails(
   taxType: String,
   amount: String,
-  paymentMethod: String,
+  paymentMethod: String, // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account, 004 = Guarantee Account, 005 = Individual Guarantee"
   paymentReference: String,
   cmaEligible: Option[String]
 ) {

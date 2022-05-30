@@ -60,26 +60,26 @@ trait JourneyTestData {
       )
   }
 
-  val exampleEori: Eori           = IdGen.genEori.sample.get
-  val anotherExampleEori: Eori    = IdGen.genEori.sample.get
-  val yetAnotherExampleEori: Eori = IdGen.genEori.sample.get
+  final val exampleEori: Eori           = IdGen.genEori.sample.get
+  final val anotherExampleEori: Eori    = IdGen.genEori.sample.get
+  final val yetAnotherExampleEori: Eori = IdGen.genEori.sample.get
 
-  val exampleEoriAsString: String = exampleEori.value
+  final val exampleEoriAsString: String = exampleEori.value
 
-  val exampleMrn: MRN            = IdGen.genMRN.sample.get
-  val anotherExampleMrn: MRN     = IdGen.genMRN.sample.get
-  val exampleMrnAsString: String = exampleMrn.value
+  final val exampleMrn: MRN            = IdGen.genMRN.sample.get
+  final val anotherExampleMrn: MRN     = IdGen.genMRN.sample.get
+  final val exampleMrnAsString: String = exampleMrn.value
 
-  val uploadDocument = buildUploadDocument("foo")
+  final val uploadDocument = buildUploadDocument("foo")
 
-  val exampleContactDetails: MrnContactDetails =
+  final val exampleContactDetails: MrnContactDetails =
     MrnContactDetails(
       fullName = "Foo Bar",
       emailAddress = Email("foo@bar.com"),
       phoneNumber = Some(PhoneNumber("000000000"))
     )
 
-  val exampleContactAddress: ContactAddress =
+  final val exampleContactAddress: ContactAddress =
     ContactAddress(
       line1 = "1 Foo Road",
       line2 = None,
@@ -89,7 +89,7 @@ trait JourneyTestData {
       country = Country.uk
     )
 
-  val exampleInspectionAddress: InspectionAddress =
+  final val exampleInspectionAddress: InspectionAddress =
     InspectionAddress(
       addressLine1 = Some("1 Bar Road"),
       addressLine2 = Some("Lewisham"),
@@ -100,20 +100,20 @@ trait JourneyTestData {
       addressType = InspectionAddressType.Other
     )
 
-  val exampleInspectionDate: InspectionDate =
+  final val exampleInspectionDate: InspectionDate =
     InspectionDate(LocalDate.parse("2000-01-01"))
 
-  val exampleBankAccountDetails =
+  final val exampleBankAccountDetails =
     BankAccountDetails(
       accountName = AccountName("Foo Bar"),
       sortCode = SortCode("00000000"),
       accountNumber = AccountNumber("00000000")
     )
 
-  val exampleRejectedGoodsDetails: String        = "Some example details for rejected goods"
-  val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
+  final val exampleRejectedGoodsDetails: String        = "Some example details for rejected goods"
+  final val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
 
-  def buildDisplayDeclaration(
+  final def buildDisplayDeclaration(
     id: String = exampleMrnAsString,
     declarantEORI: Eori = exampleEori,
     consigneeEORI: Option[Eori] = None,
@@ -126,7 +126,7 @@ trait JourneyTestData {
         NdrcDetails(
           taxType = taxCode.value,
           amount = paidAmount.toString(),
-          paymentMethod = s"payment-method-$id",
+          paymentMethod = if (cmaEligible) "002" else "001",
           paymentReference = s"payment-reference-$id",
           cmaEligible = if (cmaEligible) Some("1") else None
         )
@@ -175,7 +175,74 @@ trait JourneyTestData {
     }
   }
 
-  def buildUploadDocument(id: String) = UploadedFile(
+  final def buildSecuritiesDisplayDeclaration(
+    id: String = exampleMrnAsString,
+    declarantEORI: Eori = exampleEori,
+    consigneeEORI: Option[Eori] = None,
+    reclaimsDetails: Seq[(String, Seq[(TaxCode, BigDecimal)])] = Seq.empty,
+    consigneeContact: Option[ContactDetails] = None,
+    declarantContact: Option[ContactDetails] = None,
+    guaranteeEligible: Boolean = false
+  ): DisplayDeclaration = {
+    val securityDetails: List[SecurityDetails] = reclaimsDetails.map { case (securityDepositId, taxDetails) =>
+      val totalAmount = taxDetails.map(_._2).sum
+      SecurityDetails(
+        securityDepositId = securityDepositId,
+        totalAmount = totalAmount.toString(),
+        amountPaid = totalAmount.toString(),
+        paymentMethod = if (guaranteeEligible) "004" else "003",
+        paymentReference = s"payment-reference-$id",
+        taxDetails = taxDetails.map { case (taxCode, amount) =>
+          TaxDetails(taxCode.toString(), amount.toString())
+        }.toList
+      )
+    }.toList
+
+    val consigneeDetails: Option[ConsigneeDetails] =
+      if (consigneeEORI.contains(declarantEORI))
+        None
+      else
+        consigneeEORI.map(eori =>
+          ConsigneeDetails(
+            consigneeEORI = eori.value,
+            legalName = s"consignee-legal-name-$id",
+            establishmentAddress = EstablishmentAddress(
+              addressLine1 = s"consignee-address-line-1-$id",
+              countryCode = Country.uk.code
+            ),
+            contactDetails = consigneeContact
+          )
+        )
+
+    DisplayDeclaration {
+      DisplayResponseDetail(
+        declarationId = id,
+        acceptanceDate = "2021-10-11",
+        declarantReferenceNumber = None,
+        securityReason = None,
+        btaDueDate = None,
+        procedureCode = "procedure-code",
+        btaSource = None,
+        declarantDetails = DeclarantDetails(
+          declarantEORI = declarantEORI.value,
+          legalName = s"declarant-legal-name-$id",
+          establishmentAddress = EstablishmentAddress(
+            addressLine1 = s"declarant-address-line-1-$id",
+            countryCode = Country.uk.code
+          ),
+          contactDetails = declarantContact
+        ),
+        consigneeDetails = consigneeDetails,
+        accountDetails = None,
+        bankDetails = None,
+        maskedBankDetails = None,
+        ndrcDetails = None,
+        securityDetails = if (securityDetails.isEmpty) None else Some(securityDetails)
+      )
+    }
+  }
+
+  final def buildUploadDocument(id: String) = UploadedFile(
     upscanReference = s"upscan-reference-$id",
     fileName = s"file-name-$id",
     downloadUrl = s"download-url-$id",
@@ -185,16 +252,16 @@ trait JourneyTestData {
     fileSize = Some(12345)
   )
 
-  val bigDecimalFormatter: Formatter[BigDecimal] = FormUtils
+  final val bigDecimalFormatter: Formatter[BigDecimal] = FormUtils
     .bigDecimalFormat(13, 2, "actual-amount.error.invalid")
 
-  def formatAmount(amount: BigDecimal): String =
+  final def formatAmount(amount: BigDecimal): String =
     bigDecimalFormatter
       .unbind("key", amount)
       .get("key")
       .get
 
-  def nextTaxCode(seq: Seq[TaxCode], current: TaxCode): TaxCode =
+  final def nextTaxCode(seq: Seq[TaxCode], current: TaxCode): TaxCode =
     seq(seq.indexOf(current) + 1)
 
 }

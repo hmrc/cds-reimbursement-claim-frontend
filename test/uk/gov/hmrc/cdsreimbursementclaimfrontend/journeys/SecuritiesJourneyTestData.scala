@@ -30,12 +30,13 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
 
   def tryBuildSecuritiesJourney(
     userEoriNumber: Eori,
-    mrn: MRN
+    mrn: MRN,
+    reasonForSecurity: ReasonForSecurity,
+    displayDeclaration: DisplayDeclaration
   ): Either[String, SecuritiesJourney] =
-    Right(
-      SecuritiesJourney
-        .empty(userEoriNumber)
-        .submitMovementReferenceNumber(mrn)
-    )
+    SecuritiesJourney
+      .empty(userEoriNumber)
+      .submitMovementReferenceNumber(mrn)
+      .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
 
 }
