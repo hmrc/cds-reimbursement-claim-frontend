@@ -257,6 +257,17 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "reject change of the depositIds selection with another invalid one" in {
+      forAll(completeJourneyGen) { journey =>
+        whenever(journey.getSecurityDepositIds.size > 1) {
+          val journeyResult = journey
+            .selectSecurityDepositIds(Seq("invalid-deposit-id-1", "invalid-deposit-id-2"))
+
+          journeyResult shouldBe Left("selectSecurityDepositIds.invalidSecurityDepositId")
+        }
+      }
+    }
+
     // "decline submission of a wrong display declaration" in {
     //   forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
     //     val journeyEither = emptyJourney
