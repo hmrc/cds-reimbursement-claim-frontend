@@ -41,6 +41,7 @@ import com.github.arturopala.validator.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import SecuritiesJourney.Answers
+import scala.collection.immutable.SortedMap
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -122,11 +123,18 @@ final class SecuritiesJourney private (
     }
 
   final def submitExportMovementReferenceNumberAndDeclaration(
-    mrn: MRN,
+    exportMrn: MRN,
     exportDeclaration: DEC91Response
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      ???
+      Right(
+        new SecuritiesJourney(
+          answers.copy(
+            exportMovementReferenceNumber = Some(exportMrn),
+            exportDeclaration = Some(exportDeclaration)
+          )
+        )
+      )
     }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
@@ -161,7 +169,7 @@ object SecuritiesJourney {
   def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): SecuritiesJourney =
     new SecuritiesJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
-  type SecuritiesReclaims = Map[TaxCode, Option[BigDecimal]]
+  type SecuritiesReclaims = SortedMap[TaxCode, Option[BigDecimal]]
 
   final case class Answers(
     nonce: Nonce = Nonce.random,
@@ -178,7 +186,7 @@ object SecuritiesJourney {
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     reclaimingFullAmount: Option[Boolean] = None,
-    securitiesReclaims: Option[SecuritiesReclaims] = None, // mandatory if NOT reclaimingFullAmount
+    securitiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] = None, // mandatory if NOT reclaimingFullAmount
     selectedDocumentType: Option[UploadDocumentType] = None, // ??? depending on the RfS and ....
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     reimbursementMethod: Option[SecuritiesReimbursementMethod] = None, // mandatory if guarantee is eligible
@@ -192,7 +200,7 @@ object SecuritiesJourney {
     claimantType: ClaimantType,
     claimantInformation: ClaimantInformation,
     reasonForSecurity: ReasonForSecurity,
-    securitiesReclaims: Map[TaxCode, BigDecimal],
+    securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
     reimbursementMethod: SecuritiesReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
@@ -204,10 +212,13 @@ object SecuritiesJourney {
     Validator.never
 
   object Answers {
-    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
-      MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
+    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, Option[BigDecimal]]] =
+      MapFormat.formatSortedWithOptionalValue[TaxCode, BigDecimal]
 
-    implicit lazy val mapFormat2: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
+    implicit lazy val mapFormat2: Format[SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]]] =
+      MapFormat.formatSorted[String, SortedMap[TaxCode, Option[BigDecimal]]]
+
+    implicit lazy val mapFormat3: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
       MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
 
     implicit val amountFormat: Format[BigDecimal] =
@@ -219,8 +230,11 @@ object SecuritiesJourney {
 
   object Output {
 
-    implicit lazy val mapFormat1: Format[Map[TaxCode, BigDecimal]] =
-      MapFormat.format[TaxCode, BigDecimal]
+    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, BigDecimal]] =
+      MapFormat.formatSorted[TaxCode, BigDecimal]
+
+    implicit lazy val mapFormat2: Format[SortedMap[String, SortedMap[TaxCode, BigDecimal]]] =
+      MapFormat.formatSorted[String, SortedMap[TaxCode, BigDecimal]]
 
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())

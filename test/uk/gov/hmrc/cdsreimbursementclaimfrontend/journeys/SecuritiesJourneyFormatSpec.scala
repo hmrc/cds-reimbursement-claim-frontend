@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 import SecuritiesJourneyGenerators._
+import scala.collection.immutable.SortedMap
 
 class SecuritiesJourneyFormatSpec extends AnyWordSpec with JsonFormatTest with Matchers with ScalaCheckPropertyChecks {
 
@@ -39,16 +40,20 @@ class SecuritiesJourneyFormatSpec extends AnyWordSpec with JsonFormatTest with M
         Answers(userEoriNumber = exampleEori, movementReferenceNumber = Some(MRN("19GB03I52858027001")))
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, securitiesReclaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")))))
+        Answers(
+          userEoriNumber = exampleEori,
+          securitiesReclaims = Some(SortedMap("ABC123" -> SortedMap(TaxCode.A00 -> Some(BigDecimal("12.99")))))
+        )
       )
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          securitiesReclaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
+          securitiesReclaims =
+            Some(SortedMap("ABC123" -> SortedMap(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None)))
         )
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, securitiesReclaims = Some(Map()))
+        Answers(userEoriNumber = exampleEori, securitiesReclaims = Some(SortedMap()))
       )
 
       validateCanReadAndWriteJson(

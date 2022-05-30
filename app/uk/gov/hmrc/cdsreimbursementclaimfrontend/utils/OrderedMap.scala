@@ -20,6 +20,7 @@ import scala.collection.mutable.LinkedHashMap
 import scala.collection.immutable.MapLike
 import scala.collection.immutable.AbstractMap
 
+/** A map keeping items in the order they were first appended, like mutable LinkedHashMap. */
 @SuppressWarnings(Array("org.wartremover.warts.Any", "org.wartremover.warts.AsInstanceOf"))
 class OrderedMap[A, B](private val underlying: LinkedHashMap[A, Any])
     extends AbstractMap[A, B]
