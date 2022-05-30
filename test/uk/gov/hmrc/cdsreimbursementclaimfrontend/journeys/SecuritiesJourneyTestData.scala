@@ -32,11 +32,13 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     userEoriNumber: Eori,
     mrn: MRN,
     reasonForSecurity: ReasonForSecurity,
-    displayDeclaration: DisplayDeclaration
+    displayDeclaration: DisplayDeclaration,
+    selectedSecurityDepositIds: Seq[String]
   ): Either[String, SecuritiesJourney] =
     SecuritiesJourney
       .empty(userEoriNumber)
       .submitMovementReferenceNumber(mrn)
       .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
+      .flatMap(_.selectSecurityDepositIds(selectedSecurityDepositIds))
 
 }

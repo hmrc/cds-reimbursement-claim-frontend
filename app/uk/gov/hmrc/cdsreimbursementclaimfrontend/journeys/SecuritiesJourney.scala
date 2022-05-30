@@ -49,11 +49,16 @@ final class SecuritiesJourney private (
     with CommonJourneyProperties
     with FluentSyntax[SecuritiesJourney] {
 
-  override def getLeadMovementReferenceNumber: Option[MRN] =
+  final override def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
 
-  override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
+  final override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
+
+  final def getSecurityDepositIds: Seq[String] =
+    getLeadDisplayDeclaration
+      .flatMap(_.getSecurityDepositIds)
+      .getOrElse(Seq.empty)
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
@@ -99,6 +104,21 @@ final class SecuritiesJourney private (
             )
           )
         )
+    }
+
+  final def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
+    whileJourneyIsAmendable {
+      if (securityDepositIds.isEmpty)
+        Left("selectSecurityDepositIds.emptySelection")
+      else if (securityDepositIds.forall(getSecurityDepositIds.contains(_)))
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              selectedSecurityDepositIds = securityDepositIds
+            )
+          )
+        )
+      else Left("selectSecurityDepositIds.invalidSecurityDepositId")
     }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =

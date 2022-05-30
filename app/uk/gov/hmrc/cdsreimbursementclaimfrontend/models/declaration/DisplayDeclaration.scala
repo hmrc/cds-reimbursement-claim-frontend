@@ -60,6 +60,9 @@ final case class DisplayDeclaration(
   def getReasonForSecurity: Option[ReasonForSecurity] =
     displayResponseDetail.securityReason.flatMap(ReasonForSecurity.fromACC14Code)
 
+  def getSecurityDepositIds: Option[List[String]] =
+    displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
+
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
 

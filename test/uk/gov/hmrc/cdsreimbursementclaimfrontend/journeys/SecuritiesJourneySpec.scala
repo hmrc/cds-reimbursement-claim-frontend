@@ -190,6 +190,73 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "accept submission of a valid selection of depositIds" in {
+      forAll(mrnWithRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val depositIds = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
+        val journey    = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl)
+          .flatMap(_.selectSecurityDepositIds(depositIds))
+          .getOrFail
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
+        journey.answers.displayDeclaration.contains(decl)     shouldBe true
+        journey.answers.selectedSecurityDepositIds            shouldBe depositIds
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.isFinalized                                   shouldBe false
+      }
+    }
+
+    "reject submission of an empty selection of depositIds" in {
+      forAll(mrnWithRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val journeyResult = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl)
+          .flatMap(_.selectSecurityDepositIds(Seq.empty))
+
+        journeyResult shouldBe Left("selectSecurityDepositIds.emptySelection")
+      }
+    }
+
+    "reject submission of a partially invalid selection of depositIds" in {
+      forAll(mrnWithRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val depositIds    = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
+        val journeyResult = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl)
+          .flatMap(_.selectSecurityDepositIds(depositIds :+ "invalid-deposit-id"))
+
+        journeyResult shouldBe Left("selectSecurityDepositIds.invalidSecurityDepositId")
+      }
+    }
+
+    "reject submission of a completely invalid selection of depositIds" in {
+      forAll(mrnWithRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val journeyResult = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl)
+          .flatMap(_.selectSecurityDepositIds(Seq("invalid-deposit-id-1", "invalid-deposit-id-2")))
+
+        journeyResult shouldBe Left("selectSecurityDepositIds.invalidSecurityDepositId")
+      }
+    }
+
+    "accept change of the depositIds selection with another valid one" in {
+      forAll(completeJourneyGen) { journey =>
+        whenever(journey.getSecurityDepositIds.size > 1) {
+          val newDepositIds   = journey.getSecurityDepositIds.dropRight(1)
+          val modifiedJourney = journey
+            .selectSecurityDepositIds(newDepositIds)
+            .getOrFail
+          modifiedJourney.hasCompleteAnswers                 shouldBe false
+          //modifiedJourney.hasCompleteReimbursementClaims shouldBe false
+          modifiedJourney.hasCompleteSupportingEvidences     shouldBe true
+          modifiedJourney.answers.selectedSecurityDepositIds shouldBe newDepositIds
+        }
+      }
+    }
+
     // "decline submission of a wrong display declaration" in {
     //   forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
     //     val journeyEither = emptyJourney

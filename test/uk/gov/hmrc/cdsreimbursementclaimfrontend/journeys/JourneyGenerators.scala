@@ -109,7 +109,7 @@ trait JourneyGenerators extends JourneyTestData {
     for {
       declarantEORI      <- IdGen.genEori
       consigneeEORI      <- IdGen.genEori
-      numberOfSecurities <- Gen.choose(1, 3)
+      numberOfSecurities <- Gen.choose(2, 5)
       reclaimsDetails    <- Gen.listOfN(
                               numberOfSecurities,
                               Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)

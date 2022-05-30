@@ -60,6 +60,13 @@ trait JourneyTestData {
       )
   }
 
+  implicit class SeqOps[A](val seq: Seq[A]) {
+    def halfNonEmpty: Seq[A] =
+      if (seq.isEmpty) throw new Exception("Cannot shrink sequence because is empty.")
+      else if (seq.size > 1) seq.drop(seq.size / 2)
+      else seq
+  }
+
   final val exampleEori: Eori           = IdGen.genEori.sample.get
   final val anotherExampleEori: Eori    = IdGen.genEori.sample.get
   final val yetAnotherExampleEori: Eori = IdGen.genEori.sample.get
