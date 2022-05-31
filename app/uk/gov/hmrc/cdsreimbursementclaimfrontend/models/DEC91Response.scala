@@ -17,15 +17,29 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.syntax.eq._
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
 // path: queryDeclarationStatusResponse/responseDetail/retrieveDeclarationStatusResponse
 final case class DEC91Response(
   retrieveDeclarationStatusDetailsList: Seq[DEC91Response.DeclarationStatusDetails]
-)
+) {
+
+  // TODO check if this is a valid reasoning
+  def goodsHasBeenAlreadyExported: Boolean =
+    retrieveDeclarationStatusDetailsList
+      .exists(d => d.declaration.irc === "21" || d.declaration.irc === "22")
+}
 
 object DEC91Response {
+
+  def apply(irc: String): DEC91Response =
+    DEC91Response(
+      retrieveDeclarationStatusDetailsList = Seq(
+        DeclarationStatusDetails(declaration = Declaration(irc))
+      )
+    )
 
   final case class DeclarationStatusDetails(declaration: Declaration)
 

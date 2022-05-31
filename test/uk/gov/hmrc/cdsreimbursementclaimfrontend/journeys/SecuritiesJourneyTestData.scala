@@ -33,12 +33,16 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     mrn: MRN,
     reasonForSecurity: ReasonForSecurity,
     displayDeclaration: DisplayDeclaration,
-    selectedSecurityDepositIds: Seq[String]
+    selectedSecurityDepositIds: Seq[String],
+    exportMrnAndDeclaration: Option[(MRN, DEC91Response)]
   ): Either[String, SecuritiesJourney] =
     SecuritiesJourney
       .empty(userEoriNumber)
       .submitMovementReferenceNumber(mrn)
       .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
       .flatMap(_.selectSecurityDepositIds(selectedSecurityDepositIds))
+      .tryWhenDefined(exportMrnAndDeclaration)(journey => { case (exportMrn, dec91) =>
+        journey.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91)
+      })
 
 }

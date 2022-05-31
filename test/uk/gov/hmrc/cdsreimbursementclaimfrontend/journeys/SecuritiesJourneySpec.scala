@@ -127,7 +127,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    "accept submission of a new RfS and declaration when matches the MRN" in {
+    "accept submission of a new RfS and declaration if matching the MRN" in {
       forAll(mrnWithRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val journey = emptyJourney
           .submitMovementReferenceNumber(mrn)
@@ -139,10 +139,12 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe true
         journey.isFinalized                                   shouldBe false
+        journey.requiresExportDeclaration                     shouldBe ReasonForSecurity.requiresExportDeclaration(rfs)
+        journey.canContinueTheClaimWithChoosenRfS             shouldBe !ReasonForSecurity.requiresExportDeclaration(rfs)
       }
     }
 
-    "accept submission of an existing RfS and declaration" in {
+    "accept change of an existing RfS and declaration" in {
       forAll(completeJourneyGen) { case journey =>
         val rfs             = journey.answers.reasonForSecurity.get
         val decl            = journey.answers.displayDeclaration.get
@@ -187,6 +189,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         //journey.hasCompleteReimbursementClaims                shouldBe false
         modifiedJourney.hasCompleteSupportingEvidences                   shouldBe true
         modifiedJourney.isFinalized                                      shouldBe false
+        modifiedJourney.requiresExportDeclaration                        shouldBe ReasonForSecurity.requiresExportDeclaration(rfs)
       }
     }
 
@@ -265,6 +268,41 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
           journeyResult shouldBe Left("selectSecurityDepositIds.invalidSecurityDepositId")
         }
+      }
+    }
+
+    "accept submission of a valid export MRN and export declaration for a suitable reason for security" in {
+      forAll(
+        genMRN,
+        Gen.oneOf(ReasonForSecurity.requiresExportDeclaration),
+        securitiesDisplayDeclarationGen,
+        exportMrnWithDec91Gen
+      ) { case (mrn, rfs, decl, (exportMrn, dec91)) =>
+        val journey = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
+          .flatMap(_.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91))
+          .getOrFail
+
+        journey.answers.exportMovementReferenceNumber shouldBe Some(exportMrn)
+        journey.answers.exportDeclaration             shouldBe Some(dec91)
+        journey.canContinueTheClaimWithChoosenRfS     shouldBe dec91.goodsHasBeenAlreadyExported
+      }
+    }
+
+    "reject submission of a valid export MRN and export declaration for a non-suitable reason for security" in {
+      forAll(
+        genMRN,
+        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration),
+        securitiesDisplayDeclarationGen,
+        exportMrnWithDec91Gen
+      ) { case (mrn, rfs, decl, (exportMrn, dec91)) =>
+        val journeyResult = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
+          .flatMap(_.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91))
+
+        journeyResult shouldBe Left("submitExportMovementReferenceNumberAndDeclaration.invalidReasonForSecurity")
       }
     }
 

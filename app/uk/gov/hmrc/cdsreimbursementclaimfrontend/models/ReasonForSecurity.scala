@@ -24,20 +24,20 @@ sealed class ReasonForSecurity(val acc14Code: String)
 object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
 
   case object AccountSales extends ReasonForSecurity("ACS")
-  case object CommunitySystemsOfDutyRelief extends ReasonForSecurity("CSD")
-  case object EndUseRelief extends ReasonForSecurity("ENU")
+  case object CommunitySystemsOfDutyRelief extends ReasonForSecurity("MDC") // Missing Document CSDR
+  case object EndUseRelief extends ReasonForSecurity("ENU") // End-use (Authorisation by Declaration)
   case object InwardProcessingRelief extends ReasonForSecurity("IPR")
   case object ManualOverrideDeposit extends ReasonForSecurity("MOD")
-  case object MissingLicenseQuota extends ReasonForSecurity("MLQ") // FIXME
-  case object MissingPreferenceCertificate extends ReasonForSecurity("MPC")
+  case object MissingLicenseQuota extends ReasonForSecurity("MDL") // Missing Document License Quota
+  case object MissingPreferenceCertificate extends ReasonForSecurity("MDP") // Missing Document Preference
   case object OutwardProcessingRelief extends ReasonForSecurity("OPR")
   case object RevenueDispute extends ReasonForSecurity("RED")
   case object TemporaryAdmission2Y extends ReasonForSecurity("TA24") // (2 years Expiration)
   case object TemporaryAdmission6M extends ReasonForSecurity("TA6") // (6 months Expiration)
   case object TemporaryAdmission3M extends ReasonForSecurity("TA3") // (3 months Expiration)
   case object TemporaryAdmission2M extends ReasonForSecurity("TA2") // (2 months Expiration)
-  case object UKAPEntryPrice extends ReasonForSecurity("UEP") // FIXME
-  case object UKAPSafeguardDuties extends ReasonForSecurity("USD") // FIXME
+  case object UKAPEntryPrice extends ReasonForSecurity("CEP") // CAP Entry Price
+  case object UKAPSafeguardDuties extends ReasonForSecurity("CSD") // CAP Safeguard Duties
 
   override val values: Set[ReasonForSecurity] =
     Set(
@@ -64,7 +64,9 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       TemporaryAdmission2Y,
       TemporaryAdmission6M,
       TemporaryAdmission3M,
-      TemporaryAdmission2M
+      TemporaryAdmission2M,
+      InwardProcessingRelief,
+      OutwardProcessingRelief
     )
 
   private[models] val basisOfSecuritiesStringMap: Map[String, ReasonForSecurity] =

@@ -83,8 +83,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     // reimbursementMethod: Option[ReimbursementMethodAnswer] = None
   ): Gen[Either[String, SecuritiesJourney]] =
     for {
-      userEoriNumber   <- IdGen.genEori
-      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGen
+      userEoriNumber          <- IdGen.genEori
+      (mrn, rfs, decl)        <- mrnWithRfsWithDisplayDeclarationGen
+      exportMrnAndDeclaration <- exportMrnWithDec91Gen
       // declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // numberOfTaxCodes            <- Gen.choose(1, 5)
@@ -139,7 +140,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         mrn,
         rfs,
         decl,
-        depositIds
+        depositIds,
+        if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration) else None
         // displayDeclaration,
         // basisOfClaim,
         // "rejected goods details",

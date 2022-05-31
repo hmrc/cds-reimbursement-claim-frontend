@@ -42,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import SecuritiesJourney.Answers
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -60,6 +61,18 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
+
+  final def requiresExportDeclaration: Boolean =
+    ReasonForSecurity.requiresExportDeclaration
+      .exists(answers.reasonForSecurity.contains(_))
+
+  final def goodsHasBeenAlreadyExported: Boolean =
+    answers.exportDeclaration.exists(_.goodsHasBeenAlreadyExported)
+
+  // Checks if the user can continue the claim for the choosen reason for security
+  final def canContinueTheClaimWithChoosenRfS: Boolean =
+    answers.reasonForSecurity.isDefined &&
+      (!requiresExportDeclaration || goodsHasBeenAlreadyExported)
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
@@ -127,15 +140,26 @@ final class SecuritiesJourney private (
     exportDeclaration: DEC91Response
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      Right(
-        new SecuritiesJourney(
-          answers.copy(
-            exportMovementReferenceNumber = Some(exportMrn),
-            exportDeclaration = Some(exportDeclaration)
+      if (requiresExportDeclaration)
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              exportMovementReferenceNumber = Some(exportMrn),
+              exportDeclaration = Some(exportDeclaration)
+            )
           )
         )
-      )
+      else
+        Left("submitExportMovementReferenceNumberAndDeclaration.invalidReasonForSecurity")
     }
+
+  final def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
+    securityDepositId: String,
+    taxCodes: Seq[TaxCode]
+  ): Either[String, SecuritiesJourney] = whileClaimIsAmendable {
+    if (canContinueTheClaimWithChoosenRfS) ???
+    else Left("cannotContinueClaimBecauseOfRfS")
+  }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
@@ -163,7 +187,7 @@ final class SecuritiesJourney private (
 
 }
 
-object SecuritiesJourney {
+object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
 
   /** A starting point to build new instance of the journey. */
   def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): SecuritiesJourney =

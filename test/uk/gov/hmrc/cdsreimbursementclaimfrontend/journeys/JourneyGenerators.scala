@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DEC91Response
 
 trait JourneyGenerators extends JourneyTestData {
 
@@ -59,6 +60,13 @@ trait JourneyGenerators extends JourneyTestData {
                    .withReasonForSecurity(rfs)
                )
     } yield (mrn, rfs, acc14)
+
+  final lazy val exportMrnWithDec91Gen: Gen[(MRN, DEC91Response)] =
+    for {
+      mrn    <- IdGen.genMRN
+      status <- Gen.oneOf("21", "22", "23")
+      dec91  <- dec91ResponseGen(status)
+    } yield (mrn, dec91)
 
   final val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = true)
@@ -120,5 +128,8 @@ trait JourneyGenerators extends JourneyTestData {
       reclaimsDetails = reclaimsDetails,
       guaranteeEligible = guaranteeEligible
     )
+
+  final def dec91ResponseGen(status: String): Gen[DEC91Response] =
+    Gen.const(DEC91Response(status))
 
 }
