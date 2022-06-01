@@ -566,7 +566,7 @@ final class RejectedGoodsMultipleJourney private (
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def toOutput: Either[List[String], RejectedGoodsMultipleJourney.Output] =
-    validate(this).toEither
+    validate(this)
       .flatMap(_ =>
         (for {
           movementReferenceNumbers <- answers.movementReferenceNumbers

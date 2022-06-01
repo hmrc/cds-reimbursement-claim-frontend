@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import com.github.arturopala.validator.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
-import SecuritiesJourney.Answers
 import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 
@@ -50,6 +49,9 @@ final class SecuritiesJourney private (
 ) extends Claim[SecuritiesJourney]
     with CommonJourneyProperties
     with FluentSyntax[SecuritiesJourney] {
+
+  import SecuritiesJourney.Answers
+  import SecuritiesJourney.Checks._
 
   final override def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
@@ -68,11 +70,6 @@ final class SecuritiesJourney private (
 
   final def goodsHasBeenAlreadyExported: Boolean =
     answers.exportDeclaration.exists(_.goodsHasBeenAlreadyExported)
-
-  // Checks if the user can continue the claim for the choosen reason for security
-  final def canContinueTheClaimWithChoosenRfS: Boolean =
-    answers.reasonForSecurity.isDefined &&
-      (!requiresExportDeclaration || goodsHasBeenAlreadyExported)
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
@@ -120,8 +117,39 @@ final class SecuritiesJourney private (
         )
     }
 
-  final def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
+  final def submitClaimDuplicateCheckStatus(
+    similarClaimExistAlreadyInCDFPay: Boolean
+  ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
+      Right(
+        new SecuritiesJourney(
+          answers.copy(
+            similarClaimExistAlreadyInCDFPay = Some(similarClaimExistAlreadyInCDFPay)
+          )
+        )
+      )
+    }
+
+  final def submitExportMovementReferenceNumberAndDeclaration(
+    exportMrn: MRN,
+    exportDeclaration: DEC91Response
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(thereIsNoSimilarClaimInCDFPay) {
+      if (requiresExportDeclaration)
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              exportMovementReferenceNumber = Some(exportMrn),
+              exportDeclaration = Some(exportDeclaration)
+            )
+          )
+        )
+      else
+        Left("submitExportMovementReferenceNumberAndDeclaration.exportDeclarationNotRequired")
+    }
+
+  final def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       if (securityDepositIds.isEmpty)
         Left("selectSecurityDepositIds.emptySelection")
       else if (securityDepositIds.forall(getSecurityDepositIds.contains(_)))
@@ -135,35 +163,17 @@ final class SecuritiesJourney private (
       else Left("selectSecurityDepositIds.invalidSecurityDepositId")
     }
 
-  final def submitExportMovementReferenceNumberAndDeclaration(
-    exportMrn: MRN,
-    exportDeclaration: DEC91Response
-  ): Either[String, SecuritiesJourney] =
-    whileClaimIsAmendable {
-      if (requiresExportDeclaration)
-        Right(
-          new SecuritiesJourney(
-            answers.copy(
-              exportMovementReferenceNumber = Some(exportMrn),
-              exportDeclaration = Some(exportDeclaration)
-            )
-          )
-        )
-      else
-        Left("submitExportMovementReferenceNumberAndDeclaration.invalidReasonForSecurity")
-    }
-
   final def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
     securityDepositId: String,
     taxCodes: Seq[TaxCode]
-  ): Either[String, SecuritiesJourney] = whileClaimIsAmendable {
-    if (canContinueTheClaimWithChoosenRfS) ???
-    else Left("cannotContinueClaimBecauseOfRfS")
-  }
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      ???
+    }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
-    whileClaimIsAmendable {
-      validate(this).toEither
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      validate(this)
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
           _ => Right(new SecuritiesJourney(answers = this.answers, caseNumber = Some(caseNumber)))
@@ -201,6 +211,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     movementReferenceNumber: Option[MRN] = None,
     reasonForSecurity: Option[ReasonForSecurity] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
+    similarClaimExistAlreadyInCDFPay: Option[Boolean] = None, // TPI04 check flag
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     selectedSecurityDepositIds: Seq[String] = Seq.empty,
@@ -230,10 +241,59 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     supportingEvidences: Seq[EvidenceDocument]
   )
 
+  import JourneyValidationErrors._
   import com.github.arturopala.validator.Validator._
+
+  object Checks {
+
+    val hasMovementReferenceNumber: Check[SecuritiesJourney] =
+      Check(
+        journey => journey.answers.movementReferenceNumber.isDefined,
+        MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER
+      )
+
+    val hasDisplayDeclaration: Check[SecuritiesJourney] =
+      Check(
+        journey => journey.answers.displayDeclaration.isDefined,
+        MISSING_DISPLAY_DECLARATION
+      )
+
+    val hasReasonForSecurity: Check[SecuritiesJourney] =
+      Check(journey => journey.answers.reasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
+
+    val hasMRNAndDisplayDeclarationAndRfS: Check[SecuritiesJourney] =
+      hasMovementReferenceNumber &&
+        hasDisplayDeclaration &&
+        hasReasonForSecurity
+
+    val canContinueTheClaimWithChoosenRfS: Check[SecuritiesJourney] =
+      Check(
+        journey => (!journey.requiresExportDeclaration || journey.goodsHasBeenAlreadyExported),
+        CHOOSEN_REASON_FOR_SECURITY_REQUIRES_GOODS_TO_BE_ALREADY_EXPORTED
+      )
+
+    val thereIsNoSimilarClaimInCDFPay: Check[SecuritiesJourney] =
+      Check[SecuritiesJourney](
+        _.answers.similarClaimExistAlreadyInCDFPay.isDefined,
+        MISSING_CLAIM_DUPLICATE_CHECK_STATUS_WITH_TPI04
+      ) && Check[SecuritiesJourney](
+        _.answers.similarClaimExistAlreadyInCDFPay.contains(false),
+        SIMILAR_CLAIM_EXIST_ALREADY_IN_CDFPAY
+      )
+
+    val userCanProceedWithThisClaim: Check[SecuritiesJourney] =
+      hasMRNAndDisplayDeclarationAndRfS &&
+        thereIsNoSimilarClaimInCDFPay &&
+        canContinueTheClaimWithChoosenRfS
+
+  }
+
+  import Checks._
 
   implicit val validator: Validate[SecuritiesJourney] =
     Validator.never
+  // Validator
+  //   .all(hasMovementReferenceNumber, hasDisplayDeclaration, hasReasonForSecurity)
 
   object Answers {
     implicit lazy val mapFormat1: Format[SortedMap[TaxCode, Option[BigDecimal]]] =

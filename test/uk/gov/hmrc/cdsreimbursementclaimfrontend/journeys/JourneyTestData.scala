@@ -40,7 +40,7 @@ trait JourneyTestData {
       either.fold(
         error =>
           throw new Exception(
-            s"Journey construction in ${pos.fileName}:${pos.lineNumber} has failed because of $error"
+            s"Journey construction has failed because of $error at ${pos.fileName}:${pos.lineNumber}"
           ),
         identity
       )

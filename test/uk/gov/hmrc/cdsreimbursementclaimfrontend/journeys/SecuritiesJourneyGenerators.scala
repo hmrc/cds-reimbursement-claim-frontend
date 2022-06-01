@@ -85,7 +85,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     for {
       userEoriNumber          <- IdGen.genEori
       (mrn, rfs, decl)        <- mrnWithRfsWithDisplayDeclarationGen
-      exportMrnAndDeclaration <- exportMrnWithDec91Gen
+      exportMrnAndDeclaration <- exportMrnWithDec91TrueGen
       // declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // numberOfTaxCodes            <- Gen.choose(1, 5)
@@ -136,12 +136,14 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
 
       // val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
       tryBuildSecuritiesJourney(
-        userEoriNumber,
-        mrn,
-        rfs,
-        decl,
-        depositIds,
-        if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration) else None
+        userEoriNumber = userEoriNumber,
+        mrn = mrn,
+        reasonForSecurity = rfs,
+        displayDeclaration = decl,
+        similarClaimExistAlreadyInCDFPay = false,
+        selectedSecurityDepositIds = depositIds,
+        exportMrnAndDeclaration =
+          if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration) else None
         // displayDeclaration,
         // basisOfClaim,
         // "rejected goods details",

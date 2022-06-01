@@ -61,10 +61,21 @@ trait JourneyGenerators extends JourneyTestData {
                )
     } yield (mrn, rfs, acc14)
 
-  final lazy val exportMrnWithDec91Gen: Gen[(MRN, DEC91Response)] =
+  final lazy val mrnWithNonExportRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
+  final lazy val exportMrnWithDec91TrueGen: Gen[(MRN, DEC91Response)] =
     for {
       mrn    <- IdGen.genMRN
-      status <- Gen.oneOf("21", "22", "23")
+      status <- Gen.oneOf("21", "22")
       dec91  <- dec91ResponseGen(status)
     } yield (mrn, dec91)
 

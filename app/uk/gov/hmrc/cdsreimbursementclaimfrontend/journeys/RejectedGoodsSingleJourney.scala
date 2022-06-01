@@ -401,7 +401,7 @@ final class RejectedGoodsSingleJourney private (
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
-      validate(this).toEither
+      validate(this)
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
           _ => Right(new RejectedGoodsSingleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
@@ -421,7 +421,7 @@ final class RejectedGoodsSingleJourney private (
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def toOutput: Either[List[String], RejectedGoodsSingleJourney.Output] =
-    validate(this).toEither
+    validate(this)
       .flatMap(_ =>
         (for {
           mrn                    <- getLeadMovementReferenceNumber

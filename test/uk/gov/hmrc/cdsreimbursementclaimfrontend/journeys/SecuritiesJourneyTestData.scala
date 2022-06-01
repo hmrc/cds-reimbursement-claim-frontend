@@ -33,6 +33,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     mrn: MRN,
     reasonForSecurity: ReasonForSecurity,
     displayDeclaration: DisplayDeclaration,
+    similarClaimExistAlreadyInCDFPay: Boolean,
     selectedSecurityDepositIds: Seq[String],
     exportMrnAndDeclaration: Option[(MRN, DEC91Response)]
   ): Either[String, SecuritiesJourney] =
@@ -40,9 +41,10 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .empty(userEoriNumber)
       .submitMovementReferenceNumber(mrn)
       .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
-      .flatMap(_.selectSecurityDepositIds(selectedSecurityDepositIds))
+      .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay))
       .tryWhenDefined(exportMrnAndDeclaration)(journey => { case (exportMrn, dec91) =>
         journey.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91)
       })
+      .flatMap(_.selectSecurityDepositIds(selectedSecurityDepositIds))
 
 }
