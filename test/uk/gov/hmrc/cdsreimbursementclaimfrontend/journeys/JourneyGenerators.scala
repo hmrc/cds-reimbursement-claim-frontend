@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DEC91Response
+import scala.collection.JavaConverters._
 
 trait JourneyGenerators extends JourneyTestData {
 
@@ -71,6 +72,13 @@ trait JourneyGenerators extends JourneyTestData {
                    .withReasonForSecurity(rfs)
                )
     } yield (mrn, rfs, acc14)
+
+  final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    for {
+      (mrn, rfs, decl) <- mrnWithNonExportRfsWithDisplayDeclarationGen
+      reclaims         <- validSecurityReclaimsGen(decl)
+    } yield (mrn, rfs, decl, reclaims)
 
   final lazy val exportMrnWithDec91TrueGen: Gen[(MRN, DEC91Response)] =
     for {
@@ -142,5 +150,29 @@ trait JourneyGenerators extends JourneyTestData {
 
   final def dec91ResponseGen(status: String): Gen[DEC91Response] =
     Gen.const(DEC91Response(status))
+
+  final def validSecurityReclaimsGen(
+    decl: DisplayDeclaration
+  ): Gen[Seq[(String, TaxCode, BigDecimal)]] = {
+    val depositIds = decl.getSecurityDepositIds
+      .getOrElse(Seq.empty)
+      .halfNonEmpty
+    Gen
+      .sequence(
+        depositIds.flatMap(depositId =>
+          decl
+            .getSecurityDetailsBySecurityDepositId(depositId)
+            .map(sd =>
+              sd.taxDetails.map(td =>
+                Gen
+                  .choose(BigDecimal.exact("0.01"), BigDecimal(td.amount))
+                  .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
+              )
+            )
+            .getOrElse(Seq.empty)
+        )
+      )
+      .map(_.asScala.toSeq)
+  }
 
 }

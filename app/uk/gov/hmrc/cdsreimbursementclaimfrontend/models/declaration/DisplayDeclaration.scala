@@ -63,6 +63,18 @@ final case class DisplayDeclaration(
   def getSecurityDepositIds: Option[List[String]] =
     displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
+  def getSecurityTaxCodesFor(securityDepositId: String): List[TaxCode] =
+    getSecurityDetailsBySecurityDepositId(securityDepositId)
+      .map(
+        _.taxDetails.map(_.taxType).map(TaxCodes.findUnsafe(_))
+      )
+      .getOrElse(Nil)
+
+  def getSecurityDetailsBySecurityDepositId(securityDepositId: String): Option[SecurityDetails] =
+    displayResponseDetail.securityDetails
+      .getOrElse(Nil)
+      .find(_.securityDepositId === securityDepositId)
+
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
 

@@ -34,7 +34,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     reasonForSecurity: ReasonForSecurity,
     displayDeclaration: DisplayDeclaration,
     similarClaimExistAlreadyInCDFPay: Boolean,
-    selectedSecurityDepositIds: Seq[String],
+    reclaims: Seq[(String, TaxCode, BigDecimal)],
     exportMrnAndDeclaration: Option[(MRN, DEC91Response)]
   ): Either[String, SecuritiesJourney] =
     SecuritiesJourney
@@ -45,6 +45,18 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .tryWhenDefined(exportMrnAndDeclaration)(journey => { case (exportMrn, dec91) =>
         journey.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91)
       })
-      .flatMap(_.selectSecurityDepositIds(selectedSecurityDepositIds))
+      .flatMap(_.selectSecurityDepositIds(reclaims.map(_._1)))
+      .flatMapEach(
+        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
+        (journey: SecuritiesJourney) =>
+          (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+            journey
+              .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+              .flatMapEach(
+                args._2,
+                (journey: SecuritiesJourney) =>
+                  (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+              )
+      )
 
 }

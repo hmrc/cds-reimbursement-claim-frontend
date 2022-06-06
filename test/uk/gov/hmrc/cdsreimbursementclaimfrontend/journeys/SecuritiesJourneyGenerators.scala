@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import scala.collection.JavaConverters._
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
@@ -86,6 +87,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       userEoriNumber          <- IdGen.genEori
       (mrn, rfs, decl)        <- mrnWithRfsWithDisplayDeclarationGen
       exportMrnAndDeclaration <- exportMrnWithDec91TrueGen
+      reclaims                <- validSecurityReclaimsGen(decl)
       // declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       // numberOfTaxCodes            <- Gen.choose(1, 5)
@@ -111,68 +113,64 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       // bankAccountType             <- Gen.oneOf(BankAccountType.values)
       // consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       // declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
-    } yield {
-      val depositIds = decl.getSecurityDepositIds
-        .getOrElse(Seq.empty)
-        .halfNonEmpty
+    } yield
 
-      // val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]          =
-      //   taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+    // val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]          =
+    //   taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
-      // val reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)] =
-      //   taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) =>
-      //     (t, a, allDutiesCmaEligible)
-      //   }
+    // val reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)] =
+    //   taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) =>
+    //     (t, a, allDutiesCmaEligible)
+    //   }
 
-      // val displayDeclaration: DisplayDeclaration =
-      //   buildDisplayDeclaration(
-      //     mrn.value,
-      //     declarantEORI,
-      //     if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-      //     paidDuties,
-      //     if (submitConsigneeDetails) consigneeContact else None,
-      //     declarantContact
+    // val displayDeclaration: DisplayDeclaration =
+    //   buildDisplayDeclaration(
+    //     mrn.value,
+    //     declarantEORI,
+    //     if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+    //     paidDuties,
+    //     if (submitConsigneeDetails) consigneeContact else None,
+    //     declarantContact
+    //   )
+
+    // val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+    tryBuildSecuritiesJourney(
+      userEoriNumber = userEoriNumber,
+      mrn = mrn,
+      reasonForSecurity = rfs,
+      displayDeclaration = decl,
+      similarClaimExistAlreadyInCDFPay = false,
+      reclaims = reclaims,
+      exportMrnAndDeclaration =
+        if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration) else None
+      // displayDeclaration,
+      // basisOfClaim,
+      // "rejected goods details",
+      // "special circumstances details",
+      // exampleInspectionDate,
+      // exampleInspectionAddress,
+      // methodOfDisposal,
+      // reimbursementClaims,
+      // supportingEvidences,
+      // if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
+      // declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+      // consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+      // contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+      // contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+      // bankAccountDetails =
+      //   if (
+      //     submitBankAccountDetails &&
+      //     (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
       //   )
-
-      // val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
-      tryBuildSecuritiesJourney(
-        userEoriNumber = userEoriNumber,
-        mrn = mrn,
-        reasonForSecurity = rfs,
-        displayDeclaration = decl,
-        similarClaimExistAlreadyInCDFPay = false,
-        selectedSecurityDepositIds = depositIds,
-        exportMrnAndDeclaration =
-          if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration) else None
-        // displayDeclaration,
-        // basisOfClaim,
-        // "rejected goods details",
-        // "special circumstances details",
-        // exampleInspectionDate,
-        // exampleInspectionAddress,
-        // methodOfDisposal,
-        // reimbursementClaims,
-        // supportingEvidences,
-        // if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-        // declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
-        // consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-        // contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-        // contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        // bankAccountDetails =
-        //   if (
-        //     submitBankAccountDetails &&
-        //     (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
-        //   )
-        //     Some(exampleBankAccountDetails)
-        //   else None,
-        // bankAccountType =
-        //   if (
-        //     submitBankAccountType &&
-        //     (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
-        //   )
-        //     Some(bankAccountType)
-        //   else None
-      )
-    }
+      //     Some(exampleBankAccountDetails)
+      //   else None,
+      // bankAccountType =
+      //   if (
+      //     submitBankAccountType &&
+      //     (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
+      //   )
+      //     Some(bankAccountType)
+      //   else None
+    )
 
 }
