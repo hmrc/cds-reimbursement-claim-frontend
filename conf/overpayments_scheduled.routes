@@ -59,3 +59,5 @@ POST        /scheduled/bank-account-type                                        
 
 GET         /scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.show
 POST        /scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.submit
+
+GET         /scheduled/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ProblemWithAddressController.show

@@ -59,3 +59,5 @@ POST        /multiple/bank-account-type                                        @
 
 GET         /multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.show
 POST        /multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.submit
+
+GET         /multiple/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ProblemWithAddressController.show

@@ -218,4 +218,12 @@ object OverpaymentsRoutes {
     }
 
   }
+
+  object ProblemWithAddressController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.ProblemWithAddressController.show
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.ProblemWithAddressController.show
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.ProblemWithAddressController.show
+    }
+  }
 }

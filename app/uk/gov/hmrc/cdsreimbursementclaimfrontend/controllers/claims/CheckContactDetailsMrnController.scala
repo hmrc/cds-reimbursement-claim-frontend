@@ -156,7 +156,7 @@ class CheckContactDetailsMrnController @Inject() (
                   if message.contains("/address/postcode: error.path.missing") ||
                     message.contains("/address/lines: error.minLength") =>
                 logger warn s"Error updating Address Lookup address: $e"
-                Redirect(routes.ProblemWithAddressController.problem(journey))
+                Redirect(OverpaymentsRoutes.ProblemWithAddressController.show(journey))
               case e: Error =>
                 logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(e)
             },
