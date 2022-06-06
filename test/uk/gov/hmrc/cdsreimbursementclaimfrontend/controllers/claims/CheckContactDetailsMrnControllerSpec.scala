@@ -31,8 +31,8 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
@@ -61,7 +61,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import java.net.URL
 import java.util.UUID
 import scala.collection.JavaConverters._
@@ -69,7 +71,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CheckContactDetailsMrnControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with AddressLookupSupport
@@ -336,10 +338,14 @@ class CheckContactDetailsMrnControllerSpec
       def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID]): Future[Result] =
         controller.retrieveAddressFromALF(journey, maybeAddressId)(FakeRequest())
 
-      "user chooses an address without a post code" in {
-        val id            = sample[UUID]
+      def problemPage(journey: JourneyBindable) = journey match {
+        case JourneyBindable.Single    => overpaymentsSingleRoutes.ProblemWithAddressController.show
+        case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.ProblemWithAddressController.show
+        case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.ProblemWithAddressController.show
+      }
+
+      "user chooses an address without a post code" in forAll { (id: UUID, journey: JourneyBindable) =>
         val acc14         = genAcc14WithAddresses
-        val journey       = sample[JourneyBindable]
         val (session, _)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(toTypeOfClaim(journey))
@@ -354,13 +360,11 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           updateAddress(journey, Some(id)),
-          routes.ProblemWithAddressController.problem(journey)
+          problemPage(journey)
         )
       }
 
-      "user chooses an address without an address line 1" in {
-        val journey       = sample[JourneyBindable]
-        val id            = sample[UUID]
+      "user chooses an address without an address line 1" in forAll { (id: UUID, journey: JourneyBindable) =>
         val acc14         = genAcc14WithAddresses
         val (session, _)  = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -376,7 +380,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           updateAddress(journey, Some(id)),
-          routes.ProblemWithAddressController.problem(journey)
+          problemPage(journey)
         )
       }
     }
