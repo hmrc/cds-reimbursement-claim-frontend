@@ -113,28 +113,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       // bankAccountType             <- Gen.oneOf(BankAccountType.values)
       // consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       // declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
-    } yield
-
-    // val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]          =
-    //   taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
-
-    // val reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)] =
-    //   taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) =>
-    //     (t, a, allDutiesCmaEligible)
-    //   }
-
-    // val displayDeclaration: DisplayDeclaration =
-    //   buildDisplayDeclaration(
-    //     mrn.value,
-    //     declarantEORI,
-    //     if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-    //     paidDuties,
-    //     if (submitConsigneeDetails) consigneeContact else None,
-    //     declarantContact
-    //   )
-
-    // val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
-    tryBuildSecuritiesJourney(
+    } yield tryBuildSecuritiesJourney(
       userEoriNumber = userEoriNumber,
       mrn = mrn,
       reasonForSecurity = rfs,

@@ -31,8 +31,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import RejectedGoodsMultipleJourneyGenerators._
 import JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import org.scalacheck.ShrinkLowPriority
 
-class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class RejectedGoodsMultipleJourneySpec
+    extends AnyWordSpec
+    with ScalaCheckPropertyChecks
+    with Matchers
+    with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)
@@ -154,7 +159,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) =
         journey.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
 
-      forAll(Gen.listOfN(11, mrnWithDisplayDeclarationGen)) { data =>
+      forAll(listOfExactlyN(11, mrnWithDisplayDeclarationGen)) { data =>
         val dataWithIndex = data.zipWithIndex
         val journey       = emptyJourney
           .flatMapEach(dataWithIndex, submitData)

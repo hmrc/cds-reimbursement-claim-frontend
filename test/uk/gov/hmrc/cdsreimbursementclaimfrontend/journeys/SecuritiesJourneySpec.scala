@@ -35,8 +35,10 @@ import JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import scala.collection.immutable.SortedMap
+import org.scalacheck.Shrink
+import org.scalacheck.ShrinkLowPriority
 
-class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)
@@ -63,32 +65,28 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       emptyJourney.isFinalized                        shouldBe false
     }
 
-    // "check completeness and produce the correct output" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     SecuritiesJourney.validator.apply(journey) shouldBe Validated.Valid(())
-    //     journey.answers.checkYourAnswersChangeMode shouldBe true
-    //     //journey.hasCompleteReimbursementClaims     shouldBe true
-    //     //journey.hasCompleteSupportingEvidences     shouldBe true
-    //     journey.hasCompleteAnswers                 shouldBe true
-    //     journey.isFinalized                        shouldBe false
+    "check completeness and produce the correct output" in {
+      forAll(completeJourneyGen) { journey =>
+        journey.answers.securitiesReclaims.isDefined shouldBe true
+        journey.hasCompleteSecuritiesReclaims        shouldBe true
 
-    //     val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
+      // val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
 
-    //     output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
-    //     // output.claimantType             shouldBe journey.getClaimantType
-    //     // output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
-    //     // output.methodOfDisposal         shouldBe journey.answers.methodOfDisposal.get
-    //     // output.detailsOfRejectedGoods   shouldBe journey.answers.detailsOfRejectedGoods.get
-    //     // output.inspectionDate           shouldBe journey.answers.inspectionDate.get
-    //     // output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
-    //     // output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
-    //     //   .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
-    //     // output.reimbursementClaims      shouldBe journey.getReimbursementClaims
-    //     output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
-    //     output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
-    //     output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
-    //   }
-    // }
+      // output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
+      // // output.claimantType             shouldBe journey.getClaimantType
+      // // output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
+      // // output.methodOfDisposal         shouldBe journey.answers.methodOfDisposal.get
+      // // output.detailsOfRejectedGoods   shouldBe journey.answers.detailsOfRejectedGoods.get
+      // // output.inspectionDate           shouldBe journey.answers.inspectionDate.get
+      // // output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
+      // // output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
+      // //   .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
+      // // output.reimbursementClaims      shouldBe journey.getReimbursementClaims
+      // output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
+      // output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
+      // output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
+      }
+    }
 
     // "finalize journey with caseNumber" in {
     //   forAll(completeJourneyGen) { journey =>
@@ -221,7 +219,6 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.exportMovementReferenceNumber shouldBe Some(exportMrn)
         journey.answers.exportDeclaration             shouldBe Some(dec91)
         journey.hasCompleteSecuritiesReclaims         shouldBe false
-      //journey.canContinueTheClaimWithChoosenRfS     shouldBe dec91.goodsHasBeenAlreadyExported
       }
     }
 
@@ -302,10 +299,13 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "accept change of the depositIds selection with another valid one" in {
       forAll(completeJourneyGen) { journey =>
         whenever(journey.getSecurityDepositIds.size > 1) {
-          val newDepositIds   = journey.getSecurityDepositIds.dropRight(1)
+          val newDepositIds = journey.getSecurityDepositIds
+            .takeExceptIn(journey.answers.selectedSecurityDepositIds)
+
           val modifiedJourney = journey
             .selectSecurityDepositIds(newDepositIds)
             .getOrFail
+
           modifiedJourney.hasCompleteAnswers                 shouldBe false
           modifiedJourney.hasCompleteSecuritiesReclaims      shouldBe false
           modifiedJourney.hasCompleteSupportingEvidences     shouldBe true
@@ -327,20 +327,27 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
     "accept submission of the valid selection of the taxCodes for a known securityDepositId" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-        val depositIds = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
-        val journey    = emptyJourney
-          .submitMovementReferenceNumber(mrn)
-          .submitReasonForSecurityAndDeclaration(rfs, decl)
-          .flatMap(_.submitClaimDuplicateCheckStatus(false))
-          .flatMap(_.selectSecurityDepositIds(depositIds))
-          .flatMapEach(
-            reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
-            (journey: SecuritiesJourney) =>
-              (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-                journey
-                  .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
-          )
-          .getOrFail
+        val depositIds: Seq[String] = reclaims.map(_._1)
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+            )
+            .getOrFail
 
         val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
           SortedMap(
@@ -361,8 +368,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
     "reject submission of the valid selection of the taxCodes for a bogus securityDepositId" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-        val depositIds    = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
-        val journeyResult = emptyJourney
+        val depositIds: Seq[String] = reclaims.map(_._1)
+        val journeyResult           = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -401,8 +408,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
     "reject submission of an empty selection of the taxCodes for a valid securityDepositId" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-        val depositIds    = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
-        val journeyResult = emptyJourney
+        val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
+        val journeyResult           = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -415,7 +422,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
     "reject submission of an invalid selection of the taxCodes for a valid securityDepositId" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-        val depositIds              = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
+        val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val invalidTaxCodeSelection = TaxCodes.allExcept(decl.getSecurityTaxCodesFor(depositIds.head).toSet).headSeq
         val journeyResult           = emptyJourney
           .submitMovementReferenceNumber(mrn)
@@ -476,6 +483,87 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId("bogus", validTaxCodeSelection)
 
         journeyResult shouldBe Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
+      }
+    }
+
+    "accept submission of the valid reclaim amount for any valid securityDepositId and taxCode" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        val depositIds: Seq[String] = reclaims.map(_._1)
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                    .flatMapEach(
+                      args._2,
+                      (journey: SecuritiesJourney) =>
+                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                    )
+            )
+            .getOrFail
+
+        val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
+          SortedMap(
+            reclaims
+              .groupBy(_._1)
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, amount) => (tc, Some(amount)) }: _*))
+              .toSeq: _*
+          )
+
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
+        journey.answers.displayDeclaration.contains(decl)     shouldBe true
+        journey.answers.selectedSecurityDepositIds            shouldBe depositIds
+        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSecuritiesReclaims                 shouldBe true
+        journey.isFinalized                                   shouldBe false
+      }
+    }
+
+    "reject submission of an invalid reclaim amount for any valid securityDepositId and taxCode" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        val depositIds: Seq[String] = reclaims.map(_._1)
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => (tc, BigDecimal("0.00")) }).toSeq
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journeyResult =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                    .flatMapEach(
+                      args._2,
+                      (journey: SecuritiesJourney) =>
+                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                    )
+            )
+
+        journeyResult shouldBe Left("submitAmountForReclaim.invalidAmount")
       }
     }
 

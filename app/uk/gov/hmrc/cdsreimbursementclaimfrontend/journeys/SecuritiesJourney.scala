@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -71,6 +72,13 @@ final class SecuritiesJourney private (
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
 
+  final def getTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+    getLeadDisplayDeclaration
+      .flatMap(_.getTaxDetailsFor(securityDepositId, taxCode))
+
+  def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
+    answers.securitiesReclaims.flatMap(_.get(securityDepositId).map(_.keys.toSeq))
+
   final def requiresExportDeclaration: Boolean =
     ReasonForSecurity.requiresExportDeclaration
       .exists(answers.reasonForSecurity.contains(_))
@@ -79,9 +87,9 @@ final class SecuritiesJourney private (
     answers.exportDeclaration.exists(_.goodsHasBeenAlreadyExported)
 
   final def hasCompleteSecuritiesReclaims: Boolean =
-    answers.securitiesReclaims.exists(_.nonEmpty) &&
-      answers.securitiesReclaims.exists(_.exists(_._2.nonEmpty)) &&
-      answers.securitiesReclaims.exists(_.forall(_._2.forall(_._2.isDefined)))
+    answers.securitiesReclaims.exists(m =>
+      m.nonEmpty && m.exists(_._2.nonEmpty) && m.forall(_._2.forall(_._2.isDefined))
+    )
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
@@ -121,7 +129,10 @@ final class SecuritiesJourney private (
       else
         Right(
           new SecuritiesJourney(
-            answers.copy(
+            Answers(
+              userEoriNumber = answers.userEoriNumber,
+              movementReferenceNumber = answers.movementReferenceNumber,
+              nonce = answers.nonce,
               reasonForSecurity = Some(reasonForSecurity),
               displayDeclaration = Some(displayDeclaration)
             )
@@ -166,14 +177,25 @@ final class SecuritiesJourney private (
         Left("selectSecurityDepositIds.emptySelection")
       else if (!securityDepositIds.forall(getSecurityDepositIds.contains(_)))
         Left("selectSecurityDepositIds.invalidSecurityDepositId")
-      else
+      else {
+        val emptySecuritiesReclaims =
+          SortedMap(securityDepositIds.map(sid => (sid, SortedMap.empty[TaxCode, Option[BigDecimal]])): _*)
         Right(
           new SecuritiesJourney(
             answers.copy(
-              selectedSecurityDepositIds = securityDepositIds
+              selectedSecurityDepositIds = securityDepositIds,
+              securitiesReclaims = answers.securitiesReclaims
+                .map(m =>
+                  (emptySecuritiesReclaims ++ m)
+                    .filter { case (sid, _) =>
+                      securityDepositIds.contains(sid)
+                    }
+                )
+                .orElse(Some(emptySecuritiesReclaims))
             )
           )
         )
+      }
     }
 
   final def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
@@ -202,12 +224,14 @@ final class SecuritiesJourney private (
             answers.copy(
               securitiesReclaims = answers.securitiesReclaims
                 .map(_ + (securityDepositId -> refinedReclaims))
-                .orElse(Some(SortedMap(securityDepositId -> refinedReclaims)))
             )
           )
         )
       }
     }
+
+  final def isValidReclaimAmount(reclaimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
+    reclaimAmount > 0 && reclaimAmount <= BigDecimal(taxDetails.amount)
 
   final def submitAmountForReclaim(
     securityDepositId: String,
@@ -215,7 +239,38 @@ final class SecuritiesJourney private (
     reclaimAmount: BigDecimal
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      Right(new SecuritiesJourney(answers))
+      if (
+        !getSecurityDepositIds.contains(securityDepositId) ||
+        !answers.selectedSecurityDepositIds.contains(securityDepositId)
+      )
+        Left("submitAmountForReclaim.invalidSecurityDepositId")
+      else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
+        Left("submitAmountForReclaim.invalidTaxCode")
+      else if (!getTaxDetailsFor(securityDepositId, taxCode).exists(isValidReclaimAmount(reclaimAmount, _)))
+        Left("submitAmountForReclaim.invalidAmount")
+      else {
+        val updatedSecuritiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] =
+          answers.securitiesReclaims.map(_.map {
+            case (sid, reclaims) if sid === securityDepositId =>
+              (
+                sid,
+                reclaims.map {
+                  case (tc, _) if tc === taxCode => (tc, Some(reclaimAmount))
+                  case other                     => other
+                }
+              )
+
+            case other => other
+          })
+
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              securitiesReclaims = updatedSecuritiesReclaims
+            )
+          )
+        )
+      }
     }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =

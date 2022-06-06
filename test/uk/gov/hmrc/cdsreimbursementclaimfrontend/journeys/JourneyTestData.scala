@@ -32,6 +32,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import play.api.data.format.Formatter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils
+import java.lang
 
 trait JourneyTestData {
 
@@ -62,18 +63,20 @@ trait JourneyTestData {
 
   implicit class SeqOps[A](val seq: Seq[A]) {
     def halfNonEmpty: Seq[A] =
-      if (seq.isEmpty) throw new Exception("Cannot shrink the sequence because is empty.")
+      if (seq.isEmpty) throw new lang.Error("Cannot shrink the sequence because is empty.")
       else if (seq.size > 1) seq.take(seq.size / 2)
       else seq
 
     def secondHalfNonEmpty: Seq[A] =
-      if (seq.isEmpty) throw new Exception("Cannot shrink the sequence because is empty.")
+      if (seq.isEmpty) throw new lang.Error("Cannot shrink the sequence because is empty.")
       else if (seq.size > 1) seq.drop(seq.length - seq.size / 2)
       else seq
 
     def headSeq: Seq[A] =
       seq.headOption.map(Seq(_)).getOrElse(Seq.empty)
 
+    def takeExceptIn(other: Seq[A]): Seq[A] =
+      seq.filterNot(other.contains(_))
   }
 
   final val exampleEori: Eori           = IdGen.genEori.sample.get

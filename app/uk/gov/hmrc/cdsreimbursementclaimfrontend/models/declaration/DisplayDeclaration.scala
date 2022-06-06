@@ -64,16 +64,20 @@ final case class DisplayDeclaration(
     displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
   def getSecurityTaxCodesFor(securityDepositId: String): List[TaxCode] =
-    getSecurityDetailsBySecurityDepositId(securityDepositId)
+    getSecurityDetailsFor(securityDepositId)
       .map(
         _.taxDetails.map(_.taxType).map(TaxCodes.findUnsafe(_))
       )
       .getOrElse(Nil)
 
-  def getSecurityDetailsBySecurityDepositId(securityDepositId: String): Option[SecurityDetails] =
+  def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     displayResponseDetail.securityDetails
       .getOrElse(Nil)
       .find(_.securityDepositId === securityDepositId)
+
+  def getTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+    getSecurityDetailsFor(securityDepositId)
+      .flatMap(_.taxDetails.find(td => TaxCodes.findUnsafe(td.taxType) === taxCode))
 
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))

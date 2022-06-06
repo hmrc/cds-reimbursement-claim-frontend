@@ -30,8 +30,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 
 import RejectedGoodsSingleJourneyGenerators._
 import JourneyValidationErrors._
+import org.scalacheck.ShrinkLowPriority
 
-class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class RejectedGoodsSingleJourneySpec
+    extends AnyWordSpec
+    with ScalaCheckPropertyChecks
+    with Matchers
+    with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)

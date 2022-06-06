@@ -28,6 +28,9 @@ import scala.collection.JavaConverters._
 
 trait JourneyGenerators extends JourneyTestData {
 
+  final def listOfExactlyN[A](n: Int, gen: Gen[A]): Gen[List[A]] =
+    Gen.sequence((1 to n).map(_ => gen)).map(_.asScala.toList)
+
   implicit final val bigDecimalChoose = new Gen.Choose[BigDecimal] {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
       Gen.choose(1, 10000).map(i => (min + (i * ((max - min) / 10000))).round(min.mc))
@@ -116,9 +119,9 @@ trait JourneyGenerators extends JourneyTestData {
 
   final def taxCodesWithAmountsGen: Gen[Seq[(TaxCode, BigDecimal)]] =
     for {
-      numberOfTaxCodes <- Gen.choose(1, 5)
+      numberOfTaxCodes <- Gen.choose(2, 5)
       taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
-      amounts          <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
+      amounts          <- listOfExactlyN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
     } yield taxCodes.zip(amounts)
 
   final def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
@@ -137,7 +140,7 @@ trait JourneyGenerators extends JourneyTestData {
       declarantEORI      <- IdGen.genEori
       consigneeEORI      <- IdGen.genEori
       numberOfSecurities <- Gen.choose(2, 5)
-      reclaimsDetails    <- Gen.listOfN(
+      reclaimsDetails    <- listOfExactlyN(
                               numberOfSecurities,
                               Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
                             )
@@ -161,7 +164,7 @@ trait JourneyGenerators extends JourneyTestData {
           .halfNonEmpty
           .flatMap(depositId =>
             decl
-              .getSecurityDetailsBySecurityDepositId(depositId)
+              .getSecurityDetailsFor(depositId)
               .map(sd =>
                 sd.taxDetails.halfNonEmpty.map(td =>
                   Gen
