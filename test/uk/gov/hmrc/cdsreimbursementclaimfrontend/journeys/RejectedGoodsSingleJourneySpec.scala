@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.data.Validated
 import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -71,7 +70,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
 
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
-        RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Validated.Valid(())
+        RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Right(())
         journey.answers.checkYourAnswersChangeMode          shouldBe true
         journey.hasCompleteReimbursementClaims              shouldBe true
         journey.hasCompleteSupportingEvidences              shouldBe true

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.data.Validated
 import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -74,7 +73,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
 
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
-        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Validated.Valid(())
+        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Right(())
         journey.answers.checkYourAnswersChangeMode            shouldBe true
         journey.hasCompleteReimbursementClaims                shouldBe true
         journey.hasCompleteSupportingEvidences                shouldBe true
@@ -101,7 +100,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
 
     "check incompleteness if less than two MRNs" in {
       forAll(buildCompleteJourneyGen(minNumberOfMRNs = 1, maxNumberOfMRNs = 1)) { journey =>
-        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Validated.Invalid(
+        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Left(
           List(MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
         )
         journey.answers.checkYourAnswersChangeMode            shouldBe false
