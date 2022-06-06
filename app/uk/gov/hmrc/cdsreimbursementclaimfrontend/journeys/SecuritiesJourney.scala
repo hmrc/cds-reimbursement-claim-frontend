@@ -66,7 +66,7 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
-  final def getTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
+  final def getAvailableDutiesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
@@ -188,7 +188,7 @@ final class SecuritiesJourney private (
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
       else if (taxCodes.isEmpty)
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.emptyTaxCodeSelection")
-      else if (!getTaxCodesFor(securityDepositId).containsEachItemOf(taxCodes))
+      else if (!getAvailableDutiesFor(securityDepositId).containsEachItemOf(taxCodes))
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidTaxCodeSelection")
       else {
         val existingReclaims: SecuritiesReclaims =
@@ -209,7 +209,7 @@ final class SecuritiesJourney private (
       }
     }
 
-  def submitAmountForReclaim(
+  final def submitAmountForReclaim(
     securityDepositId: String,
     taxCode: TaxCode,
     reclaimAmount: BigDecimal

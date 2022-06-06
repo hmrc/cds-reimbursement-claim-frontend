@@ -428,6 +428,57 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "accept change of the taxCodes selection with another valid one" in {
+      forAll(completeJourneyGen) { journey =>
+        val depositId: String                   = journey.answers.selectedSecurityDepositIds.head
+        val validTaxCodeSelection: Seq[TaxCode] = journey.getAvailableDutiesFor(depositId).secondHalfNonEmpty
+
+        val modifiedJourney = journey
+          .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, validTaxCodeSelection)
+          .getOrFail
+
+        modifiedJourney.hasCompleteAnswers             shouldBe false
+        modifiedJourney.hasCompleteSecuritiesReclaims  shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+
+      }
+    }
+
+    "reject change of the taxCodes selection with invalid one" in {
+      forAll(completeJourneyGen) { journey =>
+        val depositId: String                     = journey.answers.selectedSecurityDepositIds.head
+        val invalidTaxCodeSelection: Seq[TaxCode] =
+          TaxCodes.allExcept(journey.getAvailableDutiesFor(depositId).toSet).headSeq
+
+        val journeyResult = journey
+          .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, invalidTaxCodeSelection)
+
+        journeyResult shouldBe Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidTaxCodeSelection")
+      }
+    }
+
+    "reject change of the taxCodes selection with empty one" in {
+      forAll(completeJourneyGen) { journey =>
+        val depositId: String = journey.answers.selectedSecurityDepositIds.head
+        val journeyResult     = journey
+          .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, Seq.empty)
+
+        journeyResult shouldBe Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.emptyTaxCodeSelection")
+      }
+    }
+
+    "reject change of the taxCodes selection with bogus securityDepositId" in {
+      forAll(completeJourneyGen) { journey =>
+        val depositId: String                   = journey.answers.selectedSecurityDepositIds.head
+        val validTaxCodeSelection: Seq[TaxCode] = journey.getAvailableDutiesFor(depositId)
+
+        val journeyResult = journey
+          .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId("bogus", validTaxCodeSelection)
+
+        journeyResult shouldBe Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
+      }
+    }
+
     // "decline submission of a wrong display declaration" in {
     //   forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
     //     val journeyEither = emptyJourney

@@ -153,26 +153,25 @@ trait JourneyGenerators extends JourneyTestData {
 
   final def validSecurityReclaimsGen(
     decl: DisplayDeclaration
-  ): Gen[Seq[(String, TaxCode, BigDecimal)]] = {
-    val depositIds = decl.getSecurityDepositIds
-      .getOrElse(Seq.empty)
-      .halfNonEmpty
+  ): Gen[Seq[(String, TaxCode, BigDecimal)]] =
     Gen
       .sequence(
-        depositIds.flatMap(depositId =>
-          decl
-            .getSecurityDetailsBySecurityDepositId(depositId)
-            .map(sd =>
-              sd.taxDetails.map(td =>
-                Gen
-                  .choose(BigDecimal.exact("0.01"), BigDecimal(td.amount))
-                  .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
+        decl.getSecurityDepositIds
+          .getOrElse(Seq.empty)
+          .halfNonEmpty
+          .flatMap(depositId =>
+            decl
+              .getSecurityDetailsBySecurityDepositId(depositId)
+              .map(sd =>
+                sd.taxDetails.halfNonEmpty.map(td =>
+                  Gen
+                    .choose(BigDecimal.exact("0.01"), BigDecimal(td.amount))
+                    .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
+                )
               )
-            )
-            .getOrElse(Seq.empty)
-        )
+              .getOrElse(Seq.empty)
+          )
       )
       .map(_.asScala.toSeq)
-  }
 
 }
