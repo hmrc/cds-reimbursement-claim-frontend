@@ -77,6 +77,11 @@ trait JourneyTestData {
 
     def takeExceptIn(other: Seq[A]): Seq[A] =
       seq.filterNot(other.contains(_))
+
+    def otherThen(a: A): A =
+      seq
+        .find(_ != a)
+        .getOrElse(throw new lang.Error("Cannot find other element."))
   }
 
   final val exampleEori: Eori           = IdGen.genEori.sample.get

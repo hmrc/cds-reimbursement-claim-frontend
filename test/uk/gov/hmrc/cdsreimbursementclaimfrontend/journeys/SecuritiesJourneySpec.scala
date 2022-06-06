@@ -534,7 +534,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    "reject submission of an invalid reclaim amount for any valid securityDepositId and taxCode" in {
+    "reject submission of a zero reclaim amount for any valid securityDepositId and taxCode" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
@@ -563,6 +563,116 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             )
 
         journeyResult shouldBe Left("submitAmountForReclaim.invalidAmount")
+      }
+    }
+
+    "reject submission of an exceeding reclaim amount for any valid securityDepositId and taxCode" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        val depositIds: Seq[String] = reclaims.map(_._1)
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journeyResult =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                    .flatMapEach(
+                      args._2,
+                      (journey: SecuritiesJourney) =>
+                        (args2: (TaxCode, BigDecimal)) =>
+                          journey
+                            .submitAmountForReclaim(
+                              args._1,
+                              args2._1,
+                              BigDecimal(journey.getTaxDetailsFor(args._1, args2._1).get.amount) + BigDecimal("0.01")
+                            )
+                    )
+            )
+
+        journeyResult shouldBe Left("submitAmountForReclaim.invalidAmount")
+      }
+    }
+
+    "reject submission of a reclaim amount if bogus securityDepositId" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        val depositIds: Seq[String] = reclaims.map(_._1)
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => (tc, BigDecimal("0.00")) }).toSeq
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journeyResult =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                    .flatMapEach(
+                      args._2,
+                      (journey: SecuritiesJourney) =>
+                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim("bogus", args2._1, args2._2)
+                    )
+            )
+
+        journeyResult shouldBe Left("submitAmountForReclaim.invalidSecurityDepositId")
+      }
+    }
+
+    "reject submission of a reclaim amount if invalid taxCode" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        val depositIds: Seq[String] = reclaims.map(_._1)
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => (tc, BigDecimal("0.00")) }).toSeq
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journeyResult =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                    .flatMapEach(
+                      args._2,
+                      (journey: SecuritiesJourney) =>
+                        (args2: (TaxCode, BigDecimal)) =>
+                          journey.submitAmountForReclaim(
+                            args._1,
+                            journey
+                              .getAvailableDutiesFor(args._1)
+                              .takeExceptIn(journey.getSelectedDutiesFor(args._1).get)
+                              .head,
+                            args2._2
+                          )
+                    )
+            )
+
+        journeyResult shouldBe Left("submitAmountForReclaim.invalidTaxCode")
       }
     }
 
