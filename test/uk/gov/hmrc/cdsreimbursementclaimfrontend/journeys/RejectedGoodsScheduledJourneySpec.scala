@@ -37,7 +37,7 @@ class RejectedGoodsScheduledJourneySpec
     with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 100)
+    PropertyCheckConfiguration(minSuccessful = 1000)
 
   "RejectedGoodsScheduledJourney" should {
     "have an empty instance" in {

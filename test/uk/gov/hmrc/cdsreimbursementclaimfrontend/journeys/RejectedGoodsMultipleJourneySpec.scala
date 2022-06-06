@@ -40,7 +40,7 @@ class RejectedGoodsMultipleJourneySpec
     with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 100)
+    PropertyCheckConfiguration(minSuccessful = 1000)
 
   val MRNS_SIZE: Int = 5
 

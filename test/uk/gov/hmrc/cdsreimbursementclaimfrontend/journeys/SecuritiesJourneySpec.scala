@@ -41,7 +41,7 @@ import org.scalacheck.ShrinkLowPriority
 class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 100)
+    PropertyCheckConfiguration(minSuccessful = 1000)
 
   "SecuritiesJourney" should {
     "have an empty instance" in {
@@ -388,7 +388,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
     "reject submission of the valid selection of the taxCodes for a not-selected securityDepositId" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-        val depositIds    = decl.getSecurityDepositIds.map(_.secondHalfNonEmpty).get
+        val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.takeExceptIn(reclaims.map(_._1))).get
+
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
