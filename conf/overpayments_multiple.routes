@@ -20,6 +20,9 @@ POST        /multiple/enter-importer-eori                                      @
 GET         /multiple/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.NorthernIrelandController.show
 POST        /multiple/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.NorthernIrelandController.submit
 
+GET         /multiple/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckContactDetailsMrnController.show
+POST        /multiple/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultipleCheckContactDetailsMrnController.submit
+
 GET         /multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBasisForClaimController.selectBasisForClaim
 POST        /multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectBasisForClaimController.selectBasisForClaimSubmit
 
