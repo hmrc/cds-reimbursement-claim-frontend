@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
@@ -32,9 +32,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
@@ -49,7 +51,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class CheckContactDetailsMrnController @Inject() (
+class CheckContactDetailsController @Inject() (
   addressLookupService: AddressLookupService,
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
@@ -64,18 +66,19 @@ class CheckContactDetailsMrnController @Inject() (
     with SessionDataExtractor
     with Logging {
 
+  implicit val journey: JourneyBindable                               = JourneyBindable.Single
   implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def startAddressLookup(implicit journey: JourneyBindable): Call =
-    routes.CheckContactDetailsMrnController.redirectToALF(journey)
+  val startAddressLookup: Call =
+    routes.CheckContactDetailsController.redirectToALF(journey)
 
-  def show(implicit journey: JourneyBindable): Action[AnyContent] =
+  val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         val maybeContactDetails  = fillingOutClaim.draftClaim.computeContactDetails(fillingOutClaim.signedInUserDetails)
         val maybeAddressDetails  = fillingOutClaim.draftClaim.computeAddressDetails(fillingOutClaim.signedInUserDetails)
-        val changeContactDetails = routes.EnterContactDetailsMrnController.changeMrnContactDetails(journey)
-        val postAction           = routes.CheckContactDetailsMrnController.submit(journey)
+        val changeContactDetails = claimsRoutes.EnterContactDetailsMrnController.changeMrnContactDetails(journey)
+        val postAction           = routes.CheckContactDetailsController.submit(journey)
 
         (maybeContactDetails, maybeAddressDetails) match {
           case (Some(contactDetails), Some(contactAddress)) =>
@@ -89,7 +92,7 @@ class CheckContactDetailsMrnController @Inject() (
       }
     }
 
-  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         val sessionUpdateResult: Future[Either[Error, Unit]] =
@@ -130,10 +133,10 @@ class CheckContactDetailsMrnController @Inject() (
       }
     }
 
-  def redirectToALF(implicit journey: JourneyBindable): Action[AnyContent] =
+  val redirectToALF: Action[AnyContent] =
     Action.andThen(authenticatedAction).async { implicit request =>
       addressLookupService
-        .startLookupRedirectingBackTo(routes.CheckContactDetailsMrnController.retrieveAddressFromALF(journey))
+        .startLookupRedirectingBackTo(routes.CheckContactDetailsController.retrieveAddressFromALF(journey))
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
 
@@ -160,16 +163,17 @@ class CheckContactDetailsMrnController @Inject() (
               case e: Error =>
                 logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(e)
             },
-            _ => Redirect(routes.CheckContactDetailsMrnController.show(journey))
+            _ => Redirect(routes.CheckContactDetailsController.show(journey))
           )
       }(dataExtractor, request, journey)
     }
 
 }
 
-object CheckContactDetailsMrnController {
+object CheckContactDetailsController {
 
   val checkContactDetailsKey: String = "claimant-details"
 
+  //TODO: move form to Forms object
   val whetherContinue: Form[YesNo] = YesOrNoQuestionForm(checkContactDetailsKey)
 }

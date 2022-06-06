@@ -21,8 +21,8 @@ import play.api.i18n.Messages
 import play.twirl.api.Html
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
@@ -42,7 +42,7 @@ import javax.inject.Singleton
 @Singleton
 class ClaimantDetailsHelper @Inject() () {
 
-  protected val key = CheckContactDetailsMrnController.checkContactDetailsKey
+  protected val key = CheckContactDetailsController.checkContactDetailsKey
 
   def renderDetailsRegisteredWithCDS(
     namePhoneEmail: NamePhoneEmail,

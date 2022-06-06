@@ -10,8 +10,8 @@ POST        /single/enter-declarant-eori                                     @uk
 GET         /single/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterImporterEoriNumberController.enterImporterEoriNumber
 POST        /single/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit
 
-GET         /single/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsMrnController.show
-POST        /single/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsMrnController.submit
+GET         /single/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsController.show
+POST        /single/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsController.submit
 
 GET         /single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.show
 POST        /single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.submit

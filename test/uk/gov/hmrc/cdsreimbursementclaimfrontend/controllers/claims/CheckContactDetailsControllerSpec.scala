@@ -61,16 +61,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+
 import java.net.URL
 import java.util.UUID
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CheckContactDetailsMrnControllerSpec
+class CheckContactDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -85,7 +87,7 @@ class CheckContactDetailsMrnControllerSpec
       bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
 
-  val controller: CheckContactDetailsMrnController = instanceOf[CheckContactDetailsMrnController]
+  val controller: CheckContactDetailsController = instanceOf[CheckContactDetailsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -110,7 +112,7 @@ class CheckContactDetailsMrnControllerSpec
     (SessionData(journey), journey)
   }
 
-  "CheckContactDetailsMrnController" must {
+  "CheckContactDetailsController" must {
 
     def showPageAction(journey: JourneyBindable): Future[Result] =
       controller.show(journey)(FakeRequest())

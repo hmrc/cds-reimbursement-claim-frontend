@@ -18,10 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+
+import java.util.jar.JarOutputStream
 
 object OverpaymentsRoutes {
 
@@ -94,6 +95,20 @@ object OverpaymentsRoutes {
       case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckDeclarationDetailsController.submit
       case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckDeclarationDetailsController.submit
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckDeclarationDetailsController.submit
+    }
+  }
+
+  object CheckContactDetailsController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single => overpaymentsSingleRoutes.CheckContactDetailsController.show
+      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.CheckContactDetailsController.show
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.show
+    }
+
+    def submit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single => overpaymentsSingleRoutes.CheckContactDetailsController.submit
+      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.CheckContactDetailsController.submit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.submit
     }
   }
 
