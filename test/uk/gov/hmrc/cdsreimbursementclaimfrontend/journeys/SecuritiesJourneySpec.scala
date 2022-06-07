@@ -441,7 +441,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "accept change of the taxCodes selection with another valid one" in {
       forAll(completeJourneyGen) { journey =>
         val depositId: String                   = journey.answers.selectedSecurityDepositIds.head
-        val validTaxCodeSelection: Seq[TaxCode] = journey.getSecurityDepositTaxCodesFor(depositId).secondHalfNonEmpty
+        val validTaxCodeSelection: Seq[TaxCode] = journey.getSecurityTaxCodesFor(depositId).secondHalfNonEmpty
 
         val modifiedJourney = journey
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, validTaxCodeSelection)
@@ -457,7 +457,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(completeJourneyGen) { journey =>
         val depositId: String                     = journey.answers.selectedSecurityDepositIds.head
         val invalidTaxCodeSelection: Seq[TaxCode] =
-          TaxCodes.allExcept(journey.getSecurityDepositTaxCodesFor(depositId).toSet).headSeq
+          TaxCodes.allExcept(journey.getSecurityTaxCodesFor(depositId).toSet).headSeq
 
         val journeyResult = journey
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, invalidTaxCodeSelection)
@@ -479,7 +479,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "reject change of the taxCodes selection with bogus securityDepositId" in {
       forAll(completeJourneyGen) { journey =>
         val depositId: String                   = journey.answers.selectedSecurityDepositIds.head
-        val validTaxCodeSelection: Seq[TaxCode] = journey.getSecurityDepositTaxCodesFor(depositId)
+        val validTaxCodeSelection: Seq[TaxCode] = journey.getSecurityTaxCodesFor(depositId)
 
         val journeyResult = journey
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId("bogus", validTaxCodeSelection)
@@ -667,7 +667,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                           journey.submitAmountForReclaim(
                             args._1,
                             journey
-                              .getSecurityDepositTaxCodesFor(args._1)
+                              .getSecurityTaxCodesFor(args._1)
                               .takeExcept(journey.getSelectedDutiesFor(args._1).get)
                               .head,
                             args2._2
@@ -682,7 +682,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "accept change of the reclaim amount with another valid one" in {
       forAll(completeJourneyGen) { journey =>
         val depositId: String                     = journey.answers.selectedSecurityDepositIds.head
-        val taxCode: TaxCode                      = journey.getSecurityDepositTaxCodesFor(depositId).head
+        val taxCode: TaxCode                      = journey.getSecurityTaxCodesFor(depositId).head
         val currentAmount: BigDecimal             = journey.getReclaimAmountFor(depositId, taxCode).get
         val newAmount: BigDecimal                 = currentAmount / 2
         val currentTotalReclaimAmount: BigDecimal = journey.getTotalReclaimAmount
@@ -703,7 +703,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "reject change of the reclaim amount with invalid one" in {
       forAll(completeJourneyGen) { journey =>
         val depositId: String          = journey.answers.selectedSecurityDepositIds.head
-        val taxCode: TaxCode           = journey.getSecurityDepositTaxCodesFor(depositId).head
+        val taxCode: TaxCode           = journey.getSecurityTaxCodesFor(depositId).head
         val securityAmount: BigDecimal = journey.getSecurityDepositAmountFor(depositId, taxCode).get
 
         val journeyResult = journey
@@ -716,7 +716,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "reject change of the reclaim amount with zero" in {
       forAll(completeJourneyGen) { journey =>
         val depositId: String = journey.answers.selectedSecurityDepositIds.head
-        val taxCode: TaxCode  = journey.getSecurityDepositTaxCodesFor(depositId).head
+        val taxCode: TaxCode  = journey.getSecurityTaxCodesFor(depositId).head
 
         val journeyResult = journey
           .submitAmountForReclaim(depositId, taxCode, BigDecimal("0.00"))
@@ -1077,33 +1077,49 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    // "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
-    //   val displayDeclarationAllCMAEligible =
-    //     buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-    //   val journeyEither                    =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-    //       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //       .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-    //       .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
+    "submit Guarantee as reimbursement method when all duties are guarantee eligible" in {
+      val displayDeclarationAllGuaranteeEligible =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
+          reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
+          allDutiesGuaranteeEligible = true
+        )
+      val journeyEither                          =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(
+            ReasonForSecurity.EndUseRelief,
+            displayDeclarationAllGuaranteeEligible
+          )
+          .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
+          .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
 
-    //   journeyEither.isRight shouldBe true
-    // }
+      journeyEither.isRight shouldBe true
+    }
 
-    // "fail submitting CurrentMonthAdjustment as reimbursement method when NOT all duties are CMA eligible" in {
-    //   val displayDeclarationNotCMAEligible =
-    //     buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-    //   val journeyEither                    =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
-    //       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //       .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-    //       .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
+    "fail submitting Guarantee as reimbursement method when NOT all duties are guarantee eligible" in {
+      val displayDeclarationNotAllGuaranteeEligible =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.RevenueDispute.acc14Code,
+          reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
+          allDutiesGuaranteeEligible = false
+        )
+      val journeyEither                             =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(
+            ReasonForSecurity.RevenueDispute,
+            displayDeclarationNotAllGuaranteeEligible
+          )
+          .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
+          .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
 
-    //   journeyEither shouldBe Left("submitReimbursementMethodAnswer.notCMAEligible")
-    // }
+      journeyEither shouldBe Left("submitReimbursementMethod.notGuaranteeEligible")
+    }
 
     // "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
     //   val displayDeclarationAllCMAEligible =

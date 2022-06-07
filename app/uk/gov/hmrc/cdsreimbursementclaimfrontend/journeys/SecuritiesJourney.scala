@@ -44,6 +44,7 @@ import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -67,20 +68,34 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
-  final def getSecurityDepositDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+  final def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
-      .flatMap(_.getTaxDetailsFor(securityDepositId, taxCode))
+      .flatMap(_.getSecurityDetailsFor(securityDepositId))
+
+  final def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+    getLeadDisplayDeclaration
+      .flatMap(_.getSecurityTaxDetailsFor(securityDepositId, taxCode))
 
   final def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
-    getSecurityDepositDetailsFor(securityDepositId, taxCode).map(_.amount).map(BigDecimal.apply)
+    getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.amount).map(BigDecimal.apply)
 
-  final def getSecurityDepositTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
+  final def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
 
+  final def getSelectedDepositIds: Seq[String] =
+    answers.securitiesReclaims.map(_.map(_._1).toSeq).getOrElse(Seq.empty)
+
   final def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
     answers.securitiesReclaims.flatMap(_.get(securityDepositId).map(_.keys.toSeq))
+
+  final def getAllSelectedDuties: Seq[(String, TaxCode)] =
+    answers.securitiesReclaims
+      .map(_.toSeq.flatMap { case (sid, reclaims) =>
+        reclaims.keys.map(tc => (sid, tc))
+      })
+      .getOrElse(Seq.empty)
 
   final def getReclaimAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
     answers.securitiesReclaims
@@ -104,6 +119,16 @@ final class SecuritiesJourney private (
     answers.securitiesReclaims.exists(m =>
       m.nonEmpty && m.exists(_._2.nonEmpty) && m.forall(_._2.forall(_._2.isDefined))
     )
+
+  final def isAllSelectedDutiesAreGuaranteeEligible: Boolean =
+    getSelectedDepositIds
+      .map(getSecurityDetailsFor)
+      .collect { case Some(s) => s }
+      .forall(_.isGuaranteeEligible)
+
+  final def needsBanksAccountDetailsSubmission: Boolean =
+    answers.reimbursementMethod.isEmpty ||
+      answers.reimbursementMethod.contains(SecuritiesReimbursementMethod.BankAccountTransfer)
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
@@ -224,7 +249,7 @@ final class SecuritiesJourney private (
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
       else if (taxCodes.isEmpty)
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.emptyTaxCodeSelection")
-      else if (!getSecurityDepositTaxCodesFor(securityDepositId).containsEachItemOf(taxCodes))
+      else if (!getSecurityTaxCodesFor(securityDepositId).containsEachItemOf(taxCodes))
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidTaxCodeSelection")
       else {
         val existingReclaims: SecuritiesReclaims =
@@ -260,7 +285,7 @@ final class SecuritiesJourney private (
         Left("submitAmountForReclaim.invalidSecurityDepositId")
       else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
         Left("submitAmountForReclaim.invalidTaxCode")
-      else if (!getSecurityDepositDetailsFor(securityDepositId, taxCode).exists(isValidReclaimAmount(reclaimAmount, _)))
+      else if (!getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidReclaimAmount(reclaimAmount, _)))
         Left("submitAmountForReclaim.invalidAmount")
       else {
         val updatedSecuritiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] =
@@ -322,6 +347,62 @@ final class SecuritiesJourney private (
     whileClaimIsAmendable {
       new SecuritiesJourney(
         answers.copy(contactAddress = Some(contactAddress))
+      )
+    }
+
+  def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (needsBanksAccountDetailsSubmission)
+        Right(
+          new SecuritiesJourney(
+            answers.copy(bankAccountDetails = Some(bankAccountDetails))
+          )
+        )
+      else Left("submitBankAccountDetails.unexpected")
+    }
+
+  def submitBankAccountType(bankAccountType: BankAccountType): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (needsBanksAccountDetailsSubmission)
+        Right(
+          new SecuritiesJourney(
+            answers.copy(bankAccountType = Some(bankAccountType))
+          )
+        )
+      else Left("submitBankAccountType.unexpected")
+    }
+
+  def submitReimbursementMethod(
+    reimbursementMethodAnswer: SecuritiesReimbursementMethod
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (isAllSelectedDutiesAreGuaranteeEligible) {
+        if (reimbursementMethodAnswer === SecuritiesReimbursementMethod.Guarantee)
+          Right(
+            new SecuritiesJourney(
+              answers.copy(
+                reimbursementMethod = Some(reimbursementMethodAnswer),
+                bankAccountDetails = None
+              )
+            )
+          )
+        else
+          Right(
+            new SecuritiesJourney(
+              answers.copy(
+                reimbursementMethod = Some(reimbursementMethodAnswer),
+                bankAccountDetails = computeBankAccountDetails
+              )
+            )
+          )
+      } else
+        Left("submitReimbursementMethod.notGuaranteeEligible")
+    }
+
+  def resetReimbursementMethod(): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(
+        answers.copy(reimbursementMethod = None)
       )
     }
 

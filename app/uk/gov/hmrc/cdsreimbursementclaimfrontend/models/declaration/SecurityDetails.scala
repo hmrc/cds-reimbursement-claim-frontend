@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import cats.syntax.eq._
 
 final case class SecurityDetails(
   securityDepositId: String,
@@ -26,7 +27,10 @@ final case class SecurityDetails(
   paymentMethod: String, // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account, 004 = Guarantee Account, 005 = Individual Guarantee"
   paymentReference: String,
   taxDetails: List[TaxDetails]
-)
+) {
+
+  def isGuaranteeEligible: Boolean = paymentMethod === "004"
+}
 
 object SecurityDetails {
   implicit val format: OFormat[SecurityDetails] = Json.format[SecurityDetails]

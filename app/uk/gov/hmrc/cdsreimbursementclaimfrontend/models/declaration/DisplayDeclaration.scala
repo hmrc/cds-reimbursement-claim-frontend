@@ -75,7 +75,7 @@ final case class DisplayDeclaration(
       .getOrElse(Nil)
       .find(_.securityDepositId === securityDepositId)
 
-  def getTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+  def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
     getSecurityDetailsFor(securityDepositId)
       .flatMap(_.taxDetails.find(td => TaxCodes.findUnsafe(td.taxType) === taxCode))
 
