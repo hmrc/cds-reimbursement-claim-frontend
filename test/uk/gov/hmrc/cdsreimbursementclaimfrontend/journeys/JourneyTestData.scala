@@ -215,7 +215,7 @@ trait JourneyTestData {
         securityDepositId = securityDepositId,
         totalAmount = totalAmount.toString(),
         amountPaid = totalAmount.toString(),
-        paymentMethod = if (allDutiesGuaranteeEligible) "004" else "003",
+        paymentMethod = if (allDutiesGuaranteeEligible) "004" else "001",
         paymentReference = s"payment-reference-$id",
         taxDetails = taxDetails.map { case (taxCode, amount) =>
           TaxDetails(taxCode.toString(), amount.toString())

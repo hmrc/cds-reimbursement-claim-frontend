@@ -17,24 +17,21 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+
+import scala.collection.immutable.SortedMap
 
 import SecuritiesJourneyGenerators._
 import JourneyValidationErrors._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
-import scala.collection.immutable.SortedMap
-import org.scalacheck.ShrinkLowPriority
 
 class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
 
@@ -52,11 +49,10 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       emptyJourney.answers.declarantEoriNumber        shouldBe None
       emptyJourney.answers.displayDeclaration         shouldBe None
       emptyJourney.answers.consigneeEoriNumber        shouldBe None
-      emptyJourney.answers.reimbursementMethod        shouldBe None
       emptyJourney.answers.selectedDocumentType       shouldBe None
       emptyJourney.answers.supportingEvidences        shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode shouldBe false
-      //emptyJourney.hasCompleteSupportingEvidences     shouldBe true
+      emptyJourney.hasCompleteSupportingEvidences     shouldBe true
       emptyJourney.hasCompleteSecuritiesReclaims      shouldBe false
       emptyJourney.hasCompleteAnswers                 shouldBe false
       emptyJourney.toOutput.isLeft                    shouldBe true
@@ -68,39 +64,34 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.securitiesReclaims.isDefined shouldBe true
         journey.hasCompleteSecuritiesReclaims        shouldBe true
 
-      // val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
+        val output: SecuritiesJourney.Output =
+          journey.toOutput.getOrElse(fail("Journey output not defined."))
 
-      // output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
-      // // output.claimantType             shouldBe journey.getClaimantType
-      // // output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
-      // // output.methodOfDisposal         shouldBe journey.answers.methodOfDisposal.get
-      // // output.detailsOfRejectedGoods   shouldBe journey.answers.detailsOfRejectedGoods.get
-      // // output.inspectionDate           shouldBe journey.answers.inspectionDate.get
-      // // output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
-      // // output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
-      // //   .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
-      // // output.reimbursementClaims      shouldBe journey.getReimbursementClaims
-      // output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
-      // output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
-      // output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
+        output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
+        output.reasonForSecurity        shouldBe journey.answers.reasonForSecurity.get
+        output.claimantType             shouldBe journey.getClaimantType
+        output.securitiesReclaims       shouldBe journey.getSecuritiesReclaims
+        output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
+        output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
+        output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
       }
     }
 
-    // "finalize journey with caseNumber" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     journey.hasCompleteReimbursementClaims shouldBe true
-    //     journey.hasCompleteSupportingEvidences shouldBe true
-    //     journey.hasCompleteAnswers             shouldBe true
-    //     journey.isFinalized                    shouldBe false
-    //     val result          = journey.finalizeJourneyWith("foo-123-abc")
-    //     val modifiedJourney = result.getOrFail
-    //     modifiedJourney.isFinalized                    shouldBe true
-    //     modifiedJourney.hasCompleteReimbursementClaims shouldBe true
-    //     modifiedJourney.hasCompleteSupportingEvidences shouldBe true
-    //     modifiedJourney.hasCompleteAnswers             shouldBe true
-    //     modifiedJourney.finalizeJourneyWith("bar")     shouldBe Left(JOURNEY_ALREADY_FINALIZED)
-    //   }
-    // }
+    "finalize journey with caseNumber" in {
+      forAll(completeJourneyGen) { journey =>
+        journey.hasCompleteSecuritiesReclaims  shouldBe true
+        journey.hasCompleteSupportingEvidences shouldBe true
+        journey.hasCompleteAnswers             shouldBe true
+        journey.isFinalized                    shouldBe false
+        val result          = journey.finalizeJourneyWith("foo-123-abc")
+        val modifiedJourney = result.getOrFail
+        modifiedJourney.isFinalized                    shouldBe true
+        modifiedJourney.hasCompleteSecuritiesReclaims  shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        modifiedJourney.hasCompleteAnswers             shouldBe true
+        modifiedJourney.finalizeJourneyWith("bar")     shouldBe Left(JOURNEY_ALREADY_FINALIZED)
+      }
+    }
 
     "accept submission of a new MRN" in {
       forAll { (mrn: MRN) =>
@@ -138,7 +129,6 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.hasCompleteSupportingEvidences                shouldBe true
         journey.isFinalized                                   shouldBe false
         journey.requiresExportDeclaration                     shouldBe ReasonForSecurity.requiresExportDeclaration(rfs)
-      //journey.canContinueTheClaimWithChoosenRfS             shouldBe !ReasonForSecurity.requiresExportDeclaration(rfs)
       }
     }
 
@@ -694,7 +684,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
         modifiedJourney.getTotalReclaimAmount shouldBe newTotalReclaimAmount
 
-        modifiedJourney.hasCompleteAnswers             shouldBe false
+        modifiedJourney.hasCompleteAnswers             shouldBe true
         modifiedJourney.hasCompleteSecuritiesReclaims  shouldBe true
         modifiedJourney.hasCompleteSupportingEvidences shouldBe true
       }
@@ -1055,7 +1045,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
         val modifiedJourney = journey.submitContactDetails(Some(contactDetails))
 
-        //modifiedJourney.hasCompleteAnswers     shouldBe true
+        modifiedJourney.hasCompleteAnswers     shouldBe true
         modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)
       }
     }
@@ -1072,64 +1062,43 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(completeJourneyGen, ContactAddressGen.genContactAddress) { (journey, contactAddress) =>
         val modifiedJourney = journey.submitContactAddress(contactAddress)
 
-        //modifiedJourney.hasCompleteAnswers     shouldBe true
+        modifiedJourney.hasCompleteAnswers     shouldBe true
         modifiedJourney.answers.contactAddress shouldBe Some(contactAddress)
       }
     }
 
-    "submit Guarantee as reimbursement method when all duties are guarantee eligible" in {
-      val displayDeclarationAllGuaranteeEligible =
+    "submit bankAccountDetails and bankAccountType if expected" in {
+      val displayDeclarationNotAllGuaranteeEligible =
         buildSecuritiesDisplayDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
-          allDutiesGuaranteeEligible = true
+          allDutiesGuaranteeEligible = false
         )
-      val journey                                =
+      val journey                                   =
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
           .submitReasonForSecurityAndDeclaration(
             ReasonForSecurity.EndUseRelief,
-            displayDeclarationAllGuaranteeEligible
-          )
-          .flatMap(_.submitClaimDuplicateCheckStatus(false))
-          .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
-          .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
-          .getOrFail
-
-      journey.answers.reimbursementMethod shouldBe Some(SecuritiesReimbursementMethod.Guarantee)
-    }
-
-    "fail submitting Guarantee as reimbursement method when NOT all duties are guarantee eligible" in {
-      val displayDeclarationNotAllGuaranteeEligible =
-        buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.RevenueDispute.acc14Code,
-          reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
-          allDutiesGuaranteeEligible = false
-        )
-      val journeyEither                             =
-        SecuritiesJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(
-            ReasonForSecurity.RevenueDispute,
             displayDeclarationNotAllGuaranteeEligible
           )
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
-          .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
+          .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
+          .flatMap(_.submitBankAccountType(BankAccountType.Business))
+          .getOrFail
 
-      journeyEither shouldBe Left("submitReimbursementMethod.notGuaranteeEligible")
+      journey.answers.bankAccountDetails shouldBe Some(exampleBankAccountDetails)
     }
 
-    "reset reimbursement method" in {
+    "fail submitting bankAccountDetails if not needed" in {
       val displayDeclarationAllGuaranteeEligible =
         buildSecuritiesDisplayDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
           allDutiesGuaranteeEligible = true
         )
-      val journey                                =
+      val journeyEither                          =
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
@@ -1139,178 +1108,29 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           )
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
-          .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
-          .map(_.resetReimbursementMethod())
-          .getOrFail
+          .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
+          .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
-      journey.answers.reimbursementMethod shouldBe None
+      journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
     }
 
-    // "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
-    //   val displayDeclarationAllCMAEligible =
-    //     buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-    //   val journeyEither                    =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-    //       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //       .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-    //       .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
+    "allow to change bankAccountDetails in a complete journey not guarantee eligible" in {
+      forAll(buildCompleteJourneyGen(allDutiesGuaranteeEligible = false)) { journey =>
+        val journeyEither =
+          journey.submitBankAccountDetails(exampleBankAccountDetails)
 
-    //   journeyEither.isRight shouldBe true
-    // }
+        journeyEither.isRight shouldBe journey.needsBanksAccountDetailsSubmission
+      }
+    }
 
-    // "fail submitting BankAccountTransfer as reimbursement method when NOT all duties are CMA eligible" in {
-    //   val displayDeclarationNotCMAEligible =
-    //     buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-    //   val journeyEither                    =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
-    //       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //       .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-    //       .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
+    "reject change of the bankAccountDetails in a complete journey guarantee eligible" in {
+      forAll(buildCompleteJourneyGen(allDutiesGuaranteeEligible = true)) { journey =>
+        val journeyEither =
+          journey.submitBankAccountDetails(exampleBankAccountDetails)
 
-    //   journeyEither shouldBe Left("submitReimbursementMethodAnswer.notCMAEligible")
-    // }
+        journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
+      }
+    }
 
-    // "submit bankAccountDetails and bankAccountType if reimbursement method is BankAccountTransfer" in {
-    //   val displayDeclarationAllCMAEligible =
-    //     buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-    //   val journeyEither                    =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-    //       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //       .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-    //       .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
-    //       .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-    //       .flatMap(_.submitBankAccountType(BankAccountType.Business))
-
-    //   journeyEither.isRight shouldBe true
-    // }
-
-    // "fail submitting bankAccountDetails if not needed" in {
-    //   val displayDeclarationAllCMAEligible =
-    //     buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-    //   val journeyEither                    =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-    //       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //       .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-    //       .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
-    //       .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-    //       .flatMap(_.submitBankAccountType(BankAccountType.Business))
-
-    //   journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
-    // }
-
-    // "change reimbursementMethod to CMA in a complete journey with all duties CMA eligible" in {
-    //   forAll(completeJourneyCMAEligibleGen) { journey =>
-    //     whenever(journey.needsBanksAccountDetailsSubmission) {
-    //       val modifiedJourney =
-    //         journey
-    //           .submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment)
-    //           .getOrFail
-
-    //       modifiedJourney.hasCompleteAnswers shouldBe true
-    //     }
-    //   }
-    // }
-
-    // "change bankAccountDetails in a complete journey with all duties CMA eligible" in {
-    //   forAll(completeJourneyCMAEligibleGen) { journey =>
-    //     val journeyEither =
-    //       journey.submitBankAccountDetails(exampleBankAccountDetails)
-
-    //     journeyEither.isRight shouldBe journey.needsBanksAccountDetailsSubmission
-    //   }
-    // }
-
-    // "change bankAccountDetails in a complete journey not eligible for CMA" in {
-    //   forAll(completeJourneyNotCMAEligibleGen) { journey =>
-    //     val journeyEither =
-    //       journey.submitBankAccountDetails(exampleBankAccountDetails)
-
-    //     journeyEither.isRight shouldBe true
-    //   }
-    // }
-
-    // "getNextNdrcDetailsToClaim" when {
-    //   "return the next Ndrc Details to claim" in {
-    //     forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-    //       (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
-    //         whenever(ndrcDetails.size > 1 && ndrcDetails.map(_.taxType).toSet.size == ndrcDetails.size) {
-    //           val taxCodes             = ndrcDetails.map(details => TaxCode(details.taxType))
-    //           val drd                  = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-    //           val updatedDd            = displayDeclaration.copy(displayResponseDetail = drd)
-    //           val journey              = SecuritiesJourney
-    //             .empty(exampleEori)
-    //             .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
-    //             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
-    //             .getOrFail
-    //           val claimedReimbursement = journey.answers.reimbursementClaims.get
-    //           val nextDetails          = journey.getNextNdrcDetailsToClaim.get
-    //           claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
-    //           // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it
-    //         }
-    //     }
-    //   }
-    // }
-
-    // "hasCompleteReimbursementClaims" when {
-    //   "return true if all claim amounts are present" in {
-    //     forAll(completeJourneyGen) { journey =>
-    //       journey.hasCompleteReimbursementClaims shouldBe true
-    //     }
-    //   }
-
-    //   "return false if at least one of the claimed tax code do not have a value specified" in {
-    //     forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-    //       (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
-    //         whenever(
-    //           ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
-    //             .map(_.taxType)
-    //             .toSet
-    //             .size == ndrcDetails.size
-    //         ) {
-    //           val taxCodes       = ndrcDetails.map(details => TaxCode(details.taxType))
-    //           val drd            = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-    //           val updatedDd      = displayDeclaration.copy(displayResponseDetail = drd)
-    //           val initialJourney = SecuritiesJourney
-    //             .empty(exampleEori)
-    //             .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
-    //             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
-    //             .getOrFail
-    //           val journeyToTest  = ndrcDetails.dropRight(1).foldLeft(initialJourney) { case (journey, ndrcDetails) =>
-    //             journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), 1).getOrFail
-    //           }
-    //           journeyToTest.hasCompleteReimbursementClaims shouldBe false
-    //         }
-    //     }
-    //   }
-
-    //   "return false if no tax codes have been claimed yet" in {
-    //     forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-    //       (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
-    //         whenever(
-    //           ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
-    //             .map(_.taxType)
-    //             .toSet
-    //             .size == ndrcDetails.size
-    //         ) {
-    //           val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-    //           val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
-    //           val journey   = SecuritiesJourney
-    //             .empty(exampleEori)
-    //             .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
-    //             .getOrFail
-
-    //           journey.hasCompleteReimbursementClaims shouldBe false
-    //         }
-    //     }
-    //   }
-    //}
   }
 }

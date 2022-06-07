@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
@@ -41,8 +40,23 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
-    bankAccountType: Option[BankAccountType] = None
-  ): Either[String, SecuritiesJourney] =
+    bankAccountType: Option[BankAccountType] = None,
+    supportingEvidences: Map[UploadDocumentType, Int] = Map.empty
+  ): Either[String, SecuritiesJourney] = {
+
+    val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]] =
+      supportingEvidences.map { case (documentType, size) =>
+        (documentType, (0 until size).map(i => buildUploadDocument(s"$i")))
+      }
+
+    def receiveUploadedFiles(journey: SecuritiesJourney)(
+      documentTypeAndUploadedFiles: (UploadDocumentType, Seq[UploadedFile])
+    ): Either[String, SecuritiesJourney] = {
+      val (documentType, uploadedFiles) = documentTypeAndUploadedFiles
+      val allUploadedFiles              = journey.answers.supportingEvidences ++ uploadedFiles
+      journey.receiveUploadedFiles(documentType, journey.answers.nonce, allUploadedFiles)
+    }
+
     SecuritiesJourney
       .empty(userEoriNumber)
       .submitMovementReferenceNumber(mrn)
@@ -68,5 +82,10 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
                   (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
               )
       )
+      .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
+      .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
+      .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)
+      .map(_.submitCheckYourAnswersChangeMode(true))
+  }
 
 }

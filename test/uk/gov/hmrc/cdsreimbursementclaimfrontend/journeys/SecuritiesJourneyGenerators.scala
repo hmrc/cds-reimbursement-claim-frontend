@@ -16,20 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.syntax.eq._
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import scala.collection.JavaConverters._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesReimbursementMethod
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
@@ -47,8 +38,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[SecuritiesReimbursementMethod] = None
+    submitBankAccountType: Boolean = true
   ): Gen[SecuritiesJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -59,8 +49,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       submitContactDetails = submitContactDetails,
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
-      submitBankAccountDetails = submitBankAccountDetails,
-      reimbursementMethod = reimbursementMethod
+      submitBankAccountDetails = submitBankAccountDetails
     ).map(
       _.fold(
         error =>
@@ -81,46 +70,43 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[SecuritiesReimbursementMethod] = None
+    submitBankAccountType: Boolean = true
   ): Gen[Either[String, SecuritiesJourney]] =
     for {
-      userEoriNumber          <- IdGen.genEori
-      mrn                     <- IdGen.genMRN
-      rfs                     <- Gen.oneOf(ReasonForSecurity.values)
-      declarantEORI           <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI           <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeContact        <- Gen.option(Acc14Gen.genContactDetails)
-      declarantContact        <- Gen.option(Acc14Gen.genContactDetails)
-      numberOfSecurities      <- Gen.choose(2, 5)
-      reclaimsDetails         <- listOfExactlyN(
-                                   numberOfSecurities,
-                                   Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
-                                 )
-      acc14                    = buildSecuritiesDisplayDeclaration(
-                                   id = mrn.value,
-                                   securityReason = rfs.acc14Code,
-                                   declarantEORI = declarantEORI,
-                                   consigneeEORI = if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-                                   reclaimsDetails = reclaimsDetails,
-                                   allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
-                                   consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
-                                   declarantContact = declarantContact
-                                 )
-      exportMrnAndDeclaration <- exportMrnWithDec91TrueGen
-      reclaims                <- validSecurityReclaimsGen(acc14)
-      // numberOfSupportingEvidences <- Gen.choose(0, 3)
-      // numberOfDocumentTypes       <- Gen.choose(1, 2)
-      // documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsSingleTypes))
-      // supportingEvidences         <-
-      //   Gen
-      //     .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](
-      //       documentTypes.map(dt => Gen.choose(0, numberOfSupportingEvidences).map(n => (dt, n)))
-      //     )
-      //     .map(_.toMap)
-      bankAccountType         <- Gen.oneOf(BankAccountType.values)
-      reimbursementMethod     <-
-        reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(SecuritiesReimbursementMethod.values))
+      userEoriNumber              <- IdGen.genEori
+      mrn                         <- IdGen.genMRN
+      rfs                         <- Gen.oneOf(ReasonForSecurity.values)
+      declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
+      numberOfSecurities          <- Gen.choose(2, 5)
+      reclaimsDetails             <- listOfExactlyN(
+                                       numberOfSecurities,
+                                       Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
+                                     )
+      acc14                        = buildSecuritiesDisplayDeclaration(
+                                       id = mrn.value,
+                                       securityReason = rfs.acc14Code,
+                                       declarantEORI = declarantEORI,
+                                       consigneeEORI = if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+                                       reclaimsDetails = reclaimsDetails,
+                                       allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
+                                       consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+                                       declarantContact = declarantContact
+                                     )
+      exportMrnAndDeclaration     <- exportMrnWithDec91TrueGen
+      reclaims                    <- validSecurityReclaimsGen(acc14)
+      numberOfSupportingEvidences <- Gen.choose(0, 3)
+      numberOfDocumentTypes       <- Gen.choose(1, 2)
+      documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsSingleTypes))
+      supportingEvidences         <-
+        Gen
+          .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](
+            documentTypes.map(dt => Gen.choose(0, numberOfSupportingEvidences).map(n => (dt, n)))
+          )
+          .map(_.toMap)
+      bankAccountType             <- Gen.oneOf(BankAccountType.values)
     } yield {
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
@@ -136,7 +122,6 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration)
           else
             None,
-        // supportingEvidences,
         declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
         consigneeEoriNumber =
           if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI)
@@ -144,19 +129,14 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
         bankAccountDetails =
-          if (
-            submitBankAccountDetails &&
-            (!allDutiesGuaranteeEligible || reimbursementMethod === SecuritiesReimbursementMethod.BankAccountTransfer)
-          )
+          if (submitBankAccountDetails && (!allDutiesGuaranteeEligible))
             Some(exampleBankAccountDetails)
           else None,
         bankAccountType =
-          if (
-            submitBankAccountType &&
-            (!allDutiesGuaranteeEligible || reimbursementMethod === SecuritiesReimbursementMethod.BankAccountTransfer)
-          )
+          if (submitBankAccountType && (!allDutiesGuaranteeEligible))
             Some(bankAccountType)
-          else None
+          else None,
+        supportingEvidences = supportingEvidences
       )
     }
 

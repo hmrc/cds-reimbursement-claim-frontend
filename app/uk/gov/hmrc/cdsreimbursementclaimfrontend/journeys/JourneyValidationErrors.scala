@@ -28,6 +28,7 @@ object JourneyValidationErrors {
   val MISSING_INSPECTION_ADDRESS: String               = "missingInspectionAddress"
   val MISSING_METHOD_OF_DISPOSAL: String               = "missingMethodOfDisposal"
   val INCOMPLETE_REIMBURSEMENT_CLAIMS: String          = "incompleteReimbursementClaims"
+  val INCOMPLETE_SECURITIES_RECLAIMS: String           = "incompleteSecuritiesReclaims"
   val INCOMPLETE_SUPPORTING_EVIDENCES: String          = "incompleteSupportingEvidences"
   val MISSING_CONTACT_DETAILS: String                  = "missingContactDetails"
   val MISSING_CONTACT_ADDRESS: String                  = "missingContactAddress"

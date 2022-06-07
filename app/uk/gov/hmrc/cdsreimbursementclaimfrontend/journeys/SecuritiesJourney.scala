@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import com.github.arturopala.validator.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
@@ -108,6 +107,11 @@ final class SecuritiesJourney private (
       .map(_.map(_._2.map(_._2.getOrElse(ZERO)).sum).sum)
       .getOrElse(ZERO)
 
+  final def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
+    answers.securitiesReclaims
+      .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
+      .getOrElse(SortedMap.empty)
+
   final def requiresExportDeclaration: Boolean =
     ReasonForSecurity.requiresExportDeclaration
       .exists(answers.reasonForSecurity.contains(_))
@@ -127,8 +131,7 @@ final class SecuritiesJourney private (
       .forall(_.isGuaranteeEligible)
 
   final def needsBanksAccountDetailsSubmission: Boolean =
-    answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(SecuritiesReimbursementMethod.BankAccountTransfer)
+    !isAllSelectedDutiesAreGuaranteeEligible
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
@@ -350,7 +353,7 @@ final class SecuritiesJourney private (
       )
     }
 
-  def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, SecuritiesJourney] =
+  final def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
@@ -361,7 +364,7 @@ final class SecuritiesJourney private (
       else Left("submitBankAccountDetails.unexpected")
     }
 
-  def submitBankAccountType(bankAccountType: BankAccountType): Either[String, SecuritiesJourney] =
+  final def submitBankAccountType(bankAccountType: BankAccountType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
@@ -372,38 +375,31 @@ final class SecuritiesJourney private (
       else Left("submitBankAccountType.unexpected")
     }
 
-  def submitReimbursementMethod(
-    reimbursementMethodAnswer: SecuritiesReimbursementMethod
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  final def receiveUploadedFiles(
+    documentType: UploadDocumentType,
+    requestNonce: Nonce,
+    uploadedFiles: Seq[UploadedFile]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (isAllSelectedDutiesAreGuaranteeEligible) {
-        if (reimbursementMethodAnswer === SecuritiesReimbursementMethod.Guarantee)
-          Right(
-            new SecuritiesJourney(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethodAnswer),
-                bankAccountDetails = None
-              )
-            )
-          )
-        else
-          Right(
-            new SecuritiesJourney(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethodAnswer),
-                bankAccountDetails = computeBankAccountDetails
-              )
-            )
-          )
-      } else
-        Left("submitReimbursementMethod.notGuaranteeEligible")
+      if (answers.nonce.equals(requestNonce)) {
+        val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
+          case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
+          case uf                            => uf
+        }
+        Right(
+          new SecuritiesJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+        )
+      } else Left("receiveUploadedFiles.invalidNonce")
     }
 
-  def resetReimbursementMethod(): SecuritiesJourney =
+  final def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(
-        answers.copy(reimbursementMethod = None)
-      )
+      validate(this)
+        .fold(
+          _ => this,
+          _ => new SecuritiesJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+        )
     }
 
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
@@ -428,7 +424,25 @@ final class SecuritiesJourney private (
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def toOutput: Either[List[String], SecuritiesJourney.Output] =
-    Left(Nil)
+    validate(this)
+      .flatMap(_ =>
+        (for {
+          mrn                 <- getLeadMovementReferenceNumber
+          rfs                 <- answers.reasonForSecurity
+          supportingEvidences  = answers.supportingEvidences
+          claimantInformation <- getClaimantInformation
+        } yield SecuritiesJourney.Output(
+          movementReferenceNumber = mrn,
+          claimantType = getClaimantType,
+          claimantInformation = claimantInformation,
+          reasonForSecurity = rfs,
+          securitiesReclaims = getSecuritiesReclaims,
+          bankAccountDetails = answers.bankAccountDetails,
+          supportingEvidences = supportingEvidences.map(EvidenceDocument.from)
+        )).toRight(
+          List("Unfortunately could not produce the output, please check if all answers are complete.")
+        )
+      )
 
 }
 
@@ -459,7 +473,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     securitiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] = None, // mandatory if NOT reclaimingFullAmount
     selectedDocumentType: Option[UploadDocumentType] = None, // ??? depending on the RfS and ....
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    reimbursementMethod: Option[SecuritiesReimbursementMethod] = None, // mandatory if guarantee is eligible
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     checkYourAnswersChangeMode: Boolean = false
@@ -471,7 +484,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     claimantInformation: ClaimantInformation,
     reasonForSecurity: ReasonForSecurity,
     securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
-    reimbursementMethod: SecuritiesReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
   )
@@ -523,12 +535,71 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
 
   }
 
-  // import Checks._
+  import Checks._
 
   implicit val validator: Validate[SecuritiesJourney] =
-    Validator.never
-  // Validator
-  //   .all(hasMovementReferenceNumber, hasDisplayDeclaration, hasReasonForSecurity)
+    Validator.all(
+      userCanProceedWithThisClaim,
+      check(_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS),
+      check(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
+      checkIsDefined(_.answers.contactDetails, MISSING_CONTACT_DETAILS),
+      checkIsDefined(_.answers.contactAddress, MISSING_CONTACT_ADDRESS),
+      check(_.getTotalReclaimAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
+      whenTrue(
+        _.needsDeclarantAndConsigneeEoriSubmission,
+        all(
+          checkIsDefined(
+            _.answers.declarantEoriNumber,
+            DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED
+          ),
+          checkEquals(
+            _.getDeclarantEoriFromACC14,
+            _.answers.declarantEoriNumber,
+            DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
+          ),
+          checkIsDefined(
+            _.answers.consigneeEoriNumber,
+            CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED
+          ),
+          checkEquals(
+            _.getConsigneeEoriFromACC14,
+            _.answers.consigneeEoriNumber,
+            CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
+          )
+        )
+      ),
+      whenFalse(
+        _.needsDeclarantAndConsigneeEoriSubmission,
+        all(
+          checkIsEmpty(
+            _.answers.declarantEoriNumber,
+            DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
+          ),
+          checkIsEmpty(
+            _.answers.consigneeEoriNumber,
+            CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
+          )
+        )
+      ),
+      whenTrue(
+        _.needsBanksAccountDetailsSubmission,
+        all(
+          checkIsDefined(
+            _.answers.bankAccountDetails,
+            BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
+          )
+        )
+      ),
+      whenFalse(
+        _.needsBanksAccountDetailsSubmission,
+        all(
+          checkIsEmpty(
+            _.answers.bankAccountDetails,
+            BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED
+          )
+        )
+      )
+    )
 
   object Answers {
     implicit lazy val mapFormat1: Format[SortedMap[TaxCode, Option[BigDecimal]]] =
