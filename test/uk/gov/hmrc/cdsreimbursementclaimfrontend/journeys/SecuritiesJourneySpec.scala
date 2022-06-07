@@ -973,391 +973,109 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    // "get contact address" should {
-    //   "return the specified details if they have been entered" in {
-    //     forAll(completeJourneyGen) { journey =>
-    //       whenever(journey.answers.contactAddress.isDefined) {
-    //         journey.computeAddressDetails shouldBe journey.answers.contactAddress
-    //       }
-    //     }
-    //   }
-
-    //   "return the consignee address if no specific address entered and the signed in user is the consignee and consignee address is present" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         submitContactAddress = false,
-    //         acc14ConsigneeMatchesUserEori = true,
-    //         acc14DeclarantMatchesUserEori = false
-    //       )
-    //     ) { journey =>
-    //       val expectedAddress = journey.answers.displayDeclaration.flatMap(
-    //         _.getConsigneeDetails.map(_.establishmentAddress.toContactAddress)
-    //       )
-    //       journey.computeAddressDetails shouldBe expectedAddress
-    //     }
-    //   }
-
-    //   "return the declarant address if no specific address entered and the signed in user is the consignee and consignee address is not present" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         submitContactAddress = false,
-    //         acc14ConsigneeMatchesUserEori = true,
-    //         submitConsigneeDetails = false
-    //       )
-    //     ) { journey =>
-    //       val expectedAddress =
-    //         journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
-    //       journey.computeAddressDetails shouldBe expectedAddress
-    //     }
-    //   }
-
-    //   "return the declarant address if no specific address entered and the signed in user is the declarant" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         submitContactAddress = false,
-    //         acc14ConsigneeMatchesUserEori = false,
-    //         acc14DeclarantMatchesUserEori = true
-    //       )
-    //     ) { journey =>
-    //       val expectedAddress =
-    //         journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
-    //       journey.computeAddressDetails shouldBe expectedAddress
-    //     }
-    //   }
-
-    //   "return the declarant address if no specific address entered and the signed in user is neither the declarant or the consignee and declarant address is present" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         submitContactAddress = false,
-    //         acc14ConsigneeMatchesUserEori = false,
-    //         acc14DeclarantMatchesUserEori = false
-    //       )
-    //     ) { journey =>
-    //       val expectedAddress =
-    //         journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
-    //       journey.computeAddressDetails shouldBe expectedAddress
-    //     }
-    //   }
-    // }
-
-    // "submit contact details" in {
-    //   forAll(ContactDetailsGen.genMrnContactDetails) { contactDetails =>
-    //     val journey =
-    //       SecuritiesJourney
-    //         .empty(exampleEori)
-    //         .submitContactDetails(Some(contactDetails))
-
-    //     journey.answers.contactDetails shouldBe Some(contactDetails)
-    //   }
-    // }
-
-    // "change contact details" in {
-    //   forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
-    //     val modifiedJourney = journey.submitContactDetails(Some(contactDetails))
-
-    //     modifiedJourney.hasCompleteAnswers     shouldBe true
-    //     modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)
-    //   }
-    // }
-
-    // "submit contact address" in {
-    //   forAll(ContactAddressGen.genContactAddress) { contactAddress =>
-    //     val journey = SecuritiesJourney.empty(exampleEori).submitContactAddress(contactAddress)
-
-    //     journey.answers.contactAddress shouldBe Some(contactAddress)
-    //   }
-    // }
-
-    // "change contact address" in {
-    //   forAll(completeJourneyGen, ContactAddressGen.genContactAddress) { (journey, contactAddress) =>
-    //     val modifiedJourney = journey.submitContactAddress(contactAddress)
-
-    //     modifiedJourney.hasCompleteAnswers     shouldBe true
-    //     modifiedJourney.answers.contactAddress shouldBe Some(contactAddress)
-    //   }
-    // }
-
-    // "submit basis of claim" in {
-    //   forAll(Gen.oneOf(BasisOfRejectedGoodsClaim.values)) { basisOfClaim =>
-    //     val journey = SecuritiesJourney.empty(exampleEori).submitBasisOfClaim(basisOfClaim)
-    //     journey.answers.basisOfClaim shouldBe Some(basisOfClaim)
-    //   }
-    // }
-
-    // "change basis of claim" in {
-    //   forAll(completeJourneyGen, Gen.oneOf(BasisOfRejectedGoodsClaim.allButSpecialCircumstances)) {
-    //     (journey, basisOfClaim) =>
-    //       val modifiedJourney = journey.submitBasisOfClaim(basisOfClaim)
-
-    //       modifiedJourney.hasCompleteAnswers           shouldBe true
-    //       modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Right(basisOfClaim)
-    //   }
-    // }
-
-    // "change basis of claim if special circumstances" in {
-    //   forAll(completeJourneyGenWithoutSpecialCircumstances) { journey =>
-    //     val modifiedJourney = journey.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-
-    //     modifiedJourney.hasCompleteAnswers           shouldBe false
-    //     modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Left(
-    //       BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED :: Nil
-    //     )
-    //   }
-    // }
-
-    // "submit basis of claim special circumstances details" in {
-    //   val journeyEither = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-    //     .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
-
-    //   journeyEither.isRight shouldBe true
-
-    // }
-
-    // "change basis of claim special circumstances details" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val modifiedJourneyEither =
-    //       journey.submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
-
-    //     modifiedJourneyEither.isRight shouldBe journey.needsSpecialCircumstancesBasisOfClaim
-    //   }
-    // }
-
-    // "submit method of disposal" in {
-    //   forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
-    //     val journey = SecuritiesJourney.empty(exampleEori).submitMethodOfDisposal(methodOfDisposal)
-    //     journey.answers.methodOfDisposal shouldBe Some(methodOfDisposal)
-    //   }
-    // }
-
-    // "change method of disposal" in {
-    //   forAll(completeJourneyGen, Gen.oneOf(MethodOfDisposal.values)) { (journey, methodOfDisposal) =>
-    //     val modifiedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
-
-    //     modifiedJourney.hasCompleteAnswers               shouldBe true
-    //     modifiedJourney.toOutput.map(_.methodOfDisposal) shouldBe Right(methodOfDisposal)
-    //   }
-    // }
-
-    // "submit details of rejected goods" in {
-    //   val journey = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
-
-    //   journey.answers.detailsOfRejectedGoods shouldBe Some(exampleRejectedGoodsDetails)
-    // }
-
-    // "change details of rejected goods" in {
-    //   forAll(completeJourneyGen, exampleRejectedGoodsDetails) { (journey, rejectedGoodsDetails) =>
-    //     val modifiedJourney = journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails)
-
-    //     modifiedJourney.hasCompleteAnswers                     shouldBe true
-    //     modifiedJourney.toOutput.map(_.detailsOfRejectedGoods) shouldBe Right(rejectedGoodsDetails)
-    //   }
-    // }
-
-    // "select valid tax codes for reimbursement when none yet selected" in {
-    //   val displayDeclaration = buildDisplayDeclaration(dutyDetails =
-    //     Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
-    //   )
-    //   val journeyEither      = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //     .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
-
-    //   journeyEither.isRight shouldBe true
-    // }
-
-    // "replace valid tax codes for reimbursement" in {
-    //   val displayDeclaration = buildDisplayDeclaration(dutyDetails =
-    //     Seq(
-    //       (TaxCode.A00, BigDecimal("10.00"), false),
-    //       (TaxCode.A90, BigDecimal("20.00"), false),
-    //       (TaxCode.A20, BigDecimal("30.00"), true)
-    //     )
-    //   )
-    //   val journeyEither      = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //     .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-
-    //   journeyEither.getOrFail.getSelectedDuties shouldBe Some(Seq(TaxCode.A00))
-
-    //   val journeyEither2 =
-    //     journeyEither.flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A90, TaxCode.A20)))
-
-    //   journeyEither2.getOrFail.getSelectedDuties shouldBe Some(
-    //     Seq(TaxCode.A90, TaxCode.A20)
-    //   )
-
-    // }
-
-    // "select invalid tax codes for reimbursement" in {
-    //   val displayDeclaration = buildDisplayDeclaration(dutyDetails =
-    //     Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
-    //   )
-    //   val journeyEither      = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //     .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A80)))
-
-    //   journeyEither.isRight shouldBe false
-    // }
-
-    // "change tax code for reimbursement with the same set" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(journey.getSelectedDuties.get)
-
-    //     val result = modifiedJourneyEither.getOrFail
-    //     result.hasCompleteAnswers shouldBe true
-    //   }
-    // }
-
-    // "change tax code for reimbursement with a new valid set" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val taxCodeSet                  = journey.getNdrcDetails.map(_.map(_.taxType).map(TaxCode.apply).toSet).getOrElse(Set.empty)
-    //     val newTaxCodeSet: Seq[TaxCode] = taxCodeSet.take(2).toSeq
-
-    //     val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(newTaxCodeSet)
-
-    //     val result = modifiedJourneyEither.getOrFail
-    //     result.getSelectedDuties.get shouldBe newTaxCodeSet
-    //   }
-    // }
-
-    // "change tax code for reimbursement with a new invalid set" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val invalidTaxCodeSet     = TaxCodes.all.take(6).toSeq
-    //     val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(invalidTaxCodeSet)
-    //     modifiedJourneyEither shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
-    //   }
-    // }
-
-    // "submit valid amount for selected tax code" in {
-    //   val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-    //   val journeyEither      = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //     .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //     .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("5.00")))
-
-    //   journeyEither.isRight shouldBe true
-    // }
-
-    // "submit valid amount for wrong tax code" in {
-    //   val displayDeclaration = buildDisplayDeclaration(dutyDetails =
-    //     Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
-    //   )
-    //   val journeyEither      = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //     .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //     .flatMap(_.submitAmountForReimbursement(TaxCode.A80, BigDecimal("5.00")))
-
-    //   journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
-    // }
-
-    // "submit invalid amount for selected tax code" in {
-    //   val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-    //   val declaration        = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //     .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-
-    //   val journeyEitherTestZero     = declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
-    //   val journeyEitherTestNegative =
-    //     declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("-10.00")))
-    //   val journeyEitherTestGreater  =
-    //     declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("20.00")))
-
-    //   journeyEitherTestZero     shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
-    //   journeyEitherTestNegative shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
-    //   journeyEitherTestGreater  shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
-    // }
-
-    // "submit invalid amount for wrong tax code" in {
-    //   val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-    //   val journeyEither      = SecuritiesJourney
-    //     .empty(exampleEori)
-    //     .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //     .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-    //     .flatMap(_.submitAmountForReimbursement(TaxCode.A80, BigDecimal("0.00")))
-
-    //   journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
-    // }
-
-    // "change to valid amount for selected tax code" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
-    //     val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims.toSeq
-    //     for ((taxCode, amount) <- taxCodes) {
-    //       val newAmount     = amount / 2
-    //       val journeyEither = journey.submitAmountForReimbursement(taxCode, newAmount)
-    //       journeyEither.isRight shouldBe true
-    //       val modifiedJourney = journeyEither.getOrFail
-    //       modifiedJourney.getTotalReimbursementAmount shouldBe (totalAmount - newAmount)
-    //     }
-    //   }
-    // }
-
-    // "change to invalid amount for selected tax code" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims.toSeq
-    //     for ((taxCode, amount) <- taxCodes) {
-    //       val newAmount     = BigDecimal("0.00")
-    //       val journeyEither = journey.submitAmountForReimbursement(taxCode, newAmount)
-
-    //       journeyEither shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
-    //     }
-    //   }
-    // }
-
-    // "change to valid amount for the tax code not in ACC14" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val taxCodeSet    = journey.getNdrcDetails.map(_.map(_.taxType).map(TaxCode.apply).toSet).getOrElse(Set.empty)
-    //     val wrongTaxCode  = TaxCodes.all.find(taxCode => !taxCodeSet.contains(taxCode)).getOrElse(TaxCode.NI633)
-    //     val journeyEither = journey.submitAmountForReimbursement(wrongTaxCode, BigDecimal("10.00"))
-    //     journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
-    //   }
-    // }
-
-    // "submit inspection date" in {
-    //   forAll(DateGen.genDate) { inspectionDate =>
-    //     val journey = SecuritiesJourney.empty(exampleEori).submitInspectionDate(inspectionDate)
-
-    //     journey.answers.inspectionDate shouldBe Some(inspectionDate)
-
-    //   }
-    // }
-
-    // "change inspection date" in {
-    //   forAll(completeJourneyGen, DateGen.genDate) { (journey, inspectionDate) =>
-    //     val modifiedJourney = journey.submitInspectionDate(inspectionDate)
-
-    //     modifiedJourney.hasCompleteAnswers             shouldBe true
-    //     modifiedJourney.toOutput.map(_.inspectionDate) shouldBe Right(inspectionDate)
-
-    //   }
-    // }
-
-    // "submit inspection address" in {
-    //   forAll(InspectionAddressGen.genInspectionAddress) { inspectionAddress =>
-    //     val journey = SecuritiesJourney.empty(exampleEori).submitInspectionAddress(inspectionAddress)
-
-    //     journey.answers.inspectionAddress shouldBe Some(inspectionAddress)
-
-    //   }
-    // }
-
-    // "change inspection address" in {
-    //   forAll(completeJourneyGen, InspectionAddressGen.genInspectionAddress) { (journey, inspectionAddress) =>
-    //     val modifiedJourney = journey.submitInspectionAddress(inspectionAddress)
-
-    //     modifiedJourney.hasCompleteAnswers                shouldBe true
-    //     modifiedJourney.toOutput.map(_.inspectionAddress) shouldBe Right(inspectionAddress)
-    //   }
-    // }
+    "get contact address" should {
+      "return the specified details if they have been entered" in {
+        forAll(completeJourneyGen) { journey =>
+          whenever(journey.answers.contactAddress.isDefined) {
+            journey.computeAddressDetails shouldBe journey.answers.contactAddress
+          }
+        }
+      }
+
+      "return the consignee address if no specific address entered and the signed in user is the consignee and consignee address is present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = true,
+            acc14DeclarantMatchesUserEori = false
+          )
+        ) { journey =>
+          val expectedAddress = journey.answers.displayDeclaration.flatMap(
+            _.getConsigneeDetails.map(_.establishmentAddress.toContactAddress)
+          )
+          journey.computeAddressDetails shouldBe expectedAddress
+        }
+      }
+
+      "return the declarant address if no specific address entered and the signed in user is the consignee and consignee address is not present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = true,
+            submitConsigneeDetails = false
+          )
+        ) { journey =>
+          val expectedAddress =
+            journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+          journey.computeAddressDetails shouldBe expectedAddress
+        }
+      }
+
+      "return the declarant address if no specific address entered and the signed in user is the declarant" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = true
+          )
+        ) { journey =>
+          val expectedAddress =
+            journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+          journey.computeAddressDetails shouldBe expectedAddress
+        }
+      }
+
+      "return the declarant address if no specific address entered and the signed in user is neither the declarant or the consignee and declarant address is present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = false
+          )
+        ) { journey =>
+          val expectedAddress =
+            journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+          journey.computeAddressDetails shouldBe expectedAddress
+        }
+      }
+    }
+
+    "submit contact details" in {
+      forAll(ContactDetailsGen.genMrnContactDetails) { contactDetails =>
+        val journey =
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitContactDetails(Some(contactDetails))
+
+        journey.answers.contactDetails shouldBe Some(contactDetails)
+      }
+    }
+
+    "change contact details" in {
+      forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
+        val modifiedJourney = journey.submitContactDetails(Some(contactDetails))
+
+        //modifiedJourney.hasCompleteAnswers     shouldBe true
+        modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)
+      }
+    }
+
+    "submit contact address" in {
+      forAll(ContactAddressGen.genContactAddress) { contactAddress =>
+        val journey = SecuritiesJourney.empty(exampleEori).submitContactAddress(contactAddress)
+
+        journey.answers.contactAddress shouldBe Some(contactAddress)
+      }
+    }
+
+    "change contact address" in {
+      forAll(completeJourneyGen, ContactAddressGen.genContactAddress) { (journey, contactAddress) =>
+        val modifiedJourney = journey.submitContactAddress(contactAddress)
+
+        //modifiedJourney.hasCompleteAnswers     shouldBe true
+        modifiedJourney.answers.contactAddress shouldBe Some(contactAddress)
+      }
+    }
 
     // "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
     //   val displayDeclarationAllCMAEligible =
