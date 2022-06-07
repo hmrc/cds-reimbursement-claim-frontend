@@ -1084,7 +1084,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
           allDutiesGuaranteeEligible = true
         )
-      val journeyEither                          =
+      val journey                                =
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
@@ -1095,8 +1095,9 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
           .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
+          .getOrFail
 
-      journeyEither.isRight shouldBe true
+      journey.answers.reimbursementMethod shouldBe Some(SecuritiesReimbursementMethod.Guarantee)
     }
 
     "fail submitting Guarantee as reimbursement method when NOT all duties are guarantee eligible" in {
@@ -1119,6 +1120,30 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
 
       journeyEither shouldBe Left("submitReimbursementMethod.notGuaranteeEligible")
+    }
+
+    "reset reimbursement method" in {
+      val displayDeclarationAllGuaranteeEligible =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
+          reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
+          allDutiesGuaranteeEligible = true
+        )
+      val journey                                =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(
+            ReasonForSecurity.EndUseRelief,
+            displayDeclarationAllGuaranteeEligible
+          )
+          .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
+          .flatMap(_.submitReimbursementMethod(SecuritiesReimbursementMethod.Guarantee))
+          .map(_.resetReimbursementMethod())
+          .getOrFail
+
+      journey.answers.reimbursementMethod shouldBe None
     }
 
     // "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
