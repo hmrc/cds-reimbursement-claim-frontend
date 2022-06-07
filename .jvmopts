@@ -1,4 +1,4 @@
 -Xms1G
--Xmx1G
+-Xmx2G
 -Xss1G
 -XX:MaxMetaspaceSize=1G

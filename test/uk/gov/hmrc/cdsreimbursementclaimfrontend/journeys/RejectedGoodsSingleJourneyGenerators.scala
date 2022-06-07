@@ -168,7 +168,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes            <- Gen.choose(1, 5)
       taxCodes                    <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
-      paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
+      paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
       reimbursementAmount         <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
@@ -205,8 +205,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
           declarantEORI,
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
           paidDuties,
-          if (submitConsigneeDetails) consigneeContact else None,
-          declarantContact
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori

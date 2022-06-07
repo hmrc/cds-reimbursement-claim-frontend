@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.data.Validated
 import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -30,13 +29,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 
 import RejectedGoodsMultipleJourneyGenerators._
-import RejectedGoods.ValidationErrors._
+import JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import org.scalacheck.ShrinkLowPriority
 
-class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class RejectedGoodsMultipleJourneySpec
+    extends AnyWordSpec
+    with ScalaCheckPropertyChecks
+    with Matchers
+    with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 100)
+    PropertyCheckConfiguration(minSuccessful = 1000)
 
   val MRNS_SIZE: Int = 5
 
@@ -74,7 +78,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
 
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
-        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Validated.Valid(())
+        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Right(())
         journey.answers.checkYourAnswersChangeMode            shouldBe true
         journey.hasCompleteReimbursementClaims                shouldBe true
         journey.hasCompleteSupportingEvidences                shouldBe true
@@ -101,7 +105,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
 
     "check incompleteness if less than two MRNs" in {
       forAll(buildCompleteJourneyGen(minNumberOfMRNs = 1, maxNumberOfMRNs = 1)) { journey =>
-        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Validated.Invalid(
+        RejectedGoodsMultipleJourney.validator.apply(journey) shouldBe Left(
           List(MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
         )
         journey.answers.checkYourAnswersChangeMode            shouldBe false
@@ -155,7 +159,7 @@ class RejectedGoodsMultipleJourneySpec extends AnyWordSpec with ScalaCheckProper
       def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) =
         journey.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
 
-      forAll(Gen.listOfN(11, mrnWithDisplayDeclarationGen)) { data =>
+      forAll(listOfExactlyN(11, mrnWithDisplayDeclarationGen)) { data =>
         val dataWithIndex = data.zipWithIndex
         val journey       = emptyJourney
           .flatMapEach(dataWithIndex, submitData)

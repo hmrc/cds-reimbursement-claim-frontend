@@ -24,10 +24,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
 trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
 
-  val emptyJourney: RejectedGoodsMultipleJourney =
+  final val emptyJourney: RejectedGoodsMultipleJourney =
     RejectedGoodsMultipleJourney.empty(exampleEori)
 
-  def tryBuildRejectedGoodsMultipleJourney(
+  final def tryBuildRejectedGoodsMultipleJourney(
     userEoriNumber: Eori,
     mrns: Seq[MRN],
     displayDeclarations: Seq[DisplayDeclaration],
