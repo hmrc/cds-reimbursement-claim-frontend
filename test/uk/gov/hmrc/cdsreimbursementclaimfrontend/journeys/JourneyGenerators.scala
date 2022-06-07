@@ -141,6 +141,9 @@ trait JourneyGenerators extends JourneyTestData {
   final val exampleDisplayDeclaration: DisplayDeclaration =
     displayDeclarationGen.sample.get
 
+  final val exampleSecuritiesDisplayDeclaration: DisplayDeclaration =
+    securitiesDisplayDeclarationGen.sample.get
+
   final def taxCodesWithAmountsGen: Gen[Seq[(TaxCode, BigDecimal)]] =
     for {
       numberOfTaxCodes <- Gen.choose(2, 5)

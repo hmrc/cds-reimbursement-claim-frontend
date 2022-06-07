@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 import SecuritiesJourneyGenerators._
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 class SecuritiesJourneyFormatSpec extends AnyWordSpec with JsonFormatTest with Matchers with ScalaCheckPropertyChecks {
 
@@ -73,15 +74,18 @@ class SecuritiesJourneyFormatSpec extends AnyWordSpec with JsonFormatTest with M
       validateCanReadAndWriteJson(
         SecuritiesJourney.empty(exampleEori)
       )
-      // validateCanReadAndWriteJson(
-      //   SecuritiesJourney
-      //     .empty(exampleEori)
-      //     .submitMovementReferenceNumberAndDeclaration(
-      //       MRN("19GB03I52858027001"),
-      //       exampleDisplayDeclaration.withDeclarationId("19GB03I52858027001")
-      //     )
-      //     .getOrFail
-      // )
+      validateCanReadAndWriteJson(
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(MRN("19GB03I52858027001"))
+          .submitReasonForSecurityAndDeclaration(
+            ReasonForSecurity.AccountSales,
+            exampleSecuritiesDisplayDeclaration
+              .withDeclarationId("19GB03I52858027001")
+              .withReasonForSecurity(ReasonForSecurity.AccountSales)
+          )
+          .getOrFail
+      )
     }
 
     "serialize complete journey into a JSON format" in {
