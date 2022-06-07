@@ -205,8 +205,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
           declarantEORI,
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
           paidDuties,
-          if (submitConsigneeDetails) consigneeContact else None,
-          declarantContact
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori

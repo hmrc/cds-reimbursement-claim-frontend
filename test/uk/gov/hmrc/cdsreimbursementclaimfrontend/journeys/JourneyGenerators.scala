@@ -65,6 +65,30 @@ trait JourneyGenerators extends JourneyTestData {
                )
     } yield (mrn, rfs, acc14)
 
+  final lazy val mrnWithRfsWithDisplayDeclarationNotGuaranteeEligibleGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.values)
+      acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
+  final lazy val mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.values)
+      acc14 <- securitiesDisplayDeclarationGuaranteeEligibleGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
   final lazy val mrnWithNonExportRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN
@@ -103,10 +127,10 @@ trait JourneyGenerators extends JourneyTestData {
     )
 
   final val securitiesDisplayDeclarationGuaranteeEligibleGen: Gen[DisplayDeclaration] =
-    buildSecuritiesDisplayDeclarationGen(guaranteeEligible = true)
+    buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible = true)
 
   final val securitiesDisplayDeclarationNotGuaranteeEligibleGen: Gen[DisplayDeclaration] =
-    buildSecuritiesDisplayDeclarationGen(guaranteeEligible = false)
+    buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible = false)
 
   final lazy val securitiesDisplayDeclarationGen: Gen[DisplayDeclaration] =
     Gen.oneOf(
@@ -135,8 +159,9 @@ trait JourneyGenerators extends JourneyTestData {
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) }
     )
 
-  final def buildSecuritiesDisplayDeclarationGen(guaranteeEligible: Boolean): Gen[DisplayDeclaration] =
+  final def buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
     for {
+      reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
       declarantEORI      <- IdGen.genEori
       consigneeEORI      <- IdGen.genEori
       numberOfSecurities <- Gen.choose(2, 5)
@@ -145,10 +170,11 @@ trait JourneyGenerators extends JourneyTestData {
                               Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
                             )
     } yield buildSecuritiesDisplayDeclaration(
+      securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       reclaimsDetails = reclaimsDetails,
-      guaranteeEligible = guaranteeEligible
+      allDutiesGuaranteeEligible = allDutiesGuaranteeEligible
     )
 
   final def dec91ResponseGen(status: String): Gen[DEC91Response] =

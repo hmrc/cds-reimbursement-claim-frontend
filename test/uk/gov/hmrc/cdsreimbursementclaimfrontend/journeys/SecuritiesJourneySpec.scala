@@ -175,12 +175,14 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
     "reject submission of a new RfS and declaration when different RfS in declaration" in {
       forAll(genMRN, Gen.oneOf(ReasonForSecurity.values), securitiesDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-        val declWithMRN   = decl.withDeclarationId(mrn.value)
-        val journeyResult = emptyJourney
-          .submitMovementReferenceNumber(mrn)
-          .submitReasonForSecurityAndDeclaration(rfs, declWithMRN)
+        whenever(!decl.getReasonForSecurity.contains(rfs)) {
+          val declWithMRN   = decl.withDeclarationId(mrn.value)
+          val journeyResult = emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, declWithMRN)
 
-        journeyResult shouldBe Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationRfS")
+          journeyResult shouldBe Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationRfS")
+        }
       }
     }
 
@@ -723,281 +725,253 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    // "decline submission of a wrong display declaration" in {
-    //   forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
-    //     val journeyEither = emptyJourney
-    //       .submitMovementReferenceNumberAndDeclaration(mrn, decl.withDeclarationId("foo"))
+    "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.AccountSales.acc14Code,
+          declarantEORI = anotherExampleEori,
+          consigneeEORI = Some(anotherExampleEori)
+        )
+      val journey            =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, displayDeclaration)
+          .getOrFail
 
-    //     journeyEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
-    //   }
-    // }
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe true
+      journey.getClaimantType                          shouldBe ClaimantType.User
+      journey.getClaimantEori                          shouldBe exampleEori
+    }
 
-    // "accept submission of the same MRN" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val modifiedJourney = journey
-    //       .submitMovementReferenceNumberAndDeclaration(
-    //         journey.answers.movementReferenceNumber.get,
-    //         journey.answers.displayDeclaration.get
-    //       )
-    //       .getOrFail
-    //     modifiedJourney                                shouldBe journey
-    //     modifiedJourney.hasCompleteAnswers             shouldBe true
-    //     modifiedJourney.hasCompleteReimbursementClaims shouldBe true
-    //     modifiedJourney.hasCompleteSupportingEvidences shouldBe true
-    //   }
-    // }
+    "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          declarantEORI = exampleEori,
+          consigneeEORI = Some(anotherExampleEori)
+        )
+      val journey            =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .getOrFail
 
-    // "accept submission of a new ACC14 data" in {
-    //   forAll(displayDeclarationGen) { acc14 =>
-    //     val journey = emptyJourney
-    //       .submitMovementReferenceNumberAndDeclaration(
-    //         exampleMrn,
-    //         acc14.withDeclarationId(exampleMrnAsString)
-    //       )
-    //       .getOrFail
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Declarant
+      journey.getClaimantEori                          shouldBe exampleEori
+    }
 
-    //     journey.answers.movementReferenceNumber.contains(exampleMrn)                             shouldBe true
-    //     journey.answers.displayDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
-    //     journey.hasCompleteAnswers                                                               shouldBe false
-    //     journey.hasCompleteReimbursementClaims                                                   shouldBe false
-    //     journey.hasCompleteSupportingEvidences                                                   shouldBe true
-    //   }
-    // }
+    "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          declarantEORI = anotherExampleEori,
+          consigneeEORI = Some(exampleEori)
+        )
+      val journey            =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .getOrFail
 
-    // "accept change of the ACC14 data" in {
-    //   forAll(completeJourneyGen) { journey =>
-    //     val modifiedJourney =
-    //       journey
-    //         .submitMovementReferenceNumberAndDeclaration(
-    //           exampleMrn,
-    //           exampleDisplayDeclaration
-    //         )
-    //         .getOrFail
-    //     modifiedJourney.answers.movementReferenceNumber shouldBe Some(exampleMrn)
-    //     modifiedJourney.answers.displayDeclaration      shouldBe Some(exampleDisplayDeclaration)
-    //     modifiedJourney.answers.reimbursementClaims     shouldBe None
-    //     modifiedJourney.hasCompleteAnswers              shouldBe false
-    //     modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
-    //     modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
-    //   }
-    // }
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Consignee
+      journey.getClaimantEori                          shouldBe exampleEori
+    }
 
-    // "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
-    //   val displayDeclaration =
-    //     buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
-    //   val journey            =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //       .getOrFail
+    "fail building journey if user's eori is not matching those of ACC14 and separate EORIs were not provided by the user" in {
+      val journeyGen = buildJourneyGen(
+        acc14DeclarantMatchesUserEori = false,
+        acc14ConsigneeMatchesUserEori = false,
+        submitDeclarantDetails = false,
+        submitConsigneeDetails = false
+      )
+      forAll(journeyGen) { result =>
+        val journey = result.getOrElse(fail("Journey building has failed."))
+        journey.hasCompleteAnswers shouldBe false
+      }
+    }
 
-    //   journey.needsDeclarantAndConsigneeEoriSubmission shouldBe true
-    //   journey.getClaimantType                          shouldBe ClaimantType.User
-    //   journey.getClaimantEori                          shouldBe exampleEori
-    // }
+    "fail if submitted consignee EORI is not needed" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          declarantEORI = exampleEori
+        )
+      val journeyEither      =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
 
-    // "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
-    //   val displayDeclaration =
-    //     buildDisplayDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
-    //   val journey            =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //       .getOrFail
+      journeyEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
+    }
 
-    //   journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
-    //   journey.getClaimantType                          shouldBe ClaimantType.Declarant
-    //   journey.getClaimantEori                          shouldBe exampleEori
-    // }
+    "fail if submitted consignee EORI is not matching that of ACC14" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
+          declarantEORI = anotherExampleEori
+        )
+      val journeyEither      =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
 
-    // "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
-    //   val displayDeclaration =
-    //     buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
-    //   val journey            =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //       .getOrFail
+      journeyEither shouldBe Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
+    }
 
-    //   journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
-    //   journey.getClaimantType                          shouldBe ClaimantType.Consignee
-    //   journey.getClaimantEori                          shouldBe exampleEori
-    // }
+    "fail if submitted declarant EORI is not needed" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.InwardProcessingRelief.acc14Code,
+          declarantEORI = exampleEori
+        )
+      val journeyEither      =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, displayDeclaration)
+          .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
-    // "fail building journey if user's eori is not matching those of ACC14 and separate EORIs were not provided by the user" in {
-    //   val journeyGen = buildJourneyGen(
-    //     acc14DeclarantMatchesUserEori = false,
-    //     acc14ConsigneeMatchesUserEori = false,
-    //     submitDeclarantDetails = false,
-    //     submitConsigneeDetails = false
-    //   )
-    //   forAll(journeyGen) { result =>
-    //     val journey = result.getOrElse(fail("Journey building has failed."))
-    //     journey.hasCompleteAnswers shouldBe false
-    //   }
-    // }
+      journeyEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
+    }
 
-    // "fail if submitted consignee EORI is not needed" in {
-    //   val displayDeclaration =
-    //     buildDisplayDeclaration(declarantEORI = exampleEori)
-    //   val journeyEither      =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //       .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
+    "fail if submitted declarant EORI is not matching that of ACC14" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.ManualOverrideDeposit.acc14Code,
+          declarantEORI = anotherExampleEori
+        )
+      val journeyEither      =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.ManualOverrideDeposit, displayDeclaration)
+          .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
 
-    //   journeyEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
-    // }
+      journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+    }
 
-    // "fail if submitted consignee EORI is not matching that of ACC14" in {
-    //   val displayDeclaration =
-    //     buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-    //   val journeyEither      =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //       .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
+    "get contact details" should {
+      "return the specified details if they have been entered" in {
+        forAll(completeJourneyGen, authenticatedUserGen) { (journey, signedInUser) =>
+          whenever(journey.answers.contactDetails.isDefined) {
+            val result = journey.computeContactDetails(signedInUser)
+            result shouldBe journey.answers.contactDetails
+          }
+        }
+      }
 
-    //   journeyEither shouldBe Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
-    // }
+      "return the consignee details if no specific details entered and the signed in user is the consignee and consignee details are present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = true,
+            acc14DeclarantMatchesUserEori = false,
+            submitContactDetails = false
+          ),
+          authenticatedUserGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isDefined
+          ) {
+            val expectedContact   = journey.answers.displayDeclaration
+              .flatMap(_.getConsigneeDetails.flatMap(_.contactDetails))
+              .getOrElse(fail("Failed to get contact details"))
+            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
+              signedInUser.email.get.value
+            )
+            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+          }
+        }
+      }
 
-    // "fail if submitted declarant EORI is not needed" in {
-    //   val displayDeclaration =
-    //     buildDisplayDeclaration(declarantEORI = exampleEori)
-    //   val journeyEither      =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //       .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
+      "return the signed in user details if no specific details entered and the signed in user is the consignee and consignee details are not present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = true,
+            acc14DeclarantMatchesUserEori = false,
+            submitConsigneeDetails = false,
+            submitContactDetails = false
+          ),
+          authenticatedUserGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined &&
+              journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isEmpty
+          ) {
+            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            calculatedContact.fullName           shouldBe signedInUser.name
+              .map(_.toFullName)
+              .getOrElse(fail("No signed in user name present"))
+            calculatedContact.emailAddress.value shouldBe signedInUser.email
+              .map(_.value)
+              .getOrElse(fail("No signed in user email present"))
+            calculatedContact.phoneNumber        shouldBe None
+          }
+        }
+      }
 
-    //   journeyEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
-    // }
+      "return the declarant details if no specific details entered and the signed in user is the declarant" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = true,
+            submitConsigneeDetails = true,
+            submitContactDetails = false
+          ),
+          authenticatedUserGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
+          ) {
+            val expectedContact   = journey.answers.displayDeclaration
+              .flatMap(_.getDeclarantDetails.contactDetails)
+              .getOrElse(fail("Failed to get contact details"))
+            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
+              signedInUser.email.get.value
+            )
+            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+          }
+        }
+      }
 
-    // "fail if submitted declarant EORI is not matching that of ACC14" in {
-    //   val displayDeclaration =
-    //     buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-    //   val journeyEither      =
-    //     SecuritiesJourney
-    //       .empty(exampleEori)
-    //       .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-    //       .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
-
-    //   journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
-    // }
-
-    // "get contact details" should {
-    //   "return the specified details if they have been entered" in {
-    //     forAll(completeJourneyGen, authenticatedUserGen) { (journey, signedInUser) =>
-    //       whenever(journey.answers.contactDetails.isDefined) {
-    //         val result = journey.computeContactDetails(signedInUser)
-    //         result shouldBe journey.answers.contactDetails
-    //       }
-    //     }
-    //   }
-
-    //   "return the consignee details if no specific details entered and the signed in user is the consignee and consignee details are present" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         acc14ConsigneeMatchesUserEori = true,
-    //         acc14DeclarantMatchesUserEori = false,
-    //         submitContactDetails = false
-    //       ),
-    //       authenticatedUserGen
-    //     ) { (journey, signedInUser) =>
-    //       whenever(
-    //         journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isDefined
-    //       ) {
-    //         val expectedContact   = journey.answers.displayDeclaration
-    //           .flatMap(_.getConsigneeDetails.flatMap(_.contactDetails))
-    //           .getOrElse(fail("Failed to get contact details"))
-    //         val calculatedContact = journey.computeContactDetails(signedInUser).get
-    //         calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-    //         calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
-    //           signedInUser.email.get.value
-    //         )
-    //         calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
-    //       }
-    //     }
-    //   }
-
-    //   "return the signed in user details if no specific details entered and the signed in user is the consignee and consignee details are not present" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         acc14ConsigneeMatchesUserEori = true,
-    //         acc14DeclarantMatchesUserEori = false,
-    //         submitConsigneeDetails = false,
-    //         submitContactDetails = false
-    //       ),
-    //       authenticatedUserGen
-    //     ) { (journey, signedInUser) =>
-    //       whenever(
-    //         journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined &&
-    //           journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isEmpty
-    //       ) {
-    //         val calculatedContact = journey.computeContactDetails(signedInUser).get
-    //         calculatedContact.fullName           shouldBe signedInUser.name
-    //           .map(_.toFullName)
-    //           .getOrElse(fail("No signed in user name present"))
-    //         calculatedContact.emailAddress.value shouldBe signedInUser.email
-    //           .map(_.value)
-    //           .getOrElse(fail("No signed in user email present"))
-    //         calculatedContact.phoneNumber        shouldBe None
-    //       }
-    //     }
-    //   }
-
-    //   "return the declarant details if no specific details entered and the signed in user is the declarant" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         acc14ConsigneeMatchesUserEori = false,
-    //         acc14DeclarantMatchesUserEori = true,
-    //         submitConsigneeDetails = true,
-    //         submitContactDetails = false
-    //       ),
-    //       authenticatedUserGen
-    //     ) { (journey, signedInUser) =>
-    //       whenever(
-    //         journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
-    //       ) {
-    //         val expectedContact   = journey.answers.displayDeclaration
-    //           .flatMap(_.getDeclarantDetails.contactDetails)
-    //           .getOrElse(fail("Failed to get contact details"))
-    //         val calculatedContact = journey.computeContactDetails(signedInUser).get
-    //         calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-    //         calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
-    //           signedInUser.email.get.value
-    //         )
-    //         calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
-    //       }
-    //     }
-    //   }
-
-    //   "return the declarant details if no specific details entered and the signed in user is neither the consignee or declarant" in {
-    //     forAll(
-    //       buildCompleteJourneyGen(
-    //         acc14ConsigneeMatchesUserEori = false,
-    //         acc14DeclarantMatchesUserEori = false,
-    //         submitConsigneeDetails = true,
-    //         submitContactDetails = false
-    //       ),
-    //       authenticatedUserGen
-    //     ) { (journey, signedInUser) =>
-    //       whenever(
-    //         journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
-    //       ) {
-    //         val expectedContact   = journey.answers.displayDeclaration
-    //           .flatMap(_.getDeclarantDetails.contactDetails)
-    //           .getOrElse(fail("Failed to get contact details"))
-    //         val calculatedContact = journey.computeContactDetails(signedInUser).get
-    //         calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-    //         calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
-    //           signedInUser.email.get.value
-    //         )
-    //         calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
-    //       }
-    //     }
-    //   }
-    // }
+      "return the declarant details if no specific details entered and the signed in user is neither the consignee or declarant" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = false,
+            submitConsigneeDetails = true,
+            submitContactDetails = false
+          ),
+          authenticatedUserGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
+          ) {
+            val expectedContact   = journey.answers.displayDeclaration
+              .flatMap(_.getDeclarantDetails.contactDetails)
+              .getOrElse(fail("Failed to get contact details"))
+            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
+              signedInUser.email.get.value
+            )
+            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+          }
+        }
+      }
+    }
 
     // "get contact address" should {
     //   "return the specified details if they have been entered" in {

@@ -201,12 +201,13 @@ trait JourneyTestData {
 
   final def buildSecuritiesDisplayDeclaration(
     id: String = exampleMrnAsString,
+    securityReason: String,
     declarantEORI: Eori = exampleEori,
     consigneeEORI: Option[Eori] = None,
     reclaimsDetails: Seq[(String, Seq[(TaxCode, BigDecimal)])] = Seq.empty,
     consigneeContact: Option[ContactDetails] = None,
     declarantContact: Option[ContactDetails] = None,
-    guaranteeEligible: Boolean = false
+    allDutiesGuaranteeEligible: Boolean = false
   ): DisplayDeclaration = {
     val securityDetails: List[SecurityDetails] = reclaimsDetails.map { case (securityDepositId, taxDetails) =>
       val totalAmount = taxDetails.map(_._2).sum
@@ -214,7 +215,7 @@ trait JourneyTestData {
         securityDepositId = securityDepositId,
         totalAmount = totalAmount.toString(),
         amountPaid = totalAmount.toString(),
-        paymentMethod = if (guaranteeEligible) "004" else "003",
+        paymentMethod = if (allDutiesGuaranteeEligible) "004" else "003",
         paymentReference = s"payment-reference-$id",
         taxDetails = taxDetails.map { case (taxCode, amount) =>
           TaxDetails(taxCode.toString(), amount.toString())
@@ -243,7 +244,7 @@ trait JourneyTestData {
         declarationId = id,
         acceptanceDate = "2021-10-11",
         declarantReferenceNumber = None,
-        securityReason = None,
+        securityReason = Some(securityReason),
         btaDueDate = None,
         procedureCode = "procedure-code",
         btaSource = None,

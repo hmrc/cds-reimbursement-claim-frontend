@@ -29,8 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import scala.collection.JavaConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesReimbursementMethod
 
-/** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
+/** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
 
   val completeJourneyGen: Gen[SecuritiesJourney] =
@@ -38,69 +39,76 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
-    // acc14DeclarantMatchesUserEori: Boolean = true,
-    // acc14ConsigneeMatchesUserEori: Boolean = true,
-    // allDutiesCmaEligible: Boolean = true,
-    // hasConsigneeDetailsInACC14: Boolean = true,
-    // submitConsigneeDetails: Boolean = true,
-    // submitContactDetails: Boolean = true,
-    // submitContactAddress: Boolean = true,
-    // submitBankAccountDetails: Boolean = true,
-    // submitBankAccountType: Boolean = true,
-    // reimbursementMethod: Option[ReimbursementMethodAnswer] = None
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesGuaranteeEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    reimbursementMethod: Option[SecuritiesReimbursementMethod] = None
   ): Gen[SecuritiesJourney] =
     buildJourneyGen(
-      // acc14DeclarantMatchesUserEori,
-      // acc14ConsigneeMatchesUserEori,
-      // allDutiesCmaEligible,
-      // hasConsigneeDetailsInACC14,
-      // submitConsigneeDetails = submitConsigneeDetails,
-      // submitContactDetails = submitContactDetails,
-      // submitContactAddress = submitContactAddress,
-      // submitBankAccountType = submitBankAccountType,
-      // submitBankAccountDetails = submitBankAccountDetails,
-      // reimbursementMethod = reimbursementMethod
+      acc14DeclarantMatchesUserEori,
+      acc14ConsigneeMatchesUserEori,
+      allDutiesGuaranteeEligible,
+      hasConsigneeDetailsInACC14,
+      submitConsigneeDetails = submitConsigneeDetails,
+      submitContactDetails = submitContactDetails,
+      submitContactAddress = submitContactAddress,
+      submitBankAccountType = submitBankAccountType,
+      submitBankAccountDetails = submitBankAccountDetails,
+      reimbursementMethod = reimbursementMethod
     ).map(
       _.fold(
         error =>
           throw new Exception(
-            s"Cannnot build complete RejectedGoodsSingleJourney because of $error, fix the test data generator."
+            s"Cannnot build complete SecuritiesJourney because of $error, fix the test data generator."
           ),
         identity
       )
     )
 
   def buildJourneyGen(
-    // acc14DeclarantMatchesUserEori: Boolean = true,
-    // acc14ConsigneeMatchesUserEori: Boolean = true,
-    // allDutiesCmaEligible: Boolean = true,
-    // hasConsigneeDetailsInACC14: Boolean = true,
-    // submitDeclarantDetails: Boolean = true,
-    // submitConsigneeDetails: Boolean = true,
-    // submitContactDetails: Boolean = true,
-    // submitContactAddress: Boolean = true,
-    // submitBankAccountDetails: Boolean = true,
-    // submitBankAccountType: Boolean = true,
-    // reimbursementMethod: Option[ReimbursementMethodAnswer] = None
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesGuaranteeEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    reimbursementMethod: Option[SecuritiesReimbursementMethod] = None
   ): Gen[Either[String, SecuritiesJourney]] =
     for {
       userEoriNumber          <- IdGen.genEori
-      (mrn, rfs, decl)        <- mrnWithRfsWithDisplayDeclarationGen
+      mrn                     <- IdGen.genMRN
+      rfs                     <- Gen.oneOf(ReasonForSecurity.values)
+      declarantEORI           <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI           <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeContact        <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact        <- Gen.option(Acc14Gen.genContactDetails)
+      numberOfSecurities      <- Gen.choose(2, 5)
+      reclaimsDetails         <- listOfExactlyN(
+                                   numberOfSecurities,
+                                   Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
+                                 )
+      acc14                    = buildSecuritiesDisplayDeclaration(
+                                   id = mrn.value,
+                                   securityReason = rfs.acc14Code,
+                                   declarantEORI = declarantEORI,
+                                   consigneeEORI = if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+                                   reclaimsDetails = reclaimsDetails,
+                                   allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
+                                   consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+                                   declarantContact = declarantContact
+                                 )
       exportMrnAndDeclaration <- exportMrnWithDec91TrueGen
-      reclaims                <- validSecurityReclaimsGen(decl)
-      // declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      // consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      // numberOfTaxCodes            <- Gen.choose(1, 5)
-      // taxCodes                    <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
-      // paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
-      // reimbursementAmount         <-
-      //   Gen.sequence[Seq[BigDecimal], BigDecimal](
-      //     paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
-      //   )
-      // basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
-      // methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
-      // reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethodAnswer.values))
-      // numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
+      reclaims                <- validSecurityReclaimsGen(acc14)
       // numberOfSupportingEvidences <- Gen.choose(0, 3)
       // numberOfDocumentTypes       <- Gen.choose(1, 2)
       // documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsSingleTypes))
@@ -110,46 +118,46 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       //       documentTypes.map(dt => Gen.choose(0, numberOfSupportingEvidences).map(n => (dt, n)))
       //     )
       //     .map(_.toMap)
-      // bankAccountType             <- Gen.oneOf(BankAccountType.values)
-      // consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
-      // declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
-    } yield tryBuildSecuritiesJourney(
-      userEoriNumber = userEoriNumber,
-      mrn = mrn,
-      reasonForSecurity = rfs,
-      displayDeclaration = decl,
-      similarClaimExistAlreadyInCDFPay = false,
-      reclaims = reclaims,
-      exportMrnAndDeclaration =
-        if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration) else None
-      // displayDeclaration,
-      // basisOfClaim,
-      // "rejected goods details",
-      // "special circumstances details",
-      // exampleInspectionDate,
-      // exampleInspectionAddress,
-      // methodOfDisposal,
-      // reimbursementClaims,
-      // supportingEvidences,
-      // if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-      // declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
-      // consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-      // contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-      // contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-      // bankAccountDetails =
-      //   if (
-      //     submitBankAccountDetails &&
-      //     (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
-      //   )
-      //     Some(exampleBankAccountDetails)
-      //   else None,
-      // bankAccountType =
-      //   if (
-      //     submitBankAccountType &&
-      //     (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
-      //   )
-      //     Some(bankAccountType)
-      //   else None
-    )
+      bankAccountType         <- Gen.oneOf(BankAccountType.values)
+      reimbursementMethod     <-
+        reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(SecuritiesReimbursementMethod.values))
+    } yield {
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      tryBuildSecuritiesJourney(
+        userEoriNumber = userEoriNumber,
+        mrn = mrn,
+        reasonForSecurity = rfs,
+        displayDeclaration = acc14,
+        similarClaimExistAlreadyInCDFPay = false,
+        reclaims = reclaims,
+        exportMrnAndDeclaration =
+          if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration)
+          else
+            None,
+        // supportingEvidences,
+        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+        consigneeEoriNumber =
+          if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI)
+          else None,
+        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+        bankAccountDetails =
+          if (
+            submitBankAccountDetails &&
+            (!allDutiesGuaranteeEligible || reimbursementMethod === SecuritiesReimbursementMethod.BankAccountTransfer)
+          )
+            Some(exampleBankAccountDetails)
+          else None,
+        bankAccountType =
+          if (
+            submitBankAccountType &&
+            (!allDutiesGuaranteeEligible || reimbursementMethod === SecuritiesReimbursementMethod.BankAccountTransfer)
+          )
+            Some(bankAccountType)
+          else None
+      )
+    }
 
 }

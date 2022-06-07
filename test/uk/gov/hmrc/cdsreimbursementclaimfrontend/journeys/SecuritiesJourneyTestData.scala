@@ -35,7 +35,13 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     displayDeclaration: DisplayDeclaration,
     similarClaimExistAlreadyInCDFPay: Boolean,
     reclaims: Seq[(String, TaxCode, BigDecimal)],
-    exportMrnAndDeclaration: Option[(MRN, DEC91Response)]
+    exportMrnAndDeclaration: Option[(MRN, DEC91Response)],
+    consigneeEoriNumber: Option[Eori] = None,
+    declarantEoriNumber: Option[Eori] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None
   ): Either[String, SecuritiesJourney] =
     SecuritiesJourney
       .empty(userEoriNumber)
@@ -45,6 +51,10 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .tryWhenDefined(exportMrnAndDeclaration)(journey => { case (exportMrn, dec91) =>
         journey.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91)
       })
+      .flatMapWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .map(_.submitContactDetails(contactDetails))
+      .mapWhenDefined(contactAddress)(_.submitContactAddress _)
       .flatMap(_.selectSecurityDepositIds(reclaims.map(_._1)))
       .flatMapEach(
         reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,

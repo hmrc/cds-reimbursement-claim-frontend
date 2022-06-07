@@ -287,6 +287,44 @@ final class SecuritiesJourney private (
       }
     }
 
+  final def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (needsDeclarantAndConsigneeEoriSubmission)
+        if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
+          Right(
+            new SecuritiesJourney(
+              answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+            )
+          )
+        else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
+      else Left("submitConsigneeEoriNumber.unexpected")
+    }
+
+  final def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (needsDeclarantAndConsigneeEoriSubmission)
+        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+          Right(
+            new SecuritiesJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+          )
+        else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+      else Left("submitDeclarantEoriNumber.unexpected")
+    }
+
+  final def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(
+        answers.copy(contactDetails = contactDetails)
+      )
+    }
+
+  final def submitContactAddress(contactAddress: ContactAddress): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(
+        answers.copy(contactAddress = Some(contactAddress))
+      )
+    }
+
   final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       validate(this)
