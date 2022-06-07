@@ -67,17 +67,31 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
-  final def getAvailableDutiesFor(securityDepositId: String): Seq[TaxCode] =
+  final def getSecurityDepositDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+    getLeadDisplayDeclaration
+      .flatMap(_.getTaxDetailsFor(securityDepositId, taxCode))
+
+  final def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
+    getSecurityDepositDetailsFor(securityDepositId, taxCode).map(_.amount).map(BigDecimal.apply)
+
+  final def getSecurityDepositTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
 
-  final def getTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
-    getLeadDisplayDeclaration
-      .flatMap(_.getTaxDetailsFor(securityDepositId, taxCode))
-
-  def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
+  final def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
     answers.securitiesReclaims.flatMap(_.get(securityDepositId).map(_.keys.toSeq))
+
+  final def getReclaimAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
+    answers.securitiesReclaims
+      .flatMap(_.get(securityDepositId))
+      .flatMap(_.get(taxCode))
+      .flatten
+
+  final def getTotalReclaimAmount: BigDecimal =
+    answers.securitiesReclaims
+      .map(_.map(_._2.map(_._2.getOrElse(ZERO)).sum).sum)
+      .getOrElse(ZERO)
 
   final def requiresExportDeclaration: Boolean =
     ReasonForSecurity.requiresExportDeclaration
@@ -210,7 +224,7 @@ final class SecuritiesJourney private (
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
       else if (taxCodes.isEmpty)
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.emptyTaxCodeSelection")
-      else if (!getAvailableDutiesFor(securityDepositId).containsEachItemOf(taxCodes))
+      else if (!getSecurityDepositTaxCodesFor(securityDepositId).containsEachItemOf(taxCodes))
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidTaxCodeSelection")
       else {
         val existingReclaims: SecuritiesReclaims =
@@ -246,7 +260,7 @@ final class SecuritiesJourney private (
         Left("submitAmountForReclaim.invalidSecurityDepositId")
       else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
         Left("submitAmountForReclaim.invalidTaxCode")
-      else if (!getTaxDetailsFor(securityDepositId, taxCode).exists(isValidReclaimAmount(reclaimAmount, _)))
+      else if (!getSecurityDepositDetailsFor(securityDepositId, taxCode).exists(isValidReclaimAmount(reclaimAmount, _)))
         Left("submitAmountForReclaim.invalidAmount")
       else {
         val updatedSecuritiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] =

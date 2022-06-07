@@ -75,7 +75,7 @@ trait JourneyTestData {
     def headSeq: Seq[A] =
       seq.headOption.map(Seq(_)).getOrElse(Seq.empty)
 
-    def takeExceptIn(other: Seq[A]): Seq[A] =
+    def takeExcept(other: Seq[A]): Seq[A] =
       seq.filterNot(other.contains(_))
 
     def otherThen(a: A): A =
