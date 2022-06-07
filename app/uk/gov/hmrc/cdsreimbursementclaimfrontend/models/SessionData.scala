@@ -23,12 +23,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
 final case class SessionData(
   journeyStatus: Option[JourneyStatus] = None,
   rejectedGoodsSingleJourney: Option[RejectedGoodsSingleJourney] = None,
   rejectedGoodsMultipleJourney: Option[RejectedGoodsMultipleJourney] = None,
   rejectedGoodsScheduledJourney: Option[RejectedGoodsScheduledJourney] = None,
+  securitiesJourney: Option[SecuritiesJourney] = None,
   uploadDocumentsSessionModel: Option[UploadDocumentsSessionModel] = None
 ) {
 
@@ -55,6 +57,9 @@ object SessionData {
 
   def apply(rejectedGoodsScheduledJourney: RejectedGoodsScheduledJourney): SessionData =
     SessionData(rejectedGoodsScheduledJourney = Some(rejectedGoodsScheduledJourney))
+
+  def apply(securitiesJourney: SecuritiesJourney): SessionData =
+    SessionData(securitiesJourney = Some(securitiesJourney))
 
   def apply(uploadDocumentsModel: UploadDocumentsSessionModel): SessionData =
     SessionData(uploadDocumentsSessionModel = Some(uploadDocumentsModel))

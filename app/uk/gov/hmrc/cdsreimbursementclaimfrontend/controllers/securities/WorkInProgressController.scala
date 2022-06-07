@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
 import scala.concurrent.ExecutionContext
 
@@ -28,5 +28,5 @@ import scala.concurrent.ExecutionContext
 class WorkInProgressController @Inject() (
   val jcc: JourneyControllerComponents
 )(implicit val ec: ExecutionContext)
-    extends RejectedGoodsMultipleJourneyBaseController
-    with WorkInProgressMixin[RejectedGoodsMultipleJourney]
+    extends SecuritiesJourneyBaseController
+    with WorkInProgressMixin[SecuritiesJourney]

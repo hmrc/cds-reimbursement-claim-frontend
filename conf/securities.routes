@@ -1,0 +1,62 @@
+GET          /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/choose-reason-for-security                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/choose-reason-for-security                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/select-securities                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/select-securities                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/check-export-declaration-details              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/check-export-declaration-details              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+GET          /securities/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.redirectToALF()
+GET          /securities/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /securities/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+
+GET          /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/confirm-full-repayment                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/confirm-full-repayment                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+GET          /securities/enter-claim/:taxCode                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.showAmend(taxCode: TaxCode)
+POST         /securities/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+
+GET          /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
+POST         /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+
+GET          /securities/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()
++nocsrf
+POST         /securities/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+GET          /securities/upload-summary                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.summary()
+
+POST         /securities/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.submit()
+GET          /securities/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.showConfirmation()
+GET          /securities/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.WorkInProgressController.show()

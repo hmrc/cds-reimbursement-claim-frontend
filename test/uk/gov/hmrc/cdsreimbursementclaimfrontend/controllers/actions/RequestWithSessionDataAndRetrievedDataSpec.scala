@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.C285ClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.arbitraryIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
 class RequestWithSessionDataAndRetrievedDataSpec
     extends ControllerSpec
@@ -143,6 +144,15 @@ class RequestWithSessionDataAndRetrievedDataSpec
         val scheduledJourney = RejectedGoodsScheduledJourney.empty(randomIndividual.eori)
         val request          = RequestWithSessionDataAndRetrievedData(
           SessionData(scheduledJourney),
+          authenticatedRequest(randomIndividual)
+        )
+        request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
+      }
+
+      "We have a Securities Journey Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+        val securitiesJourney = SecuritiesJourney.empty(randomIndividual.eori)
+        val request           = RequestWithSessionDataAndRetrievedData(
+          SessionData(securitiesJourney),
           authenticatedRequest(randomIndividual)
         )
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
