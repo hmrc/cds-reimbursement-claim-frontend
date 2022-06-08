@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import cats.syntax.eq._
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+object SeqUtils {
+  implicit class SeqOps[A](val seq: Seq[A]) {
 
-final case class NdrcDetails(
-  taxType: String,
-  amount: String,
-  paymentMethod: String, // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account, 004 = Guarantee Account, 005 = Individual Guarantee"
-  paymentReference: String,
-  cmaEligible: Option[String]
-) {
-
-  def isCmaEligible: Boolean = cmaEligible.getOrElse("0") === "1"
-}
-
-object NdrcDetails {
-  implicit val format: OFormat[NdrcDetails] = Json.format[NdrcDetails]
+    def containsEachItemOf(other: Seq[A]): Boolean =
+      other.forall(seq.contains(_))
+  }
 }

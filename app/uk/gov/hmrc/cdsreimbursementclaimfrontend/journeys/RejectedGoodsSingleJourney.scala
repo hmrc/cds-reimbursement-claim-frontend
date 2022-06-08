@@ -58,12 +58,9 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends RejectedGoods.CommonJourneyProperties
+) extends Claim[RejectedGoodsSingleJourney]
+    with RejectedGoodsCommonJourneyProperties
     with FluentSyntax[RejectedGoodsSingleJourney] {
-
-  /** Check if the journey is ready to finalize, i.e. to get the output. */
-  def hasCompleteAnswers: Boolean =
-    RejectedGoodsSingleJourney.validator.apply(this).isValid
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -122,16 +119,6 @@ final class RejectedGoodsSingleJourney private (
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
 
-  def isFinalized: Boolean = caseNumber.isDefined
-
-  def whileJourneyIsAmendable(body: => RejectedGoodsSingleJourney): RejectedGoodsSingleJourney =
-    if (isFinalized) this else body
-
-  def whileJourneyIsAmendable(
-    body: => Either[String, RejectedGoodsSingleJourney]
-  ): Either[String, RejectedGoodsSingleJourney] =
-    if (isFinalized) Left(RejectedGoods.ValidationErrors.JOURNEY_ALREADY_FINALIZED) else body
-
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
@@ -139,7 +126,7 @@ final class RejectedGoodsSingleJourney private (
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
   ): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn)
             if existingMrn === mrn &&
@@ -166,7 +153,7 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
           Right(
@@ -179,7 +166,7 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
@@ -190,21 +177,21 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(contactAddress = Some(contactAddress))
       )
     }
 
   def submitBasisOfClaim(basisOfClaim: BasisOfRejectedGoodsClaim): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       basisOfClaim match {
         case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
           new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
@@ -222,7 +209,7 @@ final class RejectedGoodsSingleJourney private (
   def submitBasisOfClaimSpecialCircumstancesDetails(
     basisOfClaimSpecialCircumstancesDetails: String
   ): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       answers.basisOfClaim match {
         case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
           Right(
@@ -235,21 +222,21 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(methodOfDisposal = Some(methodOfDisposal))
       )
     }
 
   def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
       )
     }
 
   def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       getLeadDisplayDeclaration match {
         case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
@@ -282,7 +269,7 @@ final class RejectedGoodsSingleJourney private (
     taxCode: TaxCode,
     reimbursementAmount: BigDecimal
   ): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       getLeadDisplayDeclaration match {
         case None =>
           Left("submitAmountForReimbursement.missingDisplayDeclaration")
@@ -311,21 +298,21 @@ final class RejectedGoodsSingleJourney private (
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(inspectionDate = Some(inspectionDate))
       )
     }
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(inspectionAddress = Some(inspectionAddress))
       )
     }
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
           new RejectedGoodsSingleJourney(
@@ -336,7 +323,7 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
           new RejectedGoodsSingleJourney(
@@ -349,7 +336,7 @@ final class RejectedGoodsSingleJourney private (
   def submitReimbursementMethod(
     reimbursementMethodAnswer: ReimbursementMethodAnswer
   ): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (isAllSelectedDutiesAreCMAEligible) {
         if (reimbursementMethodAnswer === ReimbursementMethodAnswer.CurrentMonthAdjustment)
           Right(
@@ -374,14 +361,14 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def resetReimbursementMethod(): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(reimbursementMethod = None)
       )
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
@@ -391,7 +378,7 @@ final class RejectedGoodsSingleJourney private (
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
+    whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
@@ -404,9 +391,8 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
-    whileJourneyIsAmendable {
-      RejectedGoodsSingleJourney.validator
-        .apply(this)
+    whileClaimIsAmendable {
+      validate(this)
         .fold(
           _ => this,
           _ => new RejectedGoodsSingleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
@@ -414,10 +400,8 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, RejectedGoodsSingleJourney] =
-    whileJourneyIsAmendable {
-      RejectedGoodsSingleJourney.validator
-        .apply(this)
-        .toEither
+    whileClaimIsAmendable {
+      validate(this)
         .fold(
           errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
           _ => Right(new RejectedGoodsSingleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
@@ -437,9 +421,7 @@ final class RejectedGoodsSingleJourney private (
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def toOutput: Either[List[String], RejectedGoodsSingleJourney.Output] =
-    RejectedGoodsSingleJourney.validator
-      .apply(this)
-      .toEither
+    validate(this)
       .flatMap(_ =>
         (for {
           mrn                    <- getLeadMovementReferenceNumber
@@ -504,7 +486,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false
-  ) extends RejectedGoods.CommonAnswers
+  ) extends RejectedGoodsCommonAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
@@ -524,10 +506,10 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
   )
 
   import com.github.arturopala.validator.Validator._
-  import RejectedGoods.ValidationErrors._
+  import JourneyValidationErrors._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  val validator: Validate[RejectedGoodsSingleJourney] =
+  implicit val validator: Validate[RejectedGoodsSingleJourney] =
     all(
       checkIsDefined(_.getLeadMovementReferenceNumber, MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
       checkIsDefined(_.getLeadDisplayDeclaration, MISSING_DISPLAY_DECLARATION),

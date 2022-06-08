@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.data.Validated
 import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -30,12 +29,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 
 import RejectedGoodsSingleJourneyGenerators._
-import RejectedGoods.ValidationErrors._
+import JourneyValidationErrors._
+import org.scalacheck.ShrinkLowPriority
 
-class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class RejectedGoodsSingleJourneySpec
+    extends AnyWordSpec
+    with ScalaCheckPropertyChecks
+    with Matchers
+    with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 100)
+    PropertyCheckConfiguration(minSuccessful = 1000)
 
   "RejectedGoodsSingleJourney" should {
     "have an empty instance" in {
@@ -71,7 +75,7 @@ class RejectedGoodsSingleJourneySpec extends AnyWordSpec with ScalaCheckProperty
 
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
-        RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Validated.Valid(())
+        RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Right(())
         journey.answers.checkYourAnswersChangeMode          shouldBe true
         journey.hasCompleteReimbursementClaims              shouldBe true
         journey.hasCompleteSupportingEvidences              shouldBe true
