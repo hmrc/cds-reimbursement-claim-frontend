@@ -70,7 +70,7 @@ class CheckContactDetailsController @Inject() (
   implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
   val startAddressLookup: Call =
-    routes.CheckContactDetailsController.redirectToALF(journey)
+    OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(journey)
 
   val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -78,7 +78,7 @@ class CheckContactDetailsController @Inject() (
         val maybeContactDetails  = fillingOutClaim.draftClaim.computeContactDetails(fillingOutClaim.signedInUserDetails)
         val maybeAddressDetails  = fillingOutClaim.draftClaim.computeAddressDetails(fillingOutClaim.signedInUserDetails)
         val changeContactDetails = claimsRoutes.EnterContactDetailsMrnController.changeMrnContactDetails(journey)
-        val postAction           = routes.CheckContactDetailsController.submit(journey)
+        val postAction           = OverpaymentsRoutes.CheckContactDetailsController.submit(journey)
 
         (maybeContactDetails, maybeAddressDetails) match {
           case (Some(contactDetails), Some(contactAddress)) =>
@@ -136,11 +136,11 @@ class CheckContactDetailsController @Inject() (
   val redirectToALF: Action[AnyContent] =
     Action.andThen(authenticatedAction).async { implicit request =>
       addressLookupService
-        .startLookupRedirectingBackTo(routes.CheckContactDetailsController.retrieveAddressFromALF(journey))
+        .startLookupRedirectingBackTo(OverpaymentsRoutes.CheckContactDetailsController.retrieveAddressFromALF)
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
 
-  def retrieveAddressFromALF(journey: JourneyBindable, addressIdentity: Option[UUID] = None): Action[AnyContent] =
+  def retrieveAddressFromALF(addressIdentity: Option[UUID] = None): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (claim, _, _) =>
         def updateLookupAddress(id: UUID) =
@@ -163,7 +163,7 @@ class CheckContactDetailsController @Inject() (
               case e: Error =>
                 logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(e)
             },
-            _ => Redirect(routes.CheckContactDetailsController.show(journey))
+            _ => Redirect(OverpaymentsRoutes.CheckContactDetailsController.show(journey))
           )
       }(dataExtractor, request, journey)
     }

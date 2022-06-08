@@ -15,6 +15,9 @@ GET         /scheduled/scheduled-document-upload/continue                       
 GET         /scheduled/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.show
 POST        /scheduled/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.submit
 
+GET         /scheduled/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.redirectToALF
+GET         /scheduled/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+
 GET         /scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.show
 POST        /scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.submit
 

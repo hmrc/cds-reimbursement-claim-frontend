@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 
 @Singleton
@@ -35,7 +36,7 @@ class ProblemWithAddressController @Inject() (
     extends FrontendController(cc) {
 
   def show: Action[AnyContent] = Action { implicit request =>
-    val postAction = claimsRoutes.CheckContactDetailsMrnController.redirectToALF(JourneyBindable.Scheduled)
+    val postAction = OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(JourneyBindable.Scheduled)
     Ok(problemWithAddressPage(postAction))
   }
 }

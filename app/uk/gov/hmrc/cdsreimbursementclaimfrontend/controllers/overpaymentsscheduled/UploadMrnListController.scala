@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -148,7 +149,7 @@ class UploadMrnListController @Inject() (
         request
           .routeToCheckAnswers(JourneyBindable.Scheduled)
           .whenComplete(journey.draftClaim)(alternatively =
-            claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Scheduled)
+            OverpaymentsRoutes.CheckContactDetailsController.show(JourneyBindable.Scheduled)
           )
       }
     }

@@ -100,15 +100,21 @@ object OverpaymentsRoutes {
 
   object CheckContactDetailsController {
     def show(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single => overpaymentsSingleRoutes.CheckContactDetailsController.show
-      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.CheckContactDetailsController.show
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckContactDetailsController.show
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckContactDetailsController.show
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.show
     }
 
     def submit(journey: JourneyBindable): Call = journey match {
-      case JourneyBindable.Single => overpaymentsSingleRoutes.CheckContactDetailsController.submit
-      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.CheckContactDetailsController.submit
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckContactDetailsController.submit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckContactDetailsController.submit
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.submit
+    }
+
+    def redirectToALF(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckContactDetailsController.redirectToALF
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckContactDetailsController.redirectToALF
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.redirectToALF
     }
   }
 

@@ -84,7 +84,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
             else
               overpaymentsMultipleRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
           case _                         =>
-            claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+            OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable)
         }
       case No  =>
         OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
@@ -94,8 +94,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
     OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
-    if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
-    else claimRoutes.CheckContactDetailsMrnController.redirectToALF(journeyBindable)
+    if (isChange) OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable)
+    else OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(journeyBindable)
 
   def nextPageForSelectBankAccountType(): Call =
     OverpaymentsRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
@@ -112,7 +112,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
             OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
       case None                =>
-        claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+        OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable)
     }
 }
 
