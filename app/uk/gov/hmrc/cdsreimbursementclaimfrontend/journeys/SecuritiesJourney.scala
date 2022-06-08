@@ -56,87 +56,87 @@ final class SecuritiesJourney private (
   import SecuritiesJourney.Checks._
   import SecuritiesJourney.SecuritiesReclaims
 
-  final override def getLeadMovementReferenceNumber: Option[MRN] =
+  override def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
 
-  final override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
+  override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
 
-  final def getSecurityDepositIds: Seq[String] =
+  def getSecurityDepositIds: Seq[String] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
-  final def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
+  def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDetailsFor(securityDepositId))
 
-  final def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+  def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityTaxDetailsFor(securityDepositId, taxCode))
 
-  final def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
+  def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
     getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.amount).map(BigDecimal.apply)
 
-  final def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
+  def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
 
-  final def getSelectedDepositIds: Seq[String] =
-    answers.securitiesReclaims.map(_.map(_._1).toSeq).getOrElse(Seq.empty)
+  def getSelectedDepositIds: Seq[String] =
+    answers.securitiesReclaims.map(_.keys.toSeq).getOrElse(Seq.empty)
 
-  final def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
+  def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
     answers.securitiesReclaims.flatMap(_.get(securityDepositId).map(_.keys.toSeq))
 
-  final def getAllSelectedDuties: Seq[(String, TaxCode)] =
+  def getAllSelectedDuties: Seq[(String, TaxCode)] =
     answers.securitiesReclaims
       .map(_.toSeq.flatMap { case (sid, reclaims) =>
         reclaims.keys.map(tc => (sid, tc))
       })
       .getOrElse(Seq.empty)
 
-  final def getReclaimAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
+  def getReclaimAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
     answers.securitiesReclaims
       .flatMap(_.get(securityDepositId))
       .flatMap(_.get(taxCode))
       .flatten
 
-  final def getTotalReclaimAmount: BigDecimal =
+  def getTotalReclaimAmount: BigDecimal =
     answers.securitiesReclaims
       .map(_.map(_._2.map(_._2.getOrElse(ZERO)).sum).sum)
       .getOrElse(ZERO)
 
-  final def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
+  def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.securitiesReclaims
       .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
       .getOrElse(SortedMap.empty)
 
-  final def requiresExportDeclaration: Boolean =
+  def requiresExportDeclaration: Boolean =
     ReasonForSecurity.requiresExportDeclaration
       .exists(answers.reasonForSecurity.contains(_))
 
-  final def goodsHasBeenAlreadyExported: Boolean =
+  def goodsHasBeenAlreadyExported: Boolean =
     answers.exportDeclaration.exists(_.goodsHasBeenAlreadyExported)
 
-  final def hasCompleteSecuritiesReclaims: Boolean =
+  def hasCompleteSecuritiesReclaims: Boolean =
     answers.securitiesReclaims.exists(m =>
       m.nonEmpty && m.exists(_._2.nonEmpty) && m.forall(_._2.forall(_._2.isDefined))
     )
 
-  final def isAllSelectedDutiesAreGuaranteeEligible: Boolean =
+  def isAllSelectedDutiesAreGuaranteeEligible: Boolean =
     getSelectedDepositIds
       .map(getSecurityDetailsFor)
       .collect { case Some(s) => s }
       .forall(_.isGuaranteeEligible)
 
-  final def needsBanksAccountDetailsSubmission: Boolean =
+  def needsBanksAccountDetailsSubmission: Boolean =
     !isAllSelectedDutiesAreGuaranteeEligible
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
     */
-  final def submitMovementReferenceNumber(
+  def submitMovementReferenceNumber(
     mrn: MRN
   ): SecuritiesJourney =
     whileClaimIsAmendable {
@@ -155,7 +155,7 @@ final class SecuritiesJourney private (
       }
     }
 
-  final def submitReasonForSecurityAndDeclaration(
+  def submitReasonForSecurityAndDeclaration(
     reasonForSecurity: ReasonForSecurity,
     displayDeclaration: DisplayDeclaration
   ): Either[String, SecuritiesJourney] =
@@ -182,7 +182,7 @@ final class SecuritiesJourney private (
         )
     }
 
-  final def submitClaimDuplicateCheckStatus(
+  def submitClaimDuplicateCheckStatus(
     similarClaimExistAlreadyInCDFPay: Boolean
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMovementReferenceNumber && hasReasonForSecurity) {
@@ -195,7 +195,7 @@ final class SecuritiesJourney private (
       )
     }
 
-  final def submitExportMovementReferenceNumberAndDeclaration(
+  def submitExportMovementReferenceNumberAndDeclaration(
     exportMrn: MRN,
     exportDeclaration: DEC91Response
   ): Either[String, SecuritiesJourney] =
@@ -213,7 +213,7 @@ final class SecuritiesJourney private (
         Left("submitExportMovementReferenceNumberAndDeclaration.exportDeclarationNotRequired")
     }
 
-  final def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
+  def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       if (securityDepositIds.isEmpty)
         Left("selectSecurityDepositIds.emptySelection")
@@ -240,7 +240,7 @@ final class SecuritiesJourney private (
       }
     }
 
-  final def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
+  def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
     securityDepositId: String,
     taxCodes: Seq[TaxCode]
   ): Either[String, SecuritiesJourney] =
@@ -260,7 +260,7 @@ final class SecuritiesJourney private (
             .flatMap(_.get(securityDepositId))
             .getOrElse(SortedMap.empty)
         val refinedReclaims: SecuritiesReclaims  =
-          SortedMap(taxCodes.map(taxCode => taxCode -> existingReclaims.get(taxCode).getOrElse(None)): _*)
+          SortedMap(taxCodes.map(taxCode => taxCode -> existingReclaims.getOrElse(taxCode, None)): _*)
         Right(
           new SecuritiesJourney(
             answers.copy(
@@ -272,10 +272,10 @@ final class SecuritiesJourney private (
       }
     }
 
-  final def isValidReclaimAmount(reclaimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
+  def isValidReclaimAmount(reclaimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
     reclaimAmount > 0 && reclaimAmount <= BigDecimal(taxDetails.amount)
 
-  final def submitAmountForReclaim(
+  def submitAmountForReclaim(
     securityDepositId: String,
     taxCode: TaxCode,
     reclaimAmount: BigDecimal
@@ -315,7 +315,7 @@ final class SecuritiesJourney private (
       }
     }
 
-  final def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, SecuritiesJourney] =
+  def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
@@ -328,7 +328,7 @@ final class SecuritiesJourney private (
       else Left("submitConsigneeEoriNumber.unexpected")
     }
 
-  final def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, SecuritiesJourney] =
+  def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
@@ -339,21 +339,21 @@ final class SecuritiesJourney private (
       else Left("submitDeclarantEoriNumber.unexpected")
     }
 
-  final def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
     whileClaimIsAmendable {
       new SecuritiesJourney(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
-  final def submitContactAddress(contactAddress: ContactAddress): SecuritiesJourney =
+  def submitContactAddress(contactAddress: ContactAddress): SecuritiesJourney =
     whileClaimIsAmendable {
       new SecuritiesJourney(
         answers.copy(contactAddress = Some(contactAddress))
       )
     }
 
-  final def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, SecuritiesJourney] =
+  def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
@@ -364,7 +364,7 @@ final class SecuritiesJourney private (
       else Left("submitBankAccountDetails.unexpected")
     }
 
-  final def submitBankAccountType(bankAccountType: BankAccountType): Either[String, SecuritiesJourney] =
+  def submitBankAccountType(bankAccountType: BankAccountType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
@@ -376,7 +376,7 @@ final class SecuritiesJourney private (
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  final def receiveUploadedFiles(
+  def receiveUploadedFiles(
     documentType: UploadDocumentType,
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
@@ -393,7 +393,7 @@ final class SecuritiesJourney private (
       } else Left("receiveUploadedFiles.invalidNonce")
     }
 
-  final def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
+  def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
       validate(this)
         .fold(
@@ -402,7 +402,7 @@ final class SecuritiesJourney private (
         )
     }
 
-  final def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
+  def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       validate(this)
         .fold(
@@ -413,13 +413,14 @@ final class SecuritiesJourney private (
 
   @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
-    if (obj.isInstanceOf[SecuritiesJourney]) {
-      val that = obj.asInstanceOf[SecuritiesJourney]
-      that.answers === this.answers && that.caseNumber === this.caseNumber
-    } else false
+    obj match {
+      case that: SecuritiesJourney =>
+        that.answers === this.answers && that.caseNumber === this.caseNumber
+      case _                       => false
+    }
 
   override def hashCode(): Int    = answers.hashCode
-  override def toString(): String = s"SecuritiesJourney($answers,$caseNumber)"
+  override def toString(): String = s"SecuritiesJourney($answers, $caseNumber)"
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -515,7 +516,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
 
     val canContinueTheClaimWithChoosenRfS: Check[SecuritiesJourney] =
       Check(
-        journey => (!journey.requiresExportDeclaration || journey.goodsHasBeenAlreadyExported),
+        journey => !journey.requiresExportDeclaration || journey.goodsHasBeenAlreadyExported,
         CHOOSEN_REASON_FOR_SECURITY_REQUIRES_GOODS_TO_BE_ALREADY_EXPORTED
       )
 
