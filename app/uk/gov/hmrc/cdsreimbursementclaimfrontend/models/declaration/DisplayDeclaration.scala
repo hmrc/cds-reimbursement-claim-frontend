@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -56,8 +57,35 @@ final case class DisplayDeclaration(
 
   def getMRN: MRN = MRN(displayResponseDetail.declarationId)
 
+  def getReasonForSecurity: Option[ReasonForSecurity] =
+    displayResponseDetail.securityReason.flatMap(ReasonForSecurity.fromACC14Code)
+
+  def getSecurityDepositIds: Option[List[String]] =
+    displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
+
+  def getSecurityTaxCodesFor(securityDepositId: String): List[TaxCode] =
+    getSecurityDetailsFor(securityDepositId)
+      .map(
+        _.taxDetails.map(_.taxType).map(TaxCodes.findUnsafe(_))
+      )
+      .getOrElse(Nil)
+
+  def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
+    displayResponseDetail.securityDetails
+      .getOrElse(Nil)
+      .find(_.securityDepositId === securityDepositId)
+
+  def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+    getSecurityDetailsFor(securityDepositId)
+      .flatMap(_.taxDetails.find(td => TaxCodes.findUnsafe(td.taxType) === taxCode))
+
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
+
+  def optionallyWithMRN(maybeMRN: Option[MRN]): DisplayDeclaration =
+    maybeMRN
+      .map(mrn => copy(displayResponseDetail = displayResponseDetail.copy(declarationId = mrn.value)))
+      .getOrElse(this)
 
   def withDeclarantEori(eori: Eori): DisplayDeclaration =
     copy(displayResponseDetail =
@@ -75,6 +103,9 @@ final case class DisplayDeclaration(
 
   def withBankDetails(bankDetails: Option[BankDetails]): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(bankDetails = bankDetails))
+
+  def withReasonForSecurity(reasonForSecurity: ReasonForSecurity): DisplayDeclaration =
+    copy(displayResponseDetail = displayResponseDetail.copy(securityReason = Some(reasonForSecurity.acc14Code)))
 
   def hasSameEoriAs(other: DisplayDeclaration): Boolean =
     this.getDeclarantEori === other.getDeclarantEori ||

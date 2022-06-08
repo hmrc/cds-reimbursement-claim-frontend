@@ -17,11 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoods.ValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 
 trait RejectedGoodsScheduledJourneyRouter {
 
-  private val undefined: Call = routes.WorkInProgressController.show()
+  private val undefined: Call =
+    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
 
   def routeForValidationError(error: String): Call =
     error match {
