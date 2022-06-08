@@ -50,6 +50,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_
 
 import scala.concurrent.Future
 import collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 
 class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
@@ -62,9 +69,13 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
   implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]
 
-  val authenticatedAction: AuthenticatedAction = instanceOf[AuthenticatedAction]
-  val sessionDataAction: SessionDataAction     = instanceOf[SessionDataAction]
-  val chooseClaimTypePage: choose_claim_type   = instanceOf[choose_claim_type]
+  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData =
+    instanceOf[AuthenticatedActionWithRetrievedData]
+  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData     =
+    instanceOf[SessionDataActionWithRetrievedData]
+  val authenticatedAction: AuthenticatedAction                                   = instanceOf[AuthenticatedAction]
+  val sessionDataAction: SessionDataAction                                       = instanceOf[SessionDataAction]
+  val chooseClaimTypePage: choose_claim_type                                     = instanceOf[choose_claim_type]
 
   class LoggerStub extends Logger(logger = null) {
     @SuppressWarnings(Array("org.wartremover.warts.Var"))
@@ -83,6 +94,8 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
   val controller: ChooseClaimTypeController =
     new ChooseClaimTypeController(
+      authenticatedActionWithRetrievedData,
+      sessionDataActionWithRetrievedData,
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
@@ -97,6 +110,8 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
   val featureSwitch: FeatureSwitchService = instanceOf[FeatureSwitchService]
 
   private val formKey = "choose-claim-type"
+
+  val exampleEori: Eori = IdGen.genEori.sample.get
 
   "ChooseClaimTypeController" must {
 
@@ -132,7 +147,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
       "Redirect to SelectNumberOfClaims if user chooses C285" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
@@ -142,7 +157,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
       "Redirect to choose how many mrns if user chooses C&E1179" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
@@ -155,8 +170,9 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
       "Redirect to the enter mrn if user chooses Securities" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
+          mockStoreSession(SessionData(SecuritiesJourney.empty(exampleEori, Nonce.Any)))(Right(()))
         }
 
         val result = performAction(Seq(dataKey -> Securities.toString))
@@ -168,7 +184,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
       "Show error page when no data selected" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
@@ -182,7 +198,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
       "Raise an exception if the data received is not expected" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
         }
 

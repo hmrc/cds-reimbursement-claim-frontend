@@ -39,16 +39,27 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import scala.concurrent.ExecutionContext
+import play.api.mvc.Result
 
 @Singleton
 class ChooseClaimTypeController @Inject() (
+  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
+  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   chooseClaimTypePage: pages.choose_claim_type
-)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents)
+)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
+    with WithAuthRetrievalsAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates
     with Logging {
@@ -58,22 +69,29 @@ class ChooseClaimTypeController @Inject() (
       Ok(chooseClaimTypePage(claimFormForm))
     }
 
-  def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    claimFormForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors => {
-          if (formWithErrors.data.nonEmpty)
-            logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.values.mkString}")
-          Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
-        },
-        {
-          case C285          => Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
-          case RejectedGoods => Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
-          case Securities    => Future.successful(Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
-        }
-      )
-  }
+  def submit(): Action[AnyContent] =
+    authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+      claimFormForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors => {
+            if (formWithErrors.data.nonEmpty)
+              logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.values.mkString}")
+            Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
+          },
+          {
+            case C285          => Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
+            case RejectedGoods => Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
+            case Securities    =>
+              request.authenticatedRequest.journeyUserType.eoriOpt
+                .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
+                  sessionStore
+                    .store(SessionData(SecuritiesJourney.empty(eori, Nonce.random)))
+                    .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
+                }
+          }
+        )
+    }
 
 }
 
