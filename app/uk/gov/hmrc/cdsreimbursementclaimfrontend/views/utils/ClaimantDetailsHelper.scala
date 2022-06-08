@@ -21,20 +21,17 @@ import play.api.i18n.Messages
 import play.twirl.api.Html
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -142,7 +139,7 @@ class ClaimantDetailsHelper @Inject() () {
           "govuk-link",
           List(
             ActionItem(
-              href = s"${routes.CheckContactDetailsMrnController.redirectToALF(journey).url}",
+              href = s"${OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(journey).url}",
               content = Text(messages("claimant-details.change")),
               visuallyHiddenText = Some(messages(s"$key.contact.address"))
             )

@@ -136,7 +136,7 @@ class CheckContactDetailsController @Inject() (
   val redirectToALF: Action[AnyContent] =
     Action.andThen(authenticatedAction).async { implicit request =>
       addressLookupService
-        .startLookupRedirectingBackTo(OverpaymentsRoutes.CheckContactDetailsController.retrieveAddressFromALF)
+        .startLookupRedirectingBackTo(OverpaymentsRoutes.CheckContactDetailsController.retrieveAddressFromALF(journey))
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
 

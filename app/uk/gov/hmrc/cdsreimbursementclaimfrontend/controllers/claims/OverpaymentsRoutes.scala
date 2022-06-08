@@ -18,11 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 
-import java.util.jar.JarOutputStream
+import java.util.UUID
 
 object OverpaymentsRoutes {
 
@@ -115,6 +115,15 @@ object OverpaymentsRoutes {
       case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckContactDetailsController.redirectToALF
       case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckContactDetailsController.redirectToALF
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.redirectToALF
+    }
+
+    def retrieveAddressFromALF(journey: JourneyBindable, addressIdentity: Option[UUID] = None): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.CheckContactDetailsController.retrieveAddressFromALF(addressIdentity)
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.CheckContactDetailsController.retrieveAddressFromALF(addressIdentity)
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.CheckContactDetailsController.retrieveAddressFromALF(addressIdentity)
     }
   }
 

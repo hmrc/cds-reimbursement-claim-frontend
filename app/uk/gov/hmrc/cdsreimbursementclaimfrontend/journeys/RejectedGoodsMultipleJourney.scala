@@ -40,11 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 
 import java.time.LocalDate
 
@@ -650,8 +646,8 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     supportingEvidences: Seq[EvidenceDocument]
   )
 
-  import com.github.arturopala.validator.Validator._
   import JourneyValidationErrors._
+  import com.github.arturopala.validator.Validator._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   implicit val validator: Validate[RejectedGoodsMultipleJourney] =

@@ -14,28 +14,25 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, TypeOfClaimAnswer}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -82,7 +79,7 @@
 
     @claim.getClaimantInformation(userEoriNumber).map{ claimantInformation =>
         @pageHeading(Html(messages(s"$key.contact-information.h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(ClaimantInformationSummary(claimantInformation, s"$key.contact-information", claimRoutes.CheckContactDetailsMrnController.show(journey), claimRoutes.CheckContactDetailsMrnController.show(journey)))
+        @summary(ClaimantInformationSummary(claimantInformation, s"$key.contact-information", OverpaymentsRoutes.CheckContactDetailsController.show(journey), OverpaymentsRoutes.CheckContactDetailsController.show(journey)))
     }
     
     @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
