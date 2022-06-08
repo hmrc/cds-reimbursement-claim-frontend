@@ -21,7 +21,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationError
 
 trait RejectedGoodsMultipleJourneyRouter {
 
-  private val undefined: Call = routes.WorkInProgressController.show()
+  private val undefined: Call =
+    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
 
   def routeForValidationError(error: String): Call =
     error match {

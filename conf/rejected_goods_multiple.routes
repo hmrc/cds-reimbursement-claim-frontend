@@ -73,5 +73,3 @@ GET          /rejected-goods/multiple/upload-summary                            
 POST         /rejected-goods/multiple/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckYourAnswersController.submit()
 GET          /rejected-goods/multiple/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckYourAnswersController.showConfirmation()
 GET          /rejected-goods/multiple/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckYourAnswersController.show()
-
-GET          /rejected-goods/multiple/work-in-progress                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.WorkInProgressController.show()
