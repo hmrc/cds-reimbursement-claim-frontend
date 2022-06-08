@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import ChooseClaimTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectGoodsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -69,6 +70,7 @@ class ChooseClaimTypeController @Inject() (
         {
           case C285          => Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
           case RejectedGoods => Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
+          case Securities    => Future.successful(Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
         }
       )
   }
@@ -79,8 +81,9 @@ object ChooseClaimTypeController {
   sealed trait ClaimForm
   case object C285 extends ClaimForm
   case object RejectedGoods extends ClaimForm
+  case object Securities extends ClaimForm
 
-  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods")
+  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities")
 
   val dataKey: String = "choose-claim-type"
 
@@ -91,8 +94,9 @@ object ChooseClaimTypeController {
           .verifying(value => allowedValues.contains(value))
           .transform[ClaimForm](
             {
-              case "RejectedGoods" => RejectedGoods
               case "C285"          => C285
+              case "RejectedGoods" => RejectedGoods
+              case "Securities"    => Securities
             },
             _.toString
           )

@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
@@ -25,8 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class WorkInProgressController @Inject() (
+class EnterImporterEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents
-)(implicit val ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
     with WorkInProgressMixin[SecuritiesJourney]

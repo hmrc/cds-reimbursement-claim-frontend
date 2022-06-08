@@ -65,6 +65,13 @@
      content = HtmlContent(messages(s"$key.ce1179.title")),
      hint = Some(Hint(content = Text(messages(s"$key.ce1179.hint")))),
      checked = form.value.contains(RejectedGoods)
+    ),
+    RadioItem(
+     id = Some(s"$key-securities"),
+     value = Some(Securities.toString),
+     content = HtmlContent(messages(s"$key.securities.title")),
+     hint = None,
+     checked = form.value.contains(Securities)
     )
    )
   )

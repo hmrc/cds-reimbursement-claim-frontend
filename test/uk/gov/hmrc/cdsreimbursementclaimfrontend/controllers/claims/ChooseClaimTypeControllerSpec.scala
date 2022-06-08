@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -114,9 +115,11 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
           val buttons             = radioButtons(doc)
           val c285Button          = extractButton(buttons, "C285")
           val rejectedGoodsButton = extractButton(buttons, "RejectedGoods")
+          val securitiesButton    = extractButton(buttons, "Securities")
           extractLabel(c285Button)          shouldBe messageFromMessageKey(s"$formKey.c285.title")
           extractHint(c285Button)           shouldBe ""
           extractLabel(rejectedGoodsButton) shouldBe messageFromMessageKey(s"$formKey.ce1179.title")
+          extractLabel(securitiesButton)    shouldBe messageFromMessageKey(s"$formKey.securities.title")
           extractHint(rejectedGoodsButton)  shouldBe messageFromMessageKey(s"$formKey.ce1179.hint")
         }
       )
@@ -147,6 +150,19 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
         checkIsRedirect(
           result,
           rejectedGoodsRoutes.ChooseHowManyMrnsController.show()
+        )
+      }
+
+      "Redirect to the enter mrn if user chooses Securities" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData.empty)
+        }
+
+        val result = performAction(Seq(dataKey -> Securities.toString))
+        checkIsRedirect(
+          result,
+          securitiesRoutes.EnterMovementReferenceNumberController.show()
         )
       }
 
