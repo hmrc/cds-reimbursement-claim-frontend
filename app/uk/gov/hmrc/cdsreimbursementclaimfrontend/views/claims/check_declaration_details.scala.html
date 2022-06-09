@@ -14,18 +14,16 @@
  * limitations under the License.
  *@
 
-@import play.api.i18n.Messages
-@import play.twirl.api.Html
 @import play.api.data.Form
-@import play.api.mvc.Call
-@import play.api.mvc.Request
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.CdsDisplayDeclarationSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(

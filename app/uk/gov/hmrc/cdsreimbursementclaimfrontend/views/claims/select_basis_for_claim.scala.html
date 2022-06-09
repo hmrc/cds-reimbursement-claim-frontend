@@ -16,20 +16,16 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
-@import play.twirl.api.Html
 @import play.api.mvc.Call
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
