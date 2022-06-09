@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -74,7 +73,7 @@ class CheckContactDetailsController @Inject() (
       request.using { case fillingOutClaim: FillingOutClaim =>
         val maybeContactDetails  = fillingOutClaim.draftClaim.computeContactDetails(fillingOutClaim.signedInUserDetails)
         val maybeAddressDetails  = fillingOutClaim.draftClaim.computeAddressDetails(fillingOutClaim.signedInUserDetails)
-        val changeContactDetails = claimsRoutes.EnterContactDetailsMrnController.changeMrnContactDetails(journey)
+        val changeContactDetails = OverpaymentsRoutes.EnterContactDetailsController.changeContactDetails(journey)
         val postAction           = OverpaymentsRoutes.CheckContactDetailsController.submit(journey)
 
         (maybeContactDetails, maybeAddressDetails) match {

@@ -47,10 +47,10 @@ trait SubmitRoutes extends Product with Serializable {
     overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.submit
 
   def submitUrlForChangeContactDetails(): Call =
-    claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
+    OverpaymentsRoutes.EnterContactDetailsController.changeContactDetailsSubmit(journeyBindable)
 
   def submitUrlForEnterContactDetails(): Call =
-    claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
+    OverpaymentsRoutes.EnterContactDetailsController.enterContactDetailsSubmit(journeyBindable)
 
   def submitUrlForSelectBankAccountType(): Call =
     OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable)

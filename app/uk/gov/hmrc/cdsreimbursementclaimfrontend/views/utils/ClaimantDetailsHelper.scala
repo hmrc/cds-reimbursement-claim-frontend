@@ -22,7 +22,6 @@ import play.twirl.api.Html
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -107,7 +106,7 @@ class ClaimantDetailsHelper @Inject() () {
           "govuk-link",
           List(
             ActionItem(
-              href = s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(journey).url}",
+              href = s"${OverpaymentsRoutes.EnterContactDetailsController.changeContactDetails(journey).url}",
               content = Text(messages("claimant-details.change")),
               visuallyHiddenText = Some(messages(s"$key.contact.details"))
             )
