@@ -31,22 +31,14 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
@@ -64,6 +56,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
@@ -91,7 +88,7 @@ class CheckContactDetailsControllerSpec
     )
 
   val controller: CheckContactDetailsController = instanceOf[CheckContactDetailsController]
-  val journey                                   = JourneyBindable.Single
+  val journey: JourneyBindable                  = JourneyBindable.Single
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -167,12 +164,12 @@ class CheckContactDetailsControllerSpec
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
-                ("Contact details" -> fillingOutClaim.draftClaim
+                "Contact details" -> fillingOutClaim.draftClaim
                   .getClaimantInformation(fillingOutClaim.signedInUserDetails.eori)
-                  .map(ClaimantInformationSummary.getContactDataString)),
-                ("Contact address" -> fillingOutClaim.draftClaim
+                  .map(ClaimantInformationSummary.getContactDataString),
+                "Contact address" -> fillingOutClaim.draftClaim
                   .getClaimantInformation(fillingOutClaim.signedInUserDetails.eori)
-                  .map(ClaimantInformationSummary.getAddressDataString))
+                  .map(ClaimantInformationSummary.getAddressDataString)
               )
             )
           }
@@ -203,12 +200,12 @@ class CheckContactDetailsControllerSpec
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
-                ("Contact details" -> fillingOutClaim.draftClaim
+                "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
-                  .map(ClaimantInformationSummary.getContactDataString)),
-                ("Contact address" -> fillingOutClaim.draftClaim
+                  .map(ClaimantInformationSummary.getContactDataString),
+                "Contact address" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
-                  .map(ClaimantInformationSummary.getAddressDataString))
+                  .map(ClaimantInformationSummary.getAddressDataString)
               )
             )
           }
@@ -240,12 +237,12 @@ class CheckContactDetailsControllerSpec
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
-                ("Contact details" -> fillingOutClaim.draftClaim
+                "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
-                  .map(ClaimantInformationSummary.getContactDataString)),
-                ("Contact address" -> fillingOutClaim.draftClaim
+                  .map(ClaimantInformationSummary.getContactDataString),
+                "Contact address" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
-                  .map(ClaimantInformationSummary.getAddressDataString))
+                  .map(ClaimantInformationSummary.getAddressDataString)
               )
             )
           }
@@ -337,12 +334,6 @@ class CheckContactDetailsControllerSpec
       def updateAddress(maybeAddressId: Option[UUID]): Future[Result] =
         controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
 
-      def problemPage(journey: JourneyBindable) = journey match {
-        case JourneyBindable.Single    => overpaymentsSingleRoutes.ProblemWithAddressController.show
-        case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.ProblemWithAddressController.show
-        case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.ProblemWithAddressController.show
-      }
-
       "user chooses an address without a post code" in forAll { (id: UUID, journey: JourneyBindable) =>
         val acc14         = genAcc14WithAddresses
         val (session, _)  = getSessionWithPreviousAnswer(
@@ -359,7 +350,7 @@ class CheckContactDetailsControllerSpec
 
         checkIsRedirect(
           updateAddress(Some(id)),
-          problemPage(journey)
+          overpaymentsSingleRoutes.ProblemWithAddressController.show
         )
       }
 
@@ -379,7 +370,7 @@ class CheckContactDetailsControllerSpec
 
         checkIsRedirect(
           updateAddress(Some(id)),
-          problemPage(journey)
+          overpaymentsSingleRoutes.ProblemWithAddressController.show
         )
       }
     }
