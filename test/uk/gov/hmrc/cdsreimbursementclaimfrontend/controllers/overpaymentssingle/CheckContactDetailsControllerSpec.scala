@@ -115,9 +115,8 @@ class CheckContactDetailsControllerSpec
 
   "Check Contact Details Controller" must {
 
-    val showPageAction: Future[Result] = controller.show()(FakeRequest())
-
     "redirect to the start of the journey" when {
+
       "there is no journey status in the session" in {
         val session = getSessionWithPreviousAnswer(None, Some(toTypeOfClaim(journey)))._1
 
@@ -127,10 +126,11 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          showPageAction,
+          controller.show()(FakeRequest()),
           baseRoutes.StartController.start()
         )
       }
+
     }
 
     "display the page" when {
@@ -155,7 +155,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          showPageAction,
+          controller.show()(FakeRequest()),
           messageFromMessageKey("claimant-details.title"),
           doc => {
             val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -191,7 +191,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          showPageAction,
+          controller.show()(FakeRequest()),
           messageFromMessageKey("claimant-details.title"),
           doc => {
             val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -228,7 +228,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          showPageAction,
+          controller.show()(FakeRequest()),
           messageFromMessageKey("claimant-details.title"),
           doc => {
             val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -265,7 +265,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          showPageAction,
+          controller.show()(FakeRequest()),
           OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
       }
@@ -377,7 +377,7 @@ class CheckContactDetailsControllerSpec
 
   }
 
-  "Validating session and acc14 data" must {
+  "Validating session and acc14 data" should {
 
     "return true if we have valid session data" in {
       val fillingOutClaim = getSessionWithPreviousAnswer(
@@ -482,7 +482,7 @@ class CheckContactDetailsControllerSpec
     }
   }
 
-  "The address lookup" must {
+  "The address lookup" should {
 
     "start successfully" in {
       val lookupUrl = sample[URL]
