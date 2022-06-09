@@ -23,6 +23,12 @@ POST        /multiple/claimant-details                                         @
 GET         /multiple/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckContactDetailsController.redirectToALF
 GET         /multiple/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckContactDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 
+GET         /multiple/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.changeContactDetails
+POST        /multiple/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.changeContactDetailsSubmit
+
+GET         /multiple/claimant-details/enter-contact-details                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.enterContactDetails
+POST        /multiple/claimant-details/enter-contact-details                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.enterContactDetailsSubmit
+
 GET         /multiple/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.NorthernIrelandController.show
 POST        /multiple/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.NorthernIrelandController.submit
 

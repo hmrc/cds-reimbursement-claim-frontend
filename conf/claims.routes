@@ -1,7 +1,7 @@
 
-GET         /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetails(journey: JourneyBindable)
-POST        /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.changeMrnContactDetails(journey: JourneyBindable)
+POST        /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetails(journey: JourneyBindable)
-POST        /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.enterMrnContactDetails(journey: JourneyBindable)
+POST        /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
 

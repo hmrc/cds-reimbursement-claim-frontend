@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -53,7 +54,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.concurrent.Future
 
-class EnterContactDetailsMrnControllerSpec
+class EnterContactDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -65,7 +66,7 @@ class EnterContactDetailsMrnControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: EnterContactDetailsMrnController = instanceOf[EnterContactDetailsMrnController]
+  lazy val controller: EnterContactDetailsController = instanceOf[EnterContactDetailsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
