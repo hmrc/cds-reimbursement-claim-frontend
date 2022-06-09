@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.Functor
 import cats.Id
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -29,15 +30,20 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -61,10 +67,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckContactDetailsController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
 
 import java.net.URL
 import java.util.UUID
@@ -73,12 +75,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CheckContactDetailsControllerSpec
-    extends PropertyBasedControllerSpec
+    extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with AddressLookupSupport
     with BeforeAndAfterEach
-    with SummaryMatchers {
+    with SummaryMatchers
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -88,6 +91,7 @@ class CheckContactDetailsControllerSpec
     )
 
   val controller: CheckContactDetailsController = instanceOf[CheckContactDetailsController]
+  val journey                                   = JourneyBindable.Single
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -107,19 +111,17 @@ class CheckContactDetailsControllerSpec
       mrnContactAddressAnswer = mrnContactAddressAnswer
     )
     val ggCredId            = sample[GGCredId]
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    val fillingOutClaim     = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
 
-    (SessionData(journey), journey)
+    (SessionData(fillingOutClaim), fillingOutClaim)
   }
 
-  "CheckContactDetailsController" must {
+  "Check Contact Details Controller" must {
 
-    def showPageAction(journey: JourneyBindable): Future[Result] =
-      controller.show(journey)(FakeRequest())
+    val showPageAction: Future[Result] = controller.show()(FakeRequest())
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
-        val journey = sample[JourneyBindable]
         val session = getSessionWithPreviousAnswer(None, Some(toTypeOfClaim(journey)))._1
 
         inSequence {
@@ -128,15 +130,16 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          showPageAction(journey),
+          showPageAction,
           baseRoutes.StartController.start()
         )
       }
     }
 
     "display the page" when {
+
       "contact and address data answers are available" in {
-        val journey           = sample[JourneyBindable]
+
         val acc14             = genAcc14WithAddresses
         val mrnContactDetails = sample[MrnContactDetails].copy(phoneNumber = Some(sample[PhoneNumber]))
         val mrnContactAddress = sample[ContactAddress]
@@ -155,7 +158,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          showPageAction(journey),
+          showPageAction,
           messageFromMessageKey("claimant-details.title"),
           doc => {
             val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -177,8 +180,8 @@ class CheckContactDetailsControllerSpec
       }
 
       "consignee contact and address data from ACC14 is available" in {
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithAddresses
+
+        val acc14 = genAcc14WithAddresses
 
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -191,7 +194,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          showPageAction(journey),
+          showPageAction,
           messageFromMessageKey("claimant-details.title"),
           doc => {
             val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -213,8 +216,7 @@ class CheckContactDetailsControllerSpec
       }
 
       "declarant contact and address data from ACC14 is available" in {
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithoutContactDetails
+        val acc14 = genAcc14WithoutContactDetails
 
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -229,7 +231,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          showPageAction(journey),
+          showPageAction,
           messageFromMessageKey("claimant-details.title"),
           doc => {
             val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -251,8 +253,7 @@ class CheckContactDetailsControllerSpec
       }
 
       "not consignee nor declarant contact and address data from ACC14 is available, page redirects" in {
-        val journey = sample[JourneyBindable]
-        val acc14   = genAcc14WithoutConsigneeAndDeclarantDetails
+        val acc14 = genAcc14WithoutConsigneeAndDeclarantDetails
 
         val (session, _) = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -267,7 +268,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          showPageAction(journey),
+          showPageAction,
           OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
       }
@@ -276,8 +277,6 @@ class CheckContactDetailsControllerSpec
     "handle submit requests" when {
 
       "when contact and address answers provided" in {
-
-        val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -292,14 +291,12 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          controller.submit(journey)(FakeRequest()),
+          controller.submit()(FakeRequest()),
           OverpaymentsRoutes.NorthernIrelandController.show(journey)
         )
       }
 
       "when contact and address answers not yet provided" in {
-
-        val journey = sample[JourneyBindable]
         val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -329,16 +326,16 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          controller.submit(journey)(FakeRequest()),
+          controller.submit(FakeRequest()),
           OverpaymentsRoutes.NorthernIrelandController.show(journey)
         )
       }
 
     }
 
-    "Redirect to the problem page" when {
-      def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID]): Future[Result] =
-        controller.retrieveAddressFromALF(journey, maybeAddressId)(FakeRequest())
+    "redirect to the problem page" when {
+      def updateAddress(maybeAddressId: Option[UUID]): Future[Result] =
+        controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
 
       def problemPage(journey: JourneyBindable) = journey match {
         case JourneyBindable.Single    => overpaymentsSingleRoutes.ProblemWithAddressController.show
@@ -361,7 +358,7 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          updateAddress(journey, Some(id)),
+          updateAddress(Some(id)),
           problemPage(journey)
         )
       }
@@ -381,14 +378,15 @@ class CheckContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          updateAddress(journey, Some(id)),
+          updateAddress(Some(id)),
           problemPage(journey)
         )
       }
     }
+
   }
 
-  "Validating session and acc14 data" should {
+  "Validating session and acc14 data" must {
 
     "return true if we have valid session data" in {
       val fillingOutClaim = getSessionWithPreviousAnswer(
@@ -493,11 +491,10 @@ class CheckContactDetailsControllerSpec
     }
   }
 
-  "The address lookup" should {
+  "The address lookup" must {
 
     "start successfully" in {
       val lookupUrl = sample[URL]
-      val journey   = sample[JourneyBindable]
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -505,25 +502,23 @@ class CheckContactDetailsControllerSpec
       }
 
       checkIsRedirect(
-        startAddressLookup(journey),
+        controller.redirectToALF(FakeRequest()),
         lookupUrl.toString
       )
     }
 
     "fail to start if error response is received from downstream ALF service" in {
-      val journey = sample[JourneyBindable]
 
       inSequence {
         mockAuthWithNoRetrievals()
         mockAddressLookup(Left(Error("Request was not accepted")))
       }
 
-      checkIsTechnicalErrorPage(startAddressLookup(journey))
+      checkIsTechnicalErrorPage(controller.redirectToALF(FakeRequest()))
     }
 
     "update an address once complete" in {
       val id           = sample[UUID]
-      val journey      = sample[JourneyBindable]
       val address      = sample[ContactAddress]
       val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
@@ -539,15 +534,15 @@ class CheckContactDetailsControllerSpec
       }
 
       checkIsRedirect(
-        retrieveLookupAddress(journey, Some(id)),
-        routes.CheckContactDetailsMrnController.show(journey)
+        controller.retrieveAddressFromALF(Some(id))(FakeRequest()),
+        routes.CheckContactDetailsController.show
       )
     }
 
     "fail to update address once bad address lookup ID provided" in {
-      val id           = sample[UUID]
-      val acc14        = genAcc14WithAddresses
-      val journey      = sample[JourneyBindable]
+      val id    = sample[UUID]
+      val acc14 = genAcc14WithAddresses
+
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(toTypeOfClaim(journey))
@@ -559,11 +554,10 @@ class CheckContactDetailsControllerSpec
         mockAddressRetrieve(Left(Error(s"No address found for $id")))
       }
 
-      checkIsTechnicalErrorPage(retrieveLookupAddress(journey, Some(id)))
+      checkIsTechnicalErrorPage(controller.retrieveAddressFromALF(Some(id))(FakeRequest()))
     }
 
     "redirect to show page once address lookup ID is not provided" in {
-      val journey      = sample[JourneyBindable]
       val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
@@ -576,15 +570,9 @@ class CheckContactDetailsControllerSpec
       }
 
       checkIsRedirect(
-        retrieveLookupAddress(journey),
-        routes.CheckContactDetailsMrnController.show(journey)
+        controller.retrieveAddressFromALF(None)(FakeRequest()),
+        routes.CheckContactDetailsController.show
       )
     }
-
-    def startAddressLookup(journey: JourneyBindable): Future[Result] =
-      controller.redirectToALF(journey)(FakeRequest())
-
-    def retrieveLookupAddress(journey: JourneyBindable, maybeAddressId: Option[UUID] = None): Future[Result] =
-      controller.retrieveAddressFromALF(journey, maybeAddressId)(FakeRequest())
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
@@ -63,7 +63,7 @@ class CheckContactDetailsController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val journey: JourneyBindable                               = JourneyBindable.Single
+  implicit val journey: JourneyBindable                               = JourneyBindable.Multiple
   implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
   val startAddressLookup: Call =

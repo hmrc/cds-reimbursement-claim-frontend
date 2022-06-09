@@ -42,11 +42,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -235,7 +234,7 @@ class EnterContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           performAction(goodData.toSeq, journey),
-          routes.CheckContactDetailsMrnController.show(journey)
+          OverpaymentsRoutes.CheckContactDetailsController.show(journey)
         )
       }
 

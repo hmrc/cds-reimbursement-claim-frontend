@@ -216,7 +216,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(checkDeclarationDetailsKey -> "true")),
-          claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Single)
+          OverpaymentsRoutes.CheckContactDetailsController.show(JourneyBindable.Single)
         )
       }
 
