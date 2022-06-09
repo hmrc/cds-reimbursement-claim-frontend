@@ -127,6 +127,34 @@ object OverpaymentsRoutes {
     }
   }
 
+  object EnterContactDetailsController {
+
+    def enterContactDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single => overpaymentsSingleRoutes.EnterContactDetailsController.enterContactDetails
+      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.EnterContactDetailsController.enterContactDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterContactDetailsController.enterContactDetails
+    }
+
+    def enterContactDetailsSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single => overpaymentsSingleRoutes.EnterContactDetailsController.enterContactDetailsSubmit
+      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.EnterContactDetailsController.enterContactDetailsSubmit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterContactDetailsController.enterContactDetailsSubmit
+    }
+
+    def changeContactDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single => overpaymentsSingleRoutes.EnterContactDetailsController.changeContactDetails
+      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.EnterContactDetailsController.changeContactDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterContactDetailsController.changeContactDetails
+    }
+
+    def changeContactDetailsSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single => overpaymentsSingleRoutes.EnterContactDetailsController.changeContactDetailsSubmit
+      case JourneyBindable.Multiple => overpaymentsMultipleRoutes.EnterContactDetailsController.changeContactDetailsSubmit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterContactDetailsController.changeContactDetailsSubmit
+    }
+
+  }
+
   object SelectBankAccountTypeController {
     def show(journey: JourneyBindable): Call = journey match {
       case JourneyBindable.Single    =>

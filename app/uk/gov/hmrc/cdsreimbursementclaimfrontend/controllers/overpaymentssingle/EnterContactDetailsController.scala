@@ -18,13 +18,21 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.data.EitherT
 import cats.syntax.all._
-import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{Forms, JourneyBindable, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -36,7 +44,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EnterContactDetailsController @Inject()(
+class EnterContactDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -49,12 +57,14 @@ class EnterContactDetailsController @Inject()(
     with SessionUpdates
     with Logging {
 
+  //TODO: refactor to take out reference to MRN in contact details naming convention?
   implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
+  implicit val journey: JourneyBindable                               = JourneyBindable.Single
 
-  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isChange = false)
-  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isChange = true)
+  val enterContactDetails: Action[AnyContent]  = show(isChange = false)
+  val changeContactDetails: Action[AnyContent] = show(isChange = true)
 
-  def show(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def show(isChange: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val answers               =
@@ -66,18 +76,18 @@ class EnterContactDetailsController @Inject()(
           answers.foldLeft(Forms.mrnContactDetailsForm)((form, answer) => form.fill(answer))
 
         val postAction =
-          if (isChange) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()
+          if (isChange) router.submitUrlForChangeContactDetails() else router.submitUrlForEnterContactDetails()
         Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, postAction, isChange))
       }
     }
 
-  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val enterContactDetailsSubmit: Action[AnyContent] =
     submit(isChange = false)
 
-  def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  val changeContactDetailsSubmit: Action[AnyContent] =
     submit(isChange = true)
 
-  def submit(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(isChange: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         Forms.mrnContactDetailsForm
@@ -85,8 +95,8 @@ class EnterContactDetailsController @Inject()(
           .fold(
             formWithErrors => {
               val postAction =
-                if (isChange) router.submitUrlForChangeMrnContactDetails()
-                else router.submitUrlForEnterMrnContactDetails()
+                if (isChange) router.submitUrlForChangeContactDetails()
+                else router.submitUrlForEnterContactDetails()
               BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction, isChange))
             },
             formOk => {
@@ -100,7 +110,7 @@ class EnterContactDetailsController @Inject()(
 
               result.fold(
                 logAndDisplayError("could not capture contact details"),
-                _ => Redirect(router.nextPageForMrnContactDetails(isChange))
+                _ => Redirect(router.nextPageForContactDetails(isChange))
               )
             }
           )

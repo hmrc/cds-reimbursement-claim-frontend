@@ -39,18 +39,18 @@ trait SubmitRoutes extends Product with Serializable {
     OverpaymentsRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForEnterMovementReferenceNumber(): Call =
-    claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
+    OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
 
   def submitUrlForCheckDeclarationDetails(): Call =
-    claims.OverpaymentsRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
+    OverpaymentsRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 
   def submitUrlForCheckDuplicateDeclarationDetails(): Call =
     overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.submit
 
-  def submitUrlForChangeMrnContactDetails(): Call =
+  def submitUrlForChangeContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
 
-  def submitUrlForEnterMrnContactDetails(): Call =
+  def submitUrlForEnterContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
 
   def submitUrlForSelectBankAccountType(): Call =
@@ -93,7 +93,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForCheckDuplicateDeclarationDetails(): Call =
     OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
 
-  def nextPageForMrnContactDetails(isChange: Boolean): Call =
+  def nextPageForContactDetails(isChange: Boolean): Call =
     if (isChange) OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable)
     else OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(journeyBindable)
 
@@ -146,7 +146,7 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
     case _: MrnImporter => overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.show
-    case _              => claims.OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
+    case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
 }
 
