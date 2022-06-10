@@ -12,6 +12,18 @@ GET         /scheduled/scheduled-document-upload/choose-files                   
 POST        /scheduled/scheduled-document-upload/choose-files                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.callback
 GET         /scheduled/scheduled-document-upload/continue                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.continue
 
+GET         /scheduled/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.show
+POST        /scheduled/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.submit
+
+GET         /scheduled/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.redirectToALF
+GET         /scheduled/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckContactDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+
+GET         /scheduled/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterContactDetailsController.changeContactDetails
+POST        /scheduled/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterContactDetailsController.changeContactDetailsSubmit
+
+GET         /scheduled/claimant-details/enter-contact-details                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterContactDetailsController.enterContactDetails
+POST        /scheduled/claimant-details/enter-contact-details                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterContactDetailsController.enterContactDetailsSubmit
+
 GET         /scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.show
 POST        /scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.submit
 

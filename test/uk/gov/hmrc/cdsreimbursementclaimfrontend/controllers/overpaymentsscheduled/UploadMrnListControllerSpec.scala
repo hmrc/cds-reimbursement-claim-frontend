@@ -27,9 +27,10 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -45,7 +46,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 class UploadMrnListControllerSpec extends PropertyBasedControllerSpec with AuthSupport with SessionSupport {
 
@@ -194,7 +194,7 @@ class UploadMrnListControllerSpec extends PropertyBasedControllerSpec with AuthS
         }
         checkIsRedirect(
           performAction(),
-          claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Scheduled)
+          OverpaymentsRoutes.CheckContactDetailsController.show(JourneyBindable.Scheduled)
         )
       }
     }

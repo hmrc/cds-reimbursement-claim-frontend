@@ -14,21 +14,17 @@
  * limitations under the License.
  *@
 
+@import cats.data.NonEmptyList
 @import play.api.data.Form
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
+@import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
-@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes=>overpaymentsSingleRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
-@import cats.data.NonEmptyList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,

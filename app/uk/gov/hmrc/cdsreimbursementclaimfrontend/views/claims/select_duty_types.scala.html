@@ -15,16 +15,13 @@
  *@
 
 @import play.api.data.Form
-@import play.twirl.api.Html
-@import play.api.mvc.Call
-@import play.api.mvc.Request
 @import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,

@@ -18,10 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
+
+import java.util.UUID
 
 object OverpaymentsRoutes {
 
@@ -95,6 +96,67 @@ object OverpaymentsRoutes {
       case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckDeclarationDetailsController.submit
       case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckDeclarationDetailsController.submit
     }
+  }
+
+  object CheckContactDetailsController {
+    def show(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckContactDetailsController.show
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckContactDetailsController.show
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.show
+    }
+
+    def submit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckContactDetailsController.submit
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckContactDetailsController.submit
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.submit
+    }
+
+    def redirectToALF(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.CheckContactDetailsController.redirectToALF
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.CheckContactDetailsController.redirectToALF
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.CheckContactDetailsController.redirectToALF
+    }
+
+    def retrieveAddressFromALF(journey: JourneyBindable, addressIdentity: Option[UUID] = None): Call = journey match {
+      case JourneyBindable.Single    =>
+        overpaymentsSingleRoutes.CheckContactDetailsController.retrieveAddressFromALF(addressIdentity)
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.CheckContactDetailsController.retrieveAddressFromALF(addressIdentity)
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.CheckContactDetailsController.retrieveAddressFromALF(addressIdentity)
+    }
+  }
+
+  object EnterContactDetailsController {
+
+    def enterContactDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterContactDetailsController.enterContactDetails
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterContactDetailsController.enterContactDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterContactDetailsController.enterContactDetails
+    }
+
+    def enterContactDetailsSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterContactDetailsController.enterContactDetailsSubmit
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterContactDetailsController.enterContactDetailsSubmit
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterContactDetailsController.enterContactDetailsSubmit
+    }
+
+    def changeContactDetails(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterContactDetailsController.changeContactDetails
+      case JourneyBindable.Multiple  => overpaymentsMultipleRoutes.EnterContactDetailsController.changeContactDetails
+      case JourneyBindable.Scheduled => overpaymentsScheduledRoutes.EnterContactDetailsController.changeContactDetails
+    }
+
+    def changeContactDetailsSubmit(journey: JourneyBindable): Call = journey match {
+      case JourneyBindable.Single    => overpaymentsSingleRoutes.EnterContactDetailsController.changeContactDetailsSubmit
+      case JourneyBindable.Multiple  =>
+        overpaymentsMultipleRoutes.EnterContactDetailsController.changeContactDetailsSubmit
+      case JourneyBindable.Scheduled =>
+        overpaymentsScheduledRoutes.EnterContactDetailsController.changeContactDetailsSubmit
+    }
+
   }
 
   object SelectBankAccountTypeController {

@@ -35,13 +35,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.checkMovementReferenceNumbersKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersControllerSpec.genMrnsWithRandomIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.checkMovementReferenceNumbersKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersControllerSpec.genMrnsWithRandomIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -277,7 +277,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performActionWithData(Seq(checkMovementReferenceNumbersKey -> false.toString)),
-            claimsRoutes.CheckContactDetailsMrnController.show(JourneyBindable.Multiple)
+            OverpaymentsRoutes.CheckContactDetailsController.show(JourneyBindable.Multiple)
           )
 
         }
