@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.implicits._
 import org.scalatest.prop.TableDrivenPropertyChecks
@@ -29,12 +29,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -67,23 +67,17 @@ class EnterContactDetailsControllerSpec
     )
 
   lazy val controller: EnterContactDetailsController = instanceOf[EnterContactDetailsController]
+  val journey: JourneyBindable                       = JourneyBindable.Single
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  val signedInUserEmail = sample[Email]
+  val signedInUserEmail: Email = sample[Email]
 
-  private val journeys = Table(
-    "JourneyBindable",
-    JourneyBindable.Single,
-    JourneyBindable.Multiple,
-    JourneyBindable.Scheduled
-  )
-
-  val nameData  = "Mr Pip"
-  val emailData = sample[Email]
-  val phoneData = Some(sample[PhoneNumber])
+  val nameData: String               = "Mr Pip"
+  val emailData: Email               = sample[Email]
+  val phoneData: Option[PhoneNumber] = Some(sample[PhoneNumber])
 
   val goodData = Map(
     "enter-contact-details.contact-name"         -> "Mr Pip",
@@ -123,8 +117,8 @@ class EnterContactDetailsControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.changeMrnContactDetails(journey)(FakeRequest())
+      "there is no journey status in the session" in {
+        def performAction(): Future[Result] = controller.changeContactDetails()(FakeRequest())
 
         val (session, _) = getSessionWithPreviousAnswer(None, None, None)
 
@@ -144,8 +138,8 @@ class EnterContactDetailsControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before and is adding details" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.enterMrnContactDetails(journey)(FakeRequest())
+      "the user has not answered this question before and is adding details" in {
+        def performAction(): Future[Result] = controller.enterContactDetails()(FakeRequest())
 
         val session = getSessionWithPreviousAnswer(None, None, toTypeOfClaim(journey).some)._1
 
@@ -160,8 +154,8 @@ class EnterContactDetailsControllerSpec
         )
       }
 
-      "the user has not answered this question before and is changing details" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.changeMrnContactDetails(journey)(FakeRequest())
+      "the user has not answered this question before and is changing details" in {
+        def performAction(): Future[Result] = controller.changeContactDetails()(FakeRequest())
 
         val contactDetailsAnswer = Some(sample[MrnContactDetails])
         val contactAddressAnswer = Some(sample[ContactAddress])
@@ -182,8 +176,8 @@ class EnterContactDetailsControllerSpec
         )
       }
 
-      "the user has entered contact details previously" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.changeMrnContactDetails(journey)(FakeRequest())
+      "the user has entered contact details previously" in {
+        def performAction(): Future[Result] = controller.changeContactDetails()(FakeRequest())
         val phone                           = Some(sample[PhoneNumber])
         val contactDetails                  = sample[MrnContactDetails].copy(phoneNumber = phone)
         val contactAddressAnswer            = Some(sample[ContactAddress])
@@ -218,10 +212,10 @@ class EnterContactDetailsControllerSpec
 
     "handle submit requests" when {
 
-      def performAction(data: Seq[(String, String)], journey: JourneyBindable): Future[Result] =
-        controller.changeMrnContactDetailsSubmit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(data: Seq[(String, String)]): Future[Result] =
+        controller.changeContactDetailsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      " the user enters details" in forAll(journeys) { journey =>
+      " the user enters details" in {
         val contactDetails = MrnContactDetails(nameData, emailData, phoneData)
 
         val session        = getSessionWithPreviousAnswer(None, None, toTypeOfClaim(journey).some)._1
@@ -234,12 +228,12 @@ class EnterContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(goodData.toSeq, journey),
+          performAction(goodData.toSeq),
           OverpaymentsRoutes.CheckContactDetailsController.show(journey)
         )
       }
 
-      "the user did not enter any details" in forAll(journeys) { journey =>
+      "the user did not enter any details" in {
         val session = getSessionWithPreviousAnswer(None, None, toTypeOfClaim(journey).some)._1
 
         inSequence {
@@ -248,7 +242,7 @@ class EnterContactDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(Seq.empty, journey),
+          performAction(Seq.empty),
           messageFromMessageKey("enter-contact-details.change.title"),
           doc => {
             doc

@@ -56,7 +56,7 @@ class EnterContactDetailsController @Inject() (
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
-  
+
   implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
   implicit val journey: JourneyBindable                               = JourneyBindable.Multiple
 
