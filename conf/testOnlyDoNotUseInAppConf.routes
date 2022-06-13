@@ -20,3 +20,7 @@ GET        /claim-back-import-duty-vat/test-only/feature/:featureName/disable @u
 GET        /claim-back-import-duty-vat/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.show
 +nocsrf
 POST        /claim-back-import-duty-vat/test-only/session  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SessionDataController.submit
+
+# These endpoints will be deleted at the end of CDSR-1781
+GET          /claim-back-import-duty-vat/test-only/test_duplicate                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.TestController.testIsDuplicate
+GET          /claim-back-import-duty-vat/test-only/test_not_duplicate                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.TestController.testIsNotADuplicate
