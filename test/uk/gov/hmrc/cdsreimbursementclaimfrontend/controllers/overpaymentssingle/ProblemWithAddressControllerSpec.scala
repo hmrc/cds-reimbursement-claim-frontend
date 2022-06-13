@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 
 class ProblemWithAddressControllerSpec extends ControllerSpec {
 
@@ -31,7 +31,7 @@ class ProblemWithAddressControllerSpec extends ControllerSpec {
         controller.show()(FakeRequest()),
         messageFromMessageKey("problem-with-address.title"),
         doc =>
-          formAction(doc) shouldBe claimsRoutes.CheckContactDetailsMrnController
+          formAction(doc) shouldBe OverpaymentsRoutes.CheckContactDetailsController
             .redirectToALF(JourneyBindable.Single)
             .url
       )

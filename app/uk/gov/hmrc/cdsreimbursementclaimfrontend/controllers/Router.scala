@@ -19,11 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
@@ -39,19 +38,19 @@ trait SubmitRoutes extends Product with Serializable {
     OverpaymentsRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForEnterMovementReferenceNumber(): Call =
-    claims.OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
+    OverpaymentsRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
 
   def submitUrlForCheckDeclarationDetails(): Call =
-    claims.OverpaymentsRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
+    OverpaymentsRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 
   def submitUrlForCheckDuplicateDeclarationDetails(): Call =
     overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.submit
 
-  def submitUrlForChangeMrnContactDetails(): Call =
-    claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
+  def submitUrlForChangeContactDetails(): Call =
+    OverpaymentsRoutes.EnterContactDetailsController.changeContactDetailsSubmit(journeyBindable)
 
-  def submitUrlForEnterMrnContactDetails(): Call =
-    claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
+  def submitUrlForEnterContactDetails(): Call =
+    OverpaymentsRoutes.EnterContactDetailsController.enterContactDetailsSubmit(journeyBindable)
 
   def submitUrlForSelectBankAccountType(): Call =
     OverpaymentsRoutes.SelectBankAccountTypeController.show(journeyBindable)
@@ -84,7 +83,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
             else
               overpaymentsMultipleRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
           case _                         =>
-            claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+            OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable)
         }
       case No  =>
         OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
@@ -93,9 +92,9 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForCheckDuplicateDeclarationDetails(): Call =
     OverpaymentsRoutes.EnterAdditionalDetailsController.show(journeyBindable)
 
-  def nextPageForMrnContactDetails(isChange: Boolean): Call =
-    if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
-    else claimRoutes.CheckContactDetailsMrnController.redirectToALF(journeyBindable)
+  def nextPageForContactDetails(isChange: Boolean): Call =
+    if (isChange) OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable)
+    else OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(journeyBindable)
 
   def nextPageForSelectBankAccountType(): Call =
     OverpaymentsRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
@@ -112,7 +111,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
             OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
       case None                =>
-        claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+        OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable)
     }
 }
 
@@ -146,7 +145,7 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
     case _: MrnImporter => overpaymentsSingleRoutes.CheckDuplicateDeclarationDetailsController.show
-    case _              => claims.OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
+    case _              => OverpaymentsRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
 }
 
