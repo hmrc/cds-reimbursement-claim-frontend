@@ -1,4 +1,4 @@
-GET          /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.show()
+GET          /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.enterMrn()
 POST         /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.submit()
 
 GET          /securities/choose-reason-for-security                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseReasonForSecurityController.show()
