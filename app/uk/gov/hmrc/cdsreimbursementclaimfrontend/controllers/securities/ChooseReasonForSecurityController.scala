@@ -16,18 +16,39 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import play.api.data.Form
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseReasonForSecurityController @Inject() (
-  val jcc: JourneyControllerComponents
+  val jcc: JourneyControllerComponents,
+  chooseReasonForSecurityPage: pages.choose_reason_for_security
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    extends SecuritiesJourneyBaseController {
+
+  val postAction: Call                           = routes.ChooseReasonForSecurityController.submit()
+  val reasonsForSecurity: Seq[ReasonForSecurity] = ReasonForSecurity.values.toSeq
+
+  val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
+
+  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+    Ok(
+      chooseReasonForSecurityPage(form, reasonsForSecurity, postAction)
+    ).asFuture
+  }
+
+  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    ???
+  }
+}
