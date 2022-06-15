@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
@@ -34,20 +35,23 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectDutiesController.selectDutiesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
-class ChooseReasonForSecurityControllerSpec extends ControllerSpec
-  with AuthSupport
-  with SessionSupport
-  with BeforeAndAfterEach
-  with ScalaCheckPropertyChecks  {
+class ChooseReasonForSecurityControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with BeforeAndAfterEach
+    with ScalaCheckPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -63,31 +67,101 @@ class ChooseReasonForSecurityControllerSpec extends ControllerSpec
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   private val messagesKey: String = "choose-reason-for-security.securities"
+  val journey                     = SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn)
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
 
-  //def validateChooseFileTypePage(doc: Document, journey: RejectedGoodsSingleJourney) = {
-  //    radioItems(doc) should contain theSameElementsAs Seq(
-  //      ("Additional supporting documents", "AdditionalSupportingDocuments"),
-  //      ("Calculation worksheet", "CalculationWorksheet"),
-  //      ("Commercial invoice", "CommercialInvoice"),
-  //      ("Correspondence between trader and agent", "CorrespondenceTrader"),
-  //      ("Documentary proof that the goods are faulty or not what you ordered", "DocumentaryProofFaultyOrNotWhatOrdered"),
-  //      ("Import and export declaration", "ImportAndExportDeclaration"),
-  //      ("Letter of authority", "LetterOfAuthority"),
-  //      ("Proof of export or destruction", "ProofOfExportOrDestruction"),
-  //      (
-  //        if (journey.answers.supportingEvidences.isEmpty)
-  //          "I have no documents to upload"
-  //        else
-  //          "I have no more documents to upload",
-  //        "none"
-  //      )
-  //    )
-  //    hasContinueButton(doc)
-  //  }
+  def validateChooseReasonForSecurityPage(doc: Document) = {
+    radioItems(doc) should contain theSameElementsAs Seq(
+      ("Account Sales", "AccountSales"),
+      ("Community Systems of Duty Relief (CSDR)", "CommunitySystemsOfDutyRelief"),
+      ("End-use Relief", "EndUseRelief"),
+      ("Inward Processing Relief (IPR)", "InwardProcessingRelief"),
+      ("Manual Override Deposit*", "ManualOverrideDeposit"),
+      ("Missing License Quota*", "MissingLicenseQuota"),
+      ("Missing Preference Certificate", "MissingPreferenceCertificate"),
+      ("Outward Processing Relief (OPR)", "OutwardProcessingRelief"),
+      ("Revenue Dispute/Inward Pre-Clearance (IPC)", "RevenueDispute"),
+      ("Temporary Admission (2 years Expiration)", "TemporaryAdmission2Y"),
+      ("Temporary Admission (6 months Expiration)", "TemporaryAdmission6M"),
+      ("Temporary Admission (3 months Expiration)", "TemporaryAdmission3M"),
+      ("Temporary Admission (2 months Expiration)", "TemporaryAdmission2M"),
+      ("UKAP Entry Price*", "UKAPEntryPrice"),
+      ("UKAP Safeguard Duties*", "UKAPSafeguardDuties")
+    )
+    hasContinueButton(doc)
+  }
 
-  
+  "ChooseReasonForSecuritiesController" when {
+
+    "show page" must {
+
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
+
+      "not find the page if securities feature is disabled" in {
+        featureSwitch.disable(Feature.Securities)
+
+        status(performAction()) shouldBe NOT_FOUND
+      } // End not found
+
+      "display the page for the first time" in {
+
+        val session = SessionData.empty.copy(securitiesJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => validateChooseReasonForSecurityPage(doc)
+        )
+      } // End display page
+
+    } // End show page
+
+    "submit page" must {
+      def performAction(data: Seq[(String, String)]): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "not succeed if securities feature is disabled" in {
+        featureSwitch.disable(Feature.Securities)
+        status(performAction(Seq.empty)) shouldBe NOT_FOUND
+      }
+
+      "redirect to placeholder page with a reason selection" in {
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        val result = controller.submit()(FakeRequest())
+        status(result)          shouldBe 200
+        contentAsString(result) shouldBe "ok"
+
+      }
+
+      "reject an empty reason selection" in {
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkPageIsDisplayed(
+          performAction(Seq.empty),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+    } // End submit page
+
+  } //End controller must
 
 }

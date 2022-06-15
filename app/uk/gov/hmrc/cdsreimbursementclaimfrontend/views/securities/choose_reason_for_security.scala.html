@@ -16,9 +16,8 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
-@import play.api.mvc.Call
-@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -35,7 +34,7 @@
 
 @(form: Form[ReasonForSecurity], reasonForSecurity: Seq[ReasonForSecurity], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"choose-file-type"}
+@key = @{"choose-reason-for-security.securities"}
 @title = @{messages(s"$key.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -44,9 +43,9 @@
     reasonForSecurity.map { fileType =>
         val fileTypeKey = ReasonForSecurity.keyOf(fileType)
         RadioItem(
-            id = Some(s"$key.file-type.$fileTypeKey"),
+            id = Some(s"$key.$fileTypeKey"),
             value = Some(fileTypeKey),
-            content = Text(messages(s"$key.file-type.$fileTypeKey")),
+            content = Text(messages(s"$key.$fileTypeKey")),
             checked = form(s"$key").value.exists(_.contains(fileTypeKey))
         )
     }
@@ -57,8 +56,6 @@
     @errorSummary(form.errors)
 
     @pageHeading(Html(title))
-
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

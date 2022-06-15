@@ -377,15 +377,18 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  // takes a list and returns one selection
-  // error required
+  //val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
+  //    mapping(
+  //      "select-basis-for-claim.rejected-goods" -> nonEmptyText
+  //        .verifying("error.required", basis => basis.isEmpty || BasisOfRejectedGoodsClaim.has(basis))
+  //    )(BasisOfRejectedGoodsClaim.findUnsafe)(borgc => Option(borgc.toString))
+  //  )
 
   val reasonForSecurityForm: Form[ReasonForSecurity] =
     Form(
       mapping(
         "choose-reason-for-security.securities" -> nonEmptyText
           .verifying("error.required", _.nonEmpty)
-          .transform[ReasonForSecurity](ReasonForSecurity.tryParse, _.acc14Code)
-      )(identity)(Some(_))
+      )(ReasonForSecurity.findUnsafe)(rfs => Option(rfs.toString))
     )
 }
