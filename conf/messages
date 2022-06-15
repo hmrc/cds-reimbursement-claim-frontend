@@ -222,6 +222,15 @@ enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first <a
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001
 
+enter-movement-reference-number.securities.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.securities.details.heading=Finding your <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency
+enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
+enter-movement-reference-number.securities.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared
+enter-movement-reference-number.securities.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.securities.invalid.number=Enter a movement reference number in the correct format
+enter-movement-reference-number.securities.error.required=Enter a movement reference number
+
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
 #===================================================
@@ -623,8 +632,8 @@ enter-additional-details.bullet.3=the value of the goods being claimed for
 enter-additional-details.bullet.4=additional information about the claim
 enter-additional-details.p1=If it is relevant to your case, you should also include your Transfer of Residence number, the commodity code and the Customs Procedure Code (CPC) to be amended to.
 enter-additional-details.label=Provide additional details about this claim
-enter-additional-details.error.required=Enter claim reason
-enter-additional-details.error.maxLength=Claim reason must be 500 characters or fewer
+enter-additional-details.error.required=Enter additional details
+enter-additional-details.error.maxLength=Additional details must be 500 characters or fewer
 enter-additional-details.hint=Provide brief details about this claim
 
 
