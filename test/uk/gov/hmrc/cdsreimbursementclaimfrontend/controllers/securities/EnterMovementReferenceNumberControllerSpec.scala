@@ -50,7 +50,7 @@ class EnterMovementReferenceNumberControllerSpec
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks {
 
-  val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
+  val enterMovementReferenceNumberKey: String          = "enter-movement-reference-number"
   val enterMovementReferenceNumberKeyAndSubKey: String = s"$enterMovementReferenceNumberKey.securities"
 
   override val overrideBindings: List[GuiceableModule] =
@@ -148,7 +148,9 @@ class EnterMovementReferenceNumberControllerSpec
           performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
           messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.title"),
           doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.invalid.number"),
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterMovementReferenceNumberKeyAndSubKey.invalid.number"
+            ),
           expectedStatus = BAD_REQUEST
         )
       }
@@ -163,7 +165,9 @@ class EnterMovementReferenceNumberControllerSpec
           performAction(enterMovementReferenceNumberKey -> ""),
           messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.title"),
           doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.error.required"),
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterMovementReferenceNumberKeyAndSubKey.error.required"
+            ),
           expectedStatus = BAD_REQUEST
         )
       }
