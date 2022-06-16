@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen.genReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -132,17 +133,16 @@ class ChooseReasonForSecurityControllerSpec
         status(performAction(Seq.empty)) shouldBe NOT_FOUND
       }
 
-      "redirect to placeholder page with a reason selection" in {
-
+      "redirect to placeholder page with a reason selection" in forAll(genReasonForSecurity) { reasonForSecurity =>
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
         }
 
-        val result = controller.submit()(FakeRequest())
-        status(result)          shouldBe 200
-        contentAsString(result) shouldBe "ok"
-
+        checkPageIsDisplayed(
+          performAction(Seq(s"$messagesKey[]" -> reasonForSecurity.acc14Code)),
+          messageFromMessageKey(s"$messagesKey.title")
+        )
       }
 
       "reject an empty reason selection" in {
