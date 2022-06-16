@@ -86,8 +86,6 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
   def fromACC14Code(acc14Code: String): Option[ReasonForSecurity] =
     values.find(_.acc14Code === acc14Code)
 
-  lazy val reasons: Seq[ReasonForSecurity]                             = ReasonForSecurity.values.toSeq
-  lazy val reasonsForSecurityRankMap: ListMap[ReasonForSecurity, Int]  = ListMap(reasons.zipWithIndex: _*)
   implicit val reasonsForSecurityOrdering: Ordering[ReasonForSecurity] = (a: ReasonForSecurity, b: ReasonForSecurity) =>
-    reasonsForSecurityRankMap(a) compare reasonsForSecurityRankMap(b)
+    a.toString compare b.toString
 }

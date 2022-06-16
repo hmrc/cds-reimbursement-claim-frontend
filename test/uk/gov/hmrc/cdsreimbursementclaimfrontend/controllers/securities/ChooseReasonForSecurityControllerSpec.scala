@@ -130,18 +130,6 @@ class ChooseReasonForSecurityControllerSpec
         status(performAction(Seq.empty)) shouldBe NOT_FOUND
       }
 
-      "redirect to placeholder page with a reason selection" in forAll(genReasonForSecurity) { reasonForSecurity =>
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
-        }
-
-        checkPageIsDisplayed(
-          performAction(Seq(s"$messagesKey[]" -> reasonForSecurity.acc14Code)),
-          messageFromMessageKey(s"$messagesKey.title")
-        )
-      }
-
       "reject an empty reason selection" in {
 
         inSequence {
