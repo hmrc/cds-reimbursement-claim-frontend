@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
+import scala.collection.immutable.ListMap
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -39,8 +40,9 @@ class ChooseReasonForSecurityController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
-  val postAction: Call                           = routes.ChooseReasonForSecurityController.submit()
-  val reasonsForSecurity: Seq[ReasonForSecurity] = ReasonForSecurity.values.toSeq
+  val postAction: Call = routes.ChooseReasonForSecurityController.submit()
+
+  val reasonsForSecurity: Seq[ReasonForSecurity] = ReasonForSecurity.values.toSeq.sorted
 
   val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
 
