@@ -376,14 +376,7 @@ object Forms {
           .transform[BasisOfClaimAnswer](BasisOfClaims.all(_), BasisOfClaims.indexOf)
       )(identity)(Some(_))
     )
-
-  //val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
-  //    mapping(
-  //      "select-basis-for-claim.rejected-goods" -> nonEmptyText
-  //        .verifying("error.required", basis => basis.isEmpty || BasisOfRejectedGoodsClaim.has(basis))
-  //    )(BasisOfRejectedGoodsClaim.findUnsafe)(borgc => Option(borgc.toString))
-  //  )
-
+  
   val reasonForSecurityForm: Form[ReasonForSecurity] =
     Form(
       mapping(
