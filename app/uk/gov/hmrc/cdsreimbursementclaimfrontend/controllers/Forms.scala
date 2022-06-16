@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -374,5 +375,13 @@ object Forms {
           .verifying("invalid reason for claim", idx => BasisOfClaims.contains(idx))
           .transform[BasisOfClaimAnswer](BasisOfClaims.all(_), BasisOfClaims.indexOf)
       )(identity)(Some(_))
+    )
+  
+  val reasonForSecurityForm: Form[ReasonForSecurity] =
+    Form(
+      mapping(
+        "choose-reason-for-security.securities" -> nonEmptyText
+          .verifying("error.required", _.nonEmpty)
+      )(ReasonForSecurity.findUnsafe)(rfs => Option(rfs.toString))
     )
 }

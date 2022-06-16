@@ -1,0 +1,77 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
+
+@(form: Form[ReasonForSecurity], reasonForSecurity: Seq[ReasonForSecurity], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"choose-reason-for-security.securities"}
+@title = @{messages(s"$key.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@radioItems = @{
+    reasonForSecurity.map { fileType =>
+        val fileTypeKey = ReasonForSecurity.keyOf(fileType)
+        RadioItem(
+            id = Some(s"$key.$fileTypeKey"),
+            value = Some(fileTypeKey),
+            content = Text(messages(s"$key.$fileTypeKey")),
+            checked = form(s"$key").value.exists(_.contains(fileTypeKey))
+        )
+    }
+}
+
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @pageHeading(Html(title))
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @radios(
+            form = form,
+            name = key,
+            legend = title,
+            legendAsHeading = false,
+            hintKey = None,
+            classes = "govuk-visually-hidden",
+            inline = false,
+            items = radioItems
+        )
+
+        @submitButton("button.continue")
+
+    }
+
+}

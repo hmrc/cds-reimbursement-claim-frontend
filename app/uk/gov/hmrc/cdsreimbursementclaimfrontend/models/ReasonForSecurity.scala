@@ -19,6 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
+import scala.collection.immutable.ListMap
+
 sealed class ReasonForSecurity(val acc14Code: String)
 
 object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
@@ -83,4 +85,7 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
 
   def fromACC14Code(acc14Code: String): Option[ReasonForSecurity] =
     values.find(_.acc14Code === acc14Code)
+
+  implicit val reasonsForSecurityOrdering: Ordering[ReasonForSecurity] = (a: ReasonForSecurity, b: ReasonForSecurity) =>
+    a.toString compare b.toString
 }

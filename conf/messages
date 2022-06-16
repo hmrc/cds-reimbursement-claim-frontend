@@ -326,6 +326,27 @@ enter-declarant-eori-number.error.required=Enter a valid <abbr title="Economic O
 enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 
 #===================================================
+#  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
+#===================================================
+choose-reason-for-security.securities.title=Choose the reason for security
+choose-reason-for-security.securities.error.required=Choose the reason for security
+choose-reason-for-security.securities.AccountSales=Account Sales
+choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Community Systems of Duty Relief (CSDR)
+choose-reason-for-security.securities.EndUseRelief=End-use Relief
+choose-reason-for-security.securities.InwardProcessingRelief=Inward Processing Relief (IPR)
+choose-reason-for-security.securities.ManualOverrideDeposit=Manual Override Deposit*
+choose-reason-for-security.securities.MissingLicenseQuota=Missing License Quota*
+choose-reason-for-security.securities.MissingPreferenceCertificate=Missing Preference Certificate
+choose-reason-for-security.securities.OutwardProcessingRelief=Outward Processing Relief (OPR)
+choose-reason-for-security.securities.RevenueDispute=Revenue Dispute/Inward Pre-Clearance (IPC)
+choose-reason-for-security.securities.TemporaryAdmission2Y=Temporary Admission (2 years Expiration)
+choose-reason-for-security.securities.TemporaryAdmission6M=Temporary Admission (6 months Expiration)
+choose-reason-for-security.securities.TemporaryAdmission3M=Temporary Admission (3 months Expiration)
+choose-reason-for-security.securities.TemporaryAdmission2M=Temporary Admission (2 months Expiration)
+choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price*
+choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties*
+
+#===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
 enter-your-contact-details.help-text=These are the details if we need to contact you about this claim application.
