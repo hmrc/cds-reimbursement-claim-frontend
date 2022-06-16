@@ -19,12 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.http.Status.BAD_REQUEST
-import play.api.http.Status.NOT_FOUND
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -32,17 +28,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.SelectDutiesController.selectDutiesKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen.genReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -104,7 +94,7 @@ class ChooseReasonForSecurityControllerSpec
         featureSwitch.disable(Feature.Securities)
 
         status(performAction()) shouldBe NOT_FOUND
-      } // End not found
+      }
 
       "display the page for the first time" in {
 
@@ -120,9 +110,9 @@ class ChooseReasonForSecurityControllerSpec
           messageFromMessageKey(s"$messagesKey.title"),
           doc => validateChooseReasonForSecurityPage(doc)
         )
-      } // End display page
+      }
 
-    } // End show page
+    }
 
     "submit page" must {
       def performAction(data: Seq[(String, String)]): Future[Result] =
@@ -160,8 +150,8 @@ class ChooseReasonForSecurityControllerSpec
         )
       }
 
-    } // End submit page
+    }
 
-  } //End controller must
+  }
 
 }
