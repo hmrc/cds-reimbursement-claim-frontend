@@ -1427,8 +1427,8 @@ choose-claim-type.c285.title=Repayment of import duties and <abbr title="Value A
 choose-claim-type.ce1179.title=Repayment or remission of import duties and <abbr title="Value Added Tax">VAT</abbr> on rejected imports (C&amp;E1179)
 choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
 choose-claim-type.securities.title=Claim repayment of a security deposit*
-choose-claim-type.error.required=Select if you are claiming repayment of import duties that were overpaid or repayment of import duties on rejected imports
-choose-claim-type.error.unknown=Select if you are claiming repayment of import duties that were overpaid or repayment of import duties on rejected imports
+choose-claim-type.error.required=Choose the type of claim you want to submit
+choose-claim-type.error.unknown=Choose the type of claim you want to submit
 
 #===================================================
 #  CHOOSE FILE TYPE - PAGE
