@@ -750,6 +750,76 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "accept submission of the full amounts reclaim for any valid securityDepositId" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val depositIds: Seq[String] = decl.getSecurityDepositIds.get
+
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              depositIds,
+              (journey: SecuritiesJourney) => journey.submitFullAmountsForReclaim(_)
+            )
+            .getOrFail
+
+        val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
+          SortedMap(
+            decl.displayResponseDetail.securityDetails.getOrElse(Nil).map { sd =>
+              (
+                sd.securityDepositId,
+                SortedMap(sd.taxDetails.map(td => (TaxCodes.findUnsafe(td.taxType), Some(BigDecimal(td.amount)))): _*)
+              )
+            }: _*
+          )
+
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
+        journey.answers.displayDeclaration.contains(decl)     shouldBe true
+        journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
+        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSecuritiesReclaims                 shouldBe true
+        journey.isFinalized                                   shouldBe false
+      }
+    }
+
+    "reject submission of the full amounts reclaim for any invalid securityDepositId" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val depositIds: Seq[String] = decl.getSecurityDepositIds.get
+        val journeyResult           =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMap(_.submitFullAmountsForReclaim("invalid-security-deposit-id"))
+
+        journeyResult shouldBe Left("submitFullAmountForReclaim.invalidSecurityDepositId")
+      }
+    }
+
+    "reject submission of the full amounts reclaim for any not selected securityDepositId" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val depositIds: Seq[String] = decl.getSecurityDepositIds.get
+        whenever(depositIds.size > 1) {
+          val journeyResult =
+            emptyJourney
+              .submitMovementReferenceNumber(mrn)
+              .submitReasonForSecurityAndDeclaration(rfs, decl)
+              .flatMap(_.submitClaimDuplicateCheckStatus(false))
+              .flatMap(_.selectSecurityDepositIds(depositIds.halfNonEmpty))
+              .flatMap(_.submitFullAmountsForReclaim(depositIds.last))
+
+          journeyResult shouldBe Left("submitFullAmountForReclaim.securityDepositIdNotSelected")
+        }
+      }
+    }
+
     "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(

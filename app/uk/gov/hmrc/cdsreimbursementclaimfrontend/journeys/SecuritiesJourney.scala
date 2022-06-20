@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -308,11 +309,10 @@ final class SecuritiesJourney private (
     reclaimAmount: BigDecimal
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (
-        !isValidSecurityDepositId(securityDepositId) ||
-        !isSelectedDepositId(securityDepositId)
-      )
+      if (!isValidSecurityDepositId(securityDepositId))
         Left("submitAmountForReclaim.invalidSecurityDepositId")
+      else if (!isSelectedDepositId(securityDepositId))
+        Left("submitAmountForReclaim.securityDepositIdNotSelected")
       else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
         Left("submitAmountForReclaim.invalidTaxCode")
       else if (!getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidReclaimAmount(reclaimAmount, _)))
@@ -331,6 +331,39 @@ final class SecuritiesJourney private (
 
             case other => other
           })
+
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              securitiesReclaims = updatedSecuritiesReclaims
+            )
+          )
+        )
+      }
+    }
+
+  def submitFullAmountsForReclaim(securityDepositId: String): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      if (!isValidSecurityDepositId(securityDepositId))
+        Left("submitFullAmountForReclaim.invalidSecurityDepositId")
+      else if (!isSelectedDepositId(securityDepositId))
+        Left("submitFullAmountForReclaim.securityDepositIdNotSelected")
+      else {
+        val updatedSecuritiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] =
+          for {
+            securitiesReclaims <- answers.securitiesReclaims
+            securityDetails    <- getSecurityDetailsFor(securityDepositId)
+          } yield securitiesReclaims + {
+            val fullAmountReclaims: SecuritiesReclaims =
+              SortedMap(
+                securityDetails.taxDetails
+                  .map(td => (TaxCodes.findUnsafe(td.taxType) -> Some(BigDecimal(td.amount)))): _*
+              )
+            (
+              securityDepositId,
+              fullAmountReclaims
+            )
+          }
 
         Right(
           new SecuritiesJourney(
