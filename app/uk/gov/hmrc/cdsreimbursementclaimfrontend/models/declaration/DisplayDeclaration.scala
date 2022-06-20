@@ -63,6 +63,10 @@ final case class DisplayDeclaration(
   def getSecurityDepositIds: Option[List[String]] =
     displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
+  def isValidSecurityDepositId(securityDepositId: String): Boolean =
+    displayResponseDetail.securityDetails
+      .exists(_.exists(_.securityDepositId === securityDepositId))
+
   def getSecurityTaxCodesFor(securityDepositId: String): List[TaxCode] =
     getSecurityDetailsFor(securityDepositId)
       .map(
