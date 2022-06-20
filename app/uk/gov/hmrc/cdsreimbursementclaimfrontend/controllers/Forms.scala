@@ -376,7 +376,7 @@ object Forms {
           .transform[BasisOfClaimAnswer](BasisOfClaims.all(_), BasisOfClaims.indexOf)
       )(identity)(Some(_))
     )
-  
+
   val reasonForSecurityForm: Form[ReasonForSecurity] =
     Form(
       mapping(
