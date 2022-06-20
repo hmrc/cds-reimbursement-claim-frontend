@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
-
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Format
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import java.time.LocalDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
+import java.time.format.DateTimeFormatter
+import scala.util.Try
 
-final case class InspectionDate(value: LocalDate) extends AnyVal
+object DateUtils {
 
-object InspectionDate {
+  def displayFormat(maybeDate: Option[String]): Option[String] =
+    maybeDate.flatMap(displayFormat _)
 
-  implicit class InspectionDateOps(private val inspectionDate: InspectionDate) {
-    def checkYourDetailsDisplayFormat: String =
-      DateUtils.displayFormat(inspectionDate.value.toString).getOrElse("")
+  def displayFormat(date: String): Option[String] = {
+    val result = for {
+      t <- Try(LocalDate.parse(date, DateTimeFormatter.ofPattern("u-M-d")))
+      f <- Try(DateTimeFormatter.ofPattern("d MMMM yyyy").format(t))
+    } yield f
+    result.toOption
   }
-
-  implicit val format: Format[InspectionDate] =
-    implicitly[Format[LocalDate]].inmap(InspectionDate(_), _.value)
-
 }

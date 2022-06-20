@@ -62,6 +62,6 @@ object JourneyValidationErrors {
     "choosenReasonForSecurityRequiresGoodsToBeAlreadyExported"
   val MISSING_CLAIM_DUPLICATE_CHECK_STATUS_WITH_TPI04: String                   =
     "missingClaimDuplicateCheckStatusWithTPI04"
-  val SIMILAR_CLAIM_EXIST_ALREADY_IN_CDFPAY: String                             =
+  val SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY: String                            =
     "similarClaimExistAlreadyInCDFPay"
 }

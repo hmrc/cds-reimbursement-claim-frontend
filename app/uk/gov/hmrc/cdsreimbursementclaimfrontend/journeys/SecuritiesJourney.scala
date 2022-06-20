@@ -445,6 +445,8 @@ final class SecuritiesJourney private (
         )
       )
 
+  def prettyPrint: String = Json.prettyPrint(Json.toJson(this))
+
 }
 
 object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
@@ -526,7 +528,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         MISSING_CLAIM_DUPLICATE_CHECK_STATUS_WITH_TPI04
       ) && Check[SecuritiesJourney](
         _.answers.similarClaimExistAlreadyInCDFPay.contains(false),
-        SIMILAR_CLAIM_EXIST_ALREADY_IN_CDFPAY
+        SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY
       )
 
     val userCanProceedWithThisClaim: Check[SecuritiesJourney] =

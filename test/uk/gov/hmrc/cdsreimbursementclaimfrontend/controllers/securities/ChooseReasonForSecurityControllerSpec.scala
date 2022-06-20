@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen.genReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -104,8 +103,6 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "display the page for the first time" in {
-
-        val session = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()

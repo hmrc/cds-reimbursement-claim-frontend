@@ -1242,6 +1242,7 @@ check-your-answers.reference-number.scheduled.label=First <abbr title="Movement 
 check-your-answers.reference-number.rejectedgoods.scheduled.label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.associated-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.rejectedgoodsmultiple.label={0} <abbr title="Movement Reference Number">MRN</abbr>
+
 check-your-answers.declaration-details.label=Declaration details
 check-your-answers.declaration-details.mrn-label=<abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.multiple.mrn-label=First <abbr title="Movement Reference Number">MRN</abbr>
@@ -1256,6 +1257,10 @@ check-your-answers.declaration-details.importer-telephone-label=Importer telepho
 check-your-answers.declaration-details.importer-address-label=Importer address
 check-your-answers.declaration-details.declarant-name-label=Declarant name
 check-your-answers.declaration-details.declarant-address-label=Declarant address
+check-your-answers.declaration-details.reason-for-security-label=Reason for security
+check-your-answers.declaration-details.acceptance-date-label=Acceptance date
+check-your-answers.declaration-details.bta-due-date-label=Brought to account (BTA) due date
+
 check-your-answers.claimant-type.h2=Claimant type
 check-your-answers.claimant-type.l0=Type of claimant
 check-your-answers.duplicate-declaration-details.label=Duplicate declaration details
@@ -1310,6 +1315,8 @@ check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded
 check-your-answers.attached-documents.empty=No documents attached
+check-your-answers.documents.h2=Documents
+check-your-answers.documents.label={0}
 check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.claimant-details.h2=Contact information for this claim
@@ -1342,6 +1349,9 @@ check-your-answers.repayment-method.h2=Repayment method
 check-your-answers.repayment-method.label=Method
 check-your-answers.repayment-method.cma=Current Month Adjustment (CMA)
 check-your-answers.repayment-method.bt=Bank account transfer
+check-your-answers.payment-method.label=Payment method
+check-your-answers.payment-method.bt=Bank account transfer
+check-your-answers.payment-method.guarantee=Guarantee
 check-your-answers.inspection.h2=Details of inspection
 check-your-answers.inspection.inspection-date=Inspection date
 check-your-answers.inspection.inspection-address=Inspection address
@@ -1353,6 +1363,19 @@ check-your-answers.claim-total.multiple.total=Total
 check-your-answers.claim-total.scheduled.total=Total
 check-your-answers.contact-information.change-hint.contact=Contact details
 check-your-answers.contact-information.change-hint.address=Contact address
+
+check-your-answers.claim-for-security.h2=Claim details for: {0}
+check-your-answers.claim-for-security.label=Claim for {0}
+check-your-answers.claim-for-security.yes=Yes
+check-your-answers.claim-for-security.no=No
+check-your-answers.claim-for-security.total=Total value of selected security IDs
+check-your-answers.claim-for-security.claim-total=Total
+check-your-answers.claim-for-security.claim-full-amount.label=Claim full amount
+check-your-answers.claim-for-security.claim-full-amount.yes=Yes
+check-your-answers.claim-for-security.claim-full-amount.no=No
+check-your-answers.claim-for-security.duties-selected.label=Duties selected
+
+check-your-answers.export-declaration-details.h2=Export declaration details
 
 #===================================================
 # INSPECTION ADDRESS TYPE

@@ -1115,7 +1115,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "allow to change bankAccountDetails in a complete journey not guarantee eligible" in {
-      forAll(buildCompleteJourneyGen(allDutiesGuaranteeEligible = false)) { journey =>
+      forAll(buildCompleteJourneyGen(allDutiesGuaranteeEligibleOpt = Some(false))) { journey =>
         val journeyEither =
           journey.submitBankAccountDetails(exampleBankAccountDetails)
 
@@ -1124,7 +1124,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject change of the bankAccountDetails in a complete journey guarantee eligible" in {
-      forAll(buildCompleteJourneyGen(allDutiesGuaranteeEligible = true)) { journey =>
+      forAll(buildCompleteJourneyGen(allDutiesGuaranteeEligibleOpt = Some(true))) { journey =>
         val journeyEither =
           journey.submitBankAccountDetails(exampleBankAccountDetails)
 
