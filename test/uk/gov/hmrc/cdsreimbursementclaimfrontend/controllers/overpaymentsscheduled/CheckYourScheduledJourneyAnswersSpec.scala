@@ -91,11 +91,11 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
               "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
               "Basis for claim".expectedAlways,
               "Reason for claim".expectedAlways,
-              "Total reimbursement claim for all MRNs".expectedAlways,
+              "Total repayment claim for all MRNs".expectedAlways,
               "Bank details".expectedAlways,
               "Supporting documents".expectedAlways,
               "Were your goods imported into Northern Ireland?".expectedWhen(claim.whetherNorthernIrelandAnswer),
-              "Reimbursement method".expectedWhen(claim.reimbursementMethodAnswer),
+              "Repayment method".expectedWhen(claim.reimbursementMethodAnswer),
               "Scheduled document".expectedAlways,
               "Now send your application".expectedAlways
             )

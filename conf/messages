@@ -85,8 +85,8 @@ we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government 
 #  LANDING PAGE
 #===================================================
 landing.title=Claim back import duty and VAT
-landing.help.p1=You can use this service to apply to claim reimbursements on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
-landing.help.p2=You can use this service for multiple claims (bulk), and be reimbursed via either Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or by bank account transfer.
+landing.help.p1=You can use this service to apply to claim repayments on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
+landing.help.p2=You can use this service for multiple claims (bulk), and be repaid via either Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or by bank account transfer.
 landing.who.heading=Who can claim
 landing.who.p1=You can claim if you have a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number associated with your Government Gateway login, and one or more Movement Reference Number(s) (<abbr title="Movement Reference Number">MRN</abbr>) or an entry number.
 landing.who.p2=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">more about an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number (opens in new tab)</a> and an <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}"><abbr title="Movement Reference Number">MRN</abbr> (opens in new tab)</a>.
@@ -105,7 +105,7 @@ landing.before.p1=To use this service, you will need:
 landing.before.l1=Government Gateway credentials
 landing.before.l2=to have your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number associated with your <abbr title="Customs Declaration Service">CDS</abbr> enrolment
 landing.before.l3=a <abbr title="Movement Reference Number">MRN</abbr> or entry number
-landing.before.l4=to know the type of duty you want to claim reimbursement for
+landing.before.l4=to know the type of duty you want to claim repayment for
 landing.before.l5=the reason for overpayment
 landing.before.l6=details of the goods
 landing.before.l7=your bank details
@@ -825,7 +825,7 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 reimbursement-method.title=Select repayment method
 reimbursement-method.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 reimbursement-method.bank-transfer=Bank account transfer
-reimbursement-method.error.required=Select if you would like to be reimbursed via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
+reimbursement-method.error.required=Select if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -837,7 +837,7 @@ reimbursement-method.error.required=Select if you would like to be reimbursed vi
 select-duties.title=Select the duties you want to claim for
 select-duties.multiple.title=Select the duties you want to claim for under {0} <abbr title="Movement Reference Number">MRN</abbr>
 select-duties.multiple.help-text.1=These are the duties that have been paid under <abbr title="Movement Reference Number">MRN</abbr>: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
-select-duties.duty.hint=This duty is not eligible for <abbr title="Current Month Adjustment">CMA</abbr> reimbursement
+select-duties.duty.hint=This duty is not eligible for <abbr title="Current Month Adjustment">CMA</abbr> repayment
 select-duties.error.required=Select one or more duties to be repaid for
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
@@ -996,22 +996,22 @@ check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
 check-claim-summary.overall-total.label=Overall total
 check-claim-summary.change-amount=Change amount
-check-claim-summary.total=Reimbursement for this <abbr title="Movement Reference Number">MRN</abbr>
+check-claim-summary.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
 check-claim-summary.error.required=Select yes if duties are correct
 check-claim-summary.error.invalid=Select yes if duties are correct
-check-claim-summary.duty-code.row.key={0} reimbursement
-check-claim-summary.duty-code.total.key={0} claims total reimbursement
+check-claim-summary.duty-code.row.key={0} repayment
+check-claim-summary.duty-code.total.key={0} claims total repayment
 check-claim-summary.total.header=Total
 
-multiple-check-claim-summary.title=Check the reimbursement claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
+multiple-check-claim-summary.title=Check the repayment claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
 multiple-check-claim-summary.help-text=These are the calculations based on the information you gave us.
 multiple-check-claim-summary.duty.label={0} MRN: {1}
-multiple-check-claim-summary.total=Reimbursement for this <abbr title="Movement Reference Number">MRN</abbr>
+multiple-check-claim-summary.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
 multiple-check-claim-summary.overall-total.header=Total
-multiple-check-claim-summary.overall-total.label=Total reimbursement
+multiple-check-claim-summary.overall-total.label=Total repayment
 multiple-check-claim-summary.are-duties-correct=Are these duties correct?
 multiple-check-claim-summary.yes=Yes
 multiple-check-claim-summary.no=No, select different duties
@@ -1277,7 +1277,7 @@ check-your-answers.additional-details.label=This is the reason for the claim
 check-your-answers.claim-calculation.label=Claim calculation
 check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you:
-check-your-answers.claim-calculation.l2=Total claimed reimbursement
+check-your-answers.claim-calculation.l2=Total claimed repayment
 check-your-answers.multiple-claim-totals.label=Claim total
 check-your-answers.bank-details.label=Bank details
 check-your-answers.bank-details.l0=Bank account name
@@ -1298,11 +1298,11 @@ check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
 check-your-answers.additional-details.h2=Reason for claim
 check-your-answers.claim-calculation.h2=Claim total
-check-your-answers.claim-calculation.scheduled.h2=Total reimbursement claim for all <abbr title="Movement Reference Numbers">MRNs</abbr>
+check-your-answers.claim-calculation.scheduled.h2=Total repayment claim for all <abbr title="Movement Reference Numbers">MRNs</abbr>
 check-your-answers.claim-calculation.uk-duty.label=UK Duty
 check-your-answers.claim-calculation.eu-duty.label=EU Duty
 check-your-answers.claim-calculation.excise-duty.label=Excise Duty
-check-your-answers.claim-calculation.duty.label=reimbursement claim for <abbr title="Movement Reference Number">MRN</abbr> {0}
+check-your-answers.claim-calculation.duty.label=repayment claim for <abbr title="Movement Reference Number">MRN</abbr> {0}
 check-your-answers.claim-calculation.total=Total
 check-your-answers.claim-calculation.multiple.total=Total
 
@@ -1317,7 +1317,7 @@ check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
 check-your-answers.scheduled.confirmation-statement.h2=Now send your claim
 check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.
-check-your-answers.reimbursement-method.h2=Reimbursement method
+check-your-answers.reimbursement-method.h2=Repayment method
 check-your-answers.reimbursement-method.label=Method
 check-your-answers.reimbursement-method.cma=Current Month Adjustment (CMA)
 check-your-answers.reimbursement-method.bt=Bank account transfer
@@ -1404,8 +1404,8 @@ choose-claim-type.c285.title=Repayment of import duties and <abbr title="Value A
 choose-claim-type.ce1179.title=Repayment or remission of import duties and <abbr title="Value Added Tax">VAT</abbr> on rejected imports (C&amp;E1179)
 choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
 choose-claim-type.securities.title=Claim repayment of a security deposit*
-choose-claim-type.error.required=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports
-choose-claim-type.error.unknown=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports
+choose-claim-type.error.required=Select if you are claiming repayment of import duties that were overpaid or repayment of import duties on rejected imports
+choose-claim-type.error.unknown=Select if you are claiming repayment of import duties that were overpaid or repayment of import duties on rejected imports
 
 #===================================================
 #  CHOOSE FILE TYPE - PAGE

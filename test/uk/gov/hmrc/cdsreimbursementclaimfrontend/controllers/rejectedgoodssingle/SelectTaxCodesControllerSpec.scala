@@ -217,7 +217,7 @@ class SelectTaxCodesControllerSpec
         }
 
         val hintText =
-          Some("This duty is not eligible for <abbr title=\"Current Month Adjustment\">CMA</abbr> reimbursement")
+          Some("This duty is not eligible for <abbr title=\"Current Month Adjustment\">CMA</abbr> repayment")
 
         checkPageIsDisplayed(
           performAction(),
