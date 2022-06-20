@@ -168,10 +168,11 @@ trait JourneyGenerators extends JourneyTestData {
       declarantEORI      <- IdGen.genEori
       consigneeEORI      <- IdGen.genEori
       numberOfSecurities <- Gen.choose(2, 5)
-      reclaimsDetails    <- listOfExactlyN(
-                              numberOfSecurities,
-                              Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
-                            )
+      reclaimsDetails    <-
+        listOfExactlyN(
+          numberOfSecurities,
+          Gen.zip(listOfExactlyN(6, Gen.alphaNumChar).map(l => String.valueOf(l.toArray)), taxCodesWithAmountsGen)
+        )
     } yield buildSecuritiesDisplayDeclaration(
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,

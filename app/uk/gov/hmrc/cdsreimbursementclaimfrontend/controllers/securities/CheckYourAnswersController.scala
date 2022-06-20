@@ -18,16 +18,111 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SecuritiesClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckYourAnswersController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+  val jcc: JourneyControllerComponents,
+  securitiesClaimConnector: SecuritiesClaimConnector,
+  uploadDocumentsConnector: UploadDocumentsConnector,
+  checkYourAnswersPage: pages.check_your_answers,
+  confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
+  submitClaimFailedPage: claimPages.submit_claim_error
+)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    with Logging
+    with SecuritiesJourneyRouter {
+
+  private val postAction: Call             = routes.CheckYourAnswersController.submit()
+  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
+
+  val show: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      journey
+        .submitCheckYourAnswersChangeMode(true)
+        .toOutput
+        .fold(
+          errors => {
+            logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+            (
+              journey.submitCheckYourAnswersChangeMode(false),
+              Redirect(routeForValidationErrors(errors))
+            )
+          },
+          output =>
+            (
+              journey.submitCheckYourAnswersChangeMode(true),
+              Ok(
+                checkYourAnswersPage(
+                  output,
+                  journey.answers.displayDeclaration,
+                  journey.answers.exportDeclaration,
+                  postAction
+                )
+              )
+            )
+        )
+        .asFuture
+    }
+
+  val submit: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      if (journey.isFinalized)
+        (journey, Redirect(showConfirmationAction)).asFuture
+      else
+        journey
+          .submitCheckYourAnswersChangeMode(true)
+          .toOutput
+          .fold(
+            errors => {
+              logger.warn(s"Claim not ready to submit because of ${errors.mkString(",")}")
+              (journey, Redirect(routeForValidationErrors(errors))).asFuture
+            },
+            output =>
+              securitiesClaimConnector
+                .submitClaim(SecuritiesClaimConnector.Request(output))
+                .flatMap { response =>
+                  logger.info(
+                    s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
+                  )
+                  uploadDocumentsConnector.wipeOut
+                    .map(_ =>
+                      (
+                        journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
+                        Redirect(showConfirmationAction)
+                      )
+                    )
+                }
+                .recover { case e =>
+                  logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
+                  (journey, Ok(submitClaimFailedPage()))
+                }
+          )
+    }
+
+  val showConfirmation: Action[AnyContent] =
+    jcc
+      .authenticatedActionWithSessionData(requiredFeature)
+      .async { implicit request =>
+        request.sessionData
+          .flatMap(getJourney)
+          .map(journey =>
+            (journey.caseNumber match {
+              case Some(caseNumber) => Ok(confirmationOfSubmissionPage(journey.getTotalReclaimAmount, caseNumber))
+              case None             => Redirect(checkYourAnswers)
+            }).asFuture
+          )
+          .getOrElse(redirectToTheStartOfTheJourney)
+      }
+}

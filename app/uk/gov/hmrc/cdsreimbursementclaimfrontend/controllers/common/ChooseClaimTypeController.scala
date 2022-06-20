@@ -87,7 +87,7 @@ class ChooseClaimTypeController @Inject() (
                 .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
                   sessionStore
                     .store(SessionData(SecuritiesJourney.empty(eori, Nonce.random)))
-                    .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.enterMrn()))
+                    .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
                 }
           }
         )

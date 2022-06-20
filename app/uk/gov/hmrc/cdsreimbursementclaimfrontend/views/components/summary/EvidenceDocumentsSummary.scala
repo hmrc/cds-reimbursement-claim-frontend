@@ -70,4 +70,38 @@ object EvidenceDocumentsSummary extends AnswerSummary[Seq[EvidenceDocument]] {
         )
       )
     )
+
+  def forSecurities(
+    answers: Seq[EvidenceDocument],
+    key: String,
+    changeCall: Call
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      answers.map(document =>
+        SummaryListRow(
+          key = Key(Text(messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}"))),
+          value = Value(
+            HtmlContent(
+              Paragraph(
+                document.fileName,
+                messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}")
+              ).toString
+            )
+          ),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.label"))
+                )
+              )
+            )
+          )
+        )
+      )
+    )
 }

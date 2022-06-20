@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import java.util.Locale
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
@@ -31,8 +32,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
-    acc14ConsigneeMatchesUserEori: Boolean = true,
-    allDutiesGuaranteeEligible: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = false,
+    allDutiesGuaranteeEligibleOpt: Option[Boolean] = None,
     hasConsigneeDetailsInACC14: Boolean = true,
     submitConsigneeDetails: Boolean = true,
     submitContactDetails: Boolean = true,
@@ -43,7 +44,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
       acc14ConsigneeMatchesUserEori,
-      allDutiesGuaranteeEligible,
+      allDutiesGuaranteeEligibleOpt,
       hasConsigneeDetailsInACC14,
       submitConsigneeDetails = submitConsigneeDetails,
       submitContactDetails = submitContactDetails,
@@ -62,8 +63,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
-    acc14ConsigneeMatchesUserEori: Boolean = true,
-    allDutiesGuaranteeEligible: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = false,
+    allDutiesGuaranteeEligibleOpt: Option[Boolean] = None,
     hasConsigneeDetailsInACC14: Boolean = true,
     submitDeclarantDetails: Boolean = true,
     submitConsigneeDetails: Boolean = true,
@@ -81,10 +82,15 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
       numberOfSecurities          <- Gen.choose(2, 5)
-      reclaimsDetails             <- listOfExactlyN(
-                                       numberOfSecurities,
-                                       Gen.zip(Gen.nonEmptyListOf(Gen.alphaNumChar).map(String.valueOf), taxCodesWithAmountsGen)
-                                     )
+      reclaimsDetails             <-
+        listOfExactlyN(
+          numberOfSecurities,
+          Gen.zip(
+            listOfExactlyN(7, Gen.alphaNumChar).map(l => String.valueOf(l.toArray).toUpperCase(Locale.ENGLISH)),
+            taxCodesWithAmountsGen
+          )
+        )
+      allDutiesGuaranteeEligible  <- allDutiesGuaranteeEligibleOpt.map(Gen.const(_)).getOrElse(Gen.oneOf(true, false))
       acc14                        = buildSecuritiesDisplayDeclaration(
                                        id = mrn.value,
                                        securityReason = rfs.acc14Code,
@@ -97,13 +103,13 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                                      )
       exportMrnAndDeclaration     <- exportMrnWithDec91TrueGen
       reclaims                    <- validSecurityReclaimsGen(acc14)
-      numberOfSupportingEvidences <- Gen.choose(0, 3)
+      numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
-      documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsSingleTypes))
+      documentTypes               <- listOfExactlyN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsSingleTypes))
       supportingEvidences         <-
         Gen
           .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](
-            documentTypes.map(dt => Gen.choose(0, numberOfSupportingEvidences).map(n => (dt, n)))
+            documentTypes.map(dt => Gen.choose(1, numberOfSupportingEvidences).map(n => (dt, n)))
           )
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)

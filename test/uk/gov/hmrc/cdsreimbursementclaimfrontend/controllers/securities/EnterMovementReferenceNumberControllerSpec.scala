@@ -78,7 +78,7 @@ class EnterMovementReferenceNumberControllerSpec
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.enterMrn()(FakeRequest())
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)

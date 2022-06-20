@@ -40,13 +40,13 @@
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @radioItems = @{
-    reasonForSecurity.map { fileType =>
-        val fileTypeKey = ReasonForSecurity.keyOf(fileType)
+    reasonForSecurity.map { rfs =>
+        val rfsKey = ReasonForSecurity.keyOf(rfs)
         RadioItem(
-            id = Some(s"$key.$fileTypeKey"),
-            value = Some(fileTypeKey),
-            content = Text(messages(s"$key.$fileTypeKey")),
-            checked = form(s"$key").value.exists(_.contains(fileTypeKey))
+            id = Some(s"$key.$rfsKey"),
+            value = Some(rfsKey),
+            content = Text(messages(s"$key.$rfsKey")),
+            checked = form(s"$key").value.exists(_.contains(rfsKey))
         )
     }
 }

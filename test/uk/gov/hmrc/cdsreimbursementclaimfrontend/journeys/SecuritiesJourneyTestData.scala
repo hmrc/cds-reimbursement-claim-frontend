@@ -69,7 +69,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)
-      .flatMap(_.selectSecurityDepositIds(reclaims.map(_._1)))
+      .flatMapEach(reclaims.map(_._1).distinct, (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_))
       .flatMapEach(
         reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
         (journey: SecuritiesJourney) =>
