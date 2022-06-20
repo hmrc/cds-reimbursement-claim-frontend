@@ -503,9 +503,9 @@ claim-northern-ireland.multiple.help-text=If you select Yes, then all the <abbr 
 #===================================================
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================
-select-basis-for-claim.title=Select the basis for claim
-select-basis-for-claim.error.number=Select the basis for claim
-select-basis-for-claim.error.required=Select the basis for claim
+select-basis-for-claim.title=Choose the basis for claim
+select-basis-for-claim.error.number=Choose the basis for claim
+select-basis-for-claim.error.required=Choose the basis for claim
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-basis-for-claim.details.heading=Examples of basis of claim
