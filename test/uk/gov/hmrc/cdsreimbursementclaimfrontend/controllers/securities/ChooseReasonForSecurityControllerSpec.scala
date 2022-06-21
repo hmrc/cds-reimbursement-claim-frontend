@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -50,7 +51,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -83,13 +83,10 @@ class ChooseReasonForSecurityControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
-  private def mockGetDisplayDeclaration(
-    expectedMrn: MRN,
-    response: Either[Error, Option[DisplayDeclaration]]
-  ) =
+  private def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimsService
       .getDisplayDeclaration(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
-      .expects(expectedMrn, *, *)
+      .expects(*, *, *)
       .returning(EitherT.fromEither[Future](response))
 
   def validateChooseReasonForSecurityPage(doc: Document) = {
@@ -145,18 +142,6 @@ class ChooseReasonForSecurityControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      val displayDeclaration = sample[DisplayDeclaration]
-
-      def getDisplayDeclarationForMrn(mrn: MRN) =
-        displayDeclaration
-          .copy(displayResponseDetail =
-            displayDeclaration.displayResponseDetail
-              .copy(
-                declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails,
-                declarationId = mrn.value
-              )
-          )
-
       "not succeed if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
         status(performAction(Seq.empty)) shouldBe NOT_FOUND
@@ -178,18 +163,35 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "Retrieve declaration details from Acc14" in {
-
-        val mrn = sample[MRN]
+        val displayDeclaration        = sample[DisplayDeclaration]
+        val updatedDisplayDeclaration = displayDeclaration
+          .copy(displayResponseDetail =
+            displayDeclaration.displayResponseDetail
+              .copy(
+                consigneeDetails = displayDeclaration.displayResponseDetail.consigneeDetails
+                  .map((cd: ConsigneeDetails) => cd.copy(consigneeEORI = journey.getClaimantEori.value)),
+                declarationId = journey.getLeadMovementReferenceNumber.get.value,
+                securityReason = Some(ReasonForSecurity.AccountSales.acc14Code)
+              )
+          )
+        val updatedJourney            = SessionData(
+          journey
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, updatedDisplayDeclaration)
+            .right
+            .toOption
+            .get
+        )
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
-          mockGetDisplayDeclaration(mrn, Right(Some(getDisplayDeclarationForMrn(mrn))))
+          mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
+          mockStoreSession(updatedJourney)(Right(()))
         }
 
         checkIsRedirect(
           performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
-          Call("GET", "Call TPI05")
+          Call("GET", "Call TPI04")
         )
       }
 
