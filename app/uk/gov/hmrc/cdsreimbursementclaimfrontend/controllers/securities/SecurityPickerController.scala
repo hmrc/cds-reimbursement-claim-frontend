@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class SelectSecuritiesController @Inject() (
+class SecurityPickerController @Inject() (
   val jcc: JourneyControllerComponents
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController

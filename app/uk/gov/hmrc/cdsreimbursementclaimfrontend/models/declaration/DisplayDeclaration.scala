@@ -63,6 +63,10 @@ final case class DisplayDeclaration(
   def getSecurityDepositIds: Option[List[String]] =
     displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
+  def isValidSecurityDepositId(securityDepositId: String): Boolean =
+    displayResponseDetail.securityDetails
+      .exists(_.exists(_.securityDepositId === securityDepositId))
+
   def getSecurityTaxCodesFor(securityDepositId: String): List[TaxCode] =
     getSecurityDetailsFor(securityDepositId)
       .map(
@@ -78,6 +82,11 @@ final case class DisplayDeclaration(
   def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
     getSecurityDetailsFor(securityDepositId)
       .flatMap(_.taxDetails.find(td => TaxCodes.findUnsafe(td.taxType) === taxCode))
+
+  def getTotalSecuritiesAmountFor(securityDepositIds: Set[String]): BigDecimal =
+    securityDepositIds
+      .map(getSecurityDetailsFor(_).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
+      .sum
 
   def withDeclarationId(declarationId: String): DisplayDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
@@ -110,6 +119,15 @@ final case class DisplayDeclaration(
   def hasSameEoriAs(other: DisplayDeclaration): Boolean =
     this.getDeclarantEori === other.getDeclarantEori ||
       this.getConsigneeEori.exists(eori => other.getConsigneeEori.contains(eori))
+
+  def isFullSecurityAmount(securityDepositId: String, reclaimedAmount: BigDecimal): Boolean =
+    getSecurityDetailsFor(securityDepositId)
+      .exists(d => BigDecimal(d.totalAmount) === reclaimedAmount)
+
+  def isAllSelectedSecuritiesEligibleForGuaranteePayment(securityDepositIds: Set[String]): Boolean =
+    securityDepositIds
+      .map(sid => getSecurityDetailsFor(sid))
+      .forall(_.exists(_.isGuaranteeEligible))
 
 }
 

@@ -245,7 +245,7 @@ trait JourneyTestData {
         acceptanceDate = "2021-10-11",
         declarantReferenceNumber = None,
         securityReason = Some(securityReason),
-        btaDueDate = None,
+        btaDueDate = Some("2022-03-22"),
         procedureCode = "procedure-code",
         btaSource = None,
         declarantDetails = DeclarantDetails(

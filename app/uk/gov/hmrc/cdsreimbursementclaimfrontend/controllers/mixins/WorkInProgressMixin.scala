@@ -31,6 +31,9 @@ trait WorkInProgressMixin[Journey] {
       Ok(s"Work in progress ...\n\nJourney state:\n\n${prettyPrint(journey)}")
     }
 
+  def show(a: Any): Action[AnyContent]         = show
+  def show(a: Any, b: Any): Action[AnyContent] = show
+
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
@@ -42,9 +45,11 @@ trait WorkInProgressMixin[Journey] {
       ).asFuture
     }
 
+  def submit(a: Any): Action[AnyContent]         = submit
+  def submit(a: Any, b: Any): Action[AnyContent] = submit
+
   val redirectToALF: Action[AnyContent]                                   = show
   def retrieveAddressFromALF(id: Option[UUID] = None): Action[AnyContent] = show
-  def showAmend(taxCode: TaxCode): Action[AnyContent]                     = show
   val reset: Action[AnyContent]                                           = show
   val summary: Action[AnyContent]                                         = show
   val showConfirmation: Action[AnyContent]                                = show

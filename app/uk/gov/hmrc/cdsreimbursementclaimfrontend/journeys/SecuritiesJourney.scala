@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -67,6 +68,10 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
+  def isValidSecurityDepositId(securityDepositId: String): Boolean =
+    getLeadDisplayDeclaration
+      .exists(_.isValidSecurityDepositId(securityDepositId))
+
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDetailsFor(securityDepositId))
@@ -85,6 +90,9 @@ final class SecuritiesJourney private (
 
   def getSelectedDepositIds: Seq[String] =
     answers.securitiesReclaims.map(_.keys.toSeq).getOrElse(Seq.empty)
+
+  def isSelectedDepositId(securityDepositId: String): Boolean =
+    answers.securitiesReclaims.exists(_.contains(securityDepositId))
 
   def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
     answers.securitiesReclaims.flatMap(_.get(securityDepositId).map(_.keys.toSeq))
@@ -120,9 +128,10 @@ final class SecuritiesJourney private (
     answers.exportDeclaration.exists(_.goodsHasBeenAlreadyExported)
 
   def hasCompleteSecuritiesReclaims: Boolean =
-    answers.securitiesReclaims.exists(m =>
-      m.nonEmpty && m.exists(_._2.nonEmpty) && m.forall(_._2.forall(_._2.isDefined))
-    )
+    answers.securitiesReclaims.nonEmpty &&
+      answers.securitiesReclaims.forall(m =>
+        m.nonEmpty && m.forall(_._2.nonEmpty) && m.forall(_._2.forall(_._2.isDefined))
+      )
 
   def isAllSelectedDutiesAreGuaranteeEligible: Boolean =
     getSelectedDepositIds
@@ -217,7 +226,7 @@ final class SecuritiesJourney private (
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       if (securityDepositIds.isEmpty)
         Left("selectSecurityDepositIds.emptySelection")
-      else if (!securityDepositIds.forall(getSecurityDepositIds.contains(_)))
+      else if (!securityDepositIds.forall(isValidSecurityDepositId))
         Left("selectSecurityDepositIds.invalidSecurityDepositId")
       else {
         val emptySecuritiesReclaims =
@@ -225,13 +234,10 @@ final class SecuritiesJourney private (
         Right(
           new SecuritiesJourney(
             answers.copy(
-              selectedSecurityDepositIds = securityDepositIds,
               securitiesReclaims = answers.securitiesReclaims
                 .map(m =>
                   (emptySecuritiesReclaims ++ m)
-                    .filter { case (sid, _) =>
-                      securityDepositIds.contains(sid)
-                    }
+                    .filterKeys(securityDepositIds.contains(_))
                 )
                 .orElse(Some(emptySecuritiesReclaims))
             )
@@ -240,16 +246,38 @@ final class SecuritiesJourney private (
       }
     }
 
+  def selectSecurityDepositId(securityDepositId: String): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      if (!isValidSecurityDepositId(securityDepositId))
+        Left("selectSecurityDepositIds.invalidSecurityDepositId")
+      else {
+        if (answers.securitiesReclaims.contains(securityDepositId))
+          Right(this)
+        else {
+          val emptySecuritiesReclaim =
+            SortedMap(securityDepositId -> SortedMap.empty[TaxCode, Option[BigDecimal]])
+          Right(
+            new SecuritiesJourney(
+              answers.copy(
+                securitiesReclaims = answers.securitiesReclaims
+                  .map(_ ++ emptySecuritiesReclaim)
+                  .orElse(Some(emptySecuritiesReclaim))
+              )
+            )
+          )
+        }
+      }
+    }
+
   def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
     securityDepositId: String,
     taxCodes: Seq[TaxCode]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (
-        !getSecurityDepositIds.contains(securityDepositId) ||
-        !answers.selectedSecurityDepositIds.contains(securityDepositId)
-      )
+      if (!isValidSecurityDepositId(securityDepositId))
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
+      else if (!isSelectedDepositId(securityDepositId))
+        Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.securityDepositIdNotSelected")
       else if (taxCodes.isEmpty)
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.emptyTaxCodeSelection")
       else if (!getSecurityTaxCodesFor(securityDepositId).containsEachItemOf(taxCodes))
@@ -281,11 +309,10 @@ final class SecuritiesJourney private (
     reclaimAmount: BigDecimal
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (
-        !getSecurityDepositIds.contains(securityDepositId) ||
-        !answers.selectedSecurityDepositIds.contains(securityDepositId)
-      )
+      if (!isValidSecurityDepositId(securityDepositId))
         Left("submitAmountForReclaim.invalidSecurityDepositId")
+      else if (!isSelectedDepositId(securityDepositId))
+        Left("submitAmountForReclaim.securityDepositIdNotSelected")
       else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
         Left("submitAmountForReclaim.invalidTaxCode")
       else if (!getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidReclaimAmount(reclaimAmount, _)))
@@ -304,6 +331,39 @@ final class SecuritiesJourney private (
 
             case other => other
           })
+
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              securitiesReclaims = updatedSecuritiesReclaims
+            )
+          )
+        )
+      }
+    }
+
+  def submitFullAmountsForReclaim(securityDepositId: String): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      if (!isValidSecurityDepositId(securityDepositId))
+        Left("submitFullAmountForReclaim.invalidSecurityDepositId")
+      else if (!isSelectedDepositId(securityDepositId))
+        Left("submitFullAmountForReclaim.securityDepositIdNotSelected")
+      else {
+        val updatedSecuritiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] =
+          for {
+            securitiesReclaims <- answers.securitiesReclaims
+            securityDetails    <- getSecurityDetailsFor(securityDepositId)
+          } yield securitiesReclaims + {
+            val fullAmountReclaims: SecuritiesReclaims =
+              SortedMap(
+                securityDetails.taxDetails
+                  .map(td => (TaxCodes.findUnsafe(td.taxType) -> Some(BigDecimal(td.amount)))): _*
+              )
+            (
+              securityDepositId,
+              fullAmountReclaims
+            )
+          }
 
         Right(
           new SecuritiesJourney(
@@ -445,6 +505,8 @@ final class SecuritiesJourney private (
         )
       )
 
+  def prettyPrint: String = Json.prettyPrint(Json.toJson(this))
+
 }
 
 object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
@@ -464,7 +526,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     similarClaimExistAlreadyInCDFPay: Option[Boolean] = None, // TPI04 check flag
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
-    selectedSecurityDepositIds: Seq[String] = Seq.empty,
     exportMovementReferenceNumber: Option[MRN] =
       None, // mandatory if reasonForSecurity is T/A, see ReasonForSecurity.requiresExportDeclaration
     exportDeclaration: Option[DEC91Response] = None, // mandatory as above
@@ -526,7 +587,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         MISSING_CLAIM_DUPLICATE_CHECK_STATUS_WITH_TPI04
       ) && Check[SecuritiesJourney](
         _.answers.similarClaimExistAlreadyInCDFPay.contains(false),
-        SIMILAR_CLAIM_EXIST_ALREADY_IN_CDFPAY
+        SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY
       )
 
     val userCanProceedWithThisClaim: Check[SecuritiesJourney] =

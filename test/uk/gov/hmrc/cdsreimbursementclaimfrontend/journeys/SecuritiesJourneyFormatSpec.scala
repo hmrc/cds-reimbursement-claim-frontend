@@ -35,6 +35,25 @@ class SecuritiesJourneyFormatSpec extends AnyWordSpec with JsonFormatTest with M
     PropertyCheckConfiguration(minSuccessful = 100)
 
   "SecuritiesJourney.Answers" should {
+
+    "println sample journey in JSON format" in {
+      completeJourneyGen.sample.map { j =>
+        println("-" * 16)
+        println("Sample Securities journey session state:")
+        println("-" * 16)
+        println("{")
+        println(""""securitiesJourney" :""")
+        print(j.prettyPrint)
+        println("}")
+        println("-" * 16)
+        j.toOutput.foreach { output =>
+          println("Sample Securities journey output (backend API request payload):")
+          println(Json.prettyPrint(Json.toJson(output)))
+          println("-" * 16)
+        }
+      }
+    }
+
     "serialize into a JSON format and back" in {
       validateCanReadAndWriteJson(Answers(userEoriNumber = exampleEori))
       validateCanReadAndWriteJson(
