@@ -27,6 +27,7 @@ import play.api.i18n.Lang
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -46,6 +47,10 @@ trait ClaimService {
   ): EitherT[Future, Error, SubmitClaimResponse]
 
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
+
+  def getDisplayDeclaration(mrn: MRN, rfs: ReasonForSecurity)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, Error, Option[DisplayDeclaration]]
 }
 
 @Singleton
@@ -77,6 +82,23 @@ class DefaultClaimService @Inject() (
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     cdsReimbursementClaimConnector
       .getDeclaration(mrn)
+      .subflatMap { response =>
+        if (response.status === OK) {
+          response
+            .parseJSON[DisplayDeclaration]()
+            .map(Some(_))
+            .leftMap(Error(_))
+        } else if (response.status === NO_CONTENT) {
+          Right(None)
+        } else
+          Left(Error(s"call to get declaration details ${response.status}"))
+      }
+
+  def getDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, Error, Option[DisplayDeclaration]] =
+    cdsReimbursementClaimConnector
+      .getDeclaration(mrn, reasonForSecurity)
       .subflatMap { response =>
         if (response.status === OK) {
           response
