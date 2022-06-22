@@ -46,7 +46,7 @@ class EnterImporterEoriNumberController @Inject() (
       Ok(
         enterImporterEoriNumberPage(
           eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.consigneeEoriNumber),
-          routes.EnterImporterEoriNumberController.submit()
+          postAction
         )
       )
     }
@@ -63,7 +63,7 @@ class EnterImporterEoriNumberController @Inject() (
               BadRequest(
                 enterImporterEoriNumberPage(
                   formWithErrors.fill(Eori("")),
-                  routes.EnterImporterEoriNumberController.submit()
+                  postAction
                 )
               )
             )
