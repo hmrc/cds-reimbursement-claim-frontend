@@ -19,8 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-import scala.collection.immutable.ListMap
-
 sealed class ReasonForSecurity(val acc14Code: String)
 
 object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {

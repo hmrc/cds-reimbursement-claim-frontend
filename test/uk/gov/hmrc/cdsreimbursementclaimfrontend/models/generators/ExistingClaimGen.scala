@@ -16,22 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.Typeclass
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ExistingClaimStatusGen.genExistingClaimStatus
 
 object ExistingClaimGen {
-  lazy val genExistingClaim: Gen[ExistingClaim] = for {
-    claimFound <- Gen.oneOf(true, false)
-    caseNumber <- Gen.listOfN(10, Gen.numChar).map(_.mkString)
-    status     <- genExistingClaimStatus
-  } yield claimFound match {
-    case true  => ExistingClaim(true, Some(caseNumber), Some(status))
-    case false => ExistingClaim(false, None, None)
-  }
-
-  implicit lazy val arbitraryExistingClaim: Typeclass[ExistingClaim] =
-    Arbitrary(genExistingClaim)
+  implicit lazy val arbitraryExistingClaim: Typeclass[ExistingClaim] = gen[ExistingClaim]
 }

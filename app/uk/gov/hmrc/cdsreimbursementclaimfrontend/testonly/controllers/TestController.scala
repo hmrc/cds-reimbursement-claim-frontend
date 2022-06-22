@@ -36,18 +36,9 @@ class TestController @Inject() (
 )(implicit val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
-  def testIsNotADuplicate: Action[AnyContent] = Action.async { implicit request =>
+  def testIsDuplicate(mrn: String, reason: String): Action[AnyContent] = Action.async { implicit request =>
     connector
-      .getIsDuplicate(MRN("20AAAAAAAAAAAAAAA2"), ReasonForSecurity.RevenueDispute)
-      .fold(
-        error => Ok(s"We got an error $error"),
-        result => Ok(s"We got a result $result")
-      )
-  }
-
-  def testIsDuplicate: Action[AnyContent] = Action.async { implicit request =>
-    connector
-      .getIsDuplicate(MRN("20AAAAAAAAAAAAAAA2"), ReasonForSecurity.AccountSales)
+      .getIsDuplicate(MRN(mrn), ReasonForSecurity.find(reason).getOrElse(ReasonForSecurity.AccountSales))
       .fold(
         error => Ok(s"We got an error $error"),
         result => Ok(s"We got a result $result")

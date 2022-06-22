@@ -20,9 +20,7 @@ import play.api.libs.json.Json
 import play.api.libs.json.Reads
 
 final case class ExistingClaim(
-  claimFound: Boolean,
-  caseNumber: Option[String],
-  claimStatus: Option[ExistingClaimStatus]
+  claimFound: Boolean
 )
 
 object ExistingClaim {
