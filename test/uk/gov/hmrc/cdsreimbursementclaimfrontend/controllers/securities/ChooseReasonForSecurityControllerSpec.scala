@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import cats.data.EitherT
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -27,6 +28,7 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -37,10 +39,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ChooseReasonForSecurityControllerSpec
@@ -50,10 +62,13 @@ class ChooseReasonForSecurityControllerSpec
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks {
 
+  val mockClaimsService: ClaimService = mock[ClaimService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[ClaimService].toInstance(mockClaimsService)
     )
 
   val controller: ChooseReasonForSecurityController = instanceOf[ChooseReasonForSecurityController]
@@ -66,8 +81,13 @@ class ChooseReasonForSecurityControllerSpec
   private val messagesKey: String = "choose-reason-for-security.securities"
   val journey                     = SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn)
 
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+
+  private def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
+    (mockClaimsService
+      .getDisplayDeclaration(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
+      .expects(*, *, *)
+      .returning(EitherT.fromEither[Future](response))
 
   def validateChooseReasonForSecurityPage(doc: Document) = {
     radioItems(doc) should contain theSameElementsAs Seq(
@@ -139,6 +159,39 @@ class ChooseReasonForSecurityControllerSpec
           messageFromMessageKey(s"$messagesKey.title"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
           expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "Retrieve declaration details from Acc14" in {
+        val displayDeclaration        = sample[DisplayDeclaration]
+        val updatedDisplayDeclaration = displayDeclaration
+          .copy(displayResponseDetail =
+            displayDeclaration.displayResponseDetail
+              .copy(
+                consigneeDetails = displayDeclaration.displayResponseDetail.consigneeDetails
+                  .map((cd: ConsigneeDetails) => cd.copy(consigneeEORI = journey.getClaimantEori.value)),
+                declarationId = journey.getLeadMovementReferenceNumber.get.value,
+                securityReason = Some(ReasonForSecurity.AccountSales.acc14Code)
+              )
+          )
+        val updatedJourney            = SessionData(
+          journey
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, updatedDisplayDeclaration)
+            .right
+            .toOption
+            .get
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
+          mockStoreSession(updatedJourney)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
+          Call("GET", "Call TPI04")
         )
       }
 

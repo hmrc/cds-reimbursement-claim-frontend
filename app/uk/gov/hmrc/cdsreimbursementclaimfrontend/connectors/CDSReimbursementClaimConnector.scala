@@ -36,6 +36,9 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[DefaultCDSReimbursementClaimConnector])
 trait CDSReimbursementClaimConnector {
   def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+  def getDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, Error, HttpResponse]
   def getIsDuplicate(
     mrn: MRN,
     reason: ReasonForSecurity
@@ -52,6 +55,20 @@ class DefaultCDSReimbursementClaimConnector @Inject() (http: HttpClient, service
 
   override def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
     val getDeclarationUrl = s"$baseUrl/cds-reimbursement-claim/declaration/${mrn.value}"
+
+    EitherT[Future, Error, HttpResponse](
+      http
+        .GET[HttpResponse](getDeclarationUrl)
+        .map(Right(_))
+        .recover { case e => Left(Error(e)) }
+    )
+  }
+
+  override def getDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, Error, HttpResponse] = {
+    val getDeclarationUrl =
+      s"$baseUrl/cds-reimbursement-claim/declaration/${mrn.value}/reason-for-security?reasonForSecurity=$reasonForSecurity"
 
     EitherT[Future, Error, HttpResponse](
       http
