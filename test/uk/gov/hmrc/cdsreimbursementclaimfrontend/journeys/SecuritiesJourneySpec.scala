@@ -133,7 +133,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept change of an existing RfS and declaration" in {
-      forAll(completeJourneyGen) { case journey =>
+      forAll(completeJourneyGen) { journey =>
         val rfs             = journey.answers.reasonForSecurity.get
         val decl            = journey.answers.displayDeclaration.get
         val modifiedJourney = journey
@@ -935,7 +935,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, displayDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
-      journeyEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
+      journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     }
 
     "fail if submitted declarant EORI is not matching that of ACC14" in {
@@ -1017,12 +1017,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
       "return the declarant details if no specific details entered and the signed in user is the declarant" in {
         forAll(
-          buildCompleteJourneyGen(
-            acc14ConsigneeMatchesUserEori = false,
-            acc14DeclarantMatchesUserEori = true,
-            submitConsigneeDetails = true,
-            submitContactDetails = false
-          ),
+          buildCompleteJourneyGen(submitContactDetails = false),
           authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
@@ -1124,7 +1119,6 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         forAll(
           buildCompleteJourneyGen(
             submitContactAddress = false,
-            acc14ConsigneeMatchesUserEori = false,
             acc14DeclarantMatchesUserEori = false
           )
         ) { journey =>

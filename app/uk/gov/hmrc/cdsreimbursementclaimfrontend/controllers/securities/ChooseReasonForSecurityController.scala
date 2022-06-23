@@ -109,10 +109,7 @@ class ChooseReasonForSecurityController @Inject() (
       eorisMatch <- checkWhetherEORIsMatch
       status     <- (maybeDD, eorisMatch) match {
                       case (Some(dd), true)  =>
-                        updateJourney(dd).map(updatedJourney =>
-                          //TODO: https://jira.tools.tax.service.gov.uk/browse/CDSR-1770
-                          withJourney(Redirect(Call("GET", "Call TPI04")), updatedJourney)
-                        )
+                        updateJourney(dd).map(withJourney(Redirect("Call TPI04 [ReasonForSecurity]"), _)) //TODO: CDSR-1770
                       case (Some(dd), false) =>
                         updateJourney(dd).map(updatedJourney =>
                           withJourney(Redirect(routes.EnterImporterEoriNumberController.show()), updatedJourney)
