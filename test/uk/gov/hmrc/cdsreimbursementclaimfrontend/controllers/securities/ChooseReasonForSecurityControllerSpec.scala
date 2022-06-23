@@ -170,6 +170,8 @@ class ChooseReasonForSecurityControllerSpec
               .copy(
                 consigneeDetails = displayDeclaration.displayResponseDetail.consigneeDetails
                   .map((cd: ConsigneeDetails) => cd.copy(consigneeEORI = journey.getClaimantEori.value)),
+                declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails
+                  .copy(declarantEORI = journey.getClaimantEori.value),
                 declarationId = journey.getLeadMovementReferenceNumber.get.value,
                 securityReason = Some(ReasonForSecurity.AccountSales.acc14Code)
               )
@@ -191,7 +193,7 @@ class ChooseReasonForSecurityControllerSpec
 
         checkIsRedirect(
           performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
-          Call("GET", "Call TPI04")
+          Call("GET", "Call TPI04 [ReasonForSecurity]")
         )
       }
 

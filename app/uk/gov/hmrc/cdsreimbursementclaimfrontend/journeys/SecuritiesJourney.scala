@@ -389,15 +389,10 @@ final class SecuritiesJourney private (
     }
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, SecuritiesJourney] =
-    whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
-          Right(
-            new SecuritiesJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
-          )
-        else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
-      else Left("submitDeclarantEoriNumber.unexpected")
-    }
+    if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      Right(new SecuritiesJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber))))
+    else
+      Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
     whileClaimIsAmendable {
