@@ -18,16 +18,48 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectSecuritiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class SelectSecuritiesController @Inject()(
-  val jcc: JourneyControllerComponents
+class SelectSecuritiesController @Inject() (
+  val jcc: JourneyControllerComponents,
+  selectSecuritiesPage: pages.select_securities
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    with Logging
+    with SecuritiesJourneyRouter {
+
+  private val form: Form[YesNo] =  selectSecuritiesForm
+
+  def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    val postAction: Call = routes.SelectSecuritiesController.submit(id)
+    Ok(selectSecuritiesPage(form, id, postAction)).asFuture
+  }
+
+  def submit(id: String): Action[AnyContent] = actionReadWriteJourney {implicit request => journey =>
+    val postAction: Call = routes.SelectSecuritiesController.submit(id)
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => journey -> BadRequest(selectSecuritiesPage(formWithErrors, postAction)) asFuture,
+        securities => ??? // selectSecurityDepositId
+      )// end fold
+  }
+
+}
+
+object SelectSecuritiesController {
+  val selectSecuritiesKey: String = "select-securities.securities"
+}

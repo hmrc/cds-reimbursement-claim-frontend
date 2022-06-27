@@ -24,6 +24,7 @@ import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.dataKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.selectSecuritiesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
@@ -76,6 +77,8 @@ object Forms {
   )
 
   val northernIrelandForm: Form[YesNo] = YesOrNoQuestionForm(dataKey)
+
+  val selectSecuritiesForm: Form[YesNo] = YesOrNoQuestionForm(selectSecuritiesKey)
 
   val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
     mapping(

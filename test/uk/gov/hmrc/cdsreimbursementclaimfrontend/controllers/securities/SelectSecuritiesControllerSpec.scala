@@ -1,5 +1,3 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-class SelectSecuritiesControllerSpec {
-
-}
+class SelectSecuritiesControllerSpec {}

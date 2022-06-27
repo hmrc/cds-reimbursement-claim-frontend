@@ -10,8 +10,8 @@ POST         /securities/enter-importer-eori                           @uk.gov.h
 GET          /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterDeclarantEoriNumberController.show()
 POST         /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterDeclarantEoriNumberController.submit()
 
-GET          /securities/select-securities/:id                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.show(id: String)
-POST         /securities/select-securities/:id                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.submit(id: String)
+GET          /securities/select-securities/:id                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.show(id: String)
+POST         /securities/select-securities/:id                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.submit(id: String)
 
 GET          /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.show()
 POST         /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.submit()

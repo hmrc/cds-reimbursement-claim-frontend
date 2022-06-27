@@ -347,6 +347,12 @@ choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price*
 choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties*
 
 #===================================================
+#  SELECT SECURITIES PAGE - SECURITIES
+#===================================================
+select-securities.securities.title=Do you want to include this security in this claim?
+select-securities.securities.yes=Yes
+select-securities.securities.no=No
+#===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
 enter-your-contact-details.help-text=These are the details if we need to contact you about this claim application.
