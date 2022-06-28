@@ -45,7 +45,7 @@
 
     @pageHeading(Html(title))
 
-    @pageHeading(Html(messages(s"$key.h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @pageHeading(Html(messages(s"$key.h2")), classes = "govuk-heading-m govuk-!-margin-top-7", level = "h2")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

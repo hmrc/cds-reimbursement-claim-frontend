@@ -45,7 +45,7 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(Html(title), "govuk-heading-xl govuk-!-margin-bottom-6")
+    @pageHeading(Html(title), classes = "govuk-heading-xl govuk-!-margin-bottom-6")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
