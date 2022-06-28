@@ -23,7 +23,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 object Paragraph {
 
   def apply(head: String, tail: String*): HtmlFormat.Appendable = {
-    val content = head +: tail.filter(_.nonEmpty) mkString "<br />"
+    val content = (head +: tail)
+      .filter(_.nonEmpty)
+      .map(HtmlFormat.escape)
+      .mkString("<br />")
     new paragraph_block()(Html(content), Some("govuk-body"))
   }
 }
