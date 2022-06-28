@@ -41,21 +41,21 @@ class SelectSecuritiesController @Inject() (
     with Logging
     with SecuritiesJourneyRouter {
 
-  private val form: Form[YesNo] =  selectSecuritiesForm
+  private val form: Form[YesNo] = selectSecuritiesForm
 
   def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.SelectSecuritiesController.submit(id)
     Ok(selectSecuritiesPage(form, id, postAction)).asFuture
   }
 
-  def submit(id: String): Action[AnyContent] = actionReadWriteJourney {implicit request => journey =>
+  def submit(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     val postAction: Call = routes.SelectSecuritiesController.submit(id)
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => journey -> BadRequest(selectSecuritiesPage(formWithErrors, postAction)) asFuture,
+        formWithErrors => journey -> BadRequest(selectSecuritiesPage(formWithErrors, id, postAction)) asFuture,
         securities => ??? // selectSecurityDepositId
-      )// end fold
+      ) // end fold
   }
 
 }
