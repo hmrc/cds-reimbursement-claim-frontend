@@ -73,7 +73,7 @@
         @{if(subKey.contains("scheduled"))
             paragraph(Html(messages(s"$key$subKeyDetail.is-information-correct")), Some("govuk-body"))
         else
-            pageHeading(Html(messages(s"$key$subKeyDetail.is-information-correct")), "govuk-heading-s govuk-!-margin-top-8", "h1")}
+            pageHeading(Html(messages(s"$key$subKeyDetail.is-information-correct")), classes = "govuk-heading-s govuk-!-margin-top-8", level = "h1")}
 
         @radios(
             form = form,
