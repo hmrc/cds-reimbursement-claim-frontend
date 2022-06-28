@@ -20,9 +20,15 @@
 
 @(
     heading: Html,
+    caption: String = "",
     classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content",
     level: String = "h1"
 )
+
+
+@if(caption.nonEmpty && level == "h1") {
+    <span class="govuk-caption-xl">@caption</span>
+}
 
 <@level class="@classes">
     @heading
