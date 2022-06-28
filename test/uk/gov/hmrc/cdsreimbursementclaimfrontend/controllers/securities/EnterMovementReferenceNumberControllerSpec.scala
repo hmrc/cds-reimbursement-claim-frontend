@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import scala.concurrent.Future
 
@@ -48,7 +49,8 @@ class EnterMovementReferenceNumberControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with ScalaCheckPropertyChecks
+    with Logging {
 
   val enterMovementReferenceNumberKey: String          = "enter-movement-reference-number"
   val enterMovementReferenceNumberKeyAndSubKey: String = s"$enterMovementReferenceNumberKey.securities"
