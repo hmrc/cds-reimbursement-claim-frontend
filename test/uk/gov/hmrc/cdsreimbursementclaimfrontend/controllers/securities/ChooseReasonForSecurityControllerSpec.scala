@@ -195,6 +195,29 @@ class ChooseReasonForSecurityControllerSpec
           .get
       )
 
+      "Retrieve declaration details from Acc14 and EORIs don't match" in {
+        val updatedDisplayDeclarationEorisUnmatched = displayDeclaration
+          .copy(displayResponseDetail =
+            displayDeclaration.displayResponseDetail
+              .copy(
+                declarationId = journey.getLeadMovementReferenceNumber.get.value,
+                securityReason = Some(ReasonForSecurity.AccountSales.acc14Code)
+              )
+          )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclarationEorisUnmatched)))
+          mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+        }
+
+        checkIsRedirect(
+          performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
+          routes.EnterImporterEoriNumberController.show()
+        )
+      }
+
       "HAPPY PATH - Retrieve declaration details from Acc14 and claim is not duplicate" in {
         inSequence {
           mockAuthWithNoRetrievals()
@@ -215,31 +238,6 @@ class ChooseReasonForSecurityControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
-          mockGetIsDuplicateClaim(Right(ExistingClaim(true)))
-        }
-
-        checkIsRedirect(
-          performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
-          controllers.routes.IneligibleController.ineligible()
-        )
-      }
-
-      "UNHAPPY PATH - Retrieve declaration details from Acc14 and EORIs don't match" in {
-        val updatedDisplayDeclarationEorisUnmatched = displayDeclaration
-          .copy(displayResponseDetail =
-            displayDeclaration.displayResponseDetail
-              .copy(
-                declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails
-                  .copy(declarantEORI = journey.getClaimantEori.value),
-                declarationId = journey.getLeadMovementReferenceNumber.get.value,
-                securityReason = Some(ReasonForSecurity.AccountSales.acc14Code)
-              )
-          )
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
-          mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclarationEorisUnmatched)))
           mockGetIsDuplicateClaim(Right(ExistingClaim(true)))
         }
 
