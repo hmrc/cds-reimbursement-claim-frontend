@@ -142,6 +142,9 @@ final class SecuritiesJourney private (
   def needsBanksAccountDetailsSubmission: Boolean =
     !isAllSelectedDutiesAreGuaranteeEligible
 
+  def getReasonForSecurity: Option[ReasonForSecurity] =
+    answers.reasonForSecurity
+
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
     */
@@ -357,7 +360,7 @@ final class SecuritiesJourney private (
             val fullAmountReclaims: SecuritiesReclaims =
               SortedMap(
                 securityDetails.taxDetails
-                  .map(td => (TaxCodes.findUnsafe(td.taxType) -> Some(BigDecimal(td.amount)))): _*
+                  .map(td => TaxCodes.findUnsafe(td.taxType) -> Some(BigDecimal(td.amount))): _*
               )
             (
               securityDepositId,
@@ -484,7 +487,7 @@ final class SecuritiesJourney private (
       .flatMap(_ =>
         (for {
           mrn                 <- getLeadMovementReferenceNumber
-          rfs                 <- answers.reasonForSecurity
+          rfs                 <- getReasonForSecurity
           supportingEvidences  = answers.supportingEvidences
           claimantInformation <- getClaimantInformation
         } yield SecuritiesJourney.Output(
@@ -563,7 +566,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
       )
 
     val hasReasonForSecurity: Check[SecuritiesJourney] =
-      Check(journey => journey.answers.reasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
+      Check(journey => journey.getReasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
 
     val hasMRNAndDisplayDeclarationAndRfS: Check[SecuritiesJourney] =
       hasMovementReferenceNumber &&

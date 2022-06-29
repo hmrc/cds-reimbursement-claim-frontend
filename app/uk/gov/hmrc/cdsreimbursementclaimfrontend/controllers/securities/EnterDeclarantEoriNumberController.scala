@@ -16,26 +16,36 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Request
+import play.api.mvc.Result
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.language.postfixOps
 
 @Singleton
 class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
+  cdsReimbursementClaimConnector: CDSReimbursementClaimConnector,
   enterDeclarantEoriNumberPage: pages.enter_declarant_eori_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
 
   val formKey: String  = "enter-declarant-eori-number"
@@ -60,12 +70,48 @@ class EnterDeclarantEoriNumberController @Inject() (
               e => {
                 logger
                   .error(s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e")
-                journey -> Redirect(controllers.routes.IneligibleController.ineligible())
+                journey -> Redirect(controllers.routes.IneligibleController.ineligible()) asFuture
               },
-              updatedJourney => updatedJourney -> Ok("Call TPI04 [DeclarantEoriNumber]]") //TODO: CDSR-1770
+              updatedJourney => nextPage(updatedJourney)
             )
-            .asFuture
       )
   }
 
+  def nextPage(
+    journey: SecuritiesJourney
+  )(implicit request: Request[_], hc: HeaderCarrier): Future[(SecuritiesJourney, Result)] = {
+    def withJourney(result: Result): (SecuritiesJourney, Result) = (journey, result)
+
+    def isDuplicateClaim: EitherT[Future, (SecuritiesJourney, Result), Boolean] = for {
+      mrn               <- EitherT
+                             .fromOption[Future](journey.getLeadMovementReferenceNumber, Error("Could not get MRN"))
+                             .leftMap(error => withJourney(logAndDisplayError("Failed to get lead MRN from journey", error)))
+      reasonForSecurity <-
+        EitherT
+          .fromOption[Future](
+            journey.getReasonForSecurity,
+            Error("Could not get ReasonForSecurity")
+          )
+          .leftMap(error => withJourney(logAndDisplayError("Failed to get ReasonForSecurity from journey", error)))
+      existingClaim     <-
+        cdsReimbursementClaimConnector
+          .getIsDuplicate(mrn, reasonForSecurity)
+          .leftMap(error => withJourney(logAndDisplayError("Could not check if isDuplicate claim", error)))
+    } yield existingClaim.claimFound
+
+    val updateAndRedirect = for {
+      isDuplicate <- isDuplicateClaim
+      result      <- if (isDuplicate) {
+                       EitherT.rightT[Future, (SecuritiesJourney, Result)](
+                         withJourney(Redirect(controllers.routes.IneligibleController.ineligible()))
+                       )
+                     } else {
+                       EitherT.rightT[Future, (SecuritiesJourney, Result)](
+                         withJourney(Redirect(routes.SelectDutiesController.show(""))) //TODO: CDSR-1551
+                       )
+                     }
+    } yield result
+
+    updateAndRedirect.merge
+  }
 }

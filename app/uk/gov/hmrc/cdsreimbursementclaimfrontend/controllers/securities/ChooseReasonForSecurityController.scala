@@ -27,6 +27,7 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -35,9 +36,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -45,6 +48,7 @@ import scala.concurrent.Future
 class ChooseReasonForSecurityController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
+  cdsReimbursementClaimConnector: CDSReimbursementClaimConnector,
   chooseReasonForSecurityPage: pages.choose_reason_for_security
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
@@ -57,7 +61,7 @@ class ChooseReasonForSecurityController @Inject() (
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val reasonForSecurityForm: Form[ReasonForSecurity] =
-      Forms.reasonForSecurityForm.withDefault(journey.answers.reasonForSecurity)
+      Forms.reasonForSecurityForm.withDefault(journey.getReasonForSecurity)
     Ok(
       chooseReasonForSecurityPage(reasonForSecurityForm, reasonsForSecurity, postAction)
     ).asFuture
@@ -83,10 +87,15 @@ class ChooseReasonForSecurityController @Inject() (
     def withJourney(result: Result, securitiesJourney: SecuritiesJourney = journey): (SecuritiesJourney, Result) =
       (securitiesJourney, result)
 
+    val getMrn: EitherT[Future, (SecuritiesJourney, Result), MRN] = EitherT
+      .fromOption[Future](
+        journey.getLeadMovementReferenceNumber,
+        Error("Could not get MRN")
+      )
+      .leftMap(error => withJourney(logAndDisplayError("Failed to get lead MRN from journey", error)))
+
     val displayDeclarationFromAcc14: EitherT[Future, (SecuritiesJourney, Result), Option[DisplayDeclaration]] = for {
-      mrn         <- EitherT
-                       .fromOption[Future](journey.getLeadMovementReferenceNumber, Error("Could not get MRN"))
-                       .leftMap(error => withJourney(logAndDisplayError("Could not get MRN", error)))
+      mrn         <- getMrn
       declaration <-
         claimService
           .getDisplayDeclaration(mrn, reasonForSecurity)
@@ -99,22 +108,47 @@ class ChooseReasonForSecurityController @Inject() (
           .map((dd: DisplayDeclaration) => dd.getConsigneeEori.toList ::: List[Eori](dd.getDeclarantEori))
           .exists(_.contains(journey.answers.userEoriNumber))
 
-    def updateJourney(dd: DisplayDeclaration): EitherT[Future, (SecuritiesJourney, Result), SecuritiesJourney] =
-      EitherT
-        .fromEither[Future](journey.submitReasonForSecurityAndDeclaration(reasonForSecurity, dd))
-        .leftMap(_ => withJourney(Redirect(controllers.routes.IneligibleController.ineligible())))
+    def isDuplicateClaim: EitherT[Future, (SecuritiesJourney, Result), Boolean] = for {
+      mrn           <- getMrn
+      existingClaim <-
+        cdsReimbursementClaimConnector
+          .getIsDuplicate(mrn, reasonForSecurity)
+          .leftMap(error => withJourney(logAndDisplayError("Could not check if isDuplicate claim", error)))
+    } yield existingClaim.claimFound
+
+    def nextPage(
+      displayDeclaration: DisplayDeclaration,
+      eorisMatch: Boolean
+    ): EitherT[Future, (SecuritiesJourney, Result), (SecuritiesJourney, Result)] = {
+      lazy val updateJourney: EitherT[Future, (SecuritiesJourney, Result), SecuritiesJourney] =
+        EitherT
+          .fromEither[Future](journey.submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration))
+          .leftMap(_ => withJourney(Redirect(controllers.routes.IneligibleController.ineligible())))
+
+      for {
+        isDuplicate <- isDuplicateClaim
+        result      <- if (eorisMatch) {
+                         if (isDuplicate) {
+                           EitherT.rightT[Future, (SecuritiesJourney, Result)](
+                             withJourney(Redirect(controllers.routes.IneligibleController.ineligible()))
+                           )
+                         } else {
+                           updateJourney.map(
+                             withJourney(Redirect(routes.SelectDutiesController.show("")), _) //TODO: CDSR-1551
+                           )
+                         }
+                       } else {
+                         updateJourney.map(_ => withJourney(Redirect(routes.EnterImporterEoriNumberController.show())))
+                       }
+      } yield result
+    }
 
     val updateAndRedirect: EitherT[Future, (SecuritiesJourney, Result), (SecuritiesJourney, Result)] = for {
       maybeDD    <- displayDeclarationFromAcc14
       eorisMatch <- checkWhetherEORIsMatch
-      status     <- (maybeDD, eorisMatch) match {
-                      case (Some(dd), true)  =>
-                        updateJourney(dd).map(withJourney(Redirect("Call TPI04 [ReasonForSecurity]"), _)) //TODO: CDSR-1770
-                      case (Some(dd), false) =>
-                        updateJourney(dd).map(updatedJourney =>
-                          withJourney(Redirect(routes.EnterImporterEoriNumberController.show()), updatedJourney)
-                        )
-                      case (_, _)            =>
+      status     <- maybeDD match {
+                      case Some(dd) => nextPage(dd, eorisMatch)
+                      case None     =>
                         EitherT.rightT[Future, (SecuritiesJourney, Result)](
                           withJourney(Redirect(controllers.routes.IneligibleController.ineligible()))
                         )
