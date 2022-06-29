@@ -83,6 +83,17 @@ final case class DisplayDeclaration(
     getSecurityDetailsFor(securityDepositId)
       .flatMap(_.taxDetails.find(td => TaxCodes.findUnsafe(td.taxType) === taxCode))
 
+  def getSecurityTotalValueFor(securityDepositId: String): BigDecimal = getSecurityDetailsFor(securityDepositId).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00"))
+
+  def getSecurityPaidValueFor(securityDepositId: String): BigDecimal =  getSecurityDetailsFor(securityDepositId).map(_.amountPaid).map(BigDecimal.apply).getOrElse(BigDecimal("0.00"))
+
+  def getSecurityPaymentReferenceFor(securityDepositId: String): String =  getSecurityDetailsFor(securityDepositId).map(_.paymentReference).getOrElse(Nil)
+
+  def getSecurityPaymentMethodFor(securityDepositId: String): String =  getSecurityDetailsFor(securityDepositId).map(_.paymentMethod)
+  match {
+    case Some("001") => "Bank account"
+    case _ => "Guarantee"}
+
   def getTotalSecuritiesAmountFor(securityDepositIds: Set[String]): BigDecimal =
     securityDepositIds
       .map(getSecurityDetailsFor(_).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
