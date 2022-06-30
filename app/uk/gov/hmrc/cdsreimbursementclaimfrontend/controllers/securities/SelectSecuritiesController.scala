@@ -22,9 +22,11 @@ import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectSecuritiesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -36,7 +38,7 @@ import scala.concurrent.ExecutionContext
 class SelectSecuritiesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectSecuritiesPage: pages.select_securities
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
     with Logging
     with SecuritiesJourneyRouter {
@@ -45,7 +47,11 @@ class SelectSecuritiesController @Inject() (
 
   def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.SelectSecuritiesController.submit(id)
-    Ok(selectSecuritiesPage(form, id, postAction)).asFuture
+    journey.answers.displayDeclaration
+      .fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
+        Ok(selectSecuritiesPage(form, declaration, id, postAction))
+      )
+      .asFuture
   }
 
   def submit(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -53,9 +59,15 @@ class SelectSecuritiesController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => journey -> BadRequest(selectSecuritiesPage(formWithErrors, id, postAction)) asFuture,
+        formWithErrors =>
+          (
+            journey,
+            journey.answers.displayDeclaration
+              .map(declaration => BadRequest(selectSecuritiesPage(formWithErrors, declaration, id, postAction)))
+              .getOrElse(errorHandler.errorResult())
+          ).asFuture,
         securities => ??? // selectSecurityDepositId
-      ) // end fold
+      )
   }
 
 }

@@ -22,6 +22,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectSecuritiesSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
@@ -31,10 +33,12 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
 
-@(form: Form[YesNo], id: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@(form: Form[YesNo], declaration: DisplayDeclaration, id: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-securities.securities"}
 @title = @{messages(s"$key.title")}
@@ -48,6 +52,8 @@
     @pageHeading(Html(title))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @summary(SelectSecuritiesSummary(declaration, id, key))
 
         @radios(
             form = form,

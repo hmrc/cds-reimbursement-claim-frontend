@@ -1,5 +1,20 @@
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
@@ -17,12 +32,12 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 object SelectSecuritiesSummary {
 
   def apply(
-             declaration: DisplayDeclaration,
-             key: String,
-             securityDepositId: String
-           )(implicit
-             messages: Messages
-           ): SummaryList = SummaryList(
+    declaration: DisplayDeclaration,
+    securityDepositId: String,
+    key: String
+  )(implicit
+    messages: Messages
+  ): SummaryList = SummaryList(
     Seq(
       SummaryListRow(
         key = Key(HtmlContent(messages(s"$key.mrn-label"))),
@@ -34,21 +49,31 @@ object SelectSecuritiesSummary {
           value = Value(Text(messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")))
         )
       ),
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.total-amount-label"))),
-          value = Value(Text(declaration.getSecurityTotalValueFor(securityDepositId).toPoundSterlingString))
-        ).some,
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.paid-amount-label"))),
-          value = Value(Text(declaration.getSecurityPaidValueFor(securityDepositId).toPoundSterlingString))
-        ).some,
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.payment-reference-label"))),
-          value = Value(Text(declaration.getSecurityPaymentReferenceFor(securityDepositId)))
-        ).some,
       SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.payment-method-label"))),
-          value = Value(Text(declaration.getSecurityPaymentMethodFor(securityDepositId)))
+        key = Key(HtmlContent(messages(s"$key.total-amount-label"))),
+        value = Value(Text(declaration.getSecurityTotalValueFor(securityDepositId).toPoundSterlingString))
+      ).some,
+      SummaryListRow(
+        key = Key(HtmlContent(messages(s"$key.paid-amount-label"))),
+        value = Value(Text(declaration.getSecurityPaidValueFor(securityDepositId).toPoundSterlingString))
+      ).some,
+      SummaryListRow(
+        key = Key(HtmlContent(messages(s"$key.payment-reference-label"))),
+        value = Value(Text(declaration.getSecurityDetailsFor(securityDepositId).map(_.paymentReference).getOrElse("")))
+      ).some,
+      SummaryListRow(
+        key = Key(HtmlContent(messages(s"$key.payment-method-label"))),
+        value = Value(
+          Text(
+            messages(
+              if (declaration.getSecurityDetailsFor(securityDepositId).exists(_.isBankAccountPayment)) {
+                s"$key.payment-method.bank-account"
+              } else {
+                s"$key.payment-method.guarantee"
+              }
+            )
+          )
+        )
       ).some,
       DateUtils
         .displayFormat(declaration.displayResponseDetail.acceptanceDate)
@@ -66,9 +91,6 @@ object SelectSecuritiesSummary {
             value = Value(Text(formattedDate))
           )
         )
-
-
     ).flatMap(_.toList)
   )
-
 }

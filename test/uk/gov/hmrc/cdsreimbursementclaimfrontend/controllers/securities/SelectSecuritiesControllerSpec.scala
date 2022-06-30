@@ -33,8 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.selectSecuritiesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.EitherOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.exampleMrn
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.exampleSecuritiesDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -64,7 +66,7 @@ class SelectSecuritiesControllerSpec
 
   private val messagesKey: String = selectSecuritiesKey
   private val id: String          = "something"
-  val journey                     = SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn)
+  val journey: SecuritiesJourney  = SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn)
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
@@ -78,23 +80,32 @@ class SelectSecuritiesControllerSpec
         featureSwitch.disable(Feature.Securities)
 
         status(performAction()) shouldBe NOT_FOUND
-      } // not find the page
+      }
 
       "display the page for the first time" in {
+        val initialJourney =
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(
+              exampleSecuritiesDisplayDeclaration.getReasonForSecurity.get,
+              exampleSecuritiesDisplayDeclaration
+            )
+            .getOrFail
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(initialJourney))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title")
         )
-      } // end display the page
+      }
 
-    } // end show page
+    }
 
-  } // end controller
+  }
 
-} // end controllerSpec
+}
