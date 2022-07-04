@@ -197,17 +197,16 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         genMRN,
         Gen.oneOf(ReasonForSecurity.requiresExportDeclaration),
         securitiesDisplayDeclarationGen,
-        exportMrnWithDec91TrueGen
-      ) { case (mrn, rfs, decl, (exportMrn, dec91)) =>
+        exportMrnTrueGen
+      ) { case (mrn, rfs, decl, exportMrn) =>
         val journey = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
-          .flatMap(_.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91))
+          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
           .getOrFail
 
         journey.answers.exportMovementReferenceNumber shouldBe Some(exportMrn)
-        journey.answers.exportDeclaration             shouldBe Some(dec91)
         journey.hasCompleteSecuritiesReclaims         shouldBe false
       }
     }
@@ -217,13 +216,13 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         genMRN,
         Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration),
         securitiesDisplayDeclarationGen,
-        exportMrnWithDec91TrueGen
-      ) { case (mrn, rfs, decl, (exportMrn, dec91)) =>
+        exportMrnTrueGen
+      ) { case (mrn, rfs, decl, exportMrn) =>
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
-          .flatMap(_.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91))
+          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
 
         journeyResult shouldBe Left("submitExportMovementReferenceNumberAndDeclaration.exportDeclarationNotRequired")
       }

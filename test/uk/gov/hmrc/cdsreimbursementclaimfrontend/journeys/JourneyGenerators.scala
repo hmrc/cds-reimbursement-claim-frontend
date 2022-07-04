@@ -23,7 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DEC91Response
 import scala.collection.JavaConverters._
 
 trait JourneyGenerators extends JourneyTestData {
@@ -107,12 +106,10 @@ trait JourneyGenerators extends JourneyTestData {
       reclaims         <- validSecurityReclaimsGen(decl)
     } yield (mrn, rfs, decl, reclaims)
 
-  final lazy val exportMrnWithDec91TrueGen: Gen[(MRN, DEC91Response)] =
+  final lazy val exportMrnTrueGen: Gen[MRN] =
     for {
-      mrn    <- IdGen.genMRN
-      status <- Gen.oneOf("21", "22")
-      dec91  <- dec91ResponseGen(status)
-    } yield (mrn, dec91)
+      mrn <- IdGen.genMRN
+    } yield mrn
 
   final val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = true)
@@ -180,9 +177,6 @@ trait JourneyGenerators extends JourneyTestData {
       reclaimsDetails = reclaimsDetails,
       allDutiesGuaranteeEligible = allDutiesGuaranteeEligible
     )
-
-  final def dec91ResponseGen(status: String): Gen[DEC91Response] =
-    Gen.const(DEC91Response(status))
 
   final def validSecurityReclaimsGen(
     decl: DisplayDeclaration
