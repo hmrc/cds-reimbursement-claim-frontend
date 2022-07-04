@@ -138,7 +138,7 @@ class ChooseReasonForSecurityController @Inject() (
                            )
                          }
                        } else {
-                         updateJourney.map(_ => withJourney(Redirect(routes.EnterImporterEoriNumberController.show())))
+                         updateJourney.map(withJourney(Redirect(routes.EnterImporterEoriNumberController.show()), _))
                        }
       } yield result
     }
