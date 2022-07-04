@@ -21,7 +21,6 @@ import cats.syntax.eq._
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DEC91Response
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -125,7 +124,7 @@ final class SecuritiesJourney private (
       .exists(answers.reasonForSecurity.contains(_))
 
   def goodsHasBeenAlreadyExported: Boolean =
-    answers.exportDeclaration.exists(_.goodsHasBeenAlreadyExported)
+    true // in the absence of the DEC91 API we assume it is always true
 
   def hasCompleteSecuritiesReclaims: Boolean =
     answers.securitiesReclaims.nonEmpty &&
@@ -207,17 +206,15 @@ final class SecuritiesJourney private (
       )
     }
 
-  def submitExportMovementReferenceNumberAndDeclaration(
-    exportMrn: MRN,
-    exportDeclaration: DEC91Response
+  def submitExportMovementReferenceNumber(
+    exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS && thereIsNoSimilarClaimInCDFPay) {
       if (requiresExportDeclaration)
         Right(
           new SecuritiesJourney(
             answers.copy(
-              exportMovementReferenceNumber = Some(exportMrn),
-              exportDeclaration = Some(exportDeclaration)
+              exportMovementReferenceNumber = Some(exportMrn)
             )
           )
         )
@@ -526,7 +523,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     declarantEoriNumber: Option[Eori] = None,
     exportMovementReferenceNumber: Option[MRN] =
       None, // mandatory if reasonForSecurity is T/A, see ReasonForSecurity.requiresExportDeclaration
-    exportDeclaration: Option[DEC91Response] = None, // mandatory as above
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     reclaimingFullAmount: Option[Boolean] = None,

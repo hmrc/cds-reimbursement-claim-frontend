@@ -34,7 +34,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     displayDeclaration: DisplayDeclaration,
     similarClaimExistAlreadyInCDFPay: Boolean,
     reclaims: Seq[(String, TaxCode, BigDecimal)],
-    exportMrnAndDeclaration: Option[(MRN, DEC91Response)],
+    exportMrn: Option[MRN],
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -62,9 +62,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .submitMovementReferenceNumber(mrn)
       .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay))
-      .tryWhenDefined(exportMrnAndDeclaration)(journey => { case (exportMrn, dec91) =>
-        journey.submitExportMovementReferenceNumberAndDeclaration(exportMrn, dec91)
-      })
+      .tryWhenDefined(exportMrn)(journey => (exportMrn => journey.submitExportMovementReferenceNumber(exportMrn)))
       .flatMapWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))
