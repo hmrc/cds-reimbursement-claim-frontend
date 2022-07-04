@@ -101,7 +101,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                                        consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
                                        declarantContact = declarantContact
                                      )
-      exportMrnAndDeclaration     <- exportMrnWithDec91TrueGen
+      exportMrn                   <- exportMrnTrueGen
       reclaims                    <- validSecurityReclaimsGen(acc14)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
@@ -124,8 +124,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         displayDeclaration = acc14,
         similarClaimExistAlreadyInCDFPay = false,
         reclaims = reclaims,
-        exportMrnAndDeclaration =
-          if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrnAndDeclaration)
+        exportMrn =
+          if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrn)
           else
             None,
         declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,

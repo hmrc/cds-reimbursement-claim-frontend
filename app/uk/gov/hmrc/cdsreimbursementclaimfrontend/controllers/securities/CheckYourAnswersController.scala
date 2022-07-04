@@ -67,7 +67,7 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   journey.answers.displayDeclaration,
-                  journey.answers.exportDeclaration,
+                  journey.answers.exportMovementReferenceNumber,
                   postAction
                 )
               )
