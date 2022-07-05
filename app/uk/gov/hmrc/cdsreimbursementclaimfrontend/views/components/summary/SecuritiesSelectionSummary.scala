@@ -34,7 +34,8 @@ object SecuritiesSelectionSummary {
     securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
     declaration: DisplayDeclaration,
     key: String,
-    changeCall: String => Call
+    changeCall: String => Call,
+    showTotalSecuritiesPaidAmount: Boolean = false
   )(implicit
     messages: Messages
   ): SummaryList = SummaryList(
@@ -63,13 +64,24 @@ object SecuritiesSelectionSummary {
           )
         )
       )
-    } ++ Seq(
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.claim-for-security.total"))),
-        value = Value(
-          Text(declaration.getTotalSecuritiesAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+    }
+      ++ Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.claim-for-security.total"))),
+          value = Value(
+            Text(declaration.getTotalSecuritiesAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+          )
         )
       )
-    )
+      ++ (if (showTotalSecuritiesPaidAmount)
+            Seq(
+              SummaryListRow(
+                key = Key(HtmlContent(messages(s"$key.claim-for-security.paid-total"))),
+                value = Value(
+                  Text(declaration.getTotalSecuritiesPaidAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+                )
+              )
+            )
+          else Seq.empty)
   )
 }

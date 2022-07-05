@@ -30,14 +30,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.select_securities
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectSecuritiesController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectSecuritiesPage: pages.select_securities
+  selectSecuritiesPage: select_securities
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
     with Logging
@@ -45,33 +45,71 @@ class SelectSecuritiesController @Inject() (
 
   private val form: Form[YesNo] = selectSecuritiesForm
 
-  def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val postAction: Call = routes.SelectSecuritiesController.submit(id)
-    journey.answers.displayDeclaration
-      .fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-        Ok(selectSecuritiesPage(form, declaration, id, postAction))
-      )
+  def show(securityDepositId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
+    journey
+      .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
+      .fold(Redirect(baseRoutes.IneligibleController.ineligible())) { declaration =>
+        Ok(
+          selectSecuritiesPage(
+            form.withDefault(if (journey.isSelectedDepositId(securityDepositId)) Some(YesNo.Yes) else None),
+            declaration,
+            securityDepositId,
+            postAction
+          )
+        )
+      }
       .asFuture
   }
 
-  def submit(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.SelectSecuritiesController.submit(id)
+  def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
           (
             journey,
-            journey.answers.displayDeclaration
-              .map(declaration => BadRequest(selectSecuritiesPage(formWithErrors, declaration, id, postAction)))
+            journey
+              .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
+              .map(declaration =>
+                BadRequest(selectSecuritiesPage(formWithErrors, declaration, securityDepositId, postAction))
+              )
               .getOrElse(errorHandler.errorResult())
           ).asFuture,
-        securities => ??? // selectSecurityDepositId
+        yesno =>
+          (yesno match {
+            case YesNo.Yes =>
+              journey
+                .selectSecurityDepositId(securityDepositId)
+                .fold(
+                  error => {
+                    logger.error(s"Error selecting security deposit - $error")
+                    (journey, Redirect(routes.SelectSecuritiesController.show(securityDepositId)))
+                  },
+                  updatedJourney => (updatedJourney, Redirect(nextPage(journey, securityDepositId)))
+                )
+
+            case YesNo.No =>
+              journey
+                .removeSecurityDepositId(securityDepositId)
+                .fold(
+                  error => {
+                    logger.error(s"Error de-selecting security deposit - $error")
+                    (journey, Redirect(routes.SelectSecuritiesController.show(securityDepositId)))
+                  },
+                  updatedJourney => (updatedJourney, Redirect(nextPage(journey, securityDepositId)))
+                )
+          }).asFuture
       )
   }
 
-}
+  def nextPage(journey: SecuritiesJourney, securityDepositId: String): Call =
+    if (journey.answers.checkDeclarationDetailsChangeMode)
+      routes.CheckDeclarationDetailsController.show()
+    else
+      journey
+        .getNextSecurityDepositId(securityDepositId)
+        .fold(routes.CheckDeclarationDetailsController.show())(routes.SelectSecuritiesController.show(_))
 
-object SelectSecuritiesController {
-  val selectSecuritiesKey: String = "select-securities.securities"
 }

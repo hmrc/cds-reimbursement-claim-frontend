@@ -23,7 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectSecuritiesSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SecurityDetailsSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
@@ -38,10 +38,12 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
 
 
-@(form: Form[YesNo], declaration: DisplayDeclaration, id: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], declaration: DisplayDeclaration, securityDepositId: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"select-securities.securities"}
+@key = @{"select-securities"}
 @title = @{messages(s"$key.title")}
+@currentIndex = @{declaration.getSecurityDepositIdIndex(securityDepositId) + 1}
+@maxIndex = @{declaration.getNumberOfSecurityDeposits}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -49,19 +51,21 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(Html(title))
+    @pageHeading(Html(title),caption = messages(s"$key.title.caption", currentIndex, maxIndex))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(SelectSecuritiesSummary(declaration, id, key))
+        <div class="govuk-heading-m">@messages(s"$key.securityId",securityDepositId)</div>
+
+        @summary(SecurityDetailsSummary(declaration, securityDepositId, key))
 
         @radios(
             form = form,
             name = key,
-            legend = title,
+            legend = messages(s"$key.legend"),
             legendAsHeading = false,
             hintKey = None,
-            classes = "govuk-visually-hidden",
+            classes = "",
             inline = true,
             items = Seq(
                 RadioItem(

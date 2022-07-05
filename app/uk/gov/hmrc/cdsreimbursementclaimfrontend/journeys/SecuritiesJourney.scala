@@ -62,10 +62,21 @@ final class SecuritiesJourney private (
   override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
 
+  def getDisplayDeclarationIfValidSecurityDepositId(securityDepositId: String): Option[DisplayDeclaration] =
+    getLeadDisplayDeclaration
+      .flatMap(d => d.getSecurityDetailsFor(securityDepositId).map(_ => d))
+
   def getSecurityDepositIds: Seq[String] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
+
+  def getNextSecurityDepositId(securityDepositId: String): Option[String] = {
+    val securityDepositIds = getSecurityDepositIds
+    val i                  = securityDepositIds.indexOf(securityDepositId)
+    if (i < 0 || i >= securityDepositIds.size - 1) None
+    else Some(securityDepositIds(i + 1))
+  }
 
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
     getLeadDisplayDeclaration
@@ -269,6 +280,22 @@ final class SecuritiesJourney private (
       }
     }
 
+  def removeSecurityDepositId(securityDepositId: String): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      if (!isValidSecurityDepositId(securityDepositId))
+        Left("selectSecurityDepositIds.invalidSecurityDepositId")
+      else {
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              securitiesReclaims = answers.securitiesReclaims
+                .map(_ - securityDepositId)
+            )
+          )
+        )
+      }
+    }
+
   def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
     securityDepositId: String,
     taxCodes: Seq[TaxCode]
@@ -457,6 +484,11 @@ final class SecuritiesJourney private (
         )
     }
 
+  def submitCheckDeclarationDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(answers.copy(checkDeclarationDetailsChangeMode = enabled))
+    }
+
   def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       validate(this)
@@ -531,7 +563,8 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
-    checkYourAnswersChangeMode: Boolean = false
+    checkYourAnswersChangeMode: Boolean = false,
+    checkDeclarationDetailsChangeMode: Boolean = false
   ) extends CommonAnswers
 
   final case class Output(

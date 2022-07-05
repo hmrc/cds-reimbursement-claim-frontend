@@ -349,19 +349,23 @@ choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties*
 #===================================================
 #  SELECT SECURITIES PAGE - SECURITIES
 #===================================================
-select-securities.securities.title=Do you want to include this security in this claim?
-select-securities.securities.mrn-label=MRN
-select-securities.securities.reason-for-security-label=Reason for security
-select-securities.securities.total-amount-label=Total value
-select-securities.securities.paid-amount-label=Amount paid
-select-securities.securities.payment-reference-label=Payment reference
-select-securities.securities.payment-method-label=Payment method
-select-securities.securities.payment-method.guarantee=Guarantee
-select-securities.securities.payment-method.bank-account=Bank account
-select-securities.securities.acceptance-date-label=Acceptance date
-select-securities.securities.bta-due-date-label=Brought to account (BTA) date
-select-securities.securities.yes=Yes
-select-securities.securities.no=No
+select-securities.title.caption=Security {0} of {1}
+select-securities.title=Do you want to include this security in this claim?
+select-securities.securityId=Security ID: {0}
+select-securities.mrn-label=MRN
+select-securities.reason-for-security-label=Reason for security
+select-securities.total-amount-label=Total value
+select-securities.paid-amount-label=Amount paid
+select-securities.payment-reference-label=Payment reference
+select-securities.payment-method-label=Payment method
+select-securities.payment-method.guarantee=Guarantee
+select-securities.payment-method.bank-account=Bank account
+select-securities.acceptance-date-label=Acceptance date
+select-securities.bta-due-date-label=Brought to account (BTA) date
+select-securities.legend=Do you want to include this security?
+select-securities.yes=Yes
+select-securities.no=No
+select-securities.error.required=Select Yes if you are claiming for this Security
 #===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
@@ -488,6 +492,9 @@ check-declaration-details.error.invalid=Select ''yes'' if you wish to continue w
 check-declaration-details.error.number=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.error.required=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.scheduled.mrn-number.label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.payment-method.label=Payment method available
+check-declaration-details.payment-method.unavailable=Unavailable
+check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
@@ -1385,6 +1392,7 @@ check-your-answers.claim-for-security.label=Claim for {0}
 check-your-answers.claim-for-security.yes=Yes
 check-your-answers.claim-for-security.no=No
 check-your-answers.claim-for-security.total=Total value of selected security IDs
+check-your-answers.claim-for-security.paid-total=Amount paid of selected security IDs
 check-your-answers.claim-for-security.claim-total=Total
 check-your-answers.claim-for-security.claim-full-amount.label=Claim full amount
 check-your-answers.claim-for-security.claim-full-amount.yes=Yes

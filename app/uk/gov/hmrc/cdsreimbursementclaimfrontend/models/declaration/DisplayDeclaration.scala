@@ -63,6 +63,15 @@ final case class DisplayDeclaration(
   def getSecurityDepositIds: Option[List[String]] =
     displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
+  def getNumberOfSecurityDeposits: Int = getSecurityDepositIds
+    .map(_.size)
+    .getOrElse(0)
+
+  def getSecurityDepositIdIndex(securityDepositId: String): Int =
+    getSecurityDepositIds
+      .map(_.indexOf(securityDepositId))
+      .getOrElse(-1)
+
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
     displayResponseDetail.securityDetails
       .exists(_.exists(_.securityDepositId === securityDepositId))
@@ -97,6 +106,11 @@ final case class DisplayDeclaration(
   def getTotalSecuritiesAmountFor(securityDepositIds: Set[String]): BigDecimal =
     securityDepositIds
       .map(getSecurityDetailsFor(_).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
+      .sum
+
+  def getTotalSecuritiesPaidAmountFor(securityDepositIds: Set[String]): BigDecimal =
+    securityDepositIds
+      .map(getSecurityDetailsFor(_).map(_.amountPaid).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
       .sum
 
   def withDeclarationId(declarationId: String): DisplayDeclaration =

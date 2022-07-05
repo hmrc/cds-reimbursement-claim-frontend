@@ -29,7 +29,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
-object SelectSecuritiesSummary {
+object SecurityDetailsSummary {
 
   def apply(
     declaration: DisplayDeclaration,
