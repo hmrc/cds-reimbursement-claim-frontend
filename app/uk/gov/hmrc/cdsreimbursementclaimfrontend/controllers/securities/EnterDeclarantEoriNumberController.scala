@@ -52,9 +52,7 @@ class EnterDeclarantEoriNumberController @Inject() (
   val postAction: Call = routes.EnterDeclarantEoriNumberController.submit()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(
-      enterDeclarantEoriNumberPage(eoriNumberForm(formKey).withDefault(journey.answers.consigneeEoriNumber), postAction)
-    ).asFuture
+    Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction)).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
