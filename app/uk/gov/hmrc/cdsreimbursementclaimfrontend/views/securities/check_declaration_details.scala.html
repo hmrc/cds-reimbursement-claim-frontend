@@ -1,0 +1,120 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Value
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
+@import scala.collection.immutable.SortedMap
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+)
+
+@(displayDeclaration: DisplayDeclaration, securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+
+@key = @{"check-declaration-details"}
+@title = @{messages(s"$key.title")}
+
+@layout(pageTitle = Some(s"$title")) {
+
+    @if(securitiesReclaims.isEmpty){
+        <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                Important
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <p class="govuk-notification-banner__heading">
+                    @messages(s"$key.banner.empty-securities-selection")
+                </p>
+            </div>
+        </div>
+    }
+
+    @pageHeading(Html(title))
+
+    @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+
+    @dropdownDetails(
+        summary = s"$key.details.title",
+        html(
+            pageHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s", level = "h2"),
+            paragraph(Html(messages(s"$key.details.p1")), Some("govuk-body")),
+            pageHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s", level = "h2"),
+            paragraph(Html(messages(s"$key.details.p2")), Some("govuk-body"))
+        )
+    )
+
+    @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
+            displayDeclaration, 
+            s"check-your-answers.declaration-details",
+            routes.EnterMovementReferenceNumberController.show(),
+            routes.ChooseReasonForSecurityController.show()
+        ).rows ++ 
+        SecuritiesSelectionSummary(
+            securitiesReclaims, 
+            displayDeclaration,
+            "check-your-answers",
+            routes.SelectSecuritiesController.show(_),
+            showTotalSecuritiesPaidAmount = true
+        ).rows ++
+        Seq(SummaryListRow(
+            key = Key(Text(messages(s"check-declaration-details.payment-method.label"))),
+            value = Value(Text(
+                    messages(
+                        if(securitiesReclaims.isEmpty)
+                            s"check-declaration-details.payment-method.unavailable"   
+                        else if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)){
+                             s"check-your-answers.payment-method.guarantee" 
+                        } else {
+                            s"check-your-answers.payment-method.bt"
+                        }
+    )))))))
+
+
+    @if(securitiesReclaims.nonEmpty){
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+            @submitButton("button.continue")
+        }
+    }
+}
+

@@ -20,14 +20,45 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
 
 import scala.concurrent.ExecutionContext
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
-  val jcc: JourneyControllerComponents
+  val jcc: JourneyControllerComponents,
+  val checkDeclarationDetailsPage: check_declaration_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    extends SecuritiesJourneyBaseController {
+
+  private val postAction: Call = routes.CheckDeclarationDetailsController.submit
+
+  val show: Action[AnyContent] =
+    simpleActionReadWriteJourney { implicit request => journey =>
+      val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(true)
+      (
+        updatedJourney,
+        journey.getLeadDisplayDeclaration
+          .fold(Redirect(routes.EnterMovementReferenceNumberController.show()))(declaration =>
+            Ok(checkDeclarationDetailsPage(declaration, journey.getSecuritiesReclaims, postAction))
+          )
+      )
+    }
+
+  val submit: Action[AnyContent] =
+    simpleActionReadWriteJourney { _ => journey =>
+      val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(false)
+      (
+        updatedJourney,
+        Redirect(
+          if (journey.getSelectedDepositIds.isEmpty)
+            routes.CheckDeclarationDetailsController.show()
+          else
+            routes.CheckClaimantDetailsController.show()
+        )
+      )
+    }
+}

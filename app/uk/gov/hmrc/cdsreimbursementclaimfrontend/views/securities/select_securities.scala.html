@@ -1,0 +1,89 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SecurityDetailsSummary
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
+
+
+@(form: Form[YesNo], declaration: DisplayDeclaration, securityDepositId: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"select-securities"}
+@title = @{messages(s"$key.title")}
+@currentIndex = @{declaration.getSecurityDepositIdIndex(securityDepositId) + 1}
+@maxIndex = @{declaration.getNumberOfSecurityDeposits}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @pageHeading(Html(title),caption = messages(s"$key.title.caption", currentIndex, maxIndex))
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        <div class="govuk-heading-m">@messages(s"$key.securityId",securityDepositId)</div>
+
+        @summary(SecurityDetailsSummary(declaration, securityDepositId, key))
+
+        @radios(
+            form = form,
+            name = key,
+            legend = messages(s"$key.legend"),
+            legendAsHeading = false,
+            hintKey = None,
+            classes = "",
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    id = Some(s"$key-yes"),
+                    value = Some("true"),
+                    content = Text(messages(s"$key.yes")),
+                    checked = form.value.contains(Yes)
+                ),
+                RadioItem(
+                    id = Some(s"$key-no"),
+                    value = Some("false"),
+                    content = Text(messages(s"$key.no")),
+                    checked = form.value.contains(No)
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+    }
+
+}

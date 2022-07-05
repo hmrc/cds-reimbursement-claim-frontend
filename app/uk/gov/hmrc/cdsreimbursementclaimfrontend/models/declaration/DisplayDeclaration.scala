@@ -63,6 +63,15 @@ final case class DisplayDeclaration(
   def getSecurityDepositIds: Option[List[String]] =
     displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
+  def getNumberOfSecurityDeposits: Int = getSecurityDepositIds
+    .map(_.size)
+    .getOrElse(0)
+
+  def getSecurityDepositIdIndex(securityDepositId: String): Int =
+    getSecurityDepositIds
+      .map(_.indexOf(securityDepositId))
+      .getOrElse(-1)
+
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
     displayResponseDetail.securityDetails
       .exists(_.exists(_.securityDepositId === securityDepositId))
@@ -83,9 +92,25 @@ final case class DisplayDeclaration(
     getSecurityDetailsFor(securityDepositId)
       .flatMap(_.taxDetails.find(td => TaxCodes.findUnsafe(td.taxType) === taxCode))
 
+  def getSecurityTotalValueFor(securityDepositId: String): BigDecimal =
+    getSecurityDetailsFor(securityDepositId).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00"))
+
+  def getSecurityPaidValueFor(securityDepositId: String): BigDecimal =
+    if (isValidSecurityDepositId(securityDepositId))
+      getSecurityDetailsFor(securityDepositId).map(_.amountPaid).map(BigDecimal.apply).getOrElse(BigDecimal("0.00"))
+    else 0.01
+
+  def getSecurityPaymentReferenceFor(securityDepositId: String): String =
+    getSecurityDetailsFor(securityDepositId).map(_.paymentReference).getOrElse("")
+
   def getTotalSecuritiesAmountFor(securityDepositIds: Set[String]): BigDecimal =
     securityDepositIds
       .map(getSecurityDetailsFor(_).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
+      .sum
+
+  def getTotalSecuritiesPaidAmountFor(securityDepositIds: Set[String]): BigDecimal =
+    securityDepositIds
+      .map(getSecurityDetailsFor(_).map(_.amountPaid).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
       .sum
 
   def withDeclarationId(declarationId: String): DisplayDeclaration =

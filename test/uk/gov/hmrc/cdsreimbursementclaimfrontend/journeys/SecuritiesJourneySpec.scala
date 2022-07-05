@@ -36,7 +36,7 @@ import JourneyValidationErrors._
 class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 1000)
+    PropertyCheckConfiguration(minSuccessful = 100)
 
   "SecuritiesJourney" should {
     "have an empty instance" in {
@@ -315,7 +315,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    "accept submission of a valid depositId" in {
+    "accept selection of a valid depositId" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositId = decl.getSecurityDepositIds.map(_.head).get
         val journey   = emptyJourney
@@ -328,6 +328,28 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs Seq(depositId)
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSecuritiesReclaims                 shouldBe false
+        journey.isFinalized                                   shouldBe false
+      }
+    }
+
+    "accept removal of a valid depositId" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val depositIds = decl.getSecurityDepositIds.get
+        val depositId  = depositIds.head
+        val journey    = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl)
+          .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(_.selectSecurityDepositIds(depositIds))
+          .flatMap(_.removeSecurityDepositId(depositId))
+          .getOrFail
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
+        journey.answers.displayDeclaration.contains(decl)     shouldBe true
+        journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds.tail
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe true
         journey.hasCompleteSecuritiesReclaims                 shouldBe false

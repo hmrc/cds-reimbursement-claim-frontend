@@ -16,23 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+
 import scala.collection.immutable.SortedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 object SecuritiesSelectionSummary {
 
@@ -40,7 +34,8 @@ object SecuritiesSelectionSummary {
     securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
     declaration: DisplayDeclaration,
     key: String,
-    changeCall: String => Call
+    changeCall: String => Call,
+    showTotalSecuritiesPaidAmount: Boolean = false
   )(implicit
     messages: Messages
   ): SummaryList = SummaryList(
@@ -69,13 +64,24 @@ object SecuritiesSelectionSummary {
           )
         )
       )
-    } ++ Seq(
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.claim-for-security.total"))),
-        value = Value(
-          Text(declaration.getTotalSecuritiesAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+    }
+      ++ Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.claim-for-security.total"))),
+          value = Value(
+            Text(declaration.getTotalSecuritiesAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+          )
         )
       )
-    )
+      ++ (if (showTotalSecuritiesPaidAmount)
+            Seq(
+              SummaryListRow(
+                key = Key(HtmlContent(messages(s"$key.claim-for-security.paid-total"))),
+                value = Value(
+                  Text(declaration.getTotalSecuritiesPaidAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+                )
+              )
+            )
+          else Seq.empty)
   )
 }
