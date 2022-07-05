@@ -187,14 +187,6 @@ class ChooseReasonForSecurityControllerSpec
             )
         )
 
-      val updatedJourney = SessionData(
-        journey
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, updatedDisplayDeclaration)
-          .right
-          .toOption
-          .get
-      )
-
       "Retrieve declaration details from Acc14 and EORIs don't match" in {
         val updatedDisplayDeclarationEorisUnmatched = displayDeclaration
           .copy(displayResponseDetail =
@@ -205,11 +197,23 @@ class ChooseReasonForSecurityControllerSpec
               )
           )
 
+        val updatedJourney = SessionData(
+          journey
+            .submitReasonForSecurityAndDeclaration(
+              ReasonForSecurity.AccountSales,
+              updatedDisplayDeclarationEorisUnmatched
+            )
+            .right
+            .toOption
+            .get
+        )
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclarationEorisUnmatched)))
           mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+          mockStoreSession(updatedJourney)(Right(()))
         }
 
         checkIsRedirect(
@@ -219,6 +223,14 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "HAPPY PATH - Retrieve declaration details from Acc14 and claim is not duplicate" in {
+        val updatedJourney = SessionData(
+          journey
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, updatedDisplayDeclaration)
+            .right
+            .toOption
+            .get
+        )
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
