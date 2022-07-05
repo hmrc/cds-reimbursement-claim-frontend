@@ -117,7 +117,6 @@ class EnterDeclarantEoriNumberControllerSpec
         ).sample.getOrElse(
           fail("Unable to generate complete journey")
         )
-        val eori           = journey.answers.declarantEoriNumber.getOrElse(fail("No consignee eori found"))
         val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
@@ -132,7 +131,7 @@ class EnterDeclarantEoriNumberControllerSpec
             doc
               .select("form div#enter-declarant-eori-number-hint")
               .text()                                          shouldBe messageFromMessageKey("enter-declarant-eori-number.help-text")
-            doc.select("#enter-declarant-eori-number").`val`() shouldBe eori.value
+            doc.select("#enter-declarant-eori-number").`val`() shouldBe ""
           }
         )
       }
