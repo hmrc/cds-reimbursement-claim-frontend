@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberFor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -40,10 +39,10 @@ class EnterDeclarantEoriNumberController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController {
 
   val eoriNumberFormKey: String = "enter-declarant-eori-number"
-  val form: Form[Eori]          = eoriNumberForm(eoriNumberFormKey)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
+      val form = eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.declarantEoriNumber)
       Ok(
         enterDeclarantEoriNumber(
           form,
@@ -54,7 +53,7 @@ class EnterDeclarantEoriNumberController @Inject() (
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form
+    eoriNumberForm(eoriNumberFormKey)
       .bindFromRequest()
       .fold(
         formWithErrors =>
