@@ -33,14 +33,14 @@
         legendClasses: String = "govuk-fieldset__legend--xl",
         id: String = "value",
         hintText: Option[String] = None,
-        legendAsPageHeading: Boolean = true)(implicit messages: Messages)
+        legendAsheading: Boolean = true)(implicit messages: Messages)
 
 @govukDateInput(DateInput(
     fieldset = Some(Fieldset(
         legend = Some(
             Legend(
                 content = Text(messages(legendContent)),
-                isPageHeading = legendAsPageHeading,
+                isPageHeading = legendAsheading,
                 classes = legendClasses
             )
         )

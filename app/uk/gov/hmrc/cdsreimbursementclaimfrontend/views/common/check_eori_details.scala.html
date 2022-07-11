@@ -29,7 +29,7 @@
 @this(
     eoriDetailsHelper:uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.EoriDetailsHelper,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
@@ -51,7 +51,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(Html(title))
+        @heading(Html(title))
 
         @paragraph(Html(messages(s"$key.paragraph", viewConfig.eoriNumberHelpUrl)), Some("govuk-body"))
 

@@ -24,7 +24,7 @@
 
 @this(
         button: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout
@@ -37,7 +37,7 @@
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @pageHeading(Html(title))
+    @heading(Html(title))
 
     @summary(
         ContactAndAddressSummary((contactDetails, contactAddress, contactChange, addressChange), key, None)

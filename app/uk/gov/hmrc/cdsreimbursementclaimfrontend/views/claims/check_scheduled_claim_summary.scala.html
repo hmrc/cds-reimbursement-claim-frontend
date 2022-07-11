@@ -28,7 +28,7 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
@@ -49,17 +49,17 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(Html(title))
+    @heading(Html(title))
 
     @paragraph(Html(messages(s"$key.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
 
     @answer.value.map { claims =>
-        @pageHeading(Html(messages(s"duty-type.${claims._1.repr}")), "govuk-heading-m", "h2")
+        @heading(Html(messages(s"duty-type.${claims._1.repr}")), "govuk-heading-m", "h2")
         @summary(TaxCodeReimbursementSummary((claims._1, claims._2),key, subKey))
         <br/>
     }
 
-    @pageHeading(Html(messages(s"$key.total.header")), "govuk-heading-m", "h2")
+    @heading(Html(messages(s"$key.total.header")), "govuk-heading-m", "h2")
     @summary(DutyAndTaxCodeReimbursementSummary(answer,key, subKey))
     <br/>
 

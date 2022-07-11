@@ -28,7 +28,7 @@
 
 @this(
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
@@ -47,7 +47,7 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(Html(title))
+    @heading(Html(title))
 
     @paragraph(Html(messages(s"$key.help-text", messages(s"tax-code.${dutyCode.value}"))), Some("govuk-body"))
 
