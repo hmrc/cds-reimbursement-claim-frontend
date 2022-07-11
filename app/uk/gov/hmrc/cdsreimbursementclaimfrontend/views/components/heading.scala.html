@@ -21,15 +21,14 @@
 @(
     heading: Html,
     caption: String = "",
-    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content",
-    level: String = "h1"
+    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content"
 )
 
 
-@if(caption.nonEmpty && level == "h1") {
+@if(caption.nonEmpty) {
     <span class="govuk-caption-xl">@caption</span>
 }
 
-<@level class="@classes">
+<h1 class="@classes">
     @heading
-</@level>
+</h1>
