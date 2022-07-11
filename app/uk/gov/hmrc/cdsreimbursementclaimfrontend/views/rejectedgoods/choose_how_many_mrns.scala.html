@@ -34,6 +34,7 @@
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
@@ -47,7 +48,7 @@
 @title = @{messages(s"$key.title")}
 
 @inset = {
-    @heading(Html(messages(s"$key.inset.title")), classes = "govuk-heading-s", level = "h2")
+    @subHeading(Html(messages(s"$key.inset.title")), classes = "govuk-heading-s")
     @paragraph(Html(messages(s"$key.inset.paragraph")))
 }
 

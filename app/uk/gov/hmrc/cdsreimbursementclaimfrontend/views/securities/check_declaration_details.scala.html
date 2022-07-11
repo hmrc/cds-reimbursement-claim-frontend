@@ -41,6 +41,7 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -77,9 +78,9 @@
     @dropdownDetails(
         summary = s"$key.details.title",
         html(
-            heading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s", level = "h2"),
+            subHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s"),
             paragraph(Html(messages(s"$key.details.p1")), Some("govuk-body")),
-            heading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s", level = "h2"),
+            subHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s"),
             paragraph(Html(messages(s"$key.details.p2")), Some("govuk-body"))
         )
     )

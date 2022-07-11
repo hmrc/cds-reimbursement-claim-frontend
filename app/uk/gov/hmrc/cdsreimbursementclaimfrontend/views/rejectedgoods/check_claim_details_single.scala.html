@@ -30,6 +30,7 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
@@ -52,7 +53,7 @@
 
     @paragraph(Html(messages(s"$key.single.label")), Some("govuk-body"))
 
-    @heading(Html(messages(s"$key.single.mrn.label", mrn.value)), classes = "govuk-heading-m", level = "h2")
+    @subHeading(Html(messages(s"$key.single.mrn.label", mrn.value)), classes = "govuk-heading-m")
 
     @summary(ReimbursementsClaimsSummary.singleFull(claims, key, enterClaimAction))
 
