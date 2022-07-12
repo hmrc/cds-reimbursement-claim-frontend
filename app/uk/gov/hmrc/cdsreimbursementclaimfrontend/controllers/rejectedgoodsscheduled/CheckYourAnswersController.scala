@@ -42,8 +42,7 @@ class CheckYourAnswersController @Inject() (
   submitClaimFailedPage: claimPages.submit_claim_error
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
-    with Logging
-    with RejectedGoodsScheduledJourneyRouter {
+    with Logging {
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit()
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()

@@ -906,8 +906,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         submitConsigneeDetails = false
       )
       forAll(journeyGen) { result =>
-        val journey = result.getOrElse(fail("Journey building has failed."))
-        journey.hasCompleteAnswers shouldBe false
+        result.isLeft shouldBe true
       }
     }
 

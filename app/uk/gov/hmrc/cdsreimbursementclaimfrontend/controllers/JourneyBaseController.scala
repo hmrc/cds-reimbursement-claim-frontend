@@ -34,6 +34,8 @@ import scala.concurrent.Future
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 
+import com.github.arturopala.validator.Validator.Validate
+
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
   *  - user authorization
@@ -48,13 +50,16 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
   /** [Inject] Component expected to be injected by the implementing controller. */
   val jcc: JourneyControllerComponents
 
+  final override def controllerComponents: MessagesControllerComponents =
+    jcc.controllerComponents
+
   implicit def messages(implicit request: Request[_]): Messages =
     jcc.controllerComponents.messagesApi.preferred(request)
 
   /** [Config] Defines where to redirect when missing journey or missing session data after user has been authorized. */
   val startOfTheJourney: Call
 
-  lazy val redirectToTheStartOfTheJourney: Future[Result] =
+  final lazy val redirectToTheStartOfTheJourney: Future[Result] =
     Future.successful(Redirect(startOfTheJourney))
 
   /** [Config] Defines where to redirect when journey is already complete, a.k.a CYA page. */
@@ -66,19 +71,42 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
   /** [Config] Required feature flag or none. */
   val requiredFeature: Option[Feature]
 
+  /** [Config] Provides navigation after journey validation failure. */
+  def routeForValidationErrors(errors: Seq[String]): Call
+
+  /** Returns state of the journey for the current user. */
   def getJourney(sessionData: SessionData): Option[Journey]
+
+  /** Updates the state of the journey for the current user. */
   def updateJourney(sessionData: SessionData, journey: Journey): SessionData
+
+  /** Check if the user has already visited the CYA page at least once. */
   def userHasSeenCYAPage(journey: Journey): Boolean
+
+  /** Check if journey has all answers in place and the CYA page can be displayed. */
   def hasCompleteAnswers(journey: Journey): Boolean
+
+  /** Check if journey has already been finalized and its state cannot be updated. */
   def isFinalized(journey: Journey): Boolean
 
-  final override def controllerComponents: MessagesControllerComponents =
-    jcc.controllerComponents
+  /** Optional action precondition. */
+  val actionPrecondition: Option[Validate[Journey]] = None
 
+  /** Check if action precondition met when defined, and if not then return the list of errors. */
+  final def checkIfMaybeActionPreconditionFails(journey: Journey): Option[Seq[String]] =
+    actionPrecondition.fold[Option[Seq[String]]](None)(
+      _.apply(journey).fold(errors => Some(errors.messages), _ => None)
+    )
+
+  /** Check if the CYA page should be displayed next. */
   final def shouldForwardToCYA(journey: Journey): Boolean =
     userHasSeenCYAPage(journey) && hasCompleteAnswers(journey)
 
-  final def resultOrShortcut(result: Result, journey: Journey, fastForwardToCYAEnabled: Boolean): Future[Result] =
+  private final def resultOrShortcut(
+    result: Result,
+    journey: Journey,
+    fastForwardToCYAEnabled: Boolean
+  ): Future[Result] =
     Future.successful(
       if (result.header.status =!= 303) result
       else if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
@@ -93,7 +121,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
     if (modifiedSessionData === sessionData) Future.successful(Right(()))
     else jcc.sessionCache.store(modifiedSessionData)
 
-  /** Simple GET action to show page based on the journey state */
+  /** Simple GET action to show page based on the current journey state. */
   final def simpleActionReadJourney(body: Journey => Result): Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
@@ -103,13 +131,17 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
             .flatMap(getJourney)
             .map(journey =>
               if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
-              else body(journey)
+              else
+                checkIfMaybeActionPreconditionFails(journey) match {
+                  case None         => body(journey)
+                  case Some(errors) => Redirect(routeForValidationErrors(errors))
+                }
             )
             .getOrElse(Redirect(startOfTheJourney))
         )
       }
 
-  /** Async GET action to show page based on the user data and journey state. */
+  /** Async GET action to show page based on the current user's auth data and journey state. */
   final def actionReadJourneyAndUser(
     body: Request[_] => Journey => RetrievedUserType => Future[Result]
   ): Action[AnyContent] =
@@ -119,12 +151,16 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
         getJourney(request.sessionData)
           .map(journey =>
             if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
-            else body(request)(journey)(request.authenticatedRequest.journeyUserType)
+            else
+              checkIfMaybeActionPreconditionFails(journey) match {
+                case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
+                case Some(errors) => Future.successful(Redirect(routeForValidationErrors(errors)))
+              }
           )
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 
-  /** Simple GET action to show page based on the user data and journey state. */
+  /** Simple GET action to show page based on the current user's auth data and journey state. */
   final def simpleActionReadJourneyAndUser(
     body: Journey => RetrievedUserType => Result
   ): Action[AnyContent] =
@@ -134,12 +170,16 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
         getJourney(request.sessionData)
           .map(journey =>
             if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
-            else body(journey)(request.authenticatedRequest.journeyUserType)
+            else
+              checkIfMaybeActionPreconditionFails(journey) match {
+                case None         => body(journey)(request.authenticatedRequest.journeyUserType)
+                case Some(errors) => Redirect(routeForValidationErrors(errors))
+              }
           )
           .getOrElse(Redirect(startOfTheJourney))
       }
 
-  /** Async GET action to show page based on the request and journey state. */
+  /** Async GET action to show page based on the request and the current journey state. */
   final def actionReadJourney(
     body: Request[_] => Journey => Future[Result]
   ): Action[AnyContent] =
@@ -150,12 +190,16 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
           .flatMap(getJourney)
           .map(journey =>
             if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
-            else body(request)(journey)
+            else
+              checkIfMaybeActionPreconditionFails(journey) match {
+                case None         => body(request)(journey)
+                case Some(errors) => Future.successful(Redirect(routeForValidationErrors(errors)))
+              }
           )
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 
-  /** Simple POST action to submit form and update journey. */
+  /** Simple POST action to submit form and update the current journey state. */
   final def simpleActionReadWriteJourney(
     body: Request[_] => Journey => (Journey, Result),
     isCallback: Boolean = false,
@@ -169,7 +213,13 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
             getJourney(sessionData)
               .map(journey =>
                 if (isFinalized(journey)) (journey, Redirect(claimSubmissionConfirmation))
-                else body(request)(journey)
+                else
+                  checkIfMaybeActionPreconditionFails(journey) match {
+                    case None         => body(request)(journey)
+                    case Some(errors) =>
+                      println((errors.headOption, routeForValidationErrors(errors)))
+                      (journey, Redirect(routeForValidationErrors(errors)))
+                  }
               )
               .map { case (modifiedJourney, result) =>
                 storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
@@ -184,7 +234,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 
-  /** Simple POST to submit form and update journey, can use current user data. */
+  /** Simple POST to submit form and update the current journey, can use current user's auth data. */
   final def simpleActionReadWriteJourneyAndUser(
     body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => (Journey, Result),
     fastForwardToCYAEnabled: Boolean = true
@@ -195,7 +245,11 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
         getJourney(request.sessionData)
           .map(journey =>
             if (isFinalized(journey)) (journey, Redirect(claimSubmissionConfirmation))
-            else body(request)(journey)(request.authenticatedRequest.journeyUserType)
+            else
+              checkIfMaybeActionPreconditionFails(journey) match {
+                case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
+                case Some(errors) => (journey, Redirect(routeForValidationErrors(errors)))
+              }
           )
           .map { case (modifiedJourney, result) =>
             storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
@@ -222,7 +276,11 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
             getJourney(sessionData)
               .map(journey =>
                 if (isFinalized(journey)) Future.successful((journey, Redirect(claimSubmissionConfirmation)))
-                else body(request)(journey)
+                else
+                  checkIfMaybeActionPreconditionFails(journey) match {
+                    case None         => body(request)(journey)
+                    case Some(errors) => Future.successful((journey, Redirect(routeForValidationErrors(errors))))
+                  }
               )
               .map(_.flatMap { case (modifiedJourney, result) =>
                 storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
@@ -238,7 +296,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
 
       }
 
-  /** Async POST action to submit form and update journey, can use current user data. */
+  /** Async POST action to submit form and update the journey, can use the current user's auth data. */
   final def actionReadWriteJourneyAndUser(
     body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => Future[(Journey, Result)],
     fastForwardToCYAEnabled: Boolean = true
@@ -250,16 +308,18 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
           .fold(redirectToTheStartOfTheJourney) { journey =>
             if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
             else
-              body(request)(journey)(request.authenticatedRequest.journeyUserType)
-                .flatMap { case (modifiedJourney, result) =>
-                  storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
-                    .flatMap(
-                      _.fold(
-                        error => Future.failed(error.toException),
-                        _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
-                      )
+              (checkIfMaybeActionPreconditionFails(journey) match {
+                case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
+                case Some(errors) => Future.successful((journey, Redirect(routeForValidationErrors(errors))))
+              }).flatMap { case (modifiedJourney, result) =>
+                storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
+                  .flatMap(
+                    _.fold(
+                      error => Future.failed(error.toException),
+                      _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
                     )
-                }
+                  )
+              }
           }
       }
 

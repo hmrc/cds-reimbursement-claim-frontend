@@ -26,6 +26,8 @@ import scala.concurrent.ExecutionContext
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import com.github.arturopala.validator.Validator.Validate
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
@@ -35,6 +37,15 @@ class CheckDeclarationDetailsController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   private val postAction: Call = routes.CheckDeclarationDetailsController.submit
+
+  import SecuritiesJourney.Checks._
+
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   val show: Action[AnyContent] =
     simpleActionReadWriteJourney { implicit request => journey =>

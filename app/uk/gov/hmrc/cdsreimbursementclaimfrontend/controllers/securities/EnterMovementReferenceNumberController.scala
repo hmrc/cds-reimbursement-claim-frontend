@@ -27,31 +27,26 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with SessionDataExtractor {
+    extends SecuritiesJourneyBaseController {
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Future.successful {
-      Ok(
-        enterMovementReferenceNumberPage(
-          movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
-          routes.EnterMovementReferenceNumberController.submit()
-        )
+    Ok(
+      enterMovementReferenceNumberPage(
+        movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
+        routes.EnterMovementReferenceNumberController.submit()
       )
-    }
+    ).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>

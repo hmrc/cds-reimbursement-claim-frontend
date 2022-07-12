@@ -21,7 +21,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import java.util.UUID
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 trait WorkInProgressMixin[Journey] {
   self: JourneyBaseController[Journey] =>
