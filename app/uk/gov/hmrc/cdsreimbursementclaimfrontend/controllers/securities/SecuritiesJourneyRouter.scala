@@ -46,10 +46,12 @@ trait SecuritiesJourneyRouter {
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED                => undefined
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                              => routes.CheckBankDetailsController.show()
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                          => undefined
-      case _                                                                 => undefined
+      case _                                                                 =>
+        println("undefined error case")
+        undefined
     }
 
-  def routeForValidationErrors(errors: Seq[String]): Call =
+  final def routeForValidationErrors(errors: Seq[String]): Call =
     errors.headOption.map(routeForValidationError).getOrElse(undefined)
 
 }

@@ -125,7 +125,7 @@ class SelectSecuritiesControllerSpec
         status(performAction("foo")) shouldBe NOT_FOUND
       }
 
-      "display the page if an invalid security deposit ID" in {
+      "redirect to the ineligible page if an invalid security deposit ID" in {
         mrnWithNonExportRfsWithDisplayDeclarationGen.sample.map { case (mrn, rfs, decl) =>
           val initialJourney = emptyJourney
             .submitMovementReferenceNumber(mrn)

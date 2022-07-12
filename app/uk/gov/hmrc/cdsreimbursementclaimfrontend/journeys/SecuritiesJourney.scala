@@ -207,7 +207,7 @@ final class SecuritiesJourney private (
   def submitClaimDuplicateCheckStatus(
     similarClaimExistAlreadyInCDFPay: Boolean
   ): Either[String, SecuritiesJourney] =
-    whileClaimIsAmendableAnd(hasMovementReferenceNumber && hasReasonForSecurity) {
+    whileClaimIsAmendableAnd(hasMovementReferenceNumber & hasReasonForSecurity) {
       Right(
         new SecuritiesJourney(
           answers.copy(
@@ -220,7 +220,7 @@ final class SecuritiesJourney private (
   def submitExportMovementReferenceNumber(
     exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
-    whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS && thereIsNoSimilarClaimInCDFPay) {
+    whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       if (requiresExportDeclaration)
         Right(
           new SecuritiesJourney(
@@ -416,10 +416,12 @@ final class SecuritiesJourney private (
     }
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, SecuritiesJourney] =
-    if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
-      Right(new SecuritiesJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber))))
-    else
-      Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+    whileClaimIsAmendable {
+      if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+        Right(new SecuritiesJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber))))
+      else
+        Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+    }
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
     whileClaimIsAmendable {
@@ -493,7 +495,7 @@ final class SecuritiesJourney private (
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       validate(this)
         .fold(
-          errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
+          errors => Left(errors.headMessage),
           _ => Right(new SecuritiesJourney(answers = this.answers, caseNumber = Some(caseNumber)))
         )
     }
@@ -511,8 +513,9 @@ final class SecuritiesJourney private (
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-  def toOutput: Either[List[String], SecuritiesJourney.Output] =
-    validate(this)
+  def toOutput: Either[Seq[String], SecuritiesJourney.Output] =
+    validate(this).left
+      .map(_.messages)
       .flatMap(_ =>
         (for {
           mrn                 <- getLeadMovementReferenceNumber
@@ -582,59 +585,43 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
 
   object Checks {
 
-    val hasMovementReferenceNumber: Check[SecuritiesJourney] =
-      Check(
+    val hasMovementReferenceNumber: Validate[SecuritiesJourney] =
+      check(
         journey => journey.answers.movementReferenceNumber.isDefined,
         MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER
       )
 
-    val hasDisplayDeclaration: Check[SecuritiesJourney] =
-      Check(
+    val hasDisplayDeclaration: Validate[SecuritiesJourney] =
+      check(
         journey => journey.answers.displayDeclaration.isDefined,
         MISSING_DISPLAY_DECLARATION
       )
 
-    val hasReasonForSecurity: Check[SecuritiesJourney] =
-      Check(journey => journey.getReasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
+    val hasReasonForSecurity: Validate[SecuritiesJourney] =
+      check(journey => journey.getReasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
 
-    val hasMRNAndDisplayDeclarationAndRfS: Check[SecuritiesJourney] =
-      hasMovementReferenceNumber &&
-        hasDisplayDeclaration &&
+    val hasMRNAndDisplayDeclarationAndRfS: Validate[SecuritiesJourney] =
+      hasMovementReferenceNumber &
+        hasDisplayDeclaration &
         hasReasonForSecurity
 
-    val canContinueTheClaimWithChoosenRfS: Check[SecuritiesJourney] =
-      Check(
+    val canContinueTheClaimWithChoosenRfS: Validate[SecuritiesJourney] =
+      check(
         journey => !journey.requiresExportDeclaration || journey.goodsHasBeenAlreadyExported,
         CHOOSEN_REASON_FOR_SECURITY_REQUIRES_GOODS_TO_BE_ALREADY_EXPORTED
       )
 
-    val thereIsNoSimilarClaimInCDFPay: Check[SecuritiesJourney] =
-      Check[SecuritiesJourney](
+    val thereIsNoSimilarClaimInCDFPay: Validate[SecuritiesJourney] =
+      check[SecuritiesJourney](
         _.answers.similarClaimExistAlreadyInCDFPay.isDefined,
         MISSING_CLAIM_DUPLICATE_CHECK_STATUS_WITH_TPI04
-      ) && Check[SecuritiesJourney](
+      ) & check[SecuritiesJourney](
         _.answers.similarClaimExistAlreadyInCDFPay.contains(false),
         SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY
       )
 
-    val userCanProceedWithThisClaim: Check[SecuritiesJourney] =
-      hasMRNAndDisplayDeclarationAndRfS &&
-        thereIsNoSimilarClaimInCDFPay &&
-        canContinueTheClaimWithChoosenRfS
-
-  }
-
-  import Checks._
-
-  implicit val validator: Validate[SecuritiesJourney] =
-    Validator.all(
-      userCanProceedWithThisClaim,
-      check(_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS),
-      check(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
-      checkIsDefined(_.answers.contactDetails, MISSING_CONTACT_DETAILS),
-      checkIsDefined(_.answers.contactAddress, MISSING_CONTACT_ADDRESS),
-      check(_.getTotalReclaimAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
-      whenTrue(
+    val declarantOrImporterEoriMatchesUserOrHasBeenVerified: Validate[SecuritiesJourney] =
+      conditionally[SecuritiesJourney](
         _.needsDeclarantAndConsigneeEoriSubmission,
         all(
           checkIsDefined(
@@ -655,10 +642,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
             _.answers.consigneeEoriNumber,
             CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
           )
-        )
-      ),
-      whenFalse(
-        _.needsDeclarantAndConsigneeEoriSubmission,
+        ),
         all(
           checkIsEmpty(
             _.answers.declarantEoriNumber,
@@ -669,18 +653,17 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
             CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
           )
         )
-      ),
-      whenTrue(
+      )
+
+    val paymentMethodHasBeenProvidedIfNeeded: Validate[SecuritiesJourney] =
+      conditionally[SecuritiesJourney](
         _.needsBanksAccountDetailsSubmission,
         all(
           checkIsDefined(
             _.answers.bankAccountDetails,
             BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
           )
-        )
-      ),
-      whenFalse(
-        _.needsBanksAccountDetailsSubmission,
+        ),
         all(
           checkIsEmpty(
             _.answers.bankAccountDetails,
@@ -688,6 +671,35 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
           )
         )
       )
+
+    val contactDetailsHasBeenProvided: Validate[SecuritiesJourney] =
+      checkIsDefined[SecuritiesJourney](_.answers.contactDetails, MISSING_CONTACT_DETAILS) &
+        checkIsDefined[SecuritiesJourney](_.answers.contactAddress, MISSING_CONTACT_ADDRESS)
+
+    val reclaimAmountsHasBeenDeclared: Validate[SecuritiesJourney] =
+      check[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
+        check[SecuritiesJourney](_.getTotalReclaimAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO)
+
+    val userCanProceedWithThisClaim: Validate[SecuritiesJourney] =
+      hasMRNAndDisplayDeclarationAndRfS &
+        thereIsNoSimilarClaimInCDFPay &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+
+  }
+
+  import Checks._
+
+  implicit val validator: Validate[SecuritiesJourney] =
+    Validator.all(
+      hasMRNAndDisplayDeclarationAndRfS,
+      thereIsNoSimilarClaimInCDFPay,
+      canContinueTheClaimWithChoosenRfS,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      reclaimAmountsHasBeenDeclared,
+      check(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
     )
 
   object Answers {

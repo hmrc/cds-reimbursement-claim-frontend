@@ -26,7 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import scala.concurrent.ExecutionContext
 
 abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionContext)
-    extends JourneyBaseController[RejectedGoodsSingleJourney] {
+    extends JourneyBaseController[RejectedGoodsSingleJourney]
+    with RejectedGoodsSingleJourneyRouter {
 
   final override val requiredFeature: Option[Feature] =
     Some(Feature.RejectedGoods)

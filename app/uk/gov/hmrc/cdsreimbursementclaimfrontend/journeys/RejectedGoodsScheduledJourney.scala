@@ -443,7 +443,7 @@ final class RejectedGoodsScheduledJourney private (
     whileClaimIsAmendable {
       validate(this)
         .fold(
-          errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
+          errors => Left(errors.headMessage),
           _ => Right(new RejectedGoodsScheduledJourney(answers = this.answers, caseNumber = Some(caseNumber)))
         )
     }
@@ -460,8 +460,9 @@ final class RejectedGoodsScheduledJourney private (
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-  def toOutput: Either[List[String], RejectedGoodsScheduledJourney.Output] =
-    validate(this)
+  def toOutput: Either[Seq[String], RejectedGoodsScheduledJourney.Output] =
+    validate(this).left
+      .map(_.messages)
       .flatMap(_ =>
         (for {
           mrn                    <- getLeadMovementReferenceNumber

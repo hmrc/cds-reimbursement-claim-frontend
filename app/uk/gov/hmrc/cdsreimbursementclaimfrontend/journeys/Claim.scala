@@ -17,8 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import com.github.arturopala.validator.Validator.Validate
-import com.github.arturopala.validator.Validator.Check
-import com.github.arturopala.validator.Validator.ValidatedOps
+import com.github.arturopala.validator.Validator.ValidationResultOps
 
 /** The common base of the claim models
   * @tparam A the type of the claim
@@ -49,15 +48,15 @@ abstract class Claim[A : Validate] {
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
     else body
 
-  final def whileClaimIsAmendable(condition: Check[A])(body: => A): Either[String, A] =
+  final def whileClaimIsAmendable(condition: Validate[A])(body: => A): Either[String, A] =
     if (isFinalized) Right(this)
-    else condition.check(this).map(_ => body)
+    else condition(this).map(_ => body).left.map(_.headMessage)
 
   /** Execute the following code only when claim wasn't submitted yet and requirements are met. */
-  final def whileClaimIsAmendableAnd(condition: Check[A])(
+  final def whileClaimIsAmendableAnd(condition: Validate[A])(
     body: => Either[String, A]
   ): Either[String, A] =
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
-    else condition.check(this).flatMap(_ => body)
+    else condition(this).left.map(_.headMessage).flatMap(_ => body)
 
 }

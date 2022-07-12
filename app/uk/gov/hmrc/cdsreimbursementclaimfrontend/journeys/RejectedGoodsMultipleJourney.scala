@@ -544,7 +544,7 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       validate(this)
         .fold(
-          errors => Left(errors.headOption.getOrElse("completeWith.invalidJourney")),
+          errors => Left(errors.headMessage),
           _ => Right(new RejectedGoodsMultipleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
         )
     }
@@ -561,8 +561,9 @@ final class RejectedGoodsMultipleJourney private (
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-  def toOutput: Either[List[String], RejectedGoodsMultipleJourney.Output] =
-    validate(this)
+  def toOutput: Either[Seq[String], RejectedGoodsMultipleJourney.Output] =
+    validate(this).left
+      .map(_.messages)
       .flatMap(_ =>
         (for {
           movementReferenceNumbers <- answers.movementReferenceNumbers

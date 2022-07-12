@@ -26,7 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import scala.concurrent.ExecutionContext
 
 abstract class SecuritiesJourneyBaseController(implicit ec: ExecutionContext)
-    extends JourneyBaseController[SecuritiesJourney] {
+    extends JourneyBaseController[SecuritiesJourney]
+    with SecuritiesJourneyRouter {
 
   final override val requiredFeature: Option[Feature] =
     Some(Feature.Securities)
