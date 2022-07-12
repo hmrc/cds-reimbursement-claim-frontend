@@ -26,7 +26,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
@@ -42,7 +42,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(Html(title))
+        @heading(Html(title))
 
         @paragraph(Html(messages(s"$key.help")), Some("govuk-body govuk-!-margin-bottom-4"))
 

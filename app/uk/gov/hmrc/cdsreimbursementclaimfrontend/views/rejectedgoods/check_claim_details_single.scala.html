@@ -29,7 +29,8 @@
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
@@ -48,11 +49,11 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(Html(title))
+    @heading(Html(title))
 
     @paragraph(Html(messages(s"$key.single.label")), Some("govuk-body"))
 
-    @pageHeading(Html(messages(s"$key.single.mrn.label", mrn.value)), classes = "govuk-heading-m", level = "h2")
+    @subHeading(Html(messages(s"$key.single.mrn.label", mrn.value)), classes = "govuk-heading-m")
 
     @summary(ReimbursementsClaimsSummary.singleFull(claims, key, enterClaimAction))
 

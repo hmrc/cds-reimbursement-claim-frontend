@@ -25,7 +25,7 @@
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
@@ -46,7 +46,7 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(Html(title))
+        @heading(Html(title))
 
         @paragraph(Html(messages(combine(key, refNumberKey, "help-text"))), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 

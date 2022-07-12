@@ -23,7 +23,8 @@
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
 )
@@ -50,7 +51,7 @@
 
         @paragraph(Html(messages(s"$key.email-sent")), Some("govuk-body"))
 
-        @pageHeading(Html(messages(s"$key.whatNext")), classes = "govuk-heading-m", level = "h2")
+        @subHeading(Html(messages(s"$key.whatNext")), classes = "govuk-heading-m")
 
         @paragraph(Html(messages(s"$key.what-next.p1")), Some("govuk-body"))
 

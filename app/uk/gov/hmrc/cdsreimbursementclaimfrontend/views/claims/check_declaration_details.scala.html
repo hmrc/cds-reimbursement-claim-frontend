@@ -28,7 +28,8 @@
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
@@ -49,7 +50,7 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(Html(title))
+    @heading(Html(title))
 
     @paragraph(Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)), Some("govuk-body govuk-!-margin-bottom-6"))
 
@@ -58,9 +59,9 @@
         @dropdownDetails(
             summary = s"$key.details.title",
             html(
-                pageHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s", level = "h2"),
+                subHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s"),
                 paragraph(Html(messages(s"$key.details.p1")), Some("govuk-body")),
-                pageHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s", level = "h2"),
+                subHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s"),
                 paragraph(Html(messages(s"$key.details.p2")), Some("govuk-body"))
             )
         )
@@ -72,7 +73,6 @@
             name = key,
             legend = messages(s"$key.is-information-correct"),
             legendAsHeading = false,
-
             classes = "govuk-fieldset__legend--m govuk-!-margin-top-6",
             hintKey = None,
             inline = true,

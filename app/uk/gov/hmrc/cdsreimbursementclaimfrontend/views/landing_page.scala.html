@@ -23,7 +23,8 @@
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
@@ -36,12 +37,12 @@
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @pageHeading(Html(title))
+    @heading(Html(title))
 
     @paragraph(Html(messages(s"$key.help.p1")), Some("govuk-body"))
     @paragraph(Html(messages(s"$key.help.p2")), Some("govuk-body"))
 
-    @pageHeading(Html(messages(s"$key.who.heading")), classes = "govuk-heading-m govuk-!-margin-top-6", level = "h2")
+    @subHeading(Html(messages(s"$key.who.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
     @paragraph(Html(messages(s"$key.who.p1")), Some("govuk-body"))
     @paragraph(Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl)), Some("govuk-body"))
@@ -51,7 +52,7 @@
 
     @paragraph(Html(messages(s"$key.who.p4")), Some("govuk-body"))
 
-    @pageHeading(Html(messages(s"$key.why.heading")), classes = "govuk-heading-m govuk-!-margin-top-6", level = "h2")
+    @subHeading(Html(messages(s"$key.why.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
     @paragraph(Html(messages(s"$key.why.p1")), Some("govuk-body"))
 
@@ -71,7 +72,7 @@
         </a>
     </p>
 
-    @pageHeading(Html(messages(s"$key.before.heading")), classes = "govuk-heading-m govuk-!-margin-top-6", level = "h2")
+    @subHeading(Html(messages(s"$key.before.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
     @paragraph(Html(messages(s"$key.before.p1")), Some("govuk-body"))
 

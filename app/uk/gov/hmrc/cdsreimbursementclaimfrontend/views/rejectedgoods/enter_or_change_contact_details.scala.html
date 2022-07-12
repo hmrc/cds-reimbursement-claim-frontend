@@ -26,7 +26,8 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
@@ -43,9 +44,9 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(Html(title))
+    @heading(Html(title))
 
-    @pageHeading(Html(messages(s"$key.h2")), classes = "govuk-heading-m govuk-!-margin-top-7", level = "h2")
+    @subHeading(Html(messages(s"$key.h2")), classes = "govuk-heading-m govuk-!-margin-top-7")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

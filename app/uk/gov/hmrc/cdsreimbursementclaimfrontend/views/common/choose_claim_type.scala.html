@@ -31,7 +31,7 @@
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading
 )
 
 @(form: Form[ClaimForm])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -41,7 +41,7 @@
 
 @layout(pageTitle = Some(s"$title"), hasErrors = false) {
 
- @pageHeading(Html(title))
+ @heading(Html(title))
 
  @formWithCSRF(routes.ChooseClaimTypeController.submit(), 'novalidate -> "novalidate") {
 

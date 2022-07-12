@@ -21,7 +21,7 @@
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -34,7 +34,7 @@
 @title = @{messages(s"$key.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
-    @pageHeading(Html(title))
+    @heading(Html(title))
     @paragraph(Html(messages(s"$key.paragraph.1")), Some("govuk-body"))
     @paragraph(Html(messages(s"$key.paragraph.2")), Some("govuk-body"))
 

@@ -23,7 +23,7 @@
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     inputFile: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_file,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
@@ -54,7 +54,7 @@
             </span>
         </div>
 
-        @pageHeading(Html(sessionConfig.content.title))
+        @heading(Html(sessionConfig.content.title))
 
         @Html(sessionConfig.content.descriptionHtml)
 
