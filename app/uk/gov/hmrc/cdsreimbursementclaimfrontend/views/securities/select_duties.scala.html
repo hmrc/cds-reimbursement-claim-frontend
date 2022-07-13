@@ -30,7 +30,7 @@
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
@@ -59,7 +59,8 @@
         @errorSummary(form.errors)
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         <span class="govuk-caption-xl">Security ID: @securityId</span>
-        @pageHeading(Html(title))
+
+        @heading(Html(title))
             @checkboxes(
                 field = form(s"$key"),
                 legendAsHeading = false,
