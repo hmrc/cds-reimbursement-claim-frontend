@@ -586,19 +586,19 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
   object Checks {
 
     val hasMovementReferenceNumber: Validate[SecuritiesJourney] =
-      check(
+      checkIsTrue(
         journey => journey.answers.movementReferenceNumber.isDefined,
         MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER
       )
 
     val hasDisplayDeclaration: Validate[SecuritiesJourney] =
-      check(
+      checkIsTrue(
         journey => journey.answers.displayDeclaration.isDefined,
         MISSING_DISPLAY_DECLARATION
       )
 
     val hasReasonForSecurity: Validate[SecuritiesJourney] =
-      check(journey => journey.getReasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
+      checkIsTrue(journey => journey.getReasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
 
     val hasMRNAndDisplayDeclarationAndRfS: Validate[SecuritiesJourney] =
       hasMovementReferenceNumber &
@@ -606,16 +606,16 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         hasReasonForSecurity
 
     val canContinueTheClaimWithChoosenRfS: Validate[SecuritiesJourney] =
-      check(
+      checkIsTrue(
         journey => !journey.requiresExportDeclaration || journey.goodsHasBeenAlreadyExported,
         CHOOSEN_REASON_FOR_SECURITY_REQUIRES_GOODS_TO_BE_ALREADY_EXPORTED
       )
 
     val thereIsNoSimilarClaimInCDFPay: Validate[SecuritiesJourney] =
-      check[SecuritiesJourney](
+      checkIsTrue[SecuritiesJourney](
         _.answers.similarClaimExistAlreadyInCDFPay.isDefined,
         MISSING_CLAIM_DUPLICATE_CHECK_STATUS_WITH_TPI04
-      ) & check[SecuritiesJourney](
+      ) & checkIsTrue[SecuritiesJourney](
         _.answers.similarClaimExistAlreadyInCDFPay.contains(false),
         SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY
       )
@@ -677,8 +677,11 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         checkIsDefined[SecuritiesJourney](_.answers.contactAddress, MISSING_CONTACT_ADDRESS)
 
     val reclaimAmountsHasBeenDeclared: Validate[SecuritiesJourney] =
-      check[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
-        check[SecuritiesJourney](_.getTotalReclaimAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO)
+      checkIsTrue[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
+        checkIsTrue[SecuritiesJourney](
+          _.getTotalReclaimAmount > 0,
+          TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO
+        )
 
     val userCanProceedWithThisClaim: Validate[SecuritiesJourney] =
       hasMRNAndDisplayDeclarationAndRfS &
@@ -699,7 +702,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       reclaimAmountsHasBeenDeclared,
-      check(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
+      checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
     )
 
   object Answers {

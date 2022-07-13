@@ -653,19 +653,19 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   implicit val validator: Validate[RejectedGoodsMultipleJourney] =
     all(
-      check(_.answers.movementReferenceNumbers.exists(_.nonEmpty), MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
-      check(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER),
-      check(_.answers.displayDeclarations.exists(_.nonEmpty), MISSING_DISPLAY_DECLARATION),
+      checkIsTrue(_.answers.movementReferenceNumbers.exists(_.nonEmpty), MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
+      checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER),
+      checkIsTrue(_.answers.displayDeclarations.exists(_.nonEmpty), MISSING_DISPLAY_DECLARATION),
       checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM),
       checkIsDefined(_.answers.detailsOfRejectedGoods, MISSING_DETAILS_OF_REJECTED_GOODS),
       checkIsDefined(_.answers.inspectionDate, MISSING_INSPECTION_DATE),
       checkIsDefined(_.answers.inspectionAddress, MISSING_INSPECTION_ADDRESS),
       checkIsDefined(_.answers.methodOfDisposal, MISSING_METHOD_OF_DISPOSAL),
-      check(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
-      check(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
+      checkIsTrue(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
+      checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
       checkIsDefined(_.answers.contactDetails, MISSING_CONTACT_DETAILS),
       checkIsDefined(_.answers.contactAddress, MISSING_CONTACT_ADDRESS),
-      check(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
+      checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
       whenTrue(
         _.needsDeclarantAndConsigneeEoriSubmission,
         all(
