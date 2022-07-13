@@ -33,6 +33,8 @@ object Error {
   type IdKey   = String
   type IdValue = String
 
+  def apply(message: String): Error = new Error(message, None, Map.empty)
+
   def apply(message: String, identifiers: (IdKey, IdValue)*): Error = Error(message, None, identifiers.toMap)
 
   def apply(error: Throwable, identifiers: (IdKey, IdValue)*): Error =

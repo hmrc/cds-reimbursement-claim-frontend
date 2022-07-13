@@ -1,0 +1,75 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import cats.data.NonEmptyList
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary.DutyDescription
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+
+@this(
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+ checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
+)
+
+@(form : Form[DutiesSelectedAnswer], securityId: String, dutiesToDisplay : NonEmptyList[Duty], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+  @key = @{"select-duties"}
+  @title = @{messages(s"$key.title")}
+
+  @options = @{SelectDutiesSummary(dutiesToDisplay).zipWithIndex.map {
+    case (dutyDescription: DutyDescription, _: Int) =>
+
+        CheckboxItem(
+            name = Some(s"$key[]"),
+            value = dutyDescription.duty.taxCode.value,
+            content = Text(dutyDescription.toString),
+            checked = form.data.exists(_._2 == dutyDescription.duty.taxCode.value)
+        )
+    }}
+
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(title), hasErrors = hasErrors) {
+
+        @errorSummary(form.errors)
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        <span class="govuk-caption-xl">Security ID: @securityId</span>
+        @pageHeading(Html(title))
+            @checkboxes(
+                field = form(s"$key"),
+                legendAsHeading = false,
+                legend = HtmlContent(title),
+                items = options.toList,
+                hint = None
+            )
+
+            @submitButton("button.continue")
+
+        }
+
+    }

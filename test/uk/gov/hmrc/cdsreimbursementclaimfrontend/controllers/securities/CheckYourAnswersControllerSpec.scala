@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -55,7 +56,8 @@ class CheckYourAnswersControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryInspectionAddress
-    with SummaryMatchers {
+    with SummaryMatchers
+    with Logging {
 
   val mockConnector: SecuritiesClaimConnector                = mock[SecuritiesClaimConnector]
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
