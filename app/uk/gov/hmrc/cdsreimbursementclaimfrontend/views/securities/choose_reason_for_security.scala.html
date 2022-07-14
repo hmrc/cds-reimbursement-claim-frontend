@@ -32,7 +32,7 @@
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
 
-@(form: Form[ReasonForSecurity], reasonForSecurity: Seq[ReasonForSecurity], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ReasonForSecurity], reasonsForSecurity: Set[ReasonForSecurity], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-reason-for-security.securities"}
 @title = @{messages(s"$key.title")}
@@ -40,15 +40,18 @@
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @radioItems = @{
-    reasonForSecurity.map { rfs =>
+    reasonsForSecurity.map { rfs =>
         val rfsKey = ReasonForSecurity.keyOf(rfs)
-        RadioItem(
-            id = Some(s"$key.$rfsKey"),
-            value = Some(rfsKey),
-            content = Text(messages(s"$key.$rfsKey")),
-            checked = form(s"$key").value.exists(_.contains(rfsKey))
+        (
+            messages(s"$key.$rfsKey"), 
+            RadioItem(
+                id = Some(s"$key.$rfsKey"),
+                value = Some(rfsKey),
+                content = Text(messages(s"$key.$rfsKey")),
+                checked = form(s"$key").value.exists(_.contains(rfsKey))
+            )
         )
-    }
+    }.toSeq.sortBy(_._1).map(_._2)
 }
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {

@@ -41,19 +41,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -84,7 +81,10 @@ class ChooseReasonForSecurityControllerSpec
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   private val messagesKey: String = "choose-reason-for-security.securities"
-  val journey: SecuritiesJourney  = SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn)
+
+  val initialJourney: SecuritiesJourney = SecuritiesJourney
+    .empty(exampleEori)
+    .submitMovementReferenceNumber(exampleMrn)
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
@@ -137,7 +137,7 @@ class ChooseReasonForSecurityControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(initialJourney))
         }
 
         checkPageIsDisplayed(
@@ -159,10 +159,9 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "reject an empty reason selection" in {
-
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(initialJourney))
         }
 
         checkPageIsDisplayed(
@@ -173,90 +172,97 @@ class ChooseReasonForSecurityControllerSpec
         )
       }
 
-      val displayDeclaration        = sample[DisplayDeclaration]
-      val updatedDisplayDeclaration = displayDeclaration
-        .copy(displayResponseDetail =
-          displayDeclaration.displayResponseDetail
-            .copy(
-              consigneeDetails = displayDeclaration.displayResponseDetail.consigneeDetails
-                .map((cd: ConsigneeDetails) => cd.copy(consigneeEORI = journey.getClaimantEori.value)),
-              declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails
-                .copy(declarantEORI = journey.getClaimantEori.value),
-              declarationId = journey.getLeadMovementReferenceNumber.get.value,
-              securityReason = Some(ReasonForSecurity.AccountSales.acc14Code)
-            )
-        )
+      "retrieve the ACC14 declaration, make a TPI04 check and redirect to the select first security deposit page" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
 
-      "Retrieve declaration details from Acc14 and EORIs don't match" in {
-        val updatedDisplayDeclarationEorisUnmatched = displayDeclaration
-          .copy(displayResponseDetail =
-            displayDeclaration.displayResponseDetail
-              .copy(
-                declarationId = journey.getLeadMovementReferenceNumber.get.value,
-                securityReason = Some(ReasonForSecurity.AccountSales.acc14Code)
-              )
+          val updatedJourney = SessionData(
+            initialJourney
+              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .flatMap(_.submitClaimDuplicateCheckStatus(false))
+              .getOrFail
           )
 
-        val updatedJourney = SessionData(
-          journey
-            .submitReasonForSecurityAndDeclaration(
-              ReasonForSecurity.AccountSales,
-              updatedDisplayDeclarationEorisUnmatched
-            )
-            .right
-            .toOption
-            .get
-        )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockGetDisplayDeclaration(Right(Some(declaration)))
+            mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+            mockStoreSession(updatedJourney)(Right(()))
+          }
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
-          mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclarationEorisUnmatched)))
-          mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
-          mockStoreSession(updatedJourney)(Right(()))
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+            ),
+            routes.SelectSecuritiesController.show(declaration.getSecurityDepositIds.get.head)
+          )
         }
-
-        checkIsRedirect(
-          performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
-          routes.EnterImporterEoriNumberController.show()
-        )
       }
 
-      "HAPPY PATH - Retrieve declaration details from Acc14 and claim is not duplicate" in {
-        val updatedJourney = SessionData(
-          journey
-            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, updatedDisplayDeclaration)
-            .right
-            .toOption
-            .get
-        )
+      "retrieve the ACC14 declaration and redirect to the enter importer EORI page when user's EORI don't match those of ACC14" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val initialJourney =
+            SecuritiesJourney
+              .empty(exampleEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
-          mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
-          mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
-          mockStoreSession(updatedJourney)(Right(()))
+          val updatedJourney = SessionData(
+            initialJourney
+              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .getOrFail
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockGetDisplayDeclaration(Right(Some(declaration)))
+            mockStoreSession(updatedJourney)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+            ),
+            routes.EnterImporterEoriNumberController.show()
+          )
         }
 
-        checkIsRedirect(
-          performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
-          routes.SelectDutiesController.show("")
-        )
       }
 
-      "UNHAPPY PATH - Retrieve declaration details from Acc14 and claim is duplicate" in {
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
-          mockGetDisplayDeclaration(Right(Some(updatedDisplayDeclaration)))
-          mockGetIsDuplicateClaim(Right(ExistingClaim(true)))
+      "retrieve the ACC14 declaration and redirect to inelligible page when TPI04 says that the claim is duplicated" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+
+          val updatedJourney = SessionData(
+            initialJourney
+              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .flatMap(_.submitClaimDuplicateCheckStatus(true))
+              .getOrFail
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockGetDisplayDeclaration(Right(Some(declaration)))
+            mockGetIsDuplicateClaim(Right(ExistingClaim(true)))
+            mockStoreSession(updatedJourney)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+            ),
+            controllers.routes.IneligibleController.ineligible()
+          )
         }
 
-        checkIsRedirect(
-          performAction(Seq("choose-reason-for-security.securities" -> "AccountSales")),
-          controllers.routes.IneligibleController.ineligible()
-        )
       }
     }
 

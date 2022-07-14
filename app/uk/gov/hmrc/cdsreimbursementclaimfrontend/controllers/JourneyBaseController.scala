@@ -35,6 +35,7 @@ import play.api.libs.json.Format
 import play.api.libs.json.Json
 
 import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -335,5 +336,14 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
 
   final def prettyPrint(journey: Journey): String =
     Json.prettyPrint(Json.toJson(journey))
+
+  final def logAndDisplayError(
+    description: String,
+    errors: String*
+  )(implicit errorHandler: ErrorHandler, request: Request[_]): Result = {
+    import errorHandler._
+    logger.error(s"$description${if (errors.nonEmpty) errors.mkString(": ", ", ", "") else ""}")
+    errorResult()
+  }
 
 }
