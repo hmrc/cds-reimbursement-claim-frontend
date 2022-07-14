@@ -41,8 +41,8 @@ class SelectSecuritiesController @Inject() (
   selectSecuritiesPage: select_securities
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
-    with Logging
-    with SecuritiesJourneyRouter {
+    with SecuritiesJourneyRouter
+    with Logging {
 
   private val form: Form[YesNo] = selectSecuritiesForm
 

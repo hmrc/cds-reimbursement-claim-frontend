@@ -111,7 +111,14 @@ trait JourneyGenerators extends JourneyTestData {
   final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
     for {
-      (mrn, rfs, decl) <- mrnWithNonExportRfsWithDisplayDeclarationGen
+      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
+      reclaims         <- validSecurityReclaimsGen(decl)
+    } yield (mrn, rfs, decl, reclaims)
+
+  final lazy val mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen
+  : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    for {
+      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
     } yield (mrn, rfs, decl, reclaims)
 

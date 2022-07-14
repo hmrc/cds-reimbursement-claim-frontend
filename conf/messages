@@ -888,6 +888,16 @@ reimbursement-method.error.required=Select if you would like to be repaid via Cu
 #===================================================
 
 #===================================================
+#  CONFIRM FULL REPAYMENT PAGE
+#===================================================
+
+confirm-full-repayment.title=Do you want to reclaim the full amount for this security?
+confirm-full-repayment.help-text=Select Yes or No
+confirm-full-repayment.question=The total value of {0} is £{1}.
+confirm-full-repayment.error.required=Choose 'Yes' if you would like to claim back the full amount
+
+
+#===================================================
 #  SELECT DUTIES PAGE
 #===================================================
 select-duties.title=Select the duties you want to claim for
