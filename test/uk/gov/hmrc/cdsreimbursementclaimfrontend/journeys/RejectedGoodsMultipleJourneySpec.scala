@@ -105,7 +105,7 @@ class RejectedGoodsMultipleJourneySpec
 
     "check incompleteness if less than two MRNs" in {
       forAll(buildCompleteJourneyGen(minNumberOfMRNs = 1, maxNumberOfMRNs = 1)) { journey =>
-        RejectedGoodsMultipleJourney.validator(journey).headErrorString shouldBe Some(
+        RejectedGoodsMultipleJourney.validator(journey).headErrorOption shouldBe Some(
           MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER
         )
         journey.answers.checkYourAnswersChangeMode                      shouldBe false

@@ -519,11 +519,11 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       checkIsDefined(_.answers.inspectionDate, MISSING_INSPECTION_DATE),
       checkIsDefined(_.answers.inspectionAddress, MISSING_INSPECTION_ADDRESS),
       checkIsDefined(_.answers.methodOfDisposal, MISSING_METHOD_OF_DISPOSAL),
-      check(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
-      check(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
+      checkIsTrue(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
+      checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
       checkIsDefined(_.answers.contactDetails, MISSING_CONTACT_DETAILS),
       checkIsDefined(_.answers.contactAddress, MISSING_CONTACT_ADDRESS),
-      check(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
+      checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
       whenTrue(
         _.needsDeclarantAndConsigneeEoriSubmission,
         all(
