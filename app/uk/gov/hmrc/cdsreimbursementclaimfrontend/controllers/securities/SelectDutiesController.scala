@@ -17,15 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data._
-import cats.implicits._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
 import play.api.mvc.Result
 import shapeless.syntax.std.tuple.productTupleOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -36,9 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtracto
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error => CdsError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error => CdsError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities
 
