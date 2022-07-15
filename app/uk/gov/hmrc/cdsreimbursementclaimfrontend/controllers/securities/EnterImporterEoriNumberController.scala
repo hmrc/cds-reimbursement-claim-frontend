@@ -30,6 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import com.github.arturopala.validator.Validator.Validate
 
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
@@ -41,50 +43,60 @@ class EnterImporterEoriNumberController @Inject() (
   val eoriNumberFormKey: String = "enter-importer-eori-number"
   val postAction: Call          = routes.EnterImporterEoriNumberController.submit()
 
+  import SecuritiesJourney.Checks._
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(hasMRNAndDisplayDeclarationAndRfS & canContinueTheClaimWithChoosenRfS)
+
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Future.successful {
-      Ok(
-        enterImporterEoriNumberPage(
-          eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.consigneeEoriNumber),
-          postAction
-        )
-      )
-    }
+    (if (!journey.needsDeclarantAndConsigneeEoriSubmission)
+       Redirect(routes.SelectSecuritiesController.showFirst())
+     else
+       Ok(
+         enterImporterEoriNumberPage(
+           eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.consigneeEoriNumber),
+           postAction
+         )
+       )).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    eoriNumberForm(eoriNumberFormKey)
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          Future.successful(
-            (
-              journey,
-              BadRequest(
-                enterImporterEoriNumberPage(
-                  formWithErrors.fill(Eori("")),
-                  postAction
+    if (!journey.needsDeclarantAndConsigneeEoriSubmission)
+      (journey, Redirect(routes.SelectSecuritiesController.showFirst())).asFuture
+    else
+      eoriNumberForm(eoriNumberFormKey)
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              (
+                journey,
+                BadRequest(
+                  enterImporterEoriNumberPage(
+                    formWithErrors.fill(Eori("")),
+                    postAction
+                  )
                 )
               )
+            ),
+          eori =>
+            Future.successful(
+              journey
+                .submitConsigneeEoriNumber(eori)
+                .fold(
+                  errors => {
+                    logger.error(s"Unable to record $eori - $errors")
+                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  },
+                  updatedJourney =>
+                    (
+                      updatedJourney,
+                      Redirect(routes.EnterDeclarantEoriNumberController.show())
+                    )
+                )
             )
-          ),
-        eori =>
-          Future.successful(
-            journey
-              .submitConsigneeEoriNumber(eori)
-              .fold(
-                errors => {
-                  logger.error(s"Unable to record $eori - $errors")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                },
-                updatedJourney =>
-                  (
-                    updatedJourney,
-                    Redirect(routes.EnterDeclarantEoriNumberController.show())
-                  )
-              )
-          )
-      )
+        )
   }
 
 }
