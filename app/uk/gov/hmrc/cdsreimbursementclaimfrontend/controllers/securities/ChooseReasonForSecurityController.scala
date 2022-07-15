@@ -51,11 +51,31 @@ class ChooseReasonForSecurityController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
 
-  val postAction: Call = routes.ChooseReasonForSecurityController.submit()
+  private val postAction: Call = routes.ChooseReasonForSecurityController.submit()
 
-  val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
+  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  private def successResultSelectSecurities(depositId: String): Result =
+    Redirect(routes.SelectSecuritiesController.show(depositId))
 
-  val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
+  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  private val successResultEnterImporterEori: Result =
+    Redirect(routes.EnterImporterEoriNumberController.show())
+
+  //Error: Claim has already been submitted as part of a whole or partial claim
+  private val errorResultClaimExistsAlready: Result =
+    Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
+
+  //Error: Security chosen does not exist against the Movement Reference Number (MRN) provided
+  private val errorResultDeclarationNotFoundForRfS: Result =
+    Redirect(routes.ChooseReasonForSecurityController.show()) // TODO: fix in CDSR-1773
+
+  //Error: Movement Reference Number (MRN) provided does not exist
+  private val errorResultDeclarationNotFoundForMrn: Result =
+    errorResultDeclarationNotFoundForRfS // TODO: fix in CDSR-1773
+
+  private val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
+
+  private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val reasonForSecurityForm: Form[ReasonForSecurity] =
@@ -115,7 +135,7 @@ class ChooseReasonForSecurityController @Inject() (
       .flatMap {
         case None              =>
           EitherT.leftT[Future, DisplayDeclaration](
-            Redirect(routes.ChooseReasonForSecurityController.show())
+            errorResultDeclarationNotFoundForRfS
           )
         case Some(declaration) =>
           EitherT.rightT[Future, Result](declaration)
@@ -143,7 +163,7 @@ class ChooseReasonForSecurityController @Inject() (
     EitherT.rightT[Future, Result](
       (
         journey,
-        Redirect(routes.EnterImporterEoriNumberController.show())
+        successResultEnterImporterEori
       )
     )
 
@@ -176,12 +196,10 @@ class ChooseReasonForSecurityController @Inject() (
         .map(journeyWithUpdatedStatus =>
           (
             journeyWithUpdatedStatus,
-            Redirect(
-              if (similarClaimExistAlreadyInCDFPay)
-                controllers.routes.IneligibleController.ineligible()
-              else
-                routes.SelectSecuritiesController.show(firstSecurityDepositId)
-            )
+            if (similarClaimExistAlreadyInCDFPay)
+              errorResultClaimExistsAlready
+            else
+              successResultSelectSecurities(firstSecurityDepositId)
           )
         )
         .merge
