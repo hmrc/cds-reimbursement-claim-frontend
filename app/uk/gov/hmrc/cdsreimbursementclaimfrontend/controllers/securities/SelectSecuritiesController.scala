@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.select_securities
+import com.github.arturopala.validator.Validator.Validate
 
 import scala.concurrent.ExecutionContext
 
@@ -44,6 +45,24 @@ class SelectSecuritiesController @Inject() (
     with SecuritiesJourneyRouter {
 
   private val form: Form[YesNo] = selectSecuritiesForm
+
+  import SecuritiesJourney.Checks._
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
+
+  val showFirst: Action[AnyContent] = simpleActionReadJourney { journey =>
+    Redirect(
+      journey.getSecurityDepositIds.headOption.fold(routes.ChooseReasonForSecurityController.show())(firstDepositId =>
+        routes.SelectSecuritiesController.show(firstDepositId)
+      )
+    )
+  }
 
   def show(securityDepositId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)

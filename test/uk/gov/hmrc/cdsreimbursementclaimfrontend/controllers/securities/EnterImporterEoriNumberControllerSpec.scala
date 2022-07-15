@@ -76,8 +76,20 @@ class EnterImporterEoriNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
 
-  val session = SessionData.empty.copy(
-    securitiesJourney = Some(SecuritiesJourney.empty(exampleEori))
+  val declaration: DisplayDeclaration =
+    buildSecuritiesDisplayDeclaration(
+      exampleMrnAsString,
+      ReasonForSecurity.AccountSales.acc14Code,
+      declarantEORI = anotherExampleEori
+    )
+
+  lazy val initialSession = SessionData(
+    SecuritiesJourney
+      .empty(exampleEori)
+      .submitMovementReferenceNumber(exampleMrn)
+      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+      .flatMap(_.submitClaimDuplicateCheckStatus(false))
+      .getOrFail
   )
 
   "Importer Eori Number Controller" when {
@@ -95,7 +107,7 @@ class EnterImporterEoriNumberControllerSpec
       "display the page on a new journey" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkPageIsDisplayed(
@@ -120,7 +132,7 @@ class EnterImporterEoriNumberControllerSpec
           fail("Unable to generate complete journey")
         )
         val eori           = journey.answers.consigneeEoriNumber.getOrElse(fail("No consignee eori found"))
-        val sessionToAmend = session.copy(securitiesJourney = Some(journey))
+        val sessionToAmend = initialSession.copy(securitiesJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -154,7 +166,7 @@ class EnterImporterEoriNumberControllerSpec
       "reject an empty Eori" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkPageIsDisplayed(
@@ -170,7 +182,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkPageIsDisplayed(
@@ -192,7 +204,7 @@ class EnterImporterEoriNumberControllerSpec
           initialDisplayDeclaration: DisplayDeclaration,
           initialConsigneeDetails: ConsigneeDetails
         ) =>
-          val initialJourney                = session.securitiesJourney.getOrElse(fail("No rejected goods journey"))
+          val initialJourney                = initialSession.securitiesJourney.getOrElse(fail("No rejected goods journey"))
           val displayDeclaration            =
             initialDisplayDeclaration.withDeclarationId(mrn.value).withReasonForSecurity(reasonForSecurity)
           val consigneeDetails              = initialConsigneeDetails.copy(consigneeEORI = eori.value)
@@ -205,9 +217,9 @@ class EnterImporterEoriNumberControllerSpec
               .submitReasonForSecurityAndDeclaration(reasonForSecurity, updatedDisplayDeclaration)
               .getOrFail
 
-          val requiredSession = session.copy(securitiesJourney = Some(journey))
+          val requiredSession = initialSession.copy(securitiesJourney = Some(journey))
           val updatedJourney  = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
-          val updatedSession  = session.copy(securitiesJourney = Some(updatedJourney))
+          val updatedSession  = initialSession.copy(securitiesJourney = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -229,7 +241,7 @@ class EnterImporterEoriNumberControllerSpec
       ) { (reasonForSecurity, mrn, enteredConsigneeEori, wantedConsignee) =>
         whenever(enteredConsigneeEori =!= wantedConsignee) {
 
-          val initialJourney     = session.securitiesJourney.getOrElse(fail("No securities journey"))
+          val initialJourney     = initialSession.securitiesJourney.getOrElse(fail("No securities journey"))
           val displayDeclaration =
             sample[DisplayDeclaration].withDeclarationId(mrn.value).withReasonForSecurity(reasonForSecurity)
 
@@ -242,7 +254,7 @@ class EnterImporterEoriNumberControllerSpec
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(reasonForSecurity, updatedDisplayDeclaration)
             .getOrFail
-          val requiredSession               = session.copy(securitiesJourney = Some(journey))
+          val requiredSession               = initialSession.copy(securitiesJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()

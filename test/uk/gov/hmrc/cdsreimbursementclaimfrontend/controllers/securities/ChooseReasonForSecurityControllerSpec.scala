@@ -198,7 +198,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
             ),
-            routes.SelectSecuritiesController.show(declaration.getSecurityDepositIds.get.head)
+            routes.SelectSecuritiesController.showFirst()
           )
         }
       }

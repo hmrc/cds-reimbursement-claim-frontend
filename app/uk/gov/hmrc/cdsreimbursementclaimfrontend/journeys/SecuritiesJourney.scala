@@ -198,7 +198,9 @@ final class SecuritiesJourney private (
               movementReferenceNumber = answers.movementReferenceNumber,
               nonce = answers.nonce,
               reasonForSecurity = Some(reasonForSecurity),
-              displayDeclaration = Some(displayDeclaration)
+              displayDeclaration = Some(displayDeclaration),
+              consigneeEoriNumber = answers.consigneeEoriNumber,
+              declarantEoriNumber = answers.declarantEoriNumber
             )
           )
         )
