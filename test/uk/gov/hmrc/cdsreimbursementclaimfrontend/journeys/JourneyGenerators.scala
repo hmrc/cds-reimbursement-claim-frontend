@@ -170,12 +170,14 @@ trait JourneyGenerators extends JourneyTestData {
           numberOfSecurities,
           Gen.zip(listOfExactlyN(6, Gen.alphaNumChar).map(l => String.valueOf(l.toArray)), taxCodesWithAmountsGen)
         )
+      declarantContact   <- Acc14Gen.genContactDetails
     } yield buildSecuritiesDisplayDeclaration(
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       reclaimsDetails = reclaimsDetails,
-      allDutiesGuaranteeEligible = allDutiesGuaranteeEligible
+      allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
+      declarantContact = Some(declarantContact)
     )
 
   final def validSecurityReclaimsGen(

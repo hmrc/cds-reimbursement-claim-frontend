@@ -32,6 +32,7 @@ GET          /securities/claimant-details/problem-with-address         @uk.gov.h
 GET          /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterContactDetailsController.show()
 POST         /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterContactDetailsController.submit()
 
+GET          /securities/confirm-full-repayment                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.showFirst
 GET          /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.show(id: String)
 POST         /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.submit(id: String)
 
