@@ -73,9 +73,8 @@ class EnterMovementReferenceNumberControllerSpec
     ()
   }
 
-  val session: SessionData = SessionData.empty.copy(
-    securitiesJourney = Some(SecuritiesJourney.empty(exampleEori))
-  )
+  val journey              = SecuritiesJourney.empty(exampleEori)
+  val session: SessionData = SessionData(journey)
 
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
@@ -136,6 +135,54 @@ class EnterMovementReferenceNumberControllerSpec
         featureSwitch.disable(Feature.Securities)
 
         status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "save an MRN if valid and continue to the choose reason for security page" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(
+            SessionData(journey.submitMovementReferenceNumber(exampleMrn))
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
+          routes.ChooseReasonForSecurityController.show()
+        )
+      }
+
+      "continue to the check choose reason for security page when MRN didn't change and NOT in a change mode" in {
+        val initialJourney =
+          journey
+            .submitMovementReferenceNumber(exampleMrn)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
+          routes.ChooseReasonForSecurityController.show()
+        )
+      }
+
+      "continue to the check declaration details page when MRN didn't change and in a change mode" in {
+        val initialJourney =
+          journey
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitCheckDeclarationDetailsChangeMode(true)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
+          routes.CheckDeclarationDetailsController.show()
+        )
       }
 
       "reject an invalid MRN" in {

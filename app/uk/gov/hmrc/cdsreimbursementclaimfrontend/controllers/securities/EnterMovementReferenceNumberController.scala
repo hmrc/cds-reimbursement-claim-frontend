@@ -66,7 +66,15 @@ class EnterMovementReferenceNumberController @Inject() (
         mrn =>
           (
             journey.submitMovementReferenceNumber(mrn),
-            Redirect(routes.ChooseReasonForSecurityController.show())
+            Redirect(
+              if (
+                journey.getLeadMovementReferenceNumber.contains(mrn) &&
+                journey.answers.checkDeclarationDetailsChangeMode
+              )
+                routes.CheckDeclarationDetailsController.show()
+              else
+                routes.ChooseReasonForSecurityController.show()
+            )
           ).asFuture
       )
   }

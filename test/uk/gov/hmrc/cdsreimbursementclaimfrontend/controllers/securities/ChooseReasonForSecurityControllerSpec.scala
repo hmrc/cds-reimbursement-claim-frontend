@@ -203,6 +203,53 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
+      "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .getOrFail
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+            ),
+            routes.SelectSecuritiesController.showFirst()
+          )
+        }
+      }
+
+      "redirect to the check declaration details page when reason for security didn't change and in a change mode" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .map(_.submitCheckDeclarationDetailsChangeMode(true))
+              .getOrFail
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+            ),
+            routes.CheckDeclarationDetailsController.show()
+          )
+        }
+      }
+
       "retrieve the ACC14 declaration and redirect to the enter importer EORI page when user's EORI don't match those of ACC14" in {
         forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
           val initialJourney =
