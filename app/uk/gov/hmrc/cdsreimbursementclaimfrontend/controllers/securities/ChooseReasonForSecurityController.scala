@@ -99,30 +99,39 @@ class ChooseReasonForSecurityController @Inject() (
             BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity, postAction))
           ).asFuture,
         reasonForSecurity =>
-          (for {
-            mrn                          <- getMovementReferenceNumber(journey)
-            declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
-            _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
-            journeyWithRfsAndDeclaration <-
-              submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, declaration)
-            updatedJourneyWithRedirect   <-
-              if (
-                SecuritiesJourney.Checks
-                  .declarantOrImporterEoriMatchesUserOrHasBeenVerified(journeyWithRfsAndDeclaration)
-                  .isInvalid
-              )
-                redirectToEnterImporterEoriNumber(journeyWithRfsAndDeclaration)
+          if (journey.getReasonForSecurity.contains(reasonForSecurity))
+            (
+              journey,
+              if (journey.answers.checkDeclarationDetailsChangeMode)
+                Redirect(routes.CheckDeclarationDetailsController.show)
               else
-                for {
-                  similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, reasonForSecurity)
-                  updatedJourneyWithRedirect       <- submitClaimDuplicateCheckStatus(
-                                                        journeyWithRfsAndDeclaration,
-                                                        similarClaimExistAlreadyInCDFPay
-                                                      )
-                } yield updatedJourneyWithRedirect
-          } yield updatedJourneyWithRedirect)
-            .bimap(result => (journey, result), identity)
-            .merge
+                successResultSelectSecurities
+            ).asFuture
+          else
+            (for {
+              mrn                          <- getMovementReferenceNumber(journey)
+              declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
+              _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
+              journeyWithRfsAndDeclaration <-
+                submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, declaration)
+              updatedJourneyWithRedirect   <-
+                if (
+                  SecuritiesJourney.Checks
+                    .declarantOrImporterEoriMatchesUserOrHasBeenVerified(journeyWithRfsAndDeclaration)
+                    .isInvalid
+                )
+                  redirectToEnterImporterEoriNumber(journeyWithRfsAndDeclaration)
+                else
+                  for {
+                    similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, reasonForSecurity)
+                    updatedJourneyWithRedirect       <- submitClaimDuplicateCheckStatus(
+                                                          journeyWithRfsAndDeclaration,
+                                                          similarClaimExistAlreadyInCDFPay
+                                                        )
+                  } yield updatedJourneyWithRedirect
+            } yield updatedJourneyWithRedirect)
+              .bimap(result => (journey, result), identity)
+              .merge
       )
   }
 
