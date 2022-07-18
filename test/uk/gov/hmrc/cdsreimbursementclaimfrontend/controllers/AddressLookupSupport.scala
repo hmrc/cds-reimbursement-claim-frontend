@@ -32,7 +32,7 @@ import scala.concurrent.Future
 
 trait AddressLookupSupport { this: MockFactory =>
 
-  val addressLookupServiceMock: AddressLookupService = mock[AddressLookupService]
+  lazy val addressLookupServiceMock: AddressLookupService = mock[AddressLookupService]
 
   def mockAddressLookup(
     eitherErrorOrUrl: Either[Error, URL]
