@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalacheck.Prop
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.{BeforeAndAfterEach, GivenWhenThen, OptionValues}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.GivenWhenThen
+import org.scalatest.OptionValues
 import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -31,6 +34,8 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
+import uk.gov.hmrc.auth.core.retrieve.EmptyRetrieval
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithMoreChoicesThanThoseSelected
@@ -40,14 +45,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.{emptyJourney, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.emptyJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, ReasonForSecurity, SessionData, SummaryInspectionAddress, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
@@ -93,17 +104,18 @@ class ConfirmFullRepaymentControllerSpec
     journey: SecuritiesJourney,
     isError: Boolean = false
   ) = {
-    val title = doc.select("title").eachText().asScala.toList
-    val caption                       = doc.select("span.govuk-caption-xl").eachText().asScala.toList
-    val heading                   = doc.select(".govuk-heading-xl").eachText().asScala.toList
-    title should ===(
+    val title   = doc.select("title").eachText().asScala.toList
+    val caption = doc.select("span.govuk-caption-xl").eachText().asScala.toList
+    val heading = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    title           should ===(
       List(
         (if (isError) "ERROR: "
-        else "") + "Do you want to reclaim the full amount for this security? - Claim back import duty and VAT - GOV.UK"
+         else
+           "") + "Do you want to reclaim the full amount for this security? - Claim back import duty and VAT - GOV.UK"
       )
     )
     caption         should ===(List(s"Security ID: $securityId"))
-    heading     should ===(List("Do you want to reclaim the full amount for this security?"))
+    heading         should ===(List("Do you want to reclaim the full amount for this security?"))
     radioItems(doc) should contain theSameElementsAs Seq(
       ("Yes", "true"),
       ("No", "false")
@@ -124,7 +136,7 @@ class ConfirmFullRepaymentControllerSpec
       "AC1: Arrive on page; display the page on a complete journey" in
         forAll(completeJourneyGen) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          val securityId = securityIdWithTaxCodes(journey).value
+          val securityId     = securityIdWithTaxCodes(journey).value
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(updatedSession)
@@ -168,11 +180,14 @@ class ConfirmFullRepaymentControllerSpec
       //todo there is no CED CDSR-1776
       "AC2 move on to /choose-file-type page when yes is selected and continue is clicked (if RfS = CEP, CED, OPR, RED or MOD)" in {
         forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-          whenever(Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit).contains(rfs)) {
-            val depositIds: Seq[String] = reclaims.map(_._1).distinct
+          whenever(
+            Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
+              .contains(rfs)
+          ) {
+            val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
             val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
               reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
-            val journey: SecuritiesJourney =
+            val journey: SecuritiesJourney                                             =
               emptyJourney
                 .submitMovementReferenceNumber(mrn)
                 .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -188,8 +203,8 @@ class ConfirmFullRepaymentControllerSpec
                         .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
                 )
                 .getOrFail
-            val securityId = journey.getSecurityDepositIds.head
-            val sessionData = SessionData(journey)
+            val securityId                                                             = journey.getSecurityDepositIds.head
+            val sessionData                                                            = SessionData(journey)
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(sessionData)
@@ -206,22 +221,24 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC3 move on to /upload-file page when yes is selected and continue is clicked (if RFS = MDP, MDL, ACS, IPR, ENU, TA or MDC)" in {
         forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-          whenever(Set[ReasonForSecurity](
-            MissingPreferenceCertificate,
-            MissingLicenseQuota,
-            AccountSales,
-            InwardProcessingRelief,
-            EndUseRelief,
-            TemporaryAdmission2Y,
-            TemporaryAdmission6M,
-            TemporaryAdmission3M,
-            TemporaryAdmission2M,
-            CommunitySystemsOfDutyRelief
-          ).contains(rfs)) {
-            val depositIds: Seq[String] = reclaims.map(_._1).distinct
+          whenever(
+            Set[ReasonForSecurity](
+              MissingPreferenceCertificate,
+              MissingLicenseQuota,
+              AccountSales,
+              InwardProcessingRelief,
+              EndUseRelief,
+              TemporaryAdmission2Y,
+              TemporaryAdmission6M,
+              TemporaryAdmission3M,
+              TemporaryAdmission2M,
+              CommunitySystemsOfDutyRelief
+            ).contains(rfs)
+          ) {
+            val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
             val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
               reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
-            val journey: SecuritiesJourney =
+            val journey: SecuritiesJourney                                             =
               emptyJourney
                 .submitMovementReferenceNumber(mrn)
                 .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -237,8 +254,8 @@ class ConfirmFullRepaymentControllerSpec
                         .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
                 )
                 .getOrFail
-            val securityId = journey.getSecurityDepositIds.head
-            val sessionData = SessionData(journey)
+            val securityId                                                             = journey.getSecurityDepositIds.head
+            val sessionData                                                            = SessionData(journey)
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(sessionData)
@@ -255,10 +272,11 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC4 move on to  /select-duties/:securityID page when no is selected and continue is clicked" in {
         forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-          val depositIds: Seq[String] = reclaims.map(_._1).distinct
+          val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
           val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
             reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
-          val journey: SecuritiesJourney =
+
+          val journey: SecuritiesJourney                                             =
             emptyJourney
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -274,16 +292,16 @@ class ConfirmFullRepaymentControllerSpec
                       .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
               )
               .getOrFail
-          val securityId = journey.getSecurityDepositIds.head
-          val sessionData = SessionData(journey)
+          val securityId                                                             = journey.getSecurityDepositIds.head
+          val sessionData                                                            = SessionData(journey)
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionData)
-            mockStoreSession(Right(()))
+//            mockStoreSession(Right(()))
           }
 
           checkIsRedirect(
-            performAction(securityId, Seq(confirmFullRepaymentKey -> "true")),
+            performAction(securityId, Seq(confirmFullRepaymentKey -> "false")),
             routes.SelectDutiesController.show(securityId)
           )
         }
@@ -292,71 +310,65 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC5 clicking continue with no option selected should display error" in {
         mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen.sample.map { case (mrn, rfs, declaration) =>
-          val initialJourney: SecuritiesJourney = emptyJourney
-            .submitMovementReferenceNumber(mrn)
-            .submitReasonForSecurityAndDeclaration(rfs, declaration)
-            .flatMap(_.submitClaimDuplicateCheckStatus(false))
-            .getOrFail
-          val eori = initialJourney.getDeclarantEoriFromACC14.value
-          val updatedJourney = initialJourney
-            .submitDeclarantEoriNumber(eori)
-            .flatMap(_.submitConsigneeEoriNumber(eori))
-            .toOption.value
+          forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+            val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
+            val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+              reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
 
-          val securityId = updatedJourney.getSecurityDepositIds.head
+            val journey: SecuritiesJourney                                             =
+              emptyJourney
+                .submitMovementReferenceNumber(mrn)
+                .submitReasonForSecurityAndDeclaration(rfs, decl)
+                .flatMap(a => a.submitDeclarantEoriNumber(decl.getDeclarantEori))
+                .flatMap(a => a.submitConsigneeEoriNumber(decl.getConsigneeEori.value))
+                .flatMap(_.submitClaimDuplicateCheckStatus(false))
+                .flatMap(_.selectSecurityDepositIds(depositIds))
+                .flatMapEach(
+                  reclaimsBySecurityDepositId,
+                  (journey: SecuritiesJourney) =>
+                    (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                      journey
+                        .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                )
+                .getOrFail
+            val securityId                                                             = journey.getSecurityDepositIds.head
+            val sessionData                                                            = SessionData(journey)
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(sessionData)
+            }
 
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            //            val doc = Jsoup.parse(contentAsString(performAction(securityId, Seq(confirmFullRepaymentKey -> ""))))
+            checkPageIsDisplayed(
+              performAction(securityId, Seq()),
+              "Do you want to reclaim the full amount for this security?",
+              doc => validateConfirmFullRepaymentPage(securityId, doc, journey, true),
+              400
+            )
           }
-          checkPageIsDisplayed(
-            performAction(securityId, Seq.empty),
-            messageFromMessageKey(s"$confirmFullRepaymentKey.title"),
-            doc => validateConfirmFullRepaymentPage(securityId, doc, updatedJourney, true),
-            expectedStatus = BAD_REQUEST
-          )
         }
       }
 
-      /*"redisplay the page with an error when no checkboxes are selected" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.answers.securitiesReclaims.nonEmpty) {
-          securityIdWithTaxCodes(journey).fold(
-            throw new Throwable(s"unexpectedly found securities reclaims already populated")
-          ) { securityId =>
+      "AC6 From CYA page, change answer from 'Yes' to 'No'" in {
+        forAll(completeJourneyGen) { journey =>
+          whenever(journey.answers.reclaimingFullAmount == Some(true)) {
+            logger.warn(s"set = ${journey.answers.reclaimingFullAmount}")
             val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+            val securityId = securityIdWithTaxCodes(journey).value
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(updatedSession)
             }
-            checkPageIsDisplayed(
-              performAction(securityId, Seq.empty),
-              messageFromMessageKey(s"$messagesKey.title"),
-              doc => validateConfirmFullRepaymentPage(securityId, doc, journey, true)
+
+            checkIsRedirect(
+              performAction(securityId, Seq(confirmFullRepaymentKey -> "false")),
+              routes.SelectDutiesController.show(securityId)
             )
           }
         }
-      }*/
-
-      "AC6 clicking continue with no option selected should display error" in { // todo CDSR-1776 should this be allowed with radio buttons
-        assert(false)
-        /*
-        AC6: From CYA page, change answer from 'Yes' to 'No'
-
-          Given I am on the /confirm-full-repayment/:securityID page
-
-          And I arrived here from the /check-your-answers page
-
-          And I change my answer from 'Yes' to 'No'
-
-          When I click 'Continue'
-
-          Then I should be taken to the /select-duties/:SecurityID page (CDSR-1799)
-
-          And then I should be taken to the /enter-claim/:SecurityID/:taxcode page(s) (CDSR-1777)
-         */
       }
 
-      "AC7 clicking continue with no option selected should display error" in { // todo CDSR-1776 should this be allowed with radio buttons
+      "AC7 clicking continue with no option selected should display error" in {
         assert(false)
         /*
         AC7: When changing answer from 'Yes' to 'No' pre-populate checkboxes and input boxes in /select-duties & /enter-claim pages
@@ -375,7 +387,7 @@ class ConfirmFullRepaymentControllerSpec
          */
       }
 
-      "AC8 clicking continue with no option selected should display error" in { // todo CDSR-1776 should this be allowed with radio buttons
+      "AC8 clicking continue with no option selected should display error" in {
         assert(false)
         /*
         AC8: User selects 'No', but then claims back for the full amount for all taxcodes:
@@ -398,7 +410,7 @@ class ConfirmFullRepaymentControllerSpec
          */
       }
 
-      "AC9 clicking continue with no option selected should display error" in { // todo CDSR-1776 should this be allowed with radio buttons
+      "AC9 clicking continue with no option selected should display error" in {
         assert(false)
         /*
         AC9: Change 'Claim full amount' from No to Yes
@@ -427,6 +439,4 @@ class ConfirmFullRepaymentControllerSpec
     }
   }
 }
-object FooData {
-
-}
+object FooData {}

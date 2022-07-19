@@ -20,19 +20,26 @@ import cats.implicits._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, Call, Request, Result}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
+import play.api.mvc.Request
+import play.api.mvc.Result
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class ConfirmFullRepaymentController @Inject() (
@@ -47,69 +54,83 @@ class ConfirmFullRepaymentController @Inject() (
 
   // todo import SecuritiesJourney.Checks._
 
+  // GET          /securities/confirm-full-repayment
+  // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.showFirst()
+  // @(form: Form[YesNo], securityId: String, totalValue: BigDecimal, postAction: Call)
+  //    (implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+  def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    val id = journey.getSecuritiesReclaims.head._1
+    showForId(request, journey, id)
+  }
+
   // GET          /securities/confirm-full-repayment/:id
   // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.show(id: String)
   // @(form: Form[YesNo], securityId: String, totalValue: BigDecimal, postAction: Call)
   //    (implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
-  def show(id: String): Action[AnyContent] = actionReadJourney { implicit request =>
-    journey =>
-      journey
-        .getDisplayDeclarationIfValidSecurityDepositId(id)
-        .fold(errorHandler.errorResult()) { declaration =>
-          Ok(
-            confirmFullRepaymentPage(
-              form.withDefault(
-                journey.answers.reclaimingFullAmount
-                  .fold(Option.empty[YesNo])(_ => Some(YesNo.Yes))
-              ),
-              id,
-              journey.getTotalReclaimAmount,
-              routes.ConfirmFullRepaymentController.submit(id)
-            )
-          )
-        }
-        .asFuture
+  def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    showForId(request, journey, id)
   }
+
+  private def showForId(implicit request: Request[_], journey: SecuritiesJourney, id: String) =
+    journey
+      .getDisplayDeclarationIfValidSecurityDepositId(id)
+      .fold(errorHandler.errorResult()) { _ =>
+        Ok(
+          confirmFullRepaymentPage(
+            form.withDefault(
+              journey.answers.reclaimingFullAmount
+                .fold(Option.empty[YesNo])(_ => Some(YesNo.Yes))
+            ),
+            id,
+            journey.getTotalReclaimAmount,
+            routes.ConfirmFullRepaymentController.submit(id)
+          )
+        )
+      }
+      .asFuture
 
   // POST         /securities/confirm-full-repayment/:id
   // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.submit(id: String)
-  def submit(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request =>
-    journey =>
-      form.bindFromRequest
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              journey
-                .getDisplayDeclarationIfValidSecurityDepositId(id)
-                .map(declaration =>
-                  BadRequest(
-                    confirmFullRepaymentPage(
-                      formWithErrors, id, journey.getTotalReclaimAmount, routes.ConfirmFullRepaymentController.submit(id)
-                    )
+  def submit(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    form.bindFromRequest
+      .fold(
+        formWithErrors =>
+          (
+            journey,
+            journey
+              .getDisplayDeclarationIfValidSecurityDepositId(id)
+              .map(declaration =>
+                BadRequest(
+                  confirmFullRepaymentPage(
+                    formWithErrors,
+                    id,
+                    journey.getTotalReclaimAmount,
+                    routes.ConfirmFullRepaymentController.submit(id)
                   )
                 )
-                .getOrElse(errorHandler.errorResult())
-              ).asFuture,
-          {
-            case Yes =>
-              submitYes(id, journey)
-            case No =>
-              (journey, Redirect(routes.ConfirmFullRepaymentController.submit(id))).asFuture
-          }
-        )
+              )
+              .getOrElse(errorHandler.errorResult())
+          ).asFuture,
+        {
+          case Yes =>
+            submitYes(id, journey)
+          case No  =>
+            (journey, Redirect(routes.SelectDutiesController.submit(id))).asFuture
+        }
+      )
   }
 
-  def submitYes(securityId: String, journey: SecuritiesJourney)
-               (implicit request: Request[_]): Future[(SecuritiesJourney, Result)] = {
-
-    journey.submitFullAmountsForReclaim(securityId)
-      .fold({ error =>
-        logger.warn(error)
-        (journey, errorHandler.errorResult())
-      },
-        updatedJourney =>
-          (updatedJourney, Redirect(routes.ChooseFileTypeController.submit()))
-      ).asFuture
-  }
+  def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
+    request: Request[_]
+  ): Future[(SecuritiesJourney, Result)] =
+    journey
+      .submitFullAmountsForReclaim(securityId)
+      .fold(
+        { error =>
+          logger.warn(error)
+          (journey, errorHandler.errorResult())
+        },
+        updatedJourney => (updatedJourney, Redirect(routes.ChooseFileTypeController.submit()))
+      )
+      .asFuture
 }

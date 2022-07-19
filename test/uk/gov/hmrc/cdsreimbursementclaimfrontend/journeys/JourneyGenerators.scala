@@ -116,7 +116,7 @@ trait JourneyGenerators extends JourneyTestData {
     } yield (mrn, rfs, decl, reclaims)
 
   final lazy val mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen
-  : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
     for {
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
