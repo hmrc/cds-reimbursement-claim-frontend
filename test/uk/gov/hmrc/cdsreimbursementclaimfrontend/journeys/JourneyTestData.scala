@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumb
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen
 
 import java.time.Instant
 import java.time.LocalDate
@@ -95,6 +96,9 @@ trait JourneyTestData {
   final val exampleMrnAsString: String = exampleMrn.value
 
   final val uploadDocument = buildUploadDocument("foo")
+
+  final val exampleDeclarationContactDetails: ContactDetails =
+    Acc14Gen.genContactDetails.sample.get
 
   final val exampleContactDetails: MrnContactDetails =
     MrnContactDetails(

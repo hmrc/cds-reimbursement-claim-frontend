@@ -30,6 +30,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import com.github.arturopala.validator.Validator.Validate
+import SecuritiesJourney.Checks._
 
 @Singleton
 class CheckClaimantDetailsController @Inject() (
@@ -39,6 +41,14 @@ class CheckClaimantDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
     with AddressLookupMixin[SecuritiesJourney] {
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 
