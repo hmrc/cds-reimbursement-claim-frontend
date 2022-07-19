@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -149,6 +149,6 @@ class ClaimantDetailsHelper @Inject() () {
 
   }
 
-  def getParagraph(in: String): HtmlFormat.Appendable = new paragraph_block()(Html(in), Some("govuk-body"))
+  def getParagraph(in: String): HtmlFormat.Appendable = new paragraph()(Html(in), Some("govuk-body"))
 
 }

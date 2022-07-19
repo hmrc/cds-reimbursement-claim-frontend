@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
 import play.twirl.api.Html
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 
 object Paragraph {
 
@@ -27,6 +27,6 @@ object Paragraph {
       .filter(_.nonEmpty)
       .map(HtmlFormat.escape)
       .mkString("<br />")
-    new paragraph_block()(Html(content), Some("govuk-body"))
+    new paragraph()(Html(content), Some("govuk-body"))
   }
 }
