@@ -61,6 +61,12 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       )
     )
 
+  val genReasonForSecurity: Gen[ReasonForSecurity] =
+    Gen.oneOf(ReasonForSecurity.values)
+
+  val genReasonForSecurityNonExport: Gen[ReasonForSecurity] =
+    Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
+
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = false,
@@ -76,7 +82,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     for {
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
-      rfs                         <- Gen.oneOf(ReasonForSecurity.values)
+      rfs                         <- genReasonForSecurity
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)

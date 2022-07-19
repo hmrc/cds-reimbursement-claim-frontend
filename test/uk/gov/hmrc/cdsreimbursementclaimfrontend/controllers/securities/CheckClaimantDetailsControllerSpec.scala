@@ -324,10 +324,13 @@ class CheckClaimantDetailsControllerSpec
       checkIsTechnicalErrorPage(startAddressLookup())
     }
 
-    "update an address once complete" in forAll(genContactAddress) { address =>
+    "update an address once complete" in forAll(genContactAddress, genReasonForSecurity) { (address, rfs) =>
+      val initialJourney =
+        securitiesJourneyWithMrnAndRfsAndDeclaration(rfs)
+
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(SessionData(SecuritiesJourney.empty(exampleEori)))
+        mockGetSession(SessionData(initialJourney))
         mockAddressRetrieve(Right(address))
         mockStoreSession(Right(()))
       }
@@ -339,11 +342,14 @@ class CheckClaimantDetailsControllerSpec
     }
 
     "fail to update address once bad address lookup ID provided" in {
+      val initialJourney =
+        securitiesJourneyWithMrnAndRfsAndDeclaration(ReasonForSecurity.ManualOverrideDeposit)
+
       val addressId = UUID.randomUUID()
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(SessionData(SecuritiesJourney.empty(exampleEori)))
+        mockGetSession(SessionData(initialJourney))
         mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
       }
 

@@ -27,6 +27,22 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
   val emptyJourney: SecuritiesJourney =
     SecuritiesJourney.empty(exampleEori)
 
+  def securitiesJourneyWithMrnAndRfsAndDeclaration(rfs: ReasonForSecurity) = SecuritiesJourney
+    .empty(exampleEori)
+    .submitMovementReferenceNumber(exampleMrn)
+    .submitReasonForSecurityAndDeclaration(
+      rfs,
+      buildSecuritiesDisplayDeclaration(
+        securityReason = rfs.acc14Code,
+        declarantContact = Some(exampleDeclarationContactDetails)
+      )
+    )
+    .flatMap(_.submitClaimDuplicateCheckStatus(false))
+    .flatMapWhen(ReasonForSecurity.requiresExportDeclaration.contains(rfs))(
+      _.submitExportMovementReferenceNumber(anotherExampleMrn)
+    )
+    .getOrFail
+
   def tryBuildSecuritiesJourney(
     userEoriNumber: Eori,
     mrn: MRN,
