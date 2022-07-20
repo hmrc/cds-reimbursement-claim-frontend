@@ -1,0 +1,86 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+
+@this(
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+)
+
+@(form : Form[MrnContactDetails], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"enter-contact-details-securities"}
+
+@title = @{messages(s"$key.change.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"),hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @heading(Html(title))
+
+    @subHeading(Html(messages(s"$key.h2")), classes = "govuk-heading-m govuk-!-margin-top-7")
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @inputText(
+            form = form,
+            id = s"$key.contact-name",
+            name = s"$key.contact-name",
+            label = s"$key.contact-name.label",
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20")
+        )
+
+        @inputText(
+            form = form,
+            id = s"$key.contact-email",
+            name = s"$key.contact-email",
+            label = s"$key.contact-email.label",
+            isPageHeading = false,
+            inputType = "email",
+            autocomplete = Some("email"),
+            spellcheck = Some(false),
+            classes = Some("govuk-input--width-20")
+        )
+
+        @inputText(
+            form = form,
+            id = s"$key.contact-phone-number",
+            name = s"$key.contact-phone-number",
+            label = s"$key.contact-phone-number.label",
+            inputType = "tel",
+            autocomplete = Some("tel"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20")
+        )
+        @submitButton("button.continue", classes = Some("govuk-!-margin-top-7"))
+    }
+}
