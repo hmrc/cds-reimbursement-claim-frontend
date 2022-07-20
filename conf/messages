@@ -677,6 +677,15 @@ enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be 0.01 or 
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 
 #===================================================
+#  ENTER CLAIM REJECTED GOODS - SINGLE
+#===================================================
+enter-claim.securities.title=Claim details for {0} - {1}
+enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
+enter-claim.securities.claim-amount=How much is to be claimed back, in pounds?
+enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.securities.title.caption=Security ID: {0}
+
+#===================================================
 #  CHECK CLAIM REJECTED GOODS - SINGLE
 #===================================================
 check-claim.rejected-goods.single.title=Check the claim total for the <abbr title="Movement Reference Number">MRN</abbr>

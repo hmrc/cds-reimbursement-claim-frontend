@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
 import uk.gov.hmrc.http.HeaderCarrier
 import com.github.arturopala.validator.Validator.Validate
 
@@ -48,7 +48,7 @@ class ChooseReasonForSecurityController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   cdsReimbursementClaimConnector: CDSReimbursementClaimConnector,
-  chooseReasonForSecurityPage: pages.choose_reason_for_security
+  chooseReasonForSecurityPage: choose_reason_for_security
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
 
