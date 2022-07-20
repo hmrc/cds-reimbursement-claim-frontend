@@ -25,7 +25,16 @@ final case class TaxDetails(
   taxType: String,
   amount: String
 ) {
-  def getTaxCode: TaxCode   = TaxCodes.findUnsafe(taxType)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def getTaxCode: TaxCode = TaxCodes
+    .find(taxType)
+    .getOrElse(
+      throw new IllegalArgumentException(
+        s"Unsupported taxType=$taxType spotted in ACC14 declaration. Either declaration is wrong or service needs to be updated."
+      )
+    )
+
   def getAmount: BigDecimal = BigDecimal(amount)
 }
 

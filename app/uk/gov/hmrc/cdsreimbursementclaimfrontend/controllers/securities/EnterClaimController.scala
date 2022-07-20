@@ -48,7 +48,7 @@ class EnterClaimController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val key: String = "enter-claim.rejected-goods"
+  val key: String = "enter-claim.securities"
 
   def show(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
