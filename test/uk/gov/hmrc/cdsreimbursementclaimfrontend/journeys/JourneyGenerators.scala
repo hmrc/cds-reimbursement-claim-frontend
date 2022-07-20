@@ -159,6 +159,9 @@ trait JourneyGenerators extends JourneyTestData {
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) }
     )
 
+  final lazy val depositIdGen: Gen[String] =
+    listOfExactlyN(6, Gen.oneOf("ABCDEFGHIJKLMNOPRSTUWXYZ0123456789".toCharArray())).map(l => String.valueOf(l.toArray))
+
   final def buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
     for {
       reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
@@ -168,7 +171,7 @@ trait JourneyGenerators extends JourneyTestData {
       reclaimsDetails    <-
         listOfExactlyN(
           numberOfSecurities,
-          Gen.zip(listOfExactlyN(6, Gen.alphaNumChar).map(l => String.valueOf(l.toArray)), taxCodesWithAmountsGen)
+          Gen.zip(depositIdGen, taxCodesWithAmountsGen)
         )
       declarantContact   <- Acc14Gen.genContactDetails
     } yield buildSecuritiesDisplayDeclaration(
@@ -194,8 +197,8 @@ trait JourneyGenerators extends JourneyTestData {
               .map(sd =>
                 sd.taxDetails.halfNonEmpty.map(td =>
                   Gen
-                    .choose(BigDecimal.exact("0.01"), BigDecimal(td.amount))
-                    .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
+                    .choose(BigDecimal.exact("0.01"), td.getAmount)
+                    .map(amount => (sd.securityDepositId, td.getTaxCode, amount))
                 )
               )
               .getOrElse(Seq.empty)

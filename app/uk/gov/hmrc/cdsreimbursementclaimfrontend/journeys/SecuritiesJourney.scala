@@ -91,7 +91,7 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityTaxDetailsFor(securityDepositId, taxCode))
 
   def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
-    getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.amount).map(BigDecimal.apply)
+    getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
 
   def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
@@ -103,6 +103,11 @@ final class SecuritiesJourney private (
 
   def isSelectedDepositId(securityDepositId: String): Boolean =
     answers.securitiesReclaims.exists(_.contains(securityDepositId))
+
+  def getAvailableDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
+    getLeadDisplayDeclaration
+      .flatMap(_.getSecurityDetailsFor(securityDepositId))
+      .map(_.taxDetails.map(_.getTaxCode))
 
   def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
     answers.securitiesReclaims.flatMap(_.get(securityDepositId).map(_.keys.toSeq))
@@ -261,8 +266,14 @@ final class SecuritiesJourney private (
 
   def selectSecurityDepositId(securityDepositId: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (!isValidSecurityDepositId(securityDepositId))
-        Left("selectSecurityDepositIds.invalidSecurityDepositId")
+      if (securityDepositId.isEmpty())
+        Left(
+          s"selectSecurityDepositIds.emptySecurityDepositId"
+        )
+      else if (!isValidSecurityDepositId(securityDepositId))
+        Left(
+          s"selectSecurityDepositIds.invalidSecurityDepositId"
+        )
       else {
         if (answers.securitiesReclaims.contains(securityDepositId))
           Right(this)
@@ -330,7 +341,7 @@ final class SecuritiesJourney private (
     }
 
   def isValidReclaimAmount(reclaimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
-    reclaimAmount > 0 && reclaimAmount <= BigDecimal(taxDetails.amount)
+    reclaimAmount > 0 && reclaimAmount <= taxDetails.getAmount
 
   def submitAmountForReclaim(
     securityDepositId: String,
@@ -386,7 +397,7 @@ final class SecuritiesJourney private (
             val fullAmountReclaims: SecuritiesReclaims =
               SortedMap(
                 securityDetails.taxDetails
-                  .map(td => TaxCodes.findUnsafe(td.taxType) -> Some(BigDecimal(td.amount))): _*
+                  .map(td => td.getTaxCode -> Some(td.getAmount)): _*
               )
             (
               securityDepositId,

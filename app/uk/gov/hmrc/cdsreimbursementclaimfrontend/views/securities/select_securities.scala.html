@@ -47,11 +47,11 @@
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title),caption = messages(s"$key.title.caption", currentIndex, maxIndex))
+    @heading(Html(title), caption = messages(s"$key.title.caption", currentIndex, maxIndex))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

@@ -21,7 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import java.util.Locale
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
@@ -91,10 +90,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       reclaimsDetails             <-
         listOfExactlyN(
           numberOfSecurities,
-          Gen.zip(
-            listOfExactlyN(7, Gen.alphaNumChar).map(l => String.valueOf(l.toArray).toUpperCase(Locale.ENGLISH)),
-            taxCodesWithAmountsGen
-          )
+          Gen.zip(depositIdGen, taxCodesWithAmountsGen)
         )
       allDutiesGuaranteeEligible  <- allDutiesGuaranteeEligibleOpt.map(Gen.const(_)).getOrElse(Gen.oneOf(true, false))
       acc14                        = buildSecuritiesDisplayDeclaration(

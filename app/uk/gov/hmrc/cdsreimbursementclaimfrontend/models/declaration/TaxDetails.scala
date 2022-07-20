@@ -18,11 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 final case class TaxDetails(
   taxType: String,
   amount: String
-)
+) {
+  def getTaxCode: TaxCode   = TaxCodes.findUnsafe(taxType)
+  def getAmount: BigDecimal = BigDecimal(amount)
+}
 
 object TaxDetails {
   implicit val format: OFormat[TaxDetails] = Json.format[TaxDetails]

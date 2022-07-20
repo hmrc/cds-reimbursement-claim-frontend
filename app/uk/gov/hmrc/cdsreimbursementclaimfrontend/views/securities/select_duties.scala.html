@@ -61,15 +61,15 @@
         <span class="govuk-caption-xl">Security ID: @securityId</span>
 
         @heading(Html(title))
-            @checkboxes(
-                field = form(s"$key"),
-                legendAsHeading = false,
-                legend = HtmlContent(title),
-                items = options.toList,
-                hint = None
-            )
+        @checkboxes(
+            field = form(s"$key"),
+            legendAsHeading = false,
+            legend = HtmlContent(title),
+            items = options.toList,
+            hint = None
+        )
 
-            @submitButton("button.continue")
+        @submitButton("button.continue")
 
         }
 
