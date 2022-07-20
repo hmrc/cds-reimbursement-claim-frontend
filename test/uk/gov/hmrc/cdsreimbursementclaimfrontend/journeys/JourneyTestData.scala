@@ -62,7 +62,7 @@ trait JourneyTestData {
       )
   }
 
-  implicit class SeqOps[A](val seq: Seq[A]) {
+  implicit class SeqTestOps[A](val seq: Seq[A]) {
     def halfNonEmpty: Seq[A] =
       if (seq.isEmpty) throw new lang.Error("Cannot shrink the sequence because is empty.")
       else if (seq.size > 1) seq.take(seq.size / 2)

@@ -217,7 +217,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
     numberOfTaxCodes         <- Gen.choose(1, maxSize)
     numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
     taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
-    paidAmounts              <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
+    paidAmounts              <- Gen.listOfN(numberOfTaxCodes, amountNumberGen)
     reimbursementAmounts     <-
       Gen
         .sequence[Seq[BigDecimal], BigDecimal](

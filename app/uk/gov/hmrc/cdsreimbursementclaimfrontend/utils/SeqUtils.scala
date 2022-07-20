@@ -16,10 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-object SeqUtils {
+trait SeqUtils {
   implicit class SeqOps[A](val seq: Seq[A]) {
 
-    def containsEachItemOf(other: Seq[A]): Boolean =
+    final def containsEachItemOf(other: Seq[A]): Boolean =
       other.forall(seq.contains(_))
+
+    final def nextAfter(item: A): Option[A] = {
+      val i = seq.indexOf(item)
+      if (i < 0 || i >= seq.size - 1) None
+      else Some(seq(i + 1))
+    }
   }
 }
+
+object SeqUtils extends SeqUtils

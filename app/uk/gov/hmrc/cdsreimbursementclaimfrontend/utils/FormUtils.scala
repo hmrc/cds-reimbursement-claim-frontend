@@ -91,15 +91,16 @@ object FormUtils {
           }
     }
 
+  def moneyBigDecimalFormat(errorMsg: String): Formatter[BigDecimal] =
+    bigDecimalFormat(precision = 13, scale = 2, errorMsg)
+
   def moneyMapping(
-    precision: Int,
-    scale: Int,
-    errorMsg: String,
+    errorMsg: String = s"error.invalid-text",
     allowZero: Boolean = false,
     zeroErrorMsg: Option[String] = None
   ): Mapping[BigDecimal] =
     Forms
-      .of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
+      .of[BigDecimal](moneyBigDecimalFormat(errorMsg))
       .verifying(
         Constraint[BigDecimal]((num: BigDecimal) =>
           num match {

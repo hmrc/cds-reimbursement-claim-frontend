@@ -18,39 +18,40 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
 import cats.syntax.eq._
+import com.github.arturopala.validator.Validator
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import com.github.arturopala.validator.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
-import scala.collection.immutable.SortedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
+
+import scala.collection.immutable.SortedMap
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends Claim[SecuritiesJourney]
     with CommonJourneyProperties
-    with FluentSyntax[SecuritiesJourney] {
+    with FluentSyntax[SecuritiesJourney]
+    with SeqUtils {
 
   import SecuritiesJourney.Answers
   import SecuritiesJourney.Checks._
@@ -70,13 +71,6 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
-
-  def getNextSecurityDepositId(securityDepositId: String): Option[String] = {
-    val securityDepositIds = getSecurityDepositIds
-    val i                  = securityDepositIds.indexOf(securityDepositId)
-    if (i < 0 || i >= securityDepositIds.size - 1) None
-    else Some(securityDepositIds(i + 1))
-  }
 
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
     getLeadDisplayDeclaration

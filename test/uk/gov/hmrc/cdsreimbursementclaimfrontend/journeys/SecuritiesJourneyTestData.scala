@@ -130,7 +130,59 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     buildSecuritiesJourneyWithSomeSecuritiesSelected(testParams)
       .submitCheckDeclarationDetailsChangeMode(true)
 
+  final def buildSecuritiesJourneyWithDutiesPartiallySelected(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl, reclaims) =>
+      val availableDepositIds: Seq[String] = decl.getSecurityDepositIds.get
+
+      val depositIdsWithSomeDutiesSelected: Seq[String] = reclaims.map(_._1).distinct
+
+      val depositIdsWithoutDutiesSelected: Seq[String] =
+        availableDepositIds.filterNot(depositIdsWithSomeDutiesSelected.contains).halfNonEmpty
+
+      val taxCodesPerDepositId: Seq[(String, Seq[TaxCode])] =
+        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => tc }).toSeq
+
+      buildSecuritiesJourneyReadyForSelectingSecurities((mrn, rfs, decl))
+        .flatMapEach(
+          depositIdsWithSomeDutiesSelected ++ depositIdsWithoutDutiesSelected,
+          (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
+        )
+        .flatMapEach(
+          taxCodesPerDepositId,
+          (journey: SecuritiesJourney) =>
+            (args: (String, Seq[TaxCode])) =>
+              journey
+                .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2)
+        )
+        .getOrFail
+  }
+
   final def buildSecuritiesJourneyReadyForEnteringClaimAmounts(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl, reclaims) =>
+      val depositIds: Seq[String]                           = reclaims.map(_._1).distinct
+      val taxCodesPerDepositId: Seq[(String, Seq[TaxCode])] =
+        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => tc }).toSeq
+
+      buildSecuritiesJourneyReadyForSelectingSecurities((mrn, rfs, decl))
+        .flatMapEach(
+          depositIds,
+          (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
+        )
+        .flatMapEach(
+          taxCodesPerDepositId,
+          (journey: SecuritiesJourney) =>
+            (args: (String, Seq[TaxCode])) =>
+              journey
+                .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2)
+        )
+        .getOrFail
+  }
+
+  final def buildSecuritiesJourneyWithClaimsEntered(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])
   ): SecuritiesJourney = testParams match {
     case (mrn, rfs, decl, reclaims) =>
@@ -147,6 +199,11 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
             (args: (String, Seq[(TaxCode, BigDecimal)])) =>
               journey
                 .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                .flatMapEach(
+                  args._2,
+                  (journey: SecuritiesJourney) =>
+                    (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                )
         )
         .getOrFail
   }

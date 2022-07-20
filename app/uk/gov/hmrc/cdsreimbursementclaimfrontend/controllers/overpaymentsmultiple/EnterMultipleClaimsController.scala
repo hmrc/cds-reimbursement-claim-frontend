@@ -336,7 +336,7 @@ object EnterMultipleClaimsController {
   def correctedAmountForm(paidAmount: BigDecimal): Form[CorrectedAmount] =
     Form(
       mapping(
-        "multiple-enter-claim" -> moneyMapping(13, 2, "actual-amount.error.invalid", allowZero = true)
+        "multiple-enter-claim" -> moneyMapping("actual-amount.error.invalid", allowZero = true)
       )(CorrectedAmount.apply)(CorrectedAmount.unapply)
         .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )

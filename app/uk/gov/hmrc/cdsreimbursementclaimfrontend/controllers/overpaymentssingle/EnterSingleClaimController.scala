@@ -266,7 +266,7 @@ object EnterSingleClaimController {
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
       mapping(
-        "enter-claim" -> moneyMapping(13, 2, "actual-amount.error.invalid", allowZero = true)
+        "enter-claim" -> moneyMapping("actual-amount.error.invalid", allowZero = true)
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )

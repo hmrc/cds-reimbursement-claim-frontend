@@ -47,6 +47,7 @@ import scala.reflect.ClassTag
 import org.scalactic.source.Position
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 @Singleton
 class TestMessagesApi(
@@ -94,7 +95,7 @@ class TestDefaultMessagesApiProvider @Inject() (
     )
 }
 
-trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with MockFactory {
+trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with MockFactory with SeqUtils {
 
   implicit val lang: Lang = Lang("en")
 
@@ -190,7 +191,6 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     expectedStatus: Int = OK
   )(implicit pos: Position): Any = {
     (status(result), redirectLocation(result)) shouldBe (expectedStatus -> None)
-    status(result)                             shouldBe expectedStatus
 
     val doc = Jsoup.parse(contentAsString(result))
 
@@ -203,6 +203,28 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     val regexResult = regex.findAllMatchIn(bodyText).toList
     if (regexResult.nonEmpty) fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
     else contentChecks(doc)
+  }
+
+  def checkPageWithErrorIsDisplayed(
+    result: Future[Result],
+    expectedTitle: String,
+    expectedErrorMessage: String
+  )(implicit pos: Position): Any = {
+    status(result) shouldBe BAD_REQUEST
+
+    val doc = Jsoup.parse(contentAsString(result))
+
+    doc.select("h1").html should include(expectedTitle)
+
+    val bodyText = doc.select("body").text
+
+    val regex = """not_found_message\((.*?)\)""".r
+
+    val regexResult = regex.findAllMatchIn(bodyText).toList
+    if (regexResult.nonEmpty) fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
+    else {
+      doc.select(".govuk-list.govuk-error-summary__list").text() shouldBe expectedErrorMessage
+    }
   }
 
   def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")

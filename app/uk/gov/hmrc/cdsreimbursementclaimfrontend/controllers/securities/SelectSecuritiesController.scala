@@ -49,14 +49,14 @@ class SelectSecuritiesController @Inject() (
   import SecuritiesJourney.Checks._
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         canContinueTheClaimWithChoosenRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val showFirst: Action[AnyContent] = simpleActionReadJourney { journey =>
+  final val showFirst: Action[AnyContent] = simpleActionReadJourney { journey =>
     Redirect(
       journey.getSecurityDepositIds.headOption.fold(routes.ChooseReasonForSecurityController.show())(firstDepositId =>
         routes.SelectSecuritiesController.show(firstDepositId)
@@ -64,7 +64,7 @@ class SelectSecuritiesController @Inject() (
     )
   }
 
-  def show(securityDepositId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final def show(securityDepositId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
@@ -81,54 +81,55 @@ class SelectSecuritiesController @Inject() (
       .asFuture
   }
 
-  def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            journey
-              .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
-              .map(declaration =>
-                BadRequest(selectSecuritiesPage(formWithErrors, declaration, securityDepositId, postAction))
-              )
-              .getOrElse(errorHandler.errorResult())
-          ).asFuture,
-        yesno =>
-          (yesno match {
-            case YesNo.Yes =>
+  final def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteJourney {
+    implicit request => journey =>
+      val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
               journey
-                .selectSecurityDepositId(securityDepositId)
-                .fold(
-                  error => {
-                    logger.error(s"Error selecting security deposit - $error")
-                    (journey, Redirect(routes.SelectSecuritiesController.show(securityDepositId)))
-                  },
-                  updatedJourney => (updatedJourney, Redirect(nextPage(journey, securityDepositId)))
+                .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
+                .map(declaration =>
+                  BadRequest(selectSecuritiesPage(formWithErrors, declaration, securityDepositId, postAction))
                 )
+                .getOrElse(errorHandler.errorResult())
+            ).asFuture,
+          yesno =>
+            (yesno match {
+              case YesNo.Yes =>
+                journey
+                  .selectSecurityDepositId(securityDepositId)
+                  .fold(
+                    error => {
+                      logger.error(s"Error selecting security deposit - $error")
+                      (journey, Redirect(routes.SelectSecuritiesController.show(securityDepositId)))
+                    },
+                    updatedJourney => (updatedJourney, Redirect(nextPage(journey, securityDepositId)))
+                  )
 
-            case YesNo.No =>
-              journey
-                .removeSecurityDepositId(securityDepositId)
-                .fold(
-                  error => {
-                    logger.error(s"Error de-selecting security deposit - $error")
-                    (journey, Redirect(routes.SelectSecuritiesController.show(securityDepositId)))
-                  },
-                  updatedJourney => (updatedJourney, Redirect(nextPage(journey, securityDepositId)))
-                )
-          }).asFuture
-      )
+              case YesNo.No =>
+                journey
+                  .removeSecurityDepositId(securityDepositId)
+                  .fold(
+                    error => {
+                      logger.error(s"Error de-selecting security deposit - $error")
+                      (journey, Redirect(routes.SelectSecuritiesController.show(securityDepositId)))
+                    },
+                    updatedJourney => (updatedJourney, Redirect(nextPage(journey, securityDepositId)))
+                  )
+            }).asFuture
+        )
   }
 
-  def nextPage(journey: SecuritiesJourney, securityDepositId: String): Call =
+  private def nextPage(journey: SecuritiesJourney, securityDepositId: String): Call =
     if (journey.answers.checkDeclarationDetailsChangeMode)
       routes.CheckDeclarationDetailsController.show()
     else
-      journey
-        .getNextSecurityDepositId(securityDepositId)
+      journey.getSecurityDepositIds
+        .nextAfter(securityDepositId)
         .fold(routes.CheckDeclarationDetailsController.show())(routes.SelectSecuritiesController.show(_))
 
 }
