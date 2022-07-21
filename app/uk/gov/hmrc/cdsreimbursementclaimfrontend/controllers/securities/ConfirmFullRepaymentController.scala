@@ -76,9 +76,9 @@ class ConfirmFullRepaymentController @Inject() (
   private def showForId(implicit request: Request[_], journey: SecuritiesJourney, id: String) =
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(id)
-      .flatMap(_.getSecurityDetailsFor(id).map(_.totalAmount))
+      .flatMap(_.getSecurityDetailsFor(id).map(_.amountPaid))
       .flatMap(x => Try(BigDecimal(x)).toOption)
-      .fold(errorHandler.errorResult()) { totalAmount =>
+      .fold(errorHandler.errorResult()) { amountPaid =>
         Ok(
           confirmFullRepaymentPage(
             form.withDefault(
@@ -86,7 +86,7 @@ class ConfirmFullRepaymentController @Inject() (
                 .fold(Option.empty[YesNo])(_ => Some(YesNo.Yes))
             ),
             id,
-            totalAmount,
+            amountPaid,
             routes.ConfirmFullRepaymentController.submit(id)
           )
         )
@@ -103,12 +103,14 @@ class ConfirmFullRepaymentController @Inject() (
             journey,
             journey
               .getDisplayDeclarationIfValidSecurityDepositId(id)
-              .map(declaration =>
+              .flatMap(_.getSecurityDetailsFor(id).map(_.amountPaid))
+              .flatMap(x => Try(BigDecimal(x)).toOption)
+              .map(amountPaid =>
                 BadRequest(
                   confirmFullRepaymentPage(
                     formWithErrors,
                     id,
-                    journey.getTotalReclaimAmount,
+                    amountPaid,
                     routes.ConfirmFullRepaymentController.submit(id)
                   )
                 )

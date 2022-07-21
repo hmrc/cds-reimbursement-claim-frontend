@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalacheck.{Prop, ShrinkLowPriority}
+import org.scalacheck.Prop
+import org.scalacheck.ShrinkLowPriority
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.GivenWhenThen
@@ -111,8 +112,8 @@ class ConfirmFullRepaymentControllerSpec
     val heading              = doc.select(".govuk-heading-xl").eachText().asScala.toList
     val legend               = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
     val currencyFormatter    = NumberFormat.getCurrencyInstance(Locale.UK)
-    val totalAmountFormatted = currencyFormatter.format(
-      BigDecimal(journey.getSecurityDetailsFor(securityId).value.totalAmount)
+    val amountPaidFormatted = currencyFormatter.format(
+      BigDecimal(journey.getSecurityDetailsFor(securityId).value.amountPaid)
     )
     title           should ===(
       List(
@@ -126,7 +127,7 @@ class ConfirmFullRepaymentControllerSpec
     legend          should ===(
       List(
         s"The total value of $securityId is " +
-          s"$totalAmountFormatted."
+          s"$amountPaidFormatted."
       )
     )
     radioItems(doc) should contain theSameElementsAs Seq(
@@ -322,23 +323,23 @@ class ConfirmFullRepaymentControllerSpec
 
       }
 
-//      "AC5 - Complete journey - clicking continue with no option selected should display error" in {
-//        forAll(completeJourneyGen) { journey =>
-//          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-//          val securityId = securityIdWithTaxCodes(journey).value
-//          inSequence {
-//            mockAuthWithNoRetrievals()
-//            mockGetSession(updatedSession)
-//          }
-//
-//          checkPageIsDisplayed(
-//            performAction(securityId, Seq()),
-//            messageFromMessageKey(s"$confirmFullRepaymentKey.title"),
-//            doc => validateConfirmFullRepaymentPage(securityId, doc, journey, isError = true),
-//            400
-//          )
-//        }
-//      }
+      "AC5 - Complete journey - clicking continue with no option selected should display error" in {
+        forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
+          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          val securityId     = securityIdWithTaxCodes(journey).value
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
+
+          checkPageIsDisplayed(
+            performAction(securityId, Seq()),
+            messageFromMessageKey(s"$confirmFullRepaymentKey.title"),
+            doc => validateConfirmFullRepaymentPage(securityId, doc, journey, isError = true),
+            400
+          )
+        }
+      }
 
       "AC5 clicking continue with no option selected should display error" in {
         forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
@@ -379,7 +380,7 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC6 From CYA page, change answer from 'Yes' to 'No'" in {
+      "AC6 From CYA page, change answer from 'Yes' to 'No', clicking continue should go to the select duties controller" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           val securityId     = securityIdWithTaxCodes(journey).value
@@ -394,25 +395,6 @@ class ConfirmFullRepaymentControllerSpec
             routes.SelectDutiesController.show(securityId)
           )
         }
-      }
-
-      "AC7 clicking continue with no option selected should display error" in {
-        assert(false)
-        /*
-        AC7: When changing answer from 'Yes' to 'No' pre-populate checkboxes and input boxes in /select-duties & /enter-claim pages
-
-          Given I am on the /select-duties/:SecurityID page (CDSR-1799)
-
-          And I arrived here after changing my answer from 'Yes' to 'No' on the /confirm-full-repayment/:securityID page
-
-          And all duties should be pre-selected
-
-          And when ** I click 'Continue'
-
-          Then I should be taken to the /enter-claim/:SecurityID/:taxcode page(s) (CDSR-1777)
-
-          And all the amounts should be pre-populated (to equal the paid amount).
-         */
       }
 
       "AC8 clicking continue with no option selected should display error" in {
