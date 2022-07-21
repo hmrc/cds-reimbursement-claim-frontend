@@ -38,7 +38,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true
+    submitBankAccountType: Boolean = true,
+    submitFullAmount: Boolean = false
   ): Gen[SecuritiesJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -49,7 +50,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       submitContactDetails = submitContactDetails,
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
-      submitBankAccountDetails = submitBankAccountDetails
+      submitBankAccountDetails = submitBankAccountDetails,
+      submitFullAmount = submitFullAmount
     ).map(
       _.fold(
         error =>
@@ -76,7 +78,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true
+    submitBankAccountType: Boolean = true,
+    submitFullAmount: Boolean = false
   ): Gen[Either[String, SecuritiesJourney]] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -104,7 +107,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                                        declarantContact = declarantContact
                                      )
       exportMrn                   <- exportMrnTrueGen
-      reclaims                    <- validSecurityReclaimsGen(acc14)
+      reclaims                    <- if (submitFullAmount) validSecurityReclaimsFullAmountGen(acc14) else validSecurityReclaimsGen(acc14)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
       documentTypes               <- listOfExactlyN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsSingleTypes))

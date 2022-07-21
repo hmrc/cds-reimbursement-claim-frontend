@@ -410,6 +410,48 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "accept submission of the valid selection of the taxCodes for a known securityDepositId including export" in {
+      forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        val depositIds: Seq[String] = reclaims.map(_._1).distinct
+        assert(reclaims.nonEmpty)
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+        assert(reclaimsBySecurityDepositId.nonEmpty)
+        reclaimsBySecurityDepositId should not be empty
+
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+            )
+            .getOrFail
+
+        val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
+          SortedMap(
+            reclaims.groupBy(_._1).mapValues(ss => SortedMap(ss.map { case (_, tc, _) => (tc, None) }: _*)).toSeq: _*
+          )
+
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
+        journey.answers.displayDeclaration.contains(decl)     shouldBe true
+        journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
+        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSecuritiesReclaims                 shouldBe false
+        journey.isFinalized                                   shouldBe false
+      }
+    }
+
     "reject submission of the valid selection of the taxCodes for a bogus securityDepositId" in {
       forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)

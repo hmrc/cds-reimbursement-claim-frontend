@@ -78,6 +78,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .empty(userEoriNumber)
       .submitMovementReferenceNumber(mrn)
       .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
+      .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay))
       .tryWhenDefined(exportMrn)(journey => (exportMrn => journey.submitExportMovementReferenceNumber(exportMrn)))
       .flatMapWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
@@ -85,24 +86,23 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)
       .flatMapEach(reclaims.map(_._1).distinct, (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_))
       .flatMapEach(
-        reclaims.groupBy(_._1).mapValues(_.map {
-          case (_, tc, amount) => (tc, amount) }).toSeq,
-            (journey: SecuritiesJourney) =>
-              (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-                journey
-                  .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
-                  .flatMapEach(
-                    args._2,
-                    (journey: SecuritiesJourney) =>
-                      (args2: (TaxCode, BigDecimal)) => {
-                        val logger: Logger = Logger(this.getClass)
-                        logger.warn(s"secId ${args._1}: (taxType = ${args2._2},amount = ${ args2._2})")
-                        if (args2._2 >= displayDeclaration.getTotalSecuritiesAmountFor(Set(args._1)))
-                          journey.submitFullAmountsForReclaim(args._1)
-                        else
-                          journey.submitAmountForReclaim(args._1, args2._1, args2._2)
-                      }
-                  )
+        reclaims
+          .groupBy(_._1)
+          .mapValues(_.map { case (_, tc, amount) =>
+            (tc, amount)
+          })
+          .toSeq,
+        (journey: SecuritiesJourney) =>
+          (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+            journey
+              .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+              .flatMapEach(
+                args._2,
+                (journey: SecuritiesJourney) =>
+                  (args2: (TaxCode, BigDecimal)) => {
+                    journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                  }
+              )
       )
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)

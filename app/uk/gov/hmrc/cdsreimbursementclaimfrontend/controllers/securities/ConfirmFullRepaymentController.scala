@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_f
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.util.Try
 
 @Singleton
 class ConfirmFullRepaymentController @Inject() (
@@ -58,6 +59,7 @@ class ConfirmFullRepaymentController @Inject() (
   // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.showFirst()
   // @(form: Form[YesNo], securityId: String, totalValue: BigDecimal, postAction: Call)
   //    (implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val id = journey.getSecuritiesReclaims.head._1
     showForId(request, journey, id)
@@ -74,7 +76,9 @@ class ConfirmFullRepaymentController @Inject() (
   private def showForId(implicit request: Request[_], journey: SecuritiesJourney, id: String) =
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(id)
-      .fold(errorHandler.errorResult()) { _ =>
+      .flatMap(_.getSecurityDetailsFor(id).map(_.totalAmount))
+      .flatMap(x => Try(BigDecimal(x)).toOption)
+      .fold(errorHandler.errorResult()) { totalAmount =>
         Ok(
           confirmFullRepaymentPage(
             form.withDefault(
@@ -82,7 +86,7 @@ class ConfirmFullRepaymentController @Inject() (
                 .fold(Option.empty[YesNo])(_ => Some(YesNo.Yes))
             ),
             id,
-            journey.getTotalReclaimAmount,
+            totalAmount,
             routes.ConfirmFullRepaymentController.submit(id)
           )
         )
@@ -115,7 +119,7 @@ class ConfirmFullRepaymentController @Inject() (
           case Yes =>
             submitYes(id, journey)
           case No  =>
-            (journey, Redirect(routes.SelectDutiesController.submit(id))).asFuture
+            submitNo(id, journey)
         }
       )
   }
@@ -131,6 +135,20 @@ class ConfirmFullRepaymentController @Inject() (
           (journey, errorHandler.errorResult())
         },
         updatedJourney => (updatedJourney, Redirect(routes.ChooseFileTypeController.submit()))
+      )
+      .asFuture
+
+  def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
+    request: Request[_]
+  ): Future[(SecuritiesJourney, Result)] =
+    journey
+      .clearReclaimAmount(securityId)
+      .fold(
+        { error =>
+          logger.warn(error)
+          (journey, errorHandler.errorResult())
+        },
+        updatedJourney => (updatedJourney, Redirect(routes.SelectDutiesController.submit(securityId)))
       )
       .asFuture
 }

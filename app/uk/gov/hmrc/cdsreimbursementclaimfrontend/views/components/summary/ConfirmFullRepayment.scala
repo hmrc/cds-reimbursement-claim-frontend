@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+
 object ConfirmFullRepayment {
 
   def apply(totalAmount: BigDecimal): String =
-    totalAmount.toString()
+    totalAmount.toPoundSterlingString
 }

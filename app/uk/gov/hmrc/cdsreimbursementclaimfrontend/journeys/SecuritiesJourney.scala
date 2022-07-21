@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import play.api.Logger
 import cats.Eq
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
@@ -39,6 +40,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
+import com.github.arturopala.validator.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.SecuritiesReclaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
@@ -72,9 +75,13 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
-  def isValidSecurityDepositId(securityDepositId: String): Boolean =
-    getLeadDisplayDeclaration
+  def isValidSecurityDepositId(securityDepositId: String): Boolean = {
+    val valid = getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
+
+    if (!valid) Logger("test").warn(s"invalid securityDepositId: $securityDepositId")
+    valid
+  }
 
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
@@ -336,6 +343,22 @@ final class SecuritiesJourney private (
 
   def isValidReclaimAmount(reclaimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
     reclaimAmount > 0 && reclaimAmount <= taxDetails.getAmount
+
+  def clearReclaimAmount(securityDepositId: String): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      if (!isValidSecurityDepositId(securityDepositId))
+        Left("submitAmountForReclaim.invalidSecurityDepositId")
+      else
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              securitiesReclaims = answers.securitiesReclaims.map { reclaims =>
+                reclaims.map { case (k, _) => (k, SortedMap[TaxCode, Option[BigDecimal]]()) }
+              }
+            )
+          )
+        )
+    }
 
   def submitAmountForReclaim(
     securityDepositId: String,
