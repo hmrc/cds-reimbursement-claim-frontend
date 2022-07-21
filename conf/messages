@@ -223,7 +223,7 @@ enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first <a
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001
 
-enter-movement-reference-number.securities.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.securities.title=Enter the import <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.securities.details.heading=Finding your <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
