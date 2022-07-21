@@ -39,6 +39,7 @@ POST         /securities/confirm-full-repayment/:id                    @uk.gov.h
 GET          /securities/select-duties/:id                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.show(id: String)
 POST         /securities/select-duties/:id                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.submit(id: String)
 
+GET          /securities/enter-claim/:id                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterClaimController.showFirst(id: String)
 GET          /securities/enter-claim/:id/:taxCode                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterClaimController.show(id: String, taxCode: TaxCode)
 POST         /securities/enter-claim/:id/:taxCode                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterClaimController.submit(id: String, taxCode: TaxCode)
 

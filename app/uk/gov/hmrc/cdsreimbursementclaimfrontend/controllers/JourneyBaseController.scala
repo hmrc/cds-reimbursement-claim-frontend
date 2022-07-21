@@ -36,6 +36,7 @@ import play.api.libs.json.Json
 
 import com.github.arturopala.validator.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -46,7 +47,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
   */
 abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt: Format[Journey])
     extends FrontendBaseController
-    with Logging {
+    with Logging
+    with SeqUtils {
 
   /** [Inject] Component expected to be injected by the implementing controller. */
   val jcc: JourneyControllerComponents

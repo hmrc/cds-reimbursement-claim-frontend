@@ -90,8 +90,7 @@ class EnterClaimController @Inject() (
                 .claimAmountForm(EnterClaimController.key, paidAmount)
                 .bindFromRequest()
                 .fold(
-                  formWithErrors => {
-                    logger.warn(s"${formWithErrors.errorsAsJson}")
+                  formWithErrors =>
                     (
                       journey,
                       BadRequest(
@@ -104,8 +103,7 @@ class EnterClaimController @Inject() (
                           submitClaimAction(pageIndex, taxCode)
                         )
                       )
-                    )
-                  },
+                    ),
                   amount =>
                     journey
                       .submitAmountForReimbursement(mrn, taxCode, amount)
