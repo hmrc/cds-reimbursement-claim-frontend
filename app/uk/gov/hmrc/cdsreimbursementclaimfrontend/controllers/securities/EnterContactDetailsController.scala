@@ -18,16 +18,47 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class EnterContactDetailsController @Inject() (
+  enterOrChangeContactDetailsPage: pages.enter_or_change_contact_details,
   val jcc: JourneyControllerComponents
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    extends SecuritiesJourneyBaseController {
+
+  private def postAction: Call = routes.EnterContactDetailsController.submit()
+
+  val show: Action[AnyContent] =
+    actionReadJourney { implicit request => _ =>
+      Future.successful(
+        Ok(enterOrChangeContactDetailsPage(Forms.securitiesContactDetailsForm, postAction))
+      )
+    }
+
+  val submit: Action[AnyContent] =
+    actionReadWriteJourney(
+      { implicit request => journey =>
+        Forms.securitiesContactDetailsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction))).asFuture,
+            contactDetails => {
+              val updatedJourney = journey.submitContactDetails(Some(contactDetails))
+              (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
+            }
+          )
+      },
+      fastForwardToCYAEnabled = false
+    )
+}
