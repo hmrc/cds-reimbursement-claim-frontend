@@ -329,7 +329,8 @@ enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Op
 #===================================================
 #  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
 #===================================================
-choose-reason-for-security.securities.title=Choose the reason for security
+choose-reason-for-security.securities.title=Select why a security deposit or guarantee was required
+choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
 choose-reason-for-security.securities.error.required=Choose the reason for security
 choose-reason-for-security.securities.AccountSales=Account Sales
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Community Systems of Duty Relief (CSDR)
