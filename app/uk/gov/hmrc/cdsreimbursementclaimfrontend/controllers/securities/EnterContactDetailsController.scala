@@ -39,9 +39,14 @@ class EnterContactDetailsController @Inject() (
   private def postAction: Call = routes.EnterContactDetailsController.submit()
 
   val show: Action[AnyContent] =
-    actionReadJourney { implicit request => _ =>
+    actionReadJourneyAndUser { implicit request => journey => userType =>
       Future.successful(
-        Ok(enterOrChangeContactDetailsPage(Forms.securitiesContactDetailsForm, postAction))
+        Ok(
+          enterOrChangeContactDetailsPage(
+            Forms.securitiesContactDetailsForm.withDefault(journey.computeContactDetails(userType)),
+            postAction
+          )
+        )
       )
     }
 

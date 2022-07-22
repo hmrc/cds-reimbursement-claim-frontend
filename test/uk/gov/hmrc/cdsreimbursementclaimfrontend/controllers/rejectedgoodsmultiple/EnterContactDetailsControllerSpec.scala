@@ -174,7 +174,7 @@ class EnterContactDetailsControllerSpec
           )
       }
 
-      "submit a valid basis for claim" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
+      "submit a valid contact detail" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
             mockAuthWithAllRetrievals(
