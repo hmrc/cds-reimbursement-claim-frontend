@@ -90,6 +90,9 @@ final class SecuritiesJourney private (
   def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
     getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
 
+  def getTotalSecurityDepositAmountFor(securityDepositId: String): Option[BigDecimal] =
+    getSecurityDetailsFor(securityDepositId).map(_.getTotalAmount)
+
   def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
@@ -126,6 +129,16 @@ final class SecuritiesJourney private (
     answers.securitiesReclaims
       .map(_.map(_._2.map(_._2.getOrElse(ZERO)).sum).sum)
       .getOrElse(ZERO)
+
+  def getTotalReclaimAmountFor(securityDepositId: String): BigDecimal =
+    answers.securitiesReclaims
+      .flatMap(_.get(securityDepositId))
+      .map(_.map(_._2.getOrElse(ZERO)).sum)
+      .getOrElse(ZERO)
+
+  def isFullSecurityAmountClaimed(securityDepositId: String): Boolean =
+    getTotalSecurityDepositAmountFor(securityDepositId)
+      .contains(getTotalReclaimAmountFor(securityDepositId))
 
   def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.securitiesReclaims
