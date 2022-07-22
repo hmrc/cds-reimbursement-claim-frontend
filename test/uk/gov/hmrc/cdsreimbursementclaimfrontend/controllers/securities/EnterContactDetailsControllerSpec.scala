@@ -27,8 +27,13 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.Enrolment
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -37,6 +42,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
@@ -71,6 +78,21 @@ class EnterContactDetailsControllerSpec
     securitiesJourney = Some(SecuritiesJourney.empty(exampleEori))
   )
 
+  private def mockCompleteJourney(journey: SecuritiesJourney, email: Email, name: contactdetails.Name) =
+    inSequence {
+      mockAuthWithAllRetrievals(
+        Some(AffinityGroup.Individual),
+        Some(email.value),
+        Set(
+          Enrolment(EoriEnrolment.key)
+            .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+        ),
+        Some(Credentials("id", "GovernmentGateway")),
+        Some(Name(name.name, name.lastName))
+      )
+      mockGetSession(session.copy(securitiesJourney = Some(journey)))
+    }
+
   "Enter Contact Details Controller" when {
     "Enter Contact Details page" must {
 
@@ -83,11 +105,9 @@ class EnterContactDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen()) { journey =>
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(securitiesJourney = Some(journey)))
-          }
+        forAll(buildCompleteJourneyGen(), genEmail, genName, individualGen) { (journey, email, name, individual) =>
+          mockCompleteJourney(journey, email, name)
+          val contactDetails = journey.computeContactDetails(individual)
 
           checkPageIsDisplayed(
             performAction(),
@@ -95,10 +115,10 @@ class EnterContactDetailsControllerSpec
             doc => {
               doc
                 .select("form input[name='enter-contact-details-securities.contact-name']")
-                .`val`() shouldBe ""
+                .`val`() shouldBe contactDetails.get.fullName
               doc
                 .select("form input[name='enter-contact-details-securities.contact-email']")
-                .`val`() shouldBe ""
+                .`val`() shouldBe contactDetails.get.emailAddress.value
             }
           )
         }
@@ -116,38 +136,57 @@ class EnterContactDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(securitiesJourney = Some(journey)))
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(securitiesJourney = Some(journey.submitContactDetails(None))))
-        }
-
-        checkPageIsDisplayed(
-          controller.show()(FakeRequest()),
-          messageFromMessageKey("enter-contact-details-securities.change.title")
-        )
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("enter-contact-details-securities.change.title"),
-          doc => {
-            getErrorSummary(doc) contains messageFromMessageKey(
-              "enter-your-contact-details.contact-name.error.required"
-            )
-            getErrorSummary(doc) contains messageFromMessageKey(
-              "enter-your-contact-details.contact-email.error.required"
-            )
-          },
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
-      "submit a valid basis for claim" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
+      "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
+            mockAuthWithAllRetrievals(
+              Some(AffinityGroup.Individual),
+              Some(email.value),
+              Set(
+                Enrolment(EoriEnrolment.key)
+                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+              ),
+              Some(Credentials("id", "GovernmentGateway")),
+              Some(Name(name.name, name.lastName))
+            )
+            mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(securitiesJourney = Some(journey.submitContactDetails(None))))
+          }
+
+          checkPageIsDisplayed(
+            controller.show()(FakeRequest()),
+            messageFromMessageKey("enter-contact-details-securities.change.title")
+          )
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("enter-contact-details-securities.change.title"),
+            doc => {
+              getErrorSummary(doc) contains messageFromMessageKey(
+                "enter-your-contact-details.contact-name.error.required"
+              )
+              getErrorSummary(doc) contains messageFromMessageKey(
+                "enter-your-contact-details.contact-email.error.required"
+              )
+            },
+            expectedStatus = BAD_REQUEST
+          )
+      }
+
+      "submit a valid contact detail" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
+        (journey, email, name) =>
+          inSequence {
+            mockAuthWithAllRetrievals(
+              Some(AffinityGroup.Individual),
+              Some(email.value),
+              Set(
+                Enrolment(EoriEnrolment.key)
+                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+              ),
+              Some(Credentials("id", "GovernmentGateway")),
+              Some(Name(name.name, name.lastName))
+            )
             mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockAuthWithNoRetrievals()
             mockGetSession(session.copy(securitiesJourney = Some(journey)))
