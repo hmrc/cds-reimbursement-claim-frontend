@@ -37,10 +37,10 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], securityDepositId: String, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-claim.rejected-goods"}
-@title = @{messages(combine(key, subKey, "title"), taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumber.label(indexOpt.getOrElse(0)))}
+@key = @{"enter-claim.securities"}
+@title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
 @hintText = @{Html(messages(s"$key.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -48,13 +48,11 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
-
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+    @heading(Html(title), caption = messages(s"$key.title.caption", securityDepositId))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
+        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-m"))
 
         @inputText(
             form = form,
@@ -64,7 +62,7 @@
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
             hintHtml = Some(hintText),
-            labelClasses = Some("govuk-label govuk-label--m"),
+            labelClasses = Some("govuk-label"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 

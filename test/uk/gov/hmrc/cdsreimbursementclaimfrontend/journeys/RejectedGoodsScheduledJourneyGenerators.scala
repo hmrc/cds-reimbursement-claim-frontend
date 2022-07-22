@@ -63,11 +63,9 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
       tcs     <- Gen.pick(n, dutyType.taxCodes)
       amounts <- Gen.sequence[Seq[TaxCodeWithAmounts], TaxCodeWithAmounts](
                    tcs.sorted.map(tc =>
-                     Gen
-                       .choose[BigDecimal](BigDecimal("0.01"), BigDecimal("1000.00"))
+                     amountNumberGen
                        .flatMap(pa =>
-                         Gen
-                           .choose[BigDecimal](BigDecimal("0.01"), pa)
+                         amountNumberInRangeGen(BigDecimal("0.01"), pa)
                            .map(ra => (tc, ra, pa))
                        )
                    )

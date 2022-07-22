@@ -17,12 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+
 import scala.collection.JavaConverters._
 
 trait JourneyGenerators extends JourneyTestData {
@@ -34,6 +35,14 @@ trait JourneyGenerators extends JourneyTestData {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
       Gen.choose(1, 10000).map(i => (min + (i * ((max - min) / 10000))).round(min.mc))
   }
+
+  final lazy val amountNumberGen: Gen[BigDecimal] =
+    amountNumberInRangeGen(BigDecimal("1.00"), BigDecimal("1000.00"))
+
+  final def amountNumberInRangeGen(minIncl: BigDecimal, maxIncl: BigDecimal): Gen[BigDecimal] =
+    Gen
+      .choose[BigDecimal](minIncl, maxIncl)
+      .map(bd => BigDecimal(bd.*(100).toInt)./(100))
 
   final lazy val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
     for {
@@ -145,7 +154,11 @@ trait JourneyGenerators extends JourneyTestData {
     for {
       numberOfTaxCodes <- Gen.choose(2, 5)
       taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
-      amounts          <- listOfExactlyN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
+      amounts          <-
+        listOfExactlyN(
+          numberOfTaxCodes,
+          amountNumberGen
+        )
     } yield taxCodes.zip(amounts)
 
   final def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
@@ -159,6 +172,9 @@ trait JourneyGenerators extends JourneyTestData {
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) }
     )
 
+  final lazy val depositIdGen: Gen[String] =
+    listOfExactlyN(6, Gen.oneOf("ABCDEFGHIJKLMNOPRSTUWXYZ0123456789".toCharArray())).map(l => String.valueOf(l.toArray))
+
   final def buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
     for {
       reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
@@ -168,14 +184,16 @@ trait JourneyGenerators extends JourneyTestData {
       reclaimsDetails    <-
         listOfExactlyN(
           numberOfSecurities,
-          Gen.zip(listOfExactlyN(6, Gen.alphaNumChar).map(l => String.valueOf(l.toArray)), taxCodesWithAmountsGen)
+          Gen.zip(depositIdGen, taxCodesWithAmountsGen)
         )
+      declarantContact   <- Acc14Gen.genContactDetails
     } yield buildSecuritiesDisplayDeclaration(
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       reclaimsDetails = reclaimsDetails,
-      allDutiesGuaranteeEligible = allDutiesGuaranteeEligible
+      allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
+      declarantContact = Some(declarantContact)
     )
 
   final def validSecurityReclaimsGen(
@@ -192,8 +210,8 @@ trait JourneyGenerators extends JourneyTestData {
               .map(sd =>
                 sd.taxDetails.halfNonEmpty.map(td =>
                   Gen
-                    .choose(BigDecimal.exact("0.01"), BigDecimal(td.amount))
-                    .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
+                    .choose(BigDecimal.exact("0.01"), td.getAmount)
+                    .map(amount => (sd.securityDepositId, td.getTaxCode, amount))
                 )
               )
               .getOrElse(Seq.empty)

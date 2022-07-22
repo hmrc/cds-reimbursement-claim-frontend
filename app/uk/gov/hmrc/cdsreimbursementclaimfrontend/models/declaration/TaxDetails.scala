@@ -18,11 +18,25 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 final case class TaxDetails(
   taxType: String,
   amount: String
-)
+) {
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def getTaxCode: TaxCode = TaxCodes
+    .find(taxType)
+    .getOrElse(
+      throw new IllegalArgumentException(
+        s"Unsupported taxType=$taxType spotted in ACC14 declaration. Either declaration is wrong or service needs to be updated."
+      )
+    )
+
+  def getAmount: BigDecimal = BigDecimal(amount)
+}
 
 object TaxDetails {
   implicit val format: OFormat[TaxDetails] = Json.format[TaxDetails]

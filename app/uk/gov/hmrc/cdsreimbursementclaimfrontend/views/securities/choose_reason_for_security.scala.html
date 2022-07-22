@@ -29,8 +29,8 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio)
 
 @(form: Form[ReasonForSecurity], reasonsForSecurity: Set[ReasonForSecurity], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -59,6 +59,8 @@
     @errorSummary(form.errors)
 
     @heading(Html(title))
+
+    @paragraph(Html(messages(s"$key.paragraph")), Some("govuk-body"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         

@@ -79,7 +79,7 @@ final case class DisplayDeclaration(
   def getSecurityTaxCodesFor(securityDepositId: String): List[TaxCode] =
     getSecurityDetailsFor(securityDepositId)
       .map(
-        _.taxDetails.map(_.taxType).map(TaxCodes.findUnsafe(_))
+        _.taxDetails.map(_.getTaxCode)
       )
       .getOrElse(Nil)
 
@@ -90,7 +90,7 @@ final case class DisplayDeclaration(
 
   def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
     getSecurityDetailsFor(securityDepositId)
-      .flatMap(_.taxDetails.find(td => TaxCodes.findUnsafe(td.taxType) === taxCode))
+      .flatMap(_.taxDetails.find(td => td.getTaxCode === taxCode))
 
   def getSecurityTotalValueFor(securityDepositId: String): BigDecimal =
     getSecurityDetailsFor(securityDepositId).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00"))

@@ -24,10 +24,26 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
 trait SecuritiesJourneyTestData extends JourneyTestData {
 
-  val emptyJourney: SecuritiesJourney =
+  final val emptyJourney: SecuritiesJourney =
     SecuritiesJourney.empty(exampleEori)
 
-  def tryBuildSecuritiesJourney(
+  final def securitiesJourneyWithMrnAndRfsAndDeclaration(rfs: ReasonForSecurity) = SecuritiesJourney
+    .empty(exampleEori)
+    .submitMovementReferenceNumber(exampleMrn)
+    .submitReasonForSecurityAndDeclaration(
+      rfs,
+      buildSecuritiesDisplayDeclaration(
+        securityReason = rfs.acc14Code,
+        declarantContact = Some(exampleDeclarationContactDetails)
+      )
+    )
+    .flatMap(_.submitClaimDuplicateCheckStatus(false))
+    .flatMapWhen(ReasonForSecurity.requiresExportDeclaration.contains(rfs))(
+      _.submitExportMovementReferenceNumber(anotherExampleMrn)
+    )
+    .getOrFail
+
+  final def tryBuildSecuritiesJourney(
     userEoriNumber: Eori,
     mrn: MRN,
     reasonForSecurity: ReasonForSecurity,
@@ -84,6 +100,112 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)
       .map(_.submitCheckYourAnswersChangeMode(true))
+  }
+
+  final def buildSecuritiesJourneyReadyForSelectingSecurities(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl) =>
+      emptyJourney
+        .submitMovementReferenceNumber(mrn)
+        .submitReasonForSecurityAndDeclaration(rfs, decl)
+        .flatMap(_.submitClaimDuplicateCheckStatus(false))
+        .getOrFail
+  }
+
+  final def buildSecuritiesJourneyWithSomeSecuritiesSelected(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+  ): SecuritiesJourney = {
+    val journey    = buildSecuritiesJourneyReadyForSelectingSecurities(testParams)
+    val depositIds = journey.getSecurityDepositIds
+    journey
+      .submitCheckDeclarationDetailsChangeMode(false)
+      .selectSecurityDepositIds(depositIds.secondHalfNonEmpty)
+      .getOrFail
+  }
+
+  final def buildSecuritiesJourneyInChangeDeclarationDetailsMode(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+  ): SecuritiesJourney =
+    buildSecuritiesJourneyWithSomeSecuritiesSelected(testParams)
+      .submitCheckDeclarationDetailsChangeMode(true)
+
+  final def buildSecuritiesJourneyWithDutiesPartiallySelected(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl, reclaims) =>
+      val availableDepositIds: Seq[String] = decl.getSecurityDepositIds.get
+
+      val depositIdsWithSomeDutiesSelected: Seq[String] = reclaims.map(_._1).distinct
+
+      val depositIdsWithoutDutiesSelected: Seq[String] =
+        availableDepositIds.filterNot(depositIdsWithSomeDutiesSelected.contains).halfNonEmpty
+
+      val taxCodesPerDepositId: Seq[(String, Seq[TaxCode])] =
+        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => tc }).toSeq
+
+      buildSecuritiesJourneyReadyForSelectingSecurities((mrn, rfs, decl))
+        .flatMapEach(
+          depositIdsWithSomeDutiesSelected ++ depositIdsWithoutDutiesSelected,
+          (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
+        )
+        .flatMapEach(
+          taxCodesPerDepositId,
+          (journey: SecuritiesJourney) =>
+            (args: (String, Seq[TaxCode])) =>
+              journey
+                .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2)
+        )
+        .getOrFail
+  }
+
+  final def buildSecuritiesJourneyReadyForEnteringClaimAmounts(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl, reclaims) =>
+      val depositIds: Seq[String]                           = reclaims.map(_._1).distinct
+      val taxCodesPerDepositId: Seq[(String, Seq[TaxCode])] =
+        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => tc }).toSeq
+
+      buildSecuritiesJourneyReadyForSelectingSecurities((mrn, rfs, decl))
+        .flatMapEach(
+          depositIds,
+          (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
+        )
+        .flatMapEach(
+          taxCodesPerDepositId,
+          (journey: SecuritiesJourney) =>
+            (args: (String, Seq[TaxCode])) =>
+              journey
+                .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2)
+        )
+        .getOrFail
+  }
+
+  final def buildSecuritiesJourneyWithClaimsEntered(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl, reclaims) =>
+      val depositIds = reclaims.map(_._1).distinct
+
+      buildSecuritiesJourneyReadyForSelectingSecurities((mrn, rfs, decl))
+        .flatMapEach(
+          depositIds,
+          (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
+        )
+        .flatMapEach(
+          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
+          (journey: SecuritiesJourney) =>
+            (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+              journey
+                .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                .flatMapEach(
+                  args._2,
+                  (journey: SecuritiesJourney) =>
+                    (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                )
+        )
+        .getOrFail
   }
 
 }

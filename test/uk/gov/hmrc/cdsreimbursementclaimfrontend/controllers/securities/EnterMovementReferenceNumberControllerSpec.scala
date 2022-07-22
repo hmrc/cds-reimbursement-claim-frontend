@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
@@ -32,7 +31,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
@@ -45,11 +44,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import scala.concurrent.Future
 
 class EnterMovementReferenceNumberControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
     with Logging {
 
   val enterMovementReferenceNumberKey: String          = "enter-movement-reference-number"
@@ -73,9 +71,8 @@ class EnterMovementReferenceNumberControllerSpec
     ()
   }
 
-  val session: SessionData = SessionData.empty.copy(
-    securitiesJourney = Some(SecuritiesJourney.empty(exampleEori))
-  )
+  val journey              = SecuritiesJourney.empty(exampleEori)
+  val session: SessionData = SessionData(journey)
 
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
@@ -136,6 +133,54 @@ class EnterMovementReferenceNumberControllerSpec
         featureSwitch.disable(Feature.Securities)
 
         status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "save an MRN if valid and continue to the choose reason for security page" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(
+            SessionData(journey.submitMovementReferenceNumber(exampleMrn))
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
+          routes.ChooseReasonForSecurityController.show()
+        )
+      }
+
+      "continue to the check choose reason for security page when MRN didn't change and NOT in a change mode" in {
+        val initialJourney =
+          journey
+            .submitMovementReferenceNumber(exampleMrn)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
+          routes.ChooseReasonForSecurityController.show()
+        )
+      }
+
+      "continue to the check declaration details page when MRN didn't change and in a change mode" in {
+        val initialJourney =
+          journey
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitCheckDeclarationDetailsChangeMode(true)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
+          routes.CheckDeclarationDetailsController.show()
+        )
       }
 
       "reject an invalid MRN" in {

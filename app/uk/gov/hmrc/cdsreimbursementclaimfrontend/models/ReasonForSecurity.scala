@@ -24,20 +24,20 @@ sealed class ReasonForSecurity(val acc14Code: String)
 object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
 
   case object AccountSales extends ReasonForSecurity("ACS")
-  case object CommunitySystemsOfDutyRelief extends ReasonForSecurity("MDC") // Missing Document CSDR
-  case object EndUseRelief extends ReasonForSecurity("ENU") // End-use (Authorisation by Declaration)
+  case object CommunitySystemsOfDutyRelief extends ReasonForSecurity("MDC")
+  case object EndUseRelief extends ReasonForSecurity("ENU")
   case object InwardProcessingRelief extends ReasonForSecurity("IPR")
   case object ManualOverrideDeposit extends ReasonForSecurity("MOD")
-  case object MissingLicenseQuota extends ReasonForSecurity("MDL") // Missing Document License Quota
-  case object MissingPreferenceCertificate extends ReasonForSecurity("MDP") // Missing Document Preference
+  case object MissingLicenseQuota extends ReasonForSecurity("MDL")
+  case object MissingPreferenceCertificate extends ReasonForSecurity("MDP")
   case object OutwardProcessingRelief extends ReasonForSecurity("OPR")
   case object RevenueDispute extends ReasonForSecurity("RED")
-  case object TemporaryAdmission2Y extends ReasonForSecurity("TA24") // (2 years Expiration)
-  case object TemporaryAdmission6M extends ReasonForSecurity("TA6") // (6 months Expiration)
-  case object TemporaryAdmission3M extends ReasonForSecurity("TA3") // (3 months Expiration)
-  case object TemporaryAdmission2M extends ReasonForSecurity("TA2") // (2 months Expiration)
-  case object UKAPEntryPrice extends ReasonForSecurity("CEP") // CAP Entry Price
-  case object UKAPSafeguardDuties extends ReasonForSecurity("CSD") // CAP Safeguard Duties
+  case object TemporaryAdmission2Y extends ReasonForSecurity("TA24")
+  case object TemporaryAdmission6M extends ReasonForSecurity("TA6")
+  case object TemporaryAdmission3M extends ReasonForSecurity("TA3")
+  case object TemporaryAdmission2M extends ReasonForSecurity("TA2")
+  case object UKAPEntryPrice extends ReasonForSecurity("CEP")
+  case object UKAPSafeguardDuties extends ReasonForSecurity("CSD")
 
   override val values: Set[ReasonForSecurity] =
     Set(
@@ -69,21 +69,15 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       OutwardProcessingRelief
     )
 
-  private[models] val basisOfSecuritiesStringMap: Map[String, ReasonForSecurity] =
-    values.map(a => a.toString -> a).toMap
+  def has(rfs: String): Boolean =
+    valueMap.contains(rfs)
 
-  def has(basisOfRejectedGoods: String): Boolean                                 =
-    basisOfSecuritiesStringMap.contains(basisOfRejectedGoods)
+  def find(rfs: String): Option[ReasonForSecurity] =
+    valueMap.get(rfs)
 
-  def find(basisOfRejectedGoods: String): Option[ReasonForSecurity] =
-    basisOfSecuritiesStringMap.get(basisOfRejectedGoods)
-
-  def findUnsafe(basisOfRejectedGoods: String): ReasonForSecurity =
-    basisOfSecuritiesStringMap(basisOfRejectedGoods)
+  def findUnsafe(rfs: String): ReasonForSecurity =
+    valueMap(rfs)
 
   def fromACC14Code(acc14Code: String): Option[ReasonForSecurity] =
     values.find(_.acc14Code === acc14Code)
-
-  implicit val reasonsForSecurityOrdering: Ordering[ReasonForSecurity] = (a: ReasonForSecurity, b: ReasonForSecurity) =>
-    a.toString compare b.toString
 }

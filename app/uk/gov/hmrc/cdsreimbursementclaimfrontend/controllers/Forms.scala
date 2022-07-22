@@ -162,6 +162,14 @@ object Forms {
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
 
+  val securitiesContactDetailsForm: Form[MrnContactDetails] = Form(
+    mapping(
+      "enter-contact-details-securities.contact-name"         -> nonEmptyText(maxLength = 512),
+      "enter-contact-details-securities.contact-email"        -> Email.mappingMaxLength,
+      "enter-contact-details-securities.contact-phone-number" -> optional(PhoneNumber.mapping)
+    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
+  )
+
   val enterRejectedGoodsDetailsForm: Form[String] = Form(
     "enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500)
   )
@@ -243,8 +251,8 @@ object Forms {
   val enterScheduledClaimForm: Form[AmountPaidWithCorrect] = Form(
     "enter-scheduled-claim" ->
       mapping(
-        "paid-amount"   -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero")),
-        "actual-amount" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
+        "paid-amount"   -> moneyMapping("error.invalid", zeroErrorMsg = Some(s"error.zero")),
+        "actual-amount" -> moneyMapping("error.invalid", allowZero = true)
       )(AmountPaidWithCorrect.apply)(AmountPaidWithCorrect.unapply)
         .verifying(
           "invalid.claim",
@@ -255,8 +263,8 @@ object Forms {
   val enterScheduledClaimRejectedGoodsForm: Form[AmountPaidWithRefund] = Form(
     "enter-claim-scheduled.rejected-goods" ->
       mapping(
-        "paid-amount"  -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero")),
-        "claim-amount" -> moneyMapping(13, 2, "error.invalid", zeroErrorMsg = Some(s"error.zero"))
+        "paid-amount"  -> moneyMapping("error.invalid", zeroErrorMsg = Some(s"error.zero")),
+        "claim-amount" -> moneyMapping("error.invalid", zeroErrorMsg = Some(s"error.zero"))
       )(AmountPaidWithRefund.apply)(AmountPaidWithRefund.unapply)
         .verifying(
           "invalid.claim",
@@ -276,8 +284,6 @@ object Forms {
     Form(
       mapping(
         s"$key.claim-amount" -> moneyMapping(
-          precision = 13,
-          scale = 2,
           errorMsg = s"error.invalid-text",
           zeroErrorMsg = Some(s"error.zero")
         ).verifying("error.invalid-amount", amount => amount >= 0 && amount <= paidAmount)

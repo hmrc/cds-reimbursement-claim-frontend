@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -37,9 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.buildCompleteJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -49,6 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genE
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -72,13 +72,13 @@ class EnterContactDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
   val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
+    securitiesJourney = Some(SecuritiesJourney.empty(exampleEori))
   )
 
-  private def mockCompleteJourney(journey: RejectedGoodsMultipleJourney, email: Email, name: contactdetails.Name) =
+  private def mockCompleteJourney(journey: SecuritiesJourney, email: Email, name: contactdetails.Name) =
     inSequence {
       mockAuthWithAllRetrievals(
         Some(AffinityGroup.Individual),
@@ -90,7 +90,7 @@ class EnterContactDetailsControllerSpec
         Some(Credentials("id", "GovernmentGateway")),
         Some(Name(name.name, name.lastName))
       )
-      mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+      mockGetSession(session.copy(securitiesJourney = Some(journey)))
     }
 
   "Enter Contact Details Controller" when {
@@ -98,8 +98,8 @@ class EnterContactDetailsControllerSpec
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+      "do not find the page if securities feature is disabled" in {
+        featureSwitch.disable(Feature.Securities)
 
         status(performAction()) shouldBe NOT_FOUND
       }
@@ -111,13 +111,13 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title"),
+            messageFromMessageKey("enter-contact-details-securities.change.title"),
             doc => {
               doc
-                .select("form input[name='enter-contact-details-rejected-goods.contact-name']")
+                .select("form input[name='enter-contact-details-securities.contact-name']")
                 .`val`() shouldBe contactDetails.get.fullName
               doc
-                .select("form input[name='enter-contact-details-rejected-goods.contact-email']")
+                .select("form input[name='enter-contact-details-securities.contact-email']")
                 .`val`() shouldBe contactDetails.get.emailAddress.value
             }
           )
@@ -130,8 +130,8 @@ class EnterContactDetailsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+      "do not find the page if securities feature is disabled" in {
+        featureSwitch.disable(Feature.Securities)
 
         status(performAction()) shouldBe NOT_FOUND
       }
@@ -149,19 +149,19 @@ class EnterContactDetailsControllerSpec
               Some(Credentials("id", "GovernmentGateway")),
               Some(Name(name.name, name.lastName))
             )
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey.submitContactDetails(None))))
+            mockGetSession(session.copy(securitiesJourney = Some(journey.submitContactDetails(None))))
           }
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
+            messageFromMessageKey("enter-contact-details-securities.change.title")
           )
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title"),
+            messageFromMessageKey("enter-contact-details-securities.change.title"),
             doc => {
               getErrorSummary(doc) contains messageFromMessageKey(
                 "enter-your-contact-details.contact-name.error.required"
@@ -187,11 +187,11 @@ class EnterContactDetailsControllerSpec
               Some(Credentials("id", "GovernmentGateway")),
               Some(Name(name.name, name.lastName))
             )
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockStoreSession(
-              session.copy(rejectedGoodsMultipleJourney =
+              session.copy(securitiesJourney =
                 Some(journey.submitContactDetails(Some(MrnContactDetails(name.toFullName, email, None))))
               )
             )(Right(()))
@@ -199,13 +199,13 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
+            messageFromMessageKey("enter-contact-details-securities.change.title")
           )
 
           checkIsRedirect(
             performAction(
-              "enter-contact-details-rejected-goods.contact-name"  -> name.toFullName,
-              "enter-contact-details-rejected-goods.contact-email" -> email.value
+              "enter-contact-details-securities.contact-name"  -> name.toFullName,
+              "enter-contact-details-securities.contact-email" -> email.value
             ),
             routes.CheckClaimantDetailsController.show()
           )

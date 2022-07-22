@@ -33,6 +33,8 @@ trait WorkInProgressMixin[Journey] {
   def show(a: Any): Action[AnyContent]         = show
   def show(a: Any, b: Any): Action[AnyContent] = show
 
+  val showFirst: Action[AnyContent] = show
+
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>

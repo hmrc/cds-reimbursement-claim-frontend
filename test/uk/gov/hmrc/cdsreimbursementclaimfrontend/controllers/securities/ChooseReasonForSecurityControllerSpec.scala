@@ -20,7 +20,6 @@ import cats.data.EitherT
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
@@ -37,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
@@ -56,11 +55,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ChooseReasonForSecurityControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   val mockClaimsService: ClaimService                                    = mock[ClaimService]
   val mockCDSReimbursementClaimConnector: CDSReimbursementClaimConnector = mock[CDSReimbursementClaimConnector]
@@ -198,7 +196,54 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
             ),
-            routes.SelectSecuritiesController.show(declaration.getSecurityDepositIds.get.head)
+            routes.SelectSecuritiesController.showFirst()
+          )
+        }
+      }
+
+      "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .getOrFail
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+            ),
+            routes.SelectSecuritiesController.showFirst()
+          )
+        }
+      }
+
+      "redirect to the check declaration details page when reason for security didn't change and in a change mode" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .map(_.submitCheckDeclarationDetailsChangeMode(true))
+              .getOrFail
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+            ),
+            routes.CheckDeclarationDetailsController.show()
           )
         }
       }

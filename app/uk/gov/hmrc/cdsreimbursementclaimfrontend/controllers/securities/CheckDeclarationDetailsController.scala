@@ -40,6 +40,7 @@ class CheckDeclarationDetailsController @Inject() (
 
   import SecuritiesJourney.Checks._
 
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
@@ -31,8 +32,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -51,65 +53,112 @@ class EnterDeclarantEoriNumberController @Inject() (
   val formKey: String  = "enter-declarant-eori-number"
   val postAction: Call = routes.EnterDeclarantEoriNumberController.submit()
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction)).asFuture
+  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  private val successResultSelectSecurities: Result =
+    Redirect(routes.SelectSecuritiesController.showFirst())
+
+  //Error: Claim has already been submitted as part of a whole or partial claim
+  private val errorResultClaimExistsAlready: Result =
+    Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
+
+  import SecuritiesJourney.Checks._
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(hasMRNAndDisplayDeclarationAndRfS & canContinueTheClaimWithChoosenRfS)
+
+  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    (if (!journey.needsDeclarantAndConsigneeEoriSubmission)
+       Redirect(routes.SelectSecuritiesController.showFirst())
+     else if (journey.answers.consigneeEoriNumber.isEmpty)
+       Redirect(routes.EnterImporterEoriNumberController.show())
+     else
+       Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    eoriNumberForm(formKey)
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          journey -> BadRequest(enterDeclarantEoriNumberPage(formWithErrors.fill(Eori("")), postAction)) asFuture,
-        eori =>
+    if (!journey.needsDeclarantAndConsigneeEoriSubmission)
+      (journey, Redirect(routes.SelectSecuritiesController.showFirst())).asFuture
+    else if (journey.answers.consigneeEoriNumber.isEmpty)
+      (journey, Redirect(routes.EnterImporterEoriNumberController.show())).asFuture
+    else
+      eoriNumberForm(formKey)
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            journey -> BadRequest(enterDeclarantEoriNumberPage(formWithErrors.fill(Eori("")), postAction)) asFuture,
+          eori =>
+            journey
+              .submitDeclarantEoriNumber(eori)
+              .fold(
+                e => {
+                  logger
+                    .error(s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e")
+                  journey -> Redirect(controllers.routes.IneligibleController.ineligible()) asFuture
+                },
+                updatedJourney =>
+                  (for {
+                    mrn                              <- getMovementReferenceNumber(journey)
+                    rfs                              <- getReasonForSecurity(journey)
+                    similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, rfs)
+                    updatedJourneyWithRedirect       <- submitClaimDuplicateCheckStatus(
+                                                          updatedJourney,
+                                                          similarClaimExistAlreadyInCDFPay
+                                                        )
+                  } yield updatedJourneyWithRedirect)
+                    .bimap(result => (journey, result), identity)
+                    .merge
+              )
+        )
+  }
+
+  private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
+    EitherT.fromOption[Future](
+      journey.getLeadMovementReferenceNumber,
+      Redirect(routes.EnterMovementReferenceNumberController.show)
+    )
+
+  private def getReasonForSecurity(journey: SecuritiesJourney): EitherT[Future, Result, ReasonForSecurity] =
+    EitherT.fromOption[Future](
+      journey.getReasonForSecurity,
+      Redirect(routes.ChooseReasonForSecurityController.show)
+    )
+
+  private def checkIfClaimIsDuplicated(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+    hc: HeaderCarrier,
+    r: Request[_]
+  ): EitherT[Future, Result, Boolean] =
+    cdsReimbursementClaimConnector
+      .getIsDuplicate(mrn, reasonForSecurity)
+      .leftMap(error => logAndDisplayError("Could not check if isDuplicate claim", error))
+      .map(_.claimFound)
+
+  private def submitClaimDuplicateCheckStatus(
+    journey: SecuritiesJourney,
+    similarClaimExistAlreadyInCDFPay: Boolean
+  ): EitherT[Future, Result, (SecuritiesJourney, Result)] =
+    EitherT.liftF[Future, Result, (SecuritiesJourney, Result)](
+      EitherT
+        .fromEither[Future](
           journey
-            .submitDeclarantEoriNumber(eori)
-            .fold(
-              e => {
-                logger
-                  .error(s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e")
-                journey -> Redirect(controllers.routes.IneligibleController.ineligible()) asFuture
-              },
-              updatedJourney => nextPage(updatedJourney)
-            )
-      )
-  }
-
-  def nextPage(
-    journey: SecuritiesJourney
-  )(implicit request: Request[_], hc: HeaderCarrier): Future[(SecuritiesJourney, Result)] = {
-    def withJourney(result: Result): (SecuritiesJourney, Result) = (journey, result)
-
-    def isDuplicateClaim: EitherT[Future, (SecuritiesJourney, Result), Boolean] = for {
-      mrn               <- EitherT
-                             .fromOption[Future](journey.getLeadMovementReferenceNumber, Error("Could not get MRN"))
-                             .leftMap(error => withJourney(logAndDisplayError("Failed to get lead MRN from journey", error)))
-      reasonForSecurity <-
-        EitherT
-          .fromOption[Future](
-            journey.getReasonForSecurity,
-            Error("Could not get ReasonForSecurity")
+            .submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay)
+        )
+        .leftMap(error =>
+          (
+            journey,
+            Redirect(routeForValidationError(error))
           )
-          .leftMap(error => withJourney(logAndDisplayError("Failed to get ReasonForSecurity from journey", error)))
-      existingClaim     <-
-        cdsReimbursementClaimConnector
-          .getIsDuplicate(mrn, reasonForSecurity)
-          .leftMap(error => withJourney(logAndDisplayError("Could not check if isDuplicate claim", error)))
-    } yield existingClaim.claimFound
-
-    val updateAndRedirect = for {
-      isDuplicate <- isDuplicateClaim
-      result      <- if (isDuplicate) {
-                       EitherT.rightT[Future, (SecuritiesJourney, Result)](
-                         withJourney(Redirect(controllers.routes.IneligibleController.ineligible()))
-                       )
-                     } else {
-                       EitherT.rightT[Future, (SecuritiesJourney, Result)](
-                         withJourney(Redirect(routes.SelectDutiesController.show(""))) //TODO: CDSR-1551
-                       )
-                     }
-    } yield result
-
-    updateAndRedirect.merge
-  }
+        )
+        .map(journeyWithUpdatedStatus =>
+          (
+            journeyWithUpdatedStatus,
+            if (similarClaimExistAlreadyInCDFPay) {
+              logger.info(s"Claim ineligible because already exists.")
+              errorResultClaimExistsAlready
+            } else
+              successResultSelectSecurities
+          )
+        )
+        .merge
+    )
 }

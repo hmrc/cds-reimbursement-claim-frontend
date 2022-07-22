@@ -10,6 +10,7 @@ POST         /securities/enter-importer-eori                           @uk.gov.h
 GET          /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterDeclarantEoriNumberController.show()
 POST         /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterDeclarantEoriNumberController.submit()
 
+GET          /securities/select-securities                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.showFirst()
 GET          /securities/select-securities/:id                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.show(id: String)
 POST         /securities/select-securities/:id                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.submit(id: String)
 
@@ -31,12 +32,14 @@ GET          /securities/claimant-details/problem-with-address         @uk.gov.h
 GET          /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterContactDetailsController.show()
 POST         /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterContactDetailsController.submit()
 
+GET          /securities/confirm-full-repayment                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.showFirst
 GET          /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.show(id: String)
 POST         /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.submit(id: String)
 
 GET          /securities/select-duties/:id                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.show(id: String)
 POST         /securities/select-duties/:id                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.submit(id: String)
 
+GET          /securities/enter-claim/:id                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterClaimController.showFirst(id: String)
 GET          /securities/enter-claim/:id/:taxCode                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterClaimController.show(id: String, taxCode: TaxCode)
 POST         /securities/enter-claim/:id/:taxCode                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterClaimController.submit(id: String, taxCode: TaxCode)
 

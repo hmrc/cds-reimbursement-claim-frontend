@@ -21,7 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import java.util.Locale
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
@@ -61,6 +60,12 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       )
     )
 
+  val genReasonForSecurity: Gen[ReasonForSecurity] =
+    Gen.oneOf(ReasonForSecurity.values)
+
+  val genReasonForSecurityNonExport: Gen[ReasonForSecurity] =
+    Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
+
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = false,
@@ -76,7 +81,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     for {
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
-      rfs                         <- Gen.oneOf(ReasonForSecurity.values)
+      rfs                         <- genReasonForSecurity
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
@@ -85,10 +90,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       reclaimsDetails             <-
         listOfExactlyN(
           numberOfSecurities,
-          Gen.zip(
-            listOfExactlyN(7, Gen.alphaNumChar).map(l => String.valueOf(l.toArray).toUpperCase(Locale.ENGLISH)),
-            taxCodesWithAmountsGen
-          )
+          Gen.zip(depositIdGen, taxCodesWithAmountsGen)
         )
       allDutiesGuaranteeEligible  <- allDutiesGuaranteeEligibleOpt.map(Gen.const(_)).getOrElse(Gen.oneOf(true, false))
       acc14                        = buildSecuritiesDisplayDeclaration(

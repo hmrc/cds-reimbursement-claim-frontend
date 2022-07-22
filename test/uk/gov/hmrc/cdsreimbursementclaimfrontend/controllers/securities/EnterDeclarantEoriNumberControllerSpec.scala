@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.NOT_FOUND
 import play.api.inject.bind
@@ -28,7 +27,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
@@ -40,13 +39,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 class EnterDeclarantEoriNumberControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   val enterDeclarantEoriNumberKey: String = "enter-declarant-eori-number"
 
@@ -62,8 +62,22 @@ class EnterDeclarantEoriNumberControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
-  val session: SessionData = SessionData.empty.copy(
-    securitiesJourney = Some(SecuritiesJourney.empty(exampleEori))
+  val declaration: DisplayDeclaration =
+    buildSecuritiesDisplayDeclaration(
+      exampleMrnAsString,
+      ReasonForSecurity.AccountSales.acc14Code,
+      declarantEORI = anotherExampleEori,
+      consigneeEORI = Some(yetAnotherExampleEori)
+    )
+
+  lazy val initialSession = SessionData(
+    SecuritiesJourney
+      .empty(exampleEori)
+      .submitMovementReferenceNumber(exampleMrn)
+      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+      .flatMap(_.submitClaimDuplicateCheckStatus(false))
+      .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
+      .getOrFail
   )
 
   "Movement Reference Number Controller" when {
@@ -80,7 +94,7 @@ class EnterDeclarantEoriNumberControllerSpec
       "display the page on a new journey" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkPageIsDisplayed(
@@ -90,6 +104,62 @@ class EnterDeclarantEoriNumberControllerSpec
             doc.select(s"#$enterDeclarantEoriNumberKey").`val`() shouldBe ""
             doc.select("form").attr("action")                    shouldBe routes.EnterDeclarantEoriNumberController.submit().url
           }
+        )
+      }
+
+      "redirect to the select securities page when eori submission not required" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.AccountSales.acc14Code
+          )
+
+        val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.SelectSecuritiesController.showFirst()
+        )
+      }
+
+      "redirect to the enter importer eori page when required but missing" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.AccountSales.acc14Code,
+            declarantEORI = anotherExampleEori,
+            consigneeEORI = Some(yetAnotherExampleEori)
+          )
+
+        lazy val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterImporterEoriNumberController.show()
         )
       }
     }
@@ -110,7 +180,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkPageIsDisplayed(
@@ -124,7 +194,7 @@ class EnterDeclarantEoriNumberControllerSpec
       "reject an empty EORI" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkPageIsDisplayed(
@@ -138,7 +208,7 @@ class EnterDeclarantEoriNumberControllerSpec
       "submit a valid EORI and user is not the declarant" in forAll { (eori: Eori) =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(initialSession)
         }
 
         checkIsRedirect(

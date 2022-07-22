@@ -223,7 +223,7 @@ enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first <a
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001
 
-enter-movement-reference-number.securities.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.securities.title=Enter the import <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.securities.details.heading=Finding your <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
@@ -329,7 +329,8 @@ enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Op
 #===================================================
 #  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
 #===================================================
-choose-reason-for-security.securities.title=Choose the reason for security
+choose-reason-for-security.securities.title=Select why a security deposit or guarantee was required
+choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
 choose-reason-for-security.securities.error.required=Choose the reason for security
 choose-reason-for-security.securities.AccountSales=Account Sales
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Community Systems of Duty Relief (CSDR)
@@ -677,6 +678,19 @@ enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be 0.01 or 
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 
 #===================================================
+#  ENTER CLAIM REJECTED GOODS - SECURITIES
+#===================================================
+enter-claim.securities.title=Claim details for {0} - {1}
+enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
+enter-claim.securities.claim-amount=How much is to be claimed back, in pounds?
+enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.securities.title.caption=Security ID: {0}
+enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
+enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
+enter-claim.securities.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid
+enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
+
+#===================================================
 #  CHECK CLAIM REJECTED GOODS - SINGLE
 #===================================================
 check-claim.rejected-goods.single.title=Check the claim total for the <abbr title="Movement Reference Number">MRN</abbr>
@@ -720,6 +734,24 @@ enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optio
 enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+
+#===================================================
+#  CONTACT DETAILS SECURITIES
+#===================================================
+enter-contact-details-securities.change.title=Change contact details
+enter-contact-details-securities.add.title=Add contact details
+enter-contact-details-securities.h2=Enter your personal details
+enter-contact-details-securities.contact-name.label=Full name
+enter-contact-details-securities.contact-name.error.required=Enter a contact Name
+enter-contact-details-securities.contact-name.error.maxLength=Enter a shorter name
+enter-contact-details-securities.contact-email.label=Email address
+enter-contact-details-securities.contact-email.error.required=Enter a contact email address
+enter-contact-details-securities.contact-email.invalid=Enter an email address in the correct format, like name@example.com
+enter-contact-details-securities.contact-email.error.maxLength=Enter a shorter email
+enter-contact-details-securities.contact-phone-number.label=Telephone (optional)
+enter-contact-details-securities.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+enter-contact-details-securities.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+enter-contact-details-securities.contact-phone-number.invalid=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 
 #===================================================
 #  REIMBURSEMENT PAGES

@@ -16,9 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.NOT_FOUND
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -28,36 +32,32 @@ import play.api.test.Helpers.status
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.EitherOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-
-import scala.concurrent.Future
-import org.jsoup.nodes.Document
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import scala.collection.JavaConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import play.api.i18n.MessagesApi
-import play.api.i18n.Messages
-import play.api.i18n.Lang
-import play.api.i18n.MessagesImpl
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
+import scala.collection.JavaConverters._
+import scala.concurrent.Future
+
 class SelectSecuritiesControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
-    with SummaryMatchers {
+    with SummaryMatchers
+    with TestWithJourneyGenerator[SecuritiesJourney] {
 
   val mockClaimsService: ClaimService = mock[ClaimService]
 
@@ -125,49 +125,42 @@ class SelectSecuritiesControllerSpec
         status(performAction("foo")) shouldBe NOT_FOUND
       }
 
-      "redirect to the ineligible page if an invalid security deposit ID" in {
-        mrnWithNonExportRfsWithDisplayDeclarationGen.sample.map { case (mrn, rfs, decl) =>
-          val initialJourney = emptyJourney
-            .submitMovementReferenceNumber(mrn)
-            .submitReasonForSecurityAndDeclaration(rfs, decl)
-            .flatMap(_.submitClaimDuplicateCheckStatus(false))
-            .getOrFail
+      "redirect to the ineligible page if an invalid security deposit ID" in forSomeWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+        )
+      ) { case (initialJourney, _) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
 
+        checkIsRedirect(
+          performAction("foo-123-xyz"),
+          baseRoutes.IneligibleController.ineligible()
+        )
+      }
+
+      "display the page if a valid security deposit ID" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+
+        for (depositId <- depositIds) {
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
-          checkIsRedirect(
-            performAction("foo-123-xyz"),
-            baseRoutes.IneligibleController.ineligible()
+          checkPageIsDisplayed(
+            performAction(depositId),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => validateSelectSecuritiesPage(doc, initialJourney, depositId)
           )
-
-        }
-      }
-
-      "display the page if a valid security deposit ID" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val initialJourney = emptyJourney
-            .submitMovementReferenceNumber(mrn)
-            .submitReasonForSecurityAndDeclaration(rfs, decl)
-            .flatMap(_.submitClaimDuplicateCheckStatus(false))
-            .getOrFail
-
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-
-          for (depositId <- depositIds) {
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-            }
-
-            checkPageIsDisplayed(
-              performAction(depositId),
-              messageFromMessageKey(s"$messagesKey.title"),
-              doc => validateSelectSecuritiesPage(doc, initialJourney, depositId)
-            )
-          }
         }
       }
 
@@ -178,171 +171,153 @@ class SelectSecuritiesControllerSpec
       def performAction(id: String, data: (String, String)*): Future[Result] =
         controller.submit(id)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "select the first security deposit and move to the next security" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+      "select the first security deposit and move to the next security" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
 
-          whenever(depositIds.size >= 2) {
-            val firstDepositId  = depositIds(0)
-            val secondDepositId = depositIds(1)
+        whenever(depositIds.size >= 2) {
+          val firstDepositId  = depositIds(0)
+          val secondDepositId = depositIds(1)
 
-            val initialJourney = emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .getOrFail
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(firstDepositId).getOrFail))(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(firstDepositId, "select-securities" -> "true"),
-              routes.SelectSecuritiesController.show(secondDepositId)
-            )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(firstDepositId).getOrFail))(Right(()))
           }
+
+          checkIsRedirect(
+            performAction(firstDepositId, "select-securities" -> "true"),
+            routes.SelectSecuritiesController.show(secondDepositId)
+          )
+        }
+
+      }
+
+      "skip the first security deposit and move to the next security" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+
+        whenever(depositIds.size >= 1) {
+          val firstDepositId  = depositIds(0)
+          val secondDepositId = depositIds(1)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(
+            performAction(firstDepositId, "select-securities" -> "false"),
+            routes.SelectSecuritiesController.show(secondDepositId)
+          )
+        }
+
+      }
+
+      "select the last security deposit and move to the check declaration details page" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+
+        whenever(depositIds.size >= 2) {
+          val lastDepositId = depositIds.last
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(lastDepositId).getOrFail))(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(lastDepositId, "select-securities" -> "true"),
+            routes.CheckDeclarationDetailsController.show()
+          )
         }
       }
 
-      "skip the first security deposit and move to the next security" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+      "skip the last security deposit and move to the check declaration details page" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
 
-          whenever(depositIds.size >= 1) {
-            val firstDepositId  = depositIds(0)
-            val secondDepositId = depositIds(1)
+        whenever(depositIds.size >= 1) {
+          val lastDepositId = depositIds.last
 
-            val initialJourney = emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .getOrFail
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-            }
-
-            checkIsRedirect(
-              performAction(firstDepositId, "select-securities" -> "false"),
-              routes.SelectSecuritiesController.show(secondDepositId)
-            )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(lastDepositId).getOrFail))(Right(()))
           }
+
+          checkIsRedirect(
+            performAction(lastDepositId, "select-securities" -> "false"),
+            routes.CheckDeclarationDetailsController.show()
+          )
         }
       }
 
-      "select the last security deposit and move to the check declaration details page" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+      "select the first security deposit and return to the check details page when in change mode" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyInChangeDeclarationDetailsMode
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
 
-          whenever(depositIds.size >= 2) {
-            val lastDepositId = depositIds.last
+        whenever(depositIds.size >= 2) {
+          val firstDepositId = depositIds(0)
 
-            val initialJourney = emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .getOrFail
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(lastDepositId).getOrFail))(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(lastDepositId, "select-securities" -> "true"),
-              routes.CheckDeclarationDetailsController.show()
-            )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(firstDepositId).getOrFail))(Right(()))
           }
+
+          checkIsRedirect(
+            performAction(firstDepositId, "select-securities" -> "true"),
+            routes.CheckDeclarationDetailsController.show()
+          )
         }
+
       }
 
-      "skip the last security deposit and move to the check declaration details page" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+      "de-select the last security deposit and return to the check details page when in change mode" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyInChangeDeclarationDetailsMode
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
 
-          whenever(depositIds.size >= 1) {
-            val lastDepositId = depositIds.last
+        whenever(depositIds.nonEmpty) {
+          val depositId = depositIds.last
 
-            val initialJourney = emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .flatMap(_.selectSecurityDepositIds(depositIds))
-              .getOrFail
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(lastDepositId).getOrFail))(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(lastDepositId, "select-securities" -> "false"),
-              routes.CheckDeclarationDetailsController.show()
-            )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(depositId).getOrFail))(Right(()))
           }
+
+          checkIsRedirect(
+            performAction(depositId, "select-securities" -> "false"),
+            routes.CheckDeclarationDetailsController.show()
+          )
         }
-      }
 
-      "select the first security deposit and return to the check details page when in change mode" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-
-          whenever(depositIds.size >= 2) {
-            val firstDepositId = depositIds(0)
-
-            val initialJourney = emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .map(_.submitCheckDeclarationDetailsChangeMode(true))
-              .getOrFail
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(firstDepositId).getOrFail))(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(firstDepositId, "select-securities" -> "true"),
-              routes.CheckDeclarationDetailsController.show()
-            )
-          }
-        }
-      }
-
-      "de-select the first security deposit and return to the check details page when in change mode" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-
-          whenever(depositIds.nonEmpty) {
-            val firstDepositId = depositIds(0)
-
-            val initialJourney = emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .flatMap(_.selectSecurityDepositIds(depositIds))
-              .map(_.submitCheckDeclarationDetailsChangeMode(true))
-              .getOrFail
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(firstDepositId).getOrFail))(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(firstDepositId, "select-securities" -> "false"),
-              routes.CheckDeclarationDetailsController.show()
-            )
-          }
-        }
       }
 
     }

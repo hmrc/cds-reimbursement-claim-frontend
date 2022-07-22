@@ -35,7 +35,7 @@
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block)
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph)
 
 
 @(form: Form[YesNo], declaration: DisplayDeclaration, securityDepositId: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -47,11 +47,11 @@
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title),caption = messages(s"$key.title.caption", currentIndex, maxIndex))
+    @heading(Html(title), caption = messages(s"$key.title.caption", currentIndex, maxIndex))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

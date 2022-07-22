@@ -168,7 +168,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes            <- Gen.choose(1, 5)
       taxCodes                    <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
-      paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
+      paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       reimbursementAmount         <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
