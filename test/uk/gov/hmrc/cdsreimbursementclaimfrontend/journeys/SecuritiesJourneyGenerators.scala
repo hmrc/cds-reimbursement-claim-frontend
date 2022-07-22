@@ -151,4 +151,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       )
     }
 
+  val mrnWithRfsWithDisplayDeclarationWithReclaimsGen = for {
+    (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGen
+    reclaims         <- validSecurityReclaimsGen(decl)
+  } yield (mrn, rfs, decl, reclaims)
+
 }

@@ -1050,6 +1050,15 @@ multiple-enter-claim.error.invalid=Amount that should have been paid must be a n
 multiple-enter-claim.invalid.claim=Amount that should have been paid must be lower than the amount paid
 
 #===================================================
+#  CHECK CLAIM PAGE FOR SECURITIES
+#===================================================
+
+check-claim.securities.title=Check the repayment claim total for this claim
+check-claim.securities.summary=Your repayment calculations are shown below. This is based on the information you provided to us.
+check-claim.securities.claim-for-security.h2=Security ID: {0}
+
+
+#===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
 check-claim-summary.title=Check the claim total for the <abbr title="Movement Reference Number">MRN</abbr>
