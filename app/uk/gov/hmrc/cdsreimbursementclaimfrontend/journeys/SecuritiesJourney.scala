@@ -76,11 +76,8 @@ final class SecuritiesJourney private (
       .getOrElse(Seq.empty)
 
   def isValidSecurityDepositId(securityDepositId: String): Boolean = {
-    val valid = getLeadDisplayDeclaration
+    getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
-
-    if (!valid) Logger("test").warn(s"invalid securityDepositId: $securityDepositId")
-    valid
   }
 
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =

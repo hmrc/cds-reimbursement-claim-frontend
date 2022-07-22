@@ -229,16 +229,6 @@ trait JourneyGenerators extends JourneyTestData {
     )
   val logger: Logger                                                                                              = Logger(this.getClass)
 
-//  def logIfEmpty(): Seq[Gen[(String, TaxCode, BigDecimal)]] = {
-//    logger.warn("seq should not be empty")
-//    Seq.empty
-//  }
-//
-//  def logIfEmpty2(): List[String] = {
-//    logger.warn("list should not be empty")
-//    List()
-//  }
-
   private final def validSecurityReclaimsGenInternal(
     decl: DisplayDeclaration,
     mapSecurityDeposit: SecurityDetails => Seq[Gen[(String, TaxCode, BigDecimal)]]
