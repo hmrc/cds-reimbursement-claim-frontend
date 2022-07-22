@@ -31,6 +31,8 @@ final case class SecurityDetails(
 
   def isGuaranteeEligible: Boolean  = paymentMethod === "004"
   def isBankAccountPayment: Boolean = paymentMethod === "001"
+
+  def getTotalAmount: BigDecimal = BigDecimal(totalAmount)
 }
 
 object SecurityDetails {

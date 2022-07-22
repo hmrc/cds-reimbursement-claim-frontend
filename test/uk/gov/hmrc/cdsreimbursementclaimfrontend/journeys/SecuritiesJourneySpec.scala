@@ -580,6 +580,63 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.hasCompleteSupportingEvidences                shouldBe true
         journey.hasCompleteSecuritiesReclaims                 shouldBe true
         journey.isFinalized                                   shouldBe false
+        depositIds.foreach { depositId =>
+          journey.isFullSecurityAmountClaimed(depositId) shouldBe false
+        }
+      }
+    }
+
+    "accept submission of the full reclaim amounts" in {
+      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        val depositIds: Seq[String] = decl.getSecurityDepositIds.get.halfNonEmpty
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
+          depositIds.map { sid =>
+            (sid, decl.getSecurityDetailsFor(sid).map(_.taxDetails.map(td => (td.getTaxCode, td.getAmount))).get)
+          }
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                    .flatMapEach(
+                      args._2,
+                      (journey: SecuritiesJourney) =>
+                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                    )
+            )
+            .getOrFail
+
+        val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
+          SortedMap(
+            (reclaimsBySecurityDepositId
+              .map { case (sid, reclaims) =>
+                (sid, SortedMap((reclaims.map { case (tc, a) => (tc, Some(a)) }): _*))
+              }): _*
+          )
+
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
+        journey.answers.displayDeclaration.contains(decl)     shouldBe true
+        journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
+        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSecuritiesReclaims                 shouldBe true
+        journey.isFinalized                                   shouldBe false
+        depositIds.foreach { depositId =>
+          journey.isFullSecurityAmountClaimed(depositId) shouldBe true
+        }
       }
     }
 

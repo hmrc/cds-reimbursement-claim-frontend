@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -32,7 +31,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
@@ -52,13 +50,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import scala.List
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 class CheckClaimDetailsControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
+    with TestWithJourneyGenerator[SecuritiesJourney]
     with SummaryMatchers {
 
   val mockClaimsService: ClaimService = mock[ClaimService]
@@ -86,48 +86,43 @@ class CheckClaimDetailsControllerSpec
     journey: SecuritiesJourney
   ) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala.toList
+    val paragraph = doc.select("p.govuk-body").text()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-    val expectedHeaders = journey.getSelectedDepositIds.map((depositId: String) => s"Security ID: $depositId").toList
+    paragraph shouldBe messages("check-claim.securities.summary")
 
-    if (expectedHeaders.nonEmpty) {
-      headers       should not be empty
-      summaryKeys   should not be empty
-      summaryValues should not be empty
+    headers should not be empty
 
-      headers should contain theSameElementsAs expectedHeaders
+    val expectedHeaders: Seq[String] =
+      journey.getSelectedDepositIds.map((depositId: String) => s"Security ID: $depositId").toList
 
-      summaries.foreach { summary =>
-        println(summary)
-      }
-//      println(expectedHeaders)
+    headers should contain theSameElementsAs expectedHeaders
 
-    }
+    val expectedSummaries: Seq[(String, Option[String])] =
+      journey.getSelectedDepositIds.flatMap((sid: String) =>
+        Seq(
+          ("Claim full amount" -> Some(if (journey.isFullSecurityAmountClaimed(sid)) "Yes" else "No")),
+          ("Duties selected"   -> Some(
+            journey.getSelectedDutiesFor(sid).get.map(taxCode => messages(s"tax-code.${taxCode.value}")).mkString(" ")
+          )),
+          ("Total"             -> Some(journey.getTotalReclaimAmountFor(sid).toPoundSterlingString))
+        ) ++ journey.answers.securitiesReclaims.get
+          .get(sid)
+          .get
+          .map {
+            case (taxCode, Some(amount)) =>
+              (messages(s"tax-code.${taxCode.value}") -> Some(amount.toPoundSterlingString))
+            case (taxCode, None)         =>
+              throw new Exception(
+                s"Expected claims to be provided for all duties for depositId=$sid, but missing one for the ${taxCode.value}"
+              )
+          }
+      )
 
-    //    journey.getSecurityDepositIds.foreach { securityDepositId: String =>
-//      println(headers)
-//      println(securityDepositId)
-//
-////      summaries should containOnlyDefinedPairsOf(
-////        Seq(
-////          ("Claim full amount"             -> journey.getLeadMovementReferenceNumber.map(_.value)),
-////          ("Reason for security"           -> journey.answers.reasonForSecurity
-////            .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-////          ("Total value"                   -> Some(BigDecimal(securityDetails.totalAmount).toPoundSterlingString)),
-////          ("Amount paid"                   -> Some(BigDecimal(securityDetails.amountPaid).toPoundSterlingString)),
-////          ("Payment reference"             -> Some(securityDetails.paymentReference)),
-////          ("Payment method"                -> Some(
-////            if (securityDetails.isGuaranteeEligible) "Guarantee" else "Bank account"
-////          )),
-////          ("Acceptance date"               -> journey.getLeadDisplayDeclaration
-////            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate))),
-////          ("Brought to account (BTA) date" -> journey.getLeadDisplayDeclaration
-////            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate)))
-////        )
-////      )
-//    }
+    summaries should containOnlyDefinedPairsOf(expectedSummaries)
+
   }
 
   "CheckClaimDetailsController" when {
@@ -139,43 +134,23 @@ class CheckClaimDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display page" in {
-
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-          val initialJourney = emptyJourney
-            .submitMovementReferenceNumber(mrn)
-            .submitReasonForSecurityAndDeclaration(rfs, decl)
-            .flatMap(_.submitClaimDuplicateCheckStatus(false))
-            .flatMapEach(
-              reclaims.map(_._1).distinct,
-              (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
-            )
-            .flatMapEach(
-              reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
-              (journey: SecuritiesJourney) =>
-                (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-                  journey
-                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
-                    .flatMapEach(
-                      args._2,
-                      (journey: SecuritiesJourney) =>
-                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
-                    )
-            )
-            .getOrFail
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(SessionData(initialJourney))
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckClaimDetailsPage(doc, initialJourney)
-          )
-
+      "display page" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
+        )
+      ) { case (initialJourney, _) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(initialJourney))
         }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => validateCheckClaimDetailsPage(doc, initialJourney)
+        )
+
       }
     }
   }
