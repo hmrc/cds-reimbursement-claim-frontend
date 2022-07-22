@@ -61,8 +61,9 @@ class ConfirmFullRepaymentController @Inject() (
   //    (implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val id = journey.getSecuritiesReclaims.head._1
-    showForId(request, journey, id)
+    journey.getSecuritiesReclaims.headOption.fold(
+      errorHandler.errorResult().asFuture
+    )(reclaims => showForId(request, journey, reclaims._1))
   }
 
   // GET          /securities/confirm-full-repayment/:id

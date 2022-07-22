@@ -107,11 +107,11 @@ class ConfirmFullRepaymentControllerSpec
     journey: SecuritiesJourney,
     isError: Boolean = false
   ) = {
-    val title                = doc.select("title").eachText().asScala.toList
-    val caption              = doc.select("span.govuk-caption-xl").eachText().asScala.toList
-    val heading              = doc.select(".govuk-heading-xl").eachText().asScala.toList
-    val legend               = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
-    val currencyFormatter    = NumberFormat.getCurrencyInstance(Locale.UK)
+    val title               = doc.select("title").eachText().asScala.toList
+    val caption             = doc.select("span.govuk-caption-xl").eachText().asScala.toList
+    val heading             = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    val legend              = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
+    val currencyFormatter   = NumberFormat.getCurrencyInstance(Locale.UK)
     val amountPaidFormatted = currencyFormatter.format(
       BigDecimal(journey.getSecurityDetailsFor(securityId).value.amountPaid)
     )
@@ -397,55 +397,27 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC8 clicking continue with no option selected should display error" in {
-        assert(false)
-        /*
-        AC8: User selects 'No', but then claims back for the full amount for all taxcodes:
-
-          Given I am on the /confirm-full-repayment/:securityID page
-
-          And I arrived here from the /check-your-answers page
-
-          And I change my answer from 'Yes' to 'No'
-
-          And I  selected all the duties in the /select-duties/:SecurityID page (CDSR-1799)
-
-          And  I  entered the full amount for all the taxcodes in the /enter-claim/:SecurityID/:taxcode page(s) (CDSR-1777)
-
-          When I click 'Continue'
-
-          Then I should be displayed with 'Yes' for the corresponding /:securityID in ( /securities/check-claim page ) / (/securities/check-your-answers page)
-
-          And the new taxes and amounts should be reflected.
-         */
-      }
-
       "AC9 clicking continue with no option selected should display error" in {
-        assert(false)
-        /*
-        AC9: Change 'Claim full amount' from No to Yes
+        forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
+          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          val securityId     = securityIdWithTaxCodes(journey).value
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+            mockStoreSession(Right(()))
+          }
 
-          Given I am on page  /check-your-answers
+          val result = performAction(securityId, Seq(confirmFullRepaymentKey -> "true"))
+          checkIsRedirect(
+            result,
+            routes.CheckYourAnswersController.show()
+          )
 
-          And 'Change full amount' is NO
-
-          And I click 'Change' next to it
-
-          And get taken to the /confirm-full-repayment page (CDSR-1776)
-
-          And change my answer from 'No' to 'Yes'
-
-          When I click 'Continue'
-
-          Then all Duties for that Security ID should automatically be selected
-
-          And the claim amount for each tax should automatically be set to maximum
-
-          And I should be taken to the /check-claim page
-
-          And the new taxes and amounts should be reflected.
-         */
+        // we cannot verify that all duties have been selected with the full amount as we don't have access to the
+        // journey object...
+        }
       }
+
     }
   }
 }
