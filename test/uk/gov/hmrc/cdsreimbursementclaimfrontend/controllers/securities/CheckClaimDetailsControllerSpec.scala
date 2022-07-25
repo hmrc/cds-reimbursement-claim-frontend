@@ -86,7 +86,7 @@ class CheckClaimDetailsControllerSpec
     journey: SecuritiesJourney
   ) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala.toList
-    val paragraph = doc.select("p.govuk-body").text()
+    val paragraph     = doc.select("p.govuk-body").text()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)

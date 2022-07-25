@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_claim_details
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
@@ -46,8 +47,12 @@ class CheckClaimDetailsController @Inject() (
 
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    ???
+  val submit: Action[AnyContent] = actionReadJourney { _ => journey =>
+    if (journey.answers.reasonForSecurity.exists(ReasonForSecurity.requiresDocumentType.contains)) {
+      Redirect(routes.ChooseFileTypeController.show()).asFuture
+    } else {
+      Redirect(routes.UploadFilesController.show()).asFuture
+    }
   }
 
 }
