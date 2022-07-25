@@ -49,7 +49,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_bank_account_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -65,8 +66,8 @@ class BankAccountController @Inject() (
   val config: Configuration,
   val claimService: ClaimService,
   val bankAccountReputationService: BankAccountReputationService,
-  checkBankAccountDetailsPage: pages.check_bank_account_details,
-  enterBankAccountDetailsPage: pages.enter_bank_account_details
+  checkBankAccountDetailsPage: check_bank_account_details,
+  enterBankAccountDetailsPage: enter_bank_account_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -132,7 +133,7 @@ class BankAccountController @Inject() (
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
-        Redirect(commonRoutes.ServiceUnavailableController.show)
+        Redirect(commonRoutes.ServiceUnavailableController.show())
       case e                                 =>
         logAndDisplayError("could not process bank account details: ", e)
     }
@@ -155,29 +156,29 @@ class BankAccountController @Inject() (
     bankAccountReputation: BankAccountReputation,
     bankAccountDetails: BankAccountDetails,
     router: ReimbursementRoutes
-  )(implicit request: Request[_], mesaages: Messages) =
+  )(implicit request: Request[_], mesaages: Messages): Result =
     if (bankAccountReputation.otherError.isDefined) {
       val errorKey = bankAccountReputation.otherError.map(_.code).getOrElse("account-does-not-exist")
       val form     = enterBankDetailsForm
         .fill(bankAccountDetails)
-        .withError("enter-bank-details", s"error.$errorKey")
+        .withError("enter-bank-account-details", s"error.$errorKey")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else if (bankAccountReputation.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
       val form = enterBankDetailsForm
-        .withError("enter-bank-details", "error.moc-check-no")
+        .withError("enter-bank-account-details", "error.moc-check-no")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else if (bankAccountReputation.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
       val form = enterBankDetailsForm
-        .withError("enter-bank-details", "error.moc-check-failed")
+        .withError("enter-bank-account-details", "error.moc-check-failed")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else if (bankAccountReputation.accountExists === Some(ReputationResponse.Error)) {
       val form = enterBankDetailsForm
         .fill(bankAccountDetails)
-        .withError("enter-bank-details", s"error.account-exists-error")
+        .withError("enter-bank-account-details", s"error.account-exists-error")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else if (bankAccountReputation.accountExists =!= Some(ReputationResponse.Yes)) {
       val form = enterBankDetailsForm
-        .withError("enter-bank-details", s"error.account-does-not-exist")
+        .withError("enter-bank-account-details", s"error.account-does-not-exist")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else {
       Redirect(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))

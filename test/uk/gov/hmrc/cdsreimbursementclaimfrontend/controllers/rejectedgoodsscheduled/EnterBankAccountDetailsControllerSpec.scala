@@ -67,7 +67,7 @@ class EnterBankAccountDetailsControllerSpec
     with MockBankAccountReputationService {
 
   private def getInputBoxValue(doc: Document, inputBoxSubKey: String): Option[String] =
-    selectedInputBox(doc, s"enter-bank-details.$inputBoxSubKey")
+    selectedInputBox(doc, s"enter-bank-account-details.$inputBoxSubKey")
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -84,7 +84,7 @@ class EnterBankAccountDetailsControllerSpec
   implicit val request: Request[_] = FakeRequest()
 
   private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
-  private val messagesKey: String = "enter-bank-details"
+  private val messagesKey: String = "enter-bank-account-details"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
@@ -133,9 +133,9 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-details.account-name")   shouldBe Some("")
-            selectedInputBox(doc, "enter-bank-details.sort-code")      shouldBe Some("")
-            selectedInputBox(doc, "enter-bank-details.account-number") shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.account-name")   shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")      shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.account-number") shouldBe Some("")
           }
         )
 
@@ -198,7 +198,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -220,7 +222,10 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-exists-error"
+              ),
             BAD_REQUEST
           )
         }
@@ -243,7 +248,7 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no"),
             BAD_REQUEST
           )
         }
@@ -266,7 +271,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-exists-error"
+              )
               getInputBoxValue(doc, "account-name")   shouldBe Some(bankAccountDetails.accountName.value)
               getInputBoxValue(doc, "sort-code")      shouldBe Some(bankAccountDetails.sortCode.value)
               getInputBoxValue(doc, "account-number") shouldBe Some(bankAccountDetails.accountNumber.value)
@@ -294,7 +301,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              )
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -323,7 +332,7 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -351,7 +360,7 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -379,7 +388,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -430,7 +441,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -452,7 +465,10 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-exists-error"
+              ),
             BAD_REQUEST
           )
         }
@@ -476,7 +492,7 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -504,7 +520,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-exists-error"
+              )
               getInputBoxValue(doc, "account-name")   shouldBe Some(bankAccountDetails.accountName.value)
               getInputBoxValue(doc, "sort-code")      shouldBe Some(bankAccountDetails.sortCode.value)
               getInputBoxValue(doc, "account-number") shouldBe Some(bankAccountDetails.accountNumber.value)
@@ -532,7 +550,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              )
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -561,7 +581,7 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -589,7 +609,7 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -617,7 +637,9 @@ class EnterBankAccountDetailsControllerSpec
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -713,10 +735,10 @@ class EnterBankAccountDetailsControllerSpec
 
   "Form Validation" must {
     val form          = enterBankDetailsForm
-    val accountName   = "enter-bank-details.account-name"
-    val isBusiness    = "enter-bank-details.is-business-account"
-    val sortCode      = "enter-bank-details.sort-code"
-    val accountNumber = "enter-bank-details.account-number"
+    val accountName   = "enter-bank-account-details.account-name"
+    val isBusiness    = "enter-bank-account-details.is-business-account"
+    val sortCode      = "enter-bank-account-details.sort-code"
+    val accountNumber = "enter-bank-account-details.account-number"
 
     val goodData = Map(
       accountName   -> "Barkhan Seer",

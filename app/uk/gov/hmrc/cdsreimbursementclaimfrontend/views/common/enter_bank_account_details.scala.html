@@ -33,7 +33,7 @@
 
 @(form: Form[BankAccountDetails], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-bank-details"}
+@key = @{"enter-bank-account-details"}
 @title = @{messages(s"$key.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

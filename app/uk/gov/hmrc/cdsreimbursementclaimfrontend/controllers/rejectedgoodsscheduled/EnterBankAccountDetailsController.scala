@@ -22,6 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
@@ -29,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,11 +41,11 @@ import scala.concurrent.Future
 class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val bankAccountReputationService: BankAccountReputationService,
-  enterBankAccountDetailsPage: pages.enter_bank_account_details
+  enterBankAccountDetailsPage: enter_bank_account_details
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  val formKey: String          = "enter-bank-details"
+  val formKey: String          = "enter-bank-account-details"
   private val postAction: Call = routes.EnterBankAccountDetailsController.submit()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
@@ -61,7 +62,7 @@ class EnterBankAccountDetailsController @Inject() (
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .fill(bankAccountDetails)
-              .withError("enter-bank-details", s"error.${errorResponse.code}"),
+              .withError("enter-bank-account-details", s"error.${errorResponse.code}"),
             postAction
           )
         )
@@ -70,7 +71,7 @@ class EnterBankAccountDetailsController @Inject() (
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .fill(bankAccountDetails)
-              .withError("enter-bank-details", "error.account-exists-error"),
+              .withError("enter-bank-account-details", "error.account-exists-error"),
             postAction
           )
         )
@@ -78,7 +79,7 @@ class EnterBankAccountDetailsController @Inject() (
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
-              .withError("enter-bank-details", "error.account-does-not-exist"),
+              .withError("enter-bank-account-details", "error.account-does-not-exist"),
             postAction
           )
         )
@@ -86,7 +87,7 @@ class EnterBankAccountDetailsController @Inject() (
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
-              .withError("enter-bank-details", "error.moc-check-no"),
+              .withError("enter-bank-account-details", "error.moc-check-no"),
             postAction
           )
         )
@@ -94,7 +95,7 @@ class EnterBankAccountDetailsController @Inject() (
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
-              .withError("enter-bank-details", "error.moc-check-failed"),
+              .withError("enter-bank-account-details", "error.moc-check-failed"),
             postAction
           )
         )
@@ -105,7 +106,7 @@ class EnterBankAccountDetailsController @Inject() (
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .fill(bankAccountDetails)
-              .withError("enter-bank-details", "error.account-does-not-exist"),
+              .withError("enter-bank-account-details", "error.account-does-not-exist"),
             postAction
           )
         )
