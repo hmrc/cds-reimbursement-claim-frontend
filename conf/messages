@@ -1480,10 +1480,12 @@ problem-with-address.button.tryAgain=Try again
 #  CHOOSE CLAIM TYPE - PAGE
 #===================================================
 choose-claim-type.title=Choose type of claim
-choose-claim-type.c285.title=Repayment of import duties and <abbr title="Value Added Tax">VAT</abbr> overpayment (C285)
-choose-claim-type.ce1179.title=Repayment or remission of import duties and <abbr title="Value Added Tax">VAT</abbr> on rejected imports (C&amp;E1179)
-choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
-choose-claim-type.securities.title=Claim repayment of a security deposit*
+choose-claim-type.c285.title=Claim back import duty and <abbr title="Value Added Tax">VAT</abbr> if you have overpaid
+choose-claim-type.c285.hint=For goods you imported or received from abroad 
+choose-claim-type.ce1179.title=Claim back customs charges paid on rejected imports
+choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance
+choose-claim-type.securities.title=Claim back a security deposit
+choose-claim-type.securities.hint=If <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> required a security deposit or guarantee for goods you imported
 choose-claim-type.error.required=Choose the type of claim you want to submit
 choose-claim-type.error.unknown=Choose the type of claim you want to submit
 
