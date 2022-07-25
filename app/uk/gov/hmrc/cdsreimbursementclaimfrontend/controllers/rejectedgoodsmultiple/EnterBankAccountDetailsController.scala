@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.Ba
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,11 +47,11 @@ class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val claimService: ClaimService,
   val bankAccountReputationService: BankAccountReputationService,
-  enterBankAccountDetailsPage: pages.enter_bank_account_details
+  enterBankAccountDetailsPage: enter_bank_account_details
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val formKey: String          = "enter-bank-details"
+  val formKey: String          = "enter-bank-account-details"
   private val postAction: Call = routes.EnterBankAccountDetailsController.submit()
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
@@ -71,7 +71,7 @@ class EnterBankAccountDetailsController @Inject() (
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .fill(bankAccountDetails)
-              .withError("enter-bank-details", s"error.${errorResponse.code}"),
+              .withError("enter-bank-account-details", s"error.${errorResponse.code}"),
             postAction
           )
         )
@@ -80,7 +80,7 @@ class EnterBankAccountDetailsController @Inject() (
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .fill(bankAccountDetails)
-              .withError("enter-bank-details", "error.account-exists-error"),
+              .withError("enter-bank-account-details", "error.account-exists-error"),
             postAction
           )
         )
@@ -88,7 +88,7 @@ class EnterBankAccountDetailsController @Inject() (
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
-              .withError("enter-bank-details", "error.account-does-not-exist"),
+              .withError("enter-bank-account-details", "error.account-does-not-exist"),
             postAction
           )
         )
@@ -96,7 +96,7 @@ class EnterBankAccountDetailsController @Inject() (
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
-              .withError("enter-bank-details", "error.moc-check-no"),
+              .withError("enter-bank-account-details", "error.moc-check-no"),
             postAction
           )
         )
@@ -104,7 +104,7 @@ class EnterBankAccountDetailsController @Inject() (
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
-              .withError("enter-bank-details", "error.moc-check-failed"),
+              .withError("enter-bank-account-details", "error.moc-check-failed"),
             postAction
           )
         )
@@ -115,7 +115,7 @@ class EnterBankAccountDetailsController @Inject() (
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .fill(bankAccountDetails)
-              .withError("enter-bank-details", "error.account-does-not-exist"),
+              .withError("enter-bank-account-details", "error.account-does-not-exist"),
             postAction
           )
         )

@@ -148,9 +148,9 @@ object Forms {
 
   val enterBankDetailsForm: Form[BankAccountDetails] = Form(
     mapping(
-      "enter-bank-details.account-name"   -> accountNameMapping,
-      "enter-bank-details.sort-code"      -> sortCodeMapping,
-      "enter-bank-details.account-number" -> accountNumberMapping
+      "enter-bank-account-details.account-name"   -> accountNameMapping,
+      "enter-bank-account-details.sort-code"      -> sortCodeMapping,
+      "enter-bank-account-details.account-number" -> accountNumberMapping
     )(BankAccountDetails.apply)(BankAccountDetails.unapply)
   )
 
