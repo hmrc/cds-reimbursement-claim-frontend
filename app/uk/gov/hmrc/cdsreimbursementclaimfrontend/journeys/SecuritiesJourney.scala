@@ -75,10 +75,9 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
-  def isValidSecurityDepositId(securityDepositId: String): Boolean = {
+  def isValidSecurityDepositId(securityDepositId: String): Boolean =
     getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
-  }
 
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
@@ -340,22 +339,6 @@ final class SecuritiesJourney private (
 
   def isValidReclaimAmount(reclaimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
     reclaimAmount > 0 && reclaimAmount <= taxDetails.getAmount
-
-  def clearReclaimAmount(securityDepositId: String): Either[String, SecuritiesJourney] =
-    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (!isValidSecurityDepositId(securityDepositId))
-        Left("submitAmountForReclaim.invalidSecurityDepositId")
-      else
-        Right(
-          new SecuritiesJourney(
-            answers.copy(
-              securitiesReclaims = answers.securitiesReclaims.map { reclaims =>
-                reclaims.map { case (k, _) => (k, SortedMap[TaxCode, Option[BigDecimal]]()) }
-              }
-            )
-          )
-        )
-    }
 
   def submitAmountForReclaim(
     securityDepositId: String,

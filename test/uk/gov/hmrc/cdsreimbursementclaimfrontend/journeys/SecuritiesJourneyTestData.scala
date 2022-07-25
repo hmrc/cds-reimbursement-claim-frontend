@@ -86,12 +86,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)
       .flatMapEach(reclaims.map(_._1).distinct, (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_))
       .flatMapEach(
-        reclaims
-          .groupBy(_._1)
-          .mapValues(_.map { case (_, tc, amount) =>
-            (tc, amount)
-          })
-          .toSeq,
+        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
         (journey: SecuritiesJourney) =>
           (args: (String, Seq[(TaxCode, BigDecimal)])) =>
             journey
