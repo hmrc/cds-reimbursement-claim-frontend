@@ -57,20 +57,21 @@
      id = Some(s"$key-c285"),
      value = Some(C285.toString),
      content = HtmlContent(messages(s"$key.c285.title")),
+     hint = Some(Hint(content = HtmlContent(messages(s"$key.c285.hint")))),
      checked = form.value.contains(C285)
     ),
     RadioItem(
      id = Some(s"$key-ce1179"),
      value = Some(RejectedGoods.toString),
      content = HtmlContent(messages(s"$key.ce1179.title")),
-     hint = Some(Hint(content = Text(messages(s"$key.ce1179.hint")))),
+     hint = Some(Hint(content = HtmlContent(messages(s"$key.ce1179.hint")))),
      checked = form.value.contains(RejectedGoods)
     ),
     RadioItem(
      id = Some(s"$key-securities"),
      value = Some(Securities.toString),
      content = HtmlContent(messages(s"$key.securities.title")),
-     hint = None,
+     hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
      checked = form.value.contains(Securities)
     )
    )

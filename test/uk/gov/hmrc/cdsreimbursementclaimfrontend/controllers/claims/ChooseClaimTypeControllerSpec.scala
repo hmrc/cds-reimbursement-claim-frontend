@@ -132,10 +132,11 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
           val rejectedGoodsButton = extractButton(buttons, "RejectedGoods")
           val securitiesButton    = extractButton(buttons, "Securities")
           extractLabel(c285Button)          shouldBe messageFromMessageKey(s"$formKey.c285.title")
-          extractHint(c285Button)           shouldBe ""
+          extractHint(c285Button)           shouldBe messageFromMessageKey(s"$formKey.c285.hint")
           extractLabel(rejectedGoodsButton) shouldBe messageFromMessageKey(s"$formKey.ce1179.title")
-          extractLabel(securitiesButton)    shouldBe messageFromMessageKey(s"$formKey.securities.title")
           extractHint(rejectedGoodsButton)  shouldBe messageFromMessageKey(s"$formKey.ce1179.hint")
+          extractLabel(securitiesButton)    shouldBe messageFromMessageKey(s"$formKey.securities.title")
+          extractHint(securitiesButton)     shouldBe messageFromMessageKey(s"$formKey.securities.hint")
         }
       )
     }
@@ -228,5 +229,5 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
     button.select("label").html()
 
   private def extractHint(button: Element): String =
-    button.select("div.govuk-hint").text()
+    button.select("div.govuk-hint").html()
 }
