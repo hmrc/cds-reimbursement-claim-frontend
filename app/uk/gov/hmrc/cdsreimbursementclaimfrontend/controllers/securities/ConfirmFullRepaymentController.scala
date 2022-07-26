@@ -29,11 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.{
-  hasMRNAndDisplayDeclarationAndRfS,
-  canContinueTheClaimWithChoosenRfS,
-  declarantOrImporterEoriMatchesUserOrHasBeenVerified
-}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.canContinueTheClaimWithChoosenRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -65,9 +63,12 @@ class ConfirmFullRepaymentController @Inject() (
     )
 
   def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getSecurityDepositIds.headOption.fold(
-      Redirect(routes.CheckDeclarationDetailsController.show).asFuture
-    )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
+    journey.getSecuritiesReclaims
+      .map(_._1)
+      .headOption
+      .fold(
+        Redirect(routes.CheckDeclarationDetailsController.show).asFuture
+      )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
 
   def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
@@ -90,36 +91,38 @@ class ConfirmFullRepaymentController @Inject() (
       .asFuture
   }
 
-
-  def submit(id: String): Action[AnyContent] = actionReadWriteJourney ({ implicit request => journey =>
-    form.bindFromRequest
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            journey
-              .getDisplayDeclarationIfValidSecurityDepositId(id)
-              .map(_.getSecurityTotalValueFor(id))
-              .map(amountPaid =>
-                BadRequest(
-                  confirmFullRepaymentPage(
-                    formWithErrors,
-                    id,
-                    amountPaid,
-                    routes.ConfirmFullRepaymentController.submit(id)
+  def submit(id: String): Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      form.bindFromRequest
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              journey
+                .getDisplayDeclarationIfValidSecurityDepositId(id)
+                .map(_.getSecurityTotalValueFor(id))
+                .map(amountPaid =>
+                  BadRequest(
+                    confirmFullRepaymentPage(
+                      formWithErrors,
+                      id,
+                      amountPaid,
+                      routes.ConfirmFullRepaymentController.submit(id)
+                    )
                   )
                 )
-              )
-              .getOrElse(errorHandler.errorResult())
-          ).asFuture,
-        {
-          case Yes =>
-            submitYes(id, journey)
-          case No  =>
-            submitNo(id, journey)
-        }
-      )
-  }, fastForwardToCYAEnabled = false)
+                .getOrElse(errorHandler.errorResult())
+            ).asFuture,
+          {
+            case Yes =>
+              submitYes(id, journey)
+            case No  =>
+              submitNo(id, journey)
+          }
+        )
+    },
+    fastForwardToCYAEnabled = false
+  )
 
   def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
     request: Request[_]
@@ -137,7 +140,6 @@ class ConfirmFullRepaymentController @Inject() (
 
   def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
     request: Request[_]
-  ): Future[(SecuritiesJourney, Result)] = {
+  ): Future[(SecuritiesJourney, Result)] =
     (journey, Redirect(routes.SelectDutiesController.show(securityId))).asFuture
-  }
 }

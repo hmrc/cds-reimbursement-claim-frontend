@@ -423,23 +423,23 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC6 From CYA page, change from 'Yes' to 'No', clicking continue should go to the select duties controller" in {
-          // this AC is currently not met as we do not store the Yes/No selection, so auto fast forwarding is happening
-          // we will need to introduce some kind of flag, to be discussed
-          forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
-            val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-            val securityId     = securityIdWithTaxCodes(journey).value
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(updatedSession)
+        // this AC is currently not met as we do not store the Yes/No selection, so auto fast forwarding is happening
+        // we will need to introduce some kind of flag, to be discussed
+        forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
+          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          val securityId     = securityIdWithTaxCodes(journey).value
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
 //              mockStoreSession(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(securityId, Seq(confirmFullRepaymentKey -> "false")),
-              routes.SelectDutiesController.show(securityId)
-            )
           }
+
+          checkIsRedirect(
+            performAction(securityId, Seq(confirmFullRepaymentKey -> "false")),
+            routes.SelectDutiesController.show(securityId)
+          )
         }
+      }
 
       "AC9 clicking continue with no option selected should display error" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
