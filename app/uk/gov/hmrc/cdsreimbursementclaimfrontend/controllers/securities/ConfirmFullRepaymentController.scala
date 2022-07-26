@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.implicits._
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -32,6 +33,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.{
+  hasMRNAndDisplayDeclarationAndRfS,
+  canContinueTheClaimWithChoosenRfS,
+  declarantOrImporterEoriMatchesUserOrHasBeenVerified
+}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -54,6 +60,14 @@ class ConfirmFullRepaymentController @Inject() (
   private val form: Form[YesNo] = confirmFullRepaymentForm
 
   // todo import SecuritiesJourney.Checks._
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   // GET          /securities/confirm-full-repayment
   // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.showFirst()
@@ -94,7 +108,7 @@ class ConfirmFullRepaymentController @Inject() (
 
   // POST         /securities/confirm-full-repayment/:id
   // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.submit(id: String)
-  def submit(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def submit(id: String): Action[AnyContent] = actionReadWriteJourney ({ implicit request => journey =>
     form.bindFromRequest
       .fold(
         formWithErrors =>
@@ -122,7 +136,7 @@ class ConfirmFullRepaymentController @Inject() (
             submitNo(id, journey)
         }
       )
-  }
+  }, fastForwardToCYAEnabled = false)
 
   def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
     request: Request[_]
@@ -134,12 +148,13 @@ class ConfirmFullRepaymentController @Inject() (
           logger.warn(error)
           (journey, errorHandler.errorResult())
         },
-        updatedJourney => (updatedJourney, Redirect(routes.ChooseFileTypeController.show()))
+        updatedJourney => (updatedJourney, Redirect(routes.CheckClaimDetailsController.show()))
       )
       .asFuture
 
   def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
     request: Request[_]
-  ): Future[(SecuritiesJourney, Result)] =
+  ): Future[(SecuritiesJourney, Result)] = {
     (journey, Redirect(routes.SelectDutiesController.show(securityId))).asFuture
+  }
 }

@@ -92,7 +92,7 @@ class EnterClaimController @Inject() (
     }
 
   final def submit(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteJourney ({ implicit request => journey =>
       validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
         _.fold(
           result => (journey, result),
@@ -131,7 +131,7 @@ class EnterClaimController @Inject() (
           }
         )
       )
-    }
+    }, fastForwardToCYAEnabled = false)
 
   private def validateDepositIdAndTaxCode(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode)(
     implicit request: Request[_]

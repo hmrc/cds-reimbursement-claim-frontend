@@ -85,7 +85,7 @@ class SelectDutiesController @Inject() (
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney({implicit request => journey =>
     processAvailableDuties[(SecuritiesJourney, Result)](
       securityId: String,
       journey: SecuritiesJourney,
@@ -120,7 +120,7 @@ class SelectDutiesController @Inject() (
           .asFuture
       }
     )
-  }
+  }, fastForwardToCYAEnabled = false)
 
   private def updateAndRedirect(
     journey: SecuritiesJourney,
