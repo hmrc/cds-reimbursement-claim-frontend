@@ -27,6 +27,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_cla
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import SecuritiesJourney.Checks._
+import play.api.mvc.Result
+import scala.concurrent.Future
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
@@ -34,25 +39,54 @@ class CheckClaimDetailsController @Inject() (
   checkClaimDetailsPage: check_claim_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
-  val postAction: Call = routes.CheckClaimDetailsController.submit();
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getLeadDisplayDeclaration
-      .fold(Redirect(routes.EnterMovementReferenceNumberController.show())) { displayDeclaration =>
-        Ok(
-          checkClaimDetailsPage(displayDeclaration, journey.getSecuritiesReclaims, postAction)
-        )
+  private val postAction: Call = routes.CheckClaimDetailsController.submit()
+
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
+
+  final val show: Action[AnyContent] = 
+    actionReadJourney { implicit request => journey =>
+      whenAllReclaimsProvided(journey) {
+          journey.getLeadDisplayDeclaration
+            .fold(Redirect(routes.EnterMovementReferenceNumberController.show())) { displayDeclaration =>
+              Ok(
+                checkClaimDetailsPage(displayDeclaration, journey.getSecuritiesReclaims, postAction)
+              )
+            }
       }
-      .asFuture
-
-  }
-
-  val submit: Action[AnyContent] = actionReadJourney { _ => journey =>
-    if (journey.answers.reasonForSecurity.exists(ReasonForSecurity.requiresDocumentType.contains)) {
-      Redirect(routes.ChooseFileTypeController.show()).asFuture
-    } else {
-      Redirect(routes.UploadFilesController.show()).asFuture
     }
-  }
+
+  final val submit: Action[AnyContent] = 
+    actionReadJourney { _ => journey =>
+      whenAllReclaimsProvided(journey) { 
+        if (journey.answers.reasonForSecurity.exists(ReasonForSecurity.requiresDocumentType.contains)) {
+          Redirect(routes.ChooseFileTypeController.show())
+        } else {
+          Redirect(routes.UploadFilesController.show())
+        }
+      }
+    }
+
+  private def whenAllReclaimsProvided(journey: SecuritiesJourney)(body: => Result): Future[Result] = 
+    (
+    if(journey.answers.securitiesReclaims.isEmpty) 
+      Redirect(routes.CheckDeclarationDetailsController.show()) 
+    else 
+      journey.getNextDepositIdAndTaxCodeToClaim match {
+        case Some(Left(depositId)) =>
+            Redirect(routes.SelectDutiesController.show(depositId)) 
+
+        case Some(Right((depositId, taxCode))) =>
+          Redirect(routes.EnterClaimController.show(depositId, taxCode))
+
+        case None =>
+          body
+      }
+    ).asFuture
 
 }
