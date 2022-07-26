@@ -16,22 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import cats.implicits._
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.{
   hasMRNAndDisplayDeclarationAndRfS,
@@ -46,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_f
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.util.Try
 
 @Singleton
 class ConfirmFullRepaymentController @Inject() (
@@ -69,25 +64,13 @@ class ConfirmFullRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  // GET          /securities/confirm-full-repayment
-  // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.showFirst()
-  // @(form: Form[YesNo], securityId: String, totalValue: BigDecimal, postAction: Call)
-  //    (implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
   def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getSecurityDepositIds.headOption.fold(
-      errorHandler.errorResult().asFuture
+      Redirect(routes.CheckDeclarationDetailsController.show).asFuture
     )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
 
-  // GET          /securities/confirm-full-repayment/:id
-  // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.show(id: String)
-  // @(form: Form[YesNo], securityId: String, totalValue: BigDecimal, postAction: Call)
-  //    (implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
   def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    showForId(request, journey, id)
-  }
-
-  private def showForId(implicit request: Request[_], journey: SecuritiesJourney, id: String) =
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(id)
       .map(_.getSecurityTotalValueFor(id))
@@ -105,9 +88,9 @@ class ConfirmFullRepaymentController @Inject() (
         )
       }
       .asFuture
+  }
 
-  // POST         /securities/confirm-full-repayment/:id
-  // @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.submit(id: String)
+
   def submit(id: String): Action[AnyContent] = actionReadWriteJourney ({ implicit request => journey =>
     form.bindFromRequest
       .fold(
