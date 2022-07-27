@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -93,7 +94,9 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
               .flatMapEach(
                 args._2,
                 (journey: SecuritiesJourney) =>
-                  (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                  (args2: (TaxCode, BigDecimal)) => {
+                    journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                  }
               )
       )
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)

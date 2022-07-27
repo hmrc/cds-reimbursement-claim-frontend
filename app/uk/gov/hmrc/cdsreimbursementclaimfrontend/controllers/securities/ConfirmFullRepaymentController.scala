@@ -16,18 +16,130 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Request
+import play.api.mvc.Result
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.canContinueTheClaimWithChoosenRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class ConfirmFullRepaymentController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+  val jcc: JourneyControllerComponents,
+  confirmFullRepaymentPage: confirm_full_repayment
+)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    with SecuritiesJourneyRouter
+    with Logging {
+
+  private val form: Form[YesNo] = confirmFullRepaymentForm
+
+  // todo import SecuritiesJourney.Checks._
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
+
+  def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey.getSecuritiesReclaims
+      .map(_._1)
+      .headOption
+      .fold(
+        Redirect(routes.CheckDeclarationDetailsController.show).asFuture
+      )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
+  }
+
+  def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey
+      .getDisplayDeclarationIfValidSecurityDepositId(id)
+      .map(_.getSecurityTotalValueFor(id))
+      .fold(errorHandler.errorResult()) { amountPaid =>
+        Ok(
+          confirmFullRepaymentPage(
+            form.withDefault(
+              journey.answers.reclaimingFullAmount
+                .fold(Option.empty[YesNo])(_ => Some(YesNo.Yes))
+            ),
+            id,
+            amountPaid,
+            routes.ConfirmFullRepaymentController.submit(id)
+          )
+        )
+      }
+      .asFuture
+  }
+
+  def submit(id: String): Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      form.bindFromRequest
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              journey
+                .getDisplayDeclarationIfValidSecurityDepositId(id)
+                .map(_.getSecurityTotalValueFor(id))
+                .map(amountPaid =>
+                  BadRequest(
+                    confirmFullRepaymentPage(
+                      formWithErrors,
+                      id,
+                      amountPaid,
+                      routes.ConfirmFullRepaymentController.submit(id)
+                    )
+                  )
+                )
+                .getOrElse(errorHandler.errorResult())
+            ).asFuture,
+          {
+            case Yes =>
+              submitYes(id, journey)
+            case No  =>
+              submitNo(id, journey)
+          }
+        )
+    },
+    fastForwardToCYAEnabled = false
+  )
+
+  def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
+    request: Request[_]
+  ): Future[(SecuritiesJourney, Result)] =
+    journey
+      .submitFullAmountsForReclaim(securityId)
+      .fold(
+        { error =>
+          logger.warn(error)
+          (journey, errorHandler.errorResult())
+        },
+        updatedJourney => (updatedJourney, Redirect(routes.CheckClaimDetailsController.show()))
+      )
+      .asFuture
+
+  def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
+    request: Request[_]
+  ): Future[(SecuritiesJourney, Result)] =
+    (journey, Redirect(routes.SelectDutiesController.show(securityId))).asFuture
+}

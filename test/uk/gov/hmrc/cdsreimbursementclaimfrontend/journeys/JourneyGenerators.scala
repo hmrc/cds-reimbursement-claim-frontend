@@ -17,10 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
@@ -111,7 +113,14 @@ trait JourneyGenerators extends JourneyTestData {
   final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
     for {
-      (mrn, rfs, decl) <- mrnWithNonExportRfsWithDisplayDeclarationGen
+      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
+      reclaims         <- validSecurityReclaimsGen(decl)
+    } yield (mrn, rfs, decl, reclaims)
+
+  final lazy val mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    for {
+      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
     } yield (mrn, rfs, decl, reclaims)
 
@@ -196,8 +205,33 @@ trait JourneyGenerators extends JourneyTestData {
       declarantContact = Some(declarantContact)
     )
 
-  final def validSecurityReclaimsGen(
-    decl: DisplayDeclaration
+  final def validSecurityReclaimsGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
+    validSecurityReclaimsGenInternal(
+      decl,
+      sd =>
+        sd.taxDetails.halfNonEmpty.map(td =>
+          Gen
+            .choose(BigDecimal.exact("0.01"), BigDecimal(td.amount))
+            .map(reclaimAmount => reclaimAmount)
+            .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
+        )
+    )
+
+  final def validSecurityReclaimsFullAmountGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
+    validSecurityReclaimsGenInternal(
+      decl,
+      sd =>
+        sd.taxDetails.map(td =>
+          Gen
+            .map(reclaimAmount => BigDecimal(td.amount))
+            .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
+        )
+    )
+  val logger: Logger                                                                                              = Logger(this.getClass)
+
+  private final def validSecurityReclaimsGenInternal(
+    decl: DisplayDeclaration,
+    mapSecurityDeposit: SecurityDetails => Seq[Gen[(String, TaxCode, BigDecimal)]]
   ): Gen[Seq[(String, TaxCode, BigDecimal)]] =
     Gen
       .sequence(

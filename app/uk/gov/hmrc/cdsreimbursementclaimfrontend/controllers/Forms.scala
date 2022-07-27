@@ -180,6 +180,8 @@ object Forms {
     )
   )
 
+  val confirmFullRepaymentForm: Form[YesNo] = YesOrNoQuestionForm("confirm-full-repayment")
+
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
     mapping(
