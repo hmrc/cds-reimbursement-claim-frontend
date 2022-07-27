@@ -193,15 +193,15 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "move on to /check-claim page when yes is selected" in {
+      "move on to /check-claim page when yes is selected and there are no other security ids" in {
         forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           whenever(
             Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
               .contains(rfs)
           ) {
-            val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
+            val depositIds: Seq[String]                                                = reclaims.map(_._1).take(1)
             val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-              reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+              reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).take(1).toSeq
             val journey: SecuritiesJourney                                             =
               emptyJourney
                 .submitMovementReferenceNumber(mrn)
@@ -218,7 +218,7 @@ class ConfirmFullRepaymentControllerSpec
                         .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
                 )
                 .getOrFail
-            val securityId                                                             = journey.getSecurityDepositIds.head
+            val securityId                                                             = journey.getSelectedDepositIds.last
             val sessionData                                                            = SessionData(journey)
             inSequence {
               mockAuthWithNoRetrievals()
@@ -441,10 +441,10 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC9 clicking continue with no option selected should display error" in {
+      "AC9 selecting NO, going back from check-claim, changing to YES and clicking continue should redirect back to check-claim" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          val securityId     = securityIdWithTaxCodes(journey).value
+          val securityId     = journey.getSelectedDepositIds.last
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(updatedSession)
@@ -462,6 +462,29 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
+      "selecting NO, going back from check-claim, changing to YES and clicking continue should redirect back to confirm-full-repayment/:next-security-id" in {
+        forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
+          whenever(journey.getSelectedDepositIds.size > 1) {
+            val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+            val securityId     = journey.getSelectedDepositIds.head
+            val nextSecurityId = journey.getSelectedDepositIds.nextAfter(securityId).value
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(updatedSession)
+              mockStoreSession(Right(()))
+            }
+
+            val result = performAction(securityId, Seq(confirmFullRepaymentKey -> "true"))
+            checkIsRedirect(
+              result,
+              routes.ConfirmFullRepaymentController.show(nextSecurityId)
+            )
+
+            // we cannot verify that all duties have been selected with the full amount as we don't have access to the
+            // journey object...
+          }
+        }
+      }
     }
   }
 }

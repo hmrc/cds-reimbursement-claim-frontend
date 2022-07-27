@@ -158,15 +158,14 @@ final class SecuritiesJourney private (
         m.nonEmpty && m.forall(_._2.nonEmpty) && m.forall(_._2.forall(_._2.isDefined))
       )
 
-  // Returns Left(depositId) if duty selection is missing or Right((depositId, taxCode)) claim is missing 
-  def getNextDepositIdAndTaxCodeToClaim: Option[Either[String,(String, TaxCode)]] = 
-    answers.securitiesReclaims.flatMap(_.foldLeft[Option[Either[String,(String, TaxCode)]]](None){ 
-    case (acc, (depositId, reclaims)) => 
-      if(acc.isDefined) acc else 
-        if(reclaims.isEmpty) Some(Left(depositId))
-        else reclaims.find(_._2.isEmpty).map{ case (taxCode, _) => Right((depositId, taxCode))}
+  // Returns Left(depositId) if duty selection is missing or Right((depositId, taxCode)) claim is missing
+  def getNextDepositIdAndTaxCodeToClaim: Option[Either[String, (String, TaxCode)]] =
+    answers.securitiesReclaims.flatMap(_.foldLeft[Option[Either[String, (String, TaxCode)]]](None) {
+      case (acc, (depositId, reclaims)) =>
+        if (acc.isDefined) acc
+        else if (reclaims.isEmpty) Some(Left(depositId))
+        else reclaims.find(_._2.isEmpty).map { case (taxCode, _) => Right((depositId, taxCode)) }
     })
-  
 
   def isAllSelectedDutiesAreGuaranteeEligible: Boolean =
     getSelectedDepositIds

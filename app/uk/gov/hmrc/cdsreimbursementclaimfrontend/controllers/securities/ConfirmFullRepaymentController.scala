@@ -134,7 +134,14 @@ class ConfirmFullRepaymentController @Inject() (
           logger.warn(error)
           (journey, errorHandler.errorResult())
         },
-        updatedJourney => (updatedJourney, Redirect(routes.CheckClaimDetailsController.show()))
+        { updatedJourney =>
+          val nextRoute = journey.getSelectedDepositIds
+            .nextAfter(securityId)
+            .fold(routes.CheckClaimDetailsController.show()) { nextSecurityId =>
+              routes.ConfirmFullRepaymentController.show(nextSecurityId)
+            }
+          (updatedJourney, Redirect(nextRoute))
+        }
       )
       .asFuture
 
