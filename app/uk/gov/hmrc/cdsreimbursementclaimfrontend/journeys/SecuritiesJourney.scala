@@ -90,6 +90,9 @@ final class SecuritiesJourney private (
   def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
     getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
 
+  def getTotalSecurityDepositAmountFor(securityDepositId: String): Option[BigDecimal] =
+    getSecurityDetailsFor(securityDepositId).map(_.getTotalAmount)
+
   def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
@@ -127,6 +130,16 @@ final class SecuritiesJourney private (
       .map(_.map(_._2.map(_._2.getOrElse(ZERO)).sum).sum)
       .getOrElse(ZERO)
 
+  def getTotalReclaimAmountFor(securityDepositId: String): BigDecimal =
+    answers.securitiesReclaims
+      .flatMap(_.get(securityDepositId))
+      .map(_.map(_._2.getOrElse(ZERO)).sum)
+      .getOrElse(ZERO)
+
+  def isFullSecurityAmountClaimed(securityDepositId: String): Boolean =
+    getTotalSecurityDepositAmountFor(securityDepositId)
+      .contains(getTotalReclaimAmountFor(securityDepositId))
+
   def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.securitiesReclaims
       .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
@@ -144,6 +157,16 @@ final class SecuritiesJourney private (
       answers.securitiesReclaims.forall(m =>
         m.nonEmpty && m.forall(_._2.nonEmpty) && m.forall(_._2.forall(_._2.isDefined))
       )
+
+  // Returns Left(depositId) if duty selection is missing or Right((depositId, taxCode)) claim is missing 
+  def getNextDepositIdAndTaxCodeToClaim: Option[Either[String,(String, TaxCode)]] = 
+    answers.securitiesReclaims.flatMap(_.foldLeft[Option[Either[String,(String, TaxCode)]]](None){ 
+    case (acc, (depositId, reclaims)) => 
+      if(acc.isDefined) acc else 
+        if(reclaims.isEmpty) Some(Left(depositId))
+        else reclaims.find(_._2.isEmpty).map{ case (taxCode, _) => Right((depositId, taxCode))}
+    })
+  
 
   def isAllSelectedDutiesAreGuaranteeEligible: Boolean =
     getSelectedDepositIds
