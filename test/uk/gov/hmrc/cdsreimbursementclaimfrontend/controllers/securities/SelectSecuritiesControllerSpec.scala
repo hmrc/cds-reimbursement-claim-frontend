@@ -84,11 +84,12 @@ class SelectSecuritiesControllerSpec
     journey: SecuritiesJourney,
     securityDepositId: String
   ) = {
-
+    val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
+    headers       should not be empty
     summaryKeys   should not be empty
     summaryValues should not be empty
 
