@@ -93,24 +93,26 @@ final case class DisplayDeclaration(
       .flatMap(_.taxDetails.find(td => td.getTaxCode === taxCode))
 
   def getSecurityTotalValueFor(securityDepositId: String): BigDecimal =
-    getSecurityDetailsFor(securityDepositId).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00"))
+    getSecurityDetailsFor(securityDepositId)
+      .map(_.getTotalAmount)
+      .getOrElse(BigDecimal("0.00"))
 
   def getSecurityPaidValueFor(securityDepositId: String): BigDecimal =
-    if (isValidSecurityDepositId(securityDepositId))
-      getSecurityDetailsFor(securityDepositId).map(_.amountPaid).map(BigDecimal.apply).getOrElse(BigDecimal("0.00"))
-    else 0.01
+    getSecurityDetailsFor(securityDepositId)
+      .map(_.getPaidAmount)
+      .getOrElse(BigDecimal("0.00"))
 
   def getSecurityPaymentReferenceFor(securityDepositId: String): String =
     getSecurityDetailsFor(securityDepositId).map(_.paymentReference).getOrElse("")
 
   def getTotalSecuritiesAmountFor(securityDepositIds: Set[String]): BigDecimal =
     securityDepositIds
-      .map(getSecurityDetailsFor(_).map(_.totalAmount).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
+      .map(getSecurityDetailsFor(_).map(_.getTotalAmount).getOrElse(BigDecimal("0.00")))
       .sum
 
   def getTotalSecuritiesPaidAmountFor(securityDepositIds: Set[String]): BigDecimal =
     securityDepositIds
-      .map(getSecurityDetailsFor(_).map(_.amountPaid).map(BigDecimal.apply).getOrElse(BigDecimal("0.00")))
+      .map(getSecurityDetailsFor(_).map(_.getPaidAmount).getOrElse(BigDecimal("0.00")))
       .sum
 
   def withDeclarationId(declarationId: String): DisplayDeclaration =
@@ -147,7 +149,7 @@ final case class DisplayDeclaration(
 
   def isFullSecurityAmount(securityDepositId: String, reclaimedAmount: BigDecimal): Boolean =
     getSecurityDetailsFor(securityDepositId)
-      .exists(d => BigDecimal(d.totalAmount) === reclaimedAmount)
+      .exists(_.getTotalAmount === reclaimedAmount)
 
   def isAllSelectedSecuritiesEligibleForGuaranteePayment(securityDepositIds: Set[String]): Boolean =
     securityDepositIds

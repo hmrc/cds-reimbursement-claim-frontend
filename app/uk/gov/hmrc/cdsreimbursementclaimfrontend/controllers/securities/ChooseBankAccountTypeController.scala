@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.bankAccountTypeForm
@@ -61,7 +62,7 @@ class ChooseBankAccountTypeController @Inject() (
                   logger.warn(e)
                   (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
                 },
-                updatedJourney => (updatedJourney,  Redirect(routes.EnterBankAccountDetailsController.show()))
+                updatedJourney => (updatedJourney, Redirect(routes.EnterBankAccountDetailsController.show()))
               )
               .asFuture
         )

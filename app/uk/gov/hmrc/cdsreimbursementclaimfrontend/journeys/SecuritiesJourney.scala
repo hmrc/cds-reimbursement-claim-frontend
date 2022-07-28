@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import play.api.Logger
 import cats.Eq
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator

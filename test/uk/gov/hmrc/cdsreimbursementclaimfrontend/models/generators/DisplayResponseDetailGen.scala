@@ -94,7 +94,6 @@ object DisplayResponseDetailGen {
       declarationId            <- genMRN
       acceptanceDate           <- genLocalDateTime
       declarantReferenceNumber <- Gen.option(genStringWithMaxSizeOfN(10))
-      securityReason           <- Gen.option(genStringWithMaxSizeOfN(10))
       btaDueDate               <- Gen.option(genLocalDateTime)
       procedureCode            <- genStringWithMaxSizeOfN(5)
       btaSource                <- Gen.option(genStringWithMaxSizeOfN(10))
@@ -108,7 +107,7 @@ object DisplayResponseDetailGen {
       declarationId = declarationId.value,
       acceptanceDate = acceptanceDate.toString,
       declarantReferenceNumber = declarantReferenceNumber,
-      securityReason = securityReason,
+      securityReason = None,
       btaDueDate = btaDueDate.map(_.toString),
       procedureCode = procedureCode,
       btaSource = btaSource,

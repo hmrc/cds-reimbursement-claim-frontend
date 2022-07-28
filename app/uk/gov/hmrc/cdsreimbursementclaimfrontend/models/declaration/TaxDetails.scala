@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 final case class TaxDetails(
   taxType: String,
-  amount: String
+  private val amount: String
 ) {
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))

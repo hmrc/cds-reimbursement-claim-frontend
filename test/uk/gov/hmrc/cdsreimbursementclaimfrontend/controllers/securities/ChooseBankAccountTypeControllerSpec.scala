@@ -34,7 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, Feature, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
@@ -125,7 +127,6 @@ class ChooseBankAccountTypeControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney: SecuritiesJourney, _) =>
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(securitiesJourney = Some(initialJourney)))

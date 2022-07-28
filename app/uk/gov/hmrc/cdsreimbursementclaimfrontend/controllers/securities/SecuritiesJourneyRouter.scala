@@ -47,7 +47,6 @@ trait SecuritiesJourneyRouter {
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                              => routes.CheckBankDetailsController.show()
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                          => undefined
       case _                                                                 =>
-        println("undefined error case")
         undefined
     }
 

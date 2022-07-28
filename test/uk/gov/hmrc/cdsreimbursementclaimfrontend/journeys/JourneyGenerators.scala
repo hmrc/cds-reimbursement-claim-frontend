@@ -110,15 +110,16 @@ trait JourneyGenerators extends JourneyTestData {
                )
     } yield (mrn, rfs, acc14)
 
-  final lazy val mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+  final lazy val mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
       acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
-        _.withDeclarationId(mrn.value)
-          .withDeclarantEori(exampleEori)
-          .withReasonForSecurity(rfs)
-      )
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
     } yield (mrn, rfs, acc14)
 
   final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen
@@ -229,7 +230,7 @@ trait JourneyGenerators extends JourneyTestData {
       sd =>
         sd.taxDetails.halfNonEmpty.map(td =>
           Gen
-            .choose(BigDecimal.exact("0.01"), BigDecimal(td.amount))
+            .choose(BigDecimal.exact("0.01"), td.getAmount)
             .map(reclaimAmount => reclaimAmount)
             .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
         )
@@ -241,7 +242,7 @@ trait JourneyGenerators extends JourneyTestData {
       sd =>
         sd.taxDetails.map(td =>
           Gen
-            .map(reclaimAmount => BigDecimal(td.amount))
+            .map(reclaimAmount => td.getAmount)
             .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
         )
     )
