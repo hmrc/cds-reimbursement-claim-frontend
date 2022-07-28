@@ -49,7 +49,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 trait EnterBankAccountDetailsMixin[T] {
-  this: JourneyBaseController[T] =>
+  self: JourneyBaseController[T] =>
 
   val enterBankAccountDetailsPage: enter_bank_account_details
   val bankAccountReputationService: BankAccountReputationService
