@@ -32,22 +32,27 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  implicit val enterBankAccountDetailsPage: enter_bank_account_details,
-  implicit val bankAccountReputationService: BankAccountReputationService
+  val enterBankAccountDetailsPage: enter_bank_account_details,
+  val bankAccountReputationService: BankAccountReputationService
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
-    with EnterBankAccountDetailsMixin
+    with EnterBankAccountDetailsMixin[SecuritiesJourney]
     with Logging {
 
-  import JourneyWithSubmitBankAccount._
-  implicit def securitiesJourneyWithBankAccount(implicit
-    journey: SecuritiesJourney
-  ): JourneyWithBankAccount[SecuritiesJourney] =
-    instance(journey.answers.bankAccountType, journey.submitBankAccountDetails)
+  final override def bankAccountType(journey: SecuritiesJourney): Option[BankAccountType] =
+    journey.answers.bankAccountType
+
+  final override def submitBankAccountDetails(
+    journey: SecuritiesJourney,
+    bankAccountDetails: BankAccountDetails
+  ): Either[String, SecuritiesJourney] =
+    journey.submitBankAccountDetails(bankAccountDetails)
 
   private val nextPage = NextPage(
     errorPath = commonRoutes.ServiceUnavailableController.show(),
