@@ -110,6 +110,17 @@ trait JourneyGenerators extends JourneyTestData {
                )
     } yield (mrn, rfs, acc14)
 
+  final lazy val mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
+      acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
+        _.withDeclarationId(mrn.value)
+          .withDeclarantEori(exampleEori)
+          .withReasonForSecurity(rfs)
+      )
+    } yield (mrn, rfs, acc14)
+
   final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
     for {
@@ -121,6 +132,13 @@ trait JourneyGenerators extends JourneyTestData {
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
     for {
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
+      reclaims         <- validSecurityReclaimsGen(decl)
+    } yield (mrn, rfs, decl, reclaims)
+
+  final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    for {
+      (mrn, rfs, decl) <- mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
     } yield (mrn, rfs, decl, reclaims)
 
