@@ -117,7 +117,6 @@ class ExternalUploadDocumentsConnector @Inject() (
           response
             .header(HeaderNames.LOCATION)
             .map(location => uploadDocumentsConfig.publicUrl + location)
-        println(maybeUrl)
         Future.successful(maybeUrl)
       } else
         Future.failed(

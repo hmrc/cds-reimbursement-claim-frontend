@@ -52,8 +52,6 @@ class ConfirmFullRepaymentController @Inject() (
 
   private val form: Form[YesNo] = confirmFullRepaymentForm
 
-  // todo import SecuritiesJourney.Checks._
-
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
@@ -62,7 +60,7 @@ class ConfirmFullRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.getSecuritiesReclaims
       .map(_._1)
       .headOption

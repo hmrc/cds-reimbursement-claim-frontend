@@ -101,11 +101,13 @@ class RequestWithSessionDataAndRetrievedDataSpec
             claim,
             SubmitClaimResponse("Case Number")
           )
-        val request                           =
+
+        val request =
           RequestWithSessionDataAndRetrievedData(
             SessionData(Some(justSubmittedClaim)),
             authenticatedRequest(randomIndividual)
           )
+
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
       }
 

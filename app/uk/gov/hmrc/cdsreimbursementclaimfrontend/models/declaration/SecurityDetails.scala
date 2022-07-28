@@ -22,8 +22,8 @@ import cats.syntax.eq._
 
 final case class SecurityDetails(
   securityDepositId: String,
-  totalAmount: String,
-  amountPaid: String,
+  private val totalAmount: String,
+  private val amountPaid: String,
   paymentMethod: String, // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account, 004 = Guarantee Account, 005 = Individual Guarantee"
   paymentReference: String,
   taxDetails: List[TaxDetails]
@@ -32,7 +32,9 @@ final case class SecurityDetails(
   def isGuaranteeEligible: Boolean  = paymentMethod === "004"
   def isBankAccountPayment: Boolean = paymentMethod === "001"
 
-  def getTotalAmount: BigDecimal = BigDecimal(totalAmount)
+  def getTotalAmount: BigDecimal = taxDetails.map(_.getAmount).sum
+
+  def getPaidAmount: BigDecimal = BigDecimal(amountPaid)
 }
 
 object SecurityDetails {

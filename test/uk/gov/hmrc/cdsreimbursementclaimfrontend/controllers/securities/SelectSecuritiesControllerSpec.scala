@@ -99,8 +99,8 @@ class SelectSecuritiesControllerSpec
           ("MRN"                           -> journey.getLeadMovementReferenceNumber.map(_.value)),
           ("Reason for security"           -> journey.answers.reasonForSecurity
             .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-          ("Total value"                   -> Some(BigDecimal(securityDetails.totalAmount).toPoundSterlingString)),
-          ("Amount paid"                   -> Some(BigDecimal(securityDetails.amountPaid).toPoundSterlingString)),
+          ("Total value"                   -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
+          ("Amount paid"                   -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
           ("Payment reference"             -> Some(securityDetails.paymentReference)),
           ("Payment method"                -> Some(
             if (securityDetails.isGuaranteeEligible) "Guarantee" else "Bank account"
