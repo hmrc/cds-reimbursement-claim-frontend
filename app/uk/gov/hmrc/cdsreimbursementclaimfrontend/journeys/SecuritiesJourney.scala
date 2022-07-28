@@ -40,8 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
-import com.github.arturopala.validator.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.SecuritiesReclaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
