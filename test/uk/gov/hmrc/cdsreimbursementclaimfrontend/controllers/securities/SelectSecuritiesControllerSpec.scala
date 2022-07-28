@@ -89,25 +89,26 @@ class SelectSecuritiesControllerSpec
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-    headers     shouldBe empty
+    headers       should not be empty
     summaryKeys   should not be empty
     summaryValues should not be empty
 
     journey.getSecurityDetailsFor(securityDepositId).foreach { securityDetails =>
       summaries should containOnlyDefinedPairsOf(
         Seq(
-          ("MRN"                           -> journey.getLeadMovementReferenceNumber.map(_.value)),
-          ("Reason for security"           -> journey.answers.reasonForSecurity
+          ("Import MRN"                   -> journey.getLeadMovementReferenceNumber
+            .map(_.value)),
+          ("Reason for security deposit"  -> journey.answers.reasonForSecurity
             .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-          ("Total value"                   -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
-          ("Amount paid"                   -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
-          ("Payment reference"             -> Some(securityDetails.paymentReference)),
-          ("Payment method"                -> Some(
+          ("Total security deposit value" -> Some(BigDecimal(securityDetails.totalAmount).toPoundSterlingString)),
+          ("Security deposit paid"        -> Some(BigDecimal(securityDetails.amountPaid).toPoundSterlingString)),
+          ("Payment reference"            -> Some(securityDetails.paymentReference)),
+          ("Payment method"               -> Some(
             if (securityDetails.isGuaranteeEligible) "Guarantee" else "Bank account"
           )),
-          ("Acceptance date"               -> journey.getLeadDisplayDeclaration
+          ("Acceptance date"              -> journey.getLeadDisplayDeclaration
             .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate))),
-          ("Brought to account (BTA) date" -> journey.getLeadDisplayDeclaration
+          ("Date duty collected"          -> journey.getLeadDisplayDeclaration
             .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate)))
         )
       )
