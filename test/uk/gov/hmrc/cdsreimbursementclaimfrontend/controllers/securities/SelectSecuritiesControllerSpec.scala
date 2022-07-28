@@ -100,8 +100,8 @@ class SelectSecuritiesControllerSpec
             .map(_.value)),
           ("Reason for security deposit"  -> journey.answers.reasonForSecurity
             .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-          ("Total security deposit value" -> Some(BigDecimal(securityDetails.totalAmount).toPoundSterlingString)),
-          ("Security deposit paid"        -> Some(BigDecimal(securityDetails.amountPaid).toPoundSterlingString)),
+          ("Total security deposit value" -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
+          ("Security deposit paid"        -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
           ("Payment reference"            -> Some(securityDetails.paymentReference)),
           ("Payment method"               -> Some(
             if (securityDetails.isGuaranteeEligible) "Guarantee" else "Bank account"

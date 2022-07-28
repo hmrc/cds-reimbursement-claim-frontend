@@ -110,15 +110,16 @@ trait JourneyGenerators extends JourneyTestData {
                )
     } yield (mrn, rfs, acc14)
 
-  final lazy val mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+  final lazy val mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
       acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
-        _.withDeclarationId(mrn.value)
-          .withDeclarantEori(exampleEori)
-          .withReasonForSecurity(rfs)
-      )
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
     } yield (mrn, rfs, acc14)
 
   final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen
