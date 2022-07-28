@@ -33,6 +33,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph)
@@ -55,7 +56,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        <div class="govuk-heading-m">@messages(s"$key.securityId",securityDepositId)</div>
+        @subHeading(Html(messages(s"$key.securityId",securityDepositId)))
 
         @summary(SecurityDetailsSummary(declaration, securityDepositId, key))
 
@@ -65,7 +66,7 @@
             legend = messages(s"$key.legend"),
             legendAsHeading = false,
             hintKey = None,
-            classes = "",
+            classes = "govuk-fieldset__legend govuk-fieldset__legend--m",
             inline = true,
             items = Seq(
                 RadioItem(

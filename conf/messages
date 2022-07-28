@@ -352,18 +352,18 @@ choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties*
 #  SELECT SECURITIES PAGE - SECURITIES
 #===================================================
 select-securities.title.caption=Security {0} of {1}
-select-securities.title=Do you want to include this security in this claim?
-select-securities.securityId=Security ID: {0}
-select-securities.mrn-label=MRN
-select-securities.reason-for-security-label=Reason for security
-select-securities.total-amount-label=Total value
-select-securities.paid-amount-label=Amount paid
+select-securities.title=Include this security deposit in your claim?
+select-securities.securityId=Security deposit ID: {0}
+select-securities.mrn-label=Import <abbr title="Movement Reference Number">MRN</abbr>
+select-securities.reason-for-security-label=Reason for security deposit
+select-securities.total-amount-label=Total security deposit value
+select-securities.paid-amount-label=Security deposit paid
 select-securities.payment-reference-label=Payment reference
 select-securities.payment-method-label=Payment method
 select-securities.payment-method.guarantee=Guarantee
 select-securities.payment-method.bank-account=Bank account
 select-securities.acceptance-date-label=Acceptance date
-select-securities.bta-due-date-label=Brought to account (BTA) date
+select-securities.bta-due-date-label=Date duty collected
 select-securities.legend=Do you want to include this security?
 select-securities.yes=Yes
 select-securities.no=No
