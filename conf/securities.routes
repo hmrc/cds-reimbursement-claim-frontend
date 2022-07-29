@@ -49,7 +49,7 @@ POST         /securities/check-claim                                   @uk.gov.h
 GET          /securities/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.show()
 POST         /securities/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.submit()
 
-GET          /securities/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.show()
+GET          /securities/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.show()
 
 GET          /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.show()
 POST         /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.submit()
