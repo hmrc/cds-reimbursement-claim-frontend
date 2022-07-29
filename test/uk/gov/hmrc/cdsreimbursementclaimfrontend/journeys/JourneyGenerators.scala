@@ -17,12 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
-import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
@@ -225,33 +223,6 @@ trait JourneyGenerators extends JourneyTestData {
     )
 
   final def validSecurityReclaimsGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
-    validSecurityReclaimsGenInternal(
-      decl,
-      sd =>
-        sd.taxDetails.halfNonEmpty.map(td =>
-          Gen
-            .choose(BigDecimal.exact("0.01"), td.getAmount)
-            .map(reclaimAmount => reclaimAmount)
-            .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
-        )
-    )
-
-  final def validSecurityReclaimsFullAmountGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
-    validSecurityReclaimsGenInternal(
-      decl,
-      sd =>
-        sd.taxDetails.map(td =>
-          Gen
-            .map(reclaimAmount => td.getAmount)
-            .map(amount => (sd.securityDepositId, TaxCodes.findUnsafe(td.taxType), amount))
-        )
-    )
-  val logger: Logger                                                                                              = Logger(this.getClass)
-
-  private final def validSecurityReclaimsGenInternal(
-    decl: DisplayDeclaration,
-    mapSecurityDeposit: SecurityDetails => Seq[Gen[(String, TaxCode, BigDecimal)]]
-  ): Gen[Seq[(String, TaxCode, BigDecimal)]] =
     Gen
       .sequence(
         decl.getSecurityDepositIds
@@ -271,5 +242,18 @@ trait JourneyGenerators extends JourneyTestData {
           )
       )
       .map(_.asScala.toSeq)
+
+  final def validSecurityReclaimsFullAmountGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
+    Gen
+      .const(
+        decl.getSecurityDepositIds
+          .getOrElse(Seq.empty)
+          .flatMap(depositId =>
+            decl
+              .getSecurityDetailsFor(depositId)
+              .map(sd => sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, td.getAmount)))
+              .getOrElse(Seq.empty)
+          )
+      )
 
 }

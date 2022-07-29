@@ -181,21 +181,36 @@ class EnterClaimController @Inject() (
   }
 
   private def nextPage(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode): Call =
-    journey
-      .getSelectedDutiesFor(securityDepositId)
-      .flatMap(_.nextAfter(taxCode)) match {
+    if (journey.answers.checkClaimDetailsChangeMode && journey.answers.claimFullAmountMode)
+      journey.getNextDepositIdAndTaxCodeToClaim match {
+        case Some(Left(depositId)) =>
+          routes.ConfirmFullRepaymentController.show(depositId)
 
-      case Some(nextTaxCode) =>
-        routes.EnterClaimController.show(securityDepositId, nextTaxCode)
+        case Some(Right((depositId, taxCode))) =>
+          routes.EnterClaimController.show(depositId, taxCode)
 
-      case None =>
-        journey.getSelectedDepositIds.nextAfter(securityDepositId) match {
-          case Some(nextSecurityDepositId) =>
-            routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
+        case None =>
+          routes.CheckClaimDetailsController.show()
+      }
+    else
+      journey
+        .getSelectedDutiesFor(securityDepositId)
+        .flatMap(_.nextAfter(taxCode)) match {
 
-          case None =>
-            routes.CheckClaimDetailsController.show()
-        }
-    }
+        case Some(nextTaxCode) =>
+          routes.EnterClaimController.show(securityDepositId, nextTaxCode)
+
+        case None =>
+          journey.getSelectedDepositIds.nextAfter(securityDepositId) match {
+            case Some(nextSecurityDepositId) =>
+              if (journey.answers.checkClaimDetailsChangeMode && !journey.answers.claimFullAmountMode)
+                routes.CheckClaimDetailsController.show()
+              else
+                routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
+
+            case None =>
+              routes.CheckClaimDetailsController.show()
+          }
+      }
 
 }

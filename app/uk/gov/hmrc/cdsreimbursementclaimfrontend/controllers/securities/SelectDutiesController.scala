@@ -59,7 +59,7 @@ class SelectDutiesController @Inject() (
       .fold(error(CdsError("no tax codes available")))(f)
   }
 
-  def show(securityId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final def show(securityId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     processAvailableDuties[Result](
       securityId: String,
       journey: SecuritiesJourney,
@@ -84,7 +84,7 @@ class SelectDutiesController @Inject() (
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney(
+  final def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       processAvailableDuties[(SecuritiesJourney, Result)](
         securityId: String,
@@ -137,7 +137,24 @@ class SelectDutiesController @Inject() (
           (journey, Redirect(controllers.routes.IneligibleController.ineligible()))
         },
         updatedJourney =>
-          (updatedJourney, Redirect(routes.EnterClaimController.show(securityId, dutiesSelected.head.taxCode)))
+          (
+            updatedJourney,
+            Redirect(
+              if (updatedJourney.answers.checkClaimDetailsChangeMode && updatedJourney.answers.claimFullAmountMode)
+                journey.getNextDepositIdAndTaxCodeToClaim match {
+                  case Some(Left(depositId)) =>
+                    routes.ConfirmFullRepaymentController.show(depositId)
+
+                  case Some(Right((depositId, taxCode))) =>
+                    routes.EnterClaimController.show(depositId, taxCode)
+
+                  case None =>
+                    routes.CheckClaimDetailsController.show()
+                }
+              else
+                routes.EnterClaimController.show(securityId, dutiesSelected.head.taxCode)
+            )
+          )
       )
 }
 object SelectDutiesController extends Logging {

@@ -372,6 +372,54 @@ class EnterClaimControllerSpec
 
       }
 
+      "save reclaim amount in change mode and progress to the next page" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+        )
+      ) { case (initialJourney, _) =>
+        val allSelectedDuties: Seq[(String, TaxCode)] =
+          initialJourney.getAllSelectedDuties
+
+        for ((depositId, taxCode) <- allSelectedDuties) {
+
+          val updatedJourney = initialJourney
+            .submitCheckClaimDetailsChangeMode(true)
+            .submitAmountForReclaim(depositId, taxCode, BigDecimal("0.01"))
+            .getOrFail
+
+          val next: Option[Either[String, (String, TaxCode)]] = updatedJourney.getNextDepositIdAndTaxCodeToClaim
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
+            mockStoreSession(
+              SessionData(
+                updatedJourney
+              )
+            )(Right(()))
+
+          }
+
+          val expectedNextRoute: Call = next match {
+            case Some(Left(depositId)) =>
+              routes.ConfirmFullRepaymentController.show(depositId)
+
+            case Some(Right((depositId, taxCode))) =>
+              routes.EnterClaimController.show(depositId, taxCode)
+
+            case None =>
+              routes.CheckClaimDetailsController.show()
+          }
+
+          checkIsRedirect(
+            performAction(depositId, taxCode, "enter-claim.securities.claim-amount" -> "0.01"),
+            expectedNextRoute
+          )
+        }
+
+      }
+
       "re-display the page with error message if claimed amount is zero" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
