@@ -18,16 +18,57 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckBankDetailsController @Inject() (
-  val jcc: JourneyControllerComponents
+  val jcc: JourneyControllerComponents,
+  checkBankAccountDetailsPage: pages.check_bank_account_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    extends SecuritiesJourneyBaseController {
+
+  def show(): Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      val bankAccountTypeRoute = routes.ChooseBankAccountTypeController.show()
+      val continueRoute        = checkYourAnswers
+
+      journey.computeBankAccountDetails
+        .map { bankAccountDetails: BankAccountDetails =>
+          journey
+            .submitBankAccountDetails(bankAccountDetails)
+            .fold(
+              _ => (journey, Redirect(continueRoute)),
+              journeyWithBankDetails =>
+                (
+                  journeyWithBankDetails,
+                  Ok(
+                    checkBankAccountDetailsPage(
+                      bankAccountDetails.masked,
+                      continueRoute,
+                      bankAccountTypeRoute
+                    )
+                  )
+                )
+            )
+        }
+        .getOrElse {
+          (
+            journey,
+            Redirect(
+              if (journey.needsBanksAccountDetailsSubmission)
+                bankAccountTypeRoute
+              else
+                continueRoute
+            )
+          )
+        }
+        .asFuture
+    }
+}
