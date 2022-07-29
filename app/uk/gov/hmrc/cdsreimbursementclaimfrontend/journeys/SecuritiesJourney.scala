@@ -107,7 +107,11 @@ final class SecuritiesJourney private (
       .map(_.taxDetails.map(_.getTaxCode))
 
   def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
-    answers.securitiesReclaims.flatMap(_.get(securityDepositId).map(_.keys.toSeq))
+    answers.securitiesReclaims.flatMap(
+      _.get(securityDepositId)
+        .flatMap(_.noneIfEmpty)
+        .map(_.keys.toSeq)
+    )
 
   def getAllSelectedDuties: Seq[(String, TaxCode)] =
     answers.securitiesReclaims
@@ -127,15 +131,16 @@ final class SecuritiesJourney private (
       .map(_.map(_._2.map(_._2.getOrElse(ZERO)).sum).sum)
       .getOrElse(ZERO)
 
-  def getTotalReclaimAmountFor(securityDepositId: String): BigDecimal =
+  def getTotalReclaimAmountFor(securityDepositId: String): Option[BigDecimal] =
     answers.securitiesReclaims
-      .flatMap(_.get(securityDepositId))
+      .flatMap(_.get(securityDepositId).flatMap(_.noneIfEmpty))
       .map(_.map(_._2.getOrElse(ZERO)).sum)
-      .getOrElse(ZERO)
 
   def isFullSecurityAmountClaimed(securityDepositId: String): Boolean =
-    getTotalSecurityDepositAmountFor(securityDepositId)
-      .contains(getTotalReclaimAmountFor(securityDepositId))
+    (getTotalSecurityDepositAmountFor(securityDepositId), getTotalReclaimAmountFor(securityDepositId)) match {
+      case (Some(declarationAmount), Some(claimAmount)) if declarationAmount === claimAmount => true
+      case _                                                                                 => false
+    }
 
   def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.securitiesReclaims
@@ -589,7 +594,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
       None, // mandatory if reasonForSecurity is T/A, see ReasonForSecurity.requiresExportDeclaration
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
-    reclaimingFullAmount: Option[Boolean] = None,
     securitiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] = None, // mandatory if NOT reclaimingFullAmount
     selectedDocumentType: Option[UploadDocumentType] = None, // ??? depending on the RfS and ....
     supportingEvidences: Seq[UploadedFile] = Seq.empty,

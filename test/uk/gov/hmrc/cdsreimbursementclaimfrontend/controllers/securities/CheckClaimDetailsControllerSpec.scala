@@ -107,7 +107,7 @@ class CheckClaimDetailsControllerSpec
           ("Duties selected"   -> Some(
             journey.getSelectedDutiesFor(sid).get.map(taxCode => messages(s"tax-code.${taxCode.value}")).mkString(" ")
           )),
-          ("Total"             -> Some(journey.getTotalReclaimAmountFor(sid).toPoundSterlingString))
+          ("Total"             -> Some(journey.getTotalReclaimAmountFor(sid).getOrElse(BigDecimal("0.00")).toPoundSterlingString))
         ) ++ journey.answers.securitiesReclaims.get
           .get(sid)
           .get

@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
 import scala.concurrent.ExecutionContext
@@ -42,8 +41,7 @@ class EnterBankAccountDetailsController @Inject() (
   val bankAccountReputationService: BankAccountReputationService
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
-    with EnterBankAccountDetailsMixin[SecuritiesJourney]
-    with Logging {
+    with EnterBankAccountDetailsMixin[SecuritiesJourney] {
 
   final override def bankAccountType(journey: SecuritiesJourney): Option[BankAccountType] =
     journey.answers.bankAccountType
