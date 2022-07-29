@@ -152,7 +152,7 @@ class BankAccountControllerSpec
   def getGlobalErrors(doc: Document): Elements = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   def getAccountNameValue(doc: Document): String =
-    doc.select("input[name='enter-bank-details.account-name']").first().attr("value")
+    doc.select("input[name='enter-bank-account-details.account-name']").first().attr("value")
 
   "Bank Account Controller" when {
 
@@ -279,7 +279,7 @@ class BankAccountControllerSpec
       //          val doc              = Jsoup.parse(contentAsString(result))
       //          getAccountNameValue(doc) shouldBe ""
       //          val error = getGlobalErrors(doc).text()
-      //          error          shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+      //          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
       //          status(result) shouldBe BAD_REQUEST
       //        }
       //      }
@@ -314,7 +314,7 @@ class BankAccountControllerSpec
       //            val doc              = Jsoup.parse(contentAsString(result))
       //            getAccountNameValue(doc) shouldBe ""
       //            val error = getGlobalErrors(doc).text()
-      //            error          shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
+      //            error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
       //            status(result) shouldBe BAD_REQUEST
       //          }
       //        )
@@ -345,7 +345,7 @@ class BankAccountControllerSpec
       //        val doc              = Jsoup.parse(contentAsString(result))
       //        getAccountNameValue(doc) shouldBe Business.accountName.value
       //        val error = getGlobalErrors(doc).text()
-      //        error          shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error")
+      //        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-exists-error")
       //        status(result) shouldBe BAD_REQUEST
       //      }
       //
@@ -376,7 +376,7 @@ class BankAccountControllerSpec
       //          val doc              = Jsoup.parse(contentAsString(result))
       //          getAccountNameValue(doc) shouldBe ""
       //          val error = getGlobalErrors(doc).text()
-      //          error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+      //          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-does-not-exist")
       //          status(result) shouldBe BAD_REQUEST
       //        }
       //
@@ -405,7 +405,7 @@ class BankAccountControllerSpec
       //        val doc              = Jsoup.parse(contentAsString(result))
       //
       //        val error = getGlobalErrors(doc).text()
-      //        error          shouldBe messageFromMessageKey("enter-bank-details.error.INVALID_ACCOUNT_NUMBER")
+      //        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.INVALID_ACCOUNT_NUMBER")
       //        status(result) shouldBe BAD_REQUEST
       //      }
       //
@@ -494,7 +494,7 @@ class BankAccountControllerSpec
           val doc              = Jsoup.parse(contentAsString(result))
           getAccountNameValue(doc) shouldBe ""
           val error = getGlobalErrors(doc).text()
-          error          shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no")
+          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
           status(result) shouldBe BAD_REQUEST
         }
       }
@@ -528,7 +528,7 @@ class BankAccountControllerSpec
             val doc              = Jsoup.parse(contentAsString(result))
             getAccountNameValue(doc) shouldBe ""
             val error = getGlobalErrors(doc).text()
-            error          shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
+            error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
             status(result) shouldBe BAD_REQUEST
           }
         )
@@ -559,7 +559,7 @@ class BankAccountControllerSpec
         val doc              = Jsoup.parse(contentAsString(result))
         getAccountNameValue(doc) shouldBe Personal.accountName.value
         val error = getGlobalErrors(doc).text()
-        error          shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error")
+        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-exists-error")
         status(result) shouldBe BAD_REQUEST
 
       }
@@ -591,7 +591,7 @@ class BankAccountControllerSpec
           val doc              = Jsoup.parse(contentAsString(result))
           getAccountNameValue(doc) shouldBe ""
           val error = getGlobalErrors(doc).text()
-          error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-does-not-exist")
           status(result) shouldBe BAD_REQUEST
         }
 
@@ -619,7 +619,7 @@ class BankAccountControllerSpec
         val doc              = Jsoup.parse(contentAsString(result))
 
         val error = getGlobalErrors(doc).text()
-        error          shouldBe messageFromMessageKey("enter-bank-details.error.INVALID_SORTCODE")
+        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.INVALID_SORTCODE")
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -652,10 +652,10 @@ class BankAccountControllerSpec
 
   "Form Validation" must {
     val form          = enterBankDetailsForm
-    val accountName   = "enter-bank-details.account-name"
-    val isBusiness    = "enter-bank-details.is-business-account"
-    val sortCode      = "enter-bank-details.sort-code"
-    val accountNumber = "enter-bank-details.account-number"
+    val accountName   = "enter-bank-account-details.account-name"
+    val isBusiness    = "enter-bank-account-details.is-business-account"
+    val sortCode      = "enter-bank-account-details.sort-code"
+    val accountNumber = "enter-bank-account-details.account-number"
 
     val goodData = Map(
       accountName   -> "Barkhan Seer",

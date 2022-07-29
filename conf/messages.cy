@@ -761,26 +761,26 @@ select-bank-account-type.error.required=
 #===================================================
 #  ENTER BANK DETAILS PAGE
 #===================================================
-enter-bank-details.title=Nodwch fanylion y cyfrif banc
-enter-bank-details.p1=
-enter-bank-details.p2=
-enter-bank-details.account-name.label=Enw’r cyfrif banc
-enter-bank-details.account-name.error.required=Nodwch enw cyfrif dilys
-enter-bank-details.account-name.error.maxLength=Nodwch enw cyfrif dilys
-enter-bank-details.account-name.invalid=Nodwch enw cyfrif dilys
-enter-bank-details.sort-code.label=Cod didoli
-enter-bank-details.sort-code.help-text=
-enter-bank-details.sort-code.error.required=Nodwch god didoli dilys
-enter-bank-details.sort-code.invalid=Nodwch god didoli dilys
-enter-bank-details.account-number.label=Rhif y cyfrif
-enter-bank-details.account-number.help-text=Mae’n rhaid iddo fod rhwng 6 ac 8 digid o hyd
-enter-bank-details.account-number.error.required=Nodwch rif cyfrif dilys.
-enter-bank-details.account-number.error.length=
-enter-bank-details.account-number.error.invalid=
-enter-bank-details.error.moc-check-failed=Mae’n rhaid i rif y cyfrif fod yn ddilys ar gyfer y cod didoli a roddir
-enter-bank-details.error.account-does-not-exist=Mae’n rhaid i rif y cyfrif fod yn perthyn i gyfrif banc gweithredol
-enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Rhif cyfrif annilys
-enter-bank-details.error.INVALID_SORTCODE=Cod didoli annilys
+enter-bank-account-details.title=Nodwch fanylion y cyfrif banc
+enter-bank-account-details.p1=
+enter-bank-account-details.p2=
+enter-bank-account-details.account-name.label=Enw’r cyfrif banc
+enter-bank-account-details.account-name.error.required=Nodwch enw cyfrif dilys
+enter-bank-account-details.account-name.error.maxLength=Nodwch enw cyfrif dilys
+enter-bank-account-details.account-name.invalid=Nodwch enw cyfrif dilys
+enter-bank-account-details.sort-code.label=Cod didoli
+enter-bank-account-details.sort-code.help-text=
+enter-bank-account-details.sort-code.error.required=Nodwch god didoli dilys
+enter-bank-account-details.sort-code.invalid=Nodwch god didoli dilys
+enter-bank-account-details.account-number.label=Rhif y cyfrif
+enter-bank-account-details.account-number.help-text=Mae’n rhaid iddo fod rhwng 6 ac 8 digid o hyd
+enter-bank-account-details.account-number.error.required=Nodwch rif cyfrif dilys.
+enter-bank-account-details.account-number.error.length=
+enter-bank-account-details.account-number.error.invalid=
+enter-bank-account-details.error.moc-check-failed=Mae’n rhaid i rif y cyfrif fod yn ddilys ar gyfer y cod didoli a roddir
+enter-bank-account-details.error.account-does-not-exist=Mae’n rhaid i rif y cyfrif fod yn perthyn i gyfrif banc gweithredol
+enter-bank-account-details.error.INVALID_ACCOUNT_NUMBER=Rhif cyfrif annilys
+enter-bank-account-details.error.INVALID_SORTCODE=Cod didoli annilys
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES

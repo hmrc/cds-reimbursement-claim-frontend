@@ -81,7 +81,7 @@ class EnterBankAccountDetailsControllerSpec
   implicit val request: Request[_] = FakeRequest()
 
   private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
-  private val messagesKey: String = "enter-bank-details"
+  private val messagesKey: String = "enter-bank-account-details"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
@@ -130,9 +130,9 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-details.account-name")   shouldBe Some("")
-            selectedInputBox(doc, "enter-bank-details.sort-code")      shouldBe Some("")
-            selectedInputBox(doc, "enter-bank-details.account-number") shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.account-name")   shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")      shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.account-number") shouldBe Some("")
           }
         )
 
@@ -198,7 +198,9 @@ class EnterBankAccountDetailsControllerSpec
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -220,7 +222,10 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-exists-error"
+              ),
             BAD_REQUEST
           )
         }
@@ -243,7 +248,7 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no"),
             BAD_REQUEST
           )
         }
@@ -267,7 +272,8 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed"),
             BAD_REQUEST
           )
         }
@@ -291,7 +297,9 @@ class EnterBankAccountDetailsControllerSpec
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -337,7 +345,9 @@ class EnterBankAccountDetailsControllerSpec
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -359,7 +369,10 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-exists-error"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-exists-error"
+              ),
             BAD_REQUEST
           )
         }
@@ -382,7 +395,7 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-no"),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no"),
             BAD_REQUEST
           )
         }
@@ -406,7 +419,8 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed"),
             BAD_REQUEST
           )
         }
@@ -430,7 +444,9 @@ class EnterBankAccountDetailsControllerSpec
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
             messageFromMessageKey(s"$messagesKey.title"),
             doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist"),
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-bank-account-details.error.account-does-not-exist"
+              ),
             BAD_REQUEST
           )
         }
@@ -521,10 +537,10 @@ class EnterBankAccountDetailsControllerSpec
 
   "Form Validation" must {
     val form          = enterBankDetailsForm
-    val accountName   = "enter-bank-details.account-name"
-    val isBusiness    = "enter-bank-details.is-business-account"
-    val sortCode      = "enter-bank-details.sort-code"
-    val accountNumber = "enter-bank-details.account-number"
+    val accountName   = "enter-bank-account-details.account-name"
+    val isBusiness    = "enter-bank-account-details.is-business-account"
+    val sortCode      = "enter-bank-account-details.sort-code"
+    val accountNumber = "enter-bank-account-details.account-number"
 
     val goodData = Map(
       accountName   -> "Barkhan Seer",
