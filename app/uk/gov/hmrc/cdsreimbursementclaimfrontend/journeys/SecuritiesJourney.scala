@@ -67,11 +67,13 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .flatMap(d => d.getSecurityDetailsFor(securityDepositId).map(_ => d))
 
+  /** Returns all the security IDs available on the ACC14 declaration. */
   def getSecurityDepositIds: Seq[String] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
+  /** Returns true if the security ID is available on the ACC14 declaration. */
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
     getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
@@ -84,27 +86,27 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityTaxDetailsFor(securityDepositId, taxCode))
 
+  /** For the given deposit ID returns amount atributed to the given tax type (duty). */
   def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
     getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
 
+  /** For the given deposit ID returns total amount. */
   def getTotalSecurityDepositAmountFor(securityDepositId: String): Option[BigDecimal] =
     getSecurityDetailsFor(securityDepositId).map(_.getTotalAmount)
 
+  /** For the given deposit ID returns all declared tax types (duties). */
   def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
 
+  /** Returns deposit IDs selected by the user. */
   def getSelectedDepositIds: Seq[String] =
     answers.securitiesReclaims.map(_.keys.toSeq).getOrElse(Seq.empty)
 
+  /** Returns true if deposit ID has been selected by the user. */
   def isSelectedDepositId(securityDepositId: String): Boolean =
     answers.securitiesReclaims.exists(_.contains(securityDepositId))
-
-  def getAvailableDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
-    getLeadDisplayDeclaration
-      .flatMap(_.getSecurityDetailsFor(securityDepositId))
-      .map(_.taxDetails.map(_.getTaxCode))
 
   def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
     answers.securitiesReclaims.flatMap(
