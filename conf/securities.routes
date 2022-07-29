@@ -46,10 +46,10 @@ POST         /securities/enter-claim/:id/:taxCode                      @uk.gov.h
 GET          /securities/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimDetailsController.show()
 POST         /securities/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimDetailsController.submit()
 
-GET          /securities/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.show()
-POST         /securities/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.submit()
+GET          /securities/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.show()
+POST         /securities/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.submit()
 
-GET          /securities/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.show()
+GET          /securities/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.show()
 
 GET          /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.show()
 POST         /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.submit()
