@@ -24,6 +24,8 @@ sealed trait YesNo extends Product with Serializable
 
 object YesNo {
 
+  def of(flag: Boolean): YesNo = if (flag) Yes else No
+
   final case object No extends YesNo
   final case object Yes extends YesNo
 

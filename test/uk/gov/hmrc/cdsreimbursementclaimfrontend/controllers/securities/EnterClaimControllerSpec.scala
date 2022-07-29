@@ -213,7 +213,7 @@ class EnterClaimControllerSpec
         for ((depositId, taxCode, _) <- reclaims) {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
-          val availableDuties = initialJourney.getAvailableDutiesFor(depositId).getOrElse(Seq.empty)
+          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
 
           val unselectedDuty = availableDuties.filterNot(selectedDuties.contains).head
 
@@ -237,7 +237,7 @@ class EnterClaimControllerSpec
       ) { case (initialJourney, (_, _, _, reclaims)) =>
         for ((depositId, taxCode, _) <- reclaims) {
 
-          val availableDuties = initialJourney.getAvailableDutiesFor(depositId).getOrElse(Seq.empty)
+          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
 
           inSequence {
@@ -290,7 +290,7 @@ class EnterClaimControllerSpec
         for ((depositId, taxCode, _) <- reclaims) {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
-          val availableDuties = initialJourney.getAvailableDutiesFor(depositId).getOrElse(Seq.empty)
+          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
 
           val unselectedDuty = availableDuties.filterNot(selectedDuties.contains).head
 
@@ -314,7 +314,7 @@ class EnterClaimControllerSpec
       ) { case (initialJourney, (_, _, _, reclaims)) =>
         for ((depositId, taxCode, _) <- reclaims) {
 
-          val availableDuties = initialJourney.getAvailableDutiesFor(depositId).getOrElse(Seq.empty)
+          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
 
           inSequence {

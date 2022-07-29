@@ -79,7 +79,7 @@ final case class DisplayDeclaration(
   def getSecurityTaxCodesFor(securityDepositId: String): List[TaxCode] =
     getSecurityDetailsFor(securityDepositId)
       .map(
-        _.taxDetails.map(_.getTaxCode)
+        _.taxDetails.map(_.getTaxCode).distinct
       )
       .getOrElse(Nil)
 

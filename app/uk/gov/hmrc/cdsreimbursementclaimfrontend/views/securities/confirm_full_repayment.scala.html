@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ConfirmFullRepayment
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
@@ -69,12 +70,12 @@
                 RadioItem(
                     value = Some("true"),
                     content = Text(messages("generic.yes")),
-                    checked = false
+                    checked = form.value.contains(Yes)
                 ),
                 RadioItem(
                     value = Some("false"),
                     content = Text(messages("generic.no")),
-                    checked = false
+                    checked = form.value.contains(No)
                 )
             )
         )

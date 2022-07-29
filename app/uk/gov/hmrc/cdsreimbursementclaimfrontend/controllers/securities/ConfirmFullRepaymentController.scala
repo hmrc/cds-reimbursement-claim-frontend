@@ -29,13 +29,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.canContinueTheClaimWithChoosenRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
 import scala.concurrent.ExecutionContext
@@ -46,9 +45,7 @@ class ConfirmFullRepaymentController @Inject() (
   val jcc: JourneyControllerComponents,
   confirmFullRepaymentPage: confirm_full_repayment
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with SecuritiesJourneyRouter
-    with Logging {
+    extends SecuritiesJourneyBaseController {
 
   private val form: Form[YesNo] = confirmFullRepaymentForm
 
@@ -61,9 +58,7 @@ class ConfirmFullRepaymentController @Inject() (
     )
 
   def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
-    journey.getSecuritiesReclaims
-      .map(_._1)
-      .headOption
+    journey.getSelectedDepositIds.headOption
       .fold(
         Redirect(routes.CheckDeclarationDetailsController.show).asFuture
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
@@ -77,8 +72,10 @@ class ConfirmFullRepaymentController @Inject() (
         Ok(
           confirmFullRepaymentPage(
             form.withDefault(
-              journey.answers.reclaimingFullAmount
-                .fold(Option.empty[YesNo])(_ => Some(YesNo.Yes))
+              journey
+                .getTotalReclaimAmountFor(id)
+                .map(claimAmount => journey.getTotalSecurityDepositAmountFor(id).contains(claimAmount))
+                .map(YesNo.of)
             ),
             id,
             amountPaid,
@@ -143,8 +140,6 @@ class ConfirmFullRepaymentController @Inject() (
       )
       .asFuture
 
-  def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
-    request: Request[_]
-  ): Future[(SecuritiesJourney, Result)] =
+  def submitNo(securityId: String, journey: SecuritiesJourney): Future[(SecuritiesJourney, Result)] =
     (journey, Redirect(routes.SelectDutiesController.show(securityId))).asFuture
 }

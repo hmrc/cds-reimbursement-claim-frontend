@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
@@ -46,10 +45,7 @@ class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectDutiesPage: securities.select_duties // todo check SecurityId display / clone page or
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with Logging
-    with SecuritiesJourneyRouter
-    with SessionDataExtractor {
+    extends SecuritiesJourneyBaseController {
 
   private def processAvailableDuties[T](
     securityId: String,
@@ -74,9 +70,12 @@ class SelectDutiesController @Inject() (
       dutiesAvailable =>
         {
           val emptyForm: Form[DutiesSelectedAnswer] = selectDutiesForm(dutiesAvailable)
-          val filledForm                            = NonEmptyList
-            .fromList(journey.getAllSelectedDuties.map(a => Duty(a._2)).toList)
-            .fold(emptyForm)(emptyForm.fill)
+
+          val filledForm =
+            emptyForm.withDefault(
+              journey.getSelectedDutiesFor(securityId).flatMap(_.nonEmptyList.map(_.map(Duty.apply)))
+            )
+
           Ok(
             selectDutiesPage(filledForm, securityId, dutiesAvailable, routes.SelectDutiesController.submit(securityId))
           )
