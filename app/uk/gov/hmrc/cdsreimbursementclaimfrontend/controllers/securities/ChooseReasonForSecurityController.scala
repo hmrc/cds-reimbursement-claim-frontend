@@ -68,11 +68,11 @@ class ChooseReasonForSecurityController @Inject() (
 
   //Error: Security chosen does not exist against the Movement Reference Number (MRN) provided
   private val errorResultDeclarationNotFoundForRfS: Result =
-    Redirect(routes.ChooseReasonForSecurityController.show()) // TODO: fix in CDSR-1773
+    Redirect(routes.InvalidReasonForSecurityController.show())
 
   //Error: Movement Reference Number (MRN) provided does not exist
   private val errorResultDeclarationNotFoundForMrn: Result =
-    errorResultDeclarationNotFoundForRfS // TODO: fix in CDSR-1773
+    Redirect(routes.DeclarationNotFoundController.show())
 
   private val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
 
@@ -148,15 +148,15 @@ class ChooseReasonForSecurityController @Inject() (
   ): EitherT[Future, Result, DisplayDeclaration] =
     claimService
       .getDisplayDeclaration(mrn, reasonForSecurity)
-      .leftMap(error => Redirect(routes.DeclarationNotFoundController.show()))
+      .leftMap(error => errorResultDeclarationNotFoundForMrn)
       .flatMap {
         case None                                                                               =>
           EitherT.leftT[Future, DisplayDeclaration](
-            Redirect(routes.DeclarationNotFoundController.show())
+            errorResultDeclarationNotFoundForMrn
           )
         case Some(declaration) if !declaration.getReasonForSecurity.contains(reasonForSecurity) =>
           EitherT.leftT(
-            Redirect(routes.InvalidReasonForSecurityController.show())
+            errorResultDeclarationNotFoundForRfS
           )
         case Some(declaration)                                                                  =>
           EitherT.rightT[Future, Result](declaration)
