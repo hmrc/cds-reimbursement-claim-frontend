@@ -66,7 +66,7 @@ class ConfirmFullRepaymentControllerSpec
     with OptionValues
     with ShrinkLowPriority
     with Logging {
-// class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
+
   val confirmFullRepaymentKey: String = "confirm-full-repayment"
 
   override val overrideBindings: List[GuiceableModule] =
@@ -311,14 +311,11 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC4 move on to  /select-duties/:securityID page when no is selected and continue is clicked" in {
+      "AC4 move on to /select-duties/:securityID page when no is selected and continue is clicked" in {
         forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
-          val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-            reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
-
-          val journey: SecuritiesJourney                                             =
+          val journey: SecuritiesJourney =
             emptyJourney
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -326,20 +323,14 @@ class ConfirmFullRepaymentControllerSpec
               .flatMap(a => a.submitConsigneeEoriNumber(decl.getConsigneeEori.value))
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
               .flatMap(_.selectSecurityDepositIds(depositIds))
-              .flatMapEach(
-                reclaimsBySecurityDepositId,
-                (journey: SecuritiesJourney) =>
-                  (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-                    journey
-                      .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
-              )
               .getOrFail
-          val securityId                                                             = journey.getSecurityDepositIds.head
-          val sessionData                                                            = SessionData(journey)
+
+          val securityId = journey.getSecurityDepositIds.head
+
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(sessionData)
-//            mockStoreSession(Right(()))
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.submitClaimFullAmountMode(false)))(Right(()))
           }
 
           checkIsRedirect(
@@ -397,7 +388,6 @@ class ConfirmFullRepaymentControllerSpec
             mockGetSession(sessionData)
           }
 
-          //            val doc = Jsoup.parse(contentAsString(performAction(securityId, Seq(confirmFullRepaymentKey -> ""))))
           checkPageIsDisplayed(
             performAction(securityId, Seq()),
             "Do you want to reclaim the full amount for this security?",
@@ -408,15 +398,12 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC6 From CYA page, change from 'Yes' to 'No', clicking continue should go to the select duties controller" in {
-        // this AC is currently not met as we do not store the Yes/No selection, so auto fast forwarding is happening
-        // we will need to introduce some kind of flag, to be discussed
         forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          val securityId     = securityIdWithTaxCodes(journey).value
+          val securityId = journey.getSelectedDepositIds.head
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(updatedSession)
-//              mockStoreSession(Right(()))
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.submitClaimFullAmountMode(false)))(Right(()))
           }
 
           checkIsRedirect(
@@ -442,8 +429,6 @@ class ConfirmFullRepaymentControllerSpec
             routes.CheckClaimDetailsController.show()
           )
 
-        // we cannot verify that all duties have been selected with the full amount as we don't have access to the
-        // journey object...
         }
       }
 
@@ -465,8 +450,6 @@ class ConfirmFullRepaymentControllerSpec
               routes.ConfirmFullRepaymentController.show(nextSecurityId)
             )
 
-            // we cannot verify that all duties have been selected with the full amount as we don't have access to the
-            // journey object...
           }
         }
       }

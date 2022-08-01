@@ -64,22 +64,25 @@ class ConfirmFullRepaymentController @Inject() (
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
 
-  def show(id: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(id)
       .map(_.getSecurityTotalValueFor(id))
-      .fold(errorHandler.errorResult()) { amountPaid =>
-        Ok(
-          confirmFullRepaymentPage(
-            form.withDefault(
-              journey
-                .getTotalReclaimAmountFor(id)
-                .map(claimAmount => journey.getTotalSecurityDepositAmountFor(id).contains(claimAmount))
-                .map(YesNo.of)
-            ),
-            id,
-            amountPaid,
-            routes.ConfirmFullRepaymentController.submit(id)
+      .fold((journey, errorHandler.errorResult())) { amountPaid =>
+        (
+          journey.resetClaimFullAmountMode(),
+          Ok(
+            confirmFullRepaymentPage(
+              form.withDefault(
+                journey
+                  .getTotalReclaimAmountFor(id)
+                  .map(claimAmount => journey.getTotalSecurityDepositAmountFor(id).contains(claimAmount))
+                  .map(YesNo.of)
+              ),
+              id,
+              amountPaid,
+              routes.ConfirmFullRepaymentController.submit(id)
+            )
           )
         )
       }
@@ -130,16 +133,29 @@ class ConfirmFullRepaymentController @Inject() (
           (journey, errorHandler.errorResult())
         },
         { updatedJourney =>
-          val nextRoute = journey.getSelectedDepositIds
-            .nextAfter(securityId)
-            .fold(routes.CheckClaimDetailsController.show()) { nextSecurityId =>
-              routes.ConfirmFullRepaymentController.show(nextSecurityId)
-            }
+          val nextRoute =
+            if (journey.answers.checkClaimDetailsChangeMode)
+              routes.CheckClaimDetailsController.show()
+            else
+              journey.getSelectedDepositIds
+                .nextAfter(securityId)
+                .fold(routes.CheckClaimDetailsController.show()) { nextSecurityId =>
+                  routes.ConfirmFullRepaymentController.show(nextSecurityId)
+                }
           (updatedJourney, Redirect(nextRoute))
         }
       )
       .asFuture
 
   def submitNo(securityId: String, journey: SecuritiesJourney): Future[(SecuritiesJourney, Result)] =
-    (journey, Redirect(routes.SelectDutiesController.show(securityId))).asFuture
+    (if (journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId))
+       (
+         journey.submitClaimFullAmountMode(false),
+         Redirect(routes.SelectDutiesController.show(securityId))
+       )
+     else
+       (
+         journey,
+         Redirect(routes.CheckClaimDetailsController.show())
+       )).asFuture
 }

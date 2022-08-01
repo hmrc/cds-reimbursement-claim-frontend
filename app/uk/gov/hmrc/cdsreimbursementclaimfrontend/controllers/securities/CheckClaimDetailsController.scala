@@ -50,39 +50,49 @@ class CheckClaimDetailsController @Inject() (
     )
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadWriteJourney { implicit request => journey =>
       whenAllReclaimsProvided(journey) {
         journey.getLeadDisplayDeclaration
-          .fold(Redirect(routes.EnterMovementReferenceNumberController.show())) { displayDeclaration =>
-            Ok(
-              checkClaimDetailsPage(displayDeclaration, journey.getSecuritiesReclaims, postAction)
+          .fold((journey, Redirect(routes.EnterMovementReferenceNumberController.show()))) { displayDeclaration =>
+            (
+              journey
+                .submitCheckClaimDetailsChangeMode(true)
+                .resetClaimFullAmountMode(),
+              Ok(
+                checkClaimDetailsPage(displayDeclaration, journey.getSecuritiesReclaims, postAction)
+              )
             )
           }
       }
     }
 
   final val submit: Action[AnyContent] =
-    actionReadJourney { _ => journey =>
+    actionReadWriteJourney { _ => journey =>
       whenAllReclaimsProvided(journey) {
-        if (journey.answers.reasonForSecurity.exists(ReasonForSecurity.requiresDocumentType.contains)) {
-          Redirect(routes.ChooseFileTypeController.show())
-        } else {
-          Redirect(routes.UploadFilesController.show())
-        }
+        (
+          journey,
+          if (journey.answers.reasonForSecurity.exists(ReasonForSecurity.requiresDocumentType.contains)) {
+            Redirect(routes.ChooseFileTypeController.show())
+          } else {
+            Redirect(routes.UploadFilesController.show())
+          }
+        )
       }
     }
 
-  private def whenAllReclaimsProvided(journey: SecuritiesJourney)(body: => Result): Future[Result] =
+  private def whenAllReclaimsProvided(
+    journey: SecuritiesJourney
+  )(body: => (SecuritiesJourney, Result)): Future[(SecuritiesJourney, Result)] =
     (
       if (journey.answers.securitiesReclaims.isEmpty)
-        Redirect(routes.CheckDeclarationDetailsController.show())
+        (journey, Redirect(routes.CheckDeclarationDetailsController.show()))
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {
           case Some(Left(depositId)) =>
-            Redirect(routes.SelectDutiesController.show(depositId))
+            (journey, Redirect(routes.ConfirmFullRepaymentController.show(depositId)))
 
           case Some(Right((depositId, taxCode))) =>
-            Redirect(routes.EnterClaimController.show(depositId, taxCode))
+            (journey, Redirect(routes.EnterClaimController.show(depositId, taxCode)))
 
           case None =>
             body
