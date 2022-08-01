@@ -124,36 +124,36 @@ class CheckYourAnswersControllerSpec
 
     summaries should containOnlyDefinedPairsOf(
       Seq(
-        ("MRN"                                  -> Some(claim.movementReferenceNumber.value)),
-        ("Contact details"                      -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation))),
-        ("Contact address"                      -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation))),
-        ("Name on the account"                  -> claim.bankAccountDetails.map(_.accountName.value)),
-        ("Sort code"                            -> claim.bankAccountDetails.map(_.sortCode.masked)),
-        ("Account number"                       -> claim.bankAccountDetails.map(_.accountNumber.masked)),
-        ("Importer name"                        -> journey.answers.displayDeclaration.flatMap(_.consigneeName)),
-        ("Importer email"                       -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail)),
-        ("Importer address"                     -> journey.answers.displayDeclaration.flatMap(d =>
+        ("Import MRN"                   -> Some(claim.movementReferenceNumber.value)),
+        ("Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation))),
+        ("Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation))),
+        ("Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value)),
+        ("Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.masked)),
+        ("Account number"               -> claim.bankAccountDetails.map(_.accountNumber.masked)),
+        ("Importer name"                -> journey.answers.displayDeclaration.flatMap(_.consigneeName)),
+        ("Importer email"               -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail)),
+        ("Importer address"             -> journey.answers.displayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
         )),
-        ("Importer telephone"                   -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone)),
-        ("Declarant name"                       -> journey.answers.displayDeclaration.map(_.declarantName)),
-        ("Declarant address"                    -> journey.answers.displayDeclaration.map(d =>
+        ("Importer telephone"           -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone)),
+        ("Declarant name"               -> journey.answers.displayDeclaration.map(_.declarantName)),
+        ("Declarant address"            -> journey.answers.displayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         )),
-        ("Reason for security"                  -> journey.answers.reasonForSecurity.map(rfs =>
+        ("Reason for security deposit"  -> journey.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
         )),
-        ("Acceptance date"                      -> journey.answers.displayDeclaration
+        ("Date duty to be collected"    -> journey.answers.displayDeclaration
           .map(_.displayResponseDetail.acceptanceDate)
           .flatMap(DateUtils.displayFormat)),
-        ("Brought to account (BTA) due date"    -> journey.answers.displayDeclaration
+        ("Date security deposit made"   -> journey.answers.displayDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
           .flatMap(DateUtils.displayFormat)),
-        ("Total value of selected security IDs" -> journey.answers.displayDeclaration
+        ("Total security deposit value" -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesAmountFor(claim.securitiesReclaims.keySet).toPoundSterlingString)),
-        ("Payment method"                       -> Some(
+        ("Payment method"               -> Some(
           if (
             journey.answers.displayDeclaration
               .map(_.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet))

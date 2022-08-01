@@ -494,7 +494,7 @@ check-declaration-details.error.invalid=Select ''yes'' if you wish to continue w
 check-declaration-details.error.number=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.error.required=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.scheduled.mrn-number.label=First <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.payment-method.label=Payment method available
+check-declaration-details.payment-method.label=Payment method
 check-declaration-details.payment-method.unavailable=Unavailable
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
 
@@ -1319,7 +1319,7 @@ check-your-answers.reference-number.associated-mrn-label={0} <abbr title="Moveme
 check-your-answers.reference-number.rejectedgoodsmultiple.label={0} <abbr title="Movement Reference Number">MRN</abbr>
 
 check-your-answers.declaration-details.label=Declaration details
-check-your-answers.declaration-details.mrn-label=<abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.declaration-details.mrn-label=Import <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.multiple.mrn-label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.scheduled.mrn-label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.import-date-label=Import date
@@ -1332,9 +1332,9 @@ check-your-answers.declaration-details.importer-telephone-label=Importer telepho
 check-your-answers.declaration-details.importer-address-label=Importer address
 check-your-answers.declaration-details.declarant-name-label=Declarant name
 check-your-answers.declaration-details.declarant-address-label=Declarant address
-check-your-answers.declaration-details.reason-for-security-label=Reason for security
-check-your-answers.declaration-details.acceptance-date-label=Acceptance date
-check-your-answers.declaration-details.bta-due-date-label=Brought to account (BTA) due date
+check-your-answers.declaration-details.reason-for-security-label=Reason for security deposit
+check-your-answers.declaration-details.acceptance-date-label=Date duty to be collected
+check-your-answers.declaration-details.bta-due-date-label=Date security deposit made
 
 check-your-answers.claimant-type.h2=Claimant type
 check-your-answers.claimant-type.l0=Type of claimant
@@ -1443,8 +1443,8 @@ check-your-answers.claim-for-security.h2=Claim details for: {0}
 check-your-answers.claim-for-security.label=Claim for {0}
 check-your-answers.claim-for-security.yes=Yes
 check-your-answers.claim-for-security.no=No
-check-your-answers.claim-for-security.total=Total value of selected security IDs
-check-your-answers.claim-for-security.paid-total=Amount paid of selected security IDs
+check-your-answers.claim-for-security.total=Total security deposit value
+check-your-answers.claim-for-security.paid-total=Total security deposit paid 
 check-your-answers.claim-for-security.claim-total=Total
 check-your-answers.claim-for-security.claim-full-amount.label=Claim full amount
 check-your-answers.claim-for-security.claim-full-amount.yes=Yes
