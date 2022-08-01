@@ -513,6 +513,26 @@ final class SecuritiesJourney private (
       } else Left("receiveUploadedFiles.invalidNonce")
     }
 
+  def submitCheckDeclarationDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(answers.copy(checkDeclarationDetailsChangeMode = enabled))
+    }
+
+  def submitClaimFullAmountMode(enabled: Boolean): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(answers.copy(claimFullAmountMode = enabled))
+    }
+
+  def resetClaimFullAmountMode(): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(answers.copy(claimFullAmountMode = true))
+    }
+
+  def submitCheckClaimDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(answers.copy(checkClaimDetailsChangeMode = enabled))
+    }
+
   def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
       validate(this)
@@ -520,11 +540,6 @@ final class SecuritiesJourney private (
           _ => this,
           _ => new SecuritiesJourney(answers.copy(checkYourAnswersChangeMode = enabled))
         )
-    }
-
-  def submitCheckDeclarationDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
-    whileClaimIsAmendable {
-      new SecuritiesJourney(answers.copy(checkDeclarationDetailsChangeMode = enabled))
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
@@ -593,16 +608,18 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     exportMovementReferenceNumber: Option[MRN] =
-      None, // mandatory if reasonForSecurity is T/A, see ReasonForSecurity.requiresExportDeclaration
+      None, // mandatory for some reasons, see ReasonForSecurity.requiresExportDeclaration
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
-    securitiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] = None, // mandatory if NOT reclaimingFullAmount
-    selectedDocumentType: Option[UploadDocumentType] = None, // ??? depending on the RfS and ....
+    securitiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] = None,
+    selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     checkYourAnswersChangeMode: Boolean = false,
-    checkDeclarationDetailsChangeMode: Boolean = false
+    checkDeclarationDetailsChangeMode: Boolean = false,
+    checkClaimDetailsChangeMode: Boolean = false,
+    claimFullAmountMode: Boolean = true
   ) extends CommonAnswers
 
   final case class Output(
