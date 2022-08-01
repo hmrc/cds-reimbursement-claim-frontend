@@ -148,13 +148,17 @@ class ChooseReasonForSecurityController @Inject() (
   ): EitherT[Future, Result, DisplayDeclaration] =
     claimService
       .getDisplayDeclaration(mrn, reasonForSecurity)
-      .leftMap(error => logAndDisplayError("Could not get the declaration", error))
+      .leftMap(error => Redirect(routes.DeclarationNotFoundController.show()))
       .flatMap {
-        case None              =>
+        case None                                                                               =>
           EitherT.leftT[Future, DisplayDeclaration](
-            errorResultDeclarationNotFoundForRfS
+            Redirect(routes.DeclarationNotFoundController.show())
           )
-        case Some(declaration) =>
+        case Some(declaration) if !declaration.getReasonForSecurity.contains(reasonForSecurity) =>
+          EitherT.leftT(
+            Redirect(routes.InvalidReasonForSecurityController.show())
+          )
+        case Some(declaration)                                                                  =>
           EitherT.rightT[Future, Result](declaration)
       }
 

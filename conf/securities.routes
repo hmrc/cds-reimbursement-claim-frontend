@@ -4,6 +4,10 @@ POST         /securities/enter-movement-reference-number               @uk.gov.h
 GET          /securities/choose-reason-for-security                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseReasonForSecurityController.show()
 POST         /securities/choose-reason-for-security                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseReasonForSecurityController.submit()
 
+GET          /securities/error/claim-invalid-086                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.DeclarationNotFoundController.show()
+GET          /securities/error/claim-invalid-072                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.InvalidReasonForSecurityController.show()
+
+
 GET          /securities/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterImporterEoriNumberController.show()
 POST         /securities/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterImporterEoriNumberController.submit()
 
@@ -28,7 +32,6 @@ POST         /securities/claimant-details                              @uk.gov.h
 GET          /securities/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimantDetailsController.redirectToALF()
 GET          /securities/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 GET          /securities/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ProblemWithAddressController.show()
-GET          /securities/claimant-details/claim-invalid-072            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.InvalidReasonForSecurityController.show()
 
 GET          /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterContactDetailsController.show()
 POST         /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterContactDetailsController.submit()
