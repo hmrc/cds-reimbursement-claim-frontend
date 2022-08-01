@@ -1508,6 +1508,18 @@ choose-claim-type.securities.hint=If <abbr title="Her Majesty’s Revenue and Cu
 choose-claim-type.error.required=Choose the type of claim you want to submit
 choose-claim-type.error.unknown=Choose the type of claim you want to submit
 
+
+#===================================================
+#  INVALID REASON FOR SECURITY - PAGE
+#===================================================
+invalid-reason-for-security.title=There is a problem with your claim
+invalid-reason-for-security.because=This may because:
+invalid-reason-for-security.point.1=no security was paid for the selected movement reference number (MRN)
+invalid-reason-for-security.point.2=the MRN was entered incorrectly
+invalid-reason-for-security.point.3=the reason for security was entered incorrectly
+invalid-reason-for-security.submit=Enter a different MRN
+invalid-reason-for-security.reason=Reason for security deposit
+
 #===================================================
 #  CHOOSE FILE TYPE - PAGE
 #===================================================
