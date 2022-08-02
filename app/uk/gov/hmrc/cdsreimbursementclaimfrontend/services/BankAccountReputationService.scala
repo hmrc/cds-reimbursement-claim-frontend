@@ -16,27 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import cats.implicits._
 import cats.data.EitherT
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
-import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.BankAccountReputationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsAccount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsSubject
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultBankAccountReputationService])
@@ -58,9 +50,8 @@ trait BankAccountReputationService {
 }
 
 @Singleton
-class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnector: BankAccountReputationConnector)(
-  implicit ec: ExecutionContext
-) extends BankAccountReputationService
+class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnector: BankAccountReputationConnector)
+    extends BankAccountReputationService
     with Logging {
 
   def checkBankAccountReputation(

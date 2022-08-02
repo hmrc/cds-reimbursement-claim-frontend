@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
@@ -74,9 +73,9 @@ class EnterBankAccountDetailsController @Inject() (
         logAndDisplayError("could not process bank account details: ", e)
     }
 
-  def handleBankAccountReputation[Error : CdsError](
+  def handleBankAccountReputation[E : CdsError](
     bankAccountDetails: BankAccountDetails,
-    reputation: EitherT[Future, Error, BankAccountReputation]
+    reputation: EitherT[Future, E, BankAccountReputation]
   )(implicit request: Request[_], journey: RejectedGoodsSingleJourney): Future[(RejectedGoodsSingleJourney, Result)] =
     reputation.fold(
       e => (journey, processCdsError(e)),

@@ -109,7 +109,7 @@ class NorthernIrelandControllerSpec
   "NorthernIrelandController" must {
 
     "redirect to the start of the journey" when {
-      "there is no journey status in the session" in forAll(journeys) { journey =>
+      "there is no journey status in the session" in forAll(journeys) { _ =>
         def performAction(): Future[Result] = controller.show(FakeRequest())
         val session                         = getSessionWithPreviousAnswer(None)
 
@@ -126,10 +126,8 @@ class NorthernIrelandControllerSpec
     }
 
     "display the page" when {
-      def performAction(journeyBindable: JourneyBindable): Future[Result] =
-        controller.show(FakeRequest())
 
-      "the user has not answered this question before" in forAll(journeys) { journey =>
+      "the user has not answered this question before" in forAll(journeys) { _ =>
         val session = getSessionWithPreviousAnswer(None)
 
         inSequence {
@@ -138,7 +136,7 @@ class NorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey),
+          controller.show(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
             isYesChecked(doc) shouldBe false
@@ -147,7 +145,7 @@ class NorthernIrelandControllerSpec
         )
       }
 
-      "the user has answered this question before and chosen Yes " in forAll(journeys) { journeyBindable =>
+      "the user has answered this question before and chosen Yes " in forAll(journeys) { _ =>
         val session = getSessionWithPreviousAnswer(Some(Yes))
 
         inSequence {
@@ -156,7 +154,7 @@ class NorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journeyBindable),
+          controller.show(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
             isYesChecked(doc) shouldBe true
@@ -165,7 +163,7 @@ class NorthernIrelandControllerSpec
         )
       }
 
-      "the user has answered this question before and chosen No " in forAll(journeys) { journey =>
+      "the user has answered this question before and chosen No " in forAll(journeys) { _ =>
         val session = getSessionWithPreviousAnswer(Some(No))
 
         inSequence {
@@ -174,7 +172,7 @@ class NorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey),
+          controller.show(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
             isYesChecked(doc) shouldBe false
@@ -183,7 +181,7 @@ class NorthernIrelandControllerSpec
         )
       }
 
-      "the user has come from the CYA page and is amending their answer" in forAll(journeys) { journey =>
+      "the user has come from the CYA page and is amending their answer" in forAll(journeys) { _ =>
         val session = getSessionWithPreviousAnswer(Some(No))
 
         inSequence {
@@ -192,7 +190,7 @@ class NorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey),
+          controller.show(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
             isYesChecked(doc) shouldBe false
@@ -206,12 +204,12 @@ class NorthernIrelandControllerSpec
 
     "handle submit requests" when {
 
-      def performAction(journeyBindable: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
+      def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      "user chooses the Yes option" in forAll(journeys) { journey =>
+      "user chooses the Yes option" in forAll(journeys) { _ =>
         val session        = getSessionWithPreviousAnswer(None)
         val updatedSession = updateSession(session, Yes)
 
@@ -222,12 +220,12 @@ class NorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(NorthernIrelandController.dataKey -> "true")),
+          performAction(Seq(NorthernIrelandController.dataKey -> "true")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
 
-      "user chooses the No option" in forAll(journeys) { journey =>
+      "user chooses the No option" in forAll(journeys) { _ =>
         val session        = getSessionWithPreviousAnswer(None)
         val updatedSession = updateSession(session, No)
 
@@ -238,12 +236,12 @@ class NorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(NorthernIrelandController.dataKey -> "false")),
+          performAction(Seq(NorthernIrelandController.dataKey -> "false")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
 
-      "the user amends their previous answer" in forAll(journeys) { journey =>
+      "the user amends their previous answer" in forAll(journeys) { _ =>
         val session        = getSessionWithPreviousAnswer(Some(No))
         val updatedSession = updateSession(session, Yes)
 
@@ -254,7 +252,7 @@ class NorthernIrelandControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(NorthernIrelandController.dataKey -> "true")),
+          performAction(Seq(NorthernIrelandController.dataKey -> "true")),
           OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
@@ -262,12 +260,7 @@ class NorthernIrelandControllerSpec
 
     "show an error summary" when {
 
-      def performAction(journeyBindable: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
-        controller.submit(
-          FakeRequest().withFormUrlEncodedBody(data: _*)
-        )
-
-      "the user does not select an option and submits the page" in forAll(journeys) { journey =>
+      "the user does not select an option and submits the page" in forAll(journeys) { _ =>
         val session = getSessionWithPreviousAnswer(None)
 
         inSequence {
@@ -276,14 +269,14 @@ class NorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey, Seq.empty),
+          controller.submit(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
           getErrorSummary(_) shouldBe messageFromMessageKey(s"claim-northern-ireland.error.required"),
           BAD_REQUEST
         )
       }
 
-      "an invalid option value is submitted" in forAll(journeys) { journey =>
+      "an invalid option value is submitted" in forAll(journeys) { _ =>
         val session = getSessionWithPreviousAnswer(None)
 
         inSequence {
@@ -292,7 +285,7 @@ class NorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(journey, Seq.empty),
+          controller.submit(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
           getErrorSummary(_) shouldBe messageFromMessageKey(s"claim-northern-ireland.error.invalid"),
           BAD_REQUEST

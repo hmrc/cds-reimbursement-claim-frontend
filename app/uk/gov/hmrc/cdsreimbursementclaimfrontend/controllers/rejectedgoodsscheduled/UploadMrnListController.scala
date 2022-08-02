@@ -117,10 +117,7 @@ class UploadMrnListController @Inject() (
   def uploadDocumentsSessionConfig(
     nonce: Nonce,
     continueUrl: Call
-  )(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig =
+  )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = selfUrl + continueUrl.url,
@@ -145,13 +142,10 @@ class UploadMrnListController @Inject() (
       )
     )
 
-  def uploadDocumentsContent(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig.Content = {
+  def uploadDocumentsContent(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
     val descriptionHtml = upload_mrn_list_description(
       "schedule-document.upload"
-    )(request, messages, appConfig).body
+    )(messages).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),

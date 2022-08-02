@@ -27,7 +27,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, TypeOfClaimAnswer}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
@@ -44,7 +43,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: DraftClaim, verifiedEmail: Email, userEoriNumber: Eori, journey: JourneyBindable, postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+@(claim: DraftClaim, userEoriNumber: Eori, journey: JourneyBindable, postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}

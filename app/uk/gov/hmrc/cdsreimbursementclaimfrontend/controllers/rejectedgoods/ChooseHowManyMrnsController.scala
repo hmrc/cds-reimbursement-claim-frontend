@@ -74,7 +74,7 @@ class ChooseHowManyMrnsController @Inject() (
 
   val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
-      Ok(chooseHowManyMrnsPage(form, RejectedGoodsJourneyType.values, postAction))
+      Ok(chooseHowManyMrnsPage(form, postAction))
     }
 
   val submit: Action[AnyContent] =
@@ -87,7 +87,7 @@ class ChooseHowManyMrnsController @Inject() (
               formWithErrors =>
                 Future
                   .successful(
-                    BadRequest(chooseHowManyMrnsPage(formWithErrors, RejectedGoodsJourneyType.values, postAction))
+                    BadRequest(chooseHowManyMrnsPage(formWithErrors, postAction))
                   ),
               {
                 case Individual =>

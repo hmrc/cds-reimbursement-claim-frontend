@@ -29,8 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.NonGovernmentGatewayRetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -121,11 +119,11 @@ class StartController @Inject() (
     request: RequestWithSessionDataAndRetrievedData[AnyContent]
   ): Future[Result] =
     retrievedUserType match {
-      case RetrievedUserType.Individual(ggCredId, email, eori, name) =>
-        handleSignedInUser(ggCredId, eori, email, name)
+      case RetrievedUserType.Individual(ggCredId, _, eori, _) =>
+        handleSignedInUser(ggCredId, eori)
 
-      case RetrievedUserType.Organisation(ggCredId, email, eori, name) =>
-        handleSignedInUser(ggCredId, eori, email, name)
+      case RetrievedUserType.Organisation(ggCredId, _, eori, _) =>
+        handleSignedInUser(ggCredId, eori)
 
       case u: RetrievedUserType.NonGovernmentGatewayRetrievedUser =>
         handleNonGovernmentGatewayUser(u)
@@ -156,9 +154,7 @@ class StartController @Inject() (
 
   private def handleSignedInUser(
     ggCredId: GGCredId,
-    eori: Eori,
-    email: Option[Email],
-    name: Option[Name]
+    eori: Eori
   )(implicit
     request: RequestWithSessionDataAndRetrievedData[_]
   ): Future[Result] = {

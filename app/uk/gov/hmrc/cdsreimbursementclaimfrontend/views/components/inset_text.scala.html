@@ -14,11 +14,10 @@
  * limitations under the License.
  *@
 
-@import play.api.i18n._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
-@this(govukInput: GovukInput, govukInsetText: GovukInsetText)
+@this(govukInsetText: GovukInsetText)
 
-@(content: Content, id: Option[String] = None)(implicit messages: Messages)
+@(content: Content, id: Option[String] = None)
 
 @govukInsetText(InsetText(id, content = content))

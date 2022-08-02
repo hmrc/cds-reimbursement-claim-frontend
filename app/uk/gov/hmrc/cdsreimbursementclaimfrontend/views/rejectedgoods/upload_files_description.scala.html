@@ -15,9 +15,7 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
 @import play.twirl.api.Html
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 
 @this(
@@ -25,5 +23,5 @@
     fileUploadConfig: FileUploadConfig
 )
 
-@(key: String, documentTypeDescription: String)(implicit request : Request[_], messages: Messages, appConfig: ViewConfig)
+@(key: String, documentTypeDescription: String)(implicit messages: Messages)
 @paragraph(Html(messages(s"$key.p1", documentTypeDescription, fileUploadConfig.readMaxFileSizeHumanReadable("supporting-evidence"),fileUploadConfig.readMaxUploadsValue("supporting-evidence")).capitalize), Some("govuk-body govuk-!-margin-bottom-6")) 

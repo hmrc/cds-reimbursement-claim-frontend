@@ -103,7 +103,7 @@ class ChooseReasonForSecurityController @Inject() (
             (
               journey,
               if (journey.answers.checkDeclarationDetailsChangeMode)
-                Redirect(routes.CheckDeclarationDetailsController.show)
+                Redirect(routes.CheckDeclarationDetailsController.show())
               else
                 successResultSelectSecurities
             ).asFuture
@@ -138,7 +138,7 @@ class ChooseReasonForSecurityController @Inject() (
   private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
       journey.getLeadMovementReferenceNumber,
-      Redirect(routes.EnterMovementReferenceNumberController.show)
+      Redirect(routes.EnterMovementReferenceNumberController.show())
     )
 
   private def lookupDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit

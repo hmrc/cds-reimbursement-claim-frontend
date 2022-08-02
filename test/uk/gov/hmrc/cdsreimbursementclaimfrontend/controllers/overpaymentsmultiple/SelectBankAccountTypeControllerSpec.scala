@@ -197,8 +197,8 @@ class SelectBankAccountTypeControllerSpec
       "the user amends their previous answer" in forAll {
         (draftClaim: DraftClaim, ggCredId: GGCredId, signedInUserDetails: SignedInUserDetails) =>
           val bankAccountType: BankAccountType = draftClaim.bankAccountTypeAnswer match {
-            case Some(BankAccountType.Personal) => BankAccountType.Business
-            case Some(BankAccountType.Business) => BankAccountType.Personal
+            case Some(BankAccountType.Personal)     => BankAccountType.Business
+            case Some(BankAccountType.Business) | _ => BankAccountType.Personal
           }
 
           val journey       = FillingOutClaim(ggCredId, signedInUserDetails, draftClaim)

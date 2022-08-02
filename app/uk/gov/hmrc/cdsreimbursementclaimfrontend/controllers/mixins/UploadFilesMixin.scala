@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -47,10 +46,7 @@ trait UploadFilesMixin[Journey] {
     documentType: UploadDocumentType,
     continueAfterYesAnswerUrl: String,
     continueAfterNoAnswerUrl: String
-  )(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig =
+  )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
@@ -75,15 +71,14 @@ trait UploadFilesMixin[Journey] {
       )
     )
 
-  def uploadDocumentsContent(dt: UploadDocumentType)(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig.Content = {
+  def uploadDocumentsContent(
+    dt: UploadDocumentType
+  )(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
     val documentTypeLabel = documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
     val descriptionHtml   = upload_files_description(
       "choose-files.rejected-goods",
       documentTypeLabel
-    )(request, messages, appConfig).body
+    )(messages).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
