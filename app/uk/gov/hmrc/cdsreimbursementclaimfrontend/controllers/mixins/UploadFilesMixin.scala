@@ -46,7 +46,9 @@ trait UploadFilesMixin[Journey] {
     nonce: Nonce,
     documentType: UploadDocumentType,
     continueAfterYesAnswerUrl: String,
-    continueAfterNoAnswerUrl: String
+    continueAfterNoAnswerUrl: String,
+    minimumNumberOfFiles: Int = 0, // user can skip uploading the files,
+    showYesNoQuestionBeforeContinue: Boolean = true
   )(implicit
     request: Request[_],
     messages: Messages
@@ -58,7 +60,7 @@ trait UploadFilesMixin[Journey] {
       continueWhenFullUrl = selfUrl + checkYourAnswers.url,
       backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-      minimumNumberOfFiles = 0, // user can skip uploading the files
+      minimumNumberOfFiles = minimumNumberOfFiles,
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
@@ -71,7 +73,7 @@ trait UploadFilesMixin[Journey] {
         showUploadMultiple = true,
         showLanguageSelection = appConfig.enableLanguageSwitching,
         showAddAnotherDocumentButton = false,
-        showYesNoQuestionBeforeContinue = true
+        showYesNoQuestionBeforeContinue = showYesNoQuestionBeforeContinue
       )
     )
 

@@ -110,7 +110,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       reclaims                    <- if (submitFullAmount) validSecurityReclaimsFullAmountGen(acc14) else validSecurityReclaimsGen(acc14)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
-      documentTypes               <- listOfExactlyN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsSingleTypes))
+      documentTypes               <-
+        listOfExactlyN(
+          numberOfDocumentTypes,
+          Gen.oneOf(UploadDocumentType.securitiesTypes(rfs).getOrElse(Seq(UploadDocumentType.SupportingEvidence)))
+        )
       supportingEvidences         <-
         Gen
           .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](

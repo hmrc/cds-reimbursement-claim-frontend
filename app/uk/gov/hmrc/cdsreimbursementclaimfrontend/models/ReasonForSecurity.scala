@@ -69,22 +69,6 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       OutwardProcessingRelief
     )
 
-  // MDP, MDL, ACS, IPR, ENU, OPR, TA or MDC
-  val requiresDocumentType: Set[ReasonForSecurity] =
-    Set(
-      MissingPreferenceCertificate,
-      MissingLicenseQuota,
-      AccountSales,
-      InwardProcessingRelief,
-      EndUseRelief,
-      OutwardProcessingRelief,
-      TemporaryAdmission2Y,
-      TemporaryAdmission6M,
-      TemporaryAdmission3M,
-      TemporaryAdmission2M,
-      CommunitySystemsOfDutyRelief
-    )
-
   def has(rfs: String): Boolean =
     valueMap.contains(rfs)
 

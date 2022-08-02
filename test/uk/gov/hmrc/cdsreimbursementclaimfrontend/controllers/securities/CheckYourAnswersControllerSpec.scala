@@ -200,9 +200,9 @@ class CheckYourAnswersControllerSpec
         } ++
         claim.supportingEvidences
           .map(document =>
-            (messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}") -> Some(
+            (messages(s"choose-file-type.file-type.${document.documentType}") -> Some(
               document.fileName + " " +
-                messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}")
+                messages(s"choose-file-type.file-type.${document.documentType}")
             ))
           )
     )

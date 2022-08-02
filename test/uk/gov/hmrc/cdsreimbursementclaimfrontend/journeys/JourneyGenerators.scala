@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.JavaConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 trait JourneyGenerators extends JourneyTestData {
 
@@ -107,6 +108,25 @@ trait JourneyGenerators extends JourneyTestData {
                    .withReasonForSecurity(rfs)
                )
     } yield (mrn, rfs, acc14)
+
+  final lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesTypes(rfs).isDefined))
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
+  final lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)] =
+    for {
+      (mrn, rfs, acc14) <- mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen
+      documentType      <- Gen.oneOf(UploadDocumentType.securitiesTypes(rfs).get)
+    } yield (mrn, rfs, acc14, documentType)
 
   final lazy val mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =

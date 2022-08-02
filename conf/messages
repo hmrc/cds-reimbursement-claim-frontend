@@ -1513,6 +1513,7 @@ choose-claim-type.error.unknown=Choose the type of claim you want to submit
 #===================================================
 choose-file-type.title=Choose the type of supporting documents you are uploading
 choose-file-type.help-text=You can upload multiple documents of the same type on the next page. This will help us to process your claim more efficiently.
+
 choose-file-type.file-type.AdditionalSupportingDocuments=Additional supporting documents
 choose-file-type.file-type.CalculationWorksheet=Calculation worksheet
 choose-file-type.file-type.CommercialInvoice=Commercial invoice
@@ -1521,11 +1522,29 @@ choose-file-type.file-type.DocumentaryProofFaultyOrNotWhatOrdered=	Documentary p
 choose-file-type.file-type.ImportAndExportDeclaration=Import and export declaration
 choose-file-type.file-type.LetterOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
+choose-file-type.file-type.Other=Other documents
+
+choose-file-type.file-type.SupportingEvidence=Supporting evidence
+choose-file-type.file-type.ExportDeclaration=Export declaration
+choose-file-type.file-type.ImportDeclaration=Import declaration
+choose-file-type.file-type.ProofOfEligibility=Proof of eligibility
+choose-file-type.file-type.ImportPackingList=Import packing list
+choose-file-type.file-type.ExportPackingList=Export packing list
+choose-file-type.file-type.ProofOfOrigin=Proof of origin
+choose-file-type.file-type.CalculationWorksheetOrFinalSalesFigures=Calculation Worksheet or Final Sales Figures
+choose-file-type.file-type.BillOfDischarge3=Bill of discharge 3
+choose-file-type.file-type.BillOfDischarge4=Bill of discharge 4
+choose-file-type.file-type.QuotaLicense=Quota License
+choose-file-type.file-type.SubstituteOrDiversionEntry=Substitute or diversion entry
+
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
 choose-file-type.error.required=Choose the type of file you are uploading
 choose-file-type.or=or
 choose-file-type.choose-file-type.error.invalid-file-type=Invalid type of supporting documents
+
+choose-file-type.securities.title=Add supporting documents to your claim
+choose-file-type.securities.help-text=You can repeat this step to add more types of documents to your claim
 
 #===================================================
 #  CHOOSE FILES - PAGE

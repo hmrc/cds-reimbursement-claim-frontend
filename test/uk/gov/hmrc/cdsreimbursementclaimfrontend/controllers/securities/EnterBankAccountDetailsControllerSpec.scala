@@ -37,11 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountRepu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
@@ -83,7 +81,6 @@ class EnterBankAccountDetailsControllerSpec
 
   def validateEnterBankAccountDetailsPage(
     doc: Document,
-    journey: SecuritiesJourney,
     expectedBankAccountDetails: BankAccountDetails =
       BankAccountDetails(AccountName(""), SortCode(""), AccountNumber("")),
     error: Boolean = false
@@ -130,7 +127,7 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateEnterBankAccountDetailsPage(doc, journey)
+            doc => validateEnterBankAccountDetailsPage(doc)
           )
         }
       }
@@ -244,7 +241,6 @@ class EnterBankAccountDetailsControllerSpec
               doc => {
                 validateEnterBankAccountDetailsPage(
                   doc,
-                  journey,
                   BankAccountDetails(AccountName(""), SortCode(""), AccountNumber("")),
                   true
                 )
