@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
 import play.api.i18n.Lang
@@ -84,7 +85,7 @@ class EnterBankAccountDetailsControllerSpec
     expectedBankAccountDetails: BankAccountDetails =
       BankAccountDetails(AccountName(""), SortCode(""), AccountNumber("")),
     error: Boolean = false
-  ) = {
+  ): Assertion = {
     val title         = doc.select("title").eachText().asScala.toList
     val heading       = doc.select(".govuk-heading-xl").eachText().asScala.toList
     val accountName   =
@@ -242,7 +243,7 @@ class EnterBankAccountDetailsControllerSpec
                 validateEnterBankAccountDetailsPage(
                   doc,
                   BankAccountDetails(AccountName(""), SortCode(""), AccountNumber("")),
-                  true
+                  error = true
                 )
                 doc
                   .select(".govuk-error-summary__list > li:nth-child(1) > a")

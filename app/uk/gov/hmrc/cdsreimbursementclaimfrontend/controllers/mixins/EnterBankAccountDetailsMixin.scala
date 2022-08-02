@@ -16,15 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import cats._
-import cats.data._
 import cats.implicits._
-import cats.syntax.all._
 import play.api.i18n.Messages
-import play.api.mvc.Results.BadRequest
-import play.api.mvc.Results.Redirect
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
@@ -40,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.Ba
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 import uk.gov.hmrc.http.HeaderCarrier

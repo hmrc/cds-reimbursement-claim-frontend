@@ -156,10 +156,7 @@ class UploadMrnListController @Inject() (
   /** Configuration of the upload files session in the external mini-journey */
   def uploadDocumentsSessionConfig(
     nonce: Nonce
-  )(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig =
+  )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = continueUrl,
@@ -185,13 +182,10 @@ class UploadMrnListController @Inject() (
     )
 
   /** External upload files mini-journey content customization. */
-  def uploadDocumentsContent(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig.Content = {
+  def uploadDocumentsContent(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
     val descriptionHtml = upload_mrn_list_description(
       "schedule-document.upload"
-    )(request, messages, viewConfig).body
+    )(messages).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),

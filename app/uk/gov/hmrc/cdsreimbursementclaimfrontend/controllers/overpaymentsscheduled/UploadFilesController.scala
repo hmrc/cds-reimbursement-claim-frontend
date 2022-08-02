@@ -213,10 +213,7 @@ class UploadFilesController @Inject() (
     documentType: UploadDocumentType,
     continueAfterYesAnswerUrl: String,
     continueAfterNoAnswerUrl: String
-  )(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig =
+  )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
@@ -242,14 +239,11 @@ class UploadFilesController @Inject() (
     )
 
   /** External upload files mini-journey content customization. */
-  def uploadDocumentsContent(implicit
-    request: Request[_],
-    messages: Messages
-  ): UploadDocumentsSessionConfig.Content = {
+  def uploadDocumentsContent(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
     val descriptionHtml = supporting_evidence_description(
       pageKey,
       getSupportingEvidenceHints(evidenceTypes)
-    )(request, messages, viewConfig).body
+    )(messages).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),

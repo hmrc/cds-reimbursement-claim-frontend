@@ -84,7 +84,6 @@ class CheckYourAnswersAndSubmitController @Inject() (
         Ok(
           checkYourAnswersPage(
             fillingOutClaim.draftClaim,
-            fillingOutClaim.signedInUserDetails.verifiedEmail,
             fillingOutClaim.signedInUserDetails.eori,
             journey,
             routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit

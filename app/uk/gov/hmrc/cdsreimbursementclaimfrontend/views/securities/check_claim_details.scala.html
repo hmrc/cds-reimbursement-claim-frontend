@@ -21,22 +21,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Value
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 @import scala.collection.immutable.SortedMap
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -66,9 +53,9 @@
             reclaims,
             displayDeclaration,
             s"check-your-answers.claim-for-security",
-            routes.ConfirmFullRepaymentController.show(_),
-            routes.SelectDutiesController.show(_),
-            routes.EnterClaimController.show(_,_)
+            routes.ConfirmFullRepaymentController.show,
+            routes.SelectDutiesController.show,
+            routes.EnterClaimController.show
         ))
     }
 
