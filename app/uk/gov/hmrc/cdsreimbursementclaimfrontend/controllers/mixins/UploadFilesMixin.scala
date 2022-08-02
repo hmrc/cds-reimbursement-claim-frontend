@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -45,8 +46,13 @@ trait UploadFilesMixin[Journey] {
     nonce: Nonce,
     documentType: UploadDocumentType,
     continueAfterYesAnswerUrl: String,
-    continueAfterNoAnswerUrl: String
-  )(implicit messages: Messages): UploadDocumentsSessionConfig =
+    continueAfterNoAnswerUrl: String,
+    minimumNumberOfFiles: Int = 0, // user can skip uploading the files,
+    showYesNoQuestionBeforeContinue: Boolean = true
+  )(implicit
+    request: Request[_],
+    messages: Messages
+  ): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
@@ -54,7 +60,7 @@ trait UploadFilesMixin[Journey] {
       continueWhenFullUrl = selfUrl + checkYourAnswers.url,
       backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-      minimumNumberOfFiles = 0, // user can skip uploading the files
+      minimumNumberOfFiles = minimumNumberOfFiles,
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
@@ -67,18 +73,19 @@ trait UploadFilesMixin[Journey] {
         showUploadMultiple = true,
         showLanguageSelection = appConfig.enableLanguageSwitching,
         showAddAnotherDocumentButton = false,
-        showYesNoQuestionBeforeContinue = true
+        showYesNoQuestionBeforeContinue = showYesNoQuestionBeforeContinue
       )
     )
 
-  def uploadDocumentsContent(
-    dt: UploadDocumentType
-  )(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
+  def uploadDocumentsContent(dt: UploadDocumentType)(implicit
+    request: Request[_],
+    messages: Messages
+  ): UploadDocumentsSessionConfig.Content = {
     val documentTypeLabel = documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
     val descriptionHtml   = upload_files_description(
       "choose-files.rejected-goods",
       documentTypeLabel
-    )(messages).body
+    )(request, messages, appConfig).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),

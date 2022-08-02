@@ -183,6 +183,28 @@ final class SecuritiesJourney private (
   def getReasonForSecurity: Option[ReasonForSecurity] =
     answers.reasonForSecurity
 
+  def requiresDocumentTypeSelection: Boolean =
+    getReasonForSecurity.exists(UploadDocumentType.securitiesTypes(_).isDefined)
+
+  def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+    getReasonForSecurity.flatMap(UploadDocumentType.securitiesTypes(_))
+
+  def getSelectedDocumentTypeOrDefault: Option[UploadDocumentType] =
+    getReasonForSecurity.flatMap { rfs =>
+      UploadDocumentType.securitiesTypes(rfs) match {
+        case None =>
+          Some(UploadDocumentType.SupportingEvidence)
+
+        case Some(documentTypes) =>
+          answers.selectedDocumentType match {
+            case Some(selectedDocumentType) if documentTypes.contains(selectedDocumentType) =>
+              Some(selectedDocumentType)
+
+            case _ => None
+          }
+      }
+    }
+
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
     */
@@ -495,6 +517,18 @@ final class SecuritiesJourney private (
       else Left("submitBankAccountType.unexpected")
     }
 
+  def submitDocumentTypeSelection(documentType: UploadDocumentType): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (getDocumentTypesIfRequired.exists(_.contains(documentType)))
+        Right(
+          new SecuritiesJourney(
+            answers.copy(selectedDocumentType = Some(documentType))
+          )
+        )
+      else
+        Left("submitDocumentTypeSelection.invalid")
+    }
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: UploadDocumentType,
@@ -503,13 +537,21 @@ final class SecuritiesJourney private (
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
-        val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
-          case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
-          case uf                            => uf
-        }
-        Right(
-          new SecuritiesJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
-        )
+        if (
+          getDocumentTypesIfRequired match {
+            case Some(dts) => dts.contains(documentType)
+            case None      => documentType === UploadDocumentType.SupportingEvidence
+          }
+        ) {
+          val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
+            case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
+            case uf                            => uf
+          }
+          Right(
+            new SecuritiesJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+          )
+        } else
+          Left("receiveUploadedFiles.invalidDocumentType")
       } else Left("receiveUploadedFiles.invalidNonce")
     }
 

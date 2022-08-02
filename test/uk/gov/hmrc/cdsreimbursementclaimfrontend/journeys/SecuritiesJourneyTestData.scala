@@ -115,6 +115,18 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
         .getOrFail
   }
 
+  final def buildSecuritiesJourneyWithDocumentTypeSelected(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl, dt) =>
+      emptyJourney
+        .submitMovementReferenceNumber(mrn)
+        .submitReasonForSecurityAndDeclaration(rfs, decl)
+        .flatMap(_.submitClaimDuplicateCheckStatus(false))
+        .flatMap(_.submitDocumentTypeSelection(dt))
+        .getOrFail
+  }
+
   final def buildSecuritiesJourneyWithSomeSecuritiesSelected(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
   ): SecuritiesJourney = {
