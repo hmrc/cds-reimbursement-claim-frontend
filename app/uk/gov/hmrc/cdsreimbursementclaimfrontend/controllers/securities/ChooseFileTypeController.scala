@@ -54,7 +54,6 @@ class ChooseFileTypeController @Inject() (
           chooseFileTypePage(
             form,
             availableDocumentTypes,
-            journey.answers.supportingEvidences.nonEmpty,
             submitAction
           )
         )
@@ -80,7 +79,6 @@ class ChooseFileTypeController @Inject() (
                     chooseFileTypePage(
                       formWithErrors,
                       availableDocumentTypes,
-                      journey.answers.supportingEvidences.nonEmpty,
                       submitAction
                     )
                   )
