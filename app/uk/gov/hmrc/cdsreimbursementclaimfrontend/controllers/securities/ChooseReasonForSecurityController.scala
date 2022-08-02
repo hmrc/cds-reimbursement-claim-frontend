@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -65,14 +66,6 @@ class ChooseReasonForSecurityController @Inject() (
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
     Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
-
-  //Error: Security chosen does not exist against the Movement Reference Number (MRN) provided
-  private val errorResultDeclarationNotFoundForRfS: Result =
-    Redirect(routes.InvalidReasonForSecurityController.show())
-
-  //Error: Movement Reference Number (MRN) provided does not exist
-  private val errorResultDeclarationNotFoundForMrn: Result =
-    Redirect(routes.DeclarationNotFoundController.show())
 
   private val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
 
@@ -148,17 +141,13 @@ class ChooseReasonForSecurityController @Inject() (
   ): EitherT[Future, Result, DisplayDeclaration] =
     claimService
       .getDisplayDeclaration(mrn, reasonForSecurity)
-      .leftMap(error => errorResultDeclarationNotFoundForMrn)
+      .leftMap(_ => Redirect(routes.DeclarationNotFoundController.show()))
       .flatMap {
-        case None                                                                               =>
+        case None              =>
           EitherT.leftT[Future, DisplayDeclaration](
-            errorResultDeclarationNotFoundForMrn
+            Redirect(routes.InvalidReasonForSecurityController.show())
           )
-        case Some(declaration) if !declaration.getReasonForSecurity.contains(reasonForSecurity) =>
-          EitherT.leftT(
-            errorResultDeclarationNotFoundForRfS
-          )
-        case Some(declaration)                                                                  =>
+        case Some(declaration) =>
           EitherT.rightT[Future, Result](declaration)
       }
 
