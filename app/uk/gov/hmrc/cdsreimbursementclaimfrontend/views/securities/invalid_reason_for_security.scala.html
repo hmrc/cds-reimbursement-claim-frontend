@@ -45,7 +45,14 @@
         )
     )
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-        @submitButton(s"$key.submit")
-    }
+
+    <div class="govuk-button-group">
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+            @submitButton(s"$key.submit")
+        }
+
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+            @submitButton(s"$key.reason", classes = Some("govuk-button--secondary"))
+        }
+    </div>
 }
