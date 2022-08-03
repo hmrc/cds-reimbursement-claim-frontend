@@ -151,10 +151,16 @@ final case class DisplayDeclaration(
     getSecurityDetailsFor(securityDepositId)
       .exists(_.getTotalAmount === reclaimedAmount)
 
-  def isAllSelectedSecuritiesEligibleForGuaranteePayment(securityDepositIds: Set[String]): Boolean =
+  def isAllSelectedSecuritiesEligibleForGuaranteePayment(securityDepositIds: Set[String]): Boolean = {
+    val eligible: Set[Boolean] = securityDepositIds
+      .map(sid => getSecurityDetailsFor(sid).map(_.isGuaranteeEligible).getOrElse(false))
+
+    eligible.nonEmpty && eligible.forall(identity)
+  }
+
+  def isAnySelectedSecuritiesEligibleForBankAccountPayment(securityDepositIds: Set[String]): Boolean =
     securityDepositIds
-      .map(sid => getSecurityDetailsFor(sid))
-      .forall(_.exists(_.isGuaranteeEligible))
+      .exists(sid => getSecurityDetailsFor(sid).map(_.isBankAccountPayment).getOrElse(false))
 
 }
 
