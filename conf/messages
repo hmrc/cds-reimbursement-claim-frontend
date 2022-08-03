@@ -1521,6 +1521,16 @@ invalid-reason-for-security.submit=Enter a different MRN
 invalid-reason-for-security.reason=Reason for security deposit
 
 #===================================================
+#  DECLARATION NOT FOUND - PAGE
+#===================================================
+declaration-not-found.title=There is a problem with your claim
+declaration-not-found.because=This may be because:
+declaration-not-found.point.1=the Movement Reference Number (MRN) has not been recognised
+declaration-not-found.must-be=An MRN must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DO12.
+declaration-not-found.already-paid=If your shipment has an entry number and you paid security deposit to HMRC, you can <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">make a claim for a refund here</a>
+declaration-not-found.submit=Enter a different MRN
+
+#===================================================
 #  CHOOSE FILE TYPE - PAGE
 #===================================================
 choose-file-type.title=Choose the type of supporting documents you are uploading
