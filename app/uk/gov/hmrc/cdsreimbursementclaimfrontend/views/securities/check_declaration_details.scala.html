@@ -95,12 +95,12 @@
             key = Key(Text(messages(s"check-declaration-details.payment-method.label"))),
             value = Value(Text(
                     messages(
-                        if(securitiesReclaims.isEmpty)
-                            s"check-declaration-details.payment-method.unavailable"   
-                        else if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)){
+                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)){
                              s"check-your-answers.payment-method.guarantee" 
-                        } else {
+                        } else if(displayDeclaration.isAnySelectedSecuritiesEligibleForBankAccountPayment(securitiesReclaims.keySet)){
                             s"check-your-answers.payment-method.bt"
+                        } else {
+                            s"check-declaration-details.payment-method.unavailable" 
                         }
     )))))))
 
