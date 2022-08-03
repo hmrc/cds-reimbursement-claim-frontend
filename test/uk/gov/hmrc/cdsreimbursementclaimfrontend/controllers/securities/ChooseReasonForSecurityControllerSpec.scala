@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
@@ -49,6 +50,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -58,6 +61,7 @@ class ChooseReasonForSecurityControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
+    with TestWithJourneyGenerator[SecuritiesJourney]
     with BeforeAndAfterEach {
 
   val mockClaimsService: ClaimService                                    = mock[ClaimService]
@@ -308,6 +312,55 @@ class ChooseReasonForSecurityControllerSpec
           )
         }
 
+      }
+
+      "redirect to wrong RfS page when selected RfS doesn't mach the declaration" in forAll(
+        securitiesDisplayDeclarationGen
+      ) { declaration: DisplayDeclaration =>
+        val journey =
+          SecuritiesJourney
+            .empty(declaration.getDeclarantEori)
+            .submitMovementReferenceNumber(declaration.getMRN)
+
+        val rfsToSelect = ReasonForSecurity.values.filter(_ =!= declaration.getReasonForSecurity.get).head
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockGetDisplayDeclaration(Right(None)) // Right(None) = 204 from claim service = RfS mismatch
+        }
+
+        checkIsRedirect(
+          performAction(
+            Seq("choose-reason-for-security.securities" -> rfsToSelect.toString)
+          ),
+          controllers.securities.routes.InvalidReasonForSecurityController.show()
+        )
+      }
+
+      "redirect to declaration not found page when no declaration found" in forAll(securitiesDisplayDeclarationGen) {
+        declaration: DisplayDeclaration =>
+          val journey =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+
+          val rfsToSelect = ReasonForSecurity.values.filter(_ =!= declaration.getReasonForSecurity.get).head
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(
+              Left(Error("not found"))
+            ) // Left(_) = 500 from claim service = Declaration not found
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> rfsToSelect.toString)
+            ),
+            controllers.securities.routes.DeclarationNotFoundController.show()
+          )
       }
     }
 
