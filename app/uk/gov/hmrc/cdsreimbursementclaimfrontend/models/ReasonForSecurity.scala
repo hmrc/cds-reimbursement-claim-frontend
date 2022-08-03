@@ -32,7 +32,7 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
   case object MissingPreferenceCertificate extends ReasonForSecurity("MDP")
   case object OutwardProcessingRelief extends ReasonForSecurity("OPR")
   case object RevenueDispute extends ReasonForSecurity("RED")
-  case object TemporaryAdmission2Y extends ReasonForSecurity("TA24")
+  case object TemporaryAdmission2Y extends ReasonForSecurity("T24")
   case object TemporaryAdmission6M extends ReasonForSecurity("TA6")
   case object TemporaryAdmission3M extends ReasonForSecurity("TA3")
   case object TemporaryAdmission2M extends ReasonForSecurity("TA2")
