@@ -28,7 +28,7 @@
         bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
-@(postAction: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(enterMRN: Call, reasonForSecurityDeposit: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"invalid-reason-for-security"}
 @title = @{messages(s"$key.title")}
@@ -47,11 +47,11 @@
 
 
     <div class="govuk-button-group">
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(enterMRN, 'novalidate -> "novalidate") {
             @submitButton(s"$key.submit")
         }
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(reasonForSecurityDeposit, 'novalidate -> "novalidate") {
             @submitButton(s"$key.reason", classes = Some("govuk-button--secondary"))
         }
     </div>
