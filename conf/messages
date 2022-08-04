@@ -327,6 +327,12 @@ enter-declarant-eori-number.error.required=Enter a valid <abbr title="Economic O
 enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 
 #===================================================
+#  ERROR - CLAIM INVALID TPI04 PAGE - SECURITIES
+#===================================================
+error-claim-invalid-TPI04.title=There is a problem with your claim
+error-claim-invalid-TPI04.caption=caption is todo CDSR-1549 error-claim-invalid-TPI04
+
+#===================================================
 #  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
 #===================================================
 choose-reason-for-security.securities.title=Select why a security deposit or guarantee was required
