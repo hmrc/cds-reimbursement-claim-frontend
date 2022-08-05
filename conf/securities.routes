@@ -17,6 +17,11 @@ POST         /securities/select-securities/:id                         @uk.gov.h
 GET          /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.show()
 POST         /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.submit()
 
+GET          /securities/check-total-import-discharged                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckTotalImportDischargedController.show()
+POST         /securities/check-total-import-discharged                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckTotalImportDischargedController.submit()
+
+GET          /securities/claim-invalid-not-exported-all                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimInvalidNotExportedAllController.show()
+
 GET          /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.show()
 POST         /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.submit()
 

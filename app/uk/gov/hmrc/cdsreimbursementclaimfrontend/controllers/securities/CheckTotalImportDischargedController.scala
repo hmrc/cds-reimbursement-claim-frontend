@@ -1,0 +1,65 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
+
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import play.api.data.Form
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.checkTotalImportDischargedForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_total_import_discharged_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+
+import scala.concurrent.ExecutionContext
+
+@Singleton
+class CheckTotalImportDischargedController @Inject() (
+  val jcc: JourneyControllerComponents,
+  checkTotalImportDischargedPage: check_total_import_discharged_page
+)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+    extends SecuritiesJourneyBaseController {
+  private val form: Form[YesNo] = checkTotalImportDischargedForm
+
+  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+    Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit)).asFuture
+  }
+
+  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    form.bindFromRequest
+      .fold(
+        formWithErrors => {
+          logger.warn(formWithErrors.errors.toString())
+          (
+            journey,
+            BadRequest(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit()))
+          ).asFuture
+        },
+        {
+          case Yes => (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
+          case No  => (journey, Redirect(routes.ClaimInvalidNotExportedAllController.show())).asFuture
+        }
+      )
+
+  }
+}

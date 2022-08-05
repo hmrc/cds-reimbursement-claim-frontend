@@ -151,6 +151,10 @@ class CheckDeclarationDetailsControllerSpec
 
   }
 
+  def shouldShowCheckDischargedPage(rfs: ReasonForSecurity): Boolean =
+    ReasonForSecurity.InwardProcessingRelief == rfs ||
+      ReasonForSecurity.EndUseRelief == rfs
+
   "CheckDeclarationDetailsController" when {
 
     "show page" must {
@@ -265,7 +269,7 @@ class CheckDeclarationDetailsControllerSpec
       "continue to the check claimant details page if some securities has been selected" in {
         forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-          whenever(depositIds.nonEmpty) {
+          whenever(depositIds.nonEmpty && !shouldShowCheckDischargedPage(rfs)) {
 
             val initialJourney = emptyJourney
               .submitMovementReferenceNumber(mrn)
@@ -284,6 +288,33 @@ class CheckDeclarationDetailsControllerSpec
             checkIsRedirect(
               performAction(),
               routes.CheckClaimantDetailsController.show()
+            )
+          }
+        }
+      }
+
+      "continue to the check total import discharged page if some securities selected and rfs is IPR or End Use Relief" in {
+        forAll(mrnWithNonExportIprOrErRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+          whenever(depositIds.nonEmpty) {
+
+            val initialJourney = emptyJourney
+              .submitMovementReferenceNumber(mrn)
+              .submitReasonForSecurityAndDeclaration(rfs, decl)
+              .flatMap(_.submitClaimDuplicateCheckStatus(false))
+              .flatMap(_.selectSecurityDepositId(depositIds.head))
+              .map(_.submitCheckDeclarationDetailsChangeMode(true))
+              .getOrFail
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.CheckTotalImportDischargedController.show()
             )
           }
         }
