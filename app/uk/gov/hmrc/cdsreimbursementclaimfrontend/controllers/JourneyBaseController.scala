@@ -299,6 +299,44 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
 
       }
 
+  /** Async POST action to submit form and update the journey, or clear the session. */
+  final def actionReadWriteJourneyOrClearSession(
+    body: Request[_] => Journey => Future[Either[Result, (Journey, Result)]],
+    fastForwardToCYAEnabled: Boolean = true
+  ): Action[AnyContent] =
+    jcc
+      .authenticatedActionWithSessionData(requiredFeature)
+      .async { implicit request =>
+        request.sessionData
+          .flatMap(sessionData =>
+            getJourney(sessionData)
+              .map(journey =>
+                if (isFinalized(journey)) Future.successful(Right((journey, Redirect(claimSubmissionConfirmation))))
+                else
+                  checkIfMaybeActionPreconditionFails(journey) match {
+                    case None         => body(request)(journey)
+                    case Some(errors) => Future.successful(Right((journey, Redirect(routeForValidationErrors(errors)))))
+                  }
+              )
+              .map(_.flatMap {
+                case Right((modifiedJourney, result)) =>
+                  storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
+                    .flatMap(
+                      _.fold(
+                        error => Future.failed(error.toException),
+                        _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
+                      )
+                    )
+                case Left(result)                     =>
+                  jcc.sessionCache
+                    .store(SessionData.empty)
+                    .map(_ => result)
+              })
+          )
+          .getOrElse(redirectToTheStartOfTheJourney)
+
+      }
+
   /** Async POST action to submit form and update the journey, can use the current user's auth data. */
   final def actionReadWriteJourneyAndUser(
     body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => Future[(Journey, Result)],
