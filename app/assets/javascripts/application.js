@@ -14,15 +14,14 @@ const CDSR = {
     errorInputElement: document.querySelector('#file-upload-error'),
     errorsShowing: false,
 
-    backLinkContainer: document.querySelector('#cdsr-back-link'),
+    backLinkAnchor: document.querySelector('.govuk-back-link'),
 
     Init: () => {
 
         // Add back link
 
-        if (CDSR.backLinkContainer) {
-            const backLink = `<a href="javascript:history.back()" class="govuk-back-link">Back</a>`;
-            CDSR.backLinkContainer.innerHTML = backLink;
+        if (CDSR.backLinkAnchor) {
+            CDSR.backLinkAnchor.addEventListener('click', CDSR.NavigateBack);
         }
 
         // Initialise file upload check
@@ -39,6 +38,11 @@ const CDSR = {
             feedbackLink.setAttribute('target', '_blank');
         }
 
+    },
+
+    NavigateBack: (event) => {
+        event.preventDefault();
+        history.back();
     },
 
     CheckFileInputs: (event) => {

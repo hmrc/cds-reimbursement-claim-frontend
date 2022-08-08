@@ -40,6 +40,9 @@
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukBackLink
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.backlink.BackLink
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
         head: Head,
@@ -47,7 +50,8 @@
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
         StandardAlphaBanner: StandardAlphaBanner,
         languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
-        hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog
+        hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
+        govukBackLink: GovukBackLink
 )
 
 @(
@@ -84,15 +88,17 @@
 
 @scripts = {
 @scriptsBlock
-    <script src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
-    <script src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
-    <script src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
+    <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+    <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
 }
 
 @beforeContentBlock = {
     <div class="cds-user-banner cds-no-border">
         @if(!suppressBackLink) {
-            <div id="cdsr-back-link"></div>
+            <div id="cdsr-back-link">
+                @govukBackLink(BackLink(content = Text(messages("back.text"))))
+            </div>
         }
         <div>
         @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
