@@ -28,9 +28,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 import scala.collection.JavaConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
 object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with RejectedGoodsScheduledJourneyTestData {
+
+  val amountPaidWithRefundGen: Gen[AmountPaidWithRefund] = for {
+    refundAmount <- Gen.choose(BigDecimal("0.01"), BigDecimal("1000.00"))
+    random       <- Gen.choose(BigDecimal("0.01"), BigDecimal("100.00"))
+    paidAmount    = random + refundAmount
+  } yield AmountPaidWithRefund(paidAmount, refundAmount)
 
   val dutyTypesGen: Gen[Seq[DutyType]] =
     for {
