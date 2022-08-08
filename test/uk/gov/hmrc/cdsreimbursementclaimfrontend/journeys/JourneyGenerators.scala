@@ -34,16 +34,17 @@ trait JourneyGenerators extends JourneyTestData {
 
   implicit final val bigDecimalChoose = new Gen.Choose[BigDecimal] {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
-      Gen.choose(1, 10000).map(i => (min + (i * ((max - min) / 10000))).round(min.mc))
+      Gen
+        .choose(1, 10000)
+        .map(i => (min + (i * ((max - min) / 10000))))
+        .map(bd => BigDecimal(bd.*(100).toInt)./(100))
   }
 
   final lazy val amountNumberGen: Gen[BigDecimal] =
     amountNumberInRangeGen(BigDecimal("1.00"), BigDecimal("1000.00"))
 
   final def amountNumberInRangeGen(minIncl: BigDecimal, maxIncl: BigDecimal): Gen[BigDecimal] =
-    Gen
-      .choose[BigDecimal](minIncl, maxIncl)
-      .map(bd => BigDecimal(bd.*(100).toInt)./(100))
+    Gen.choose[BigDecimal](minIncl, maxIncl)
 
   final lazy val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
     for {

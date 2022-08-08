@@ -43,7 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementRejectedGoodsGen.genReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen.genTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -161,7 +160,7 @@ class EnterClaimControllerSpec
     "Submit enter claim page" must {
 
       "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
-        forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise), genReimbursement) {
+        forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise), amountPaidWithRefundGen) {
           (customDuty, exciseDuty, reimbursement) =>
             val initialJourney = RejectedGoodsScheduledJourney
               .empty(exampleEori)
@@ -200,7 +199,7 @@ class EnterClaimControllerSpec
       }
 
       "save user defined amounts and redirect to the next page" in {
-        forAll(Gen.oneOf(DutyTypes.custom), genReimbursement) { (dutyType, reimbursement) =>
+        forAll(Gen.oneOf(DutyTypes.custom), amountPaidWithRefundGen) { (dutyType, reimbursement) =>
           val initialJourney = RejectedGoodsScheduledJourney
             .empty(exampleEori)
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
@@ -304,7 +303,7 @@ class EnterClaimControllerSpec
         }
 
         "claim amount is greater than paid amount" in {
-          forAll(genDuty, genTaxCode, genReimbursement) { (duty, taxCode, reimbursement) =>
+          forAll(genDuty, genTaxCode, amountPaidWithRefundGen) { (duty, taxCode, reimbursement) =>
             val paidAmount  = reimbursement.paidAmount
             val claimAmount = reimbursement.refundAmount + paidAmount
 
@@ -353,7 +352,7 @@ object EnterClaimControllerSpec {
     for {
       duty          <- genDuty
       taxCode       <- Gen.oneOf(duty.taxCodes)
-      reimbursement <- genReimbursement
+      reimbursement <- amountPaidWithRefundGen
     } yield (duty, taxCode, reimbursement)
 
 }
