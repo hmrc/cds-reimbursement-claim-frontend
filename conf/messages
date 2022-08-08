@@ -290,8 +290,8 @@ enter-duplicate-movement-reference-number.entry.title=Tell us your duplicate Ent
 enter-duplicate-movement-reference-number.entry.input-title=Enter duplicate Entry Number
 enter-duplicate-movement-reference-number.entry.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.entry.help=Must be 18 characters, for example 190007914H11112017.
-enter-duplicate-movement-reference-number.entry.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.entry.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-duplicate-movement-reference-number.entry.invalid.number=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.invalid=Enter a valid entry number
 enter-duplicate-movement-reference-number.entry.error.required=Enter a valid entry number
 
 #===================================================
