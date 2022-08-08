@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -30,6 +31,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_total_import_discharged_page
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.canContinueTheClaimWithChoosenRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 
 import scala.concurrent.ExecutionContext
 
@@ -41,23 +46,29 @@ class CheckTotalImportDischargedController @Inject() (
     extends SecuritiesJourneyBaseController {
   private val form: Form[YesNo] = checkTotalImportDischargedForm
 
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        canContinueTheClaimWithChoosenRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
+
   def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit)).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     form.bindFromRequest
       .fold(
         formWithErrors => {
           logger.warn(formWithErrors.errors.toString())
-          (
-            journey,
-            BadRequest(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit()))
+          BadRequest(
+            checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit())
           ).asFuture
         },
         {
-          case Yes => (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
-          case No  => (journey, Redirect(routes.ClaimInvalidNotExportedAllController.show())).asFuture
+          case Yes => Redirect(routes.CheckClaimantDetailsController.show()).asFuture
+          case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show()).asFuture
         }
       )
 

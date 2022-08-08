@@ -25,7 +25,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(securitiesStartPageUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"claim-invalid-not-exported-all"}
 @title = @{messages(s"$key.title")}
@@ -33,6 +33,6 @@
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
     @paragraph(Html(messages(s"$key.paragraph1")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.paragraph2", viewConfig.mrnGuideUrl, viewConfig.homePageUrl)), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.paragraph3", viewConfig.contactHmrcUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.paragraph2", viewConfig.homePageUrl, securitiesStartPageUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.paragraph3", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
 }

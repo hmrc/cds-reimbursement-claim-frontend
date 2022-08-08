@@ -15,25 +15,20 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
+
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.claim_invalid_not_exported_all
 
 @Singleton
-class ClaimInvalidNotExportedAllController @Inject() (
-  val jcc: JourneyControllerComponents,
-  claimInvalidNotExportedAll: claim_invalid_not_exported_all
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
-
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(claimInvalidNotExportedAll(routes.StartController.show().url)).asFuture
-  }
-}
+class StartController @Inject() (
+  val jcc: JourneyControllerComponents
+)(implicit ec: ExecutionContext)
+    extends SecuritiesJourneyBaseController
+    with WorkInProgressMixin[SecuritiesJourney]
