@@ -105,11 +105,11 @@ class ConfirmFullRepaymentControllerSpec
       List(
         (if (isError) "ERROR: "
          else
-           "") + "Do you want to reclaim the full amount for this security? - Claim back import duty and VAT - GOV.UK"
+           "") + "Do you want to claim back all of this security deposit? - Claim back import duty and VAT - GOV.UK"
       )
     )
     caption         should ===(List(s"Security ID: $securityId"))
-    heading         should ===(List("Do you want to reclaim the full amount for this security?"))
+    heading         should ===(List("Do you want to claim back all of this security deposit?"))
     legend          should ===(
       List(
         s"The total value of $securityId is " +
@@ -390,7 +390,7 @@ class ConfirmFullRepaymentControllerSpec
 
           checkPageIsDisplayed(
             performAction(securityId, Seq()),
-            "Do you want to reclaim the full amount for this security?",
+            "Do you want to claim back all of this security deposit?",
             doc => validateConfirmFullRepaymentPage(securityId, doc, journey, true),
             400
           )
