@@ -60,12 +60,10 @@ class CheckTotalImportDischargedController @Inject() (
   def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     form.bindFromRequest
       .fold(
-        formWithErrors => {
-          logger.warn(formWithErrors.errors.toString())
+        formWithErrors =>
           BadRequest(
-            checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit())
-          ).asFuture
-        },
+            checkTotalImportDischargedPage(formWithErrors, routes.CheckTotalImportDischargedController.submit())
+          ).asFuture,
         {
           case Yes => Redirect(routes.CheckClaimantDetailsController.show()).asFuture
           case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show()).asFuture

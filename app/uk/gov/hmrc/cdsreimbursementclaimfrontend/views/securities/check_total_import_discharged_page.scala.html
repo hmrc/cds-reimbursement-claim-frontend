@@ -49,15 +49,13 @@
         @errorSummary(form.errors)
 
         @heading(Html(title))
-<!--        -->
-<!--        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))-->
 
         @radios(
             form = form,
             name = key,
             legend = "",
             legendAsHeading = false,
-            hintKey = Some(messages(s"$key.help-text")),
+            hintKey = Some(s"$key.help-text"),
             classes = "govuk-fieldset__legend govuk-fieldset__legend--m",
             inline = true,
             items = Seq(

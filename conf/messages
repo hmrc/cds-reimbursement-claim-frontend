@@ -638,6 +638,8 @@ select-method-of-disposal.rejected-goods.error.required=Choose the method of dis
 #===================================================
 check-total-import-discharged.title=Have you discharged 100% of the imported goods?
 check-total-import-discharged.help-text=Any claim for a refund will only be accepted when the imported goods have been discharged 100%
+check-total-import-discharged.error.required=Select yes if 100% of the imported goods have been discharged
+check-total-import-discharged.error.invalid=Select yes if 100% of the imported goods have been discharged
 
 #===================================================
 #  CLAIM INVALID NOT EXPORTED ALL
