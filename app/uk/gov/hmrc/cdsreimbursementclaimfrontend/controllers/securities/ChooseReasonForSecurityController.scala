@@ -58,6 +58,10 @@ class ChooseReasonForSecurityController @Inject() (
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
+  //Success: Declaration has been found and RfS is IPR.
+  private val successResultBillOfDischarge: Result =
+    Redirect(routes.BillOfDischargeController.show())
+
   //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultEnterImporterEori: Result =
     Redirect(routes.EnterImporterEoriNumberController.show())
@@ -215,6 +219,8 @@ class ChooseReasonForSecurityController @Inject() (
             if (similarClaimExistAlreadyInCDFPay) {
               logger.info(s"Claim ineligible because already exists.")
               errorResultClaimExistsAlready
+            } else if (journeyWithUpdatedStatus.isReasonForSecurityIFR) {
+              successResultBillOfDischarge
             } else
               successResultSelectSecurities
           )

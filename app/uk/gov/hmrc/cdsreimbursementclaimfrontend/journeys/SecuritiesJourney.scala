@@ -183,6 +183,9 @@ final class SecuritiesJourney private (
   def getReasonForSecurity: Option[ReasonForSecurity] =
     answers.reasonForSecurity
 
+  def isReasonForSecurityIFR: Boolean =
+    answers.reasonForSecurity.contains(ReasonForSecurity.InwardProcessingRelief)
+
   def requiresDocumentTypeSelection: Boolean =
     getReasonForSecurity.exists(UploadDocumentType.securitiesTypes(_).isDefined)
 
