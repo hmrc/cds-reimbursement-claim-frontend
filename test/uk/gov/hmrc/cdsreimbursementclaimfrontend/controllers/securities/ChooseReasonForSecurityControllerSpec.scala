@@ -172,14 +172,112 @@ class ChooseReasonForSecurityControllerSpec
 
       "retrieve the ACC14 declaration, make a TPI04 check and redirect to the select first security deposit page" in {
         forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val rfs = declaration.getReasonForSecurity
+
+          whenever(rfs.exists(_ !== ReasonForSecurity.InwardProcessingRelief)) {
+            val initialJourney =
+              SecuritiesJourney
+                .empty(declaration.getDeclarantEori)
+                .submitMovementReferenceNumber(declaration.getMRN)
+
+            val updatedJourney = SessionData(
+              initialJourney
+                .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
+                .flatMap(_.submitClaimDuplicateCheckStatus(false))
+                .getOrFail
+            )
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockGetDisplayDeclaration(Right(Some(declaration)))
+              mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+              mockStoreSession(updatedJourney)(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(
+                Seq("choose-reason-for-security.securities" -> rfs.get.toString)
+              ),
+              routes.SelectSecuritiesController.showFirst()
+            )
+          }
+        }
+      }
+
+      "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val rfs = declaration.getReasonForSecurity
+
+          whenever(rfs.exists(_ !== ReasonForSecurity.InwardProcessingRelief)) {
+            val initialJourney =
+              SecuritiesJourney
+                .empty(declaration.getDeclarantEori)
+                .submitMovementReferenceNumber(declaration.getMRN)
+                .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
+                .getOrFail
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+            }
+
+            checkIsRedirect(
+              performAction(
+                Seq("choose-reason-for-security.securities" -> rfs.get.toString)
+              ),
+              routes.SelectSecuritiesController.showFirst()
+            )
+          }
+        }
+      }
+
+      "redirect to the check declaration details page when reason for security didn't change and in a change mode" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val rfs = declaration.getReasonForSecurity
+
+          whenever(rfs.exists(_ !== ReasonForSecurity.InwardProcessingRelief)) {
+            val initialJourney =
+              SecuritiesJourney
+                .empty(declaration.getDeclarantEori)
+                .submitMovementReferenceNumber(declaration.getMRN)
+                .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
+                .map(_.submitCheckDeclarationDetailsChangeMode(true))
+                .getOrFail
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+            }
+
+            checkIsRedirect(
+              performAction(
+                Seq("choose-reason-for-security.securities" -> rfs.get.toString)
+              ),
+              routes.CheckDeclarationDetailsController.show()
+            )
+          }
+        }
+      }
+
+      "redirect to the Bill of Discharge page when reason for security is InwardProcessingRelief" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val rfs = ReasonForSecurity.InwardProcessingRelief
+
+          val updatedDeclaration = declaration
+            .copy(displayResponseDetail =
+              declaration.displayResponseDetail
+                .copy(securityReason = Some(rfs.acc14Code))
+            )
+
           val initialJourney =
             SecuritiesJourney
-              .empty(declaration.getDeclarantEori)
-              .submitMovementReferenceNumber(declaration.getMRN)
+              .empty(updatedDeclaration.getDeclarantEori)
+              .submitMovementReferenceNumber(updatedDeclaration.getMRN)
 
           val updatedJourney = SessionData(
             initialJourney
-              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+              .submitReasonForSecurityAndDeclaration(rfs, updatedDeclaration)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
               .getOrFail
           )
@@ -187,63 +285,16 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
-            mockGetDisplayDeclaration(Right(Some(declaration)))
+            mockGetDisplayDeclaration(Right(Some(updatedDeclaration)))
             mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
             mockStoreSession(updatedJourney)(Right(()))
           }
 
           checkIsRedirect(
             performAction(
-              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+              Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.SelectSecuritiesController.showFirst()
-          )
-        }
-      }
-
-      "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
-        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
-          val initialJourney =
-            SecuritiesJourney
-              .empty(declaration.getDeclarantEori)
-              .submitMovementReferenceNumber(declaration.getMRN)
-              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
-              .getOrFail
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(SessionData(initialJourney))
-          }
-
-          checkIsRedirect(
-            performAction(
-              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
-            ),
-            routes.SelectSecuritiesController.showFirst()
-          )
-        }
-      }
-
-      "redirect to the check declaration details page when reason for security didn't change and in a change mode" in {
-        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
-          val initialJourney =
-            SecuritiesJourney
-              .empty(declaration.getDeclarantEori)
-              .submitMovementReferenceNumber(declaration.getMRN)
-              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
-              .map(_.submitCheckDeclarationDetailsChangeMode(true))
-              .getOrFail
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(SessionData(initialJourney))
-          }
-
-          checkIsRedirect(
-            performAction(
-              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
-            ),
-            routes.CheckDeclarationDetailsController.show()
+            routes.BillOfDischargeController.show()
           )
         }
       }
@@ -307,7 +358,6 @@ class ChooseReasonForSecurityControllerSpec
             controllers.routes.IneligibleController.ineligible()
           )
         }
-
       }
     }
 

@@ -79,6 +79,8 @@ object Forms {
 
   val selectSecuritiesForm: Form[YesNo] = YesOrNoQuestionForm("select-securities")
 
+  val selectBillOfDischargeForm: Form[YesNo] = YesOrNoQuestionForm("bill-of-discharge")
+
   val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
     mapping(
       "select-basis-for-claim.rejected-goods" -> nonEmptyText

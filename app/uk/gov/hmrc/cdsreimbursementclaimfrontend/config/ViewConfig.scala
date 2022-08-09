@@ -123,6 +123,10 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val importExportUrl: String = getString("external-url.import-export")
 
+  val bod3formUrl: String = getString("external-url.bod3-form")
+
+  val importingGoodsIntoTheUk: String = getString("external-url.importing-goods-into-the-uk")
+
   val ukTradeTariffGuidance: String = getString("external-url.uk-trade-tariff-guidance")
 
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())

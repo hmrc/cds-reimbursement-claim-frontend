@@ -1,0 +1,86 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.twirl.api.Html
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio
+)
+
+@(form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"bill-of-discharge"}
+@title = @{messages(s"$key.title")}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @heading(Html(title))
+
+    @paragraph(Html(messages(s"$key.p1", viewConfig.bod3formUrl)), Some("govuk-body"))
+
+    @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @subHeading(Html(messages(s"$key.subheading")), "govuk-heading-m")
+
+        @radios(
+            form = form,
+            name = key,
+            legend = title,
+            legendAsHeading = false,
+            hintKey = None,
+            classes = "govuk-visually-hidden",
+            inline = false,
+            items = Seq(
+                RadioItem(
+                    id = Some(s"$key-yes"),
+                    value = Some("true"),
+                    content = Text(messages(s"$key.yes")),
+                    checked = form.value.contains(Yes)
+                ),
+                RadioItem(
+                    id = Some(s"$key-no"),
+                    value = Some("false"),
+                    content = Text(messages(s"$key.no")),
+                    checked = form.value.contains(No)
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+    }
+}

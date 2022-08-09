@@ -65,3 +65,7 @@ GET          /securities/upload-summary                                @uk.gov.h
 POST         /securities/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.submit()
 GET          /securities/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.showConfirmation()
 GET          /securities/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.show()
+
+POST         /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.submit()
+GET          /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.show()
+GET          /securities/error/claim-invalid-nobod3                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.invalid()
