@@ -219,7 +219,7 @@ class ChooseReasonForSecurityController @Inject() (
             if (similarClaimExistAlreadyInCDFPay) {
               logger.info(s"Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if (journeyWithUpdatedStatus.isReasonForSecurityIFR) {
+            } else if (journeyWithUpdatedStatus.reasonForSecurityIsIPR) {
               successResultBillOfDischarge
             } else
               successResultSelectSecurities

@@ -73,7 +73,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     (if (!journey.needsDeclarantAndConsigneeEoriSubmission) {
-       if (journey.isReasonForSecurityIFR) successResultBillOfDischarge
+       if (journey.reasonForSecurityIsIPR) successResultBillOfDischarge
        else successResultSelectSecurities
      } else if (journey.answers.consigneeEoriNumber.isEmpty)
        Redirect(routes.EnterImporterEoriNumberController.show())
@@ -83,7 +83,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     if (!journey.needsDeclarantAndConsigneeEoriSubmission) {
-      if (journey.isReasonForSecurityIFR) (journey, successResultBillOfDischarge).asFuture
+      if (journey.reasonForSecurityIsIPR) (journey, successResultBillOfDischarge).asFuture
       else (journey, successResultSelectSecurities).asFuture
     } else if (journey.answers.consigneeEoriNumber.isEmpty)
       (journey, Redirect(routes.EnterImporterEoriNumberController.show())).asFuture
@@ -161,7 +161,7 @@ class EnterDeclarantEoriNumberController @Inject() (
             if (similarClaimExistAlreadyInCDFPay) {
               logger.info(s"Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if (journeyWithUpdatedStatus.isReasonForSecurityIFR) {
+            } else if (journeyWithUpdatedStatus.reasonForSecurityIsIPR) {
               successResultBillOfDischarge
             } else
               successResultSelectSecurities
