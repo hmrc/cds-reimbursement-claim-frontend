@@ -634,6 +634,22 @@ select-method-of-disposal.rejected-goods.method.Destruction=Destruction
 select-method-of-disposal.rejected-goods.error.required=Choose the method of disposal
 
 #===================================================
+#  CHECK TOTAL IMPORT DISCHARGED
+#===================================================
+check-total-import-discharged.title=Have you discharged 100% of the imported goods?
+check-total-import-discharged.help-text=Any claim for a refund will only be accepted when the imported goods have been discharged 100%
+check-total-import-discharged.error.required=Select yes if 100% of the imported goods have been discharged
+check-total-import-discharged.error.invalid=Select yes if 100% of the imported goods have been discharged
+
+#===================================================
+#  CLAIM INVALID NOT EXPORTED ALL
+#===================================================
+claim-invalid-not-exported-all.title=Requirement for claiming back a security deposit or guarantee
+claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
+claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}">claim back import duty and VAT guidance</a> or  <a href="{1}">start a new security deposit claim</a>
+claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" target="_blank">contact HMRC (opens in new tab)</a>
+
+#===================================================
 #  ENTER REJECTED GOODS DETAILS PAGE
 #===================================================
 enter-rejected-goods-details.rejected-goods.title=Provide details of the rejected goods
