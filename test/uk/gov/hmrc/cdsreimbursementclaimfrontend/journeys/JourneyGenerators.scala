@@ -114,7 +114,7 @@ trait JourneyGenerators extends JourneyTestData {
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
+      rfs   <- Gen.oneOf[ReasonForSecurity](ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
