@@ -1,0 +1,67 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+)
+
+@()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+
+@key = @{"error-claim-invalid-TPI04"}
+@title = @{messages(s"$key.title")}
+
+@layout(pageTitle = Some(s"$title")) {
+
+    @heading(Html(title))
+
+    @paragraph(Html("This may be because:"), Some("govuk-body"))
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>HMRC have already collected the tax for this shipment.
+            @paragraph(Html("This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed."),
+            Some("govuk-body"))
+        </li>
+        <li>this claim has already been submitted as part of a whole or partial claim.
+            <p class="govuk-body">If HMRC have already collected the tax for this claim you should submit a
+                <a href=@{commonRoutes.ChooseClaimTypeController.show()}>Claim repayment of import duty and VAT if you have overpaid (C285)
+                </a> form
+            </p>
+        </li>
+    </ul>
+
+    <p class="govuk-body">If you have made a partial claim before and want to claim more, you should <a href=@viewConfig.contactHmrcUrl>contact HMRC.</a></p>
+
+    <div class="govuk-button-group">
+        <a href=@routes.EnterMovementReferenceNumberController.show() role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+            Enter a different MRN
+        </a>
+
+        <a href=@routes.ChooseReasonForSecurityController.show() role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            Reason for security deposit
+        </a>
+    </div>
+}
