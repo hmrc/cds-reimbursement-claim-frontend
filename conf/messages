@@ -1076,7 +1076,7 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #  CHECK CLAIM PAGE FOR SECURITIES
 #===================================================
 
-check-claim.securities.title=Check the repayment claim total for this claim
+check-claim.securities.title=Check the claim details for these security deposits
 check-claim.securities.summary=Your repayment calculations are shown below. This is based on the information you provided to us.
 check-claim.securities.claim-for-security.h2=Security ID: {0}
 
