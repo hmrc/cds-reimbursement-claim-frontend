@@ -1330,8 +1330,10 @@ schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 #===================================================
 #  BILL OF DISCHARGE PAGE
 #===================================================
-bill-of-discharge.title=Inward Processing bill of discharge (BOD3 form)
-bill-of-discharge.p1=You will need to complete a <a href="{0}">BOD3 form</a> to claim back your security deposit or guarantee. This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
+bill-of-discharge.bod3.title=Inward Processing bill of discharge (BOD3 form)
+bill-of-discharge.bod3.p1=You will need to complete a <a href="{0}">BOD3 form</a> to claim back your security deposit or guarantee. This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
+bill-of-discharge.bod4.title=End-Use bill of discharge (BOD4 form)
+bill-of-discharge.bod4.p1=You will need to complete a <a href="{0}">BOD4 form</a> to claim back your security deposit or guarantee. This tells HMRC how you disposed of the End Use goods you imported using authorisation by declaration.
 bill-of-discharge.p2=We will ask you to upload this along with other supporting documents later in this claim.
 bill-of-discharge.subheading=Continue with this claim?
 bill-of-discharge.yes=Yes
@@ -1343,8 +1345,10 @@ bill-of-discharge.error.required=Select yes to continue with this claim
 #===================================================
 bill-of-discharge-error.title=You have chosen not to continue with your claim
 bill-of-discharge-error.p1=You have chosen at this time not to continue with your claim for repayment of a security deposit or guarantee.
-bill-of-discharge-error.p2=To submit a new claim for repayment of your security deposit or guarantee at a later date, you will need to complete a BOD3 form.
-bill-of-discharge-error.p3=This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
+bill-of-discharge-error.bod3.p2=To submit a new claim for repayment of your security deposit or guarantee at a later date, you will need to complete a BOD3 form.
+bill-of-discharge-error.bod3.p3=This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
+bill-of-discharge-error.bod4.p2=To submit a new claim for repayment of your security deposit or guarantee at a later date, you will need to complete a BOD4 form.
+bill-of-discharge-error.bod4.p3=This tells HMRC how you disposed of the End Use goods you imported using authorisation by declaration.
 bill-of-discharge-error.p4=Find out more information about <a href="{0}">importing goods into the UK</a>.
 bill-of-discharge-error.p5=For general enquiries about importing, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">Contact HMRC (opens in new tab)</a>
 

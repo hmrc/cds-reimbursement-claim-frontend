@@ -57,9 +57,13 @@ class EnterDeclarantEoriNumberController @Inject() (
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
-  //Success: Declaration has been found and RfS is IPR.
-  private val successResultBillOfDischarge: Result =
-    Redirect(routes.BillOfDischargeController.show())
+  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  private val successResultBOD3: Result =
+    Redirect(routes.BillOfDischargeController.showBOD3())
+
+  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  private val successResultBOD4: Result =
+    Redirect(routes.BillOfDischargeController.showBOD4())
 
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
@@ -72,20 +76,16 @@ class EnterDeclarantEoriNumberController @Inject() (
     Some(hasMRNAndDisplayDeclarationAndRfS & canContinueTheClaimWithChoosenRfS)
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    (if (!journey.needsDeclarantAndConsigneeEoriSubmission) {
-       if (journey.reasonForSecurityIsIPR) successResultBillOfDischarge
-       else successResultSelectSecurities
-     } else if (journey.answers.consigneeEoriNumber.isEmpty)
-       Redirect(routes.EnterImporterEoriNumberController.show())
-     else
-       Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))).asFuture
+    (
+      if (!journey.needsDeclarantAndConsigneeEoriSubmission) nextPage(journey)
+      else if (journey.answers.consigneeEoriNumber.isEmpty) Redirect(routes.EnterImporterEoriNumberController.show())
+      else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
+    ).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if (!journey.needsDeclarantAndConsigneeEoriSubmission) {
-      if (journey.reasonForSecurityIsIPR) (journey, successResultBillOfDischarge).asFuture
-      else (journey, successResultSelectSecurities).asFuture
-    } else if (journey.answers.consigneeEoriNumber.isEmpty)
+    if (!journey.needsDeclarantAndConsigneeEoriSubmission) (journey, nextPage(journey)).asFuture
+    else if (journey.answers.consigneeEoriNumber.isEmpty)
       (journey, Redirect(routes.EnterImporterEoriNumberController.show())).asFuture
     else
       eoriNumberForm(formKey)
@@ -161,12 +161,16 @@ class EnterDeclarantEoriNumberController @Inject() (
             if (similarClaimExistAlreadyInCDFPay) {
               logger.info(s"Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if (journeyWithUpdatedStatus.reasonForSecurityIsIPR) {
-              successResultBillOfDischarge
-            } else
-              successResultSelectSecurities
+            } else {
+              nextPage(journeyWithUpdatedStatus)
+            }
           )
         )
         .merge
     )
+
+  private def nextPage(journey: SecuritiesJourney) =
+    if (journey.reasonForSecurityIsIPR) successResultBOD3
+    else if (journey.reasonForSecurityIsEndUseRelief) successResultBOD4
+    else successResultSelectSecurities
 }

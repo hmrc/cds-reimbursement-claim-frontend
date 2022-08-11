@@ -18,13 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectBillOfDischargeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD3
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD4
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BillOfDischarge
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_bill_of_discharge
@@ -40,28 +42,42 @@ class BillOfDischargeController @Inject() (
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  private val form: Form[YesNo] = selectBillOfDischargeForm
+  def showBOD3: Action[AnyContent] = show(BOD3)
+  def showBOD4: Action[AnyContent] = show(BOD4)
 
-  private val submitUrl = routes.BillOfDischargeController.submit()
+  def submitBOD3: Action[AnyContent] = submit(BOD3)
+  def submitBOD4: Action[AnyContent] = submit(BOD4)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(confirmBillOfDischarge(form, submitUrl)).asFuture
+  def invalidBOD3: Action[AnyContent] = invalid(BOD3)
+  def invalidBOD4: Action[AnyContent] = invalid(BOD4)
+
+  private def show(implicit bod: BillOfDischarge): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+    Ok(confirmBillOfDischarge(selectBillOfDischargeForm, submitUrl, bod)).asFuture
   }
 
-  val submit: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    form
+  private def submit(implicit bod: BillOfDischarge): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+    selectBillOfDischargeForm
       .bindFromRequest()
       .fold(
-        formWithError => BadRequest(confirmBillOfDischarge(formWithError, submitUrl)),
+        formWithError => BadRequest(confirmBillOfDischarge(formWithError, submitUrl, bod)),
         {
           case Yes => Redirect(routes.SelectSecuritiesController.showFirst())
-          case No  => Redirect(routes.BillOfDischargeController.invalid())
+          case No  =>
+            bod match {
+              case BOD3 => Redirect(routes.BillOfDischargeController.invalidBOD3())
+              case BOD4 => Redirect(routes.BillOfDischargeController.invalidBOD4())
+            }
         }
       )
       .asFuture
   }
 
-  val invalid: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(invalidBillOfDischarge()).asFuture
+  private def invalid(bod: BillOfDischarge): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+    Ok(invalidBillOfDischarge(bod)).asFuture
+  }
+
+  private def submitUrl(implicit bod: BillOfDischarge): Call = bod match {
+    case BOD3 => routes.BillOfDischargeController.submitBOD3()
+    case BOD4 => routes.BillOfDischargeController.submitBOD4()
   }
 }

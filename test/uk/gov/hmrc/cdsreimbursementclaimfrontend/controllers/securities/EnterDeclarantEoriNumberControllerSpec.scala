@@ -157,7 +157,34 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.BillOfDischargeController.show()
+          routes.BillOfDischargeController.showBOD3()
+        )
+      }
+
+      "redirect to the bill of discharge page when eori submission not required and rfs is EndUseRelief" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.EndUseRelief.acc14Code
+          )
+
+        val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.BillOfDischargeController.showBOD4()
         )
       }
 
@@ -269,7 +296,36 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
-          routes.BillOfDischargeController.show()
+          routes.BillOfDischargeController.showBOD3()
+        )
+      }
+
+      "on submit redirect to the bill of discharge page when rfs is EndUseRelief" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.EndUseRelief.acc14Code,
+            exampleEori,
+            Some(exampleEori)
+          )
+
+        val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
+          routes.BillOfDischargeController.showBOD4()
         )
       }
     }
