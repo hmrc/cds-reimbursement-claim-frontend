@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
@@ -85,6 +86,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
       rfs                         <- genReasonForSecurity
+      methodOfDisposal            <-
+        if (ReasonForSecurity.temporaryAdmissions.contains(rfs))
+          Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values).map(Some.apply)
+        else Gen.const(None)
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
@@ -151,7 +156,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           if (submitBankAccountType && (!allDutiesGuaranteeEligible))
             Some(bankAccountType)
           else None,
-        supportingEvidences = supportingEvidences
+        supportingEvidences = supportingEvidences,
+        methodOfDisposal = methodOfDisposal
       )
     }
 

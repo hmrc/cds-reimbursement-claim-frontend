@@ -65,15 +65,16 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.hasCompleteSecuritiesReclaims        shouldBe true
 
         val output: SecuritiesJourney.Output =
-          journey.toOutput.getOrElse(fail("Journey output not defined."))
+          journey.toOutput.fold(e => fail(s"Cannot build output because of $e"), identity)
 
-        output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
-        output.reasonForSecurity        shouldBe journey.answers.reasonForSecurity.get
-        output.claimantType             shouldBe journey.getClaimantType
-        output.securitiesReclaims       shouldBe journey.getSecuritiesReclaims
-        output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
-        output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
-        output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
+        output.movementReferenceNumber                      shouldBe journey.answers.movementReferenceNumber.get
+        output.reasonForSecurity                            shouldBe journey.answers.reasonForSecurity.get
+        output.claimantType                                 shouldBe journey.getClaimantType
+        output.securitiesReclaims                           shouldBe journey.getSecuritiesReclaims
+        output.supportingEvidences                          shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
+        output.bankAccountDetails                           shouldBe journey.answers.bankAccountDetails
+        output.claimantInformation.eori                     shouldBe journey.answers.userEoriNumber
+        output.temporaryAdmissionMethodOfDisposal.isDefined shouldBe journey.needsMethodOfDisposalSubmission
       }
     }
 

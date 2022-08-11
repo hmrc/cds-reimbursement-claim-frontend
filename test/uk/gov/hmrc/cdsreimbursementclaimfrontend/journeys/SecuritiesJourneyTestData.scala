@@ -57,7 +57,8 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     contactAddress: Option[ContactAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
-    supportingEvidences: Map[UploadDocumentType, Int] = Map.empty
+    supportingEvidences: Map[UploadDocumentType, Int] = Map.empty,
+    methodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None
   ): Either[String, SecuritiesJourney] = {
 
     val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]] =
@@ -83,6 +84,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)
+      .flatMapWhenDefined(methodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
       .flatMapEach(reclaims.map(_._1).distinct, (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_))
       .flatMapEach(
         reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
