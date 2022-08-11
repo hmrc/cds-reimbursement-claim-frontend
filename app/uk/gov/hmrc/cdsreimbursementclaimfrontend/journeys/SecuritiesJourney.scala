@@ -150,13 +150,6 @@ final class SecuritiesJourney private (
       .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
       .getOrElse(SortedMap.empty)
 
-  def requiresExportDeclaration: Boolean =
-    ReasonForSecurity.requiresExportDeclaration
-      .exists(answers.reasonForSecurity.contains(_))
-
-  def goodsHasBeenAlreadyExported: Boolean =
-    true // in the absence of the DEC91 API we assume it is always true
-
   def hasCompleteSecuritiesReclaims: Boolean =
     answers.securitiesReclaims.nonEmpty &&
       answers.securitiesReclaims.forall(m =>
@@ -182,7 +175,12 @@ final class SecuritiesJourney private (
     !isAllSelectedDutiesAreGuaranteeEligible
 
   def needsMethodOfDisposalSubmission: Boolean =
-    getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions.contains)
+    getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions)
+
+  def needsExportMRNSubmission: Boolean =
+    needsMethodOfDisposalSubmission && answers.temporaryAdmissionMethodOfDisposal.contains(
+      TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+    )
 
   def getReasonForSecurity: Option[ReasonForSecurity] =
     answers.reasonForSecurity
@@ -299,7 +297,7 @@ final class SecuritiesJourney private (
     exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
-      if (requiresExportDeclaration)
+      if (needsExportMRNSubmission)
         Right(
           new SecuritiesJourney(
             answers.copy(
@@ -308,7 +306,7 @@ final class SecuritiesJourney private (
           )
         )
       else
-        Left("submitExportMovementReferenceNumberAndDeclaration.exportDeclarationNotRequired")
+        Left("submitExportMovementReferenceNumber.unexpected")
     }
 
   def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
@@ -730,12 +728,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         hasDisplayDeclaration &
         hasReasonForSecurity
 
-    val canContinueTheClaimWithChoosenRfS: Validate[SecuritiesJourney] =
-      checkIsTrue(
-        journey => !journey.requiresExportDeclaration || journey.goodsHasBeenAlreadyExported,
-        CHOOSEN_REASON_FOR_SECURITY_REQUIRES_GOODS_TO_BE_ALREADY_EXPORTED
-      )
-
     val thereIsNoSimilarClaimInCDFPay: Validate[SecuritiesJourney] =
       checkIsTrue[SecuritiesJourney](
         _.answers.similarClaimExistAlreadyInCDFPay.isDefined,
@@ -807,7 +799,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     val userCanProceedWithThisClaim: Validate[SecuritiesJourney] =
       hasMRNAndDisplayDeclarationAndRfS &
         thereIsNoSimilarClaimInCDFPay &
-        canContinueTheClaimWithChoosenRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
 
     val hasMethodOfDisposalIfNeeded: Validate[SecuritiesJourney] =
@@ -815,6 +806,13 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         _.needsMethodOfDisposalSubmission,
         checkIsDefined(_.answers.temporaryAdmissionMethodOfDisposal, MISSING_METHOD_OF_DISPOSAL),
         checkIsEmpty(_.answers.temporaryAdmissionMethodOfDisposal, "unexpected method of disposal, should be empty")
+      )
+
+    val hasExportMRNIfNeeded: Validate[SecuritiesJourney] =
+      conditionally[SecuritiesJourney](
+        _.needsExportMRNSubmission,
+        checkIsDefined(_.answers.exportMovementReferenceNumber, MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER),
+        checkIsEmpty(_.answers.exportMovementReferenceNumber, "unexpected export MRN, should be empty")
       )
 
   }
@@ -825,12 +823,12 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     Validator.all(
       hasMRNAndDisplayDeclarationAndRfS,
       thereIsNoSimilarClaimInCDFPay,
-      canContinueTheClaimWithChoosenRfS,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      hasMethodOfDisposalIfNeeded,
+      hasExportMRNIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       reclaimAmountsHasBeenDeclared,
-      hasMethodOfDisposalIfNeeded,
       checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
     )
 

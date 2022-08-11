@@ -66,17 +66,6 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       TemporaryAdmission2M
     )
 
-  // Set of ReasonForSecurity demanding DEC91 call for export declaration status check
-  val requiresExportDeclaration: Set[ReasonForSecurity] =
-    Set(
-      TemporaryAdmission2Y,
-      TemporaryAdmission6M,
-      TemporaryAdmission3M,
-      TemporaryAdmission2M,
-      InwardProcessingRelief,
-      OutwardProcessingRelief
-    )
-
   def has(rfs: String): Boolean =
     valueMap.contains(rfs)
 

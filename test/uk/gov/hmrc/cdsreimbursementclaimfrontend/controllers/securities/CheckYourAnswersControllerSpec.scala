@@ -113,7 +113,7 @@ class CheckYourAnswersControllerSpec
     headers should containOnlyDefinedElementsOf(
       (Seq(
         "Declaration details".expectedAlways,
-        "Export declaration details".expectedWhen(journey.requiresExportDeclaration),
+        "Export declaration details".expectedWhen(journey.needsExportMRNSubmission),
         "Contact information for this claim".expectedAlways,
         "Bank details".expectedWhen(claim.bankAccountDetails),
         "Documents".expectedAlways,

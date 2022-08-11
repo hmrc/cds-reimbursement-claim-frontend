@@ -46,7 +46,6 @@ class CheckDeclarationDetailsController @Inject() (
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
-        canContinueTheClaimWithChoosenRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 

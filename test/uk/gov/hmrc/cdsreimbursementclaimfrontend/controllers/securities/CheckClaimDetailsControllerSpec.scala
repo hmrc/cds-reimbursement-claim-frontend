@@ -130,7 +130,7 @@ class CheckClaimDetailsControllerSpec
 
       "display page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
         )
       ) { case (initialJourney, _) =>
@@ -159,7 +159,7 @@ class CheckClaimDetailsControllerSpec
 
       "redirect to the next page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
         )
       ) { case (initialJourney, _) =>

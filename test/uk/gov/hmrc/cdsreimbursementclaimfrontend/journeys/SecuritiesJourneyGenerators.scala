@@ -66,9 +66,6 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   val genReasonForSecurity: Gen[ReasonForSecurity] =
     Gen.oneOf(ReasonForSecurity.values)
 
-  val genReasonForSecurityNonExport: Gen[ReasonForSecurity] =
-    Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
-
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = false,
@@ -90,6 +87,14 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         if (ReasonForSecurity.temporaryAdmissions.contains(rfs))
           Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values).map(Some.apply)
         else Gen.const(None)
+      exportMrn                   <-
+        if (
+          ReasonForSecurity.temporaryAdmissions(rfs) && methodOfDisposal.contains(
+            TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+          )
+        ) exportMrnTrueGen.map(Some.apply)
+        else
+          Gen.const(None)
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
@@ -111,7 +116,6 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                                        consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
                                        declarantContact = declarantContact
                                      )
-      exportMrn                   <- exportMrnTrueGen
       reclaims                    <- if (submitFullAmount) validSecurityReclaimsFullAmountGen(acc14) else validSecurityReclaimsGen(acc14)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
@@ -138,10 +142,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         displayDeclaration = acc14,
         similarClaimExistAlreadyInCDFPay = false,
         reclaims = reclaims,
-        exportMrn =
-          if (ReasonForSecurity.requiresExportDeclaration(rfs)) Some(exportMrn)
-          else
-            None,
+        exportMrn,
         declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
         consigneeEoriNumber =
           if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI)
@@ -160,10 +161,5 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         methodOfDisposal = methodOfDisposal
       )
     }
-
-  val mrnWithRfsWithDisplayDeclarationWithReclaimsGen = for {
-    (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGen
-    reclaims         <- validSecurityReclaimsGen(decl)
-  } yield (mrn, rfs, decl, reclaims)
 
 }

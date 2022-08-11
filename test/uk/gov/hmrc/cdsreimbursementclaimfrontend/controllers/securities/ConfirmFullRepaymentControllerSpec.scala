@@ -159,7 +159,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "redirect to the error page if we have arrived with an invalid security deposit ID" in {
-        mrnWithNonExportRfsWithDisplayDeclarationGen.sample.map { case (mrn, rfs, decl) =>
+        mrnWithtRfsWithDisplayDeclarationGen.sample.map { case (mrn, rfs, decl) =>
           val initialJourney = emptyJourney
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -179,7 +179,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "move on to /check-claim page when yes is selected and there are no other security ids" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           whenever(
             Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
               .contains(rfs)
@@ -220,7 +220,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC2 move on to /choose-file-type page when yes is selected and continue is clicked (if RfS = CEP, CSD, OPR, RED or MOD)" ignore {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           whenever(
             Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
               .contains(rfs)

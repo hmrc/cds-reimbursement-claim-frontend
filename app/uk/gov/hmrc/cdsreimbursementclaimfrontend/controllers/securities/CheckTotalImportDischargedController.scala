@@ -22,19 +22,16 @@ import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.checkTotalImportDischargedForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_total_import_discharged_page
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.canContinueTheClaimWithChoosenRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 
 import scala.concurrent.ExecutionContext
 
@@ -42,14 +39,13 @@ import scala.concurrent.ExecutionContext
 class CheckTotalImportDischargedController @Inject() (
   val jcc: JourneyControllerComponents,
   checkTotalImportDischargedPage: check_total_import_discharged_page
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
   private val form: Form[YesNo] = checkTotalImportDischargedForm
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
-        canContinueTheClaimWithChoosenRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
@@ -57,7 +53,7 @@ class CheckTotalImportDischargedController @Inject() (
     Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit)).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def submit(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
     form.bindFromRequest
       .fold(
         formWithErrors =>

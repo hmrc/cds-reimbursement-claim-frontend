@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelected
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithNonExportIprOrErRfsWithDisplayDeclarationGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithIprOrErRfsWithDisplayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -117,7 +117,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "display page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -148,7 +148,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "redirect to the next page when yes is selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -165,7 +165,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "redirect to correct error page when no is selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -182,7 +182,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "stay on the same page and display error message when no option selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>

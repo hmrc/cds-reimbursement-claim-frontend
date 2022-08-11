@@ -38,9 +38,6 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       )
     )
     .flatMap(_.submitClaimDuplicateCheckStatus(false))
-    .flatMapWhen(ReasonForSecurity.requiresExportDeclaration.contains(rfs))(
-      _.submitExportMovementReferenceNumber(anotherExampleMrn)
-    )
     .getOrFail
 
   final def tryBuildSecuritiesJourney(
@@ -79,12 +76,12 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .submitMovementReferenceNumber(mrn)
       .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay))
-      .tryWhenDefined(exportMrn)(journey => (exportMrn => journey.submitExportMovementReferenceNumber(exportMrn)))
+      .flatMapWhenDefined(methodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
+      .flatMapWhenDefined(exportMrn)(_.submitExportMovementReferenceNumber _)
       .flatMapWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)
-      .flatMapWhenDefined(methodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
       .flatMapEach(reclaims.map(_._1).distinct, (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_))
       .flatMapEach(
         reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,

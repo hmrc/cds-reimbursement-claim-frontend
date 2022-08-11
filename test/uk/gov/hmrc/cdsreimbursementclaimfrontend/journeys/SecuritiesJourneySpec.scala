@@ -75,6 +75,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         output.bankAccountDetails                           shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori                     shouldBe journey.answers.userEoriNumber
         output.temporaryAdmissionMethodOfDisposal.isDefined shouldBe journey.needsMethodOfDisposalSubmission
+        output.exportMovementReferenceNumber.isDefined      shouldBe journey.needsMethodOfDisposalSubmission && journey.answers.temporaryAdmissionMethodOfDisposal
+          .contains(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
       }
     }
 
@@ -129,7 +131,11 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe true
         journey.isFinalized                                   shouldBe false
-        journey.requiresExportDeclaration                     shouldBe ReasonForSecurity.requiresExportDeclaration(rfs)
+        journey.needsExportMRNSubmission                      shouldBe (ReasonForSecurity.temporaryAdmissions(
+          rfs
+        ) && journey.answers.temporaryAdmissionMethodOfDisposal.contains(
+          TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+        ))
       }
     }
 
@@ -189,14 +195,13 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         modifiedJourney.hasCompleteSecuritiesReclaims                    shouldBe false
         modifiedJourney.hasCompleteSupportingEvidences                   shouldBe true
         modifiedJourney.isFinalized                                      shouldBe false
-        modifiedJourney.requiresExportDeclaration                        shouldBe ReasonForSecurity.requiresExportDeclaration(rfs)
       }
     }
 
-    "accept submission of a valid export MRN and export declaration for a suitable reason for security" in {
+    "accept submission of a valid export MRN for a suitable reason for security" in {
       forAll(
         genMRN,
-        Gen.oneOf(ReasonForSecurity.requiresExportDeclaration),
+        Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
         securitiesDisplayDeclarationGen,
         exportMrnTrueGen
       ) { case (mrn, rfs, decl, exportMrn) =>
@@ -204,6 +209,9 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(
+            _.submitTemporaryAdmissionMethodOfDisposal(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+          )
           .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
           .getOrFail
 
@@ -212,10 +220,27 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    "reject submission of a valid export MRN and export declaration for a non-suitable reason for security" in {
+    "reject submission of a valid method of disposal for a non-suitable reason for security" in {
       forAll(
         genMRN,
-        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration),
+        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.temporaryAdmissions),
+        Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values),
+        securitiesDisplayDeclarationGen
+      ) { case (mrn, rfs, methodOfDisposal, decl) =>
+        val journeyResult = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
+          .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(_.submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal))
+
+        journeyResult shouldBe Left("submitTemporaryAdmissionMethodOfDisposal.unexpected")
+      }
+    }
+
+    "reject submission of a valid export MRN for a non-suitable reason for security" in {
+      forAll(
+        genMRN,
+        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.temporaryAdmissions),
         securitiesDisplayDeclarationGen,
         exportMrnTrueGen
       ) { case (mrn, rfs, decl, exportMrn) =>
@@ -225,12 +250,12 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
 
-        journeyResult shouldBe Left("submitExportMovementReferenceNumberAndDeclaration.exportDeclarationNotRequired")
+        journeyResult shouldBe Left("submitExportMovementReferenceNumber.unexpected")
       }
     }
 
     "accept submission of a valid selection of depositIds" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val journey    = emptyJourney
           .submitMovementReferenceNumber(mrn)
@@ -250,7 +275,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of an empty selection of depositIds" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -262,7 +287,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of a partially invalid selection of depositIds" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds    = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
@@ -275,7 +300,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of a completely invalid selection of depositIds" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -317,7 +342,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept selection of a valid depositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositId = decl.getSecurityDepositIds.map(_.head).get
         val journey   = emptyJourney
           .submitMovementReferenceNumber(mrn)
@@ -337,7 +362,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept removal of a valid depositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds = decl.getSecurityDepositIds.get
         val depositId  = depositIds.head
         val journey    = emptyJourney
@@ -359,7 +384,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of an invalid depositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -371,7 +396,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept submission of the valid selection of the taxCodes for a known securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -454,7 +479,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of the valid selection of the taxCodes for a bogus securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
         val journeyResult           = emptyJourney
           .submitMovementReferenceNumber(mrn)
@@ -474,7 +499,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of the valid selection of the taxCodes for a not-selected securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.takeExcept(reclaims.map(_._1))).get
 
         whenever(depositIds.nonEmpty) {
@@ -499,7 +524,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of an empty selection of the taxCodes for a valid securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val journeyResult           = emptyJourney
           .submitMovementReferenceNumber(mrn)
@@ -513,7 +538,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of an invalid selection of the taxCodes for a valid securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val invalidTaxCodeSelection = TaxCodes.allExcept(decl.getSecurityTaxCodesFor(depositIds.head).toSet).headSeq
         val journeyResult           = emptyJourney
@@ -578,7 +603,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept submission of the valid reclaim amount for any valid securityDepositId and taxCode" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -630,7 +655,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept submission of the full reclaim amounts" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get.halfNonEmpty
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -684,7 +709,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of a zero reclaim amount for any valid securityDepositId and taxCode" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -716,7 +741,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of an exceeding reclaim amount for any valid securityDepositId and taxCode" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -754,7 +779,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of a reclaim amount if bogus securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -786,7 +811,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of a reclaim amount if invalid taxCode" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -872,7 +897,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept submission of the full amounts reclaim for any valid securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get
 
         val journey =
@@ -910,7 +935,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of the full amounts reclaim for any invalid securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get
         val journeyResult           =
           emptyJourney
@@ -925,7 +950,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject submission of the full amounts reclaim for any not selected securityDepositId" in {
-      forAll(mrnWithNonExportRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get
         whenever(depositIds.size > 1) {
           val journeyResult =

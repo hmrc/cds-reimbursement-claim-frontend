@@ -48,7 +48,6 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
-        canContinueTheClaimWithChoosenRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
