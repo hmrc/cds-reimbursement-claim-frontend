@@ -46,7 +46,7 @@
 @bodKey = @{bod.toString}
 @title = @{messages(combine(key, Some(bodKey), "title"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-@bodFormUrl = @{bod match {case BOD3 => viewConfig.bod3formUrl case BOD4 => viewConfig.bod4formUrl}}
+@bodFormUrl = @{bod match {case BOD3 => viewConfig.bod3FormUrl case BOD4 => viewConfig.bod4FormUrl}}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
 

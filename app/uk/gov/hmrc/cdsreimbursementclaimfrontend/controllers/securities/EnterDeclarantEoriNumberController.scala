@@ -58,11 +58,11 @@ class EnterDeclarantEoriNumberController @Inject() (
     Redirect(routes.SelectSecuritiesController.showFirst())
 
   //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
-  private val successResultBod3: Result =
+  private val successResultBOD3: Result =
     Redirect(routes.BillOfDischargeController.showBOD3())
 
   //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
-  private val successResultBod4: Result =
+  private val successResultBOD4: Result =
     Redirect(routes.BillOfDischargeController.showBOD4())
 
   //Error: Claim has already been submitted as part of a whole or partial claim
@@ -170,7 +170,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     )
 
   private def nextPage(journey: SecuritiesJourney) =
-    if (journey.reasonForSecurityIsIPR) successResultBod3
-    else if (journey.reasonForSecurityIsEndUseRelief) successResultBod4
+    if (journey.reasonForSecurityIsIPR) successResultBOD3
+    else if (journey.reasonForSecurityIsEndUseRelief) successResultBOD4
     else successResultSelectSecurities
 }

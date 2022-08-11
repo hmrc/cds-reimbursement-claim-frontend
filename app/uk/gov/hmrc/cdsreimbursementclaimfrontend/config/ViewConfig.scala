@@ -123,9 +123,9 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val importExportUrl: String = getString("external-url.import-export")
 
-  val bod3formUrl: String = getString("external-url.bod3-form")
+  val bod3FormUrl: String = getString("external-url.bod3-form")
 
-  val bod4formUrl: String = getString("external-url.bod4-form")
+  val bod4FormUrl: String = getString("external-url.bod4-form")
 
   val importingGoodsIntoTheUk: String = getString("external-url.importing-goods-into-the-uk")
 
