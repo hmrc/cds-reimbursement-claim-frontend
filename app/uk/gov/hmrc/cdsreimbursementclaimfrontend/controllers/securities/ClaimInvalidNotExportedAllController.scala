@@ -15,16 +15,15 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.claim_invalid_not_exported_all
+
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ClaimInvalidNotExportedAllController @Inject() (
