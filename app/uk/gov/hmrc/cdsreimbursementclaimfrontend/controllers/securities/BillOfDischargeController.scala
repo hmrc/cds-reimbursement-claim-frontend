@@ -42,14 +42,14 @@ class BillOfDischargeController @Inject() (
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  def showBOD3: Action[AnyContent] = show(BOD3)
-  def showBOD4: Action[AnyContent] = show(BOD4)
+  val showBOD3: Action[AnyContent] = show(BOD3)
+  val showBOD4: Action[AnyContent] = show(BOD4)
 
-  def submitBOD3: Action[AnyContent] = submit(BOD3)
-  def submitBOD4: Action[AnyContent] = submit(BOD4)
+  val submitBOD3: Action[AnyContent] = submit(BOD3)
+  val submitBOD4: Action[AnyContent] = submit(BOD4)
 
-  def invalidBOD3: Action[AnyContent] = invalid(BOD3)
-  def invalidBOD4: Action[AnyContent] = invalid(BOD4)
+  val invalidBOD3: Action[AnyContent] = invalid(BOD3)
+  val invalidBOD4: Action[AnyContent] = invalid(BOD4)
 
   private def show(implicit bod: BillOfDischarge): Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(confirmBillOfDischarge(selectBillOfDischargeForm, submitUrl, bod)).asFuture
