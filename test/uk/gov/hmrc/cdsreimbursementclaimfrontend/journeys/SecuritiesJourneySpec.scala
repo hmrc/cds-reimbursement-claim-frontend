@@ -198,13 +198,12 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    "accept submission of a valid export MRN for a suitable reason for security" in {
+    "accept submission of a method of disposal for a suitable reason for security" in {
       forAll(
         genMRN,
         Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
-        securitiesDisplayDeclarationGen,
-        exportMrnTrueGen
-      ) { case (mrn, rfs, decl, exportMrn) =>
+        securitiesDisplayDeclarationGen
+      ) { case (mrn, rfs, decl) =>
         val journey = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
@@ -212,11 +211,11 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .flatMap(
             _.submitTemporaryAdmissionMethodOfDisposal(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
           )
-          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
           .getOrFail
 
-        journey.answers.exportMovementReferenceNumber shouldBe Some(exportMrn)
-        journey.hasCompleteSecuritiesReclaims         shouldBe false
+        journey.answers.temporaryAdmissionMethodOfDisposal shouldBe Some(
+          TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+        )
       }
     }
 
@@ -237,6 +236,30 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "accept submission of a valid export MRN for a suitable reason for security and method of disposal" in {
+      forAll(
+        genMRN,
+        Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
+        securitiesDisplayDeclarationGen,
+        exportMrnTrueGen
+      ) { case (mrn, rfs, decl, exportMrn) =>
+        val journey = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
+          .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(
+            _.submitTemporaryAdmissionMethodOfDisposal(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+          )
+          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
+          .getOrFail
+
+        journey.answers.temporaryAdmissionMethodOfDisposal shouldBe Some(
+          TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+        )
+        journey.answers.exportMovementReferenceNumber      shouldBe Some(exportMrn)
+      }
+    }
+
     "reject submission of a valid export MRN for a non-suitable reason for security" in {
       forAll(
         genMRN,
@@ -248,6 +271,27 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
+
+        journeyResult shouldBe Left("submitExportMovementReferenceNumber.unexpected")
+      }
+    }
+
+    "reject submission of a valid export MRN for a non-suitable method of disposal" in {
+      forAll(
+        genMRN,
+        Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
+        Gen.oneOf(
+          TemporaryAdmissionMethodOfDisposal.values - TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+        ),
+        securitiesDisplayDeclarationGen,
+        exportMrnTrueGen
+      ) { case (mrn, rfs, methodOfDisposal, decl, exportMrn) =>
+        val journeyResult = emptyJourney
+          .submitMovementReferenceNumber(mrn)
+          .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
+          .flatMap(_.submitClaimDuplicateCheckStatus(false))
+          .flatMap(_.submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal))
           .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
 
         journeyResult shouldBe Left("submitExportMovementReferenceNumber.unexpected")
