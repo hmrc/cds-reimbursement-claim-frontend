@@ -58,3 +58,16 @@ $hmrc-assets-path: "/claim-back-import-duty-vat/assets/lib/hmrc-frontend/hmrc/";
 abbr[title] {
     text-decoration: none;
 }
+
+
+// Fix for automated A11y test contrast issue
+
+.govuk-details {
+    .govuk-details__summary-text {
+        background-color:inherit;
+    }
+
+    * {
+        background-color:#fff;
+    }
+}
