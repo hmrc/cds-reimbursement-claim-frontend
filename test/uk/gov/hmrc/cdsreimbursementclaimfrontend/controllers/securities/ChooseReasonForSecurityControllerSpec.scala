@@ -398,7 +398,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
             ),
-            controllers.routes.IneligibleController.ineligible()
+            routes.ClaimInvalidTPI04Controller.show()
           )
         }
       }

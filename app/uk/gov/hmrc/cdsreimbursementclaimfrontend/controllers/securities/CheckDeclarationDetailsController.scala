@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -28,6 +29,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
@@ -68,6 +70,11 @@ class CheckDeclarationDetailsController @Inject() (
         Redirect(
           if (journey.getSelectedDepositIds.isEmpty)
             routes.CheckDeclarationDetailsController.show()
+          else if (
+            journey.getReasonForSecurity
+              .exists(rfs => rfs === ReasonForSecurity.EndUseRelief || rfs === ReasonForSecurity.InwardProcessingRelief)
+          )
+            routes.CheckTotalImportDischargedController.show()
           else
             routes.CheckClaimantDetailsController.show()
         )

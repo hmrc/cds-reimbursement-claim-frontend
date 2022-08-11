@@ -72,7 +72,7 @@ class ChooseReasonForSecurityController @Inject() (
 
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
-    Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
+    Redirect(routes.ClaimInvalidTPI04Controller.show())
 
   //Error: Security chosen does not exist against the Movement Reference Number (MRN) provided
   private val errorResultDeclarationNotFoundForRfS: Result =
