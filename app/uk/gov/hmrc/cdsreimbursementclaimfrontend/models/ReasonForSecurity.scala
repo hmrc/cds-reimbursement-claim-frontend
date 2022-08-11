@@ -58,15 +58,12 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       UKAPSafeguardDuties
     )
 
-  // Set of ReasonForSecurity demanding DEC91 call for export declaration status check
-  val requiresExportDeclaration: Set[ReasonForSecurity] =
+  val temporaryAdmissions: Set[ReasonForSecurity] =
     Set(
       TemporaryAdmission2Y,
       TemporaryAdmission6M,
       TemporaryAdmission3M,
-      TemporaryAdmission2M,
-      InwardProcessingRelief,
-      OutwardProcessingRelief
+      TemporaryAdmission2M
     )
 
   def has(rfs: String): Boolean =

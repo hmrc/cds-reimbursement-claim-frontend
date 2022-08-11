@@ -38,9 +38,6 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       )
     )
     .flatMap(_.submitClaimDuplicateCheckStatus(false))
-    .flatMapWhen(ReasonForSecurity.requiresExportDeclaration.contains(rfs))(
-      _.submitExportMovementReferenceNumber(anotherExampleMrn)
-    )
     .getOrFail
 
   final def tryBuildSecuritiesJourney(
@@ -57,7 +54,8 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     contactAddress: Option[ContactAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
-    supportingEvidences: Map[UploadDocumentType, Int] = Map.empty
+    supportingEvidences: Map[UploadDocumentType, Int] = Map.empty,
+    methodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None
   ): Either[String, SecuritiesJourney] = {
 
     val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]] =
@@ -78,7 +76,8 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .submitMovementReferenceNumber(mrn)
       .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay))
-      .tryWhenDefined(exportMrn)(journey => (exportMrn => journey.submitExportMovementReferenceNumber(exportMrn)))
+      .flatMapWhenDefined(methodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
+      .flatMapWhenDefined(exportMrn)(_.submitExportMovementReferenceNumber _)
       .flatMapWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))

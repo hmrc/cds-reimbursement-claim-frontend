@@ -87,7 +87,7 @@ trait RejectedGoodsMultipleJourneyTestData extends JourneyTestData {
     RejectedGoodsMultipleJourney
       .empty(userEoriNumber)
       .flatMapEach(mrnsWithDisplayDeclaration, submitMovementReferenceNumberAndDeclaration)
-      .tryWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(contactDetails))
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)

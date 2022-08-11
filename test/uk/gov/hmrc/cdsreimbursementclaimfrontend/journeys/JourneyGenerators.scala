@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.JavaConverters._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 trait JourneyGenerators extends JourneyTestData {
 
@@ -54,130 +53,6 @@ trait JourneyGenerators extends JourneyTestData {
                    .withDeclarantEori(exampleEori)
                )
     } yield (mrn, acc14)
-
-  final lazy val rfsWithDisplayDeclarationGen: Gen[(ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      rfs   <- Gen.oneOf(ReasonForSecurity.values)
-      acc14 <- securitiesDisplayDeclarationGen.map(
-                 _.withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (rfs, acc14)
-
-  final lazy val mrnWithRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values)
-      acc14 <- securitiesDisplayDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (mrn, rfs, acc14)
-
-  final lazy val mrnWithRfsWithDisplayDeclarationNotGuaranteeEligibleGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values)
-      acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (mrn, rfs, acc14)
-
-  final lazy val mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values)
-      acc14 <- securitiesDisplayDeclarationGuaranteeEligibleGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (mrn, rfs, acc14)
-
-  final lazy val mrnWithNonExportRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
-      acc14 <- securitiesDisplayDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (mrn, rfs, acc14)
-
-  final lazy val mrnWithNonExportIprOrErRfsWithDisplayDeclarationGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf[ReasonForSecurity](ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
-      acc14 <- securitiesDisplayDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (mrn, rfs, acc14)
-
-  final lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesTypes(rfs).isDefined))
-      acc14 <- securitiesDisplayDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (mrn, rfs, acc14)
-
-  final lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)] =
-    for {
-      (mrn, rfs, acc14) <- mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen
-      documentType      <- Gen.oneOf(UploadDocumentType.securitiesTypes(rfs).get)
-    } yield (mrn, rfs, acc14, documentType)
-
-  final lazy val mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.requiresExportDeclaration)
-      acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    } yield (mrn, rfs, acc14)
-
-  final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
-    for {
-      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
-      reclaims         <- validSecurityReclaimsGen(decl)
-    } yield (mrn, rfs, decl, reclaims)
-
-  final lazy val mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
-    for {
-      (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
-      reclaims         <- validSecurityReclaimsGen(decl)
-    } yield (mrn, rfs, decl, reclaims)
-
-  final lazy val mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
-    for {
-      (mrn, rfs, decl) <- mrnWithNonExportRfsWithDisplayDeclarationNotGuaranteeEligibleGen
-      reclaims         <- validSecurityReclaimsGen(decl)
-    } yield (mrn, rfs, decl, reclaims)
-
-  final lazy val exportMrnTrueGen: Gen[MRN] =
-    for {
-      mrn <- IdGen.genMRN
-    } yield mrn
 
   final val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = true)
@@ -254,39 +129,5 @@ trait JourneyGenerators extends JourneyTestData {
       allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
       declarantContact = Some(declarantContact)
     )
-
-  final def validSecurityReclaimsGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
-    Gen
-      .sequence(
-        decl.getSecurityDepositIds
-          .getOrElse(Seq.empty)
-          .halfNonEmpty
-          .flatMap(depositId =>
-            decl
-              .getSecurityDetailsFor(depositId)
-              .map(sd =>
-                sd.taxDetails.halfNonEmpty.map(td =>
-                  Gen
-                    .choose(BigDecimal.exact("0.01"), td.getAmount)
-                    .map(amount => (sd.securityDepositId, td.getTaxCode, amount))
-                )
-              )
-              .getOrElse(Seq.empty)
-          )
-      )
-      .map(_.asScala.toSeq)
-
-  final def validSecurityReclaimsFullAmountGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
-    Gen
-      .const(
-        decl.getSecurityDepositIds
-          .getOrElse(Seq.empty)
-          .flatMap(depositId =>
-            decl
-              .getSecurityDetailsFor(depositId)
-              .map(sd => sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, td.getAmount)))
-              .getOrElse(Seq.empty)
-          )
-      )
 
 }

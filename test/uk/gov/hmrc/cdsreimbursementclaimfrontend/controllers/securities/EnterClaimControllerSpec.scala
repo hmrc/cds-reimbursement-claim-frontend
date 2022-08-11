@@ -109,7 +109,7 @@ class EnterClaimControllerSpec
 
       "redirect to the first enter claim page if a valid security deposit ID with selected duties" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
@@ -131,7 +131,7 @@ class EnterClaimControllerSpec
 
       "redirect to the select duties page if a valid security deposit ID but no duties selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyWithDutiesPartiallySelected
         )
       ) { case (initialJourney, _) =>
@@ -165,7 +165,7 @@ class EnterClaimControllerSpec
 
       "display the page if a valid security deposit ID" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
@@ -188,7 +188,7 @@ class EnterClaimControllerSpec
 
       "display error page if an invalid security deposit ID" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
@@ -206,7 +206,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but the tax code was not selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
@@ -231,7 +231,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but unavailable tax code" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
@@ -265,7 +265,7 @@ class EnterClaimControllerSpec
 
       "display error page if an invalid security deposit ID" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
@@ -283,7 +283,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but the tax code was not selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
@@ -308,7 +308,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but unavailable tax code" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
@@ -331,7 +331,7 @@ class EnterClaimControllerSpec
 
       "save reclaim amount and progress to the next page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
@@ -374,7 +374,7 @@ class EnterClaimControllerSpec
 
       "save reclaim amount in change mode and progress to the next page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
@@ -422,7 +422,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is zero" in forSomeWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
@@ -443,7 +443,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is empty" in forSomeWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
@@ -464,7 +464,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is greater then the deposit amount" in forSomeWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
@@ -492,7 +492,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is not a number" in forSomeWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
