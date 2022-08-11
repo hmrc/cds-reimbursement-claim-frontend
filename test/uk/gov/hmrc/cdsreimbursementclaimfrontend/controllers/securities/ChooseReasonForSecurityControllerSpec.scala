@@ -44,6 +44,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -172,9 +174,11 @@ class ChooseReasonForSecurityControllerSpec
 
       "retrieve the ACC14 declaration, make a TPI04 check and redirect to the select first security deposit page" in {
         forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
-          val rfs = declaration.getReasonForSecurity
+          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
 
-          whenever(rfs.exists(_ !== ReasonForSecurity.InwardProcessingRelief)) {
+          whenever(!reasonForSecurityIsDischarge) {
             val initialJourney =
               SecuritiesJourney
                 .empty(declaration.getDeclarantEori)
@@ -182,7 +186,7 @@ class ChooseReasonForSecurityControllerSpec
 
             val updatedJourney = SessionData(
               initialJourney
-                .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
+                .submitReasonForSecurityAndDeclaration(rfs, declaration)
                 .flatMap(_.submitClaimDuplicateCheckStatus(false))
                 .getOrFail
             )
@@ -197,7 +201,7 @@ class ChooseReasonForSecurityControllerSpec
 
             checkIsRedirect(
               performAction(
-                Seq("choose-reason-for-security.securities" -> rfs.get.toString)
+                Seq("choose-reason-for-security.securities" -> rfs.toString)
               ),
               routes.SelectSecuritiesController.showFirst()
             )
@@ -294,7 +298,46 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.BillOfDischargeController.show()
+            routes.BillOfDischargeController.showBOD3()
+          )
+        }
+      }
+
+      "redirect to the Bill of Discharge page when reason for security is EndUseRelief" in {
+        forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
+          val rfs = ReasonForSecurity.EndUseRelief
+
+          val updatedDeclaration = declaration
+            .copy(displayResponseDetail =
+              declaration.displayResponseDetail
+                .copy(securityReason = Some(rfs.acc14Code))
+            )
+
+          val initialJourney =
+            SecuritiesJourney
+              .empty(updatedDeclaration.getDeclarantEori)
+              .submitMovementReferenceNumber(updatedDeclaration.getMRN)
+
+          val updatedJourney = SessionData(
+            initialJourney
+              .submitReasonForSecurityAndDeclaration(rfs, updatedDeclaration)
+              .flatMap(_.submitClaimDuplicateCheckStatus(false))
+              .getOrFail
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockGetDisplayDeclaration(Right(Some(updatedDeclaration)))
+            mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+            mockStoreSession(updatedJourney)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> rfs.toString)
+            ),
+            routes.BillOfDischargeController.showBOD4()
           )
         }
       }
@@ -321,7 +364,7 @@ class ChooseReasonForSecurityControllerSpec
 
           checkIsRedirect(
             performAction(
-              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
             ),
             routes.EnterImporterEoriNumberController.show()
           )
@@ -353,7 +396,7 @@ class ChooseReasonForSecurityControllerSpec
 
           checkIsRedirect(
             performAction(
-              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString())
+              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
             ),
             controllers.routes.IneligibleController.ineligible()
           )

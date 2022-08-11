@@ -25,6 +25,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BillOfDischarge
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BOD3, BOD4}
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -37,11 +40,13 @@
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio
 )
 
-@(form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], postAction: Call, bod: BillOfDischarge)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"bill-of-discharge"}
-@title = @{messages(s"$key.title")}
+@bodKey = @{bod.toString}
+@title = @{messages(combine(key, Some(bodKey), "title"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@bodFormUrl = @{bod match {case BOD3 => viewConfig.bod3formUrl case BOD4 => viewConfig.bod4formUrl}}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
 
@@ -49,7 +54,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.p1", viewConfig.bod3formUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(combine(key, Some(bodKey), "p1"), bodFormUrl)), Some("govuk-body"))
 
     @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 

@@ -58,9 +58,13 @@ class ChooseReasonForSecurityController @Inject() (
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
-  //Success: Declaration has been found and RfS is IPR.
-  private val successResultBillOfDischarge: Result =
-    Redirect(routes.BillOfDischargeController.show())
+  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  private val successResultBod3: Result =
+    Redirect(routes.BillOfDischargeController.showBOD3())
+
+  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  private val successResultBod4: Result =
+    Redirect(routes.BillOfDischargeController.showBOD4())
 
   //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultEnterImporterEori: Result =
@@ -220,7 +224,9 @@ class ChooseReasonForSecurityController @Inject() (
               logger.info(s"Claim ineligible because already exists.")
               errorResultClaimExistsAlready
             } else if (journeyWithUpdatedStatus.reasonForSecurityIsIPR) {
-              successResultBillOfDischarge
+              successResultBod3
+            } else if (journeyWithUpdatedStatus.reasonForSecurityIsEndUseRelief) {
+              successResultBod4
             } else
               successResultSelectSecurities
           )

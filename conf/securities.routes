@@ -66,6 +66,10 @@ POST         /securities/submit-claim                                  @uk.gov.h
 GET          /securities/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.showConfirmation()
 GET          /securities/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.show()
 
-POST         /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.submit()
-GET          /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.show()
-GET          /securities/error/claim-invalid-nobod3                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.invalid()
+POST         /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.submitBOD3()
+GET          /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.showBOD3()
+GET          /securities/error/claim-invalid-nobod3                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.invalidBOD3()
+
+POST         /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.submitBOD4()
+GET          /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.showBOD4()
+GET          /securities/error/claim-invalid-nobod4                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.invalidBOD4()
