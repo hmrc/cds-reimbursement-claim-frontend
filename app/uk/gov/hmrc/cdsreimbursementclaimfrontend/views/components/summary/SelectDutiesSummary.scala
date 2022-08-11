@@ -21,21 +21,27 @@ import cats.implicits._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.getDescription
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.selectDutiesKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 
 object SelectDutiesSummary {
 
-  final case class DutyDescription(duty: Duty, description: String) {
+  final case class DutyDescription(duty: DutyAmount, description: String, caption: String) {
     override def toString: String = duty.taxCode.value + " - " + description
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Option2Iterable"))
-  def apply(dutiesAvailable: NonEmptyList[Duty])(implicit messages: Messages): List[DutyDescription] =
+  def apply(dutiesAvailable: NonEmptyList[DutyAmount])(implicit messages: Messages): List[DutyDescription] =
     dutiesAvailable.toList
       .flatMap { duty =>
         getDescription(s"$selectDutiesKey.duty.${duty.taxCode.value}", messages)
           .map { description =>
-            DutyDescription(duty, description)
+            DutyDescription(
+              duty,
+              description,
+              messages("select-duties.duty.caption").format(duty.amount.toPoundSterlingString)
+            )
           }
       }
       .sortBy(_.description)
