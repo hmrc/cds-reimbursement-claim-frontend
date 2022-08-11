@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
@@ -24,6 +25,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectBillOfDischargeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD3
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD4
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BillOfDischarge
@@ -34,6 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.invalid_b
 
 import scala.concurrent.ExecutionContext
 
+import SecuritiesJourney.Checks._
+
 @Singleton
 class BillOfDischargeController @Inject() (
   val jcc: JourneyControllerComponents,
@@ -42,14 +46,21 @@ class BillOfDischargeController @Inject() (
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  def showBOD3: Action[AnyContent] = show(BOD3)
-  def showBOD4: Action[AnyContent] = show(BOD4)
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
-  def submitBOD3: Action[AnyContent] = submit(BOD3)
-  def submitBOD4: Action[AnyContent] = submit(BOD4)
+  final val showBOD3: Action[AnyContent] = show(BOD3)
+  final val showBOD4: Action[AnyContent] = show(BOD4)
 
-  def invalidBOD3: Action[AnyContent] = invalid(BOD3)
-  def invalidBOD4: Action[AnyContent] = invalid(BOD4)
+  final val submitBOD3: Action[AnyContent] = submit(BOD3)
+  final val submitBOD4: Action[AnyContent] = submit(BOD4)
+
+  final val invalidBOD3: Action[AnyContent] = invalid(BOD3)
+  final val invalidBOD4: Action[AnyContent] = invalid(BOD4)
 
   private def show(implicit bod: BillOfDischarge): Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(confirmBillOfDischarge(selectBillOfDischargeForm, submitUrl, bod)).asFuture
