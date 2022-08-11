@@ -43,7 +43,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, DutyAmount, Feature, SessionData, SummaryInspectionAddress, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -53,6 +57,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -92,20 +97,25 @@ class SelectDutiesControllerSpec
     journey: SecuritiesJourney,
     isError: Boolean = false
   ) = {
-    val title                         = doc.select("title").eachText().asScala.toList
-    val caption                       = doc.select("span.govuk-caption-xl").eachText().asScala.toList
-    val formHeading                   = doc.select(".govuk-heading-xl").eachText().asScala.toList
-    val dutiesAvailable: Seq[TaxCode] = journey.getSecurityTaxCodesFor(securityId)
-    val taxDetails = dutiesAvailable.flatMap(journey.getSecurityTaxDetailsFor(securityId, _))
-    title           should ===(
+    val title       = doc.select("title").eachText().asScala.toList
+    val caption     = doc.select("span.govuk-caption-xl").eachText().asScala.toList
+    val formHeading = doc.select(".govuk-heading-xl").eachText().asScala.toList
+
+    val dutiesAvailable: Seq[TaxCode] =
+      journey.getSecurityTaxCodesFor(securityId)
+
+    val taxDetails: Seq[TaxDetails] =
+      dutiesAvailable.flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
+
+    title                    should ===(
       List(
         (if (isError) "ERROR: "
          else "") + "Select the duties you want to claim for - Claim back import duty and VAT - GOV.UK"
       )
     )
-    caption         should ===(List(s"Security ID: $securityId"))
-    formHeading     should ===(List("Select the duties you want to claim for"))
-    checkboxes(doc) should contain theSameElementsAs dutiesAvailable.map(tc =>
+    caption                  should ===(List(s"Security ID: $securityId"))
+    formHeading              should ===(List("Select the duties you want to claim for"))
+    checkboxes(doc)          should contain theSameElementsAs dutiesAvailable.map(tc =>
       (s"${tc.value} - ${messages(s"$messagesKey.duty.${tc.value}")}", tc.value)
     )
     checkboxesWithHints(doc) should contain theSameElementsAs taxDetails.map(td =>
@@ -280,7 +290,11 @@ object SelectDutiesControllerSpec {
     submitBankAccountType = false
   )
 
-  def getSelectedIndices(allCodes: List[DutyAmount], selected: List[TaxCode], messages: Messages): Seq[(DutyAmount, Int)] =
+  def getSelectedIndices(
+    allCodes: List[DutyAmount],
+    selected: List[TaxCode],
+    messages: Messages
+  ): Seq[(DutyAmount, Int)] =
     SelectDutiesSummary(NonEmptyList.fromListUnsafe(allCodes))(messages)
       .map(_.duty)
       .zipWithIndex
