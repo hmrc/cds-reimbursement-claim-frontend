@@ -339,20 +339,20 @@ choose-reason-for-security.securities.title=Select why a security deposit or gua
 choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
 choose-reason-for-security.securities.error.required=Choose the reason for security
 choose-reason-for-security.securities.AccountSales=Account Sales
-choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Community Systems of Duty Relief (CSDR)
-choose-reason-for-security.securities.EndUseRelief=End-use Relief
+choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Missing document: Community System of Duty Relief (CSDR)
+choose-reason-for-security.securities.EndUseRelief=End Use Relief
 choose-reason-for-security.securities.InwardProcessingRelief=Inward Processing Relief (IPR)
-choose-reason-for-security.securities.ManualOverrideDeposit=Manual Override Deposit*
-choose-reason-for-security.securities.MissingLicenseQuota=Missing License Quota*
-choose-reason-for-security.securities.MissingPreferenceCertificate=Missing Preference Certificate
+choose-reason-for-security.securities.ManualOverrideDeposit=Manual override of duty amount
+choose-reason-for-security.securities.MissingLicenseQuota=Missing document: quota license
+choose-reason-for-security.securities.MissingPreferenceCertificate=Missing document: preference
 choose-reason-for-security.securities.OutwardProcessingRelief=Outward Processing Relief (OPR)
-choose-reason-for-security.securities.RevenueDispute=Revenue Dispute/Inward Pre-Clearance (IPC)
-choose-reason-for-security.securities.TemporaryAdmission2Y=Temporary Admission (2 years Expiration)
-choose-reason-for-security.securities.TemporaryAdmission6M=Temporary Admission (6 months Expiration)
-choose-reason-for-security.securities.TemporaryAdmission3M=Temporary Admission (3 months Expiration)
-choose-reason-for-security.securities.TemporaryAdmission2M=Temporary Admission (2 months Expiration)
-choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price*
-choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties*
+choose-reason-for-security.securities.RevenueDispute=Revenue Dispute or Inland Pre-Clearance (IPC)
+choose-reason-for-security.securities.TemporaryAdmission2Y=Temporary Admissions (2 years Expiration)
+choose-reason-for-security.securities.TemporaryAdmission6M=Temporary Admissions (6 months Expiration)
+choose-reason-for-security.securities.TemporaryAdmission3M=Temporary Admissions (3 months Expiration)
+choose-reason-for-security.securities.TemporaryAdmission2M=Temporary Admissions (2 months Expiration)
+choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price
+choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties
 
 #===================================================
 #  SELECT SECURITIES PAGE - SECURITIES
