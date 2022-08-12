@@ -82,7 +82,7 @@ class DefaultAddressLookupService @Inject() (
         .nameConsumerServiceAs("cds-reimbursement-claim")
         .showMax(addressLookupConfiguration.addressesShowLimit)
         .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
-        .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
+        .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcServiceUrl)
         .whetherSearchOnlyUkAddresses(true)
         .whetherShowConfirmChangeText(true)
         .whetherShowSearchAgainLink(true)

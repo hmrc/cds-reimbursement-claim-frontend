@@ -93,11 +93,13 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val accessibilityStatementUrl: String = getString("external-url.accessibility-statement")
 
-  lazy val contactHmrcUrl: String = {
+  lazy val contactHmrcServiceUrl: String = {
     val baseUrl     = servicesConfig.baseUrl("contact-frontend")
     val contactPath = servicesConfig.getString(s"microservice.services.contact-frontend.contact-hmrc-url")
     s"$baseUrl$contactPath"
   }
+
+  val contactHmrcMainUrl: String = getString("external-url.contact-hmrc")
 
   val eoriNumberHelpUrl: String = getString("external-url.eori-number-help")
 
