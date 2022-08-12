@@ -46,7 +46,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerato
 import scala.List
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
@@ -131,7 +130,7 @@ class CheckClaimDetailsControllerSpec
 
       "display page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
         )
       ) { case (initialJourney, _) =>
@@ -160,7 +159,7 @@ class CheckClaimDetailsControllerSpec
 
       "redirect to the next page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
         )
       ) { case (initialJourney, _) =>
@@ -171,7 +170,7 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          if (initialJourney.answers.reasonForSecurity.exists(ReasonForSecurity.requiresDocumentType.contains))
+          if (initialJourney.requiresDocumentTypeSelection)
             routes.ChooseFileTypeController.show()
           else
             routes.UploadFilesController.show()

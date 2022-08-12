@@ -70,7 +70,7 @@ class EnterDeclarantEoriNumberControllerSpec
       consigneeEORI = Some(yetAnotherExampleEori)
     )
 
-  lazy val initialSession = SessionData(
+  lazy val initialSession: SessionData = SessionData(
     SecuritiesJourney
       .empty(exampleEori)
       .submitMovementReferenceNumber(exampleMrn)
@@ -131,6 +131,60 @@ class EnterDeclarantEoriNumberControllerSpec
         checkIsRedirect(
           performAction(),
           routes.SelectSecuritiesController.showFirst()
+        )
+      }
+
+      "redirect to the bill of discharge page when eori submission not required and rfs is InwardProcessingRelief" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.InwardProcessingRelief.acc14Code
+          )
+
+        val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.BillOfDischargeController.showBOD3()
+        )
+      }
+
+      "redirect to the bill of discharge page when eori submission not required and rfs is EndUseRelief" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.EndUseRelief.acc14Code
+          )
+
+        val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.BillOfDischargeController.showBOD4()
         )
       }
 
@@ -214,6 +268,64 @@ class EnterDeclarantEoriNumberControllerSpec
         checkIsRedirect(
           performAction(enterDeclarantEoriNumberKey -> eori.value),
           baseRoutes.IneligibleController.ineligible()
+        )
+      }
+
+      "on submit redirect to the bill of discharge page when rfs is InwardProcessingRelief" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.InwardProcessingRelief.acc14Code,
+            exampleEori,
+            Some(exampleEori)
+          )
+
+        val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
+          routes.BillOfDischargeController.showBOD3()
+        )
+      }
+
+      "on submit redirect to the bill of discharge page when rfs is EndUseRelief" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.EndUseRelief.acc14Code,
+            exampleEori,
+            Some(exampleEori)
+          )
+
+        val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
+          routes.BillOfDischargeController.showBOD4()
         )
       }
     }

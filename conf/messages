@@ -192,7 +192,7 @@ enter-movement-reference-number.details.paragraph=You can find your <abbr title=
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001
 enter-movement-reference-number.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.invalid.number=Enter a movement reference number
+enter-movement-reference-number.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.error.required=Enter a movement reference number
 enter-movement-reference-number.multiple.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.title=Enter the first <abbr title="Movement Reference Number">MRN</abbr>
@@ -204,7 +204,7 @@ enter-movement-reference-number.scheduled.enter-mrn.label=Enter first <abbr titl
 
 enter-movement-reference-number.rejected-goods.single.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.invalid.number=Enter a movement reference number in the correct format
+enter-movement-reference-number.rejected-goods.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number
 enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=Try a different <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
@@ -229,7 +229,7 @@ enter-movement-reference-number.securities.details.paragraph=You can find your <
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
 enter-movement-reference-number.securities.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared
 enter-movement-reference-number.securities.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.securities.invalid.number=Enter a movement reference number in the correct format
+enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.securities.error.required=Enter a movement reference number
 
 #===================================================
@@ -278,8 +278,8 @@ enter-duplicate-movement-reference-number.mrn.title=Enter the duplicate <abbr ti
 enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate <abbr title="Movement Reference Number">MRN</abbr>
 enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-duplicate-movement-reference-number.mrn.invalid.number=Enter a valid <abbr title="Movement Reference Number">MRN</abbr>
-enter-duplicate-movement-reference-number.mrn.invalid=Enter a valid <abbr title="Movement Reference Number">MRN</abbr>
+enter-duplicate-movement-reference-number.mrn.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-duplicate-movement-reference-number.mrn.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-duplicate-movement-reference-number.mrn.error.required=Enter a valid <abbr title="Movement Reference Number">MRN</abbr>
 enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=Enter a different <abbr title="Movement Reference Number">MRN</abbr>, you have already entered this one
 
@@ -327,26 +327,32 @@ enter-declarant-eori-number.error.required=Enter a valid <abbr title="Economic O
 enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 
 #===================================================
+#  ERROR - CLAIM INVALID TPI04 PAGE - SECURITIES
+#===================================================
+error-claim-invalid-TPI04.title=There is a problem with your claim
+error-claim-invalid-TPI04.caption=caption is todo CDSR-1549 error-claim-invalid-TPI04
+
+#===================================================
 #  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
 #===================================================
 choose-reason-for-security.securities.title=Select why a security deposit or guarantee was required
 choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
 choose-reason-for-security.securities.error.required=Choose the reason for security
 choose-reason-for-security.securities.AccountSales=Account Sales
-choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Community Systems of Duty Relief (CSDR)
-choose-reason-for-security.securities.EndUseRelief=End-use Relief
+choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Missing document: Community System of Duty Relief (CSDR)
+choose-reason-for-security.securities.EndUseRelief=End Use Relief
 choose-reason-for-security.securities.InwardProcessingRelief=Inward Processing Relief (IPR)
-choose-reason-for-security.securities.ManualOverrideDeposit=Manual Override Deposit*
-choose-reason-for-security.securities.MissingLicenseQuota=Missing License Quota*
-choose-reason-for-security.securities.MissingPreferenceCertificate=Missing Preference Certificate
+choose-reason-for-security.securities.ManualOverrideDeposit=Manual override of duty amount
+choose-reason-for-security.securities.MissingLicenseQuota=Missing document: quota license
+choose-reason-for-security.securities.MissingPreferenceCertificate=Missing document: preference
 choose-reason-for-security.securities.OutwardProcessingRelief=Outward Processing Relief (OPR)
-choose-reason-for-security.securities.RevenueDispute=Revenue Dispute/Inward Pre-Clearance (IPC)
-choose-reason-for-security.securities.TemporaryAdmission2Y=Temporary Admission (2 years Expiration)
-choose-reason-for-security.securities.TemporaryAdmission6M=Temporary Admission (6 months Expiration)
-choose-reason-for-security.securities.TemporaryAdmission3M=Temporary Admission (3 months Expiration)
-choose-reason-for-security.securities.TemporaryAdmission2M=Temporary Admission (2 months Expiration)
-choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price*
-choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties*
+choose-reason-for-security.securities.RevenueDispute=Revenue Dispute or Inland Pre-Clearance (IPC)
+choose-reason-for-security.securities.TemporaryAdmission2Y=Temporary Admissions (2 years Expiration)
+choose-reason-for-security.securities.TemporaryAdmission6M=Temporary Admissions (6 months Expiration)
+choose-reason-for-security.securities.TemporaryAdmission3M=Temporary Admissions (3 months Expiration)
+choose-reason-for-security.securities.TemporaryAdmission2M=Temporary Admissions (2 months Expiration)
+choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price
+choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties
 
 #===================================================
 #  SELECT SECURITIES PAGE - SECURITIES
@@ -362,6 +368,7 @@ select-securities.payment-reference-label=Payment reference
 select-securities.payment-method-label=Payment method
 select-securities.payment-method.guarantee=Guarantee
 select-securities.payment-method.bank-account=Bank account
+select-securities.payment-method.unavailable=Unavailable
 select-securities.acceptance-date-label=Acceptance date
 select-securities.bta-due-date-label=Date duty collected
 select-securities.legend=Do you want to include this security?
@@ -633,6 +640,22 @@ select-method-of-disposal.rejected-goods.method.Destruction=Destruction
 select-method-of-disposal.rejected-goods.error.required=Choose the method of disposal
 
 #===================================================
+#  CHECK TOTAL IMPORT DISCHARGED
+#===================================================
+check-total-import-discharged.title=Have you discharged 100% of the imported goods?
+check-total-import-discharged.help-text=Any claim for a refund will only be accepted when the imported goods have been discharged 100%
+check-total-import-discharged.error.required=Select yes if 100% of the imported goods have been discharged
+check-total-import-discharged.error.invalid=Select yes if 100% of the imported goods have been discharged
+
+#===================================================
+#  CLAIM INVALID NOT EXPORTED ALL
+#===================================================
+claim-invalid-not-exported-all.title=Requirement for claiming back a security deposit or guarantee
+claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
+claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}">claim back import duty and VAT guidance</a> or  <a href="{1}">start a new security deposit claim</a>
+claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" target="_blank">contact HMRC (opens in new tab)</a>
+
+#===================================================
 #  ENTER REJECTED GOODS DETAILS PAGE
 #===================================================
 enter-rejected-goods-details.rejected-goods.title=Provide details of the rejected goods
@@ -742,16 +765,16 @@ enter-contact-details-securities.change.title=Change contact details
 enter-contact-details-securities.add.title=Add contact details
 enter-contact-details-securities.h2=Enter your personal details
 enter-contact-details-securities.contact-name.label=Full name
-enter-contact-details-securities.contact-name.error.required=Enter a contact Name
+enter-contact-details-securities.contact-name.error.required=Enter your full name, like John Smith
 enter-contact-details-securities.contact-name.error.maxLength=Enter a shorter name
 enter-contact-details-securities.contact-email.label=Email address
-enter-contact-details-securities.contact-email.error.required=Enter a contact email address
+enter-contact-details-securities.contact-email.error.required=Enter an email address in the correct format, like name@example.com
 enter-contact-details-securities.contact-email.invalid=Enter an email address in the correct format, like name@example.com
 enter-contact-details-securities.contact-email.error.maxLength=Enter a shorter email
 enter-contact-details-securities.contact-phone-number.label=Telephone (optional)
-enter-contact-details-securities.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+enter-contact-details-securities.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 enter-contact-details-securities.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
-enter-contact-details-securities.contact-phone-number.invalid=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+enter-contact-details-securities.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 
 #===================================================
 #  REIMBURSEMENT PAGES
@@ -891,7 +914,7 @@ reimbursement-method.error.required=Select if you would like to be repaid via Cu
 #  CONFIRM FULL REPAYMENT PAGE
 #===================================================
 
-confirm-full-repayment.title=Do you want to reclaim the full amount for this security?
+confirm-full-repayment.title=Do you want to claim back all of this security deposit?
 confirm-full-repayment.help-text=Select Yes or No
 confirm-full-repayment.question=The total value of {0} is {1}.
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
@@ -904,6 +927,7 @@ select-duties.title=Select the duties you want to claim for
 select-duties.multiple.title=Select the duties you want to claim for under {0} <abbr title="Movement Reference Number">MRN</abbr>
 select-duties.multiple.help-text.1=These are the duties that have been paid under <abbr title="Movement Reference Number">MRN</abbr>: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
 select-duties.duty.hint=This duty is not eligible for <abbr title="Current Month Adjustment">CMA</abbr> repayment
+select-duties.duty.caption=How much was paid: %s
 select-duties.error.required=Select one or more duties to be repaid for
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
@@ -1053,7 +1077,7 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #  CHECK CLAIM PAGE FOR SECURITIES
 #===================================================
 
-check-claim.securities.title=Check the repayment claim total for this claim
+check-claim.securities.title=Check the claim details for these security deposits
 check-claim.securities.summary=Your repayment calculations are shown below. This is based on the information you provided to us.
 check-claim.securities.claim-for-security.h2=Security ID: {0}
 
@@ -1121,6 +1145,7 @@ enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a 
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
+bank-details.heading=How to change bank details if you are a representative
 bank-details.p1=These are the details of where your repayment will be made in the UK based on our records.
 bank-details.p2=If you are a representative and want to change these bank details, then you will need to provide:
 bank-details.bullet1=a letter of authority from the company you represent that proves you are their representative
@@ -1303,6 +1328,30 @@ schedule-document.check-your-answers.assistive=the file named {0}
 
 schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 
+#===================================================
+#  BILL OF DISCHARGE PAGE
+#===================================================
+bill-of-discharge.bod3.title=Inward Processing bill of discharge (BOD3 form)
+bill-of-discharge.bod3.p1=You will need to complete a <a href="{0}">BOD3 form</a> to claim back your security deposit or guarantee. This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
+bill-of-discharge.bod4.title=End-Use bill of discharge (BOD4 form)
+bill-of-discharge.bod4.p1=You will need to complete a <a href="{0}">BOD4 form</a> to claim back your security deposit or guarantee. This tells HMRC how you disposed of the End Use goods you imported using authorisation by declaration.
+bill-of-discharge.p2=We will ask you to upload this along with other supporting documents later in this claim.
+bill-of-discharge.subheading=Continue with this claim?
+bill-of-discharge.yes=Yes
+bill-of-discharge.no=No
+bill-of-discharge.error.required=Select yes to continue with this claim
+
+#===================================================
+#  BILL OF DISCHARGE ERROR PAGE
+#===================================================
+bill-of-discharge-error.title=You have chosen not to continue with your claim
+bill-of-discharge-error.p1=You have chosen at this time not to continue with your claim for repayment of a security deposit or guarantee.
+bill-of-discharge-error.bod3.p2=To submit a new claim for repayment of your security deposit or guarantee at a later date, you will need to complete a BOD3 form.
+bill-of-discharge-error.bod3.p3=This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
+bill-of-discharge-error.bod4.p2=To submit a new claim for repayment of your security deposit or guarantee at a later date, you will need to complete a BOD4 form.
+bill-of-discharge-error.bod4.p3=This tells HMRC how you disposed of the End Use goods you imported using authorisation by declaration.
+bill-of-discharge-error.p4=Find out more information about <a href="{0}">importing goods into the UK</a>.
+bill-of-discharge-error.p5=For general enquiries about importing, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">Contact HMRC (opens in new tab)</a>
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
@@ -1535,6 +1584,7 @@ declaration-not-found.submit=Enter a different MRN
 #===================================================
 choose-file-type.title=Choose the type of supporting documents you are uploading
 choose-file-type.help-text=You can upload multiple documents of the same type on the next page. This will help us to process your claim more efficiently.
+
 choose-file-type.file-type.AdditionalSupportingDocuments=Additional supporting documents
 choose-file-type.file-type.CalculationWorksheet=Calculation worksheet
 choose-file-type.file-type.CommercialInvoice=Commercial invoice
@@ -1543,11 +1593,29 @@ choose-file-type.file-type.DocumentaryProofFaultyOrNotWhatOrdered=	Documentary p
 choose-file-type.file-type.ImportAndExportDeclaration=Import and export declaration
 choose-file-type.file-type.LetterOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
+choose-file-type.file-type.Other=Other documents
+
+choose-file-type.file-type.SupportingEvidence=Supporting evidence
+choose-file-type.file-type.ExportDeclaration=Export declaration
+choose-file-type.file-type.ImportDeclaration=Import declaration
+choose-file-type.file-type.ProofOfEligibility=Proof of eligibility
+choose-file-type.file-type.ImportPackingList=Import packing list
+choose-file-type.file-type.ExportPackingList=Export packing list
+choose-file-type.file-type.ProofOfOrigin=Proof of origin
+choose-file-type.file-type.CalculationWorksheetOrFinalSalesFigures=Calculation Worksheet or Final Sales Figures
+choose-file-type.file-type.BillOfDischarge3=Bill of discharge 3
+choose-file-type.file-type.BillOfDischarge4=Bill of discharge 4
+choose-file-type.file-type.QuotaLicense=Quota License
+choose-file-type.file-type.SubstituteOrDiversionEntry=Substitute or diversion entry
+
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
 choose-file-type.error.required=Choose the type of file you are uploading
 choose-file-type.or=or
 choose-file-type.choose-file-type.error.invalid-file-type=Invalid type of supporting documents
+
+choose-file-type.securities.title=Add supporting documents to your claim
+choose-file-type.securities.help-text=You can repeat this step to add more types of documents to your claim
 
 #===================================================
 #  CHOOSE FILES - PAGE

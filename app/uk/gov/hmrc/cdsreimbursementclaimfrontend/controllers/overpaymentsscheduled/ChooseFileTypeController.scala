@@ -24,7 +24,6 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
@@ -61,7 +60,6 @@ class ChooseFileTypeController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       Ok(
         chooseDocumentTypePage(
-          JourneyBindable.Scheduled,
           Forms.chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
           DropdownHints.enumeration(evidenceTypes),
           evidenceTypes,
@@ -80,7 +78,6 @@ class ChooseFileTypeController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 chooseDocumentTypePage(
-                  JourneyBindable.Scheduled,
                   requestFormWithErrors,
                   DropdownHints.enumeration(evidenceTypes),
                   evidenceTypes,

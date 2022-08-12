@@ -149,7 +149,7 @@ class BankAccountController @Inject() (
         updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
       ).leftMap(_ => Error("could not update session"))
     } else {
-      EitherT.rightT[Future, Error](Unit)
+      EitherT.rightT[Future, Error](())
     }
 
   private def processBankAccountReputation(

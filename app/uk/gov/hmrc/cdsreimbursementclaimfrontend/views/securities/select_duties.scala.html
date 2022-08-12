@@ -20,12 +20,13 @@
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, DutyAmount}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary.DutyDescription
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,7 +37,7 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelectedAnswer], securityId: String, dutiesToDisplay : NonEmptyList[Duty], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[DutiesSelectedAnswer], securityId: String, dutiesToDisplay : NonEmptyList[DutyAmount], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
@@ -48,7 +49,8 @@
             name = Some(s"$key[]"),
             value = dutyDescription.duty.taxCode.value,
             content = Text(dutyDescription.toString),
-            checked = form.data.exists(_._2 == dutyDescription.duty.taxCode.value)
+            checked = form.data.exists(_._2 == dutyDescription.duty.taxCode.value),
+            hint = Some(Hint(content = Text(dutyDescription.caption)))
         )
     }}
 

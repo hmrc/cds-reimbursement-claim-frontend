@@ -105,11 +105,11 @@ class ConfirmFullRepaymentControllerSpec
       List(
         (if (isError) "ERROR: "
          else
-           "") + "Do you want to reclaim the full amount for this security? - Claim back import duty and VAT - GOV.UK"
+           "") + "Do you want to claim back all of this security deposit? - Claim back import duty and VAT - GOV.UK"
       )
     )
     caption         should ===(List(s"Security ID: $securityId"))
-    heading         should ===(List("Do you want to reclaim the full amount for this security?"))
+    heading         should ===(List("Do you want to claim back all of this security deposit?"))
     legend          should ===(
       List(
         s"The total value of $securityId is " +
@@ -159,7 +159,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "redirect to the error page if we have arrived with an invalid security deposit ID" in {
-        mrnWithNonExportRfsWithDisplayDeclarationGen.sample.map { case (mrn, rfs, decl) =>
+        mrnWithtRfsWithDisplayDeclarationGen.sample.map { case (mrn, rfs, decl) =>
           val initialJourney = emptyJourney
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -179,7 +179,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "move on to /check-claim page when yes is selected and there are no other security ids" in {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           whenever(
             Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
               .contains(rfs)
@@ -220,7 +220,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC2 move on to /choose-file-type page when yes is selected and continue is clicked (if RfS = CEP, CSD, OPR, RED or MOD)" ignore {
-        forAll(mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           whenever(
             Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
               .contains(rfs)
@@ -390,7 +390,7 @@ class ConfirmFullRepaymentControllerSpec
 
           checkPageIsDisplayed(
             performAction(securityId, Seq()),
-            "Do you want to reclaim the full amount for this security?",
+            "Do you want to claim back all of this security deposit?",
             doc => validateConfirmFullRepaymentPage(securityId, doc, journey, true),
             400
           )

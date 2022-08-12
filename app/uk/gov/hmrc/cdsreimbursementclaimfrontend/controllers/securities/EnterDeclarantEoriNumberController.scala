@@ -57,6 +57,14 @@ class EnterDeclarantEoriNumberController @Inject() (
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
+  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  private val successResultBOD3: Result =
+    Redirect(routes.BillOfDischargeController.showBOD3())
+
+  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  private val successResultBOD4: Result =
+    Redirect(routes.BillOfDischargeController.showBOD4())
+
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
     Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
@@ -65,20 +73,18 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
-    Some(hasMRNAndDisplayDeclarationAndRfS & canContinueTheClaimWithChoosenRfS)
+    Some(hasMRNAndDisplayDeclarationAndRfS)
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    (if (!journey.needsDeclarantAndConsigneeEoriSubmission)
-       Redirect(routes.SelectSecuritiesController.showFirst())
-     else if (journey.answers.consigneeEoriNumber.isEmpty)
-       Redirect(routes.EnterImporterEoriNumberController.show())
-     else
-       Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))).asFuture
+    (
+      if (!journey.needsDeclarantAndConsigneeEoriSubmission) nextPage(journey)
+      else if (journey.answers.consigneeEoriNumber.isEmpty) Redirect(routes.EnterImporterEoriNumberController.show())
+      else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
+    ).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if (!journey.needsDeclarantAndConsigneeEoriSubmission)
-      (journey, Redirect(routes.SelectSecuritiesController.showFirst())).asFuture
+    if (!journey.needsDeclarantAndConsigneeEoriSubmission) (journey, nextPage(journey)).asFuture
     else if (journey.answers.consigneeEoriNumber.isEmpty)
       (journey, Redirect(routes.EnterImporterEoriNumberController.show())).asFuture
     else
@@ -115,13 +121,13 @@ class EnterDeclarantEoriNumberController @Inject() (
   private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
       journey.getLeadMovementReferenceNumber,
-      Redirect(routes.EnterMovementReferenceNumberController.show)
+      Redirect(routes.EnterMovementReferenceNumberController.show())
     )
 
   private def getReasonForSecurity(journey: SecuritiesJourney): EitherT[Future, Result, ReasonForSecurity] =
     EitherT.fromOption[Future](
       journey.getReasonForSecurity,
-      Redirect(routes.ChooseReasonForSecurityController.show)
+      Redirect(routes.ChooseReasonForSecurityController.show())
     )
 
   private def checkIfClaimIsDuplicated(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
@@ -155,10 +161,16 @@ class EnterDeclarantEoriNumberController @Inject() (
             if (similarClaimExistAlreadyInCDFPay) {
               logger.info(s"Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else
-              successResultSelectSecurities
+            } else {
+              nextPage(journeyWithUpdatedStatus)
+            }
           )
         )
         .merge
     )
+
+  private def nextPage(journey: SecuritiesJourney) =
+    if (journey.reasonForSecurityIsIPR) successResultBOD3
+    else if (journey.reasonForSecurityIsEndUseRelief) successResultBOD4
+    else successResultSelectSecurities
 }

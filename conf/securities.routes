@@ -1,3 +1,5 @@
+GET          /securities/                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.StartController.show()
+
 GET          /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.show()
 POST         /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.submit()
 
@@ -14,12 +16,19 @@ POST         /securities/enter-importer-eori                           @uk.gov.h
 GET          /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterDeclarantEoriNumberController.show()
 POST         /securities/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterDeclarantEoriNumberController.submit()
 
+GET          /securities/error/claim-invalid-TPI04                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimInvalidTPI04Controller.show()
+
 GET          /securities/select-securities                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.showFirst()
 GET          /securities/select-securities/:id                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.show(id: String)
 POST         /securities/select-securities/:id                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectSecuritiesController.submit(id: String)
 
 GET          /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.show()
 POST         /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.submit()
+
+GET          /securities/check-total-import-discharged                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckTotalImportDischargedController.show()
+POST         /securities/check-total-import-discharged                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckTotalImportDischargedController.submit()
+
+GET          /securities/error/claim-invalid-not-exported-all          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimInvalidNotExportedAllController.show()
 
 GET          /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.show()
 POST         /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.submit()
@@ -69,3 +78,11 @@ GET          /securities/upload-summary                                @uk.gov.h
 POST         /securities/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.submit()
 GET          /securities/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.showConfirmation()
 GET          /securities/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.show()
+
+POST         /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.submitBOD3()
+GET          /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.showBOD3()
+GET          /securities/error/claim-invalid-nobod3                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.invalidBOD3()
+
+POST         /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.submitBOD4()
+GET          /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.showBOD4()
+GET          /securities/error/claim-invalid-nobod4                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.invalidBOD4()

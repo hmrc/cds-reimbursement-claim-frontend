@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import play.api.data.Form
-
 import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action

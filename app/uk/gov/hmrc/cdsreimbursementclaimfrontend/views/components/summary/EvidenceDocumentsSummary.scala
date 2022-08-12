@@ -81,12 +81,12 @@ object EvidenceDocumentsSummary extends AnswerSummary[Seq[EvidenceDocument]] {
     SummaryList(
       answers.map(document =>
         SummaryListRow(
-          key = Key(Text(messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}"))),
+          key = Key(Text(messages(s"choose-file-type.file-type.${document.documentType}"))),
           value = Value(
             HtmlContent(
               Paragraph(
                 document.fileName,
-                messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}")
+                messages(s"choose-file-type.file-type.${document.documentType}")
               ).toString
             )
           ),

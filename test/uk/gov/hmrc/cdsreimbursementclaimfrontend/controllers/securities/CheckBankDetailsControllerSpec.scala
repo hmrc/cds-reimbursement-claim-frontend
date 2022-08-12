@@ -87,15 +87,6 @@ class CheckBankDetailsControllerSpec
     )
   }
 
-  private def sessionWithBankDetailsStored(
-    session: SessionData,
-    bankAccountDetails: BankAccountDetails
-  ): SessionData =
-    session.copy(securitiesJourney =
-      session.securitiesJourney
-        .flatMap(_.submitBankAccountDetails(bankAccountDetails).toOption)
-    )
-
   "Check Bank Details Controller" when {
 
     "Check Bank Account Details" should {

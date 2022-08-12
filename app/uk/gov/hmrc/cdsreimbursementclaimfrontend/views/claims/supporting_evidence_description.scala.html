@@ -15,19 +15,16 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
 @import play.twirl.api.Html
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{FileUploadConfig, ViewConfig}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 
 @this(
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-    fileUploadConfig: FileUploadConfig
+    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(key: String, supportingEvidenceHints: DropdownHints, subKey: Option[String] =  None)(implicit request : Request[_], messages: Messages, appConfig: ViewConfig)
+@(key: String, supportingEvidenceHints: DropdownHints, subKey: Option[String] =  None)(implicit messages: Messages)
 
 
 @paragraph(Html(messages(combine(key, subKey, "upload.p1"))), Some("govuk-body govuk-!-margin-bottom-6"))

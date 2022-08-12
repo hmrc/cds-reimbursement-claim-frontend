@@ -117,15 +117,6 @@ trait FluentImplicits[Journey] {
         case Some(value) => journeyEither.flatMap(modifyFx(_)(value))
       }
 
-    /** Try to modify the journey if the optional value is defined, otherwise return as is. */
-    final def tryWhenDefined[A](option: Option[A])(
-      modifyFx: Journey => A => Either[String, Journey]
-    ): Either[String, Journey] =
-      option match {
-        case None        => journeyEither
-        case Some(value) => journeyEither.flatMap(modifyFx(_)(value))
-      }
-
   }
 
 }

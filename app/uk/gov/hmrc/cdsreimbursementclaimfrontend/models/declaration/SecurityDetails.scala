@@ -29,8 +29,8 @@ final case class SecurityDetails(
   taxDetails: List[TaxDetails]
 ) {
 
-  def isGuaranteeEligible: Boolean  = paymentMethod === "004"
   def isBankAccountPayment: Boolean = paymentMethod === "001"
+  def isGuaranteeEligible: Boolean  = paymentMethod === "004" || paymentMethod === "005"
 
   def getTotalAmount: BigDecimal = taxDetails.map(_.getAmount).sum
 

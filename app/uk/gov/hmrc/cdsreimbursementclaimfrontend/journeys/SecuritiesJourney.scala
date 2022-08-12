@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -149,13 +150,6 @@ final class SecuritiesJourney private (
       .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
       .getOrElse(SortedMap.empty)
 
-  def requiresExportDeclaration: Boolean =
-    ReasonForSecurity.requiresExportDeclaration
-      .exists(answers.reasonForSecurity.contains(_))
-
-  def goodsHasBeenAlreadyExported: Boolean =
-    true // in the absence of the DEC91 API we assume it is always true
-
   def hasCompleteSecuritiesReclaims: Boolean =
     answers.securitiesReclaims.nonEmpty &&
       answers.securitiesReclaims.forall(m =>
@@ -180,8 +174,44 @@ final class SecuritiesJourney private (
   def needsBanksAccountDetailsSubmission: Boolean =
     !isAllSelectedDutiesAreGuaranteeEligible
 
+  def needsMethodOfDisposalSubmission: Boolean =
+    getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions)
+
+  def needsExportMRNSubmission: Boolean =
+    needsMethodOfDisposalSubmission && answers.temporaryAdmissionMethodOfDisposal.contains(
+      TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+    )
+
   def getReasonForSecurity: Option[ReasonForSecurity] =
     answers.reasonForSecurity
+
+  def reasonForSecurityIsIPR: Boolean =
+    answers.reasonForSecurity.contains(ReasonForSecurity.InwardProcessingRelief)
+
+  def reasonForSecurityIsEndUseRelief: Boolean =
+    answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
+
+  def requiresDocumentTypeSelection: Boolean =
+    getReasonForSecurity.exists(UploadDocumentType.securitiesTypes(_).isDefined)
+
+  def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+    getReasonForSecurity.flatMap(UploadDocumentType.securitiesTypes(_))
+
+  def getSelectedDocumentTypeOrDefault: Option[UploadDocumentType] =
+    getReasonForSecurity.flatMap { rfs =>
+      UploadDocumentType.securitiesTypes(rfs) match {
+        case None =>
+          Some(UploadDocumentType.SupportingEvidence)
+
+        case Some(documentTypes) =>
+          answers.selectedDocumentType match {
+            case Some(selectedDocumentType) if documentTypes.contains(selectedDocumentType) =>
+              Some(selectedDocumentType)
+
+            case _ => None
+          }
+      }
+    }
 
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
@@ -247,11 +277,27 @@ final class SecuritiesJourney private (
       )
     }
 
+  def submitTemporaryAdmissionMethodOfDisposal(
+    methodOfDisposal: TemporaryAdmissionMethodOfDisposal
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
+      if (needsMethodOfDisposalSubmission) {
+        Right(
+          new SecuritiesJourney(
+            answers.copy(
+              temporaryAdmissionMethodOfDisposal = Some(methodOfDisposal)
+            )
+          )
+        )
+      } else
+        Left("submitTemporaryAdmissionMethodOfDisposal.unexpected")
+    }
+
   def submitExportMovementReferenceNumber(
     exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
-      if (requiresExportDeclaration)
+      if (needsExportMRNSubmission)
         Right(
           new SecuritiesJourney(
             answers.copy(
@@ -260,7 +306,7 @@ final class SecuritiesJourney private (
           )
         )
       else
-        Left("submitExportMovementReferenceNumberAndDeclaration.exportDeclarationNotRequired")
+        Left("submitExportMovementReferenceNumber.unexpected")
     }
 
   def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
@@ -495,6 +541,18 @@ final class SecuritiesJourney private (
       else Left("submitBankAccountType.unexpected")
     }
 
+  def submitDocumentTypeSelection(documentType: UploadDocumentType): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (getDocumentTypesIfRequired.exists(_.contains(documentType)))
+        Right(
+          new SecuritiesJourney(
+            answers.copy(selectedDocumentType = Some(documentType))
+          )
+        )
+      else
+        Left("submitDocumentTypeSelection.invalid")
+    }
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: UploadDocumentType,
@@ -503,13 +561,21 @@ final class SecuritiesJourney private (
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
-        val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
-          case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
-          case uf                            => uf
-        }
-        Right(
-          new SecuritiesJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
-        )
+        if (
+          getDocumentTypesIfRequired match {
+            case Some(dts) => dts.contains(documentType)
+            case None      => documentType === UploadDocumentType.SupportingEvidence
+          }
+        ) {
+          val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
+            case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
+            case uf                            => uf
+          }
+          Right(
+            new SecuritiesJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+          )
+        } else
+          Left("receiveUploadedFiles.invalidDocumentType")
       } else Left("receiveUploadedFiles.invalidNonce")
     }
 
@@ -580,7 +646,9 @@ final class SecuritiesJourney private (
           reasonForSecurity = rfs,
           securitiesReclaims = getSecuritiesReclaims,
           bankAccountDetails = answers.bankAccountDetails,
-          supportingEvidences = supportingEvidences.map(EvidenceDocument.from)
+          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
+          temporaryAdmissionMethodOfDisposal = answers.temporaryAdmissionMethodOfDisposal,
+          exportMovementReferenceNumber = answers.exportMovementReferenceNumber
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -608,7 +676,8 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     exportMovementReferenceNumber: Option[MRN] =
-      None, // mandatory for some reasons, see ReasonForSecurity.requiresExportDeclaration
+      None, // mandatory for some reasons, see ReasonForSecurity.requiresExportDeclaration,
+    temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     securitiesReclaims: Option[SortedMap[String, SecuritiesReclaims]] = None,
@@ -629,7 +698,9 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     reasonForSecurity: ReasonForSecurity,
     securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
     bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument]
+    supportingEvidences: Seq[EvidenceDocument],
+    temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal],
+    exportMovementReferenceNumber: Option[MRN]
   )
 
   import JourneyValidationErrors._
@@ -656,12 +727,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
       hasMovementReferenceNumber &
         hasDisplayDeclaration &
         hasReasonForSecurity
-
-    val canContinueTheClaimWithChoosenRfS: Validate[SecuritiesJourney] =
-      checkIsTrue(
-        journey => !journey.requiresExportDeclaration || journey.goodsHasBeenAlreadyExported,
-        CHOOSEN_REASON_FOR_SECURITY_REQUIRES_GOODS_TO_BE_ALREADY_EXPORTED
-      )
 
     val thereIsNoSimilarClaimInCDFPay: Validate[SecuritiesJourney] =
       checkIsTrue[SecuritiesJourney](
@@ -710,17 +775,13 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     val paymentMethodHasBeenProvidedIfNeeded: Validate[SecuritiesJourney] =
       conditionally[SecuritiesJourney](
         _.needsBanksAccountDetailsSubmission,
-        all(
-          checkIsDefined(
-            _.answers.bankAccountDetails,
-            BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
-          )
+        checkIsDefined(
+          _.answers.bankAccountDetails,
+          BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
         ),
-        all(
-          checkIsEmpty(
-            _.answers.bankAccountDetails,
-            BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED
-          )
+        checkIsEmpty(
+          _.answers.bankAccountDetails,
+          BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED
         )
       )
 
@@ -738,8 +799,21 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     val userCanProceedWithThisClaim: Validate[SecuritiesJourney] =
       hasMRNAndDisplayDeclarationAndRfS &
         thereIsNoSimilarClaimInCDFPay &
-        canContinueTheClaimWithChoosenRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
+
+    val hasMethodOfDisposalIfNeeded: Validate[SecuritiesJourney] =
+      conditionally[SecuritiesJourney](
+        _.needsMethodOfDisposalSubmission,
+        checkIsDefined(_.answers.temporaryAdmissionMethodOfDisposal, MISSING_METHOD_OF_DISPOSAL),
+        checkIsEmpty(_.answers.temporaryAdmissionMethodOfDisposal, "unexpected method of disposal, should be empty")
+      )
+
+    val hasExportMRNIfNeeded: Validate[SecuritiesJourney] =
+      conditionally[SecuritiesJourney](
+        _.needsExportMRNSubmission,
+        checkIsDefined(_.answers.exportMovementReferenceNumber, MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER),
+        checkIsEmpty(_.answers.exportMovementReferenceNumber, "unexpected export MRN, should be empty")
+      )
 
   }
 
@@ -749,8 +823,9 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
     Validator.all(
       hasMRNAndDisplayDeclarationAndRfS,
       thereIsNoSimilarClaimInCDFPay,
-      canContinueTheClaimWithChoosenRfS,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      hasMethodOfDisposalIfNeeded,
+      hasExportMRNIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       reclaimAmountsHasBeenDeclared,

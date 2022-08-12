@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -29,7 +30,6 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
 import uk.gov.hmrc.http.HeaderCarrier
-import com.github.arturopala.validator.Validator.Validate
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -59,13 +58,21 @@ class ChooseReasonForSecurityController @Inject() (
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
+  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  private val successResultBOD3: Result =
+    Redirect(routes.BillOfDischargeController.showBOD3())
+
+  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  private val successResultBOD4: Result =
+    Redirect(routes.BillOfDischargeController.showBOD4())
+
   //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultEnterImporterEori: Result =
     Redirect(routes.EnterImporterEoriNumberController.show())
 
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
-    Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
+    Redirect(routes.ClaimInvalidTPI04Controller.show())
 
   private val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
 
@@ -96,7 +103,7 @@ class ChooseReasonForSecurityController @Inject() (
             (
               journey,
               if (journey.answers.checkDeclarationDetailsChangeMode)
-                Redirect(routes.CheckDeclarationDetailsController.show)
+                Redirect(routes.CheckDeclarationDetailsController.show())
               else
                 successResultSelectSecurities
             ).asFuture
@@ -131,7 +138,7 @@ class ChooseReasonForSecurityController @Inject() (
   private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
       journey.getLeadMovementReferenceNumber,
-      Redirect(routes.EnterMovementReferenceNumberController.show)
+      Redirect(routes.EnterMovementReferenceNumberController.show())
     )
 
   private def lookupDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
@@ -208,6 +215,10 @@ class ChooseReasonForSecurityController @Inject() (
             if (similarClaimExistAlreadyInCDFPay) {
               logger.info(s"Claim ineligible because already exists.")
               errorResultClaimExistsAlready
+            } else if (journeyWithUpdatedStatus.reasonForSecurityIsIPR) {
+              successResultBOD3
+            } else if (journeyWithUpdatedStatus.reasonForSecurityIsEndUseRelief) {
+              successResultBOD4
             } else
               successResultSelectSecurities
           )

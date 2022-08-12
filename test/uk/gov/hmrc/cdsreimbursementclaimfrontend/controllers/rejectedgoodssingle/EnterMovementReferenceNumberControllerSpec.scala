@@ -181,7 +181,7 @@ class EnterMovementReferenceNumberControllerSpec
         checkPageIsDisplayed(
           performAction(enterMovementReferenceNumberKey -> ""),
           messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.number"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-movement-reference-number.error.required"),
           expectedStatus = BAD_REQUEST
         )
       }

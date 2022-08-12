@@ -262,6 +262,12 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     labels.asScala.zip(values.asScala)
   }
 
+  def checkboxesWithHints(doc: Document): Seq[(String, String)] = {
+    val labels = doc.select("div.govuk-checkboxes label").eachText()
+    val hints  = doc.select("div.govuk-checkboxes div.govuk-hint").eachText()
+    labels.asScala.zip(hints.asScala).toList
+  }
+
   def selectedRadioValue(doc: Document): Option[String] = {
     val radioItems = doc.select("div.govuk-radios input[checked]")
     if (radioItems.size() =!= 0) Some(radioItems.`val`())

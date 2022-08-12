@@ -84,7 +84,7 @@ class ChooseBankAccountTypeControllerSpec
 
     "display page" in forAllWith(
       JourneyGenerator(
-        testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
+        testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
         journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
       )
     ) { case (initialJourney: SecuritiesJourney, _) =>
@@ -123,7 +123,7 @@ class ChooseBankAccountTypeControllerSpec
     "successfully submit bank account type" when {
       "one of the options selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithNonExportRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney: SecuritiesJourney, _) =>

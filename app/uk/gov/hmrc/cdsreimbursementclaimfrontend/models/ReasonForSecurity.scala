@@ -32,7 +32,7 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
   case object MissingPreferenceCertificate extends ReasonForSecurity("MDP")
   case object OutwardProcessingRelief extends ReasonForSecurity("OPR")
   case object RevenueDispute extends ReasonForSecurity("RED")
-  case object TemporaryAdmission2Y extends ReasonForSecurity("TA24")
+  case object TemporaryAdmission2Y extends ReasonForSecurity("T24")
   case object TemporaryAdmission6M extends ReasonForSecurity("TA6")
   case object TemporaryAdmission3M extends ReasonForSecurity("TA3")
   case object TemporaryAdmission2M extends ReasonForSecurity("TA2")
@@ -58,31 +58,12 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       UKAPSafeguardDuties
     )
 
-  // Set of ReasonForSecurity demanding DEC91 call for export declaration status check
-  val requiresExportDeclaration: Set[ReasonForSecurity] =
+  val temporaryAdmissions: Set[ReasonForSecurity] =
     Set(
       TemporaryAdmission2Y,
       TemporaryAdmission6M,
       TemporaryAdmission3M,
-      TemporaryAdmission2M,
-      InwardProcessingRelief,
-      OutwardProcessingRelief
-    )
-
-  // MDP, MDL, ACS, IPR, ENU, OPR, TA or MDC
-  val requiresDocumentType: Set[ReasonForSecurity] =
-    Set(
-      MissingPreferenceCertificate,
-      MissingLicenseQuota,
-      AccountSales,
-      InwardProcessingRelief,
-      EndUseRelief,
-      OutwardProcessingRelief,
-      TemporaryAdmission2Y,
-      TemporaryAdmission6M,
-      TemporaryAdmission3M,
-      TemporaryAdmission2M,
-      CommunitySystemsOfDutyRelief
+      TemporaryAdmission2M
     )
 
   def has(rfs: String): Boolean =

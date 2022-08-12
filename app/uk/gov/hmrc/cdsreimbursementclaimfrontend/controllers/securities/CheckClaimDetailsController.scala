@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_claim_details
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import com.github.arturopala.validator.Validator.Validate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import SecuritiesJourney.Checks._
-import play.api.mvc.Result
 import scala.concurrent.Future
+
+import SecuritiesJourney.Checks._
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
@@ -45,7 +45,6 @@ class CheckClaimDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
-        canContinueTheClaimWithChoosenRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
@@ -71,7 +70,7 @@ class CheckClaimDetailsController @Inject() (
       whenAllReclaimsProvided(journey) {
         (
           journey,
-          if (journey.answers.reasonForSecurity.exists(ReasonForSecurity.requiresDocumentType.contains)) {
+          if (journey.requiresDocumentTypeSelection) {
             Redirect(routes.ChooseFileTypeController.show())
           } else {
             Redirect(routes.UploadFilesController.show())

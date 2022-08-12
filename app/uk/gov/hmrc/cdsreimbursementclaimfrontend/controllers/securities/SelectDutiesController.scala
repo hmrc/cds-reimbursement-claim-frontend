@@ -32,8 +32,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error => CdsError}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities
 
@@ -51,11 +52,14 @@ class SelectDutiesController @Inject() (
     securityId: String,
     journey: SecuritiesJourney,
     error: CdsError => Future[T],
-    f: NonEmptyList[Duty] => Future[T]
+    f: NonEmptyList[DutyAmount] => Future[T]
   ): Future[T] = {
-    val taxCodesAvailable = journey.getSecurityTaxCodesFor(securityId).toList
+    val taxCodesAndValuesAvailable = journey
+      .getSecurityTaxCodesFor(securityId)
+      .flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
+      .toList
     NonEmptyList
-      .fromList(taxCodesAvailable.map(Duty(_)))
+      .fromList(taxCodesAndValuesAvailable.map(x => DutyAmount(x.getTaxCode, x.getAmount)))
       .fold(error(CdsError("no tax codes available")))(f)
   }
 
@@ -69,7 +73,7 @@ class SelectDutiesController @Inject() (
       },
       dutiesAvailable =>
         {
-          val emptyForm: Form[DutiesSelectedAnswer] = selectDutiesForm(dutiesAvailable)
+          val emptyForm: Form[DutiesSelectedAnswer] = selectDutiesForm(dutiesAvailable.map(_.asDuty))
 
           val filledForm =
             emptyForm.withDefault(
@@ -94,7 +98,7 @@ class SelectDutiesController @Inject() (
           (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
         },
         dutiesAvailable => {
-          val form      = selectDutiesForm(dutiesAvailable)
+          val form      = selectDutiesForm(dutiesAvailable.map(_.asDuty))
           val boundForm = form.bindFromRequest()
           boundForm
             .fold(

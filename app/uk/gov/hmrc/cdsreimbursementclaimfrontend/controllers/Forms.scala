@@ -79,6 +79,8 @@ object Forms {
 
   val selectSecuritiesForm: Form[YesNo] = YesOrNoQuestionForm("select-securities")
 
+  val selectBillOfDischargeForm: Form[YesNo] = YesOrNoQuestionForm("bill-of-discharge")
+
   val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
     mapping(
       "select-basis-for-claim.rejected-goods" -> nonEmptyText
@@ -181,6 +183,8 @@ object Forms {
   )
 
   val confirmFullRepaymentForm: Form[YesNo] = YesOrNoQuestionForm("confirm-full-repayment")
+
+  val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
