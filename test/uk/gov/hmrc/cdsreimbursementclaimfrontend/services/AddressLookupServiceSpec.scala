@@ -85,7 +85,7 @@ class AddressLookupServiceSpec
     .nameConsumerServiceAs("cds-reimbursement-claim")
     .showMax(addressLookupConfig.addressesShowLimit)
     .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
-    .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcServiceUrl)
+    .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
     .whetherSearchOnlyUkAddresses(true)
     .whetherShowConfirmChangeText(true)
     .whetherShowSearchAgainLink(true)
