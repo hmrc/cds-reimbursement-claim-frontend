@@ -63,6 +63,8 @@ abbr[title] {
 // Fix for automated A11y test contrast issue
 
 .govuk-details {
+    background-color:#fff;
+    
     .govuk-details__summary-text {
         background-color:inherit;
     }
