@@ -16,8 +16,7 @@ const CDSR = {
 
     backLinkAnchor: document.querySelector('.govuk-back-link'),
 
-    Init: () => {
-
+    Init: function () {
         // Add back link
 
         if (CDSR.backLinkAnchor) {
@@ -25,13 +24,11 @@ const CDSR = {
         }
 
         // Initialise file upload check
-
         if (CDSR.form) {
             CDSR.form.addEventListener('submit', CDSR.CheckFileInputs);
         }
 
         // Open feedback link in new window
-
         const feedbackLink = document.querySelector('.govuk-phase-banner a.govuk-link');
 
         if (feedbackLink) {
@@ -40,14 +37,14 @@ const CDSR = {
 
     },
 
-    NavigateBack: (event) => {
+    NavigateBack: function (event) {
         event.preventDefault();
         history.back();
     },
 
-    CheckFileInputs: (event) => {
+    CheckFileInputs: function (event) {
 
-        let fileInputs = document.querySelectorAll('input[type=file]');
+        var fileInputs = document.querySelectorAll('input[type=file]');
 
         for (i = 0; i < fileInputs.length; ++i) {
             if (fileInputs[i].files.length == 0) {
@@ -57,7 +54,7 @@ const CDSR = {
                 if (CDSR.errorsShowing === false) {
                     CDSR.errorSummary.classList.remove('govuk-!-display-none');
 
-                    let errorMessaging = CDSR.errorInputElement.cloneNode(true);
+                    var errorMessaging = CDSR.errorInputElement.cloneNode(true);
                     CDSR.errorInputElement.remove();
                     fileInputs[i].parentNode.insertBefore(errorMessaging, fileInputs[i]);
 
