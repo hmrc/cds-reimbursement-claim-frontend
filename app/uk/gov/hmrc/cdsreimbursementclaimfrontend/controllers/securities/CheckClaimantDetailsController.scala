@@ -92,7 +92,11 @@ class CheckClaimantDetailsController @Inject() (
     journey.submitContactAddress
 
   override def redirectToTheNextPage(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
-    (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+    if (journey.hasCompleteAnswers) {
+      (journey, Redirect(routes.CheckYourAnswersController.show()))
+    } else {
+      (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+    }
 }
 
 object CheckClaimantDetailsController {

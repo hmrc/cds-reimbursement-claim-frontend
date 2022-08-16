@@ -94,7 +94,12 @@
     }
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.CheckClaimantDetailsController.show(), routes.CheckClaimantDetailsController.show()))
+    @summary(ClaimantInformationSummary(
+        claimantInformation = claim.claimantInformation,
+        key = s"$key.contact-information",
+        changeContactDetailsCall = routes.EnterContactDetailsController.show(),
+        changeContactAddressCall = routes.CheckClaimantDetailsController.redirectToALF())
+    )
 
      @displayDeclarationOpt.map { displayDeclaration =>
         @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>

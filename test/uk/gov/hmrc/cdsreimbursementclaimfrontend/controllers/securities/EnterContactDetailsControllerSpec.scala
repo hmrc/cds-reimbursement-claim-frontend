@@ -174,7 +174,53 @@ class EnterContactDetailsControllerSpec
           )
       }
 
-      "submit a valid contact detail" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
+      "submit a valid contact detail" in forAll(
+        buildJourneyGen(
+          submitBankAccountDetails = false,
+          submitBankAccountType = false,
+          submitContactDetails = false,
+          submitContactAddress = false
+        )
+          .map(_.fold(e => throw new Exception(s"Cannnot build complete SecuritiesJourney because of $e."), identity)),
+        genEmail,
+        genName
+      ) { (journey, email, name) =>
+        inSequence {
+          mockAuthWithAllRetrievals(
+            Some(AffinityGroup.Individual),
+            Some(email.value),
+            Set(
+              Enrolment(EoriEnrolment.key)
+                .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+            ),
+            Some(Credentials("id", "GovernmentGateway")),
+            Some(Name(name.name, name.lastName))
+          )
+          mockGetSession(session.copy(securitiesJourney = Some(journey)))
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(securitiesJourney = Some(journey)))
+          mockStoreSession(
+            session.copy(securitiesJourney =
+              Some(journey.submitContactDetails(Some(MrnContactDetails(name.toFullName, email, None))))
+            )
+          )(Right(()))
+        }
+
+        checkPageIsDisplayed(
+          controller.show()(FakeRequest()),
+          messageFromMessageKey("enter-contact-details-securities.change.title")
+        )
+
+        checkIsRedirect(
+          performAction(
+            "enter-contact-details-securities.contact-name"  -> name.toFullName,
+            "enter-contact-details-securities.contact-email" -> email.value
+          ),
+          routes.CheckClaimantDetailsController.show()
+        )
+      }
+
+      "submit a valid contact detail when journey is complete" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
             mockAuthWithAllRetrievals(
@@ -207,7 +253,7 @@ class EnterContactDetailsControllerSpec
               "enter-contact-details-securities.contact-name"  -> name.toFullName,
               "enter-contact-details-securities.contact-email" -> email.value
             ),
-            routes.CheckClaimantDetailsController.show()
+            routes.CheckYourAnswersController.show()
           )
       }
     }
