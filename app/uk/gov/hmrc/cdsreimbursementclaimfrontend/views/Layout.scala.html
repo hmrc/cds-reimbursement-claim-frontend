@@ -90,7 +90,7 @@
 @scriptsBlock
     <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
     <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
-    <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
+    <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
 }
 
 @beforeContentBlock = {
