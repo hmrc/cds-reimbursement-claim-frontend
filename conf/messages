@@ -521,6 +521,24 @@ check-declaration-details.scheduled.error.number=Select ''yes'' if you want to c
 check-declaration-details.scheduled.error.required=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 
 #===================================================
+#  SECURITIES: CHOOSE EXPORT METHOD PAGE
+#===================================================
+choose-export-method.title=Tell us what you did with the goods
+choose-export-method.help-text=The goods were:
+choose-export-method.radio-or=or <br>
+choose-export-method.export-method-description.SingleShipment=Exported in single shipment
+choose-export-method.export-method-description.MultipleShipments=Exported in multiple shipments
+choose-export-method.export-method-description.DeclaredToOtherTraderTemporaryAdmission=Declared to other trader under temporary admission
+choose-export-method.export-method-description.DeclaredToFreeCirculation=Declared to free circulation
+choose-export-method.export-method-description.DeclaredToInwardProcessingRelief=Declared to Inward Processing Relief
+choose-export-method.export-method-description.DeclaredToEndUse=Declared to End Use
+choose-export-method.export-method-description.DeclaredToFreeZone=Declared to a Free Zone
+choose-export-method.export-method-description.DeclaredToCustomsWarehouse=Declared to a customs warehouse
+choose-export-method.export-method-description.Destroyed=Destroyed
+choose-export-method.export-method-description.Other=Other
+choose-export-method.export-method-description.MoreExportMethods=More than one of the above
+
+#===================================================
 #  CLAIM NORTHERN IRELAND PAGE
 #===================================================
 claim-northern-ireland.title=Were your goods moved through or imported to Northern Ireland?

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.implicits.catsSyntaxEq
+import cats.syntax.option._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -71,11 +72,10 @@ class CheckDeclarationDetailsController @Inject() (
             routes.CheckDeclarationDetailsController.show()
           else if (userHasSeenCYAPage(journey))
             routes.CheckYourAnswersController.show()
-          else if (
-            journey.getReasonForSecurity
-              .exists(rfs => rfs === ReasonForSecurity.EndUseRelief || rfs === ReasonForSecurity.InwardProcessingRelief)
-          )
+          else if (ReasonForSecurity.requiresTotalImportDischarge.map(_.some).contains(journey.getReasonForSecurity))
             routes.CheckTotalImportDischargedController.show()
+          else if (ReasonForSecurity.temporaryAdmission.map(_.some).contains(journey.getReasonForSecurity))
+            routes.ChooseExportMethodController.show()
           else
             routes.CheckClaimantDetailsController.show()
         )

@@ -53,6 +53,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ExportMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
@@ -182,7 +183,20 @@ object Forms {
     )
   )
 
-  val confirmFullRepaymentForm: Form[YesNo] = YesOrNoQuestionForm("confirm-full-repayment")
+  val confirmFullRepaymentForm: Form[YesNo]              = YesOrNoQuestionForm("confirm-full-repayment")
+  val chooseExportMethodForm: Form[Option[ExportMethod]] = Form(
+    mapping(
+      "choose-file-type" -> nonEmptyText
+        .verifying(
+          "choose-file-type.error.invalid-file-type",
+          key => key === none || ExportMethod.parse(key).map(v => ExportMethod.values.contains(v)).getOrElse(false)
+        )
+        .transform[Option[ExportMethod]](
+          (key: String) => if (key === none) None else ExportMethod.parse(key),
+          (value: Option[ExportMethod]) => value.map(ExportMethod.keyOf).getOrElse(none)
+        )
+    )(identity)(x => Some(x))
+  )
 
   val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")
 
