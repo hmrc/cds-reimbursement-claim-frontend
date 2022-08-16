@@ -51,6 +51,10 @@ trait ClaimService {
   def getDisplayDeclaration(mrn: MRN, rfs: ReasonForSecurity)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, Option[DisplayDeclaration]]
+
+  def getDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, GetDeclarationError, DisplayDeclaration]
 }
 
 @Singleton
@@ -107,6 +111,23 @@ class DefaultClaimService @Inject() (
             .leftMap(Error(_))
         } else if (response.status === NO_CONTENT) {
           Right(None)
+        } else
+          Left(Error(s"call to get declaration details ${response.status}"))
+      }
+
+  def getDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, GetDeclarationError, DisplayDeclaration] =
+    cdsReimbursementClaimConnector
+      .getDeclaration(mrn, reasonForSecurity)
+      .subflatMap { response =>
+        if (response.status === OK) {
+          response
+            .parseJSON[DisplayDeclaration]()
+            .leftMap(_ => GetDeclarationError.unexpectedError)
+        } else if (response.status === BAD_REQUEST) {
+          Left(response
+            .parseJSON[GetDeclarationError]().toOption.getOrElse(GetDeclarationError.unexpectedError))
         } else
           Left(Error(s"call to get declaration details ${response.status}"))
       }

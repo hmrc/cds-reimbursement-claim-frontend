@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -147,15 +148,11 @@ class ChooseReasonForSecurityController @Inject() (
     r: Request[_]
   ): EitherT[Future, Result, DisplayDeclaration] =
     claimService
-      .getDisplayDeclaration(mrn, reasonForSecurity)
-      .leftMap(_ => Redirect(routes.DeclarationNotFoundController.show()))
-      .flatMap {
-        case None              =>
-          EitherT.leftT[Future, DisplayDeclaration](
-            Redirect(routes.InvalidReasonForSecurityController.show())
-          )
-        case Some(declaration) =>
-          EitherT.rightT[Future, Result](declaration)
+      .getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)
+      .leftMap {
+        case GetDeclarationError.invalidReasonForSecurity => Redirect(routes.InvalidReasonForSecurityController.show())
+        case GetDeclarationError.declarationNotFound      => Redirect(routes.DeclarationNotFoundController.show())
+        case _                                            => errorHandler.errorResult()
       }
 
   private def checkIfDeclarationHaveSecurityDeposits(declaration: DisplayDeclaration): EitherT[Future, Result, String] =
