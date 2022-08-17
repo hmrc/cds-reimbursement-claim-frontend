@@ -24,6 +24,7 @@ import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.dataKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
@@ -43,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
@@ -53,7 +55,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ExportMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
@@ -183,17 +184,14 @@ object Forms {
     )
   )
 
-  val confirmFullRepaymentForm: Form[YesNo]              = YesOrNoQuestionForm("confirm-full-repayment")
-  val chooseExportMethodForm: Form[Option[ExportMethod]] = Form(
+  val confirmFullRepaymentForm: Form[YesNo]                                    = YesOrNoQuestionForm("confirm-full-repayment")
+  val chooseExportMethodForm: Form[Option[TemporaryAdmissionMethodOfDisposal]] = Form(
     mapping(
-      "choose-file-type" -> nonEmptyText
-        .verifying(
-          "choose-file-type.error.invalid-file-type",
-          key => key === none || ExportMethod.parse(key).map(v => ExportMethod.values.contains(v)).getOrElse(false)
-        )
-        .transform[Option[ExportMethod]](
-          (key: String) => if (key === none) None else ExportMethod.parse(key),
-          (value: Option[ExportMethod]) => value.map(ExportMethod.keyOf).getOrElse(none)
+      "choose-export-method" -> nonEmptyText
+        .transform[Option[models.TemporaryAdmissionMethodOfDisposal]](
+          (key: String) => if (key === none) None else TemporaryAdmissionMethodOfDisposal.parse(key),
+          (value: Option[models.TemporaryAdmissionMethodOfDisposal]) =>
+            value.map(TemporaryAdmissionMethodOfDisposal.keyOf).getOrElse(none)
         )
     )(identity)(x => Some(x))
   )

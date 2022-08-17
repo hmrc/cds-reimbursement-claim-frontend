@@ -33,10 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgre
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ExportMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_export_method
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
@@ -50,7 +50,7 @@ class ChooseExportMethodController @Inject() (
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
-  private val form: Form[Option[ExportMethod]] = chooseExportMethodForm
+  private val form: Form[Option[TemporaryAdmissionMethodOfDisposal]] = chooseExportMethodForm
 
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
@@ -62,13 +62,40 @@ class ChooseExportMethodController @Inject() (
     Ok(
       chooseExportMethodPage(
         chooseExportMethodForm,
-        ExportMethod.orderedValues.toList,
+        TemporaryAdmissionMethodOfDisposal.orderedValues.toList,
         routes.ChooseExportMethodController.submit()
       )
     ).asFuture
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    ???
+    form.bindFromRequest.fold(
+      formWithErrors =>
+        (
+          journey,
+          BadRequest(
+            chooseExportMethodPage(
+              formWithErrors,
+              TemporaryAdmissionMethodOfDisposal.orderedValues.toList,
+              routes.ChooseExportMethodController.submit()
+            )
+          )
+        ).asFuture,
+      {
+        case None                   =>
+          logger.warn("no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors")
+          (journey, errorHandler.errorResult()).asFuture
+        case Some(methodOfDisposal) =>
+          journey
+            .submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal)
+            .fold(
+              error => {
+                logger.warn(error)
+                (journey, errorHandler.errorResult()).asFuture
+              },
+              updatedJourney => (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
+            )
+      }
+    )
   }
 }
