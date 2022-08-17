@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 import cats.data.NonEmptyList
 
 trait SeqUtils {
-  implicit class SeqOps[A](val seq: Seq[A]) {
+  implicit class SeqOps[A, S[A] <: Seq[A]](val seq: S[A]) {
 
     final def containsEachItemOf(other: Seq[A]): Boolean =
       other.forall(seq.contains(_))
@@ -30,17 +30,27 @@ trait SeqUtils {
       else Some(seq(i + 1))
     }
 
-    final def noneIfEmpty: Option[Seq[A]] =
+    final def noneIfEmpty: Option[S[A]] =
       if (seq.isEmpty) None else Some(seq)
 
     final def nonEmptyList: Option[NonEmptyList[A]] =
       NonEmptyList.fromList(seq.toList)
   }
 
-  implicit class MapOps[K, V](val map: Map[K, V]) {
+  implicit class MapOps[K, V, M[K, V] <: Map[K, V]](val map: M[K, V]) {
 
-    final def noneIfEmpty: Option[Map[K, V]] =
+    final def noneIfEmpty: Option[M[K, V]] =
       if (map.isEmpty) None else Some(map)
+  }
+
+  implicit class OptionOfMapOps[K, V, M[K, V] <: Map[K, V]](val optionOfMap: Option[M[K, V]]) {
+
+    final def noneIfEmpty: Option[M[K, V]] =
+      optionOfMap match {
+        case None                     => None
+        case Some(map) if map.isEmpty => None
+        case other                    => other
+      }
   }
 }
 

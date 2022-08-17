@@ -321,6 +321,70 @@ class SelectSecuritiesControllerSpec
 
       }
 
+      "after de-selecting any security redirect back to the CYA page when in change your answers mode" in forAll(
+        completeJourneyGen
+      ) { initialJourney =>
+        val selected = initialJourney.getSelectedDepositIds
+        for (depositId <- selected) {
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(depositId).getOrFail))(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(depositId, "select-securities" -> "false"),
+            routes.CheckYourAnswersController.show()
+          )
+        }
+      }
+
+      "after selecting any missing security redirect back to the CYA page when in change your answers mode" in forAll(
+        completeJourneyGen
+      ) { initialJourney =>
+        val unselected = initialJourney.getSecurityDepositIds.toSet -- initialJourney.getSelectedDepositIds.toSet
+        for (depositId <- unselected) {
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(depositId).getOrFail))(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(depositId, "select-securities" -> "true"),
+            routes.CheckYourAnswersController.show()
+          )
+        }
+      }
+
+      "after selecting any missing security ignore change declaration details mode and redirect back to the CYA page when in change your answers mode" in forAll(
+        completeJourneyGen
+      ) { initialJourney =>
+        val unselected = initialJourney.getSecurityDepositIds.toSet -- initialJourney.getSelectedDepositIds.toSet
+        for (depositId <- unselected) {
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(true)))
+            mockStoreSession(
+              SessionData(
+                initialJourney
+                  .submitCheckDeclarationDetailsChangeMode(true)
+                  .selectSecurityDepositId(depositId)
+                  .getOrFail
+              )
+            )(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(depositId, "select-securities" -> "true"),
+            routes.CheckYourAnswersController.show()
+          )
+        }
+      }
+
     }
 
   }

@@ -165,11 +165,13 @@ final class SecuritiesJourney private (
         else reclaims.find(_._2.isEmpty).map { case (taxCode, _) => Right((depositId, taxCode)) }
     })
 
-  def isAllSelectedDutiesAreGuaranteeEligible: Boolean =
-    getSelectedDepositIds
+  def isAllSelectedDutiesAreGuaranteeEligible: Boolean = {
+    val selected = getSelectedDepositIds
+    selected.nonEmpty && selected
       .map(getSecurityDetailsFor)
       .collect { case Some(s) => s }
       .forall(_.isGuaranteeEligible)
+  }
 
   def needsBanksAccountDetailsSubmission: Boolean =
     !isAllSelectedDutiesAreGuaranteeEligible
@@ -367,11 +369,23 @@ final class SecuritiesJourney private (
       if (!isValidSecurityDepositId(securityDepositId))
         Left("selectSecurityDepositIds.invalidSecurityDepositId")
       else {
+        val updatedJourney = new SecuritiesJourney(
+          answers.copy(
+            securitiesReclaims = answers.securitiesReclaims
+              .map(_ - securityDepositId)
+              .noneIfEmpty
+          )
+        )
+        // clear bank account details and type when no longer required after security removal
         Right(
           new SecuritiesJourney(
-            answers.copy(
-              securitiesReclaims = answers.securitiesReclaims
-                .map(_ - securityDepositId)
+            updatedJourney.answers.copy(
+              bankAccountDetails =
+                if (updatedJourney.needsBanksAccountDetailsSubmission) updatedJourney.answers.bankAccountDetails
+                else None,
+              bankAccountType =
+                if (updatedJourney.needsBanksAccountDetailsSubmission) updatedJourney.answers.bankAccountType
+                else None
             )
           )
         )
@@ -826,9 +840,9 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       hasMethodOfDisposalIfNeeded,
       hasExportMRNIfNeeded,
+      reclaimAmountsHasBeenDeclared,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
-      reclaimAmountsHasBeenDeclared,
       checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
     )
 

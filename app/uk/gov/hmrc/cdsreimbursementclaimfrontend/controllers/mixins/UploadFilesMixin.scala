@@ -47,14 +47,15 @@ trait UploadFilesMixin[Journey] {
     continueAfterYesAnswerUrl: String,
     continueAfterNoAnswerUrl: String,
     minimumNumberOfFiles: Int = 0, // user can skip uploading the files,
-    showYesNoQuestionBeforeContinue: Boolean = true
+    showYesNoQuestionBeforeContinue: Boolean = true,
+    backlinkUrl: Option[String] = None
   )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
       continueAfterYesAnswerUrl = Some(continueAfterYesAnswerUrl),
       continueWhenFullUrl = selfUrl + checkYourAnswers.url,
-      backlinkUrl = selfUrl + selectDocumentTypePageAction.url,
+      backlinkUrl = selfUrl + backlinkUrl.getOrElse(selectDocumentTypePageAction.url),
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = minimumNumberOfFiles,
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),

@@ -69,6 +69,8 @@ class CheckDeclarationDetailsController @Inject() (
         Redirect(
           if (journey.getSelectedDepositIds.isEmpty)
             routes.CheckDeclarationDetailsController.show()
+          else if (userHasSeenCYAPage(journey))
+            routes.CheckYourAnswersController.show()
           else if (
             journey.getReasonForSecurity
               .exists(rfs => rfs === ReasonForSecurity.EndUseRelief || rfs === ReasonForSecurity.InwardProcessingRelief)
