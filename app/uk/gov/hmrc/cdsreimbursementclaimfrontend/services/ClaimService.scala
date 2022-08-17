@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -120,15 +121,21 @@ class DefaultClaimService @Inject() (
   ): EitherT[Future, GetDeclarationError, DisplayDeclaration] =
     cdsReimbursementClaimConnector
       .getDeclaration(mrn, reasonForSecurity)
+      .leftMap(_ => GetDeclarationError.unexpectedError)
       .subflatMap { response =>
         if (response.status === OK) {
           response
             .parseJSON[DisplayDeclaration]()
             .leftMap(_ => GetDeclarationError.unexpectedError)
         } else if (response.status === BAD_REQUEST) {
-          Left(response
-            .parseJSON[GetDeclarationError]().toOption.getOrElse(GetDeclarationError.unexpectedError))
-        } else
-          Left(Error(s"call to get declaration details ${response.status}"))
+          Left(
+            response
+              .parseJSON[GetDeclarationError]()
+              .toOption
+              .getOrElse(GetDeclarationError.unexpectedError)
+          )
+        } else {
+          Left(GetDeclarationError.unexpectedError)
+        }
       }
 }

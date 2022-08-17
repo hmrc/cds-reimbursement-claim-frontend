@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -150,8 +149,8 @@ class ChooseReasonForSecurityController @Inject() (
     claimService
       .getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)
       .leftMap {
-        case GetDeclarationError.invalidReasonForSecurity => Redirect(routes.InvalidReasonForSecurityController.show())
         case GetDeclarationError.declarationNotFound      => Redirect(routes.DeclarationNotFoundController.show())
+        case GetDeclarationError.invalidReasonForSecurity => Redirect(routes.InvalidReasonForSecurityController.show())
         case _                                            => errorHandler.errorResult()
       }
 

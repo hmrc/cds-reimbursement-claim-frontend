@@ -47,11 +47,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -91,9 +91,9 @@ class ChooseReasonForSecurityControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
-  private def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
+  private def mockGetDisplayDeclarationWithErrorCodes(response: Either[GetDeclarationError, DisplayDeclaration]) =
     (mockClaimsService
-      .getDisplayDeclaration(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
+      .getDisplayDeclarationWithErrorCodes(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
       .expects(*, *, *)
       .returning(EitherT.fromEither[Future](response))
 
@@ -197,7 +197,7 @@ class ChooseReasonForSecurityControllerSpec
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(initialJourney))
-              mockGetDisplayDeclaration(Right(Some(declaration)))
+              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
               mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
               mockStoreSession(updatedJourney)(Right(()))
             }
@@ -292,7 +292,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
-            mockGetDisplayDeclaration(Right(Some(updatedDeclaration)))
+            mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
             mockStoreSession(updatedJourney)(Right(()))
           }
@@ -331,7 +331,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
-            mockGetDisplayDeclaration(Right(Some(updatedDeclaration)))
+            mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
             mockStoreSession(updatedJourney)(Right(()))
           }
@@ -361,7 +361,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
-            mockGetDisplayDeclaration(Right(Some(declaration)))
+            mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
             mockStoreSession(updatedJourney)(Right(()))
           }
 
@@ -392,7 +392,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
-            mockGetDisplayDeclaration(Right(Some(declaration)))
+            mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(true)))
             mockStoreSession(updatedJourney)(Right(()))
           }
@@ -406,7 +406,7 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-      "redirect to wrong RfS page when selected RfS doesn't mach the declaration" in forAll(
+      "redirect to wrong RfS page when selected RfS doesn't match the declaration" in forAll(
         securitiesDisplayDeclarationGen
       ) { declaration: DisplayDeclaration =>
         val journey =
@@ -419,14 +419,14 @@ class ChooseReasonForSecurityControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
-          mockGetDisplayDeclaration(Right(None)) // Right(None) = 204 from claim service = RfS mismatch
+          mockGetDisplayDeclarationWithErrorCodes(Left(GetDeclarationError.invalidReasonForSecurity))
         }
 
         checkIsRedirect(
           performAction(
             Seq("choose-reason-for-security.securities" -> rfsToSelect.toString)
           ),
-          controllers.securities.routes.InvalidReasonForSecurityController.show()
+          routes.InvalidReasonForSecurityController.show()
         )
       }
 
@@ -442,16 +442,16 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
-            mockGetDisplayDeclaration(
-              Left(Error("not found"))
-            ) // Left(_) = 500 from claim service = Declaration not found
+            mockGetDisplayDeclarationWithErrorCodes(
+              Left(GetDeclarationError.declarationNotFound)
+            )
           }
 
           checkIsRedirect(
             performAction(
               Seq("choose-reason-for-security.securities" -> rfsToSelect.toString)
             ),
-            controllers.securities.routes.DeclarationNotFoundController.show()
+            routes.DeclarationNotFoundController.show()
           )
       }
     }
