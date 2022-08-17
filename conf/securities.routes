@@ -6,6 +6,10 @@ POST         /securities/enter-movement-reference-number               @uk.gov.h
 GET          /securities/choose-reason-for-security                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseReasonForSecurityController.show()
 POST         /securities/choose-reason-for-security                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseReasonForSecurityController.submit()
 
+GET          /securities/error/claim-invalid-086                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.DeclarationNotFoundController.show()
+GET          /securities/error/claim-invalid-072                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.InvalidReasonForSecurityController.show()
+
+
 GET          /securities/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterImporterEoriNumberController.show()
 POST         /securities/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterImporterEoriNumberController.submit()
 
