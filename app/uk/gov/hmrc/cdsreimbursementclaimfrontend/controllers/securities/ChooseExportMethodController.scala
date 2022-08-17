@@ -93,7 +93,13 @@ class ChooseExportMethodController @Inject() (
                 logger.warn(error)
                 (journey, errorHandler.errorResult()).asFuture
               },
-              updatedJourney => (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
+              updatedJourney =>
+                methodOfDisposal match {
+                  case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment =>
+                    (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show())).asFuture
+                  case _                                                           =>
+                    (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
+                }
             )
       }
     )
