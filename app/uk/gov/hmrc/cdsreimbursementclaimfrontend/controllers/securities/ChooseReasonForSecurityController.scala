@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -72,14 +73,6 @@ class ChooseReasonForSecurityController @Inject() (
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
     Redirect(routes.ClaimInvalidTPI04Controller.show())
-
-  //Error: Security chosen does not exist against the Movement Reference Number (MRN) provided
-  private val errorResultDeclarationNotFoundForRfS: Result =
-    Redirect(routes.ChooseReasonForSecurityController.show()) // TODO: fix in CDSR-1773
-
-  //Error: Movement Reference Number (MRN) provided does not exist
-  private val errorResultDeclarationNotFoundForMrn: Result =
-    errorResultDeclarationNotFoundForRfS // TODO: fix in CDSR-1773
 
   private val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
 
@@ -154,15 +147,11 @@ class ChooseReasonForSecurityController @Inject() (
     r: Request[_]
   ): EitherT[Future, Result, DisplayDeclaration] =
     claimService
-      .getDisplayDeclaration(mrn, reasonForSecurity)
-      .leftMap(error => logAndDisplayError("Could not get the declaration", error))
-      .flatMap {
-        case None              =>
-          EitherT.leftT[Future, DisplayDeclaration](
-            errorResultDeclarationNotFoundForRfS
-          )
-        case Some(declaration) =>
-          EitherT.rightT[Future, Result](declaration)
+      .getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)
+      .leftMap {
+        case GetDeclarationError.declarationNotFound      => Redirect(routes.DeclarationNotFoundController.show())
+        case GetDeclarationError.invalidReasonForSecurity => Redirect(routes.InvalidReasonForSecurityController.show())
+        case _                                            => errorHandler.errorResult()
       }
 
   private def checkIfDeclarationHaveSecurityDeposits(declaration: DisplayDeclaration): EitherT[Future, Result, String] =

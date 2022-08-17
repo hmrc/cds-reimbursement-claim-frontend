@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 import cats.data.EitherT
 import cats.instances.future._
 import org.scalamock.handlers.CallHandler2
+import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -33,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -44,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -128,6 +131,14 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
     (mockCDSReimbursementClaimConnector
       .getDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(mrn, *)
+      .returning(EitherT.fromEither[Future](response))
+
+  def mockGetDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(
+    response: Either[Error, HttpResponse]
+  ): CallHandler3[MRN, ReasonForSecurity, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
+    (mockCDSReimbursementClaimConnector
+      .getDeclaration(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
+      .expects(mrn, reasonForSecurity, *)
       .returning(EitherT.fromEither[Future](response))
 
   "Claim Service" when {
@@ -233,6 +244,86 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
             Right(HttpResponse(NO_CONTENT, okSubmitClaimResponse, Map[String, Seq[String]]()))
           )
           await(claimService.getDisplayDeclaration(mrn).value) shouldBe Right(None)
+        }
+
+      }
+
+    }
+
+    "handling request to get a declaration with error codes" must {
+
+      val mrn               = sample[MRN]
+      val reasonForSecurity = ReasonForSecurity.EndUseRelief
+
+      "return an error" when {
+
+        "the http call fails" in {
+          mockGetDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)(Left(Error("boom!")))
+          await(claimService.getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity).value).isLeft shouldBe true
+        }
+
+        "the http call comes back with invalid json" in {
+          mockGetDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)(
+            Right(HttpResponse(INTERNAL_SERVER_ERROR, "---"))
+          )
+          await(claimService.getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity).value).isLeft shouldBe true
+        }
+
+        "the http call comes back with a status other than 200" in {
+          mockGetDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)(
+            Right(HttpResponse(INTERNAL_SERVER_ERROR, "{}"))
+          )
+          await(claimService.getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity).value).isLeft shouldBe true
+        }
+      }
+
+      "return a successful response" when {
+
+        val displayDeclaration = DisplayDeclaration(
+          displayResponseDetail = DisplayResponseDetail(
+            declarantReferenceNumber = None,
+            securityReason = None,
+            btaDueDate = None,
+            btaSource = None,
+            declarationId = "d-1",
+            acceptanceDate = "2020-10-20",
+            procedureCode = "p-1",
+            consigneeDetails = None,
+            accountDetails = None,
+            bankDetails = None,
+            maskedBankDetails = None,
+            ndrcDetails = None,
+            declarantDetails = DeclarantDetails(
+              declarantEORI = "F-1",
+              legalName = "Fred Bread",
+              establishmentAddress = EstablishmentAddress(
+                addressLine1 = "line-1",
+                addressLine2 = None,
+                addressLine3 = None,
+                postalCode = None,
+                countryCode = "GB"
+              ),
+              contactDetails = None
+            )
+          )
+        )
+
+        "the http response came back with a 200 OK" in {
+          mockGetDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)(
+            Right(HttpResponse(OK, okDisplayDeclaration, Map[String, Seq[String]]()))
+          )
+          await(
+            claimService.getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity).value
+          ) shouldBe Right(displayDeclaration)
+        }
+
+        "the http response came back with a 204 NO CONTENT" in {
+          mockGetDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)(
+            Right(HttpResponse(BAD_REQUEST, okSubmitClaimResponse, Map[String, Seq[String]]()))
+          )
+          await(
+            claimService.getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity).value
+          ) shouldBe Left(GetDeclarationError.unexpectedError)
         }
 
       }
