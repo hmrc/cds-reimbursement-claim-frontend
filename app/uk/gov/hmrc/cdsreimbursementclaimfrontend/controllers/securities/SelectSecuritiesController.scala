@@ -70,7 +70,7 @@ class SelectSecuritiesController @Inject() (
       .fold(Redirect(baseRoutes.IneligibleController.ineligible())) { declaration =>
         Ok(
           selectSecuritiesPage(
-            form.withDefault(if (journey.isSelectedDepositId(securityDepositId)) Some(YesNo.Yes) else None),
+            form.withDefault(journey.getSecuritySelectionStatus(securityDepositId)),
             declaration,
             securityDepositId,
             postAction

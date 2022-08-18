@@ -45,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -108,6 +109,11 @@ final class SecuritiesJourney private (
   /** Returns true if deposit ID has been selected by the user. */
   def isSelectedDepositId(securityDepositId: String): Boolean =
     answers.securitiesReclaims.exists(_.contains(securityDepositId))
+
+  def getSecuritySelectionStatus(securityDepositId: String): Option[YesNo] =
+    if (isSelectedDepositId(securityDepositId)) Some(YesNo.Yes)
+    else if (answers.checkDeclarationDetailsChangeMode || answers.checkYourAnswersChangeMode) Some(YesNo.No)
+    else None
 
   def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
     answers.securitiesReclaims.flatMap(
@@ -347,7 +353,7 @@ final class SecuritiesJourney private (
           s"selectSecurityDepositIds.invalidSecurityDepositId"
         )
       else {
-        if (answers.securitiesReclaims.contains(securityDepositId))
+        if (answers.securitiesReclaims.getOrElse(SortedMap.empty).contains(securityDepositId))
           Right(this)
         else {
           val emptySecuritiesReclaim =
