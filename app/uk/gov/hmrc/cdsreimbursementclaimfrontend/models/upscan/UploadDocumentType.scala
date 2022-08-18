@@ -50,6 +50,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
   case object BillOfDischarge3 extends UploadDocumentType
   case object BillOfDischarge4 extends UploadDocumentType
   case object QuotaLicense extends UploadDocumentType
+  case object ClaimWorksheet extends UploadDocumentType
 
   override val values: Set[UploadDocumentType] =
     Set[UploadDocumentType](
@@ -79,7 +80,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
       SupportingEvidence,
       BillOfDischarge3,
       BillOfDischarge4,
-      QuotaLicense
+      QuotaLicense,
+      ClaimWorksheet
     )
 
   val c285EvidenceTypes: Seq[UploadDocumentType] =
@@ -178,6 +180,30 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           ImportDeclaration,
           ProofOfEligibility,
           Other
+        )
+
+      case ReasonForSecurity.ManualOverrideDeposit =>
+        Seq[UploadDocumentType](
+          SupportingEvidence,
+          ImportDeclaration
+        )
+
+      case ReasonForSecurity.RevenueDispute =>
+        Seq[UploadDocumentType](
+          SupportingEvidence,
+          ImportDeclaration
+        )
+
+      case ReasonForSecurity.UKAPEntryPrice =>
+        Seq[UploadDocumentType](
+          SupportingEvidence,
+          ImportDeclaration
+        )
+
+      case ReasonForSecurity.UKAPSafeguardDuties =>
+        Seq[UploadDocumentType](
+          SupportingEvidence,
+          ImportDeclaration
         )
     }
     pf.lift
