@@ -618,7 +618,13 @@ final class SecuritiesJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => new SecuritiesJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ =>
+            new SecuritiesJourney(
+              answers.copy(
+                checkYourAnswersChangeMode = enabled,
+                claimFullAmountMode = true
+              )
+            )
         )
     }
 

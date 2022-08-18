@@ -415,45 +415,22 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC9 selecting NO, going back from check-claim, changing to YES and clicking continue should redirect back to check-claim" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          val securityId     = journey.getSelectedDepositIds.last
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(updatedSession)
-            mockStoreSession(Right(()))
-          }
-
-          val result = performAction(securityId, Seq(confirmFullRepaymentKey -> "true"))
-          checkIsRedirect(
-            result,
-            routes.CheckClaimDetailsController.show()
-          )
-
-        }
-      }
-
-      "selecting NO, going back from check-claim, changing to YES and clicking continue should redirect back to confirm-full-repayment/:next-security-id" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
-          whenever(journey.getSelectedDepositIds.size > 1) {
-            val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-            val securityId     = journey.getSelectedDepositIds.head
-            val nextSecurityId = journey.getSelectedDepositIds.nextAfter(securityId).value
+          for (securityId <- journey.getSelectedDepositIds) {
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(updatedSession)
+              mockGetSession(SessionData(journey))
               mockStoreSession(Right(()))
             }
 
             val result = performAction(securityId, Seq(confirmFullRepaymentKey -> "true"))
+
             checkIsRedirect(
               result,
-              routes.ConfirmFullRepaymentController.show(nextSecurityId)
+              routes.CheckClaimDetailsController.show()
             )
-
           }
         }
       }
     }
   }
 }
-object FooData {}
