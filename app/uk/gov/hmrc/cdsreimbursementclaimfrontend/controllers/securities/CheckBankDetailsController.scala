@@ -16,16 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
 import scala.concurrent.ExecutionContext
+import play.api.mvc.Call
 
 @Singleton
 class CheckBankDetailsController @Inject() (
@@ -34,10 +37,22 @@ class CheckBankDetailsController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
+  import SecuritiesJourney.Checks._
+
+  private val bankAccountTypeRoute: Call = routes.ChooseBankAccountTypeController.show()
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
+
   def show(): Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      val bankAccountTypeRoute = routes.ChooseBankAccountTypeController.show()
-      val continueRoute        = checkYourAnswers
+      val continueRoute =
+        if (userHasSeenCYAPage(journey)) checkYourAnswers
+        else checkYourAnswers // change in CDSR-1903
 
       journey.computeBankAccountDetails
         .map { bankAccountDetails: BankAccountDetails =>
@@ -62,10 +77,7 @@ class CheckBankDetailsController @Inject() (
           (
             journey,
             Redirect(
-              if (journey.needsBanksAccountDetailsSubmission)
-                bankAccountTypeRoute
-              else
-                continueRoute
+              continueRoute
             )
           )
         }

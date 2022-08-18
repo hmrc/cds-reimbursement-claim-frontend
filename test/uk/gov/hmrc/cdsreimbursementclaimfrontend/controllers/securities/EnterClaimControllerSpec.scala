@@ -515,6 +515,53 @@ class EnterClaimControllerSpec
         }
       }
 
+      "redirect back to the CYA page when amount has not changed" in forAll(completeJourneyGen) { initialJourney =>
+        initialJourney.getSecuritiesReclaims.foreach { case (depositId, reclaims) =>
+          reclaims.foreach { case (taxCode, claimAmount) =>
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+            }
+
+            checkIsRedirect(
+              performAction(
+                depositId,
+                taxCode,
+                "enter-claim.securities.claim-amount" -> claimAmount.doubleValue.toString()
+              ),
+              routes.CheckYourAnswersController.show()
+            )
+          }
+        }
+      }
+
+      "redirect back to the check claim page when amount has changed" in forAll(completeJourneyGen) { initialJourney =>
+        initialJourney.getSecuritiesReclaims.foreach { case (depositId, reclaims) =>
+          reclaims.foreach { case (taxCode, claimAmount) =>
+            whenever(claimAmount > BigDecimal("0.01")) {
+              inSequence {
+                mockAuthWithNoRetrievals()
+                mockGetSession(SessionData(initialJourney))
+                mockStoreSession(
+                  SessionData(
+                    initialJourney.submitAmountForReclaim(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                  )
+                )(Right(()))
+              }
+
+              checkIsRedirect(
+                performAction(
+                  depositId,
+                  taxCode,
+                  "enter-claim.securities.claim-amount" -> "0.01"
+                ),
+                routes.CheckClaimDetailsController.show()
+              )
+            }
+          }
+        }
+      }
+
     }
   }
 

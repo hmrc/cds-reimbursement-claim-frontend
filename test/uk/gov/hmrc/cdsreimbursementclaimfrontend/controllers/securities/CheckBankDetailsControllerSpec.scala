@@ -40,15 +40,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 
 class CheckBankDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with ScalaCheckPropertyChecks {
 
   val claimService: ClaimService = mock[ClaimService]
 
@@ -66,25 +65,20 @@ class CheckBankDetailsControllerSpec
 
   private val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch enable Feature.Securities
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
-  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 1)
-
-  private def sessionWithBankDetailsInACC14(maybeBankDetails: Option[BankDetails]): SessionData = {
-    val displayDeclaration = displayDeclarationNotCMAEligibleGen.sample.get
+  private def initialJourneyWithBankDetailsinACC14(maybeBankDetails: Option[BankDetails]): SecuritiesJourney = {
+    val displayDeclaration = securitiesDisplayDeclarationNotGuaranteeEligibleGen.sample.get
       .withBankDetails(maybeBankDetails)
       .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)
 
-    val securitiesJourney: SecuritiesJourney =
-      emptyJourney
-        .submitMovementReferenceNumber(displayDeclaration.getMRN)
-        .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
-        .getOrFail
-
-    SessionData.empty.copy(
-      securitiesJourney = Some(securitiesJourney)
-    )
+    SecuritiesJourney
+      .empty(displayDeclaration.getDeclarantEori, Nonce.random)
+      .submitMovementReferenceNumber(displayDeclaration.getMRN)
+      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+      .flatMap(_.submitClaimDuplicateCheckStatus(false))
+      .flatMap(_.selectSecurityDepositIds(displayDeclaration.getSecurityDepositIds.get))
+      .getOrFail
   }
 
   "Check Bank Details Controller" when {
@@ -93,60 +87,62 @@ class CheckBankDetailsControllerSpec
 
       "Redirect when BankDetails is empty and required" in {
         val bankDetails = BankDetails(None, None)
-        val session     = sessionWithBankDetailsInACC14(Some(bankDetails))
+        val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails))
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(journey))
         }
 
-        val request = FakeRequest()
-        val result  = controller.show()(request)
+        val result = controller.show()(FakeRequest())
 
         checkIsRedirect(result, routes.CheckYourAnswersController.show())
-
       }
 
       "Redirect when BankDetails is None and required" in {
-        val session = sessionWithBankDetailsInACC14(None)
+        val journey = initialJourneyWithBankDetailsinACC14(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(journey))
         }
 
-        val request = FakeRequest()
-        val result  = controller.show()(request)
+        val result = controller.show()(FakeRequest())
         checkIsRedirect(result, routes.CheckYourAnswersController.show())
       }
 
       "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {
         consigneeBankDetails: BankAccountDetails =>
           val bankDetails = BankDetails(Some(consigneeBankDetails), None)
-          val session     = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails))
+
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session)
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.submitBankAccountDetails(consigneeBankDetails).getOrFail))(Right(()))
           }
-          val request     = FakeRequest()
-          val result      = controller.show()(request)
 
-          checkIsRedirect(result, routes.CheckYourAnswersController.show())
+          val result = controller.show()(FakeRequest())
+
+          checkPageIsDisplayed(result, "Check these bank details are correct")
       }
 
       "Ok when BankDetails has declarantBankDetails" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
           val bankDetails = BankDetails(None, Some(declarantBankDetails))
-          val session     = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails))
+
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session)
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.submitBankAccountDetails(declarantBankDetails).getOrFail))(Right(()))
           }
-          val request     = FakeRequest()
-          val result      = controller.show()(request)
 
-          checkIsRedirect(result, routes.CheckYourAnswersController.show())
+          val result = controller.show()(FakeRequest())
+
+          checkPageIsDisplayed(result, "Check these bank details are correct")
       }
+
     }
   }
 }

@@ -48,9 +48,9 @@ object JourneyValidationErrors {
   val CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED: String                =
     "consigneeEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
   val BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED: String                              =
-    "bankAccountDetailsMustBeDefined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
+    "bankAccountDetailsMustBeDefined"
   val BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED: String                          =
-    "bankAccountDetailsMustNotBeDefined when reimbursementMethodAnswer is CurrentMonthAdjustment"
+    "bankAccountDetailsMustNotBeDefined"
   val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED: String              =
     "basisOfClaimSpecialCircumstancesMustBeDefined when basisOfClaim value is SpecialCircumstances"
   val BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED: String          =

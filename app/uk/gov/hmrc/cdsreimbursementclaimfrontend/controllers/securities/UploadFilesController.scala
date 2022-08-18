@@ -51,6 +51,7 @@ class UploadFilesController @Inject() (
     extends SecuritiesJourneyBaseController
     with UploadFilesMixin[SecuritiesJourney] {
 
+  final val precedingAction: Call              = routes.CheckClaimDetailsController.show()
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
   final val callbackAction: Call               = routes.UploadFilesController.submit()
 
@@ -82,7 +83,13 @@ class UploadFilesController @Inject() (
                   documentType,
                   continueAfterYesAnswerUrl,
                   continueAfterNoAnswerUrl,
-                  showYesNoQuestionBeforeContinue = journey.requiresDocumentTypeSelection
+                  showYesNoQuestionBeforeContinue = journey.requiresDocumentTypeSelection,
+                  backlinkUrl = Some(
+                    if (journey.requiresDocumentTypeSelection)
+                      selectDocumentTypePageAction.url
+                    else
+                      precedingAction.url
+                  )
                 ),
                 journey.answers.supportingEvidences
                   .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),

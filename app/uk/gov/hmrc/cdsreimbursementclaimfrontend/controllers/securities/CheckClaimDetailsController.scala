@@ -70,7 +70,9 @@ class CheckClaimDetailsController @Inject() (
       whenAllReclaimsProvided(journey) {
         (
           journey,
-          if (journey.requiresDocumentTypeSelection) {
+          if (userHasSeenCYAPage(journey))
+            Redirect(routes.CheckYourAnswersController.show())
+          else if (journey.requiresDocumentTypeSelection) {
             Redirect(routes.ChooseFileTypeController.show())
           } else {
             Redirect(routes.UploadFilesController.show())
@@ -83,7 +85,7 @@ class CheckClaimDetailsController @Inject() (
     journey: SecuritiesJourney
   )(body: => (SecuritiesJourney, Result)): Future[(SecuritiesJourney, Result)] =
     (
-      if (journey.answers.securitiesReclaims.isEmpty)
+      if (journey.answers.securitiesReclaims.noneIfEmpty.isEmpty)
         (journey, Redirect(routes.CheckDeclarationDetailsController.show()))
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {

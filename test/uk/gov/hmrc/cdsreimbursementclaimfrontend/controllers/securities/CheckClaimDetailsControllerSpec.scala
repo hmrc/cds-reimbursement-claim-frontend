@@ -175,7 +175,18 @@ class CheckClaimDetailsControllerSpec
           else
             routes.UploadFilesController.show()
         )
+      }
 
+      "redirect to the CYA page when in change your answers mode" in forAll(completeJourneyGen) { initialJourney =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.CheckYourAnswersController.show()
+        )
       }
     }
   }

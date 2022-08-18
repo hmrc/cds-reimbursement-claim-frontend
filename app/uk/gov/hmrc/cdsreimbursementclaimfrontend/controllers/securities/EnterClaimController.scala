@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import cats.syntax.eq._
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -112,21 +113,30 @@ class EnterClaimController @Inject() (
                       )
                     )
                   ),
-                reclaimAmount =>
-                  journey
-                    .submitAmountForReclaim(securityDepositId, taxCode, reclaimAmount)
-                    .fold(
-                      error =>
-                        (
-                          journey,
-                          Redirect(routeForValidationError(error))
-                        ),
-                      updatedJourney =>
-                        (
-                          updatedJourney,
-                          Redirect(nextPage(updatedJourney, securityDepositId, taxCode))
-                        )
-                    )
+                reclaimAmount => {
+                  val amountHasChanged: Boolean =
+                    !journey
+                      .getReclaimAmountFor(securityDepositId, taxCode)
+                      .exists(_ === reclaimAmount)
+                  if (amountHasChanged)
+                    journey
+                      .submitAmountForReclaim(securityDepositId, taxCode, reclaimAmount)
+                      .fold(
+                        error =>
+                          (
+                            journey,
+                            Redirect(routeForValidationError(error))
+                          ),
+                        updatedJourney =>
+                          (
+                            updatedJourney,
+                            Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
+                          )
+                      )
+                  else
+                    (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
+
+                }
               )
             }
           )
@@ -179,19 +189,27 @@ class EnterClaimController @Inject() (
     }).asFuture
   }
 
-  private def nextPage(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode): Call =
-    if (journey.answers.checkClaimDetailsChangeMode && journey.answers.claimFullAmountMode)
-      journey.getNextDepositIdAndTaxCodeToClaim match {
-        case Some(Left(depositId)) =>
-          routes.ConfirmFullRepaymentController.show(depositId)
+  private def nextPage(
+    journey: SecuritiesJourney,
+    securityDepositId: String,
+    taxCode: TaxCode,
+    amountHasChanged: Boolean
+  ): Call =
+    if (journey.answers.checkClaimDetailsChangeMode && journey.answers.claimFullAmountMode) {
+      if (userHasSeenCYAPage(journey) && !amountHasChanged)
+        routes.CheckYourAnswersController.show()
+      else
+        journey.getNextDepositIdAndTaxCodeToClaim match {
+          case Some(Left(depositId)) =>
+            routes.ConfirmFullRepaymentController.show(depositId)
 
-        case Some(Right((depositId, taxCode))) =>
-          routes.EnterClaimController.show(depositId, taxCode)
+          case Some(Right((depositId, taxCode))) =>
+            routes.EnterClaimController.show(depositId, taxCode)
 
-        case None =>
-          routes.CheckClaimDetailsController.show()
-      }
-    else
+          case None =>
+            routes.CheckClaimDetailsController.show()
+        }
+    } else
       journey
         .getSelectedDutiesFor(securityDepositId)
         .flatMap(_.nextAfter(taxCode)) match {

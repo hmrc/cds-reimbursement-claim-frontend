@@ -124,7 +124,9 @@ class SelectSecuritiesController @Inject() (
   }
 
   private def nextPage(journey: SecuritiesJourney, securityDepositId: String): Call =
-    if (journey.answers.checkDeclarationDetailsChangeMode)
+    if (userHasSeenCYAPage(journey))
+      routes.CheckYourAnswersController.show()
+    else if (journey.answers.checkDeclarationDetailsChangeMode)
       routes.CheckDeclarationDetailsController.show()
     else
       journey.getSecurityDepositIds

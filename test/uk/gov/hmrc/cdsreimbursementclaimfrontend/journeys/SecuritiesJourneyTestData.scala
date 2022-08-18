@@ -97,6 +97,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
                   }
               )
       )
+      .map(_.submitCheckClaimDetailsChangeMode(true))
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)
