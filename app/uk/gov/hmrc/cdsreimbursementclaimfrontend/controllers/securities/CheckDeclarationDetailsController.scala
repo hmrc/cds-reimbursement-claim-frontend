@@ -74,7 +74,7 @@ class CheckDeclarationDetailsController @Inject() (
             routes.CheckYourAnswersController.show()
           else if (ReasonForSecurity.requiresTotalImportDischarge.map(_.some).contains(journey.getReasonForSecurity))
             routes.CheckTotalImportDischargedController.show()
-          else if (ReasonForSecurity.temporaryAdmission.map(_.some).contains(journey.getReasonForSecurity))
+          else if (ReasonForSecurity.temporaryAdmissions.map(_.some).contains(journey.getReasonForSecurity))
             routes.ChooseExportMethodController.show()
           else
             routes.CheckClaimantDetailsController.show()
