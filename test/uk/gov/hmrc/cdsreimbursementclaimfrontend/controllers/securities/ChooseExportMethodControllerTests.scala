@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
@@ -12,16 +28,25 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithJourneyGenerator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import play.api.inject.bind
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, ReasonForSecurity, SessionData, TemporaryAdmissionMethodOfDisposal}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.test.Helpers.status
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.{buildSecuritiesJourneyWithSomeSecuritiesSelected, buildSecuritiesJourneyWithSomeSecuritiesSelectedWithGeneratedMehodOfDisposal, mrnWithIprOrErRfsWithDisplayDeclarationGen, mrnWithRfsExcludingWithDisplayDeclarationGen, mrnWithRfsWithDisplayDeclarationGen, mrnWithRfsWithDisplayDeclarationWithMfdGen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelected
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelectedWithGeneratedMehodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithIprOrErRfsWithDisplayDeclarationGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsExcludingWithDisplayDeclarationGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsWithDisplayDeclarationGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithMfdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
@@ -53,24 +78,24 @@ class ChooseExportMethodControllerTests
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
   def validateChooseExportMethodPage(doc: Document, isError: Boolean = false) = {
-    val header           = doc.select(".govuk-heading-xl").eachText().asScala
-    val hint              = doc.select("#choose-export-method-hint").eachText().asScala.toList
-    val radioLabels       = doc.select(".govuk-radios__item label").eachText().asScala
-    val radioInputs       = doc.select(".govuk-radios__item input").eachAttr("value").asScala
+    val header         = doc.select(".govuk-heading-xl").eachText().asScala
+    val hint           = doc.select("#choose-export-method-hint").eachText().asScala.toList
+    val radioLabels    = doc.select(".govuk-radios__item label").eachText().asScala
+    val radioInputs    = doc.select(".govuk-radios__item input").eachAttr("value").asScala
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
 
-    header         should ===(List(messages(s"$messagesKey.title")))
+    header             should ===(List(messages(s"$messagesKey.title")))
     radioInputs.length should ===(11)
     radioLabels.length should ===(11)
-    continueButton should ===(List(messages("button.continue")))
+    continueButton     should ===(List(messages("button.continue")))
 
     if (isError) {
-      val problemHeader = doc.select("h2.govuk-error-summary__title").eachText().asScala.toList
-      val linkToError = doc.select("a[href=#choose-export-method]").eachText().asScala.toList
+      val problemHeader  = doc.select("h2.govuk-error-summary__title").eachText().asScala.toList
+      val linkToError    = doc.select("a[href=#choose-export-method]").eachText().asScala.toList
       val errorParagraph = doc.select("p#choose-export-method-error").eachText().asScala.toList
 
-      problemHeader should ===(List(messages("error.summary.title")))
-      linkToError should ===(List(messages(s"$messagesKey.error.required")))
+      problemHeader  should ===(List(messages("error.summary.title")))
+      linkToError    should ===(List(messages(s"$messagesKey.error.required")))
       errorParagraph should ===(List("Error: " + messages(s"$messagesKey.error.required")))
     }
   }
