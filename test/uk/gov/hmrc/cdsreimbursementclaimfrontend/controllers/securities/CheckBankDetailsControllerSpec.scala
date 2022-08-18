@@ -68,7 +68,7 @@ class CheckBankDetailsControllerSpec
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
   private def initialJourneyWithBankDetailsinACC14(maybeBankDetails: Option[BankDetails]): SecuritiesJourney = {
-    val displayDeclaration = displayDeclarationNotCMAEligibleGen.sample.get
+    val displayDeclaration = securitiesDisplayDeclarationNotGuaranteeEligibleGen.sample.get
       .withBankDetails(maybeBankDetails)
       .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)
 
@@ -77,6 +77,7 @@ class CheckBankDetailsControllerSpec
       .submitMovementReferenceNumber(displayDeclaration.getMRN)
       .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(false))
+      .flatMap(_.selectSecurityDepositIds(displayDeclaration.getSecurityDepositIds.get))
       .getOrFail
   }
 

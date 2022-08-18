@@ -174,7 +174,8 @@ final class SecuritiesJourney private (
   }
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    !isAllSelectedDutiesAreGuaranteeEligible
+    getSelectedDepositIds.nonEmpty &&
+      !isAllSelectedDutiesAreGuaranteeEligible
 
   def needsMethodOfDisposalSubmission: Boolean =
     getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions)
