@@ -1595,7 +1595,7 @@ choose-file-type.file-type.LetterOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
 choose-file-type.file-type.Other=Other documents
 
-choose-file-type.file-type.SupportingEvidence=Supporting evidence
+choose-file-type.file-type.SupportingEvidence=Evidence supporting your claim
 choose-file-type.file-type.ExportDeclaration=Export declaration
 choose-file-type.file-type.ImportDeclaration=Import declaration
 choose-file-type.file-type.ProofOfEligibility=Proof of eligibility
