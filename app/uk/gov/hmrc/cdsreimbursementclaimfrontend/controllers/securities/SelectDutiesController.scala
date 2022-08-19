@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import cats.data._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -27,14 +26,13 @@ import play.api.mvc.Result
 import shapeless.syntax.std.tuple.productTupleOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectTaxCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error => CdsError}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities
 
@@ -52,16 +50,12 @@ class SelectDutiesController @Inject() (
     securityId: String,
     journey: SecuritiesJourney,
     error: CdsError => Future[T],
-    f: NonEmptyList[DutyAmount] => Future[T]
-  ): Future[T] = {
-    val taxCodesAndValuesAvailable = journey
-      .getSecurityTaxCodesFor(securityId)
-      .flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
-      .toList
-    NonEmptyList
-      .fromList(taxCodesAndValuesAvailable.map(x => DutyAmount(x.getTaxCode, x.getAmount)))
+    f: Seq[DutyAmount] => Future[T]
+  ): Future[T] =
+    journey
+      .getSecurityTaxCodesWithAmounts(securityId)
+      .noneIfEmpty
       .fold(error(CdsError("no tax codes available")))(f)
-  }
 
   final def show(securityId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     processAvailableDuties[Result](
@@ -73,12 +67,10 @@ class SelectDutiesController @Inject() (
       },
       dutiesAvailable =>
         {
-          val emptyForm: Form[DutiesSelectedAnswer] = selectDutiesForm(dutiesAvailable.map(_.asDuty))
+          val emptyForm: Form[Seq[TaxCode]] = selectTaxCodesForm(dutiesAvailable.map(_.taxCode))
 
           val filledForm =
-            emptyForm.withDefault(
-              journey.getSelectedDutiesFor(securityId).flatMap(_.nonEmptyList.map(_.map(Duty.apply)))
-            )
+            emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
 
           Ok(
             selectDutiesPage(filledForm, securityId, dutiesAvailable, routes.SelectDutiesController.submit(securityId))
@@ -98,7 +90,7 @@ class SelectDutiesController @Inject() (
           (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
         },
         dutiesAvailable => {
-          val form      = selectDutiesForm(dutiesAvailable.map(_.asDuty))
+          val form      = selectTaxCodesForm(dutiesAvailable.map(_.taxCode))
           val boundForm = form.bindFromRequest()
           boundForm
             .fold(
@@ -131,35 +123,45 @@ class SelectDutiesController @Inject() (
   private def updateAndRedirect(
     journey: SecuritiesJourney,
     securityId: String,
-    dutiesSelected: DutiesSelectedAnswer
+    dutiesSelected: Seq[TaxCode]
   ): (SecuritiesJourney, Result) =
-    journey
-      .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, dutiesSelected.map(_.taxCode).toList)
-      .fold(
-        error => {
-          logger.warn(error)
-          (journey, Redirect(controllers.routes.IneligibleController.ineligible()))
-        },
-        updatedJourney =>
-          (
-            updatedJourney,
-            Redirect(
-              if (updatedJourney.answers.checkClaimDetailsChangeMode && updatedJourney.answers.claimFullAmountMode)
-                journey.getNextDepositIdAndTaxCodeToClaim match {
-                  case Some(Left(depositId)) =>
-                    routes.ConfirmFullRepaymentController.show(depositId)
-
-                  case Some(Right((depositId, taxCode))) =>
-                    routes.EnterClaimController.show(depositId, taxCode)
-
-                  case None =>
-                    routes.CheckClaimDetailsController.show()
-                }
-              else
-                routes.EnterClaimController.show(securityId, dutiesSelected.head.taxCode)
-            )
-          )
+    if (
+      journey
+        .getSelectedDutiesFor(securityId)
+        .containsSameElements(dutiesSelected) &&
+      userHasSeenCYAPage(
+        journey
       )
+    )
+      (journey, Redirect(checkYourAnswers))
+    else
+      journey
+        .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, dutiesSelected)
+        .fold(
+          error => {
+            logger.warn(error)
+            (journey, Redirect(controllers.routes.IneligibleController.ineligible()))
+          },
+          updatedJourney =>
+            (
+              updatedJourney,
+              Redirect(
+                if (updatedJourney.answers.checkClaimDetailsChangeMode && updatedJourney.answers.claimFullAmountMode)
+                  journey.getNextDepositIdAndTaxCodeToClaim match {
+                    case Some(Left(depositId)) =>
+                      routes.ConfirmFullRepaymentController.show(depositId)
+
+                    case Some(Right((depositId, taxCode))) =>
+                      routes.EnterClaimController.show(depositId, taxCode)
+
+                    case None =>
+                      routes.CheckClaimDetailsController.show()
+                  }
+                else
+                  routes.EnterClaimController.showFirst(securityId)
+              )
+            )
+        )
 }
 object SelectDutiesController extends Logging {
   val selectDutiesKey: String = "select-duties"

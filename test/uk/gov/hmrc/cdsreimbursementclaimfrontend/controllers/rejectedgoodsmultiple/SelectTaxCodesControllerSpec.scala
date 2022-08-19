@@ -269,7 +269,7 @@ class SelectTaxCodesControllerSpec
               mockStoreSession(
                 SessionData(
                   journey
-                    .selectAndReplaceTaxCodeSetForReimbursement(mrn, selectedTaxCodes)
+                    .selectAndReplaceTaxCodeSetForReimbursement(mrn, selectedTaxCodes.sorted)
                     .getOrFail
                 )
               )(Right(()))

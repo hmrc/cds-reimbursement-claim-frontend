@@ -77,7 +77,6 @@ class CheckTotalImportDischargedControllerSpec
 
   def validateCheckTotalImportDischargedPage(
     doc: Document,
-    journey: SecuritiesJourney,
     isError: Boolean = false
   ) = {
     val header      = doc.select("h1.govuk-heading-xl").eachText().asScala.toList
@@ -129,7 +128,7 @@ class CheckTotalImportDischargedControllerSpec
         checkPageIsDisplayed(
           performAction(),
           "Have you discharged 100% of the imported goods?",
-          doc => validateCheckTotalImportDischargedPage(doc, journey)
+          doc => validateCheckTotalImportDischargedPage(doc)
         )
       }
     }
@@ -194,7 +193,7 @@ class CheckTotalImportDischargedControllerSpec
         checkPageIsDisplayed(
           performAction(None),
           "Have you discharged 100% of the imported goods?",
-          doc => validateCheckTotalImportDischargedPage(doc, journey, isError = true),
+          doc => validateCheckTotalImportDischargedPage(doc, isError = true),
           BAD_REQUEST
         )
       }

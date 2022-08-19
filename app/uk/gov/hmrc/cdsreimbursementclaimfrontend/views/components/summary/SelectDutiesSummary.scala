@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import cats.data._
 import cats.implicits._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.getDescription
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.selectDutiesKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 
 object SelectDutiesSummary {
@@ -32,8 +30,8 @@ object SelectDutiesSummary {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Option2Iterable"))
-  def apply(dutiesAvailable: NonEmptyList[DutyAmount])(implicit messages: Messages): List[DutyDescription] =
-    dutiesAvailable.toList
+  def apply(dutiesAvailable: Seq[DutyAmount])(implicit messages: Messages): Seq[DutyDescription] =
+    dutiesAvailable
       .flatMap { duty =>
         getDescription(s"$selectDutiesKey.duty.${duty.taxCode.value}", messages)
           .map { description =>

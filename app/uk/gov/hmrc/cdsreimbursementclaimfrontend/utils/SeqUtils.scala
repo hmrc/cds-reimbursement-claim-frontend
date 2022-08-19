@@ -55,6 +55,9 @@ trait SeqUtils {
           }
       }
 
+    final def containsSameElements(other: Seq[A]): Boolean =
+      optionOfSeq.exists(_.toSet.sameElements(other.toSet))
+
   }
 
   implicit class OptionOfMapOps[K, V, M[K, V] <: Map[K, V]](val optionOfMap: Option[M[K, V]]) {

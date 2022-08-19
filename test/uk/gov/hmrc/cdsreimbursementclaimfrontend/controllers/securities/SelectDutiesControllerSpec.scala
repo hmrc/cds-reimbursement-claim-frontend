@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import cats.data.NonEmptyList
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalactic.TypeCheckedTripleEquals
@@ -43,21 +42,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -248,6 +247,80 @@ class SelectDutiesControllerSpec
           }
         }
       }
+
+      "redirect back to the CYA when the same duties has been selected" in forAll(completeJourneyGen) { journey =>
+        whenever(journey.answers.securitiesReclaims.nonEmpty) {
+          journey.getSelectedDepositIds.foreach { securityId =>
+            val selectedDuties: Seq[TaxCode] =
+              journey.getSelectedDutiesFor(securityId).get
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            checkIsRedirect(
+              performAction(
+                securityId,
+                selectedDuties.map(taxCode => "select-duties[]" -> taxCode.value)
+              ),
+              routes.CheckYourAnswersController.show()
+            )
+          }
+        }
+      }
+
+      "redirect back to the check claim page when duty has been de-selected" in forAll(completeJourneyGen) { journey =>
+        journey.getSelectedDepositIds.foreach { securityId =>
+          val selectedDuties: Seq[TaxCode] =
+            journey.getSelectedDutiesFor(securityId).get
+
+          whenever(selectedDuties.size > 1) {
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+              mockStoreSession(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(
+                securityId,
+                selectedDuties.halfNonEmpty.map(taxCode => "select-duties[]" -> taxCode.value)
+              ),
+              routes.CheckClaimDetailsController.show()
+            )
+          }
+        }
+
+      }
+
+      "redirect to the check claim page when new duty has been selected" in forAll(completeJourneyGen) { journey =>
+        whenever(journey.answers.securitiesReclaims.nonEmpty) {
+          journey.getSelectedDepositIds.foreach { securityId =>
+            val availableDuties: Set[TaxCode] =
+              journey.getSecurityTaxCodesFor(securityId).toSet
+
+            val selectedDuties: Set[TaxCode] =
+              journey.getSelectedDutiesFor(securityId).get.toSet
+
+            (availableDuties -- selectedDuties).foreach { taxCode =>
+              inSequence {
+                mockAuthWithNoRetrievals()
+                mockGetSession(SessionData(journey))
+                mockStoreSession(Right(()))
+              }
+
+              checkIsRedirect(
+                performAction(
+                  securityId,
+                  (selectedDuties + taxCode).toSeq.map(tc => "select-duties[]" -> tc.value)
+                ),
+                routes.CheckClaimDetailsController.show()
+              )
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -295,7 +368,7 @@ object SelectDutiesControllerSpec {
     selected: List[TaxCode],
     messages: Messages
   ): Seq[(DutyAmount, Int)] =
-    SelectDutiesSummary(NonEmptyList.fromListUnsafe(allCodes))(messages)
+    SelectDutiesSummary(allCodes)(messages)
       .map(_.duty)
       .zipWithIndex
       .filter(a => selected.contains(a._1.taxCode))
@@ -303,7 +376,7 @@ object SelectDutiesControllerSpec {
   def selectCheckBoxes(
     journey: SecuritiesJourney,
     securityId: String,
-    availableTaxCodes: List[(TaxCode, Int)],
+    availableTaxCodes: Seq[(TaxCode, Int)],
     previouslySelected: Seq[(TaxCode, Int)]
   ): Seq[(String, String)] =
     (previouslySelected.size, availableTaxCodes.size) match {

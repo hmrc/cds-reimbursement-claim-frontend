@@ -20,7 +20,7 @@
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, DutyAmount}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{TaxCode, Duty, DutyAmount}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary.DutyDescription
@@ -37,7 +37,7 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelectedAnswer], securityId: String, dutiesToDisplay : NonEmptyList[DutyAmount], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[Seq[TaxCode]], securityId: String, dutiesToDisplay : Seq[DutyAmount], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
