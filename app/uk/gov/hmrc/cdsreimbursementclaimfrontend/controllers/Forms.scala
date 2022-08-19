@@ -24,6 +24,7 @@ import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.dataKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
@@ -43,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
@@ -182,7 +184,17 @@ object Forms {
     )
   )
 
-  val confirmFullRepaymentForm: Form[YesNo] = YesOrNoQuestionForm("confirm-full-repayment")
+  val confirmFullRepaymentForm: Form[YesNo]                                    = YesOrNoQuestionForm("confirm-full-repayment")
+  val chooseExportMethodForm: Form[Option[TemporaryAdmissionMethodOfDisposal]] = Form(
+    mapping(
+      "choose-export-method" -> nonEmptyText
+        .transform[Option[models.TemporaryAdmissionMethodOfDisposal]](
+          (key: String) => if (key === none) None else TemporaryAdmissionMethodOfDisposal.parse(key),
+          (value: Option[models.TemporaryAdmissionMethodOfDisposal]) =>
+            value.map(TemporaryAdmissionMethodOfDisposal.keyOf).getOrElse(none)
+        )
+    )(identity)(x => Some(x))
+  )
 
   val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")
 

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import cats.implicits.catsSyntaxEq
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -110,6 +111,49 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     for {
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
+  def mrnWithRfsWithDisplayDeclarationGen(
+    reasonsForSecurity: Seq[ReasonForSecurity]
+  ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(reasonsForSecurity)
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
+  def mrnWithRfsWithDisplayDeclarationWithMfdGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.temporaryAdmissions)
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+      mfd   <- Gen.oneOf(
+                 TemporaryAdmissionMethodOfDisposal.values.filterNot(
+                   _ === TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+                 )
+               )
+    } yield (mrn, rfs, acc14, mfd)
+
+  def mrnWithRfsExcludingWithDisplayDeclarationGen(
+    reasonsForSecurityToExclude: Seq[ReasonForSecurity]
+  ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.values.filterNot(reasonsForSecurityToExclude.contains(_)))
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
