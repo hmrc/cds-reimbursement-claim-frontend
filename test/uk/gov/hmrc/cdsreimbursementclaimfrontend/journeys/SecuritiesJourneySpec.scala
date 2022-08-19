@@ -32,6 +32,7 @@ import scala.collection.immutable.SortedMap
 
 import SecuritiesJourneyGenerators._
 import JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
 
@@ -394,6 +395,10 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositId(depositId))
           .getOrFail
+        journey.getSecuritySelectionStatus(depositId)         shouldBe Some(YesNo.Yes)
+        (journey.getSecurityDepositIds.toSet - depositId).foreach(sid =>
+          journey.getSecuritySelectionStatus(sid) shouldBe None
+        )
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
@@ -414,8 +419,14 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitReasonForSecurityAndDeclaration(rfs, decl)
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositIds(depositIds))
+          .map(_.submitCheckDeclarationDetailsChangeMode(true))
           .flatMap(_.removeSecurityDepositId(depositId))
           .getOrFail
+
+        journey.getSecuritySelectionStatus(depositId)         shouldBe Some(YesNo.No)
+        (journey.getSecurityDepositIds.toSet - depositId).foreach(sid =>
+          journey.getSecuritySelectionStatus(sid) shouldBe Some(YesNo.Yes)
+        )
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
