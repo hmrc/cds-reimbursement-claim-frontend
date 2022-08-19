@@ -37,11 +37,11 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[Option[TemporaryAdmissionMethodOfDisposal]], exportMethods: Seq[TemporaryAdmissionMethodOfDisposal], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[Option[TemporaryAdmissionMethodOfDisposal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-export-method"}
 @title = @{messages(s"$key.title")}
-@radioItems = @{TemporaryAdmissionMethodOfDisposalSummary(exportMethods, messages, form)}
+@radioItems = @{TemporaryAdmissionMethodOfDisposalSummary(messages, form)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {

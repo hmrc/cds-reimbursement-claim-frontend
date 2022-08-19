@@ -48,18 +48,4 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
       Other,
       MultipleDisposalMethodsWereUsed
     )
-
-  val orderedValues: List[TemporaryAdmissionMethodOfDisposal] = List[TemporaryAdmissionMethodOfDisposal](
-    ExportedInSingleShipment,
-    ExportedInMultipleShipments,
-    DeclaredToOtherTraderUnderTemporaryAdmission,
-    DeclaredToFreeCirculation,
-    DeclaredToInwardProcessingRelief,
-    DeclaredToEndUse,
-    DeclaredToAFreeZone,
-    DeclaredToACustomsWarehouse,
-    Destroyed,
-    Other,
-    MultipleDisposalMethodsWereUsed
-  )
 }

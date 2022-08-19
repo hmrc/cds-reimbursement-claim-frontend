@@ -20,42 +20,51 @@ import cats.implicits.catsSyntaxEq
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToACustomsWarehouse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToAFreeZone
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToEndUse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToFreeCirculation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToInwardProcessingRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToOtherTraderUnderTemporaryAdmission
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.Destroyed
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.Other
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 object TemporaryAdmissionMethodOfDisposalSummary {
-  def apply(
-    exportMethods: Seq[TemporaryAdmissionMethodOfDisposal],
+
+  def apply(implicit
     messages: Messages,
     form: Form[Option[TemporaryAdmissionMethodOfDisposal]]
   ): Seq[RadioItem] =
-    exportMethods.zipWithIndex.flatMap {
-      case (em, index) if index === exportMethods.length - 1 =>
-        List(
-          RadioItem(
-            divider = Some("or")
-          ),
-          RadioItem(
-            value = Some(TemporaryAdmissionMethodOfDisposal.keyOf(em)),
-            content = Text(
-              messages(
-                s"choose-export-method.export-method-description.${TemporaryAdmissionMethodOfDisposal.keyOf(em)}"
-              )
-            ),
-            checked = form.value.contains(em)
-          )
+    List(
+      exportMethodItem(ExportedInSingleShipment),
+      exportMethodItem(ExportedInMultipleShipments),
+      exportMethodItem(DeclaredToOtherTraderUnderTemporaryAdmission),
+      exportMethodItem(DeclaredToFreeCirculation),
+      exportMethodItem(DeclaredToInwardProcessingRelief),
+      exportMethodItem(DeclaredToEndUse),
+      exportMethodItem(DeclaredToAFreeZone),
+      exportMethodItem(DeclaredToACustomsWarehouse),
+      exportMethodItem(Destroyed),
+      exportMethodItem(Other),
+      RadioItem(divider = Some("or")),
+      exportMethodItem(MultipleDisposalMethodsWereUsed)
+    )
+
+  private def exportMethodItem(
+    exportMethod: TemporaryAdmissionMethodOfDisposal
+  )(implicit form: Form[Option[TemporaryAdmissionMethodOfDisposal]], messages: Messages): RadioItem =
+    RadioItem(
+      value = Some(TemporaryAdmissionMethodOfDisposal.keyOf(exportMethod)),
+      content = Text(
+        messages(
+          s"choose-export-method.export-method-description.${TemporaryAdmissionMethodOfDisposal.keyOf(exportMethod)}"
         )
-      case (em, _)                                           =>
-        List(
-          RadioItem(
-            value = Some(TemporaryAdmissionMethodOfDisposal.keyOf(em)),
-            content = Text(
-              messages(
-                s"choose-export-method.export-method-description.${TemporaryAdmissionMethodOfDisposal.keyOf(em)}"
-              )
-            ),
-            checked = form.value.contains(em)
-          )
-        )
-    }
+      ),
+      checked = form.value.contains(exportMethod)
+    )
 }

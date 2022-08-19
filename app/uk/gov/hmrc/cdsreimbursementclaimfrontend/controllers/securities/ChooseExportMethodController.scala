@@ -62,7 +62,6 @@ class ChooseExportMethodController @Inject() (
     Ok(
       chooseExportMethodPage(
         chooseExportMethodForm,
-        TemporaryAdmissionMethodOfDisposal.orderedValues.toList,
         routes.ChooseExportMethodController.submit()
       )
     ).asFuture
@@ -76,7 +75,6 @@ class ChooseExportMethodController @Inject() (
           BadRequest(
             chooseExportMethodPage(
               formWithErrors,
-              TemporaryAdmissionMethodOfDisposal.orderedValues.toList,
               routes.ChooseExportMethodController.submit()
             )
           )
