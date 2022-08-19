@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 
 sealed trait UploadDocumentType
 
@@ -84,7 +85,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
       ClaimWorksheet
     )
 
-  val c285EvidenceTypes: Seq[UploadDocumentType] =
+  val c285DocumentTypes: Seq[UploadDocumentType] =
     Seq[UploadDocumentType](
       AirWayBill,
       BillOfLading,
@@ -97,7 +98,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
       Other
     )
 
-  val rejectedGoodsSingleTypes: Seq[UploadDocumentType] =
+  val rejectedGoodsSingleDocumentTypes: Seq[UploadDocumentType] =
     Seq[UploadDocumentType](
       AdditionalSupportingDocuments,
       CalculationWorksheet,
@@ -109,15 +110,17 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
       ProofOfExportOrDestruction
     )
 
-  val rejectedGoodsMultipleTypes: Seq[UploadDocumentType] =
-    rejectedGoodsSingleTypes
+  val rejectedGoodsMultipleDocumentTypes: Seq[UploadDocumentType] =
+    rejectedGoodsSingleDocumentTypes
 
-  val rejectedGoodsScheduledTypes: Seq[UploadDocumentType] =
-    rejectedGoodsSingleTypes
+  val rejectedGoodsScheduledDocumentTypes: Seq[UploadDocumentType] =
+    rejectedGoodsSingleDocumentTypes
 
-  val securitiesTypes: ReasonForSecurity => Option[Seq[UploadDocumentType]] = {
-    val pf: PartialFunction[ReasonForSecurity, Seq[UploadDocumentType]] = {
-      case ReasonForSecurity.InwardProcessingRelief =>
+  val securitiesDocumentTypes
+    : (ReasonForSecurity, Option[TemporaryAdmissionMethodOfDisposal]) => Option[Seq[UploadDocumentType]] = {
+    val pf
+      : PartialFunction[(ReasonForSecurity, Option[TemporaryAdmissionMethodOfDisposal]), Seq[UploadDocumentType]] = {
+      case (ReasonForSecurity.InwardProcessingRelief, _) =>
         Seq[UploadDocumentType](
           ImportDeclaration,
           ExportDeclaration,
@@ -127,7 +130,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           Other
         )
 
-      case ReasonForSecurity.EndUseRelief =>
+      case (ReasonForSecurity.EndUseRelief, _) =>
         Seq[UploadDocumentType](
           ImportDeclaration,
           ExportDeclaration,
@@ -137,9 +140,31 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           Other
         )
 
-      case ReasonForSecurity.OutwardProcessingRelief | ReasonForSecurity.TemporaryAdmission2M |
-          ReasonForSecurity.TemporaryAdmission3M | ReasonForSecurity.TemporaryAdmission6M |
-          ReasonForSecurity.TemporaryAdmission2Y =>
+      case (
+            ReasonForSecurity.TemporaryAdmission2M | ReasonForSecurity.TemporaryAdmission3M |
+            ReasonForSecurity.TemporaryAdmission6M | ReasonForSecurity.TemporaryAdmission2Y,
+            Some(
+              TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments |
+              TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
+            )
+          ) =>
+        Seq[UploadDocumentType](
+          ClaimWorksheet,
+          CommercialInvoice,
+          ImportDeclaration,
+          ExportDeclaration,
+          ImportPackingList,
+          ExportPackingList,
+          SubstituteOrDiversionEntry,
+          Other
+        )
+
+      case (
+            ReasonForSecurity.OutwardProcessingRelief | ReasonForSecurity.TemporaryAdmission2M |
+            ReasonForSecurity.TemporaryAdmission3M | ReasonForSecurity.TemporaryAdmission6M |
+            ReasonForSecurity.TemporaryAdmission2Y,
+            _
+          ) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
           ImportDeclaration,
@@ -150,7 +175,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           Other
         )
 
-      case ReasonForSecurity.AccountSales =>
+      case (ReasonForSecurity.AccountSales, _) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
           ImportDeclaration,
@@ -158,7 +183,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           Other
         )
 
-      case ReasonForSecurity.MissingPreferenceCertificate =>
+      case (ReasonForSecurity.MissingPreferenceCertificate, _) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
           ImportDeclaration,
@@ -166,7 +191,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           Other
         )
 
-      case ReasonForSecurity.MissingLicenseQuota =>
+      case (ReasonForSecurity.MissingLicenseQuota, _) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
           ImportDeclaration,
@@ -174,7 +199,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           Other
         )
 
-      case ReasonForSecurity.CommunitySystemsOfDutyRelief =>
+      case (ReasonForSecurity.CommunitySystemsOfDutyRelief, _) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
           ImportDeclaration,
@@ -182,30 +207,30 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
           Other
         )
 
-      case ReasonForSecurity.ManualOverrideDeposit =>
+      case (ReasonForSecurity.ManualOverrideDeposit, _) =>
         Seq[UploadDocumentType](
           SupportingEvidence,
           ImportDeclaration
         )
 
-      case ReasonForSecurity.RevenueDispute =>
+      case (ReasonForSecurity.RevenueDispute, _) =>
         Seq[UploadDocumentType](
           SupportingEvidence,
           ImportDeclaration
         )
 
-      case ReasonForSecurity.UKAPEntryPrice =>
+      case (ReasonForSecurity.UKAPEntryPrice, _) =>
         Seq[UploadDocumentType](
           SupportingEvidence,
           ImportDeclaration
         )
 
-      case ReasonForSecurity.UKAPSafeguardDuties =>
+      case (ReasonForSecurity.UKAPSafeguardDuties, _) =>
         Seq[UploadDocumentType](
           SupportingEvidence,
           ImportDeclaration
         )
     }
-    pf.lift
+    (rfs, modOpt) => pf.lift.apply((rfs, modOpt))
   }
 }

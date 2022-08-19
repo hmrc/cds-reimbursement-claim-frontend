@@ -37,7 +37,7 @@ object UpscanGen extends OptionValues {
     Arbitrary(Gen.listOfN(n, arbitraryUploadedFile.arbitrary).map(NonEmptyList.fromList))
 
   lazy val genEvidenceDocumentType: Gen[UploadDocumentType] =
-    Gen.oneOf(UploadDocumentType.c285EvidenceTypes)
+    Gen.oneOf(UploadDocumentType.c285DocumentTypes)
 
   implicit lazy val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 

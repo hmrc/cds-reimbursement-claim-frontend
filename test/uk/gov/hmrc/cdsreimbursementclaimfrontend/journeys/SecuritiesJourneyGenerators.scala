@@ -27,9 +27,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import scala.collection.JavaConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
-object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData {
+object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData with SeqUtils {
 
   def validSecurityReclaimsGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
     Gen
@@ -175,7 +176,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesTypes(rfs).isDefined))
+      rfs   <-
+        Gen.oneOf(
+          ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesDocumentTypes(rfs, None).isDefined)
+        )
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
@@ -187,7 +191,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)] =
     for {
       (mrn, rfs, acc14) <- mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen
-      documentType      <- Gen.oneOf(UploadDocumentType.securitiesTypes(rfs).get)
+      documentType      <- Gen.oneOf(UploadDocumentType.securitiesDocumentTypes(rfs, None).get)
     } yield (mrn, rfs, acc14, documentType)
 
   lazy val mrnWithRfsWithDisplayDeclarationWithReclaimsGen
@@ -312,7 +316,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       documentTypes               <-
         listOfExactlyN(
           numberOfDocumentTypes,
-          Gen.oneOf(UploadDocumentType.securitiesTypes(rfs).getOrElse(Seq(UploadDocumentType.SupportingEvidence)))
+          Gen.oneOf(
+            UploadDocumentType
+              .securitiesDocumentTypes(rfs, methodOfDisposal)
+              .getOrElse(Seq(UploadDocumentType.SupportingEvidence))
+          )
         )
       supportingEvidences         <-
         Gen

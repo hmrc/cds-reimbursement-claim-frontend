@@ -72,7 +72,7 @@ class UploadFilesController @Inject() (
 
   final val selfUrl: String = servicesConfig.getString("self.url")
 
-  final val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285EvidenceTypes
+  final val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285DocumentTypes
 
   final val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>

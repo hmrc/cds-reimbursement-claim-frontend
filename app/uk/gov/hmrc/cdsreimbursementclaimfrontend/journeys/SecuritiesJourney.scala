@@ -212,18 +212,20 @@ final class SecuritiesJourney private (
     answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
 
   def requiresDocumentTypeSelection: Boolean =
-    getReasonForSecurity.exists(UploadDocumentType.securitiesTypes(_).isDefined)
+    getReasonForSecurity.exists(
+      UploadDocumentType.securitiesDocumentTypes(_, answers.temporaryAdmissionMethodOfDisposal).isDefined
+    )
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     getReasonForSecurity
-      .flatMap(UploadDocumentType.securitiesTypes(_)) ++
+      .flatMap(rfs => UploadDocumentType.securitiesDocumentTypes(rfs, answers.temporaryAdmissionMethodOfDisposal)) ++
       (if (needsProofOfAuthorityForBankAccountDetailsChange)
          Some(Seq(UploadDocumentType.ProofOfAuthority))
        else None)
 
   def getSelectedDocumentTypeOrDefault: Option[UploadDocumentType] =
     getReasonForSecurity.flatMap { rfs =>
-      UploadDocumentType.securitiesTypes(rfs) match {
+      UploadDocumentType.securitiesDocumentTypes(rfs, answers.temporaryAdmissionMethodOfDisposal) match {
         case None =>
           Some(UploadDocumentType.SupportingEvidence)
 

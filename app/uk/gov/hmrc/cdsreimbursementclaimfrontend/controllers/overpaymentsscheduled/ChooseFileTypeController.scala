@@ -54,7 +54,7 @@ class ChooseFileTypeController @Inject() (
     with SessionUpdates
     with SessionDataExtractor {
 
-  val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285EvidenceTypes
+  val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285DocumentTypes
 
   val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
