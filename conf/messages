@@ -1602,6 +1602,7 @@ choose-file-type.file-type.ProofOfEligibility=Proof of eligibility
 choose-file-type.file-type.ImportPackingList=Import packing list
 choose-file-type.file-type.ExportPackingList=Export packing list
 choose-file-type.file-type.ProofOfOrigin=Proof of origin
+choose-file-type.file-type.ProofOfAuthority=Proof of authority
 choose-file-type.file-type.CalculationWorksheetOrFinalSalesFigures=Calculation Worksheet or Final Sales Figures
 choose-file-type.file-type.BillOfDischarge3=Bill of discharge 3
 choose-file-type.file-type.BillOfDischarge4=Bill of discharge 4

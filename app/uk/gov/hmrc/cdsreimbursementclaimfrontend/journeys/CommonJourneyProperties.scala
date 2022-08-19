@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
@@ -70,12 +71,24 @@ trait CommonJourneyProperties {
   final def needsDeclarantAndConsigneePostCode: Boolean =
     !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)
 
+  final def getConsigneeBankAccountDetails: Option[BankAccountDetails] =
+    getLeadDisplayDeclaration
+      .flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails))
+
+  final def getDeclarantBankAccountDetails: Option[BankAccountDetails] =
+    getLeadDisplayDeclaration
+      .flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
+
   final def computeBankAccountDetails: Option[BankAccountDetails] =
-    Stream(
-      answers.bankAccountDetails,
-      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
-      getLeadDisplayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
-    ).find(_.nonEmpty).flatten
+    answers.bankAccountDetails
+      .orElse(getConsigneeBankAccountDetails)
+      .orElse(getDeclarantBankAccountDetails)
+
+  final def needsProofOfAuthorityForBankAccountDetailsChange: Boolean =
+    answers.bankAccountDetails.exists { bankDetails =>
+      getConsigneeBankAccountDetails.forall(_ =!= bankDetails) &&
+      getDeclarantBankAccountDetails.forall(_ =!= bankDetails)
+    }
 
   final def getClaimantType: ClaimantType =
     if (getConsigneeEoriFromACC14.contains(answers.userEoriNumber))

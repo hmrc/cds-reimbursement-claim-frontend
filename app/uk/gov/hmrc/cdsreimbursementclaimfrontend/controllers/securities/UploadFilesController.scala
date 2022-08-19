@@ -65,6 +65,7 @@ class UploadFilesController @Inject() (
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getSelectedDocumentTypeOrDefault match {
       case None =>
+        logger.warn("missing document type")
         Redirect(selectDocumentTypePageAction).asFuture
 
       case Some(documentType) =>

@@ -204,7 +204,11 @@ final class SecuritiesJourney private (
     getReasonForSecurity.exists(UploadDocumentType.securitiesTypes(_).isDefined)
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
-    getReasonForSecurity.flatMap(UploadDocumentType.securitiesTypes(_))
+    getReasonForSecurity
+      .flatMap(UploadDocumentType.securitiesTypes(_)) ++
+      (if (needsProofOfAuthorityForBankAccountDetailsChange)
+         Some(Seq(UploadDocumentType.ProofOfAuthority))
+       else None)
 
   def getSelectedDocumentTypeOrDefault: Option[UploadDocumentType] =
     getReasonForSecurity.flatMap { rfs =>
@@ -214,7 +218,10 @@ final class SecuritiesJourney private (
 
         case Some(documentTypes) =>
           answers.selectedDocumentType match {
-            case Some(selectedDocumentType) if documentTypes.contains(selectedDocumentType) =>
+            case Some(selectedDocumentType)
+                if documentTypes.contains(
+                  selectedDocumentType
+                ) || selectedDocumentType === UploadDocumentType.ProofOfAuthority =>
               Some(selectedDocumentType)
 
             case _ => None
