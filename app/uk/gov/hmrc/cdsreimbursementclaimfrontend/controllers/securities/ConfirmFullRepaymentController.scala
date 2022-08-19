@@ -71,12 +71,7 @@ class ConfirmFullRepaymentController @Inject() (
           journey.resetClaimFullAmountMode(),
           Ok(
             confirmFullRepaymentPage(
-              form.withDefault(
-                journey
-                  .getTotalReclaimAmountFor(id)
-                  .map(claimAmount => journey.getTotalSecurityDepositAmountFor(id).contains(claimAmount))
-                  .map(YesNo.of)
-              ),
+              form.withDefault(journey.getClaimFullAmountStatus(id)),
               id,
               amountPaid,
               routes.ConfirmFullRepaymentController.submit(id)
@@ -109,12 +104,19 @@ class ConfirmFullRepaymentController @Inject() (
                 )
                 .getOrElse(errorHandler.errorResult())
             ).asFuture,
-          {
-            case Yes =>
-              submitYes(id, journey)
-            case No  =>
-              submitNo(id, journey)
-          }
+          answer =>
+            if (
+              journey.getClaimFullAmountStatus(id).contains(answer) &&
+              userHasSeenCYAPage(journey)
+            )
+              (journey, Redirect(checkYourAnswers)).asFuture
+            else
+              answer match {
+                case Yes =>
+                  submitYes(id, journey)
+                case No  =>
+                  submitNo(id, journey)
+              }
         )
     },
     fastForwardToCYAEnabled = false
