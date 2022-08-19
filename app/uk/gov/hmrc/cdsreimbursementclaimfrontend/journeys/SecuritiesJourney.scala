@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -101,6 +102,11 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
+
+  def getSecurityTaxCodesWithAmounts(securityDepositId: String): Seq[DutyAmount] =
+    getSecurityTaxCodesFor(securityDepositId)
+      .flatMap(getSecurityTaxDetailsFor(securityDepositId, _).toList)
+      .map(x => DutyAmount(x.getTaxCode, x.getAmount))
 
   /** Returns deposit IDs selected by the user. */
   def getSelectedDepositIds: Seq[String] =
@@ -413,32 +419,39 @@ final class SecuritiesJourney private (
 
   def selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
     securityDepositId: String,
-    taxCodes: Seq[TaxCode]
+    selectedTaxCodes: Seq[TaxCode]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       if (!isValidSecurityDepositId(securityDepositId))
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
       else if (!isSelectedDepositId(securityDepositId))
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.securityDepositIdNotSelected")
-      else if (taxCodes.isEmpty)
+      else if (selectedTaxCodes.isEmpty)
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.emptyTaxCodeSelection")
-      else if (!getSecurityTaxCodesFor(securityDepositId).containsEachItemOf(taxCodes))
+      else if (!getSecurityTaxCodesFor(securityDepositId).containsEachItemOf(selectedTaxCodes))
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidTaxCodeSelection")
       else {
-        val existingReclaims: SecuritiesReclaims =
-          answers.securitiesReclaims
-            .flatMap(_.get(securityDepositId))
-            .getOrElse(SortedMap.empty)
-        val refinedReclaims: SecuritiesReclaims  =
-          SortedMap(taxCodes.map(taxCode => taxCode -> existingReclaims.getOrElse(taxCode, None)): _*)
-        Right(
-          new SecuritiesJourney(
-            answers.copy(
-              securitiesReclaims = answers.securitiesReclaims
-                .map(_ + (securityDepositId -> refinedReclaims))
+        if (
+          getSelectedDutiesFor(securityDepositId)
+            .containsSameElements(selectedTaxCodes)
+        )
+          Right(this)
+        else {
+          val existingReclaims: SecuritiesReclaims =
+            answers.securitiesReclaims
+              .flatMap(_.get(securityDepositId))
+              .getOrElse(SortedMap.empty)
+          val refinedReclaims: SecuritiesReclaims  =
+            SortedMap(selectedTaxCodes.map(taxCode => taxCode -> existingReclaims.getOrElse(taxCode, None)): _*)
+          Right(
+            new SecuritiesJourney(
+              answers.copy(
+                securitiesReclaims = answers.securitiesReclaims
+                  .map(_ + (securityDepositId -> refinedReclaims))
+              )
             )
           )
-        )
+        }
       }
     }
 
