@@ -18,6 +18,7 @@
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -44,7 +45,7 @@
     )
 
     @paragraph(Html(messages(s"$key.must-be")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.already-paid")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.already-paid", routes.LandingPageController.showLandingPage().url)), Some("govuk-body"))
 
     @formWithCSRF(enterMRN, 'novalidate -> "novalidate") {
         @submitButton(s"$key.submit")

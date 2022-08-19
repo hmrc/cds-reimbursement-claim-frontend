@@ -151,6 +151,11 @@ final class SecuritiesJourney private (
       case _                                                                                 => false
     }
 
+  def getClaimFullAmountStatus(securityDepositId: String): Option[YesNo] =
+    getTotalReclaimAmountFor(securityDepositId)
+      .map(claimAmount => getTotalSecurityDepositAmountFor(securityDepositId).contains(claimAmount))
+      .map(YesNo.of)
+
   def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.securitiesReclaims
       .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
