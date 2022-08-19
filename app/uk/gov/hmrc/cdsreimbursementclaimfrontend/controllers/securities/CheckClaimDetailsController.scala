@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_cla
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
 import SecuritiesJourney.Checks._
 
 @Singleton
@@ -72,11 +71,8 @@ class CheckClaimDetailsController @Inject() (
           journey,
           if (userHasSeenCYAPage(journey))
             Redirect(routes.CheckYourAnswersController.show())
-          else if (journey.requiresDocumentTypeSelection) {
+          else
             Redirect(routes.ChooseFileTypeController.show())
-          } else {
-            Redirect(routes.UploadFilesController.show())
-          }
         )
       }
     }
