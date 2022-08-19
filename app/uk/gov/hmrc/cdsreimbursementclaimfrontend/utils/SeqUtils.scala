@@ -43,6 +43,20 @@ trait SeqUtils {
       if (map.isEmpty) None else Some(map)
   }
 
+  implicit class OptionOfSeqOps[A](val optionOfSeq: Option[Seq[A]]) {
+
+    final def ++(otherOptionOfSeq: Option[Seq[A]]): Option[Seq[A]] =
+      optionOfSeq match {
+        case None       => otherOptionOfSeq
+        case Some(seq1) =>
+          otherOptionOfSeq match {
+            case None       => optionOfSeq
+            case Some(seq2) => Some(seq1 ++ seq2)
+          }
+      }
+
+  }
+
   implicit class OptionOfMapOps[K, V, M[K, V] <: Map[K, V]](val optionOfMap: Option[M[K, V]]) {
 
     final def noneIfEmpty: Option[M[K, V]] =

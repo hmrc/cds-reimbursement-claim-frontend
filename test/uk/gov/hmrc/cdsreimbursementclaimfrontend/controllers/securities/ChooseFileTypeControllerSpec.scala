@@ -209,6 +209,24 @@ class ChooseFileTypeControllerSpec
         )
       }
 
+      "redirect to choose files when valid document type selection when in change mode" in {
+        forAll(completeJourneyGen) { journey =>
+          journey.getDocumentTypesIfRequired.get.foreach { documentType =>
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+              mockStoreSession(
+                SessionData(journey.submitDocumentTypeSelection(documentType).getOrFail)
+              )(Right(()))
+            }
+            checkIsRedirect(
+              performAction("choose-file-type" -> s"$documentType"),
+              routes.UploadFilesController.show()
+            )
+          }
+        }
+      }
+
     }
 
   }
