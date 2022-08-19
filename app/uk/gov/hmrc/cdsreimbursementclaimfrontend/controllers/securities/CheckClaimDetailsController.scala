@@ -72,7 +72,7 @@ class CheckClaimDetailsController @Inject() (
           if (userHasSeenCYAPage(journey))
             Redirect(routes.CheckYourAnswersController.show())
           else
-            Redirect(routes.ChooseFileTypeController.show())
+            Redirect(routes.CheckBankDetailsController.show())
         )
       }
     }
