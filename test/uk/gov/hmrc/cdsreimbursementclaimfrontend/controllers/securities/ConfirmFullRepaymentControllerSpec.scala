@@ -413,7 +413,7 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC9 selecting NO, going back from check-claim, changing to YES and clicking continue should redirect back to check-claim" in {
+      "AC9 selecting NO, going back from CYA, changing to YES and clicking continue should redirect back to CYA" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
           for (securityId <- journey.getSelectedDepositIds) {
             inSequence {
@@ -427,6 +427,42 @@ class ConfirmFullRepaymentControllerSpec
             checkIsRedirect(
               result,
               routes.CheckClaimDetailsController.show()
+            )
+          }
+        }
+      }
+
+      "AC9 selecting NO, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
+        forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
+          for (securityId <- journey.getSelectedDepositIds) {
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            val result = performAction(securityId, Seq(confirmFullRepaymentKey -> "false"))
+
+            checkIsRedirect(
+              result,
+              routes.CheckYourAnswersController.show()
+            )
+          }
+        }
+      }
+
+      "AC9 selecting YES, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
+        forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
+          for (securityId <- journey.getSelectedDepositIds) {
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            val result = performAction(securityId, Seq(confirmFullRepaymentKey -> "true"))
+
+            checkIsRedirect(
+              result,
+              routes.CheckYourAnswersController.show()
             )
           }
         }
