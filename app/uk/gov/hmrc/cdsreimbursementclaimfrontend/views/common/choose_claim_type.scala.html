@@ -40,16 +40,16 @@
 
 @layout(pageTitle = Some(s"$title"), hasErrors = false) {
 
- @heading(Html(title))
-
  @formWithCSRF(routes.ChooseClaimTypeController.submit(), 'novalidate -> "novalidate") {
 
   @radios(
    form = form,
    name = key,
    legend = title,
+   legendAsHeading = true,
+   classes = "govuk-fieldset__legend--xl",
+   paddingClasses = "govuk-!-margin-bottom-4",
    hintKey = None,
-   classes = "govuk-visually-hidden",
    items = Seq(
     RadioItem(
      id = Some(s"$key-c285"),

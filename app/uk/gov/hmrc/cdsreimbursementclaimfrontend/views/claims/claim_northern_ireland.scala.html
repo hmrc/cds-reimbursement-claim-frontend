@@ -48,18 +48,16 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
-
-    @paragraph(Html(messages(combine(key, journey, "help-text"))), Some("govuk-hint"))
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
             legend = title,
-            hintKey = None,
-            classes = "govuk-visually-hidden",
+            legendAsHeading = true,
+            hintKey = Some(messages(combine(key, journey, "help-text"))),
+            classes = "govuk-fieldset__legend--xl",
+            paddingClasses = "govuk-!-margin-bottom-4",
             inline = true,
             items = Seq(
                 RadioItem(
