@@ -108,7 +108,7 @@ class ChooseFileTypeControllerSpec
 
       "display the page when in change mode" in {
         forAll(completeJourneyGen) { journey =>
-          whenever(journey.requiresDocumentTypeSelection) {
+          whenever(journey.needsDocumentTypeSelection) {
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(journey))

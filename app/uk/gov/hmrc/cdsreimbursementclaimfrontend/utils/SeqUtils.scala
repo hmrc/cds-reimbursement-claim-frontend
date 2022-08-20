@@ -35,6 +35,21 @@ trait SeqUtils {
 
     final def nonEmptyList: Option[NonEmptyList[A]] =
       NonEmptyList.fromList(seq.toList)
+
+    final def ++(seqOpt: Option[Seq[A]]): Seq[A] =
+      seqOpt match {
+        case None       => seq
+        case Some(seq2) => seq ++ seq2
+      }
+
+    final def +(item: A): Seq[A] =
+      seq :+ item
+
+    final def +(itemOpt: Option[A]): Seq[A] =
+      itemOpt match {
+        case None    => seq
+        case Some(a) => seq :+ a
+      }
   }
 
   implicit class MapOps[K, V, M[K, V] <: Map[K, V]](val map: M[K, V]) {

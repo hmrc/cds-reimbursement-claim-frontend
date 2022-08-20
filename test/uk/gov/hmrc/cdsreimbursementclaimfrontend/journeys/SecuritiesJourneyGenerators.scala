@@ -178,7 +178,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       mrn   <- IdGen.genMRN
       rfs   <-
         Gen.oneOf(
-          ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesDocumentTypes(rfs, None).isDefined)
+          ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesDocumentTypes(rfs, None, false).isDefined)
         )
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
@@ -191,7 +191,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)] =
     for {
       (mrn, rfs, acc14) <- mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen
-      documentType      <- Gen.oneOf(UploadDocumentType.securitiesDocumentTypes(rfs, None).get)
+      documentType      <- Gen.oneOf(UploadDocumentType.securitiesDocumentTypes(rfs, None, false).get)
     } yield (mrn, rfs, acc14, documentType)
 
   lazy val mrnWithRfsWithDisplayDeclarationWithReclaimsGen
@@ -318,7 +318,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           numberOfDocumentTypes,
           Gen.oneOf(
             UploadDocumentType
-              .securitiesDocumentTypes(rfs, methodOfDisposal)
+              .securitiesDocumentTypes(rfs, methodOfDisposal, false)
               .getOrElse(Seq(UploadDocumentType.SupportingEvidence))
           )
         )
