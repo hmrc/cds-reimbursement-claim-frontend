@@ -52,7 +52,7 @@ class ChooseFileTypeController @Inject() (
 
         Ok(
           chooseFileTypePage(
-            form.withDefault(Some(journey.answers.selectedDocumentType)),
+            form,
             availableDocumentTypes,
             submitAction
           )
