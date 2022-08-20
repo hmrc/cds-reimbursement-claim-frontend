@@ -96,7 +96,7 @@ class CheckBankDetailsControllerSpec
 
         val result = controller.show()(FakeRequest())
 
-        checkIsRedirect(result, routes.CheckYourAnswersController.show())
+        checkIsRedirect(result, routes.ChooseFileTypeController.show())
       }
 
       "Redirect when BankDetails is None and required" in {
@@ -108,7 +108,7 @@ class CheckBankDetailsControllerSpec
         }
 
         val result = controller.show()(FakeRequest())
-        checkIsRedirect(result, routes.CheckYourAnswersController.show())
+        checkIsRedirect(result, routes.ChooseFileTypeController.show())
       }
 
       "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {

@@ -51,8 +51,13 @@ class CheckBankDetailsController @Inject() (
   def show(): Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       val continueRoute =
-        if (userHasSeenCYAPage(journey)) checkYourAnswers
-        else checkYourAnswers // change in CDSR-1903
+        if (userHasSeenCYAPage(journey)) {
+          checkYourAnswers
+        } else if (journey.requiresDocumentTypeSelection) {
+          routes.ChooseFileTypeController.show()
+        } else {
+          routes.UploadFilesController.show()
+        }
 
       journey.computeBankAccountDetails
         .map { bankAccountDetails: BankAccountDetails =>

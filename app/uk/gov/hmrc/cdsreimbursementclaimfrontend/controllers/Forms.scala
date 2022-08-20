@@ -189,9 +189,9 @@ object Forms {
     mapping(
       "choose-export-method" -> nonEmptyText
         .transform[Option[models.TemporaryAdmissionMethodOfDisposal]](
-          (key: String) => if (key === none) None else TemporaryAdmissionMethodOfDisposal.parse(key),
+          (key: String) => if (key === noneString) None else TemporaryAdmissionMethodOfDisposal.parse(key),
           (value: Option[models.TemporaryAdmissionMethodOfDisposal]) =>
-            value.map(TemporaryAdmissionMethodOfDisposal.keyOf).getOrElse(none)
+            value.map(TemporaryAdmissionMethodOfDisposal.keyOf).getOrElse(noneString)
         )
     )(identity)(x => Some(x))
   )
@@ -325,7 +325,7 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  val none: String = "none"
+  val noneString: String = "none"
 
   def chooseFileTypeForm(
     availableFileTypes: Set[UploadDocumentType]
@@ -335,14 +335,13 @@ object Forms {
         "choose-file-type" -> nonEmptyText
           .verifying(
             "choose-file-type.error.invalid-file-type",
-            key =>
-              key === none || UploadDocumentType.parse(key).map(v => availableFileTypes.contains(v)).getOrElse(false)
+            key => key === noneString || UploadDocumentType.parse(key).exists(v => availableFileTypes.contains(v))
           )
           .transform[Option[UploadDocumentType]](
-            (key: String) => if (key === none) None else UploadDocumentType.parse(key),
-            (value: Option[UploadDocumentType]) => value.map(UploadDocumentType.keyOf).getOrElse(none)
+            (key: String) => if (key === noneString) None else UploadDocumentType.parse(key),
+            (value: Option[UploadDocumentType]) => value.map(UploadDocumentType.keyOf).getOrElse(noneString)
           )
-      )(identity)(x => Some(x))
+      )(identity)(Some(_))
     )
 
   def chooseSupportEvidenceDocumentTypeForm(
