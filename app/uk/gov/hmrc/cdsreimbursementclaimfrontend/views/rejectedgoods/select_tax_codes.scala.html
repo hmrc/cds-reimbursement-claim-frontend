@@ -70,7 +70,7 @@
         @heading(Html(title))
 
         @indexAndMrnOpt.map{ case(_, mrn) =>
-            @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)), Some("govuk-body"))
+            @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))
         }.getOrElse("")
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {

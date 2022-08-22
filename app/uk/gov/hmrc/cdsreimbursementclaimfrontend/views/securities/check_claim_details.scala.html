@@ -44,7 +44,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.summary")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.summary")))
 
     @securitiesReclaims.map { case (securityDepositId, reclaims) =>
         @subHeading(Html(messages(s"$key.claim-for-security.h2", securityDepositId)))

@@ -35,8 +35,8 @@
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.paragraph.1")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.paragraph.2")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.paragraph.1")))
+    @paragraph(Html(messages(s"$key.paragraph.2")))
 
     @bullets(
         Seq(

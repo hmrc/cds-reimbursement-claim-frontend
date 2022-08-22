@@ -46,7 +46,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help-text")))
 
     @bulletList(
         Seq(
@@ -57,7 +57,7 @@
         )
     )
 
-    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.p1")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

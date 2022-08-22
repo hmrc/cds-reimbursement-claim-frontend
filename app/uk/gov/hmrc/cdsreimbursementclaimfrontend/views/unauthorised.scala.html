@@ -32,6 +32,6 @@
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.help")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.help-text", viewConfig.eoriNumberHelpUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help")))
+    @paragraph(Html(messages(s"$key.help-text", viewConfig.eoriNumberHelpUrl)))
 }

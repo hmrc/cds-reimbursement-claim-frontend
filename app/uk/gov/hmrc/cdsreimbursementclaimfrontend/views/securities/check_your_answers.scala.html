@@ -127,7 +127,7 @@
     @summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"$key.documents", routes.UploadFilesController.summary()))
     
     @subHeading(Html(messages(s"$key.confirmation-statement.h2")))
-    @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.confirmation-statement")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")

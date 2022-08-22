@@ -42,11 +42,11 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.p1")))
 
     @dropdownDetails(summary = s"$key.heading",
         html(
-            paragraph(Html(messages(s"$key.p2")), Some("govuk-body")),
+            paragraph(Html(messages(s"$key.p2"))),
             bulletList(
                 Seq(
                     Html(messages(s"$key.bullet1")),

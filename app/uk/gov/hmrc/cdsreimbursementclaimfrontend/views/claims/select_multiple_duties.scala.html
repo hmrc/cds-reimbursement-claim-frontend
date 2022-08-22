@@ -61,7 +61,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"multiple-$key.help-text.1", mrn.value)), Some("govuk-body"))
+        @paragraph(Html(messages(s"multiple-$key.help-text.1", mrn.value)))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

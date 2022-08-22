@@ -60,7 +60,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.paragraph")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.paragraph")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         

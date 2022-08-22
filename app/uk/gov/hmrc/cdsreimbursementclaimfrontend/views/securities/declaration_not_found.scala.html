@@ -36,7 +36,7 @@
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.because")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.because")))
 
     @bullets(
         Seq(
@@ -44,8 +44,8 @@
         )
     )
 
-    @paragraph(Html(messages(s"$key.must-be")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.already-paid", routes.LandingPageController.showLandingPage().url)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.must-be")))
+    @paragraph(Html(messages(s"$key.already-paid", routes.LandingPageController.showLandingPage().url)))
 
     @formWithCSRF(enterMRN, 'novalidate -> "novalidate") {
         @submitButton(s"$key.submit")

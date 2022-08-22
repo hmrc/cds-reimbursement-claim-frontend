@@ -39,22 +39,22 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help.p1")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.help.p2")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help.p1")))
+    @paragraph(Html(messages(s"$key.help.p2")))
 
     @subHeading(Html(messages(s"$key.who.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
-    @paragraph(Html(messages(s"$key.who.p1")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl)), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.who.p3")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.who.p1")))
+    @paragraph(Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl)))
+    @paragraph(Html(messages(s"$key.who.p3")))
 
     @bulletList((1 to 3).map(i => Html(messages(s"$key.who.l$i"))))
 
-    @paragraph(Html(messages(s"$key.who.p4")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.who.p4")))
 
     @subHeading(Html(messages(s"$key.why.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
-    @paragraph(Html(messages(s"$key.why.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.why.p1")))
 
     @bulletList(
         Seq(
@@ -74,13 +74,13 @@
 
     @subHeading(Html(messages(s"$key.before.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
-    @paragraph(Html(messages(s"$key.before.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.before.p1")))
 
     @bulletList((1 to 9).map(i => Html(messages(s"$key.before.l$i"))))
 
     @dropdownDetails(summary = s"$key.details.heading",
         html(
-            paragraph(Html(messages(s"$key.details.p1")), Some("govuk-body")),
+            paragraph(Html(messages(s"$key.details.p1"))),
             bulletList((1 to 10).map(i => Html(messages(s"$key.details.l$i"))))
         ))
 }

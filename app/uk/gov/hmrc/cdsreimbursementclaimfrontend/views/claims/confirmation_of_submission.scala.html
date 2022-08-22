@@ -48,11 +48,11 @@
             </div>
         </div>
 
-        @paragraph(Html(messages(s"$key.email-sent")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.email-sent")))
 
         @subHeading(Html(messages(s"$key.whatNext")), classes = "govuk-heading-m")
 
-        @paragraph(Html(messages(s"$key.what-next.p1")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.what-next.p1")))
 
         @bulletList(
             Seq(
@@ -64,6 +64,6 @@
 
         <p class="govuk-body govuk-!-margin-bottom-9"><a href="@{routes.LandingPageController.showLandingPage().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
 
-        @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.ggSignOut)), Some("govuk-body"))
+        @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.ggSignOut)))
 
     }

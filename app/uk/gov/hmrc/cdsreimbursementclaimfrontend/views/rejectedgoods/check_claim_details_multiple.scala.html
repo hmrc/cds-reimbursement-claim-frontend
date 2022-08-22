@@ -52,7 +52,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.multiple.label")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.multiple.label")))
 
     @for((mrn, index, claim) <- claims){
         @subHeading(Html(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value)), classes = "govuk-heading-m heading-mrn")
