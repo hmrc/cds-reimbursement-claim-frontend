@@ -84,9 +84,9 @@ class UploadFilesController @Inject() (
                   documentType,
                   continueAfterYesAnswerUrl,
                   continueAfterNoAnswerUrl,
-                  showYesNoQuestionBeforeContinue = journey.requiresDocumentTypeSelection,
+                  showYesNoQuestionBeforeContinue = journey.needsDocumentTypeSelection,
                   backlinkUrl = Some(
-                    if (journey.requiresDocumentTypeSelection)
+                    if (journey.needsDocumentTypeSelection)
                       selectDocumentTypePageAction.url
                     else
                       precedingAction.url

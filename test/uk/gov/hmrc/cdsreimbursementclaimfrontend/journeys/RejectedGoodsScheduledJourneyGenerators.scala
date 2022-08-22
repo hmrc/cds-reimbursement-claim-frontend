@@ -178,7 +178,8 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
       numberOfSupportingEvidences <- Gen.choose(0, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
-      documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsScheduledTypes))
+      documentTypes               <-
+        Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsScheduledDocumentTypes))
       supportingEvidences         <-
         Gen
           .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](

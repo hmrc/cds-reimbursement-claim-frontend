@@ -252,7 +252,8 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
 
       numberOfSupportingEvidences <- Gen.choose(0, maxSize)
       numberOfDocumentTypes       <- Gen.choose(1, maxSize - 1)
-      documentTypes               <- Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsMultipleTypes))
+      documentTypes               <-
+        Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsMultipleDocumentTypes))
       supportingEvidences         <-
         Gen
           .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](

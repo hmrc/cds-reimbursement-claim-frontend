@@ -198,8 +198,20 @@ final class SecuritiesJourney private (
     getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions)
 
   def needsExportMRNSubmission: Boolean =
-    needsMethodOfDisposalSubmission && answers.temporaryAdmissionMethodOfDisposal.contains(
-      TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+    needsMethodOfDisposalSubmission &&
+      answers.temporaryAdmissionMethodOfDisposal.contains(
+        TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+      )
+
+  def needsDocumentTypeSelection: Boolean =
+    getReasonForSecurity.exists(
+      UploadDocumentType
+        .securitiesDocumentTypes(
+          _,
+          answers.temporaryAdmissionMethodOfDisposal,
+          needsProofOfAuthorityForBankAccountDetailsChange
+        )
+        .isDefined
     )
 
   def getReasonForSecurity: Option[ReasonForSecurity] =
@@ -211,19 +223,23 @@ final class SecuritiesJourney private (
   def reasonForSecurityIsEndUseRelief: Boolean =
     answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
 
-  def requiresDocumentTypeSelection: Boolean =
-    getReasonForSecurity.exists(UploadDocumentType.securitiesTypes(_).isDefined)
-
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     getReasonForSecurity
-      .flatMap(UploadDocumentType.securitiesTypes(_)) ++
-      (if (needsProofOfAuthorityForBankAccountDetailsChange)
-         Some(Seq(UploadDocumentType.ProofOfAuthority))
-       else None)
+      .flatMap(rfs =>
+        UploadDocumentType.securitiesDocumentTypes(
+          rfs,
+          answers.temporaryAdmissionMethodOfDisposal,
+          needsProofOfAuthorityForBankAccountDetailsChange
+        )
+      )
 
   def getSelectedDocumentTypeOrDefault: Option[UploadDocumentType] =
     getReasonForSecurity.flatMap { rfs =>
-      UploadDocumentType.securitiesTypes(rfs) match {
+      UploadDocumentType.securitiesDocumentTypes(
+        rfs,
+        answers.temporaryAdmissionMethodOfDisposal,
+        needsDocumentTypeSelection
+      ) match {
         case None =>
           Some(UploadDocumentType.SupportingEvidence)
 

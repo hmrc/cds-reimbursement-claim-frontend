@@ -1622,11 +1622,14 @@ choose-file-type.file-type.ImportPackingList=Import packing list
 choose-file-type.file-type.ExportPackingList=Export packing list
 choose-file-type.file-type.ProofOfOrigin=Proof of origin
 choose-file-type.file-type.ProofOfAuthority=Proof of authority
+choose-file-type.file-type.ProofOfAuthority.hint=Required when bank account details have been updated
 choose-file-type.file-type.CalculationWorksheetOrFinalSalesFigures=Calculation Worksheet or Final Sales Figures
 choose-file-type.file-type.BillOfDischarge3=Bill of discharge 3
 choose-file-type.file-type.BillOfDischarge4=Bill of discharge 4
 choose-file-type.file-type.QuotaLicense=Quota License
 choose-file-type.file-type.SubstituteOrDiversionEntry=Substitute or diversion entry
+choose-file-type.file-type.ClaimWorksheet=Claim worksheet
+choose-file-type.file-type.ClaimWorksheet.hint=Claim information should include details of the goods type, quantity, disposal methods and any export MRNs
 
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload

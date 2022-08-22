@@ -69,10 +69,7 @@ class CheckClaimDetailsController @Inject() (
       whenAllReclaimsProvided(journey) {
         (
           journey,
-          if (userHasSeenCYAPage(journey))
-            Redirect(routes.CheckYourAnswersController.show())
-          else
-            Redirect(routes.CheckBankDetailsController.show())
+          decideNextPage(journey)
         )
       }
     }
@@ -95,5 +92,15 @@ class CheckClaimDetailsController @Inject() (
             body
         }
     ).asFuture
+
+  private def decideNextPage(journey: SecuritiesJourney): Result =
+    if (userHasSeenCYAPage(journey))
+      Redirect(routes.CheckYourAnswersController.show())
+    else if (journey.needsBanksAccountDetailsSubmission)
+      Redirect(routes.CheckBankDetailsController.show())
+    else if (journey.needsDocumentTypeSelection)
+      Redirect(routes.ChooseFileTypeController.show())
+    else
+      Redirect(routes.ChooseFileTypeController.show())
 
 }

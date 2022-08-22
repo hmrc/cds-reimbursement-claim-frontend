@@ -170,8 +170,10 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          if (initialJourney.requiresDocumentTypeSelection)
+          if (initialJourney.needsBanksAccountDetailsSubmission)
             routes.CheckBankDetailsController.show()
+          else if (initialJourney.needsDocumentTypeSelection)
+            routes.ChooseFileTypeController.show()
           else
             routes.UploadFilesController.show()
         )

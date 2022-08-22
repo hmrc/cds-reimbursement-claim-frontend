@@ -41,7 +41,7 @@ class ChooseFileTypeController @Inject() (
   val chooseFilesPageAction: Call = routes.UploadFilesController.show()
 
   val availableDocumentTypes: Seq[UploadDocumentType] =
-    UploadDocumentType.rejectedGoodsScheduledTypes
+    UploadDocumentType.rejectedGoodsScheduledDocumentTypes
 
   val form: Form[Option[UploadDocumentType]] =
     Forms.chooseFileTypeForm(availableDocumentTypes.toSet)

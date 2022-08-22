@@ -53,7 +53,7 @@ class CheckBankDetailsController @Inject() (
       val continueRoute =
         if (userHasSeenCYAPage(journey)) {
           checkYourAnswers
-        } else if (journey.requiresDocumentTypeSelection) {
+        } else if (journey.needsDocumentTypeSelection) {
           routes.ChooseFileTypeController.show()
         } else {
           routes.UploadFilesController.show()
