@@ -149,6 +149,6 @@ class ClaimantDetailsHelper @Inject() () {
 
   }
 
-  def getParagraph(in: String): HtmlFormat.Appendable = new paragraph()(Html(in), Some("govuk-body"))
+  def getParagraph(in: String): HtmlFormat.Appendable = new paragraph()(Html(in))
 
 }

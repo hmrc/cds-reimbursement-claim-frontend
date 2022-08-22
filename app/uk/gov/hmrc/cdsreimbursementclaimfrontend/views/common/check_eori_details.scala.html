@@ -53,7 +53,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"$key.paragraph", viewConfig.eoriNumberHelpUrl)), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.paragraph", viewConfig.eoriNumberHelpUrl)))
 
         @summary(SummaryList(eoriDetailsHelper.eoriSummary(userDetails)))
 

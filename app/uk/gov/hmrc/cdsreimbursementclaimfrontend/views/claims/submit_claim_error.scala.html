@@ -33,7 +33,7 @@
     @layout(pageTitle = Some(s"$title")) {
 
         @heading(Html(title))
-        @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
-        @paragraph(Html(messages(s"$key.p2", viewConfig.importExportUrl)), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.p1")))
+        @paragraph(Html(messages(s"$key.p2", viewConfig.importExportUrl)))
 
     }

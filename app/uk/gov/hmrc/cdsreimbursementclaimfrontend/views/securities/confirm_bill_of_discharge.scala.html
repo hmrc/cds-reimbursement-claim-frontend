@@ -54,9 +54,9 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(combine(key, Some(bodKey), "p1"), bodFormUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(combine(key, Some(bodKey), "p1"), bodFormUrl)))
 
-    @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.p2")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

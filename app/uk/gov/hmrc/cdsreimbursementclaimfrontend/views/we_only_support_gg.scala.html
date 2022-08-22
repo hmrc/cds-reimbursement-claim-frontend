@@ -35,13 +35,13 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"${key}.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"${key}.p1")))
 
     <h2 class="heading-medium">@messages(s"${key}.createAccount")</h2>
-    @paragraph(Html(messages(s"${key}.createAccount.p1",routes.StartController.signOutAndRegisterForGG().url)), Some("govuk-body"))
+    @paragraph(Html(messages(s"${key}.createAccount.p1",routes.StartController.signOutAndRegisterForGG().url)))
 
     <h2 class="heading-medium">@messages(s"${key}.signIn")</h2>
-    @paragraph(Html(messages(s"${key}.signIn.p1", routes.StartController.signOutAndSignIn().url))), Some("govuk-body"))
+    @paragraph(Html(messages(s"${key}.signIn.p1", routes.StartController.signOutAndSignIn().url))))
 
 
 

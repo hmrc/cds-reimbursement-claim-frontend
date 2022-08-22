@@ -37,13 +37,13 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.p1")))
 
-    @paragraph(Html(messages(combine(key, Some(bodKey), "p2"))), Some("govuk-body"))
+    @paragraph(Html(messages(combine(key, Some(bodKey), "p2"))))
 
-    @paragraph(Html(messages(combine(key, Some(bodKey), "p3"))), Some("govuk-body"))
+    @paragraph(Html(messages(combine(key, Some(bodKey), "p3"))))
 
-    @paragraph(Html(messages(s"$key.p4", viewConfig.importingGoodsIntoTheUk)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.p4", viewConfig.importingGoodsIntoTheUk)))
 
-    @paragraph(Html(messages(s"$key.p5", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.p5", viewConfig.contactCdsTeamUrl)))
 }

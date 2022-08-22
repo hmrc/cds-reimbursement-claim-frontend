@@ -32,7 +32,7 @@
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.paragraph1")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.paragraph2", viewConfig.homePageUrl, securitiesStartPageUrl)), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.paragraph3", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.paragraph1")))
+    @paragraph(Html(messages(s"$key.paragraph2", viewConfig.homePageUrl, securitiesStartPageUrl)))
+    @paragraph(Html(messages(s"$key.paragraph3", viewConfig.contactCdsTeamUrl)))
 }

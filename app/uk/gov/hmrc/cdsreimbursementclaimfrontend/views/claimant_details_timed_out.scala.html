@@ -37,7 +37,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help")))
 
     @button(messages(s"$key.button"), Some(OverpaymentsRoutes.CheckContactDetailsController.show(journeyBindable).url))
 

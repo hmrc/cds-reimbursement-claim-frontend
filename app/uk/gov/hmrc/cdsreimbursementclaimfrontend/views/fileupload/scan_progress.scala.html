@@ -36,7 +36,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.p1")))
         @paragraph(Html(messages(s"$key.p2")), Some("govuk-body govuk-!-margin-bottom-5"))
 
         @formWithCSRF(submitAction, 'novalidate -> "novalidate") {

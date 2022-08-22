@@ -57,7 +57,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

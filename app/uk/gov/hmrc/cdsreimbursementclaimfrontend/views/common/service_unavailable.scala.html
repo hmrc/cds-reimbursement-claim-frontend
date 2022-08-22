@@ -33,6 +33,6 @@
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.help", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help", viewConfig.contactCdsTeamUrl)))
     @button(s"button.go-back", href = Some("javascript:history.back()"))
 }

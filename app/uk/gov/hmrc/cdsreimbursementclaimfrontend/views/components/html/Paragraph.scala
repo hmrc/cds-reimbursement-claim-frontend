@@ -27,6 +27,6 @@ object Paragraph {
       .filter(_.nonEmpty)
       .map(HtmlFormat.escape)
       .mkString("<br />")
-    new paragraph()(Html(content), Some("govuk-body"))
+    new paragraph()(Html(content))
   }
 }
