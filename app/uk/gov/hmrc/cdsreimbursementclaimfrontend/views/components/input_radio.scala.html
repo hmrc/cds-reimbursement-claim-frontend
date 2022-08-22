@@ -33,12 +33,15 @@
     name : String,
     legend: String,
     items: Seq[RadioItem],
-    legendAsHeading: Boolean = true,
+    legendAsHeading: Boolean = false,
     hintKey: Option[String] = None,
     classes: String = "govuk-fieldset__legend--m",
+    paddingClasses: String = "govuk-!-margin-top-6",
     inline: Boolean = false,
     hideError: Boolean = false
 )(implicit messages: Messages)
+
+@legendClasses = @{classes + " " + paddingClasses}
 
 @govukRadios(Radios(
     classes = if(inline) "govuk-radios--inline" else "",
@@ -47,7 +50,7 @@
         legend = Some(Legend(
             content = HtmlContent(legend),
             isPageHeading = legendAsHeading,
-            classes = classes
+            classes = legendClasses
         ))
     )),
     hint = hintKey.map { hint => Hint(

@@ -58,13 +58,11 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
-
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @checkboxes(
                 field = form(s"$key"),
-                legendAsHeading = false,
+                legendAsHeading = true,
                 legend = HtmlContent(title),
                 items = options.toList,
                 hint = None
