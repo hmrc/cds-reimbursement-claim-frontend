@@ -34,6 +34,8 @@ final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
 ) {
 
+  def hasBankDetails: Boolean                       =
+    displayResponseDetail.bankDetails.isDefined
   def getConsigneeDetails: Option[ConsigneeDetails] =
     displayResponseDetail.consigneeDetails
 
