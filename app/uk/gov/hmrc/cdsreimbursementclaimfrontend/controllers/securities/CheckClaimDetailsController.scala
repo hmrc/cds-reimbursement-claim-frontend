@@ -67,10 +67,7 @@ class CheckClaimDetailsController @Inject() (
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { _ => journey =>
       whenAllReclaimsProvided(journey) {
-        (
-          journey,
-          decideNextPage(journey)
-        )
+        ensureBankDetails(journey)
       }
     }
 
@@ -91,7 +88,13 @@ class CheckClaimDetailsController @Inject() (
           case None =>
             body
         }
-    ).asFuture
+      ).asFuture
+
+  private def ensureBankDetails(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
+    if (journey.allSelectedDutiesWithBankPaymentHaveBankAccount)
+      (journey, decideNextPage(journey))
+    else
+      (journey, Redirect(routes.EnterBankAccountDetailsController.show()))
 
   private def decideNextPage(journey: SecuritiesJourney): Result =
     if (userHasSeenCYAPage(journey))
@@ -102,5 +105,4 @@ class CheckClaimDetailsController @Inject() (
       Redirect(routes.ChooseFileTypeController.show())
     else
       Redirect(routes.ChooseFileTypeController.show())
-
 }

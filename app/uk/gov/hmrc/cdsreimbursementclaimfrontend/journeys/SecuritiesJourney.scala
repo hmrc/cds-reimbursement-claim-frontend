@@ -81,6 +81,11 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
 
+  /** Returns true if bank details are on the ACC14 declaration. */
+  def haveBankDetailsOnAcc14(securityDepositId: String): Boolean =
+    getLeadDisplayDeclaration
+      .exists(_.hasBankDetails)
+
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDetailsFor(securityDepositId))
@@ -189,6 +194,13 @@ final class SecuritiesJourney private (
       .collect { case Some(s) => s }
       .forall(_.isGuaranteeEligible)
   }
+
+  def allSelectedDutiesWithBankPaymentHaveBankAccount: Boolean =
+    getSelectedDepositIds
+      .map(getSecurityDetailsFor)
+      .collect { case Some(s) => s }
+      .filter(_.isBankAccountPayment)
+      .forall(a => haveBankDetailsOnAcc14(a.securityDepositId))
 
   def needsBanksAccountDetailsSubmission: Boolean =
     getSelectedDepositIds.nonEmpty &&
