@@ -1164,11 +1164,12 @@ enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a 
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
-bank-details.heading=How to change bank details if you are a representative
+bank-details.heading=How to change bank details
 bank-details.p1=These are the details of where your repayment will be made in the UK based on our records.
-bank-details.p2=If you are a representative and want to change these bank details, then you will need to provide:
-bank-details.bullet1=a letter of authority from the company you represent that proves you are their representative
-bank-details.bullet2=a letter from the company you represent to their bank to confirm what the bank details should be changed to
+bank-details.p2=If you want to change these bank details to an account under a different name, we will need to confirm that you have permission to do this.
+bank-details.p3=You will need to provide:
+bank-details.bullet1=a letter of authority from the company you represent
+bank-details.bullet2=a letter from the company you represent to their bank, confirming what the bank details should be changed to
 bank-details.account-name.label=Name on the account
 bank-details.sort-code.label=Sort code
 bank-details.account-number.label=Account number

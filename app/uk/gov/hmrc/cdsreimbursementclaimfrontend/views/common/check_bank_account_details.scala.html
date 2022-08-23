@@ -30,10 +30,12 @@
     buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(bankAccount: BankAccountDetails, continueAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(bankAccount: BankAccountDetails, continueAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String] = None)
 
 @key = @{"bank-details"}
 @title = @{messages(s"$key.title")}
@@ -47,6 +49,7 @@
     @dropdownDetails(summary = s"$key.heading",
         html(
             paragraph(Html(messages(s"$key.p2"))),
+            paragraph(Html(messages(s"$key.p3"))),
             bulletList(
                 Seq(
                     Html(messages(s"$key.bullet1")),
@@ -55,7 +58,9 @@
             )
         ))
 
-    @summary(BankAccountDetailsSummary(bankAccount, key, None, changeAction))
+    @summary(BankAccountDetailsSummary(bankAccount, key, subKey, changeAction))
 
-    @buttonLink("button.continue", Some(continueAction.url))
+    @formWithCSRF(continueAction, 'novalidate -> "novalidate") {
+        @submitButton("button.continue")
+    }
 }
