@@ -88,7 +88,7 @@ class CheckClaimDetailsController @Inject() (
           case None =>
             body
         }
-      ).asFuture
+    ).asFuture
 
   private def ensureBankDetails(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
     if (journey.allSelectedDutiesWithBankPaymentHaveBankAccount)
