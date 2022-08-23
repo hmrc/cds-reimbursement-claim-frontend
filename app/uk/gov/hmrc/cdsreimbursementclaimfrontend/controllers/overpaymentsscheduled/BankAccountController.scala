@@ -49,7 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_bank_account_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_account_details
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
