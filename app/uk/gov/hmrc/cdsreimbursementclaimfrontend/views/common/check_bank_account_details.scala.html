@@ -60,7 +60,7 @@
 
     @summary(BankAccountDetailsSummary(bankAccount, key, subKey, changeAction))
 
-    @formWithCSRF(continueAction, 'novalidate -> "novalidate") {
+    <form method="GET" novalidate action="@continueAction.url">
         @submitButton("button.continue")
-    }
+    </form>
 }
