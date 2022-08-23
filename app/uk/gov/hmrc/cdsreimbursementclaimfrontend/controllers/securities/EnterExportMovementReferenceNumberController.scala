@@ -79,22 +79,19 @@ class EnterExportMovementReferenceNumberController @Inject() (
             .getDisplayDeclaration(mrn)
             .fold(
               _ => submitMrnAndContinue(mrn, journey),
-              {
-                case None    => submitMrnAndContinue(mrn, journey)
-                case Some(_) =>
-                  (
-                    journey,
-                    BadRequest(
-                      enterExportMovementReferenceNumberPage(
-                        exportMovementReferenceNumberForm.copy(
-                          data = Map.empty,
-                          errors = List(FormError(enterExportMovementReferenceNumberKey, "securities.error.import"))
-                        ),
-                        routes.EnterExportMovementReferenceNumberController.submit()
-                      )
+              _ =>
+                (
+                  journey,
+                  BadRequest(
+                    enterExportMovementReferenceNumberPage(
+                      exportMovementReferenceNumberForm.copy(
+                        data = Map.empty,
+                        errors = List(FormError(enterExportMovementReferenceNumberKey, "securities.error.import"))
+                      ),
+                      routes.EnterExportMovementReferenceNumberController.submit()
                     )
                   )
-              }
+                )
             )
       )
   }

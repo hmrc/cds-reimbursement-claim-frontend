@@ -149,18 +149,18 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     } yield (mrn, rfs, acc14, mfd)
 
   lazy val mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen
-  : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
     for {
-      mrn <- IdGen.genMRN
-      rfs <- Gen.oneOf(ReasonForSecurity.temporaryAdmissions)
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.temporaryAdmissions)
       acc14 <- securitiesDisplayDeclarationGen.map(
-        _.withDeclarationId(mrn.value)
-          .withDeclarantEori(exampleEori)
-          .withReasonForSecurity(rfs)
-      )
-      mfd <- Gen.oneOf(
-        List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
-      )
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+      mfd   <- Gen.oneOf(
+                 List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+               )
     } yield (mrn, rfs, acc14, mfd)
 
   def mrnWithRfsExcludingWithDisplayDeclarationGen(

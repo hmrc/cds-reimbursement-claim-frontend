@@ -150,7 +150,8 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
   ): SecuritiesJourney = testParams match {
     case (mrn: MRN, rfs: ReasonForSecurity, acc14: DisplayDeclaration, mfd: TemporaryAdmissionMethodOfDisposal) =>
       buildSecuritiesJourneyWithSomeSecuritiesSelected((mrn, rfs, acc14))
-        .submitTemporaryAdmissionMethodOfDisposal(mfd).getOrFail
+        .submitTemporaryAdmissionMethodOfDisposal(mfd)
+        .getOrFail
   }
   final def buildSecuritiesJourneyInChangeDeclarationDetailsMode(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration)

@@ -39,10 +39,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, ReasonForSecurity, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithJourneyGenerator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -51,7 +55,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnterExportMovementReferenceNumberControllerSpec
-  extends PropertyBasedControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -70,7 +74,8 @@ class EnterExportMovementReferenceNumberControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: EnterExportMovementReferenceNumberController = instanceOf[EnterExportMovementReferenceNumberController]
+  val controller: EnterExportMovementReferenceNumberController =
+    instanceOf[EnterExportMovementReferenceNumberController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -86,13 +91,13 @@ class EnterExportMovementReferenceNumberControllerSpec
   val session: SessionData = SessionData(journey)
 
   def validateChooseExportMethodPage(doc: Document) = {
-    val headerHtml = doc.select(".govuk-heading-xl").html()
-    val input = doc.select("#enter-export-movement-reference-number")
+    val headerHtml     = doc.select(".govuk-heading-xl").html()
+    val input          = doc.select("#enter-export-movement-reference-number")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
 
-    headerHtml should ===(messages(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"))
+    headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"))
     input.attr("value") should ===("")
-    continueButton should ===(List(messages("button.continue")))
+    continueButton      should ===(List(messages("button.continue")))
   }
 
   private def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
@@ -148,13 +153,13 @@ class EnterExportMovementReferenceNumberControllerSpec
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
         )
-      ) { case (journey, (_,_,_,_)) =>
+      ) { case (journey, (_, _, _, _)) =>
         val session = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetDisplayDeclaration(Right(None))
+          mockGetDisplayDeclaration(Left(Error("")))
           mockStoreSession(
             SessionData(journey.submitExportMovementReferenceNumber(exampleMrn).getOrFail)
           )(Right(()))
@@ -197,7 +202,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
         )
       ) { case (journey, _) =>
-        val session = SessionData(journey)
+        val session    = SessionData(journey)
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
         inSequence {
