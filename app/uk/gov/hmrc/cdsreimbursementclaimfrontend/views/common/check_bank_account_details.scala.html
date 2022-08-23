@@ -30,9 +30,7 @@
     buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
 @(bankAccount: BankAccountDetails, continueAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String] = None)
@@ -60,7 +58,6 @@
 
     @summary(BankAccountDetailsSummary(bankAccount, key, subKey, changeAction))
 
-    <form method="GET" novalidate action="@continueAction.url">
-        @submitButton("button.continue")
-    </form>
+    @buttonLink("button.continue", Some(continueAction.url))
+
 }
