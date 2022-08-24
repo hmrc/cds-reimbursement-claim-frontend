@@ -138,13 +138,21 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .getOrFail
   }
 
-  final def buildSecuritiesJourneyWithSomeSecuritiesSelectedWithGeneratedMehodOfDisposal(
+  final def buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)
   ): SecuritiesJourney = testParams match {
     case (mrn: MRN, rfs: ReasonForSecurity, acc14: DisplayDeclaration, _: TemporaryAdmissionMethodOfDisposal) =>
       buildSecuritiesJourneyWithSomeSecuritiesSelected((mrn, rfs, acc14))
   }
 
+  final def buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)
+  ): SecuritiesJourney = testParams match {
+    case (mrn: MRN, rfs: ReasonForSecurity, acc14: DisplayDeclaration, mfd: TemporaryAdmissionMethodOfDisposal) =>
+      buildSecuritiesJourneyWithSomeSecuritiesSelected((mrn, rfs, acc14))
+        .submitTemporaryAdmissionMethodOfDisposal(mfd)
+        .getOrFail
+  }
   final def buildSecuritiesJourneyInChangeDeclarationDetailsMode(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
   ): SecuritiesJourney =
