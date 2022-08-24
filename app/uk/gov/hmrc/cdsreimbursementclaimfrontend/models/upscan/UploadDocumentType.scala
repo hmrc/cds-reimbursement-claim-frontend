@@ -179,8 +179,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ExportDeclaration,
           ImportPackingList,
           ExportPackingList,
-          SubstituteOrDiversionEntry,
-          Other
+          SubstituteOrDiversionEntry
         ) + proofOfAuthorityOpt + Other
 
       // Option D
