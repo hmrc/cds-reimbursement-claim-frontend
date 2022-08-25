@@ -22,6 +22,8 @@ import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Request
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.chooseExportMethodForm
@@ -29,10 +31,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_export_method
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class ChooseExportMethodController @Inject() (
@@ -49,48 +53,65 @@ class ChooseExportMethodController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(
-      chooseExportMethodPage(
-        chooseExportMethodForm,
-        routes.ChooseExportMethodController.submit()
+  def show(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    whenTemporaryAdmission(journey) {
+      (
+        journey,
+        Ok(
+          chooseExportMethodPage(
+            chooseExportMethodForm,
+            routes.ChooseExportMethodController.submit()
+          )
+        )
       )
-    ).asFuture
+    }
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form.bindFromRequest.fold(
-      formWithErrors =>
-        (
-          journey,
-          BadRequest(
-            chooseExportMethodPage(
-              formWithErrors,
-              routes.ChooseExportMethodController.submit()
+    whenTemporaryAdmission(journey) {
+      form.bindFromRequest.fold(
+        formWithErrors =>
+          (
+            journey,
+            BadRequest(
+              chooseExportMethodPage(
+                formWithErrors,
+                routes.ChooseExportMethodController.submit()
+              )
             )
-          )
-        ).asFuture,
-      {
-        case None                   =>
-          logger.warn("no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors")
-          (journey, errorHandler.errorResult()).asFuture
-        case Some(methodOfDisposal) =>
-          journey
-            .submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal)
-            .fold(
-              error => {
-                logger.warn(error)
-                (journey, errorHandler.errorResult()).asFuture
-              },
-              updatedJourney =>
-                methodOfDisposal match {
-                  case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment =>
-                    (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show())).asFuture
-                  case _                                                           =>
-                    (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
-                }
-            )
-      }
-    )
+          ),
+        {
+          case None                   =>
+            logger.warn("no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors")
+            (journey, errorHandler.errorResult())
+          case Some(methodOfDisposal) =>
+            journey
+              .submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal)
+              .fold(
+                error => {
+                  logger.warn(error)
+                  (journey, errorHandler.errorResult())
+                },
+                updatedJourney =>
+                  methodOfDisposal match {
+                    case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment =>
+                      (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show()))
+                    case _                                                           =>
+                      (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
+                  }
+              )
+        }
+      )
+    }
   }
+
+  def whenTemporaryAdmission(
+    journey: SecuritiesJourney
+  )(body: => (SecuritiesJourney, Result))(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
+    journey.getReasonForSecurity
+      .fold((journey, errorHandler.errorResult())) {
+        case rfs if ReasonForSecurity.temporaryAdmissions.contains(rfs) => body
+        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show))
+      }
+      .asFuture
 }
