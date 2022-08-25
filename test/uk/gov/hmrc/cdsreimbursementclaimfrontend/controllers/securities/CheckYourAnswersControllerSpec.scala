@@ -113,7 +113,7 @@ class CheckYourAnswersControllerSpec
     headers should containOnlyDefinedElementsOf(
       (Seq(
         "Declaration details".expectedAlways,
-        "Export declaration details".expectedWhen(journey.needsExportMRNSubmission),
+        "Export movement reference number (MRN)".expectedWhen(journey.needsExportMRNSubmission),
         "Contact information for this claim".expectedAlways,
         "Bank details".expectedWhen(claim.bankAccountDetails),
         "Documents".expectedAlways,
@@ -125,6 +125,7 @@ class CheckYourAnswersControllerSpec
     summaries should containOnlyDefinedPairsOf(
       Seq(
         ("Import MRN"                   -> Some(claim.movementReferenceNumber.value)),
+        ("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.value)),
         ("Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation))),
         ("Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation))),
         ("Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value)),
