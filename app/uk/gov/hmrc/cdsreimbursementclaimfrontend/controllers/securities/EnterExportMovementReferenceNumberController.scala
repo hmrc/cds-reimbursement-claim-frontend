@@ -68,7 +68,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
         journey,
         Ok(
           enterExportMovementReferenceNumberPage(
-            exportMovementReferenceNumberForm,
+            exportMovementReferenceNumberForm.withDefault(journey.answers.exportMovementReferenceNumber),
             routes.EnterExportMovementReferenceNumberController.submit()
           )
         )
