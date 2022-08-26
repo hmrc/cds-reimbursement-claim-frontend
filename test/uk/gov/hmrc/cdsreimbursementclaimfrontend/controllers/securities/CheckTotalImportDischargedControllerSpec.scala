@@ -34,8 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelected
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithIprOrErRfsWithDisplayDeclarationGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -44,7 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
-import scala.List
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
@@ -116,7 +114,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "display page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprOrEurRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -145,9 +143,9 @@ class CheckTotalImportDischargedControllerSpec
         status(performAction(Some(true))) shouldBe NOT_FOUND
       }
 
-      "redirect to the next page when yes is selected" in forAllWith(
+      "redirect to BOD3 form when yes is selected and RFS is InwardProcessingRelief" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -158,13 +156,30 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(true)),
-          routes.CheckClaimantDetailsController.show()
+          routes.BillOfDischargeController.showBOD3()
+        )
+      }
+
+      "redirect to BOD4 form when yes is selected and RFS is EndUseRelief" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithEurRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+        )
+      ) { case (journey, _) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(Some(true)),
+          routes.BillOfDischargeController.showBOD4()
         )
       }
 
       "redirect to correct error page when no is selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprOrEurRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -181,7 +196,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "stay on the same page and display error message when no option selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprOrErRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIprOrEurRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>

@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 
 class ProblemWithAddressControllerSpec
-  extends ControllerSpec
+    extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach {

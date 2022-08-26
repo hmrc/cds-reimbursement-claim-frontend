@@ -235,6 +235,9 @@ final class SecuritiesJourney private (
   def reasonForSecurityIsEndUseRelief: Boolean =
     answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
 
+  def requiresBillOfDischargeForm: Boolean =
+    reasonForSecurityIsIPR || reasonForSecurityIsEndUseRelief
+
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     getReasonForSecurity
       .flatMap(rfs =>

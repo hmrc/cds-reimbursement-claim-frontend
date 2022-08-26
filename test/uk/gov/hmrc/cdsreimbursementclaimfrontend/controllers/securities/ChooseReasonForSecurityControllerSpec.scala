@@ -267,7 +267,7 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-      "redirect to the Bill of Discharge page when reason for security is InwardProcessingRelief" in {
+      "redirect to the Check Total Import Discharged page when reason for security is InwardProcessingRelief" in {
         forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
           val rfs = ReasonForSecurity.InwardProcessingRelief
 
@@ -301,12 +301,12 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.BillOfDischargeController.showBOD3()
+            routes.CheckTotalImportDischargedController.show()
           )
         }
       }
 
-      "redirect to the Bill of Discharge page when reason for security is EndUseRelief" in {
+      "redirect to the Check Total Import Discharged page when reason for security is EndUseRelief" in {
         forAll(securitiesDisplayDeclarationGen) { declaration: DisplayDeclaration =>
           val rfs = ReasonForSecurity.EndUseRelief
 
@@ -340,7 +340,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.BillOfDischargeController.showBOD4()
+            routes.CheckTotalImportDischargedController.show()
           )
         }
       }

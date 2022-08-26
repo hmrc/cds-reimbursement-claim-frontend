@@ -177,7 +177,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     } yield (mrn, rfs, acc14)
 
-  lazy val mrnWithIprOrErRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+  lazy val mrnWithIprOrEurRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf[ReasonForSecurity](ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
@@ -187,6 +187,26 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withReasonForSecurity(rfs)
                )
     } yield (mrn, rfs, acc14)
+
+  lazy val mrnWithIprRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(ReasonForSecurity.InwardProcessingRelief)
+               )
+    } yield (mrn, ReasonForSecurity.InwardProcessingRelief, acc14)
+
+  lazy val mrnWithEurRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(ReasonForSecurity.EndUseRelief)
+               )
+    } yield (mrn, ReasonForSecurity.EndUseRelief, acc14)
 
   lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {

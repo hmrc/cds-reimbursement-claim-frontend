@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.NOT_FOUND
 import play.api.inject.bind
@@ -39,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+
 import scala.collection.JavaConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -49,6 +51,7 @@ import play.api.i18n.MessagesImpl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+
 import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
@@ -82,7 +85,7 @@ class CheckDeclarationDetailsControllerSpec
   def validateCheckDeclarationDetailsPage(
     doc: Document,
     journey: SecuritiesJourney
-  ) = {
+  ): Assertion = {
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -96,56 +99,56 @@ class CheckDeclarationDetailsControllerSpec
 
     summaries should containOnlyDefinedPairsOf(
       Seq(
-        ("Import MRN"                   -> journey.getLeadMovementReferenceNumber.map(_.value)),
-        ("Importer name"                -> journey.answers.displayDeclaration.flatMap(_.consigneeName)),
-        ("Importer email"               -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail)),
-        ("Importer address"             -> journey.answers.displayDeclaration.flatMap(d =>
+        "Import MRN"                   -> journey.getLeadMovementReferenceNumber.map(_.value),
+        "Importer name"                -> journey.answers.displayDeclaration.flatMap(_.consigneeName),
+        "Importer email"               -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail),
+        "Importer address"             -> journey.answers.displayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
-        )),
-        ("Importer telephone"           -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone)),
-        ("Declarant name"               -> journey.answers.displayDeclaration.map(_.declarantName)),
-        ("Declarant address"            -> journey.answers.displayDeclaration.map(d =>
+        ),
+        "Importer telephone"           -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone),
+        "Declarant name"               -> journey.answers.displayDeclaration.map(_.declarantName),
+        "Declarant address"            -> journey.answers.displayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
-        )),
-        ("Reason for security deposit"  -> journey.answers.reasonForSecurity.map(rfs =>
+        ),
+        "Reason for security deposit"  -> journey.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
-        )),
-        ("Date duty to be collected"    -> journey.answers.displayDeclaration
+        ),
+        "Date duty to be collected"    -> journey.answers.displayDeclaration
           .map(_.displayResponseDetail.acceptanceDate)
-          .flatMap(DateUtils.displayFormat)),
-        ("Date security deposit made"   -> journey.answers.displayDeclaration
+          .flatMap(DateUtils.displayFormat),
+        "Date security deposit made"   -> journey.answers.displayDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
-          .flatMap(DateUtils.displayFormat)),
-        ("Total security deposit value" -> journey.answers.displayDeclaration
-          .map(_.getTotalSecuritiesAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString)),
-        ("Total security deposit paid"  -> journey.answers.displayDeclaration
-          .map(_.getTotalSecuritiesPaidAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString)),
-        ("Payment method"               -> (if (securitiesReclaims.isEmpty)
-                                Some("Unavailable")
-                              else
-                                journey.answers.displayDeclaration
-                                  .map(
-                                    _.isAllSelectedSecuritiesEligibleForGuaranteePayment(
-                                      securitiesReclaims.keySet
-                                    )
-                                  )
-                                  .map {
-                                    case true  => "Guarantee"
-                                    case false => "Bank account transfer"
-                                  }))
+          .flatMap(DateUtils.displayFormat),
+        "Total security deposit value" -> journey.answers.displayDeclaration
+          .map(_.getTotalSecuritiesAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
+        "Total security deposit paid"  -> journey.answers.displayDeclaration
+          .map(_.getTotalSecuritiesPaidAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
+        "Payment method"               -> (if (securitiesReclaims.isEmpty)
+                               Some("Unavailable")
+                             else
+                               journey.answers.displayDeclaration
+                                 .map(
+                                   _.isAllSelectedSecuritiesEligibleForGuaranteePayment(
+                                     securitiesReclaims.keySet
+                                   )
+                                 )
+                                 .map {
+                                   case true  => "Guarantee"
+                                   case false => "Bank account transfer"
+                                 })
       ) ++
         journey.answers.displayDeclaration
           .flatMap(_.getSecurityDepositIds)
           .getOrElse(Seq.empty)
           .map { sid =>
-            (s"Claim for $sid" -> Some(
+            s"Claim for $sid" -> Some(
               if (securitiesReclaims.contains(sid))
                 "Yes"
               else
                 "No"
-            ))
+            )
           }
     )
 
@@ -329,7 +332,7 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "continue to the check total import discharged page if some securities selected and rfs is IPR or End Use Relief" in {
-        forAll(mrnWithIprOrErRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        forAll(mrnWithIprOrEurRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
 
