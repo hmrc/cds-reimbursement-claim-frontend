@@ -22,6 +22,8 @@ import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Result
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.checkTotalImportDischargedForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -39,7 +41,7 @@ import scala.concurrent.ExecutionContext
 class CheckTotalImportDischargedController @Inject() (
   val jcc: JourneyControllerComponents,
   checkTotalImportDischargedPage: check_total_import_discharged_page
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
   private val form: Form[YesNo] = checkTotalImportDischargedForm
 
@@ -49,11 +51,19 @@ class CheckTotalImportDischargedController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
+  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  private val successResultBOD3: Result =
+    Redirect(routes.BillOfDischargeController.showBOD3())
+
+  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  private val successResultBOD4: Result =
+    Redirect(routes.BillOfDischargeController.showBOD4())
+
   def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit)).asFuture
+    Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit())).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     form.bindFromRequest
       .fold(
         formWithErrors =>
@@ -61,7 +71,17 @@ class CheckTotalImportDischargedController @Inject() (
             checkTotalImportDischargedPage(formWithErrors, routes.CheckTotalImportDischargedController.submit())
           ).asFuture,
         {
-          case Yes => Redirect(routes.CheckClaimantDetailsController.show()).asFuture
+          case Yes =>
+            {
+              if (journey.reasonForSecurityIsIPR) successResultBOD3
+              else if (journey.reasonForSecurityIsEndUseRelief) successResultBOD4
+              else {
+                logAndDisplayError(
+                  "Invalid journey routing",
+                  s"Reason for security [${journey.getReasonForSecurity}] must be one of [InwardProcessingRelief, EndUseRelief]"
+                )
+              }
+            }.asFuture
           case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show()).asFuture
         }
       )
