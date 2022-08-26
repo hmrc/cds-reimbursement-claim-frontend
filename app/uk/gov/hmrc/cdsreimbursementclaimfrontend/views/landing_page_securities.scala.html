@@ -1,0 +1,111 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+)
+
+@()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"landing-securities"}
+@title = @{messages(s"$key.title")}
+
+@layout(pageTitle = Some(s"$title")) {
+
+    @heading(Html(title))
+
+    @paragraph(Html(messages(s"$key.help.p1")))
+
+    @subHeading(Html(messages(s"$key.who.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @paragraph(Html(messages(s"$key.who.p1")))
+
+    @bulletList((1 to 3).map(i => Html(messages(s"$key.who.l$i"))))
+
+    @subHeading(Html(messages(s"$key.why.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @paragraph(Html(messages(s"$key.why.p1")))
+
+    @bulletList((1 to 9).map(i => Html(messages(s"$key.why.l$i"))))
+
+    @subHeading(Html(messages(s"$key.what.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @bulletList((1 to 3).map(i => Html(messages(s"$key.what.l$i"))))
+
+    @subHeading(Html(messages(s"$key.before.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @paragraph(Html(messages(s"$key.before.p1")))
+
+    @bulletList((1 to 8).map(i => Html(messages(s"$key.before.l$i"))))
+
+    @subHeading(Html(messages(s"$key.docs.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @paragraph(Html(messages(s"$key.docs.p1")))
+
+    @paragraph(Html(messages(s"$key.docs.p2")))
+
+    @bulletList((1 to 9).map(i => Html(messages(s"$key.docs.l$i"))))
+
+    @subHeading(Html(messages(s"$key.start.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @paragraph(Html(messages(s"$key.start.p1")))
+
+    @subHeading(Html(messages(s"$key.start.subheading1")), classes = "govuk-heading-s govuk-!-margin-top-6", level = "h3")
+
+    @paragraph(Html(messages(s"$key.start.p2")))
+
+    @paragraph(Html(messages(s"$key.start.p3")))
+
+    <p class="govuk-body">
+        <a href="@{routes.StartController.startNewClaim()}" role="button" draggable="false" class="govuk-button govuk-!-margin-top-2 govuk-!-margin-bottom-8 govuk-button--start" data-module="govuk-button">
+            @messages(s"$key.start-button")
+            <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+            </svg>
+        </a>
+    </p>
+
+    @subHeading(Html(messages(s"$key.start.subheading2")), classes = "govuk-heading-s govuk-!-margin-top-6", level = "h3")
+
+    @paragraph(Html(messages(s"$key.start.p4")))
+
+    @paragraph(Html(messages(s"$key.start.p5")))
+
+    @subHeading(Html(messages(s"$key.next.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @paragraph(Html(messages(s"$key.next.p1")))
+
+    @bulletList((1 to 3).map(i => Html(messages(s"$key.next.l$i"))))
+
+    @subHeading(Html(messages(s"$key.help.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+
+    @paragraph(Html(messages(s"$key.help.p1")))
+
+    @paragraph(Html(messages(s"$key.help.p2")))
+    
+}
