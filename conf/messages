@@ -128,7 +128,7 @@ landing.details.l10=additional supporting documents (for example an import licen
 #  LANDING PAGE SECURITIES
 #===================================================
 landing-securities.title=Claim back an import security deposit or guarantee
-landing-securities.help.p1=Use this service if you want to claim back an import security deposit or guarantee paid to HMRC for goods you brought into the UK.
+landing-securities.intro.p1=Use this service if you want to claim back an import security deposit or guarantee paid to HMRC for goods you brought into the UK.
 landing-securities.who.heading=Making a claim
 landing-securities.who.p1=Anyone who paid an import security deposit or guarantee to HMRC and wants it refunding can submit a claim, including:
 landing-securities.who.l1=importers or their representatives
