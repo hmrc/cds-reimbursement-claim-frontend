@@ -82,13 +82,13 @@
     @exportDeclarationMrnOpt.map{ exportDeclarationMrn =>
         @subHeading(Html(messages(s"$key.export-declaration-details.h2")))  
         @summary(SummaryList(Seq(SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.declaration-details.mrn-label"))),
+            key = Key(HtmlContent(messages(s"$key.export-declaration-details.mrn"))),
             value = Value(Text(exportDeclarationMrn.value)),
             actions = Some(Actions(
                 items = Seq(ActionItem(
                     href = routes.EnterExportMovementReferenceNumberController.show().url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.declaration-details.mrn-label"))
+                    visuallyHiddenText = Some(messages(s"$key.export-declaration-details.mrn"))
             ))))
         ))))
     }

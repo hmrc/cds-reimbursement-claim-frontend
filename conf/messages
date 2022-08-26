@@ -1403,7 +1403,7 @@ check-your-answers.reference-number.associated-mrn-label={0} <abbr title="Moveme
 check-your-answers.reference-number.rejectedgoodsmultiple.label={0} <abbr title="Movement Reference Number">MRN</abbr>
 
 check-your-answers.declaration-details.label=Declaration details
-check-your-answers.declaration-details.mrn-label=Export <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.declaration-details.mrn-label=Import <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.multiple.mrn-label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.scheduled.mrn-label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.declaration-details.import-date-label=Import date
@@ -1536,6 +1536,7 @@ check-your-answers.claim-for-security.claim-full-amount.no=No
 check-your-answers.claim-for-security.duties-selected.label=Duties selected
 
 check-your-answers.export-declaration-details.h2=Export movement reference number (<abbr title="Movement Reference Number">MRN</abbr>)
+check-your-answers.export-declaration-details.mrn=Export <abbr title="Movement Reference Number">MRN</abbr>
 
 #===================================================
 # INSPECTION ADDRESS TYPE
