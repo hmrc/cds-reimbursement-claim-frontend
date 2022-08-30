@@ -59,9 +59,10 @@
                 <dt class="govuk-summary-list__key">@Html(messages(s"$key.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href=@changeUrl(1).url>@{
-                        messages(s"cya.change")
-                    }</a>
+                    <a class="govuk-link" href=@changeUrl(1).url>
+                        @{messages(s"cya.change")}
+                        <span class="govuk-visually-hidden">@Html(messages(s"$key.reference-number.multiple.label"))</span>
+                    </a>
                 </dd>
                 <dd class="govuk-summary-list__actions"></dd>
             </div>
@@ -71,15 +72,17 @@
                         <dt class="govuk-summary-list__key">@Html(messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href=@changeUrl(index + 1).url>@{
-                                messages(s"cya.change")
-                            }</a>
+                            <a class="govuk-link" href=@changeUrl(index + 1).url>
+                                @{messages(s"cya.change")}
+                                <span class="govuk-visually-hidden">@Html(messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                            </a>
                         </dd>
                         <dd class="govuk-summary-list__actions">
                         @if(references.size > 2) {
-                            <a class="govuk-link" href=@removeUrl(mrnWithIndex._1).url>@{
-                                messages(s"cya.remove")
-                            }</a>
+                            <a class="govuk-link" href=@removeUrl(mrnWithIndex._1).url>
+                                @{messages(s"cya.remove")}
+                                <span class="govuk-visually-hidden">@Html(messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                            </a>
                         }
                         </dd>
                     </div>

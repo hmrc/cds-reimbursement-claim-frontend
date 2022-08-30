@@ -58,9 +58,10 @@
                 <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href=@overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.enterJourneyMrn.url>@{
-                        messages(s"cya.change")
-                    }</a>
+                    <a class="govuk-link" href=@overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.enterJourneyMrn.url>
+                        @{messages(s"cya.change")}
+                        <span class="govuk-visually-hidden">@Html(messages(s"check-your-answers.reference-number.multiple.label"))</span>
+                    </a>
                 </dd>
                 <dd class="govuk-summary-list__actions"></dd>
             </div>
@@ -70,15 +71,17 @@
                         <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href=@overpaymentsMultipleRoutes.EnterAssociatedMrnController.changeMrn(index).url>@{
-                                messages(s"cya.change")
-                            }</a>
+                            <a class="govuk-link" href=@overpaymentsMultipleRoutes.EnterAssociatedMrnController.changeMrn(index).url>
+                                @{messages(s"cya.change")}
+                                <span class="govuk-visually-hidden">@Html(messages(s"check-your-answers.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize))</span>
+                            </a>
                         </dd>
                         <dd class="govuk-summary-list__actions">
                         @if(references.size > 2) {
-                            <a class="govuk-link" href=@overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.deleteMrn(index).url>@{
-                                messages(s"cya.remove")
-                            }</a>
+                            <a class="govuk-link" href=@overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.deleteMrn(index).url>
+                                @{messages(s"cya.remove")}
+                                <span class="govuk-visually-hidden">@Html(messages(s"check-your-answers.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize))</span>
+                            </a>
                         }
                         </dd>
                     </div>
