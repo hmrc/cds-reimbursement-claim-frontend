@@ -44,7 +44,7 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
               ActionItem(
                 href = changeCall.url,
                 content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"check-your-answers.reference-number.multiple.label"))
+                visuallyHiddenText = Some(messages(s"check-your-answers.reference-number.multiple.label-plaintext"))
               )
             )
           )
@@ -63,7 +63,7 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
                   messages(
-                    s"check-your-answers.reference-number.associated-mrn-label",
+                    s"check-your-answers.reference-number.associated-mrn-label-plaintext",
                     mrnIndex.ordinalNumeral.capitalize
                   )
                 )
