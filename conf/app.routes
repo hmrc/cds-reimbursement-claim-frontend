@@ -1,6 +1,7 @@
 ->         /hmrc-frontend                                   hmrcfrontend.Routes
 
 GET        /                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.showLandingPage()
+GET        /start-security                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageSecuritiesController.showLandingPageSecurities()
 
 GET        /exit/cannot-check-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
 GET        /start                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()
