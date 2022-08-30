@@ -43,7 +43,8 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
             Seq(
               ActionItem(
                 href = changeCall.url,
-                content = Text(messages("cya.change"))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"check-your-answers.reference-number.multiple.label"))
               )
             )
           )
@@ -59,7 +60,13 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
             Seq(
               ActionItem(
                 href = s"${overpaymentsMultipleRoutes.EnterAssociatedMrnController.changeMrn(mrnIndex).url}",
-                content = Text(messages("cya.change"))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(
+                  messages(
+                    s"check-your-answers.reference-number.associated-mrn-label",
+                    mrnIndex.ordinalNumeral.capitalize
+                  )
+                )
               )
             )
           )
