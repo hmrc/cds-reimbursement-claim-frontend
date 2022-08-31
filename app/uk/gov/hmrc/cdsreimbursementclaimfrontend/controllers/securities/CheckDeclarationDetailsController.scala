@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import cats.syntax.option._
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -26,7 +25,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.temporaryAdmissions
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
 
 import scala.concurrent.ExecutionContext
@@ -71,9 +70,7 @@ class CheckDeclarationDetailsController @Inject() (
             routes.CheckDeclarationDetailsController.show()
           else if (userHasSeenCYAPage(journey))
             routes.CheckYourAnswersController.show()
-          else if (ReasonForSecurity.requiresTotalImportDischarge.map(_.some).contains(journey.getReasonForSecurity))
-            routes.CheckTotalImportDischargedController.show()
-          else if (ReasonForSecurity.temporaryAdmissions.map(_.some).contains(journey.getReasonForSecurity))
+          else if (journey.getReasonForSecurity.exists(temporaryAdmissions.contains))
             routes.ChooseExportMethodController.show()
           else
             routes.CheckClaimantDetailsController.show()
