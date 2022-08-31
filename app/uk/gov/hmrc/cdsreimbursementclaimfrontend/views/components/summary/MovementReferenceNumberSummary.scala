@@ -41,7 +41,7 @@ object MovementReferenceNumberSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(combine(key, subKey, "label")))
+                  visuallyHiddenText = Some(messages(combine(key, subKey, "label-plaintext")))
                 )
               )
             )
@@ -56,7 +56,9 @@ object MovementReferenceNumberSummary {
     SummaryList(
       mrns.zipWithIndex.map { case (mrn, index) =>
         SummaryListRow(
-          key = Key(HtmlContent(messages(combine(key, subKey, "label"), OrdinalNumber.label(index + 1).capitalize))),
+          key = Key(
+            HtmlContent(messages(combine(key, subKey, "label"), OrdinalNumber.label(index + 1).capitalize))
+          ),
           value = Value(Text(mrn.value)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
@@ -64,7 +66,8 @@ object MovementReferenceNumberSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(combine(key, subKey, "label"), OrdinalNumber.label(index)))
+                  visuallyHiddenText =
+                    Some(messages(combine(key, subKey, "label-plaintext"), OrdinalNumber.label(index + 1).capitalize))
                 )
               )
             )
