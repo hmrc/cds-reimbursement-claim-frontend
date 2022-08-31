@@ -1460,10 +1460,13 @@ check-your-answers.scheduled.title=Check your answers before sending your claim
 check-your-answers.rejectedgoods.scheduled.title=Check your answers before sending your claim
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
 check-your-answers.reference-number.label=<abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.label-plaintext=Movement Reference Number (MRN)""
 check-your-answers.reference-number.multiple.label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.multiple.label-plaintext=First Movement Reference Number (MRN)
 check-your-answers.reference-number.scheduled.label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.scheduled.label-plaintext=First Movement Reference Number (MRN)
 check-your-answers.reference-number.rejectedgoods.scheduled.label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.rejectedgoods.scheduled.label-plaintext=First Movement Reference Number (MRN)
 check-your-answers.reference-number.associated-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
 check-your-answers.reference-number.associated-mrn-label-plaintext={0} Movement Reference Number (MRN)
 check-your-answers.reference-number.rejectedgoodsmultiple.label={0} <abbr title="Movement Reference Number">MRN</abbr>
