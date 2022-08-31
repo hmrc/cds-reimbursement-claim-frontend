@@ -43,7 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -56,10 +56,10 @@ class EnterImporterEoriNumberController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   claimService: ClaimService,
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   enterImporterEoriNumberPage: pages.enter_importer_eori_number
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+    extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {

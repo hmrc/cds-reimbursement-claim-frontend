@@ -24,15 +24,15 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 
 @Singleton
 class ProblemWithAddressController @Inject() (
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   problemWithAddressPage: problem_with_address
 )(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+    extends FrontendBaseController {
 
   def show: Action[AnyContent] = Action { implicit request =>
     val postAction = OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(JourneyBindable.Scheduled)

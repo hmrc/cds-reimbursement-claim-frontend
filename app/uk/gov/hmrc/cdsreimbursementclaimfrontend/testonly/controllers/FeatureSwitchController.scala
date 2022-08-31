@@ -20,12 +20,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @Singleton
-class FeatureSwitchController @Inject() (featureSwitch: FeatureSwitchService, mcc: MessagesControllerComponents)
-    extends FrontendController(mcc) {
+class FeatureSwitchController @Inject() (
+  featureSwitch: FeatureSwitchService,
+  val controllerComponents: MessagesControllerComponents
+) extends FrontendBaseController {
 
   def enable(featureName: String): Action[AnyContent] = Action {
     Feature

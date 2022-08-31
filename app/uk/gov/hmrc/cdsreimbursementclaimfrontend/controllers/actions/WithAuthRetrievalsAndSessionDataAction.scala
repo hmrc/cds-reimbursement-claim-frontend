@@ -18,9 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
 import play.api.mvc.ActionBuilder
 import play.api.mvc.AnyContent
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-trait WithAuthRetrievalsAndSessionDataAction { this: FrontendController =>
+trait WithAuthRetrievalsAndSessionDataAction { this: FrontendBaseController =>
 
   val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData
 

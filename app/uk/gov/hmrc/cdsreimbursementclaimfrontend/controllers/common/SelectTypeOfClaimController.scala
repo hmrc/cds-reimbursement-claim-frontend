@@ -55,11 +55,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_number_of_claims
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
 class SelectTypeOfClaimController @Inject() (
@@ -75,9 +75,9 @@ class SelectTypeOfClaimController @Inject() (
   viewConfig: ViewConfig,
   ec: ExecutionContext,
   errorHandler: ErrorHandler,
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   config: Configuration
-) extends FrontendController(cc)
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates

@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 
@@ -54,8 +54,12 @@ class CheckMovementReferenceNumbersController @Inject() (
   val sessionDataAction: SessionDataAction,
   sessionStore: SessionCache,
   checkMovementReferenceNumbersPage: pages.check_movement_reference_numbers
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+)(implicit
+  ec: ExecutionContext,
+  viewConfig: ViewConfig,
+  val controllerComponents: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates

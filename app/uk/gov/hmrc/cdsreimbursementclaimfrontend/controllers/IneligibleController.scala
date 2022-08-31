@@ -23,14 +23,14 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
 class IneligibleController @Inject() (
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   ineligiblePage: views.html.ineligible
 )(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+    extends FrontendBaseController {
 
   def ineligible(): Action[AnyContent] = Action(implicit request => Ok(ineligiblePage()).withNewSession)
 

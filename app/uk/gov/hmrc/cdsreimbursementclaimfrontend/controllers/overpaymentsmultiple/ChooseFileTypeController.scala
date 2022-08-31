@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.choose_document_type
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
@@ -47,8 +47,12 @@ class ChooseFileTypeController @Inject() (
   val sessionDataAction: SessionDataAction,
   sessionStore: SessionCache,
   chooseDocumentTypePage: choose_document_type
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+)(implicit
+  viewConfig: ViewConfig,
+  ec: ExecutionContext,
+  val controllerComponents: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates

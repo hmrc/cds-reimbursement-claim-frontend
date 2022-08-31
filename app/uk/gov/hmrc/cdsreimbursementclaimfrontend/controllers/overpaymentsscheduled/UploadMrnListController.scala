@@ -49,7 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.upload_mrn_list_description
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 
@@ -64,8 +64,12 @@ class UploadMrnListController @Inject() (
   featureSwitchService: FeatureSwitchService,
   servicesConfig: ServicesConfig,
   upload_mrn_list_description: upload_mrn_list_description
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+)(implicit
+  viewConfig: ViewConfig,
+  ec: ExecutionContext,
+  val controllerComponents: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates
