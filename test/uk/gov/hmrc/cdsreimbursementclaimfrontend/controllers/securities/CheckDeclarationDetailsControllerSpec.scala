@@ -331,33 +331,6 @@ class CheckDeclarationDetailsControllerSpec
         }
       }
 
-      "continue to the check total import discharged page if some securities selected and rfs is IPR or End Use Relief" in {
-        forAll(mrnWithIprOrEurRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-          whenever(depositIds.nonEmpty) {
-
-            val initialJourney = emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .flatMap(_.selectSecurityDepositId(depositIds.head))
-              .map(_.submitCheckDeclarationDetailsChangeMode(true))
-              .getOrFail
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.CheckTotalImportDischargedController.show()
-            )
-          }
-        }
-      }
-
       "re-display the check declaration details page if none securities selected" in {
         forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
