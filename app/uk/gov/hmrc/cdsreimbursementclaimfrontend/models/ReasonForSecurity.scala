@@ -66,12 +66,6 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
       TemporaryAdmission2M
     )
 
-  val requiresTotalImportDischarge: Set[ReasonForSecurity] =
-    Set(
-      InwardProcessingRelief,
-      EndUseRelief
-    )
-
   def has(rfs: String): Boolean =
     valueMap.contains(rfs)
 
