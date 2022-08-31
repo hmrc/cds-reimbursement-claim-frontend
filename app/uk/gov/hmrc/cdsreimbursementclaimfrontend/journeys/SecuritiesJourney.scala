@@ -82,7 +82,7 @@ final class SecuritiesJourney private (
       .exists(_.isValidSecurityDepositId(securityDepositId))
 
   /** Returns true if bank details are on the ACC14 declaration. */
-  def haveBankDetailsOnAcc14(securityDepositId: String): Boolean =
+  def haveBankDetailsOnAcc14: Boolean =
     getLeadDisplayDeclaration
       .exists(_.hasBankDetails)
 
@@ -200,7 +200,7 @@ final class SecuritiesJourney private (
       .map(getSecurityDetailsFor)
       .collect { case Some(s) => s }
       .filter(_.isBankAccountPayment)
-      .forall(a => haveBankDetailsOnAcc14(a.securityDepositId))
+      .forall(_ => haveBankDetailsOnAcc14)
 
   def needsBanksAccountDetailsSubmission: Boolean =
     getSelectedDepositIds.nonEmpty &&
@@ -393,7 +393,7 @@ final class SecuritiesJourney private (
 
   def selectSecurityDepositId(securityDepositId: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (securityDepositId.isEmpty())
+      if (securityDepositId.isEmpty)
         Left(
           s"selectSecurityDepositIds.emptySecurityDepositId"
         )
@@ -708,8 +708,8 @@ final class SecuritiesJourney private (
       case _                       => false
     }
 
-  override def hashCode(): Int    = answers.hashCode
-  override def toString(): String = s"SecuritiesJourney($answers, $caseNumber)"
+  override def hashCode(): Int  = answers.hashCode
+  override def toString: String = s"SecuritiesJourney($answers, $caseNumber)"
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))

@@ -16,21 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import cats.implicits.catsSyntaxEq
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToACustomsWarehouse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToAFreeZone
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToEndUse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToFreeCirculation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToInwardProcessingRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.DeclaredToOtherTraderUnderTemporaryAdmission
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.Destroyed
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.Other
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal._
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
@@ -65,6 +54,6 @@ object TemporaryAdmissionMethodOfDisposalSummary {
           s"choose-export-method.export-method-description.${TemporaryAdmissionMethodOfDisposal.keyOf(exportMethod)}"
         )
       ),
-      checked = form.value.contains(exportMethod)
+      checked = form.value.flatten.contains(exportMethod)
     )
 }

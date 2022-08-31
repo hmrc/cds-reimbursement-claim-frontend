@@ -14,14 +14,12 @@
  * limitations under the License.
  *@
 
-@import cats.data.NonEmptyList
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{TaxCode, Duty, DutyAmount}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyAmount, TaxCode}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary.DutyDescription
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
