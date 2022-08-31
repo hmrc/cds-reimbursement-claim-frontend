@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.NOT_FOUND
@@ -37,11 +38,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -87,10 +87,10 @@ class EnterExportMovementReferenceNumberControllerSpec
     ()
   }
 
-  val journey              = SecuritiesJourney.empty(exampleEori)
-  val session: SessionData = SessionData(journey)
+  val journey: SecuritiesJourney = SecuritiesJourney.empty(exampleEori)
+  val session: SessionData       = SessionData(journey)
 
-  def validateChooseExportMethodPage(doc: Document) = {
+  def validateChooseExportMethodPage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-heading-xl").html()
     val input          = doc.select("#enter-export-movement-reference-number")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList

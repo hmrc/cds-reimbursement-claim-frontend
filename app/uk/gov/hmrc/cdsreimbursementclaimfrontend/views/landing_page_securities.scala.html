@@ -15,19 +15,17 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.twirl.api.Html
 @import play.api.mvc.Request
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
 @()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)

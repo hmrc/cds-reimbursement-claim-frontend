@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.implicits.catsSyntaxEq
-import cats.implicits.catsSyntaxTuple2Semigroupal
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -39,8 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Chec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.temporaryAdmissions
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number
@@ -128,11 +125,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
       case (None, _)                                                                                       =>
         (journey, errorHandler.errorResult()).asFuture
       case (Some(rfs), _) if !temporaryAdmissions.contains(rfs)                                            =>
-        (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
+        (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
       case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && mod =!= ExportedInSingleShipment =>
-        (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
+        (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
       case (Some(rfs), None) if temporaryAdmissions.contains(rfs)                                          =>
-        (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
+        (journey, Redirect(routes.ChooseExportMethodController.show())).asFuture
       case (Some(rfs), Some(ExportedInSingleShipment)) if temporaryAdmissions.contains(rfs)                => body
     }
 }

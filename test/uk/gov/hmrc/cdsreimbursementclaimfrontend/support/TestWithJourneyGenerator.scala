@@ -22,7 +22,7 @@ import org.scalacheck.Gen
 trait TestWithJourneyGenerator[Journey] {
   self: ScalaCheckPropertyChecks =>
 
-  final case class JourneyGenerator[TestInput](
+  case class JourneyGenerator[TestInput](
     testParamsGenerator: Gen[TestInput],
     journeyBuilder: TestInput => Journey
   )
