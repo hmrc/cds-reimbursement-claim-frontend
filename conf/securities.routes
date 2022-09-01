@@ -89,3 +89,6 @@ GET          /securities/error/claim-invalid-nobod3                    @uk.gov.h
 POST         /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.submitBOD4()
 GET          /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.showBOD4()
 GET          /securities/error/claim-invalid-nobod4                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischargeController.invalidBOD4()
+
+GET          /securities/letter-of-authority-confirmation              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BankDetailsChangeLetterOfAuthorityController.show()
+POST         /securities/letter-of-authority-confirmation              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BankDetailsChangeLetterOfAuthorityController.submit()

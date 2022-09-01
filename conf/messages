@@ -1453,6 +1453,17 @@ bill-of-discharge-error.p4=Find out more information about <a href="{0}">importi
 bill-of-discharge-error.p5=For general enquiries about importing, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">Contact HMRC (opens in new tab)</a>
 
 #===================================================
+#  BANK ACCOUNT CHANGE LETTER OF AUTHORITY PAGE
+#===================================================
+bank_account_letter_of_authority.title=Letter of Authority confirmation
+bank_account_letter_of_authority.p1=You will need to provide HMRC with a letter of authority to update the bank account details for this claim. You can upload this document or send by post to HMRC after your claim has been submitted.
+bank_account_letter_of_authority.p2=Your claim will not be processed until HMRC have received this document.
+bank_account_letter_of_authority.subheading=Continue updating bank account details?
+bank_account_letter_of_authority.yes=Yes
+bank_account_letter_of_authority.no=No
+bank_account_letter_of_authority.error.required=Select yes to continue updating bank account details
+
+#===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
 check-your-answers.title=Check your answers before sending your claim
