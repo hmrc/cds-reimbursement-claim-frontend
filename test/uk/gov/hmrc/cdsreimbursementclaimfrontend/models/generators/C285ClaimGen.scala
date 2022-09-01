@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
 
 object C285ClaimGen {
   import IdGen._
+  import ClaimedReimbursementsAnswerGen._
 
   implicit lazy val arbitraryC285Claim: Typeclass[C285Claim] = gen[C285Claim]
 }

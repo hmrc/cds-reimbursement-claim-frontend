@@ -26,24 +26,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.JavaConverters._
 
-trait JourneyGenerators extends JourneyTestData {
+trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
 
   final def listOfExactlyN[A](n: Int, gen: Gen[A]): Gen[List[A]] =
     Gen.sequence((1 to n).map(_ => gen)).map(_.asScala.toList)
-
-  implicit final val bigDecimalChoose = new Gen.Choose[BigDecimal] {
-    override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
-      Gen
-        .choose(1, 10000)
-        .map(i => (min + (i * ((max - min) / 10000))))
-        .map(bd => BigDecimal(bd.*(100).toInt)./(100))
-  }
-
-  final lazy val amountNumberGen: Gen[BigDecimal] =
-    amountNumberInRangeGen(BigDecimal("1.00"), BigDecimal("1000.00"))
-
-  final def amountNumberInRangeGen(minIncl: BigDecimal, maxIncl: BigDecimal): Gen[BigDecimal] =
-    Gen.choose[BigDecimal](minIncl, maxIncl)
 
   final lazy val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
     for {

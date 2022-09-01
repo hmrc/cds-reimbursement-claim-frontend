@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import cats.data.EitherT
+import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits.catsStdInstancesForFuture
 import org.scalacheck.magnolia.gen
 import org.scalatest.prop.TableDrivenPropertyChecks
@@ -26,7 +27,6 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.iteratee.Execution.Implicits.defaultExecutionContext
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
