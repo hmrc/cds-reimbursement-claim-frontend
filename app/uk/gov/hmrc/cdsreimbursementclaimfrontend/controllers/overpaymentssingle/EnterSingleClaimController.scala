@@ -56,7 +56,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
@@ -71,8 +71,12 @@ class EnterSingleClaimController @Inject() (
   val config: Configuration,
   enterSingleClaimPage: pages.enter_single_claim,
   checkSingleClaimSummaryPage: pages.check_single_claim_summary
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+)(implicit
+  ec: ExecutionContext,
+  viewConfig: ViewConfig,
+  val controllerComponents: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor

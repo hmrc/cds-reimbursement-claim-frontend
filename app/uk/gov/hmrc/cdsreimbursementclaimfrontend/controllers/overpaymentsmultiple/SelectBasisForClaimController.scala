@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 
@@ -51,10 +51,10 @@ class SelectBasisForClaimController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   selectReasonForClaimPage: pages.select_basis_for_claim
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+    extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with SessionDataExtractor

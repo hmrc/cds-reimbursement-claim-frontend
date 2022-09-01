@@ -32,7 +32,7 @@ import scala.concurrent.Future
 class FeatureSwitchService @Inject() (
   val configuration: Configuration,
   errorHandler: ErrorHandler,
-  cc: MessagesControllerComponents
+  val controllerComponents: MessagesControllerComponents
 ) {
 
   private val features: ConcurrentHashMap[Feature, Boolean] =
@@ -61,8 +61,8 @@ class FeatureSwitchService @Inject() (
         else Some(NotFound(errorHandler.notFoundTemplate(input)))
       }
 
-      override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+      override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
 
-      override protected def executionContext: ExecutionContext = cc.executionContext
+      override protected def executionContext: ExecutionContext = controllerComponents.executionContext
     }
 }

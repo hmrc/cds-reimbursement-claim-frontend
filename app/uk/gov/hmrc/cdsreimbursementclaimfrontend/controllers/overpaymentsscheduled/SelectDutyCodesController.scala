@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxC
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -50,10 +50,10 @@ class SelectDutyCodesController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   selectDutyCodesPage: pages.select_duty_codes
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+    extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor

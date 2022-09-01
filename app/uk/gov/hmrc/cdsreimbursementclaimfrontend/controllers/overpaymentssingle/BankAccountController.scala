@@ -52,7 +52,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_account_details
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -62,14 +62,14 @@ class BankAccountController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   val config: Configuration,
   val claimService: ClaimService,
   val bankAccountReputationService: BankAccountReputationService,
   checkBankAccountDetailsPage: check_bank_account_details,
   enterBankAccountDetailsPage: enter_bank_account_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+    extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {

@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.supporting_evidence_description
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 
@@ -61,8 +61,12 @@ class UploadFilesController @Inject() (
   featureSwitchService: FeatureSwitchService,
   servicesConfig: ServicesConfig,
   supporting_evidence_description: supporting_evidence_description
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+)(implicit
+  viewConfig: ViewConfig,
+  ec: ExecutionContext,
+  val controllerComponents: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates

@@ -24,14 +24,14 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
 class LandingPageSecuritiesController @Inject() (
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   landingPageSecurities: views.html.landing_page_securities
 )(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc)
+    extends FrontendBaseController
     with Logging {
 
   def showLandingPageSecurities(): Action[AnyContent] = Action { implicit request =>

@@ -163,7 +163,7 @@ class SelectTypeOfClaimControllerSpec
         )
       }
 
-      "the user has answered this question before and chosen Individual " in {
+      "the user has answered this question before and chosen Individual" in {
         val session = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Individual))
 
         inSequence {
@@ -183,7 +183,7 @@ class SelectTypeOfClaimControllerSpec
         )
       }
 
-      "the user has answered this question before and chosen Multiple " in {
+      "the user has answered this question before and chosen Multiple" in {
         val session = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Multiple))
 
         inSequence {
@@ -203,7 +203,7 @@ class SelectTypeOfClaimControllerSpec
         )
       }
 
-      "the user has answered this question before and chosen Scheduled " in {
+      "the user has answered this question before and chosen Scheduled" in {
         val session = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Scheduled))
 
         inSequence {

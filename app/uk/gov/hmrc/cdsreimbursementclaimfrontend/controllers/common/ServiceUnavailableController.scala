@@ -23,14 +23,14 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.service_unavailable
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
 class ServiceUnavailableController @Inject() (
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   serviceUnavailablePage: service_unavailable
 )(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+    extends FrontendBaseController {
 
   val show: Action[AnyContent] = Action(implicit request => Ok(serviceUnavailablePage()))
 }

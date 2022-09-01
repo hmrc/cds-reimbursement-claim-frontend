@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtracto
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -56,8 +56,8 @@ class ChooseClaimTypeController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   chooseClaimTypePage: pages.choose_claim_type
-)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents, ec: ExecutionContext)
-    extends FrontendController(cc)
+)(implicit viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents, ec: ExecutionContext)
+    extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with WithAuthRetrievalsAndSessionDataAction
     with SessionDataExtractor
