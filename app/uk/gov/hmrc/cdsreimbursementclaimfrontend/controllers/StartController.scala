@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -42,7 +42,7 @@ import scala.concurrent.Future
 @Singleton
 class StartController @Inject() (
   val sessionStore: SessionCache,
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
   val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val authenticatedAction: AuthenticatedAction,
@@ -51,7 +51,7 @@ class StartController @Inject() (
   weOnlySupportGGPage: views.html.we_only_support_gg,
   timedOutPage: views.html.timed_out
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+    extends FrontendBaseController
     with WithAuthRetrievalsAndSessionDataAction
     with WithAuthAndSessionDataAction
     with Logging

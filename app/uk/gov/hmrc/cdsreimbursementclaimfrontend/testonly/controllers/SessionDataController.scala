@@ -24,7 +24,7 @@ import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,7 +34,10 @@ import scala.util.control.NonFatal
 
 @Singleton
 class SessionDataController @Inject() (jcc: JourneyControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(jcc.controllerComponents) {
+    extends FrontendBaseController {
+
+  override protected def controllerComponents: MessagesControllerComponents =
+    jcc.controllerComponents
 
   private val showSessionDataAction   = routes.SessionDataController.show
   private val submitSessionDataAction = routes.SessionDataController.show

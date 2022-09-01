@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -54,8 +54,8 @@ class EnterMovementReferenceNumberController @Inject() (
   val sessionStore: SessionCache,
   claimService: ClaimService,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents)
-    extends FrontendController(cc)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents)
+    extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates

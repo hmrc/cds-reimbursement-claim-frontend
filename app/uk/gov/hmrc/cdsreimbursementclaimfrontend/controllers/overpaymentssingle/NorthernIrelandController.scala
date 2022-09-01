@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.claim_northern_ireland
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
@@ -55,8 +55,8 @@ class NorthernIrelandController @Inject() (
   viewConfig: ViewConfig,
   ec: ExecutionContext,
   errorHandler: ErrorHandler,
-  cc: MessagesControllerComponents
-) extends FrontendController(cc)
+  val controllerComponents: MessagesControllerComponents
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with SessionDataExtractor

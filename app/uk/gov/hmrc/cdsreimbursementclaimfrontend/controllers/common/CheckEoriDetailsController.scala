@@ -47,7 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_eori_details
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import javax.inject.Singleton
 import scala.concurrent.Future
 
@@ -58,13 +58,13 @@ class CheckEoriDetailsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   val featureSwitch: FeatureSwitchService,
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   val customsDataStoreService: CustomsDataStoreService,
   val servicesConfig: ServicesConfig,
   val env: Environment,
   checkEoriDetailsPage: check_eori_details
 )(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc)
+    extends FrontendBaseController
     with WithAuthRetrievalsAndSessionDataAction
     with SessionUpdates
     with Logging {

@@ -57,7 +57,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -72,8 +72,12 @@ class EnterMultipleClaimsController @Inject() (
   enterMultipleClaimPage: pages.enter_multiple_claims,
   checkMultipleClaimSummaryPage: pages.check_multiple_claim_summary,
   mrnDoesNotExistPage: pages.mrn_does_not_exist
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+)(implicit
+  ec: ExecutionContext,
+  viewConfig: ViewConfig,
+  val controllerComponents: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor

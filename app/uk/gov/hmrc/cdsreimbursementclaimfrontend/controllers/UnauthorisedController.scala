@@ -23,14 +23,14 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
 class UnauthorisedController @Inject() (
-  cc: MessagesControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   unauthorisedPage: views.html.unauthorised
 )(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+    extends FrontendBaseController {
 
   def unauthorised(): Action[AnyContent] = Action(implicit request => Ok(unauthorisedPage()).withNewSession)
 
