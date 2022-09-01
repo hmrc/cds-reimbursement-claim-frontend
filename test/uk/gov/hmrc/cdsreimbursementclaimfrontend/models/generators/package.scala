@@ -41,10 +41,10 @@ package object generators {
       .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
 
   lazy val genBigDecimal: Gen[BigDecimal] =
-    Gen.choose(0L, 10000L).map(BigDecimal(_))
+    BigDecimalGen.amountNumberGen
 
   lazy val arbitraryBigDecimal: Arbitrary[BigDecimal] =
-    Arbitrary(genBigDecimal)
+    BigDecimalGen.amountNumberArbitrary
 
   lazy val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
     Gen.oneOf(true, false)

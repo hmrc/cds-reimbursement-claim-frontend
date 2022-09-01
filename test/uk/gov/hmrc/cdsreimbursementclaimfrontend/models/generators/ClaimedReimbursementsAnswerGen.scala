@@ -20,12 +20,31 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
+import org.scalacheck.Arbitrary
+import java.util.UUID
 
 object ClaimedReimbursementsAnswerGen {
   import TaxCodeGen._
 
+  implicit lazy val arbitraryAmount: Typeclass[BigDecimal] =
+    BigDecimalGen.amountNumberArbitrary
+
   implicit lazy val arbitraryClaimedReimbursement: Typeclass[ClaimedReimbursement] =
-    gen[ClaimedReimbursement]
+    Arbitrary(
+      for {
+        taxCode     <- genTaxCode
+        paidAmount  <- genBigDecimal
+        claimAmount <- genBigDecimal
+      } yield ClaimedReimbursement(
+        taxCode,
+        paidAmount,
+        claimAmount,
+        UUID.randomUUID(),
+        ClaimedReimbursement.PaymentMethod.`001`,
+        UUID.randomUUID().toString(),
+        true
+      )
+    )
 
   implicit lazy val arbitraryClaimedReimbursementsAnswer: Typeclass[ClaimedReimbursementsAnswer] =
     gen[ClaimedReimbursementsAnswer]

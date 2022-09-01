@@ -48,6 +48,14 @@ import org.scalactic.source.Position
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.mongo.play.PlayMongoModule
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.SessionId
+import java.util.concurrent.ConcurrentHashMap
+import play.api.inject.Binding
 
 @Singleton
 class TestMessagesApi(
@@ -99,7 +107,10 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   implicit val lang: Lang = Lang("en")
 
-  def overrideBindings: List[GuiceableModule] = List.empty[GuiceableModule]
+  val sessionCacheBinding: GuiceableModule =
+    bind[SessionCache].to[TestSessionCache]
+
+  def overrideBindings: List[GuiceableModule] = List(sessionCacheBinding)
 
   def getErrorSummary(document: Document): String =
     document.select(".govuk-error-summary__list > li > a").html()
@@ -124,7 +135,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
           )
         ).withFallback(additionalConfig)
       )
-      .disable[uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache]
+      .disable[PlayMongoModule]
       .overrides(metricsBinding :: overrideBindings: _*)
       .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
       .build()
@@ -324,4 +335,35 @@ trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckProperty
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)
+}
+
+@Singleton
+class TestSessionCache extends SessionCache {
+
+  import scala.collection.JavaConverters.mapAsScalaConcurrentMap
+
+  val sessions: scala.collection.concurrent.Map[String, SessionData] =
+    mapAsScalaConcurrentMap(new ConcurrentHashMap[String, SessionData]())
+
+  override def get()(implicit
+    hc: HeaderCarrier
+  ): Future[Either[cdsreimbursementclaimfrontend.models.Error, Option[SessionData]]] =
+    Future.successful(hc.sessionId match {
+      case Some(SessionId(sessionId)) =>
+        Right(sessions.get(sessionId))
+      case None                       =>
+        Left(uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error("no session found"))
+    })
+
+  override def store(sessionData: SessionData)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[cdsreimbursementclaimfrontend.models.Error, Unit]] =
+    Future.successful(hc.sessionId match {
+      case Some(SessionId(sessionId)) =>
+        sessions.put(sessionId, sessionData)
+        Right(())
+      case None                       =>
+        Left(uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error("no session found"))
+    })
+
 }

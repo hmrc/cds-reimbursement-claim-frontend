@@ -23,10 +23,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
-import play.api.libs.json.JsNumber
-import play.api.libs.json.JsObject
 import play.api.test.Helpers._
-import uk.gov.hmrc.cache.model.Id
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.TestEnvironment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.config
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -34,21 +31,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
-import uk.gov.hmrc.mongo.DatabaseUpdate
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import uk.gov.hmrc.mongo.CurrentTimestampSupport
+import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 
-@Ignore
 class SessionCacheSpec
     extends AnyWordSpec
+    with CleanMongoCollectionSupport
     with Matchers
-    with MongoSupport
     with Eventually
     with ScalaCheckDrivenPropertyChecks {
 
-  val sessionStore = new DefaultSessionCache(reactiveMongoComponent, config)
+  val sessionStore =
+    new DefaultSessionCache(mongoComponent, new CurrentTimestampSupport(), config)
 
   "SessionCache" must {
 
@@ -69,58 +66,12 @@ class SessionCacheSpec
       await(sessionStore.get()) should be(Right(None))
     }
 
-    "return an error" when {
+    "return an error there is no session id in the header carrier" in {
+      implicit val hc: HeaderCarrier = HeaderCarrier()
+      val sessionData                = sample[SessionData]
 
-      "the data in mongo cannot be parsed" in new TestEnvironment {
-        val invalidData                                                   = JsObject(Map("journeyStatus" -> JsNumber(1)))
-        val create: Future[DatabaseUpdate[uk.gov.hmrc.cache.model.Cache]] =
-          sessionStore.cacheRepository.createOrUpdate(
-            Id(sessionId.value),
-            sessionStore.sessionKey,
-            invalidData
-          )
-        await(create).writeResult.inError shouldBe false
-        await(sessionStore.get()).isLeft  shouldBe true
-      }
-
-      "there is no session id in the header carrier" in {
-        implicit val hc: HeaderCarrier = HeaderCarrier()
-        val sessionData                = sample[SessionData]
-
-        await(sessionStore.store(sessionData)).isLeft shouldBe true
-        await(sessionStore.get()).isLeft              shouldBe true
-      }
-
-    }
-
-  }
-
-}
-
-class SessionCacheFailureSpec extends AnyWordSpec with Matchers with MongoSupport {
-
-  val sessionStore = new DefaultSessionCache(reactiveMongoComponent, config)
-
-  reactiveMongoComponent.mongoConnector.helper.driver.close()
-
-  val mongoIsBrokenAndAttemptingTo = new AfterWord(
-    "mongo is broken and attempting to"
-  )
-
-  "SessionStore" must {
-
-    "return an error" when mongoIsBrokenAndAttemptingTo {
-
-      "insert a record" in new TestEnvironment {
-        await(sessionStore.get()).isLeft shouldBe true
-      }
-
-      "read a record" in new TestEnvironment {
-        val sessionData = sample[SessionData]
-
-        await(sessionStore.store(sessionData)).isLeft shouldBe true
-      }
-
+      await(sessionStore.store(sessionData)).isLeft shouldBe true
+      await(sessionStore.get()).isLeft              shouldBe true
     }
 
   }

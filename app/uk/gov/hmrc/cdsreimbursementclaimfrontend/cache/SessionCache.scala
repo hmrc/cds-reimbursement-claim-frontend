@@ -20,17 +20,19 @@ import cats.syntax.eq._
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import configs.syntax._
 import play.api.Configuration
-import play.modules.reactivemongo.ReactiveMongoComponent
-import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.cache.CacheIdType
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.TimestampSupport
+import uk.gov.hmrc.mongo.cache.MongoCacheRepository
+import uk.gov.hmrc.mongo.cache.DataKey
 
 @ImplementedBy(classOf[DefaultSessionCache])
 trait SessionCache {
@@ -43,83 +45,79 @@ trait SessionCache {
     hc: HeaderCarrier
   ): Future[Either[Error, Unit]]
 
-  def update(sessionDataUpdate: SessionData => SessionData)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[Error, Unit]]
+  final def update(modify: SessionData => SessionData)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[Error, Unit]] =
+    try get().flatMap {
+      case Right(Some(value)) =>
+        val newSessionData = modify(value)
+        if (newSessionData =!= value)
+          store(newSessionData)
+        else
+          Future.successful(Right(()))
 
+      case Right(None) =>
+        Future.successful(
+          Left(Error("no session found in mongo"))
+        )
+
+      case Left(error) =>
+        Future.successful(Left(error))
+    } catch {
+      case e: Exception => Future.successful(Left(Error(e)))
+    }
+
+}
+
+object HeaderCarrierCacheId extends CacheIdType[HeaderCarrier] {
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  override def run: HeaderCarrier => String =
+    _.sessionId
+      .map(_.value)
+      .getOrElse(throw NoSessionException)
+
+  case object NoSessionException extends Exception("Could not find sessionId")
 }
 
 @Singleton
 class DefaultSessionCache @Inject() (
-  mongo: ReactiveMongoComponent,
+  mongoComponent: MongoComponent,
+  timestampSupport: TimestampSupport,
   configuration: Configuration
 )(implicit
   ec: ExecutionContext
-) extends SessionCache
-    with Cache {
-
-  val cacheRepository: CacheMongoRepository = {
-    val expireAfter: FiniteDuration = configuration.underlying
-      .get[FiniteDuration]("session-store.expiry-time")
-      .value
-
-    new CacheMongoRepository("sessions", expireAfter.toSeconds)(
-      mongo.mongoConnector.db,
-      ec
+) extends MongoCacheRepository[HeaderCarrier](
+      mongoComponent = mongoComponent,
+      collectionName = "sessions",
+      ttl = configuration.get[FiniteDuration]("session-store.expiry-time"),
+      timestampSupport = timestampSupport,
+      cacheIdType = HeaderCarrierCacheId
     )
-  }
+    with SessionCache {
 
-  val sessionKey = "cdsrc-session"
+  val sessionDataKey: DataKey[SessionData] =
+    DataKey[SessionData]("cdsrc-session")
 
   def get()(implicit
     hc: HeaderCarrier
   ): Future[Either[Error, Option[SessionData]]] =
-    hc.sessionId.map(_.value) match {
-      case Some(sessionId) ⇒ get[SessionData](sessionId)
-      case None =>
-        Future.successful(
-          Left(Error("no session id found in headers - cannot query mongo"))
-        )
+    try super
+      .get[SessionData](hc)(sessionDataKey)
+      .map(Right(_))
+      .recover { case e ⇒ Left(Error(e)) } catch {
+      case e: Exception => Future.successful(Left(Error(e)))
     }
 
   def store(
     sessionData: SessionData
   )(implicit hc: HeaderCarrier): Future[Either[Error, Unit]] =
-    hc.sessionId.map(_.value) match {
-      case Some(sessionId) ⇒ store(sessionId, sessionData)
-      case None ⇒
-        Future.successful(
-          Left(
-            Error("no session id found in headers - cannot store data in mongo")
-          )
-        )
-    }
-
-  def update(modify: SessionData => SessionData)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[Error, Unit]] =
-    hc.sessionId.map(_.value) match {
-      case Some(sessionId) ⇒
-        get[SessionData](sessionId).flatMap {
-          case Right(Some(value)) =>
-            val newSessionData = modify(value)
-            if (newSessionData =!= value)
-              store(sessionId, newSessionData)
-            else
-              Future.successful(Right(()))
-
-          case Right(None) =>
-            Future.successful(
-              Left(Error("no session found in mongo"))
-            )
-
-          case Left(error) =>
-            Future.successful(Left(error))
-        }
-      case None =>
-        Future.successful(
-          Left(Error("no session id found in headers - cannot query mongo"))
-        )
+    try super
+      .put(hc)(sessionDataKey, sessionData)
+      .map(_ => Right(()))
+      .recover { case e ⇒ Left(Error(e)) } catch {
+      case e: Exception => Future.successful(Left(Error(e)))
     }
 
 }

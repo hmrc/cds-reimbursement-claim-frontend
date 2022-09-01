@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmit
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.SubmitClaimFailed
 
 object JourneyStatusGen extends JourneyStatusLowerPriorityGen {
+
   implicit lazy val arbitraryJourneyStatus: Typeclass[JourneyStatus] = gen[JourneyStatus]
 }
 
