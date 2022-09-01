@@ -39,6 +39,7 @@
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    notificationBanner: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.notification_banner,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
@@ -50,18 +51,7 @@
 @layout(pageTitle = Some(s"$title")) {
 
     @if(securitiesReclaims.isEmpty){
-        <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-            <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                Important
-                </h2>
-            </div>
-            <div class="govuk-notification-banner__content">
-                <p class="govuk-notification-banner__heading">
-                    @messages(s"$key.banner.empty-securities-selection")
-                </p>
-            </div>
-        </div>
+        @notificationBanner(messages(s"$key.banner.empty-securities-selection"))
     }
 
     @heading(Html(title))

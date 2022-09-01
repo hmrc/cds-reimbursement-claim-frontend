@@ -65,6 +65,8 @@ recruitment-banner.message=Help improve GOV.UK
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 
+notification-banner.important=Important
+
 exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of this service?</a>
 
 #===================================================
