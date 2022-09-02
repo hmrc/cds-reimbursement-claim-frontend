@@ -90,6 +90,8 @@ object Forms {
     )(BasisOfRejectedGoodsClaim.findUnsafe)(borgc => Option(borgc.toString))
   )
 
+  val bankAccountLetterOfAuthorityForm: Form[YesNo] = YesOrNoQuestionForm("bank_account_letter_of_authority")
+
   val enterSpecialCircumstancesForm: Form[String] = Form(
     "enter-special-circumstances.rejected-goods" -> nonEmptyText(maxLength = 500)
   )

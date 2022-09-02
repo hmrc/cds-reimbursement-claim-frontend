@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_account_details
 
 import scala.concurrent.ExecutionContext
-import play.api.mvc.Call
 
 @Singleton
 class CheckBankDetailsController @Inject() (
@@ -38,8 +37,6 @@ class CheckBankDetailsController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   import SecuritiesJourney.Checks._
-
-  private val bankAccountTypeRoute: Call = routes.ChooseBankAccountTypeController.show()
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
@@ -72,7 +69,7 @@ class CheckBankDetailsController @Inject() (
                     checkBankAccountDetailsPage(
                       bankAccountDetails.masked,
                       continueRoute,
-                      bankAccountTypeRoute
+                      routes.BankDetailsChangeLetterOfAuthorityController.show()
                     )
                   )
                 )
