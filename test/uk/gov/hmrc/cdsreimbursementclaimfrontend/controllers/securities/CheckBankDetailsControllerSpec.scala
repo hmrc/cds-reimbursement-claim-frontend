@@ -67,10 +67,19 @@ class CheckBankDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
-  private def initialJourneyWithBankDetailsinACC14(maybeBankDetails: Option[BankDetails]): SecuritiesJourney = {
-    val displayDeclaration = securitiesDisplayDeclarationNotGuaranteeEligibleGen.sample.get
-      .withBankDetails(maybeBankDetails)
-      .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)
+  private def initialJourneyWithBankDetailsinACC14(
+    maybeBankDetails: Option[BankDetails],
+    bankDetailsRequired: Boolean
+  ): SecuritiesJourney = {
+    val displayDeclaration =
+      (
+        if (bankDetailsRequired)
+          securitiesDisplayDeclarationNotGuaranteeEligibleGen
+        else
+          securitiesDisplayDeclarationGuaranteeEligibleGen
+      ).sample.get
+        .withBankDetails(maybeBankDetails)
+        .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)
 
     SecuritiesJourney
       .empty(displayDeclaration.getDeclarantEori, Nonce.random)
@@ -87,7 +96,7 @@ class CheckBankDetailsControllerSpec
 
       "Redirect when BankDetails is empty and required" in {
         val bankDetails = BankDetails(None, None)
-        val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails))
+        val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -100,7 +109,19 @@ class CheckBankDetailsControllerSpec
       }
 
       "Redirect when BankDetails is None and required" in {
-        val journey = initialJourneyWithBankDetailsinACC14(None)
+        val journey = initialJourneyWithBankDetailsinACC14(None, true)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        val result = controller.show()(FakeRequest())
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+      }
+
+      "Redirect when BankDetails is None and not required" in {
+        val journey = initialJourneyWithBankDetailsinACC14(None, false)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -114,7 +135,7 @@ class CheckBankDetailsControllerSpec
       "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {
         consigneeBankDetails: BankAccountDetails =>
           val bankDetails = BankDetails(Some(consigneeBankDetails), None)
-          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails))
+          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -130,7 +151,7 @@ class CheckBankDetailsControllerSpec
       "Ok when BankDetails has declarantBankDetails" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
           val bankDetails = BankDetails(None, Some(declarantBankDetails))
-          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails))
+          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true)
 
           inSequence {
             mockAuthWithNoRetrievals()

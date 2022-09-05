@@ -55,7 +55,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import java.util.concurrent.ConcurrentHashMap
-import play.api.inject.Binding
 
 @Singleton
 class TestMessagesApi(

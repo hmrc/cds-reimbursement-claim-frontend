@@ -79,7 +79,10 @@ class CheckBankDetailsController @Inject() (
           (
             journey,
             Redirect(
-              continueRoute
+              if (journey.needsBanksAccountDetailsSubmission && !journey.haveBankDetailsOnAcc14)
+                routes.ChooseBankAccountTypeController.show()
+              else
+                continueRoute
             )
           )
         }

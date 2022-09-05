@@ -195,13 +195,6 @@ final class SecuritiesJourney private (
       .forall(_.isGuaranteeEligible)
   }
 
-  def allSelectedDutiesWithBankPaymentHaveBankAccount: Boolean =
-    getSelectedDepositIds
-      .map(getSecurityDetailsFor)
-      .collect { case Some(s) => s }
-      .filter(_.isBankAccountPayment)
-      .forall(_ => haveBankDetailsOnAcc14)
-
   def needsBanksAccountDetailsSubmission: Boolean =
     getSelectedDepositIds.nonEmpty &&
       !isAllSelectedDutiesAreGuaranteeEligible
