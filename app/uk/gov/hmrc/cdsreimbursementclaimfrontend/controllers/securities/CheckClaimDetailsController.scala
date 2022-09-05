@@ -49,7 +49,7 @@ class CheckClaimDetailsController @Inject() (
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      whenAllReclaimsProvided(journey) {
+      checkIfAllReclaimsProvided(journey) {
         journey.getLeadDisplayDeclaration
           .fold((journey, Redirect(routes.EnterMovementReferenceNumberController.show()))) { displayDeclaration =>
             (
@@ -66,12 +66,12 @@ class CheckClaimDetailsController @Inject() (
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { _ => journey =>
-      whenAllReclaimsProvided(journey) {
-        ensureBankDetails(journey)
+      checkIfAllReclaimsProvided(journey) {
+        (journey, decideNextPage(journey))
       }
     }
 
-  private def whenAllReclaimsProvided(
+  private def checkIfAllReclaimsProvided(
     journey: SecuritiesJourney
   )(body: => (SecuritiesJourney, Result)): Future[(SecuritiesJourney, Result)] =
     (
@@ -90,19 +90,16 @@ class CheckClaimDetailsController @Inject() (
         }
     ).asFuture
 
-  private def ensureBankDetails(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
-    if (journey.allSelectedDutiesWithBankPaymentHaveBankAccount)
-      (journey, decideNextPage(journey))
-    else
-      (journey, Redirect(routes.EnterBankAccountDetailsController.show()))
-
   private def decideNextPage(journey: SecuritiesJourney): Result =
     if (userHasSeenCYAPage(journey))
       Redirect(routes.CheckYourAnswersController.show())
-    else if (journey.needsBanksAccountDetailsSubmission)
-      Redirect(routes.CheckBankDetailsController.show())
-    else if (journey.needsDocumentTypeSelection)
+    else if (journey.needsBanksAccountDetailsSubmission) {
+      if (journey.haveBankDetailsOnAcc14)
+        Redirect(routes.CheckBankDetailsController.show())
+      else
+        Redirect(routes.ChooseBankAccountTypeController.show())
+    } else if (journey.needsDocumentTypeSelection)
       Redirect(routes.ChooseFileTypeController.show())
     else
-      Redirect(routes.ChooseFileTypeController.show())
+      Redirect(routes.UploadFilesController.show())
 }

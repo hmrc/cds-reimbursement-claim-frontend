@@ -191,45 +191,41 @@ class CheckClaimDetailsControllerSpec
         )
       }
 
-      "When at least one security that has bank payment method but no bank details in ACC14, " +
-        "clicking continue should go to the enter bank details when confirm full repayment is yes" in {
-          forAll(buildCompleteJourneyGen(submitFullAmount = true, submitBankAccountDetails = false)) { journey =>
-            whenever(
-              journey.needsBanksAccountDetailsSubmission &&
-                (!journey.allSelectedDutiesWithBankPaymentHaveBankAccount)
-            ) {
-              inSequence {
-                mockAuthWithNoRetrievals()
-                mockGetSession(SessionData(journey))
-              }
-
-              checkIsRedirect(
-                performAction(),
-                routes.EnterBankAccountDetailsController.show()
-              )
+      "when at least one security that has bank payment method but no bank details in ACC14, clicking continue should go to the enter bank details when confirm full repayment is yes" in {
+        forAll(buildCompleteJourneyGen(submitFullAmount = true, submitBankAccountDetails = false)) { journey =>
+          whenever(
+            journey.needsBanksAccountDetailsSubmission && !journey.haveBankDetailsOnAcc14
+          ) {
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
             }
+
+            checkIsRedirect(
+              performAction(),
+              routes.ChooseBankAccountTypeController.show()
+            )
           }
         }
+      }
 
-      "When at least one security that has bank payment method but no bank details in ACC14, " +
-        "clicking continue should go to the enter bank details when confirm full repayment is no" in {
-          forAll(buildCompleteJourneyGen(submitFullAmount = false, submitBankAccountDetails = false)) { journey =>
-            whenever(
-              journey.needsBanksAccountDetailsSubmission &&
-                (!journey.allSelectedDutiesWithBankPaymentHaveBankAccount)
-            ) {
-              inSequence {
-                mockAuthWithNoRetrievals()
-                mockGetSession(SessionData(journey))
-              }
-
-              checkIsRedirect(
-                performAction(),
-                routes.EnterBankAccountDetailsController.show()
-              )
+      "when at least one security that has bank payment method but no bank details in ACC14, clicking continue should go to the enter bank details when confirm full repayment is no" in {
+        forAll(buildCompleteJourneyGen(submitFullAmount = false, submitBankAccountDetails = false)) { journey =>
+          whenever(
+            journey.needsBanksAccountDetailsSubmission && !journey.haveBankDetailsOnAcc14
+          ) {
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
             }
+
+            checkIsRedirect(
+              performAction(),
+              routes.ChooseBankAccountTypeController.show()
+            )
           }
         }
+      }
     }
   }
 
