@@ -19,7 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.NOT_FOUND
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -27,12 +30,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithJourneyGenerator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 import scala.concurrent.Future
 
@@ -50,7 +57,8 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: BankDetailsChangeLetterOfAuthorityController = instanceOf[BankDetailsChangeLetterOfAuthorityController]
+  val controller: BankDetailsChangeLetterOfAuthorityController =
+    instanceOf[BankDetailsChangeLetterOfAuthorityController]
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
