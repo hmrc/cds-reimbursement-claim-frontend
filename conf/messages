@@ -292,9 +292,9 @@ enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 charact
 
 enter-movement-reference-number.securities.title=Enter the import <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.securities.details.heading=Finding your <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency
+enter-movement-reference-number.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
-enter-movement-reference-number.securities.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared
+enter-movement-reference-number.securities.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.securities.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.securities.error.required=Enter a movement reference number
