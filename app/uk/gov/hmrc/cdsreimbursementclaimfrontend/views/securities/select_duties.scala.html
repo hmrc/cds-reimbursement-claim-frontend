@@ -58,9 +58,8 @@
 
         @errorSummary(form.errors)
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-        <span class="govuk-caption-xl">Security ID: @securityId</span>
 
-        @heading(Html(title))
+        @heading(Html(title), messages(s"$key.caption", securityId))
         @checkboxes(
             field = form(s"$key"),
             legendAsHeading = false,
