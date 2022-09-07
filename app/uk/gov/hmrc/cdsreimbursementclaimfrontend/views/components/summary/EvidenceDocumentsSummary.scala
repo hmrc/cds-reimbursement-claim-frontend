@@ -79,48 +79,29 @@ object EvidenceDocumentsSummary extends AnswerSummary[Seq[EvidenceDocument]] {
     messages: Messages
   ): SummaryList =
     SummaryList(
-      if (answers.isEmpty)
-        Seq(
-          SummaryListRow(
-            key = Key(Empty),
-            value = Value(Text(messages(s"$key.empty"))),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.label"))
-                  )
+      answers.map(document =>
+        SummaryListRow(
+          key = Key(Text(messages(s"choose-file-type.file-type.${document.documentType}"))),
+          value = Value(
+            HtmlContent(
+              Paragraph(
+                document.fileName,
+                messages(s"choose-file-type.file-type.${document.documentType}")
+              ).toString
+            )
+          ),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.label"))
                 )
               )
             )
           )
         )
-      else
-        answers.map(document =>
-          SummaryListRow(
-            key = Key(Text(messages(s"choose-file-type.file-type.${document.documentType}"))),
-            value = Value(
-              HtmlContent(
-                Paragraph(
-                  document.fileName,
-                  messages(s"choose-file-type.file-type.${document.documentType}")
-                ).toString
-              )
-            ),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.label"))
-                  )
-                )
-              )
-            )
-          )
-        )
+      )
     )
 }
