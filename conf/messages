@@ -1014,6 +1014,7 @@ reimbursement-method.error.required=Select if you would like to be repaid via Cu
 #  CONFIRM FULL REPAYMENT PAGE
 #===================================================
 
+confirm-full-repayment.caption=Security ID: {0}
 confirm-full-repayment.title=Do you want to claim back all of this security deposit?
 confirm-full-repayment.help-text=Select Yes or No
 confirm-full-repayment.question=The total value of {0} is {1}.
@@ -1023,6 +1024,7 @@ confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like t
 #===================================================
 #  SELECT DUTIES PAGE
 #===================================================
+select-duties.caption=Security ID: {0}
 select-duties.title=Select the duties you want to claim for
 select-duties.multiple.title=Select the duties you want to claim for under {0} <abbr title="Movement Reference Number">MRN</abbr>
 select-duties.multiple.help-text.1=These are the duties that have been paid under <abbr title="Movement Reference Number">MRN</abbr>: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>

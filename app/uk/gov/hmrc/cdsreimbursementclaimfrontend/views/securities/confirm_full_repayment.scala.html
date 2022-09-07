@@ -47,11 +47,10 @@
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-    <span class="govuk-caption-xl">Security ID: @securityId</span>
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
+        @heading(Html(title), messages(s"$key.caption", securityId))
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
