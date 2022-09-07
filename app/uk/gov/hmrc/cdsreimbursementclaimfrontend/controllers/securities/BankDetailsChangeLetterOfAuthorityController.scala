@@ -44,14 +44,19 @@ class BankDetailsChangeLetterOfAuthorityController @Inject() (
   }
 
   def submit(): Action[AnyContent] =
-    actionReadJourney { implicit request => _ =>
+    actionReadJourney { implicit request => journey =>
       bankAccountLetterOfAuthorityForm
         .bindFromRequest()
         .fold(
           formWithError => BadRequest(bankAccountLetterOfAuthority(formWithError, submitRoute)),
           {
             case Yes => Redirect(routes.ChooseBankAccountTypeController.show())
-            case No  => Redirect(routes.CheckBankDetailsController.show())
+            case No  =>
+              if (userHasSeenCYAPage(journey)) {
+                Redirect(routes.CheckYourAnswersController.show())
+              } else {
+                Redirect(routes.CheckBankDetailsController.show())
+              }
           }
         )
         .asFuture

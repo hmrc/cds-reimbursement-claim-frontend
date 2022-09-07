@@ -120,7 +120,7 @@
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey, routes.CheckBankDetailsController.show()))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey, routes.BankDetailsChangeLetterOfAuthorityController.show()))
     }
 
     @subHeading(Html(messages(s"$key.documents.h2")))
