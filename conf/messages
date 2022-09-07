@@ -1607,6 +1607,16 @@ check-your-answers.claim-total.scheduled.total=Total
 check-your-answers.contact-information.change-hint.contact=Contact details
 check-your-answers.contact-information.change-hint.address=Contact address
 
+check-your-answers.documents-evidence-h2=Supporting evidence for your claim
+check-your-answers.documents-evidence-p1=Check that you have uploaded the documents that will help HMRC assess your claim.
+check-your-answers.documents-evidence-p2=HMRC may contact you for more information or request any missing documents. If you are unable to provide these your claim may be rejected by HMRC.
+check-your-answers.documents-evidence-link-text=Add more documents
+
+check-your-answers.documents-none-h2=No documents selected
+check-your-answers.documents-none-p1=You have not selected any documents to upload with your claim. This evidence helps HMRC assess your claim.
+check-your-answers.documents-none-p2=HMRC may contact you for more information or request any missing documents. If you are unable to provide these your claim may be rejected by HMRC.
+check-your-answers.documents-none-link-text=Add documents
+
 check-your-answers.claim-for-security.h2=Claim details for: {0}
 check-your-answers.claim-for-security.label=Claim for {0}
 check-your-answers.claim-for-security.yes=Yes

@@ -23,7 +23,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
@@ -33,6 +32,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -41,13 +41,16 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    warning: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
 )
 
 @(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
+@hasSupportingEvidence = @{claim.supportingEvidences.nonEmpty}
+@key2 = @{if(hasSupportingEvidence) "documents-evidence" else "documents-none"}
 
 @layout(pageTitle = Some(s"$title")) {
 
@@ -65,7 +68,7 @@
             claim.securitiesReclaims, 
             displayDeclaration,
             key,
-            routes.SelectSecuritiesController.show(_)
+            routes.SelectSecuritiesController.show
         ).rows ++
         Seq(SummaryListRow(
             key = Key(Text(messages(s"$key.payment-method.label"))),
@@ -109,9 +112,9 @@
                 reclaims, 
                 displayDeclaration, 
                 s"$key.claim-for-security", 
-                routes.ConfirmFullRepaymentController.show(_),
-                routes.SelectDutiesController.show(_),
-                routes.EnterClaimController.show(_,_)
+                routes.ConfirmFullRepaymentController.show,
+                routes.SelectDutiesController.show,
+                routes.EnterClaimController.show
             ))
         }
     }
@@ -125,7 +128,20 @@
 
     @subHeading(Html(messages(s"$key.documents.h2")))
     @summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"$key.documents", routes.UploadFilesController.summary()))
-    
+
+    @{if(hasSupportingEvidence)
+            subHeading(Html(messages(s"$key.$key2-h2")), classes = "govuk-heading-s govuk-!-margin-top-9")
+        else
+            warning(WarningText(content = Text(messages(s"$key.$key2-h2"))))
+    }
+
+    @paragraph(Html(messages(s"$key.$key2-p1")))
+    @paragraph(Html(messages(s"$key.$key2-p2")))
+
+    <a href="@{routes.UploadFilesController.summary().url}" class="govuk-link" role="button">
+        <b style="font-size: larger">@messages(s"$key.$key2-link-text")</b>
+    </a>
+
     @subHeading(Html(messages(s"$key.confirmation-statement.h2")))
     @paragraph(Html(messages(s"$key.confirmation-statement")))
 
