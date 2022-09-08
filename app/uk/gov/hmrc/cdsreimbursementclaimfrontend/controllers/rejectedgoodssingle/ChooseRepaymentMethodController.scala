@@ -56,10 +56,10 @@ class ChooseRepaymentMethodController @Inject() (
           repaymentMethod =>
             (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
               case (Right(updatedJourney), CurrentMonthAdjustment) =>
-                if (userHasSeenCYAPage(journey)) (updatedJourney, Redirect(checkYourAnswers))
+                if (journey.userHasSeenCYAPage) (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(chooseFileTypeAction))
               case (Right(updatedJourney), BankAccountTransfer)    =>
-                if (userHasSeenCYAPage(journey) && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
+                if (journey.userHasSeenCYAPage && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
                   (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
               case (Left(errorMessage), _)                         =>

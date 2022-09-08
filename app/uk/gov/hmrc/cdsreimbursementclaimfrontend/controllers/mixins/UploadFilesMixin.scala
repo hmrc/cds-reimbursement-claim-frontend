@@ -28,8 +28,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_files_description
 
 import java.util.Locale
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
-trait UploadFilesMixin[Journey] {
+trait UploadFilesMixin[Journey <: JourneyBase[Journey]] {
   self: JourneyBaseController[Journey] =>
 
   val appConfig: ViewConfig

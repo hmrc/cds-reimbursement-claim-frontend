@@ -40,15 +40,16 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
-trait EnterBankAccountDetailsMixin[T] {
-  self: JourneyBaseController[T] =>
+trait EnterBankAccountDetailsMixin[Journey <: JourneyBase[Journey]] {
+  self: JourneyBaseController[Journey] =>
 
   val enterBankAccountDetailsPage: enter_bank_account_details
   val bankAccountReputationService: BankAccountReputationService
 
-  def bankAccountType(journey: T): Option[BankAccountType]
-  def submitBankAccountDetails(journey: T, bankAccountDetails: BankAccountDetails): Either[String, T]
+  def bankAccountType(journey: Journey): Option[BankAccountType]
+  def submitBankAccountDetails(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
 
   final def handleBadReputation(
     bankAccountDetails: BankAccountDetails,
@@ -136,7 +137,7 @@ trait EnterBankAccountDetailsMixin[T] {
   )
 
   private def processBankAccountReputation(
-    journey: T,
+    journey: Journey,
     bankAccountReputation: BankAccountReputation,
     bankAccountDetails: BankAccountDetails,
     nextPage: NextPage
@@ -144,7 +145,7 @@ trait EnterBankAccountDetailsMixin[T] {
     request: Request[_],
     viewConfig: ViewConfig,
     messages: Messages
-  ): (T, Result) = bankAccountReputation match {
+  ): (Journey, Result) = bankAccountReputation match {
     case BankAccountReputation(Yes, Some(Yes), None) =>
       submitBankAccountDetails(journey, bankAccountDetails)
         .fold(
@@ -165,12 +166,12 @@ trait EnterBankAccountDetailsMixin[T] {
       (journey, handleBadReputation(bankAccountDetails, badReputation, nextPage.submitPath))
   }
 
-  private def getBankAccountType(journey: T, getBankAccountTypePage: Call) =
+  private def getBankAccountType(journey: Journey, getBankAccountTypePage: Call) =
     bankAccountType(journey)
       .toRight((journey, Redirect(getBankAccountTypePage)))
 
   final def validateBankAccountDetails(
-    journey: T,
+    journey: Journey,
     bankAccountDetails: BankAccountDetails,
     postCode: Option[String],
     nextPage: NextPage
@@ -181,10 +182,10 @@ trait EnterBankAccountDetailsMixin[T] {
     errorHandler: ErrorHandler,
     messages: Messages,
     executionContext: ExecutionContext
-  ): Future[(T, Result)] =
+  ): Future[(Journey, Result)] =
     getBankAccountType(journey, nextPage.getBankAccountTypePath)
       .fold(
-        identity(_).asFuture: Future[(T, Result)],
+        identity(_).asFuture: Future[(Journey, Result)],
         bankAccountType =>
           bankAccountReputationService
             .checkBankAccountReputation(bankAccountType, bankAccountDetails, postCode)

@@ -59,7 +59,7 @@ import scala.collection.immutable.SortedMap
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None
-) extends Claim[RejectedGoodsScheduledJourney]
+) extends JourneyBase[RejectedGoodsScheduledJourney]
     with RejectedGoodsCommonJourneyProperties
     with FluentSyntax[RejectedGoodsScheduledJourney] {
 

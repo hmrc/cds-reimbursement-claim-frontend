@@ -91,7 +91,7 @@ class CheckClaimDetailsController @Inject() (
     ).asFuture
 
   private def decideNextPage(journey: SecuritiesJourney): Result =
-    if (userHasSeenCYAPage(journey))
+    if (journey.userHasSeenCYAPage)
       Redirect(routes.CheckYourAnswersController.show())
     else if (journey.needsBanksAccountDetailsSubmission) {
       if (journey.haveBankDetailsOnAcc14)

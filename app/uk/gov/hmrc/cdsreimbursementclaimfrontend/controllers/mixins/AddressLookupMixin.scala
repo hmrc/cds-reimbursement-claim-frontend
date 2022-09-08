@@ -32,8 +32,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
-trait AddressLookupMixin[Journey] { self: JourneyBaseController[Journey] =>
+trait AddressLookupMixin[Journey <: JourneyBase[Journey]] { self: JourneyBaseController[Journey] =>
 
   implicit val ec: ExecutionContext
   implicit val viewConfig: ViewConfig

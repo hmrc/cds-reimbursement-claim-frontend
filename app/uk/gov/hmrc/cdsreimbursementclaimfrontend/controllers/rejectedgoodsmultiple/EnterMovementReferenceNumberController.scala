@@ -142,7 +142,7 @@ class EnterMovementReferenceNumberController @Inject() (
         routes.EnterImporterEoriNumberController.show()
       } else {
         if (pageIndex === 1) routes.CheckDeclarationDetailsController.show()
-        else if (userHasSeenCYAPage(journey) && journey.getReimbursementClaimsFor(mrn).isEmpty)
+        else if (journey.userHasSeenCYAPage && journey.getReimbursementClaimsFor(mrn).isEmpty)
           routes.SelectTaxCodesController.show(pageIndex)
         else routes.CheckMovementReferenceNumbersController.show()
       }

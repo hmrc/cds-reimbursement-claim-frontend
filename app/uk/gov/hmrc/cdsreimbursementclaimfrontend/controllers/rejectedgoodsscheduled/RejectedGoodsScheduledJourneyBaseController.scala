@@ -45,14 +45,5 @@ abstract class RejectedGoodsScheduledJourneyBaseController(implicit ec: Executio
   final override def updateJourney(sessionData: SessionData, journey: RejectedGoodsScheduledJourney): SessionData =
     sessionData.copy(rejectedGoodsScheduledJourney = Some(journey))
 
-  final override def userHasSeenCYAPage(journey: RejectedGoodsScheduledJourney): Boolean =
-    journey.answers.checkYourAnswersChangeMode
-
-  final override def hasCompleteAnswers(journey: RejectedGoodsScheduledJourney): Boolean =
-    journey.hasCompleteAnswers
-
-  final override def isFinalized(journey: RejectedGoodsScheduledJourney): Boolean =
-    journey.isFinalized
-
   implicit val implicitSubKey: Option[String] = subKey
 }

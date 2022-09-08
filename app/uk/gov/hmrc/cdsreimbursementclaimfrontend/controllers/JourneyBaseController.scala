@@ -37,6 +37,7 @@ import play.api.libs.json.Json
 import com.github.arturopala.validator.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -45,8 +46,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
   *  - sesion data retrieval and journey update
   *  - journey completeness check and redirect to the CYA page
   */
-abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt: Format[Journey])
-    extends FrontendBaseController
+abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
+  ec: ExecutionContext,
+  fmt: Format[Journey]
+) extends FrontendBaseController
     with Logging
     with SeqUtils {
 
@@ -83,15 +86,6 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
   /** Updates the state of the journey for the current user. */
   def updateJourney(sessionData: SessionData, journey: Journey): SessionData
 
-  /** Check if the user has already visited the CYA page at least once. */
-  def userHasSeenCYAPage(journey: Journey): Boolean
-
-  /** Check if journey has all answers in place and the CYA page can be displayed. */
-  def hasCompleteAnswers(journey: Journey): Boolean
-
-  /** Check if journey has already been finalized and its state cannot be updated. */
-  def isFinalized(journey: Journey): Boolean
-
   /** Optional action precondition. */
   val actionPrecondition: Option[Validate[Journey]] = None
 
@@ -103,7 +97,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
 
   /** Check if the CYA page should be displayed next. */
   final def shouldForwardToCYA(journey: Journey): Boolean =
-    userHasSeenCYAPage(journey) && hasCompleteAnswers(journey)
+    journey.userHasSeenCYAPage && journey.hasCompleteAnswers
 
   private final def resultOrShortcut(
     result: Result,
@@ -112,7 +106,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
   ): Future[Result] =
     Future.successful(
       if (result.header.status =!= 303) result
-      else if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
+      else if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
       else if (fastForwardToCYAEnabled && shouldForwardToCYA(journey))
         Redirect(checkYourAnswers)
       else result
@@ -133,7 +127,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
           request.sessionData
             .flatMap(getJourney)
             .map(journey =>
-              if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
+              if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
               else
                 checkIfMaybeActionPreconditionFails(journey) match {
                   case None         => body(journey)
@@ -153,7 +147,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
       .async { implicit request =>
         getJourney(request.sessionData)
           .map(journey =>
-            if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
+            if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
                 case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
@@ -172,7 +166,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
       .apply { implicit request =>
         getJourney(request.sessionData)
           .map(journey =>
-            if (isFinalized(journey)) Redirect(claimSubmissionConfirmation)
+            if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
             else
               checkIfMaybeActionPreconditionFails(journey) match {
                 case None         => body(journey)(request.authenticatedRequest.journeyUserType)
@@ -192,7 +186,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
         request.sessionData
           .flatMap(getJourney)
           .map(journey =>
-            if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
+            if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
                 case None         => body(request)(journey)
@@ -215,7 +209,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
           .flatMap(sessionData =>
             getJourney(sessionData)
               .map(journey =>
-                if (isFinalized(journey)) (journey, Redirect(claimSubmissionConfirmation))
+                if (journey.isFinalized) (journey, Redirect(claimSubmissionConfirmation))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
                     case None         => body(request)(journey)
@@ -247,7 +241,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
       .async { implicit request =>
         getJourney(request.sessionData)
           .map(journey =>
-            if (isFinalized(journey)) (journey, Redirect(claimSubmissionConfirmation))
+            if (journey.isFinalized) (journey, Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
                 case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
@@ -278,7 +272,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
           .flatMap(sessionData =>
             getJourney(sessionData)
               .map(journey =>
-                if (isFinalized(journey)) Future.successful((journey, Redirect(claimSubmissionConfirmation)))
+                if (journey.isFinalized) Future.successful((journey, Redirect(claimSubmissionConfirmation)))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
                     case None         => body(request)(journey)
@@ -311,7 +305,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
           .flatMap(sessionData =>
             getJourney(sessionData)
               .map(journey =>
-                if (isFinalized(journey)) Future.successful(Right((journey, Redirect(claimSubmissionConfirmation))))
+                if (journey.isFinalized) Future.successful(Right((journey, Redirect(claimSubmissionConfirmation))))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
                     case None         => body(request)(journey)
@@ -347,7 +341,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext, fmt
       .async { implicit request =>
         getJourney(request.sessionData)
           .fold(redirectToTheStartOfTheJourney) { journey =>
-            if (isFinalized(journey)) Future.successful(Redirect(claimSubmissionConfirmation))
+            if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               (checkIfMaybeActionPreconditionFails(journey) match {
                 case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
