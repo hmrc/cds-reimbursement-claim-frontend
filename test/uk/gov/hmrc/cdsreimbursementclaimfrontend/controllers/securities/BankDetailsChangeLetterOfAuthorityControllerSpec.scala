@@ -132,7 +132,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
 
         checkIsRedirect(
           submitLetterOfAuthorityAction(confirmBodMessagesKey -> "false"),
-          routes.CheckBankDetailsController.show()
+          routes.CheckYourAnswersController.show()
         )
       }
     }
