@@ -48,7 +48,7 @@ class CheckBankDetailsController @Inject() (
   def show(): Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       val continueRoute =
-        if (userHasSeenCYAPage(journey)) {
+        if (journey.userHasSeenCYAPage) {
           routes.ChooseFileTypeController.show()
         } else if (journey.needsDocumentTypeSelection) {
           routes.ChooseFileTypeController.show()

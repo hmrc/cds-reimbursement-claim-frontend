@@ -51,7 +51,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
-) extends Claim[SecuritiesJourney]
+) extends JourneyBase[SecuritiesJourney]
     with CommonJourneyProperties
     with FluentSyntax[SecuritiesJourney]
     with SeqUtils {

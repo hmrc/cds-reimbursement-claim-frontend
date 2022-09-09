@@ -22,13 +22,10 @@ import com.github.arturopala.validator.Validator.ValidationResultOps
 /** The common base of the claim models
   * @tparam A the type of the claim
   */
-abstract class Claim[A : Validate] {
-  self: A =>
+abstract class JourneyBase[Journey : Validate] {
+  self: Journey with CommonJourneyProperties =>
 
-  /** Case numer is the final result of successfully submitting the claim. */
-  def caseNumber: Option[String]
-
-  final val validate: Validate[A] = implicitly[Validate[A]]
+  final val validate: Validate[Journey] = implicitly[Validate[Journey]]
 
   /** Check if the claim is ready to submit, i.e. to get the output. */
   final def hasCompleteAnswers: Boolean =
@@ -37,25 +34,28 @@ abstract class Claim[A : Validate] {
   /** Check if the claim has been successfully submitted. */
   final def isFinalized: Boolean = caseNumber.isDefined
 
+  /** Check if the user has already visited the CYA page at least once. */
+  final def userHasSeenCYAPage: Boolean = answers.checkYourAnswersChangeMode
+
   /** Execute the following code only when claim wasn't submitted yet. */
-  final def whileClaimIsAmendable(body: => A): A =
+  final protected def whileClaimIsAmendable(body: => Journey): Journey =
     if (isFinalized) this else body
 
   /** Execute the following code only when claim wasn't submitted yet. */
-  final def whileClaimIsAmendable(
-    body: => Either[String, A]
-  ): Either[String, A] =
+  final protected def whileClaimIsAmendable(
+    body: => Either[String, Journey]
+  ): Either[String, Journey] =
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
     else body
 
-  final def whileClaimIsAmendable(condition: Validate[A])(body: => A): Either[String, A] =
+  final protected def whileClaimIsAmendable(condition: Validate[Journey])(body: => Journey): Either[String, Journey] =
     if (isFinalized) Right(this)
     else condition(this).map(_ => body).left.map(_.headMessage)
 
   /** Execute the following code only when claim wasn't submitted yet and requirements are met. */
-  final def whileClaimIsAmendableAnd(condition: Validate[A])(
-    body: => Either[String, A]
-  ): Either[String, A] =
+  final protected def whileClaimIsAmendableAnd(condition: Validate[Journey])(
+    body: => Either[String, Journey]
+  ): Either[String, Journey] =
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
     else condition(this).left.map(_.headMessage).flatMap(_ => body)
 

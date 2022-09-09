@@ -58,7 +58,7 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends Claim[RejectedGoodsSingleJourney]
+) extends JourneyBase[RejectedGoodsSingleJourney]
     with RejectedGoodsCommonJourneyProperties
     with FluentSyntax[RejectedGoodsSingleJourney] {
 

@@ -107,7 +107,7 @@ class ConfirmFullRepaymentController @Inject() (
           answer =>
             if (
               journey.getClaimFullAmountStatus(id).contains(answer) &&
-              userHasSeenCYAPage(journey)
+              journey.userHasSeenCYAPage
             )
               (journey, Redirect(checkYourAnswers)).asFuture
             else

@@ -68,7 +68,7 @@ class CheckDeclarationDetailsController @Inject() (
         Redirect(
           if (journey.getSelectedDepositIds.isEmpty)
             routes.CheckDeclarationDetailsController.show()
-          else if (userHasSeenCYAPage(journey))
+          else if (journey.userHasSeenCYAPage)
             routes.CheckYourAnswersController.show()
           else if (journey.getReasonForSecurity.exists(temporaryAdmissions.contains))
             routes.ChooseExportMethodController.show()

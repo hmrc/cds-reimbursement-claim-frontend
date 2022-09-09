@@ -44,13 +44,4 @@ abstract class SecuritiesJourneyBaseController(implicit ec: ExecutionContext)
   final override def updateJourney(sessionData: SessionData, journey: SecuritiesJourney): SessionData =
     sessionData.copy(securitiesJourney = Some(journey))
 
-  final override def userHasSeenCYAPage(journey: SecuritiesJourney): Boolean =
-    journey.answers.checkYourAnswersChangeMode
-
-  final override def hasCompleteAnswers(journey: SecuritiesJourney): Boolean =
-    journey.hasCompleteAnswers
-
-  final override def isFinalized(journey: SecuritiesJourney): Boolean =
-    journey.isFinalized
-
 }

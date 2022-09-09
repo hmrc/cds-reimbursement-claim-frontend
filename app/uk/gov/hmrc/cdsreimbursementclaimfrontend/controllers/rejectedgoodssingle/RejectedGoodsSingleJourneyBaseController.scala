@@ -44,13 +44,4 @@ abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionCo
   final override def updateJourney(sessionData: SessionData, journey: RejectedGoodsSingleJourney): SessionData =
     sessionData.copy(rejectedGoodsSingleJourney = Some(journey))
 
-  final override def userHasSeenCYAPage(journey: RejectedGoodsSingleJourney): Boolean =
-    journey.answers.checkYourAnswersChangeMode
-
-  final override def hasCompleteAnswers(journey: RejectedGoodsSingleJourney): Boolean =
-    journey.hasCompleteAnswers
-
-  final override def isFinalized(journey: RejectedGoodsSingleJourney): Boolean =
-    journey.isFinalized
-
 }

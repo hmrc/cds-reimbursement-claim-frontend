@@ -55,7 +55,7 @@ class UploadMrnListController @Inject() (
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val continueUrl: Call =
-      if (hasCompleteAnswers(journey)) checkYourAnswers
+      if (journey.hasCompleteAnswers) checkYourAnswers
       else routes.CheckClaimantDetailsController.show()
 
     uploadDocumentsConnector

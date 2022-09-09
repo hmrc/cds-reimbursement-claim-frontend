@@ -128,10 +128,7 @@ class SelectDutiesController @Inject() (
     if (
       journey
         .getSelectedDutiesFor(securityId)
-        .containsSameElements(dutiesSelected) &&
-      userHasSeenCYAPage(
-        journey
-      )
+        .containsSameElements(dutiesSelected) && journey.userHasSeenCYAPage
     )
       (journey, Redirect(checkYourAnswers))
     else

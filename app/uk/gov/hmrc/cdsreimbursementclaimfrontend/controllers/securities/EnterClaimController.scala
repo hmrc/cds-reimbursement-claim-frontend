@@ -196,7 +196,7 @@ class EnterClaimController @Inject() (
     amountHasChanged: Boolean
   ): Call =
     if (journey.answers.checkClaimDetailsChangeMode && journey.answers.claimFullAmountMode) {
-      if (userHasSeenCYAPage(journey) && !amountHasChanged)
+      if (journey.userHasSeenCYAPage && !amountHasChanged)
         routes.CheckYourAnswersController.show()
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {

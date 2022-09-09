@@ -52,7 +52,7 @@ class BankDetailsChangeLetterOfAuthorityController @Inject() (
           {
             case Yes => Redirect(routes.ChooseBankAccountTypeController.show())
             case No  =>
-              if (userHasSeenCYAPage(journey)) {
+              if (journey.userHasSeenCYAPage) {
                 Redirect(routes.CheckYourAnswersController.show())
               } else {
                 Redirect(routes.CheckBankDetailsController.show())

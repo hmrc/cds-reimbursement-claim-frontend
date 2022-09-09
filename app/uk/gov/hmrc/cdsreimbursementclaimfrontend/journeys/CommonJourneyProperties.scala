@@ -35,6 +35,9 @@ trait CommonJourneyProperties {
 
   def answers: CommonAnswers
 
+  /** Case numer is the final result of successfully submitting the claim. */
+  def caseNumber: Option[String]
+
   def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
 
