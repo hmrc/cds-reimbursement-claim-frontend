@@ -53,11 +53,11 @@ class CheckTotalImportDischargedController @Inject() (
 
   //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
-    Redirect(routes.BillOfDischargeController.showBOD3())
+    Redirect(routes.BillOfDischarge3Controller.show())
 
   //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
-    Redirect(routes.BillOfDischargeController.showBOD4())
+    Redirect(routes.BillOfDischarge4Controller.show())
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit())).asFuture
