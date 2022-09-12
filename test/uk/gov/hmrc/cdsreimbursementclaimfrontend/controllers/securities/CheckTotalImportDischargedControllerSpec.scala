@@ -156,7 +156,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(true)),
-          routes.BillOfDischargeController.showBOD3()
+          routes.BillOfDischarge3Controller.show()
         )
       }
 
@@ -173,7 +173,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(true)),
-          routes.BillOfDischargeController.showBOD4()
+          routes.BillOfDischarge4Controller.show()
         )
       }
 

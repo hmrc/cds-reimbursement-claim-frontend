@@ -43,7 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerato
 
 import scala.concurrent.Future
 
-class BillOfDischargeControllerSpec
+class BillOfDischarge3ControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -57,7 +57,7 @@ class BillOfDischargeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: BillOfDischargeController = instanceOf[BillOfDischargeController]
+  val controller: BillOfDischarge3Controller = instanceOf[BillOfDischarge3Controller]
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
@@ -79,14 +79,11 @@ class BillOfDischargeControllerSpec
 
     "show page" must {
 
-      def showBod3Page: Future[Result] = controller.showBOD3()(FakeRequest())
-
-      def showBod4Page: Future[Result] = controller.showBOD4()(FakeRequest())
+      def showBod3Page: Future[Result] = controller.show()(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
         status(showBod3Page) shouldBe NOT_FOUND
-        status(showBod4Page) shouldBe NOT_FOUND
       }
 
       "display the page if securities feature is enabled (BOD3)" in forAll(completeJourneyGen) { journey =>
@@ -107,33 +104,12 @@ class BillOfDischargeControllerSpec
         )
       }
 
-      "display the page if securities feature is enabled (BOD4)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkPageIsDisplayed(
-          showBod4Page,
-          messageFromMessageKey(s"$confirmBodMessagesKey.bod4.title"),
-          implicit doc => {
-            messageFromMessageKey(s"$confirmBodMessagesKey.bod4.p1") should include(getContentsOfParagraph(1))
-            messageFromMessageKey(s"$confirmBodMessagesKey.p2")      should include(getContentsOfParagraph(2))
-          }
-        )
-      }
-
     }
 
     "submitting Yes/No form" must {
 
       def submitBod3Action(data: (String, String)*): Future[Result] =
-        controller.submitBOD3()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
-      def submitBod4Action(data: (String, String)*): Future[Result] =
-        controller.submitBOD4()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "select 'Yes' should redirect to select securities page (BOD3)" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
@@ -149,20 +125,6 @@ class BillOfDischargeControllerSpec
         )
       }
 
-      "select 'Yes' should redirect to select securities page (BOD4)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkIsRedirect(
-          submitBod4Action(confirmBodMessagesKey -> "true"),
-          routes.SelectSecuritiesController.showFirst()
-        )
-      }
-
       "select 'No' should redirect to 'Bill of Discharge' error page (BOD3)" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
@@ -173,36 +135,21 @@ class BillOfDischargeControllerSpec
 
         checkIsRedirect(
           submitBod3Action(confirmBodMessagesKey -> "false"),
-          routes.BillOfDischargeController.invalidBOD3()
+          routes.BillOfDischarge3Controller.invalid()
         )
       }
 
-      "select 'No' should redirect to 'Bill of Discharge' error page (BOD4)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkIsRedirect(
-          submitBod4Action(confirmBodMessagesKey -> "false"),
-          routes.BillOfDischargeController.invalidBOD4()
-        )
-      }
     }
 
     "Bill of Discharge Error page" must {
 
-      def invalidBod3Action: Future[Result] = controller.invalidBOD3()(FakeRequest())
-      def invalidBod4Action: Future[Result] = controller.invalidBOD4()(FakeRequest())
+      def invalidBod3Action: Future[Result] = controller.invalid()(FakeRequest())
 
       val errorBodMessagesKey: String = s"$confirmBodMessagesKey-error"
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
         status(invalidBod3Action) shouldBe NOT_FOUND
-        status(invalidBod4Action) shouldBe NOT_FOUND
       }
 
       "display the page if securities feature is enabled (BOD3)" in forAll(completeJourneyGen) { journey =>
@@ -220,27 +167,6 @@ class BillOfDischargeControllerSpec
             messageFromMessageKey(s"$errorBodMessagesKey.p1")      should include(getContentsOfParagraph(1))
             messageFromMessageKey(s"$errorBodMessagesKey.bod3.p2") should include(getContentsOfParagraph(2))
             messageFromMessageKey(s"$errorBodMessagesKey.bod3.p3") should include(getContentsOfParagraph(3))
-            messageFromMessageKey(s"$errorBodMessagesKey.p4")      should include(getContentsOfParagraph(4))
-            messageFromMessageKey(s"$errorBodMessagesKey.p5")      should include(getContentsOfParagraph(5))
-          }
-        )
-      }
-
-      "display the page if securities feature is enabled (BOD4)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkPageIsDisplayed(
-          invalidBod4Action,
-          messageFromMessageKey(s"$errorBodMessagesKey.title"),
-          implicit doc => {
-            messageFromMessageKey(s"$errorBodMessagesKey.p1")      should include(getContentsOfParagraph(1))
-            messageFromMessageKey(s"$errorBodMessagesKey.bod4.p2") should include(getContentsOfParagraph(2))
-            messageFromMessageKey(s"$errorBodMessagesKey.bod4.p3") should include(getContentsOfParagraph(3))
             messageFromMessageKey(s"$errorBodMessagesKey.p4")      should include(getContentsOfParagraph(4))
             messageFromMessageKey(s"$errorBodMessagesKey.p5")      should include(getContentsOfParagraph(5))
           }
