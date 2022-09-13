@@ -45,7 +45,7 @@ object BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.account-name.label"))
+                  visuallyHiddenText = Some(messages(s"$key.account-name.label.hidden"))
                 )
               )
             )

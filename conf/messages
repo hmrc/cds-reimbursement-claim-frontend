@@ -1254,6 +1254,7 @@ bank-details.details.p2=You will need to provide:
 bank-details.details.bullet1=a letter from the company whose bank details are being changed, confirming you have permission to make this change
 bank-details.details.bullet2=a letter of authority from the original account holder to their bank, confirming the updated bank account details
 bank-details.account-name.label=Name on the account
+bank-details.account-name.label.hidden=Change bank details
 bank-details.sort-code.label=Sort code
 bank-details.account-number.label=Account number
 bank-details.change=Change
