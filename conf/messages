@@ -1277,6 +1277,7 @@ enter-bank-account-details.title=Enter your bank account details
 enter-bank-account-details.p1=This is where you would like repayments to be made in the UK.
 enter-bank-account-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
 enter-bank-account-details.account-name.label=Name on the account
+enter-bank-account-details.account-name.label.hidden=bank details
 enter-bank-account-details.account-name.error.required=Enter the name on the account
 enter-bank-account-details.account-name.error.maxLength=Enter a valid account name
 enter-bank-account-details.account-name.invalid=Enter a valid account name
@@ -1537,6 +1538,7 @@ check-your-answers.bank-details.l3=Account number
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
 check-your-answers.bank-details.account-name.label=Name on the account
+check-your-answers.bank-details.account-name.label.hidden=bank details
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
 
