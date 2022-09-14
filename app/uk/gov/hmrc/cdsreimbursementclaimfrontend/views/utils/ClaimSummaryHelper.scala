@@ -23,6 +23,8 @@ import play.api.i18n.MessagesApi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
@@ -42,7 +44,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
     makeClaimSummaryRows(claims) ++ makeTotalRow(claims)
 
   def makeClaimSummaryRows(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] =
-    claims.toList.map { claim =>
+    claims.toList.zipWithIndex.map { case (claim, index) =>
       SummaryListRow(
         key = Key(Text(s"${claim.taxCode} - ${messages(s"select-duties.duty.${claim.taxCode}")(lang)}")),
         value = Value(Text(claim.claimAmount.toPoundSterlingString)),
@@ -52,7 +54,10 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
               ActionItem(
                 href = s"${overpaymentsSingleRoutes.EnterSingleClaimController.enterClaim(claim.id).url}",
                 content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"select-duties.duty.${claim.taxCode}")(lang))
+                visuallyHiddenText = Some(
+                  s"${OrdinalNumeral(index).capitalize} MRN: ${TaxCodes
+                    .findTaxType(claim.taxCode)} Duty ${claim.taxCode.value} - ${messages(s"select-duties.duty.${claim.taxCode}")(lang)}"
+                )
               )
             )
           )

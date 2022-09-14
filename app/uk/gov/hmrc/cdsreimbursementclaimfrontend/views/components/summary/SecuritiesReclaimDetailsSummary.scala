@@ -19,7 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
@@ -91,7 +93,7 @@ object SecuritiesReclaimDetailsSummary {
           )
         )
       )
-    ) ++ reclaims.map { case (taxCode, amount) =>
+    ) ++ reclaims.zipWithIndex.map { case ((taxCode, amount), index) =>
       SummaryListRow(
         key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
         value = Value(Text(amount.toPoundSterlingString)),
@@ -101,7 +103,8 @@ object SecuritiesReclaimDetailsSummary {
               ActionItem(
                 href = reclaimAmountChangeCall(securityDepositId, taxCode).url,
                 content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
+                visuallyHiddenText = Some(s"${OrdinalNumeral(index).capitalize} MRN: ${TaxCodes
+                  .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
               )
             )
           )
