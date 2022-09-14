@@ -49,7 +49,7 @@ object ReimbursementsClaimsSummary {
                 ActionItem(
                   href = enterClaimAction(taxCode).url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(s"${OrdinalNumber.label(index).capitalize} MRN: ${TaxCodes
+                  visuallyHiddenText = Some(s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
                     .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
                 )
               )
