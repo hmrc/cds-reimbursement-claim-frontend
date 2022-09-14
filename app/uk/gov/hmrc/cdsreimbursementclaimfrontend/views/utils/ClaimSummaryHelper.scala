@@ -17,13 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.data.NonEmptyList
-import play.api.i18n.Lang
-import play.api.i18n.Langs
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Lang, Langs, Messages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -34,9 +32,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi) {
-
-  val lang: Lang = langs.availables.headOption.getOrElse(Lang.defaultLang)
+class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: Messages) {
 
   private val key = "check-claim-summary"
 
@@ -46,17 +42,17 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
   def makeClaimSummaryRows(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] =
     claims.toList.zipWithIndex.map { case (claim, index) =>
       SummaryListRow(
-        key = Key(Text(s"${claim.taxCode} - ${messages(s"select-duties.duty.${claim.taxCode}")(lang)}")),
+        key = Key(Text(s"${claim.taxCode} - ${messages(s"select-duties.duty.${claim.taxCode}")}")),
         value = Value(Text(claim.claimAmount.toPoundSterlingString)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${overpaymentsSingleRoutes.EnterSingleClaimController.enterClaim(claim.id).url}",
-                content = Text(messages("cya.change")(lang)),
+                content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
-                  s"${OrdinalNumeral(index).capitalize} MRN: ${TaxCodes
-                    .findTaxType(claim.taxCode)} Duty ${claim.taxCode.value} - ${messages(s"select-duties.duty.${claim.taxCode}")(lang)}"
+                  s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
+                    .findTaxType(claim.taxCode)} Duty ${claim.taxCode.value} - ${messages(s"select-duties.duty.${claim.taxCode}")}"
                 )
               )
             )
@@ -67,7 +63,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   def makeTotalRow(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] =
     SummaryListRow(
-      key = Key(HtmlContent(messages(s"$key.total")(lang))),
+      key = Key(HtmlContent(messages(s"$key.total"))),
       value = Value(Text(claims.toList.map(_.claimAmount).sum.toPoundSterlingString)),
       classes = "govuk-!-margin-bottom-9"
     ) :: Nil
