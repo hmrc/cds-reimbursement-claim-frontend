@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.data.NonEmptyList
-import play.api.i18n.{Lang, Langs, Messages}
+import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
@@ -32,7 +32,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: Messages) {
+class ClaimSummaryHelper @Inject() (implicit messages: Messages) {
 
   private val key = "check-claim-summary"
 
