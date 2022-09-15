@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class LanguageSwitchController @Inject() (
   viewConfig: ViewConfig,
-  override implicit val messages: Messages,
+  implicit val messages: Messages,
   val controllerComponents: MessagesControllerComponents
 ) extends FrontendBaseController
     with I18nSupport {
