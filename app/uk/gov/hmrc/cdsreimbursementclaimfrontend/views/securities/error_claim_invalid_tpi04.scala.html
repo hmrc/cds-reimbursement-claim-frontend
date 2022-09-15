@@ -25,6 +25,7 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
 )
 
 @()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -37,22 +38,14 @@
 
     @heading(Html(title))
 
-    @paragraph(Html("This may be because:"))
+    @paragraph(Html(""))
 
-    <ul class="govuk-list govuk-list--bullet">
-        <li>HMRC have already collected the tax for this shipment.
-            @paragraph(Html("This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed."),
-            Some("govuk-body"))
-        </li>
-        <li>this claim has already been submitted as part of a whole or partial claim.
-            <p class="govuk-body">If HMRC have already collected the tax for this claim you should submit a
-                <a href=@{commonRoutes.ChooseClaimTypeController.show()}>Claim repayment of import duty and VAT if you have overpaid (C285)
-                </a> form
-            </p>
-        </li>
-    </ul>
-
-    <p class="govuk-body">If you have made a partial claim before and want to claim more, you should <a href=@viewConfig.contactHmrcUrl>contact HMRC.</a></p>
+    @bullets(
+        Seq(
+            Html(messages(s"$key.bullet.1")),
+            Html(messages(s"$key.bullet.2", commonRoutes.ChooseClaimTypeController.show(), viewConfig.contactHmrcUrl))
+        )
+    )
 
     <div class="govuk-button-group">
         <a href=@routes.EnterMovementReferenceNumberController.show() role="button" draggable="false" class="govuk-button" data-module="govuk-button">

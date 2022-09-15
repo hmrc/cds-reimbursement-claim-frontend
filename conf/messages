@@ -411,7 +411,9 @@ enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Op
 #  ERROR - CLAIM INVALID TPI04 PAGE - SECURITIES
 #===================================================
 error-claim-invalid-TPI04.title=There is a problem with your claim
-error-claim-invalid-TPI04.caption=caption is todo CDSR-1549 error-claim-invalid-TPI04
+error-claim-invalid-TPI04.para.1=This may be because:
+error-claim-invalid-TPI04.bullet.1=HMRC have already collected the duty for this shipment.<br /><br />This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed.
+error-claim-invalid-TPI04.bullet.2=this claim has already been submitted as part of a whole or partial claim.<br /><br />You can <a class="govuk-link" href="{0}">claim repayment of import duty and VAT if you have overpaid (C285)</a> if HMRC have already collected the tax for this claim.<br /><br />If you have made a partial claim before and want to claim more, you should <a class="govuk-link" href="{1}">contact HMRC</a>.
 
 #===================================================
 #  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
