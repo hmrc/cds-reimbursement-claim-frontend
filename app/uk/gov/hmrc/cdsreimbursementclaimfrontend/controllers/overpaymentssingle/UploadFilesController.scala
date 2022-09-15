@@ -49,6 +49,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.Json
 
 @Singleton
 class UploadFilesController @Inject() (
@@ -134,12 +135,18 @@ class UploadFilesController @Inject() (
             BadRequest(s"missing or invalid callback payload")
 
           case Some(callback) =>
-            if (callback.nonce.equals(fillingOutClaim.draftClaim.nonce))
+            if (callback.nonce.equals(fillingOutClaim.draftClaim.nonce)) {
+              val uploadedFilesWithDocumentTypeAdded = callback.uploadedFiles.map {
+                case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(callback.documentType))
+                case uf                            => uf
+              }
               EitherT(
                 updateSession(sessionStore, request)(
                   _.copy(
                     journeyStatus = FillingOutClaim
-                      .from(fillingOutClaim)(_.copy(supportingEvidencesAnswer = callback.uploadedFiles.someNelOrNone))
+                      .from(fillingOutClaim)(
+                        _.copy(supportingEvidencesAnswer = uploadedFilesWithDocumentTypeAdded.someNelOrNone)
+                      )
                       .some
                   )
                 )
@@ -148,7 +155,7 @@ class UploadFilesController @Inject() (
                   logAndDisplayError("Error assigning evidence document type"),
                   _ => NoContent
                 )
-            else
+            } else
               BadRequest("invalid nonce")
         }
 

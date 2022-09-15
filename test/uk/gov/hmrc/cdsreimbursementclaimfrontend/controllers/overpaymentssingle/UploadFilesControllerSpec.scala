@@ -324,7 +324,9 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
           mockGetSession(session)
           mockStoreSession(
             session.withUpdatedC285Claim(
-              _.copy(supportingEvidencesAnswer = Some(NonEmptyList.of(uploadDocument)))
+              _.copy(supportingEvidencesAnswer =
+                Some(NonEmptyList.of(uploadDocument.copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))))
+              )
             )
           )(Right(()))
         }
@@ -345,7 +347,9 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
           mockGetSession(session)
           mockStoreSession(
             session.withUpdatedC285Claim(
-              _.copy(supportingEvidencesAnswer = Some(NonEmptyList.of(uploadDocument)))
+              _.copy(supportingEvidencesAnswer =
+                Some(NonEmptyList.of(uploadDocument.copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))))
+              )
             )
           )(Right(()))
         }
