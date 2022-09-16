@@ -28,18 +28,16 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-import javax.inject.Inject
-import javax.inject.Singleton
-
-@Singleton
-class ClaimSummaryHelper @Inject() (implicit messages: Messages) {
+class ClaimSummaryHelper() {
 
   private val key = "check-claim-summary"
 
-  def makeClaimSummary(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] =
+  def makeClaimSummary(claims: NonEmptyList[ClaimedReimbursement])(implicit messages: Messages): List[SummaryListRow] =
     makeClaimSummaryRows(claims) ++ makeTotalRow(claims)
 
-  def makeClaimSummaryRows(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] =
+  def makeClaimSummaryRows(claims: NonEmptyList[ClaimedReimbursement])(implicit
+    messages: Messages
+  ): List[SummaryListRow] =
     claims.toList.zipWithIndex.map { case (claim, index) =>
       SummaryListRow(
         key = Key(Text(s"${claim.taxCode} - ${messages(s"select-duties.duty.${claim.taxCode}")}")),
@@ -61,7 +59,7 @@ class ClaimSummaryHelper @Inject() (implicit messages: Messages) {
       )
     }
 
-  def makeTotalRow(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] =
+  def makeTotalRow(claims: NonEmptyList[ClaimedReimbursement])(implicit messages: Messages): List[SummaryListRow] =
     SummaryListRow(
       key = Key(HtmlContent(messages(s"$key.total"))),
       value = Value(Text(claims.toList.map(_.claimAmount).sum.toPoundSterlingString)),
