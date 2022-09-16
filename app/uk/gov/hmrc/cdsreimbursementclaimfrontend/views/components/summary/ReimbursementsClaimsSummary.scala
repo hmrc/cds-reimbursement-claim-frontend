@@ -18,14 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 
 object ReimbursementsClaimsSummary {
 
@@ -37,24 +39,24 @@ object ReimbursementsClaimsSummary {
     messages: Messages
   ): SummaryList =
     SummaryList(rows =
-      reimbursementClaims
-        .map { case (taxCode, amount) =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
-            value = Value(Text(amount.toPoundSterlingString)),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = enterClaimAction(taxCode).url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
-                  )
+      reimbursementClaims.zipWithIndex.map { case ((taxCode, amount), index) =>
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
+          value = Value(Text(amount.toPoundSterlingString)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = enterClaimAction(taxCode).url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
+                    .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
                 )
               )
             )
           )
-        } ++ Seq(
+        )
+      } ++ Seq(
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.single.total"))),
           value = Value(Text(reimbursementClaims.map(_._2).sum.toPoundSterlingString))
