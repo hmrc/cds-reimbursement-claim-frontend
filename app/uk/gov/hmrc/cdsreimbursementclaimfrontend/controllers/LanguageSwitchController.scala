@@ -19,14 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import com.google.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang
-import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class LanguageSwitchController @Inject() (
   viewConfig: ViewConfig,
-  implicit val messages: Messages,
+  override implicit val messagesApi: MessagesApi,
   val controllerComponents: MessagesControllerComponents
 ) extends FrontendBaseController
     with I18nSupport {
