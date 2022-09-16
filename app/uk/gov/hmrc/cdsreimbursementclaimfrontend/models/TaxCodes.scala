@@ -89,6 +89,15 @@ object TaxCodes {
     NI99D
   )
 
+  def findTaxType(taxCode: TaxCode): String =
+    if (UK.contains(taxCode)) {
+      "UK"
+    } else if (EU.contains(taxCode)) {
+      "EU"
+    } else {
+      "Excise"
+    }
+
   val vatTaxCodes: Seq[TaxCode] = List(B00, B05)
 
   val all: Seq[TaxCode] = UK ++ EU ++ excise
