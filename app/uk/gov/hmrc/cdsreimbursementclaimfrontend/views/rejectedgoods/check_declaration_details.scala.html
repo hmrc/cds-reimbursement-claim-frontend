@@ -59,9 +59,9 @@
     @if(subKey.contains("single")) {
         @dropdownDetails(summary = s"$key$subKeyDetail.details.heading",
             html(
-                subHeading(Html(messages(s"$key$subKeyDetail.details.paragraph.heading.1"))),
+                subHeading(Html(messages(s"$key$subKeyDetail.details.paragraph.heading.1")), classes = "govuk-heading-s"),
                 paragraph(Html(messages(s"$key$subKeyDetail.details.paragraph.text.1"))),
-                subHeading(Html(messages(s"$key$subKeyDetail.details.paragraph.heading.2"))),
+                subHeading(Html(messages(s"$key$subKeyDetail.details.paragraph.heading.2")), classes = "govuk-heading-s"),
                 paragraph(Html(messages(s"$key$subKeyDetail.details.paragraph.text.2")))
             )
         )
