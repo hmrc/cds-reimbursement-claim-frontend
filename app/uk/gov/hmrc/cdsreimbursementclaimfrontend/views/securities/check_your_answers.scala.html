@@ -89,7 +89,7 @@
             value = Value(Text(exportDeclarationMrn.value)),
             actions = Some(Actions(
                 items = Seq(ActionItem(
-                    href = routes.EnterExportMovementReferenceNumberMultipleController.show().url,
+                    href = routes.EnterExportMovementReferenceNumberController.show().url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.export-declaration-details.mrn"))
             ))))

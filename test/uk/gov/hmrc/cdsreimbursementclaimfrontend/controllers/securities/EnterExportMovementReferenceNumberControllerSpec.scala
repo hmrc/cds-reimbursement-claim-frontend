@@ -54,7 +54,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class EnterExportMovementReferenceNumberMultipleControllerSpec
+class EnterExportMovementReferenceNumberControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -63,7 +63,7 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
     with TestWithJourneyGenerator[SecuritiesJourney]
     with Logging {
 
-  val enterExportMovementReferenceNumberKey: String          = "enter-export-movement-reference-number-multiple"
+  val enterExportMovementReferenceNumberKey: String          = "enter-export-movement-reference-number"
   val enterExportMovementReferenceNumberKeyAndSubKey: String = s"$enterExportMovementReferenceNumberKey.securities"
   val mockClaimsService: ClaimService                        = mock[ClaimService]
 
@@ -74,8 +74,8 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: EnterExportMovementReferenceNumberMultipleController =
-    instanceOf[EnterExportMovementReferenceNumberMultipleController]
+  val controller: EnterExportMovementReferenceNumberController =
+    instanceOf[EnterExportMovementReferenceNumberController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -92,7 +92,7 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
 
   def validateChooseExportMethodPage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-heading-xl").html()
-    val input          = doc.select(s"#$enterExportMovementReferenceNumberKey")
+    val input          = doc.select("#enter-export-movement-reference-number")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
 
     headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"))
@@ -118,7 +118,7 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
 
       "display the page if acc14 is present" in forAllWith(
         JourneyGenerator(
-          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
         )
       ) { case (journey, _) =>
@@ -150,7 +150,7 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
 
       "save an export MRN if valid and continue to the check claimant details page" in forAllWith(
         JourneyGenerator(
-          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
         )
       ) { case (journey, (_, _, _, _)) =>
@@ -173,7 +173,7 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
 
       "display error if acc14 returns a successful response" in forAllWith(
         JourneyGenerator(
-          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
         )
       ) { case (journey, (_, _, acc14, _)) =>
@@ -198,7 +198,7 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
 
       "reject an invalid MRN" in forAllWith(
         JourneyGenerator(
-          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
         )
       ) { case (journey, _) =>
@@ -223,7 +223,7 @@ class EnterExportMovementReferenceNumberMultipleControllerSpec
 
       "reject an empty MRN" in forAllWith(
         JourneyGenerator(
-          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
         )
       ) { case (journey, _) =>
