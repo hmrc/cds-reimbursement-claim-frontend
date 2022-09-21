@@ -67,9 +67,9 @@ abbr[title] {
     
     .govuk-details__summary-text {
         background-color:inherit;
-    }
 
-    * {
-        background-color:#fff;
+        &:focus * {
+            background-color: inherit;
+        }
     }
 }
