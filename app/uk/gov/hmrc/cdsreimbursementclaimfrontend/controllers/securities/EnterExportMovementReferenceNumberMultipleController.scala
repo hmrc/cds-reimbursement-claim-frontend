@@ -31,8 +31,8 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.enterExportMovementReferenceNumberKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.exportMovementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberMultipleController.enterExportMovementReferenceNumberMultipleKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberMultipleController.exportMovementReferenceNumberMultipleForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
@@ -40,16 +40,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.tempor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number_multiple
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class EnterExportMovementReferenceNumberController @Inject() (
+class EnterExportMovementReferenceNumberMultipleController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
-  enterExportMovementReferenceNumberPage: enter_export_movement_reference_number
+  enterExportMovementReferenceMultipleNumberPage: enter_export_movement_reference_number_multiple
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
@@ -64,9 +64,9 @@ class EnterExportMovementReferenceNumberController @Inject() (
       (
         journey,
         Ok(
-          enterExportMovementReferenceNumberPage(
-            exportMovementReferenceNumberForm.withDefault(journey.answers.exportMovementReferenceNumber),
-            routes.EnterExportMovementReferenceNumberController.submit()
+          enterExportMovementReferenceMultipleNumberPage(
+            exportMovementReferenceNumberMultipleForm.withDefault(journey.answers.exportMovementReferenceNumber),
+            routes.EnterExportMovementReferenceNumberMultipleController.submit()
           )
         )
       ).asFuture
@@ -75,15 +75,15 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExportedInSingleShipment(journey) {
-      exportMovementReferenceNumberForm.bindFromRequest
+      exportMovementReferenceNumberMultipleForm.bindFromRequest
         .fold(
           formWithErrors =>
             (
               journey,
               BadRequest(
-                enterExportMovementReferenceNumberPage(
+                enterExportMovementReferenceMultipleNumberPage(
                   formWithErrors.copy(data = Map.empty),
-                  routes.EnterExportMovementReferenceNumberController.submit()
+                  routes.EnterExportMovementReferenceNumberMultipleController.submit()
                 )
               )
             ).asFuture,
@@ -96,12 +96,13 @@ class EnterExportMovementReferenceNumberController @Inject() (
                   (
                     journey,
                     BadRequest(
-                      enterExportMovementReferenceNumberPage(
-                        exportMovementReferenceNumberForm.copy(
+                      enterExportMovementReferenceMultipleNumberPage(
+                        exportMovementReferenceNumberMultipleForm.copy(
                           data = Map.empty,
-                          errors = List(FormError(enterExportMovementReferenceNumberKey, "securities.error.import"))
+                          errors =
+                            List(FormError(enterExportMovementReferenceNumberMultipleKey, "securities.error.import"))
                         ),
-                        routes.EnterExportMovementReferenceNumberController.submit()
+                        routes.EnterExportMovementReferenceNumberMultipleController.submit()
                       )
                     )
                   )
@@ -134,12 +135,14 @@ class EnterExportMovementReferenceNumberController @Inject() (
     }
 }
 
-object EnterExportMovementReferenceNumberController {
-  val enterExportMovementReferenceNumberKey: String = "enter-export-movement-reference-number"
-  val exportMovementReferenceNumberForm: Form[MRN]  =
+object EnterExportMovementReferenceNumberMultipleController {
+
+  val enterExportMovementReferenceNumberMultipleKey: String = "enter-export-movement-reference-number-multiple"
+
+  val exportMovementReferenceNumberMultipleForm: Form[MRN] =
     Form(
       mapping(
-        enterExportMovementReferenceNumberKey ->
+        enterExportMovementReferenceNumberMultipleKey ->
           nonEmptyText
             .verifying(
               "securities.invalid.number",

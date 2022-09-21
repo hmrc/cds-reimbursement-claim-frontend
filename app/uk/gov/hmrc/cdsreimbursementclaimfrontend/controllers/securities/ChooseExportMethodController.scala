@@ -95,7 +95,7 @@ class ChooseExportMethodController @Inject() (
                 updatedJourney =>
                   methodOfDisposal match {
                     case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment =>
-                      (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show()))
+                      (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberMultipleController.show()))
                     case _                                                           =>
                       (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
                   }
@@ -111,7 +111,7 @@ class ChooseExportMethodController @Inject() (
     journey.getReasonForSecurity
       .fold((journey, errorHandler.errorResult())) {
         case rfs if ReasonForSecurity.temporaryAdmissions.contains(rfs) => body
-        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show))
+        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show()))
       }
       .asFuture
 }

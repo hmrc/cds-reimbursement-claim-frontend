@@ -54,7 +54,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class EnterExportMovementReferenceNumberControllerSpec
+class EnterExportMovementReferenceNumberMultipleControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -63,7 +63,7 @@ class EnterExportMovementReferenceNumberControllerSpec
     with TestWithJourneyGenerator[SecuritiesJourney]
     with Logging {
 
-  val enterExportMovementReferenceNumberKey: String          = "enter-export-movement-reference-number"
+  val enterExportMovementReferenceNumberKey: String          = "enter-export-movement-reference-number-multiple"
   val enterExportMovementReferenceNumberKeyAndSubKey: String = s"$enterExportMovementReferenceNumberKey.securities"
   val mockClaimsService: ClaimService                        = mock[ClaimService]
 
@@ -74,8 +74,8 @@ class EnterExportMovementReferenceNumberControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: EnterExportMovementReferenceNumberController =
-    instanceOf[EnterExportMovementReferenceNumberController]
+  val controller: EnterExportMovementReferenceNumberMultipleController =
+    instanceOf[EnterExportMovementReferenceNumberMultipleController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -92,7 +92,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
   def validateChooseExportMethodPage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-heading-xl").html()
-    val input          = doc.select("#enter-export-movement-reference-number")
+    val input          = doc.select(s"#$enterExportMovementReferenceNumberKey")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
 
     headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"))
