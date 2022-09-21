@@ -978,14 +978,14 @@ tax-code.99D = 99D - Electricity
 select-duty-types.title=Select the duty types you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
 select-duty-types.error.required=Select one or more duty types you want to claim for
 select-duty-types.error.invalid=Invalid duty type code
-select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.checkbox-legend.1=Customs, Additional, <abbr title="Value Added Tax">VAT</abbr> & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
 select-duty-codes.title=Select the {0} duties you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
 select-duty-codes.error.required=Select one or more duties to be repaid for
 select-duty-codes.error.invalid=Invalid duty code
-select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.eu-duty=EU
 select-duty-codes.h1.beer=beer
