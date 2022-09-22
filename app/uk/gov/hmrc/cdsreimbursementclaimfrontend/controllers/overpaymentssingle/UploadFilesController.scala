@@ -49,7 +49,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
-import play.api.libs.json.Json
 
 @Singleton
 class UploadFilesController @Inject() (
