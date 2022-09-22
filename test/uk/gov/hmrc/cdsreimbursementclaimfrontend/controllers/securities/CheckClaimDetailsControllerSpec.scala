@@ -99,7 +99,12 @@ class CheckClaimDetailsControllerSpec
         Seq(
           ("Claim full amount" -> Some(if (journey.isFullSecurityAmountClaimed(sid)) "Yes" else "No")),
           ("Duties selected"   -> Some(
-            journey.getSelectedDutiesFor(sid).get.map(taxCode => messages(s"tax-code.${taxCode.value}")).mkString(" ")
+            journey
+              .getSelectedDutiesFor(sid)
+              .get
+              .sortBy(x => messages(s"select-duties.duty.${x.value}"))
+              .map(taxCode => messages(s"tax-code.${taxCode.value}"))
+              .mkString(" ")
           )),
           ("Total"             -> Some(journey.getTotalReclaimAmountFor(sid).getOrElse(BigDecimal("0.00")).toPoundSterlingString))
         ) ++ journey.answers.securitiesReclaims.get

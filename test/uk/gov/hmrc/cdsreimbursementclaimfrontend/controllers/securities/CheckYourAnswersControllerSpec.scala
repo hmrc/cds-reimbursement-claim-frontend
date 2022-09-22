@@ -189,7 +189,10 @@ class CheckYourAnswersControllerSpec
                 "No"
             )),
             ("Duties selected"   -> Some(
-              reclaims.keys.map(taxCode => messages(s"tax-code.${taxCode.value}")).mkString(" ")
+              reclaims.keys.toList
+                .sortBy(x => messages(s"select-duties.duty.${x.value}"))
+                .map(taxCode => messages(s"tax-code.${taxCode.value}"))
+                .mkString(" ")
             )),
             ("Total"             -> Some(
               reclaims.values.sum.toPoundSterlingString
