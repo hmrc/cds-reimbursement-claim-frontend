@@ -45,7 +45,7 @@
             name = Some(s"$key[]"),
             value = dutyType.repr,
             content = Text(messages(s"duty-type.${dutyType.repr}")),
-            checked = form.data.exists(_._2 == dutyType.repr)
+            checked = form.data.exists(_._2 == dutyType.repr),
         )
     }
 }
@@ -76,12 +76,14 @@
         @checkboxes(
             field = form(s"$key-custom"),
             legend = HtmlContent(messages(s"$key.checkbox-legend.1")),
+            legendAsHeading = false,
             items = customsOptions
         )
 
         @checkboxes(
             field = form(s"$key-excise"),
             legend = HtmlContent(messages(s"$key.checkbox-legend.2")),
+            legendAsHeading = false,
             items = exciseOptions
         )
 

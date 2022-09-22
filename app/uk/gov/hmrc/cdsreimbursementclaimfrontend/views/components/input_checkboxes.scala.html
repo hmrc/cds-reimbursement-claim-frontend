@@ -34,6 +34,7 @@
     legend: HtmlContent,
     items: Seq[CheckboxItem],
     legendAsHeading: Boolean = true,
+    legendClasses: Option[String] = None,
     hint: Option[Html] = None,
     singleton: Boolean = false
 )(implicit messages: Messages)
@@ -45,7 +46,7 @@
         legend = Some(Legend(
             content = legend,
             isPageHeading = legendAsHeading,
-            classes = if(legendAsHeading) "govuk-fieldset__legend--xl" else "govuk-visually-hidden"
+            classes = legendClasses.getOrElse(if(legendAsHeading) "govuk-fieldset__legend--xl" else "govuk-fieldset__legend--m")
         ))
     ))
 }}

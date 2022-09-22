@@ -63,6 +63,7 @@
         @checkboxes(
             field = form(s"$key"),
             legendAsHeading = false,
+            legendClasses = Some("govuk-visually-hidden"),
             legend = HtmlContent(title),
             items = options.toList,
             hint = None
