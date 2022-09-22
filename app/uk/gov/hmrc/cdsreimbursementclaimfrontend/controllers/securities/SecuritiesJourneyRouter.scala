@@ -47,6 +47,8 @@ trait SecuritiesJourneyRouter {
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                              => routes.CheckBankDetailsController.show()
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                          => undefined
       case MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER                          => routes.EnterExportMovementReferenceNumberController.show()
+      case MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER_MULTIPLE                 =>
+        routes.EnterExportMovementReferenceNumberMultipleController.show()
       case MISSING_METHOD_OF_DISPOSAL                                        => undefined
       case _                                                                 =>
         undefined

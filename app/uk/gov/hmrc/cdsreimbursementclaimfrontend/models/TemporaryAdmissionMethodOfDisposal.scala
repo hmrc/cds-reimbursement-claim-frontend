@@ -48,4 +48,7 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
       Other,
       MultipleDisposalMethodsWereUsed
     )
+
+  val exportedMethodsOfDisposal: Set[TemporaryAdmissionMethodOfDisposal] =
+    Set(ExportedInSingleShipment, ExportedInMultipleShipments)
 }

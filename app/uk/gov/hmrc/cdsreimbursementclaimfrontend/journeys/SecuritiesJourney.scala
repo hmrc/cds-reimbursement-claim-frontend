@@ -208,6 +208,12 @@ final class SecuritiesJourney private (
         TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
       )
 
+  def needsExportMRNMultipleSubmission: Boolean =
+    needsMethodOfDisposalSubmission &&
+      answers.temporaryAdmissionMethodOfDisposal.contains(
+        TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+      )
+
   def needsDocumentTypeSelection: Boolean =
     getReasonForSecurity.exists(
       UploadDocumentType
@@ -348,7 +354,7 @@ final class SecuritiesJourney private (
     exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
-      if (needsExportMRNSubmission)
+      if (needsExportMRNSubmission || needsExportMRNMultipleSubmission)
         Right(
           new SecuritiesJourney(
             answers.copy(
