@@ -102,7 +102,7 @@ class CheckClaimDetailsControllerSpec
             journey
               .getSelectedDutiesFor(sid)
               .get
-              .sortBy(x => messages(s"select-duties.duty.${x.value}"))
+              .sorted
               .map(taxCode => messages(s"tax-code.${taxCode.value}"))
               .mkString(" ")
           )),

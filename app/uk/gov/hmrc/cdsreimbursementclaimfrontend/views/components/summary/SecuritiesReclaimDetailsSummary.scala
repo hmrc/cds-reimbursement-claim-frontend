@@ -76,8 +76,7 @@ object SecuritiesReclaimDetailsSummary {
         key = Key(HtmlContent(messages(s"$key.duties-selected.label"))),
         value = Value(
           HtmlContent(
-            reclaims.keys.toList
-              .sortBy(code => messages(s"select-duties.duty.$code"))
+            reclaims.keys.toList.sorted
               .map(taxCode => messages(s"tax-code.${taxCode.value}"))
               .mkString("<br>")
           )
@@ -94,28 +93,24 @@ object SecuritiesReclaimDetailsSummary {
           )
         )
       )
-    ) ++ reclaims.toList
-      .sortBy { case (taxCode, _) => messages(s"select-duties.duty.${taxCode.value}") }
-      .zipWithIndex
-      .map { case ((taxCode, amount), index) =>
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
-          value = Value(Text(amount.toPoundSterlingString)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = reclaimAmountChangeCall(securityDepositId, taxCode).url,
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
-                    .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
-                )
+    ) ++ reclaims.toList.sorted.zipWithIndex.map { case ((taxCode, amount), index) =>
+      SummaryListRow(
+        key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
+        value = Value(Text(amount.toPoundSterlingString)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = reclaimAmountChangeCall(securityDepositId, taxCode).url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
+                  .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
               )
             )
           )
         )
-      }
-      .toSeq ++ Seq(
+      )
+    }.toSeq ++ Seq(
       SummaryListRow(
         key = Key(HtmlContent(messages(s"$key.claim-total"))),
         value = Value(Text(reclaims.values.sum.toPoundSterlingString))

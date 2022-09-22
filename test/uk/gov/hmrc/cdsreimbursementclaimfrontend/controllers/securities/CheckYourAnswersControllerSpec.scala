@@ -189,8 +189,7 @@ class CheckYourAnswersControllerSpec
                 "No"
             )),
             ("Duties selected"   -> Some(
-              reclaims.keys.toList
-                .sortBy(x => messages(s"select-duties.duty.${x.value}"))
+              reclaims.keys.toList.sorted
                 .map(taxCode => messages(s"tax-code.${taxCode.value}"))
                 .mkString(" ")
             )),

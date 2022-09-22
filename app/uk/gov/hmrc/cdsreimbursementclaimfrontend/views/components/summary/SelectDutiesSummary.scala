@@ -32,6 +32,7 @@ object SelectDutiesSummary {
   @SuppressWarnings(Array("org.wartremover.warts.Option2Iterable"))
   def apply(dutiesAvailable: Seq[DutyAmount])(implicit messages: Messages): Seq[DutyDescription] =
     dutiesAvailable
+      .sortBy(_.taxCode)
       .flatMap { duty =>
         getDescription(s"$selectDutiesKey.duty.${duty.taxCode.value}", messages)
           .map { description =>
@@ -42,5 +43,4 @@ object SelectDutiesSummary {
             )
           }
       }
-      .sortBy(_.description)
 }
