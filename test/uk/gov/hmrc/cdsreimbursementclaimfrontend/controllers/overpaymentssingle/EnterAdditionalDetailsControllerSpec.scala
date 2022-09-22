@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen.genValidDraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -128,7 +128,7 @@ class EnterAdditionalDetailsControllerSpec
 
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
-            basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
+            basisOfClaimAnswer = Some(BasisOfOverpaymentClaim.DutySuspension),
             movementReferenceNumber = Some(sample[MRN])
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(numberOfClaims))
@@ -153,7 +153,7 @@ class EnterAdditionalDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
+            basisOfClaimAnswer = Some(BasisOfOverpaymentClaim.DutySuspension),
             movementReferenceNumber = Some(sample[MRN])
           )
 
@@ -179,7 +179,7 @@ class EnterAdditionalDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
+            basisOfClaimAnswer = Some(BasisOfOverpaymentClaim.DutySuspension),
             movementReferenceNumber = Some(sample[MRN])
           )
 
@@ -211,7 +211,7 @@ class EnterAdditionalDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
+            basisOfClaimAnswer = Some(BasisOfOverpaymentClaim.DutySuspension),
             movementReferenceNumber = Some(sample[MRN])
           )
 
@@ -270,7 +270,7 @@ class EnterAdditionalDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
+            basisOfClaimAnswer = Some(BasisOfOverpaymentClaim.DutySuspension),
             movementReferenceNumber = Some(sample[MRN])
           )
 

@@ -40,9 +40,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A80
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A85
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A90
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A95
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.IncorrectExciseValue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.PersonalEffects
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectExciseValue
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.PersonalEffects
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
@@ -82,7 +82,7 @@ class SelectDutiesControllerSpec
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     movementReferenceNumber: MRN,
     displayDeclaration: Option[DisplayDeclaration] = None,
-    basisOfClaim: BasisOfClaimAnswer = PersonalEffects
+    basisOfClaim: BasisOfOverpaymentClaim = PersonalEffects
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,

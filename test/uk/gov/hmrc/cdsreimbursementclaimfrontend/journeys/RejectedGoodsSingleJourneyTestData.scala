@@ -40,7 +40,7 @@ trait RejectedGoodsSingleJourneyTestData extends JourneyTestData {
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
     supportingEvidences: Map[UploadDocumentType, Int],
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
+    reimbursementMethod: Option[ReimbursementMethod] = None,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     contactDetails: Option[MrnContactDetails] = None,

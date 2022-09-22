@@ -20,7 +20,8 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -38,14 +39,14 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[BasisOfClaimAnswer], claimTypes: BasisOfClaims, basisOfClaimsHints: DropdownHints, subKey: Option[String], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BasisOfOverpaymentClaim], claimTypes: BasisOfOverpaymentClaimsList, basisOfClaimsHints: DropdownHints, subKey: Option[String], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-basis-for-claim"}
 @title = @{messages(s"$key.title")}
 
 @radioItems = @{
     claimTypes.items.map { basisOfClaim => {
-        val index = BasisOfClaims.indexOf(basisOfClaim)
+        val index = BasisOfOverpaymentClaimsList.indexOf(basisOfClaim)
         val hint = if (messages.isDefinedAt(s"$key.reason.hint.d$index"))
             Some(Hint(content = HtmlContent(messages(s"$key.reason.hint.d$index"))))
         else

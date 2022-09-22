@@ -20,12 +20,10 @@ import cats.Functor
 import cats.Id
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.IncorrectAdditionalInformationCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.IncorrectExciseValue
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectAdditionalInformationCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
@@ -47,7 +45,8 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           whetherNorthernIrelandAnswer = Some(No)
         )
 
-      val codes: List[BasisOfClaimAnswer] = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
+      val codes: List[BasisOfOverpaymentClaim] =
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
 
       codes.size shouldBe 13
       codes        should not contain IncorrectExciseValue
@@ -75,7 +74,8 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
             displayDeclaration = Some(acc14)
           )
 
-      val codes: List[BasisOfClaimAnswer] = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
+      val codes: List[BasisOfOverpaymentClaim] =
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
 
       codes.size shouldBe 15
       codes        should contain(IncorrectExciseValue)
@@ -96,7 +96,8 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
             displayDeclaration = Some(acc14)
           )
 
-      val codes: List[BasisOfClaimAnswer] = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
+      val codes: List[BasisOfOverpaymentClaim] =
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
 
       codes.size shouldBe 14
       codes        should contain(IncorrectAdditionalInformationCode)

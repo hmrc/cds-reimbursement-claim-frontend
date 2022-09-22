@@ -45,13 +45,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.BankAccountTransfer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod.BankAccountTransfer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
@@ -310,12 +310,12 @@ object Forms {
       )(amount => amount)(amount => Some(amount))
     )
 
-  def reimbursementMethodForm(reimbursementMethodKey: String): Form[ReimbursementMethodAnswer] =
+  def reimbursementMethodForm(reimbursementMethodKey: String): Form[ReimbursementMethod] =
     Form(
       mapping(
         reimbursementMethodKey -> number
           .verifying("error.invalid", a => a === 0 || a === 1)
-          .transform[ReimbursementMethodAnswer](
+          .transform[ReimbursementMethod](
             value =>
               if (value === 0) CurrentMonthAdjustment
               else BankAccountTransfer,
@@ -395,12 +395,12 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  val reasonForClaimForm: Form[BasisOfClaimAnswer] =
+  val reasonForClaimForm: Form[BasisOfOverpaymentClaim] =
     Form(
       mapping(
         "select-basis-for-claim" -> number
-          .verifying("invalid reason for claim", idx => BasisOfClaims.contains(idx))
-          .transform[BasisOfClaimAnswer](BasisOfClaims.all(_), BasisOfClaims.indexOf)
+          .verifying("invalid reason for claim", idx => BasisOfOverpaymentClaimsList.contains(idx))
+          .transform[BasisOfOverpaymentClaim](BasisOfOverpaymentClaimsList.all(_), BasisOfOverpaymentClaimsList.indexOf)
       )(identity)(Some(_))
     )
 

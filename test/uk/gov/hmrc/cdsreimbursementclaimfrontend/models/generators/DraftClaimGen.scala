@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimGen.arbitraryBasisOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AdditionalDetailsGen.arbitraryCompleteAdditionalDetailsAnswer
@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodGen.arbitraryReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.genScheduledDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.YesNoGen.arbitraryYesNo
@@ -51,7 +51,7 @@ object DraftClaimGen {
       maybeContactAddressAnswer   <- genContactAddressOpt
       bankAccountDetailsAnswer    <- arbitraryBankAccountDetailsGen.arbitrary
       bankAccountTypeAnswer       <- arbitraryBankAccountType.arbitrary
-      basisOfClaimAnswer          <- arbitraryBasisOfClaimAnswer.arbitrary
+      basisOfClaim                <- arbitraryBasisOfClaim.arbitrary
       supportingEvidencesAnswer   <- arbitrarySupportingEvidenceAnswer.arbitrary
       dutiesSelectedAnswer        <- arbitraryDutiesSelectedAnswerGen.arbitrary
       additionalDetailsAnswer     <- arbitraryCompleteAdditionalDetailsAnswer.arbitrary
@@ -59,7 +59,7 @@ object DraftClaimGen {
       displayDeclaration          <- arbitraryDisplayDeclaration.arbitrary
       eori                        <- arbitraryEori.arbitrary
       claimedReimbursementsAnswer <- arbitraryClaimedReimbursementsAnswer.arbitrary
-      reimbursementMethodAnswer   <- arbitraryReimbursementMethodAnswer.arbitrary
+      reimbursementMethod         <- arbitraryReimbursementMethod.arbitrary
       scheduledDocumentAnswer     <- genScheduledDocumentAnswer(typeOfClaim)
       associatedMRNsAnswer        <- genAssociatedMrnsAnswer(typeOfClaim)
       associatedMRNsClaimsAnswer  <- genAssociatedMRNsClaimsAnswer(typeOfClaim)
@@ -71,7 +71,7 @@ object DraftClaimGen {
       mrnContactAddressAnswer = maybeContactAddressAnswer,
       bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,
       bankAccountTypeAnswer = bankAccountTypeAnswer.some,
-      basisOfClaimAnswer = basisOfClaimAnswer.some,
+      basisOfClaimAnswer = basisOfClaim.some,
       supportingEvidencesAnswer = supportingEvidencesAnswer.some,
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
       additionalDetailsAnswer = additionalDetailsAnswer.some,
@@ -82,7 +82,7 @@ object DraftClaimGen {
       claimedReimbursementsAnswer = claimedReimbursementsAnswer.some,
       reimbursementMethodAnswer =
         if (typeOfClaim === TypeOfClaimAnswer.Individual)
-          reimbursementMethodAnswer
+          reimbursementMethod
         else None,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
       associatedMRNsAnswer = associatedMRNsAnswer,

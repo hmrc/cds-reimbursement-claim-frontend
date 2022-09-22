@@ -47,7 +47,7 @@ final case class DraftClaim(
   mrnContactAddressAnswer: Option[ContactAddress] = None,
   bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
   bankAccountTypeAnswer: Option[BankAccountType] = None,
-  basisOfClaimAnswer: Option[BasisOfClaimAnswer] = None,
+  basisOfClaimAnswer: Option[BasisOfOverpaymentClaim] = None,
   documentTypeAnswer: Option[UploadDocumentType] = None,
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
@@ -58,7 +58,7 @@ final case class DraftClaim(
   importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
   declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
   claimedReimbursementsAnswer: Option[ClaimedReimbursementsAnswer] = None,
-  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
+  reimbursementMethodAnswer: Option[ReimbursementMethod] = None,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
@@ -78,7 +78,7 @@ final case class DraftClaim(
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
   def hasNorthernIrelandBasisOfClaim: Boolean =
-    basisOfClaimAnswer.exists(BasisOfClaims.northernIreland.contains(_))
+    basisOfClaimAnswer.exists(BasisOfOverpaymentClaimsList.northernIreland.contains(_))
 
   def findNonEmptyBankAccountDetails: Option[BankAccountDetails] =
     Stream(
@@ -142,7 +142,7 @@ final case class DraftClaim(
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
-        BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
+        BasisOfOverpaymentClaim.validator.validate(basisOfClaimAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
         MRN.validator.validate(movementReferenceNumber).isValid
 
@@ -150,7 +150,7 @@ final case class DraftClaim(
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
-        BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
+        BasisOfOverpaymentClaim.validator.validate(basisOfClaimAnswer).isValid &&
         AssociatedMRNsClaimsAnswer.validator.validate(associatedMRNsClaimsAnswer).isValid &&
         AssociatedMRNsAnswer.validator.validate(associatedMRNsAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
@@ -161,7 +161,7 @@ final case class DraftClaim(
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
-        BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
+        BasisOfOverpaymentClaim.validator.validate(basisOfClaimAnswer).isValid &&
         ScheduledDocumentAnswer.validator.validate(scheduledDocumentAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
         MRN.validator.validate(movementReferenceNumber).isValid

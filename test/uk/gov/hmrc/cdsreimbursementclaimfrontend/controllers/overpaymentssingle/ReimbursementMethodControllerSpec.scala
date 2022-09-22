@@ -38,8 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -247,8 +247,8 @@ class ReimbursementMethodControllerSpec
     )
   }
 
-  private def getSessionWithPreviousAnswer(reimbursementMethodAnswer: ReimbursementMethodAnswer): SessionData = {
-    val draftC285Claim      = DraftClaim.blank.copy(reimbursementMethodAnswer = Some(reimbursementMethodAnswer))
+  private def getSessionWithPreviousAnswer(reimbursementMethod: ReimbursementMethod): SessionData = {
+    val draftC285Claim      = DraftClaim.blank.copy(reimbursementMethodAnswer = Some(reimbursementMethod))
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -260,7 +260,7 @@ class ReimbursementMethodControllerSpec
   private def isBankTransferChecked(document: Document): Boolean          =
     isChecked(document, "reimbursement-method-bank-transfer")
 
-  private def updateSession(sessionData: SessionData, reimbusementMethod: ReimbursementMethodAnswer): SessionData =
+  private def updateSession(sessionData: SessionData, reimbusementMethod: ReimbursementMethod): SessionData =
     sessionData.journeyStatus match {
       case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =

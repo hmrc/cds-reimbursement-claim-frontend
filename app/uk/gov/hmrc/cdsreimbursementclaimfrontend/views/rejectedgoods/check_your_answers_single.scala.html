@@ -79,7 +79,7 @@
 
     @if(isAllSelectedDutiesAreCMAEligible) {
         @subHeading(Html(messages(s"$key.repayment-method.h2")))
-        @summary(ReimbursementMethodAnswerSummary(claim.reimbursementMethod, s"$key.repayment-method", subKey, routes.ChooseRepaymentMethodController.show()))
+        @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", subKey, routes.ChooseRepaymentMethodController.show()))
     }
 
     @claim.bankAccountDetails.map { bankAccountDetails =>

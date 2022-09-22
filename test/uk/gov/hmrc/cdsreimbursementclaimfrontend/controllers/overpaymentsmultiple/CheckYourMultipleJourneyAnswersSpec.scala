@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultip
 import org.jsoup.nodes
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
@@ -113,7 +113,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
                 ("Declarant name"                                  -> declaration.map(_.declarantName)),
                 ("Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " "))),
                 ("This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
-                  messages(s"select-basis-for-claim.reason.d${BasisOfClaims.indexOf(answer)}")
+                  messages(s"select-basis-for-claim.reason.d${BasisOfOverpaymentClaimsList.indexOf(answer)}")
                 )),
                 ("This is the reason for the claim"                -> claim.additionalDetailsAnswer.map(_.value)),
                 ("Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value)),

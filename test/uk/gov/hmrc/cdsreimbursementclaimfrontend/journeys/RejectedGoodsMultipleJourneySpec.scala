@@ -22,7 +22,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
@@ -94,7 +94,7 @@ class RejectedGoodsMultipleJourneySpec
         output.detailsOfRejectedGoods   shouldBe journey.answers.detailsOfRejectedGoods.get
         output.inspectionDate           shouldBe journey.answers.inspectionDate.get
         output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
-        output.reimbursementMethod      shouldBe ReimbursementMethodAnswer.BankAccountTransfer
+        output.reimbursementMethod      shouldBe ReimbursementMethod.BankAccountTransfer
         output.reimbursementClaims      shouldBe journey.getReimbursementClaims
         output.reimbursementClaims.size shouldBe journey.countOfMovementReferenceNumbers
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)

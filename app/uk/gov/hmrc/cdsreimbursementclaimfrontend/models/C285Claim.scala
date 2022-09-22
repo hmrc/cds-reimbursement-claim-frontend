@@ -48,7 +48,7 @@ final case class C285Claim(
   detailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsAnswer,
   mrnContactDetailsAnswer: Option[MrnContactDetails],
   mrnContactAddressAnswer: Option[ContactAddress],
-  basisOfClaimAnswer: BasisOfClaimAnswer,
+  basisOfClaimAnswer: BasisOfOverpaymentClaim,
   bankAccountDetailsAnswer: Option[BankAccountDetails],
   documents: NonEmptyList[EvidenceDocument],
   additionalDetailsAnswer: AdditionalDetailsAnswer,
@@ -57,7 +57,7 @@ final case class C285Claim(
   importerEoriNumber: Option[ImporterEoriNumberAnswer],
   declarantEoriNumber: Option[DeclarantEoriNumberAnswer],
   claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
-  reimbursementMethodAnswer: ReimbursementMethodAnswer,
+  reimbursementMethodAnswer: ReimbursementMethod,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
   associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
@@ -119,7 +119,7 @@ object C285Claim {
             maybeImporterEoriNumberAnswer,
             maybeDeclarantEoriNumberAnswer,
             maybeClaimedReimbursementsAnswer,
-            maybeReimbursementMethodAnswer,
+            maybeReimbursementMethod,
             maybeScheduledDocument,
             maybeAssociatedMRNs,
             _,
@@ -130,7 +130,7 @@ object C285Claim {
           ) =>
         (
           MRN.validator.validate(maybeMrn),
-          BasisOfClaimAnswer.validator.validate(maybeBasisForClaim),
+          BasisOfOverpaymentClaim.validator.validate(maybeBasisForClaim),
           DisplayDeclaration.validator.validate(maybeDisplayDeclaration),
           AdditionalDetailsAnswer.validator.validate(maybeDraftAdditionalAnswer),
           SupportingEvidencesAnswer.validator.validate(maybeSupportingEvidences),
@@ -166,7 +166,7 @@ object C285Claim {
               maybeImporterEoriNumberAnswer,
               maybeDeclarantEoriNumberAnswer,
               claim,
-              maybeReimbursementMethodAnswer.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
+              maybeReimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
               maybeAssociatedMRNs,
               maybeAssociatedMRNsClaimsAnswer
             )

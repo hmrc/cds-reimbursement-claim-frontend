@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
@@ -125,7 +125,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None
+    reimbursementMethod: Option[ReimbursementMethod] = None
   ): Gen[RejectedGoodsSingleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -159,7 +159,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None
+    reimbursementMethod: Option[ReimbursementMethod] = None
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -175,7 +175,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
         )
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
-      reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethodAnswer.values))
+      reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.values))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(0, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
@@ -232,14 +232,14 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
         bankAccountDetails =
           if (
             submitBankAccountDetails &&
-            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
+            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
           )
             Some(exampleBankAccountDetails)
           else None,
         bankAccountType =
           if (
             submitBankAccountType &&
-            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
+            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
           )
             Some(bankAccountType)
           else None

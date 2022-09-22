@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -74,7 +74,7 @@ final class RejectedGoodsSingleJourney private (
 
   def needsBanksAccountDetailsSubmission: Boolean =
     answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(ReimbursementMethodAnswer.BankAccountTransfer)
+      answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
@@ -334,15 +334,15 @@ final class RejectedGoodsSingleJourney private (
     }
 
   def submitReimbursementMethod(
-    reimbursementMethodAnswer: ReimbursementMethodAnswer
+    reimbursementMethod: ReimbursementMethod
   ): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
       if (isAllSelectedDutiesAreCMAEligible) {
-        if (reimbursementMethodAnswer === ReimbursementMethodAnswer.CurrentMonthAdjustment)
+        if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment)
           Right(
             new RejectedGoodsSingleJourney(
               answers.copy(
-                reimbursementMethod = Some(reimbursementMethodAnswer),
+                reimbursementMethod = Some(reimbursementMethod),
                 bankAccountDetails = None
               )
             )
@@ -351,13 +351,13 @@ final class RejectedGoodsSingleJourney private (
           Right(
             new RejectedGoodsSingleJourney(
               answers.copy(
-                reimbursementMethod = Some(reimbursementMethodAnswer),
+                reimbursementMethod = Some(reimbursementMethod),
                 bankAccountDetails = computeBankAccountDetails
               )
             )
           )
       } else
-        Left("submitReimbursementMethodAnswer.notCMAEligible")
+        Left("submitReimbursementMethod.notCMAEligible")
     }
 
   def resetReimbursementMethod(): RejectedGoodsSingleJourney =
@@ -445,7 +445,7 @@ final class RejectedGoodsSingleJourney private (
           reimbursementClaims = getReimbursementClaims,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
+          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
           bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
@@ -483,7 +483,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
-    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
+    reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false
@@ -501,7 +501,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     reimbursementClaims: Map[TaxCode, BigDecimal],
-    reimbursementMethod: ReimbursementMethodAnswer,
+    reimbursementMethod: ReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
   )

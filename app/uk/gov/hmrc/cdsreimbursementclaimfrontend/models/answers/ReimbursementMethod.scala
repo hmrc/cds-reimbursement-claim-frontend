@@ -18,13 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed trait ReimbursementMethodAnswer
+sealed trait ReimbursementMethod
 
-object ReimbursementMethodAnswer extends EnumerationFormat[ReimbursementMethodAnswer] {
+object ReimbursementMethod extends EnumerationFormat[ReimbursementMethod] {
 
-  case object CurrentMonthAdjustment extends ReimbursementMethodAnswer
-  case object BankAccountTransfer extends ReimbursementMethodAnswer
+  case object CurrentMonthAdjustment extends ReimbursementMethod
+  case object BankAccountTransfer extends ReimbursementMethod
 
-  override val values: Set[ReimbursementMethodAnswer] =
+  override val values: Set[ReimbursementMethod] =
     Set(CurrentMonthAdjustment, BankAccountTransfer)
 }

@@ -22,7 +22,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
@@ -92,7 +92,7 @@ class RejectedGoodsSingleJourneySpec
         output.inspectionDate           shouldBe journey.answers.inspectionDate.get
         output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
         output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
-          .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
+          .getOrElse(ReimbursementMethod.BankAccountTransfer)
         output.reimbursementClaims      shouldBe journey.getReimbursementClaims
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
@@ -813,7 +813,7 @@ class RejectedGoodsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
 
       journeyEither.isRight shouldBe true
     }
@@ -827,9 +827,9 @@ class RejectedGoodsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
 
-      journeyEither shouldBe Left("submitReimbursementMethodAnswer.notCMAEligible")
+      journeyEither shouldBe Left("submitReimbursementMethod.notCMAEligible")
     }
 
     "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
@@ -841,7 +841,7 @@ class RejectedGoodsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
 
       journeyEither.isRight shouldBe true
     }
@@ -855,9 +855,9 @@ class RejectedGoodsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
 
-      journeyEither shouldBe Left("submitReimbursementMethodAnswer.notCMAEligible")
+      journeyEither shouldBe Left("submitReimbursementMethod.notCMAEligible")
     }
 
     "submit bankAccountDetails and bankAccountType if reimbursement method is BankAccountTransfer" in {
@@ -869,7 +869,7 @@ class RejectedGoodsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.BankAccountTransfer))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
@@ -885,7 +885,7 @@ class RejectedGoodsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
@@ -897,7 +897,7 @@ class RejectedGoodsSingleJourneySpec
         whenever(journey.needsBanksAccountDetailsSubmission) {
           val modifiedJourney =
             journey
-              .submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment)
+              .submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment)
               .getOrFail
 
           modifiedJourney.hasCompleteAnswers shouldBe true

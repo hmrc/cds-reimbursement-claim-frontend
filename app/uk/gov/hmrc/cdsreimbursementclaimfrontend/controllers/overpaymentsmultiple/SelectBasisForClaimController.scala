@@ -34,8 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -63,16 +63,16 @@ class SelectBasisForClaimController @Inject() (
   private val basisOfClaimsHints: DropdownHints =
     DropdownHints.range(elementIndex = 1, maxHints = 14)
 
-  private def getPossibleClaimTypes(draftClaim: DraftClaim): BasisOfClaims =
-    BasisOfClaims
+  private def getPossibleClaimTypes(draftClaim: DraftClaim): BasisOfOverpaymentClaimsList =
+    BasisOfOverpaymentClaimsList
       .withoutDuplicateEntry()
       .excludeNorthernIrelandClaims(draftClaim)
 
-  implicit val dataExtractor: DraftClaim => Option[BasisOfClaimAnswer] = _.basisOfClaimAnswer
+  implicit val dataExtractor: DraftClaim => Option[BasisOfOverpaymentClaim] = _.basisOfClaimAnswer
 
   val selectBasisForClaim: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, answer) =>
+      withAnswers[BasisOfOverpaymentClaim] { (fillingOutClaim, answer) =>
         val emptyForm  = Forms.reasonForClaimForm
         val filledForm = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(basisOfClaim))
         Ok(
@@ -89,7 +89,7 @@ class SelectBasisForClaimController @Inject() (
 
   val selectBasisForClaimSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, _) =>
+      withAnswers[BasisOfOverpaymentClaim] { (fillingOutClaim, _) =>
         Forms.reasonForClaimForm
           .bindFromRequest()
           .fold(
