@@ -45,7 +45,7 @@
             name = Some(s"$key[]"),
             value = dutyType.repr,
             content = Text(messages(s"duty-type.${dutyType.repr}")),
-            checked = form.data.exists(_._2 == dutyType.repr),
+            checked = form.data.exists(_._2 == dutyType.repr)
         )
     }
 }
