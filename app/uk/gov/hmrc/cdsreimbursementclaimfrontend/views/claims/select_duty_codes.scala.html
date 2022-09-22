@@ -64,6 +64,7 @@
         @checkboxes(
             field = form(s"$key"),
             legend = HtmlContent(messages(s"duty-type.${dutyType.repr}")),
+            legendAsHeading = false,
             items = options
         )
 
