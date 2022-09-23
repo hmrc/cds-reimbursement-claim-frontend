@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelected
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithNotExportedMfdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsWithDisplayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -168,33 +168,16 @@ class ChooseExportMethodControllerTests
         )
       }
 
-      "redirect to /enter-export-movement-reference-number-multiple when multiple shipment is selected" in forAllWith(
-        JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.temporaryAdmissions.toList),
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
-        )
-      ) { case (journey, _) =>
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)),
-          routes.EnterExportMovementReferenceNumberMultipleController.show()
-        )
-      }
-
       "redirect to /claimant-details if any option other than" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithRfsTempAdmissionWithDisplayDeclarationWithNotExportedMfdGen,
+          testParamsGenerator = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
         )
       ) { case (journey, (_, _, _, methodOfDisposal)) =>
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
+          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(

@@ -24,6 +24,7 @@ import play.api.data.Form
 import play.api.data.FormError
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
+import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
@@ -31,16 +32,21 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.enterExportMovementReferenceNumberKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.exportMovementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberSingleController.enterExportMovementReferenceNumberKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberSingleController.exportMovementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberMultipleController.enterExportMovementReferenceNumberMultipleKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberMultipleController.exportMovementReferenceNumberMultipleForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.temporaryAdmissions
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number_multiple
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -49,7 +55,8 @@ import scala.concurrent.Future
 class EnterExportMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
-  enterExportMovementReferenceNumberPage: enter_export_movement_reference_number
+  enterExportMovementReferenceNumberSinglePage: enter_export_movement_reference_number,
+  enterExportMovementReferenceNumberMultiplePage: enter_export_movement_reference_number_multiple
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
@@ -60,51 +67,46 @@ class EnterExportMovementReferenceNumberController @Inject() (
     )
 
   def show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmissionExportedInSingleShipment(journey) {
-      (
-        journey,
-        Ok(
-          enterExportMovementReferenceNumberPage(
-            exportMovementReferenceNumberForm.withDefault(journey.answers.exportMovementReferenceNumber),
-            routes.EnterExportMovementReferenceNumberController.submit()
-          )
-        )
-      ).asFuture
+    whenTemporaryAdmissionExported(journey) {
+      val form = getForm(journey).withDefault(journey.answers.exportMovementReferenceNumber)
+      journey.getMethodOfDisposal match {
+        case Some(mod) =>
+          (mod match {
+            case ExportedInSingleShipment | ExportedInMultipleShipments =>
+              (journey, getResultPage(journey, form, Ok))
+            case _                                                      =>
+              logger.error(
+                "Should not reach this page as Method of disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]"
+              )
+              (journey, errorHandler.errorResult())
+          }).asFuture
+        case None      =>
+          logger.error("Should not reach this page as method of disposal has not been selected yet.")
+          (journey, errorHandler.errorResult()).asFuture
+      }
     }
   }
 
   def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmissionExportedInSingleShipment(journey) {
-      exportMovementReferenceNumberForm.bindFromRequest
+    whenTemporaryAdmissionExported(journey) {
+      val form = getForm(journey)
+      form.bindFromRequest
         .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                enterExportMovementReferenceNumberPage(
-                  formWithErrors.copy(data = Map.empty),
-                  routes.EnterExportMovementReferenceNumberController.submit()
-                )
-              )
-            ).asFuture,
+          (formWithErrors: Form[MRN]) => (journey, getResultPage(journey, formWithErrors, BadRequest)).asFuture,
           mrn =>
             claimService
               .getDisplayDeclaration(mrn)
               .fold(
                 _ => submitMrnAndContinue(mrn, journey),
-                _ =>
-                  (
-                    journey,
-                    BadRequest(
-                      enterExportMovementReferenceNumberPage(
-                        exportMovementReferenceNumberForm.copy(
-                          data = Map.empty,
-                          errors = List(FormError(enterExportMovementReferenceNumberKey, "securities.error.import"))
-                        ),
-                        routes.EnterExportMovementReferenceNumberController.submit()
-                      )
-                    )
-                  )
+                _ => {
+                  val formErrorKey =
+                    if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
+                      enterExportMovementReferenceNumberMultipleKey
+                    else enterExportMovementReferenceNumberKey
+                  val updatedForm  =
+                    form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
+                  (journey, getResultPage(journey, updatedForm, BadRequest))
+                }
               )
         )
     }
@@ -118,28 +120,95 @@ class EnterExportMovementReferenceNumberController @Inject() (
         (_, Redirect(routes.CheckClaimantDetailsController.show()))
       )
 
-  def whenTemporaryAdmissionExportedInSingleShipment(
+  private def whenTemporaryAdmissionExported(
     journey: SecuritiesJourney
   )(body: => Future[(SecuritiesJourney, Result)])(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
     (journey.getReasonForSecurity, journey.answers.temporaryAdmissionMethodOfDisposal) match {
-      case (None, _)                                                                                       =>
+      case (None, _)                                                                          =>
         (journey, errorHandler.errorResult()).asFuture
-      case (Some(rfs), _) if !temporaryAdmissions.contains(rfs)                                            =>
+      case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && isExportedMod(mod)  =>
+        body
+      case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && !isExportedMod(mod) =>
         (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
-      case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && mod =!= ExportedInSingleShipment =>
-        (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
-      case (Some(rfs), None) if temporaryAdmissions.contains(rfs)                                          =>
+      case (Some(rfs), None) if temporaryAdmissions.contains(rfs)                             =>
         (journey, Redirect(routes.ChooseExportMethodController.show())).asFuture
-      case (Some(rfs), Some(ExportedInSingleShipment)) if temporaryAdmissions.contains(rfs)                => body
+      case (Some(rfs), _) if !temporaryAdmissions.contains(rfs)                               =>
+        (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
     }
+
+  private def isExportedMod(mod: TemporaryAdmissionMethodOfDisposal) =
+    TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains(mod)
+
+  private def getForm(journey: SecuritiesJourney): Form[MRN] =
+    journey.getMethodOfDisposal match {
+      case Some(mod) =>
+        mod match {
+          case ExportedInSingleShipment    => exportMovementReferenceNumberForm
+          case ExportedInMultipleShipments => exportMovementReferenceNumberMultipleForm
+          case _                           => exportMovementReferenceNumberForm
+        }
+      case None      => exportMovementReferenceNumberForm
+    }
+
+  private def getResultPage(journey: SecuritiesJourney, form: Form[MRN], method: Status)(implicit
+    request: Request[_],
+    messages: Messages
+  ): Result = {
+    val singlePageErrorResult = method(
+      enterExportMovementReferenceNumberSinglePage(
+        form.copy(data = Map.empty),
+        routes.EnterExportMovementReferenceNumberController.submit()
+      )
+    )
+    journey.getMethodOfDisposal match {
+      case Some(mod) =>
+        mod match {
+          case ExportedInSingleShipment    => singlePageErrorResult
+          case ExportedInMultipleShipments =>
+            method(
+              enterExportMovementReferenceNumberMultiplePage(
+                form.copy(data = Map.empty),
+                routes.EnterExportMovementReferenceNumberController.submit()
+              )
+            )
+          case _                           =>
+            logger.error("Method of Disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]")
+            errorHandler.errorResult()
+        }
+      case None      =>
+        logger.error(
+          "Method of Disposal does not exist. Must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]"
+        )
+        errorHandler.errorResult()
+    }
+  }
+
 }
 
-object EnterExportMovementReferenceNumberController {
+object EnterExportMovementReferenceNumberSingleController {
   val enterExportMovementReferenceNumberKey: String = "enter-export-movement-reference-number"
   val exportMovementReferenceNumberForm: Form[MRN]  =
     Form(
       mapping(
         enterExportMovementReferenceNumberKey ->
+          nonEmptyText
+            .verifying(
+              "securities.invalid.number",
+              str => str.isEmpty || MRN(str).isValid
+            )
+            .transform[MRN](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+}
+
+object EnterExportMovementReferenceNumberMultipleController {
+
+  val enterExportMovementReferenceNumberMultipleKey: String = "enter-export-movement-reference-number-multiple"
+
+  val exportMovementReferenceNumberMultipleForm: Form[MRN] =
+    Form(
+      mapping(
+        enterExportMovementReferenceNumberMultipleKey ->
           nonEmptyText
             .verifying(
               "securities.invalid.number",
