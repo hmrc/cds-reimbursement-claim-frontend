@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtracto
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -56,13 +56,13 @@ class ReimbursementMethodController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftClaim => Option[ReimbursementMethodAnswer] = _.reimbursementMethodAnswer
+  implicit val dataExtractor: DraftClaim => Option[ReimbursementMethod] = _.reimbursementMethodAnswer
 
   private val form = reimbursementMethodForm(reimbursementMethodKey)
 
   val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ReimbursementMethodAnswer] { (_, answers) =>
+      withAnswers[ReimbursementMethod] { (_, answers) =>
         val filledForm = answers.fold(form)(form.fill)
         Future.successful(
           Ok(selectReimbursementMethod(filledForm, routes.ReimbursementMethodController.submit))
@@ -71,7 +71,7 @@ class ReimbursementMethodController @Inject() (
     }
 
   val submit: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[ReimbursementMethodAnswer] { (fillingOutClaim, _) =>
+    withAnswers[ReimbursementMethod] { (fillingOutClaim, _) =>
       form
         .bindFromRequest()
         .fold(
@@ -92,11 +92,11 @@ class ReimbursementMethodController @Inject() (
                 logAndDisplayError("could not get reimbursement method selected "),
                 _ =>
                   Redirect((answer, isAmend(fillingOutClaim)) match {
-                    case (_, true)                                             =>
+                    case (_, true)                                       =>
                       routes.CheckYourAnswersAndSubmitController.checkAllAnswers
-                    case (ReimbursementMethodAnswer.CurrentMonthAdjustment, _) =>
+                    case (ReimbursementMethod.CurrentMonthAdjustment, _) =>
                       routes.ChooseFileTypeController.show
-                    case (ReimbursementMethodAnswer.BankAccountTransfer, _)    =>
+                    case (ReimbursementMethod.BankAccountTransfer, _)    =>
                       routes.BankAccountController.checkBankAccountDetails
                   })
               )

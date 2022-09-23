@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims.all
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList.all
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 import scala.collection.immutable.HashSet
 
-final case class BasisOfClaims(items: List[BasisOfClaimAnswer]) extends AnyVal {
-  def buildKey(parentKey: String, basisOfClaim: BasisOfClaimAnswer): String =
+final case class BasisOfOverpaymentClaimsList(items: List[BasisOfOverpaymentClaim]) extends AnyVal {
+  def buildKey(parentKey: String, basisOfClaim: BasisOfOverpaymentClaim): String =
     s"$parentKey.reason.d${all.indexOf(basisOfClaim)}"
 }
 
-object BasisOfClaims {
+object BasisOfOverpaymentClaimsList {
 
   private val ukExciseCodeStrings: HashSet[String] =
     HashSet(TaxCodes.excise.map(_.value): _*)
@@ -39,7 +36,7 @@ object BasisOfClaims {
   // will appear on the select basis for claim page on the C285 journey.
   // Ensure that the messages starting `select-basis-for-claim.reason.d`
   // are in the required order.
-  val all: List[BasisOfClaimAnswer] = List(
+  val all: List[BasisOfOverpaymentClaim] = List(
     DuplicateEntry,
     DutySuspension,
     EndUseRelief,
@@ -57,7 +54,7 @@ object BasisOfClaims {
     Miscellaneous
   )
 
-  val northernIreland: List[BasisOfClaimAnswer] = List(
+  val northernIreland: List[BasisOfOverpaymentClaim] = List(
     IncorrectExciseValue,
     IncorrectAdditionalInformationCode
   )
@@ -67,9 +64,9 @@ object BasisOfClaims {
   def withoutDuplicateEntry(): Builder =
     Builder(all.diff(DuplicateEntry :: Nil))
 
-  final case class Builder(claims: List[BasisOfClaimAnswer]) {
+  final case class Builder(claims: List[BasisOfOverpaymentClaim]) {
 
-    def excludeNorthernIrelandClaims(claim: DraftClaim): BasisOfClaims = {
+    def excludeNorthernIrelandClaims(claim: DraftClaim): BasisOfOverpaymentClaimsList = {
 
       val isNorthernIrelandJourney =
         claim.whetherNorthernIrelandAnswer.getOrElse(No)
@@ -90,16 +87,16 @@ object BasisOfClaims {
           else claims.diff(IncorrectExciseValue :: Nil)
       }
 
-      BasisOfClaims(items)
+      BasisOfOverpaymentClaimsList(items)
     }
   }
 
-  def indexOf(basisOfClaim: BasisOfClaimAnswer): Int =
+  def indexOf(basisOfClaim: BasisOfOverpaymentClaim): Int =
     all.indexOf(basisOfClaim)
 
   def contains(index: Int): Boolean =
     all.lift(index).isDefined
 
-  implicit def basisOfClaims2List(basisOfClaims: BasisOfClaims): List[BasisOfClaimAnswer] =
+  implicit def basisOfClaims2List(basisOfClaims: BasisOfOverpaymentClaimsList): List[BasisOfOverpaymentClaim] =
     basisOfClaims.items
 }

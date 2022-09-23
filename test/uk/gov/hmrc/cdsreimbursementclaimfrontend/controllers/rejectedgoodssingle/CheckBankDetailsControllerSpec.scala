@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
@@ -85,7 +85,7 @@ class CheckBankDetailsControllerSpec
         .empty(sample[Eori])
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(displayDeclaration.getAvailableTaxCodes.take(1)))
-        .flatMap(_.submitReimbursementMethod(ReimbursementMethodAnswer.CurrentMonthAdjustment))
+        .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
         .getOrFail
 
     SessionData.empty.copy(
@@ -199,7 +199,7 @@ class CheckBankDetailsControllerSpec
       }
 
       "Ok when in change mode" in forAll(
-        buildCompleteJourneyGen(reimbursementMethod = Some(ReimbursementMethodAnswer.BankAccountTransfer))
+        buildCompleteJourneyGen(reimbursementMethod = Some(ReimbursementMethod.BankAccountTransfer))
       ) { journey =>
         val session            = SessionData(journey)
         val bankAccountDetails = journey.answers.bankAccountDetails.get

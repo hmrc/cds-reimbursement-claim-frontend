@@ -17,17 +17,17 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
-object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMethodAnswer] {
+object ReimbursementMethodSummary extends AnswerSummary[ReimbursementMethod] {
 
   override def render(
-    answer: ReimbursementMethodAnswer,
+    answer: ReimbursementMethod,
     key: String,
     subKey: Option[String],
     changeCallOpt: Option[Call]
@@ -57,7 +57,7 @@ object ReimbursementMethodAnswerSummary extends AnswerSummary[ReimbursementMetho
     )
   }
 
-  def answerKey(key: String, answer: ReimbursementMethodAnswer): String = answer match {
+  def answerKey(key: String, answer: ReimbursementMethod): String = answer match {
     case CurrentMonthAdjustment => s"$key.cma"
     case BankAccountTransfer    => s"$key.bt"
   }

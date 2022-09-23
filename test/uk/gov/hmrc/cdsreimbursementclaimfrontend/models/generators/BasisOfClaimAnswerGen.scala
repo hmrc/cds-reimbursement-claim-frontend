@@ -17,10 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 
-object BasisOfClaimAnswerGen {
+object BasisOfClaimGen {
 
-  implicit lazy val arbitraryBasisOfClaimAnswer: Typeclass[BasisOfClaimAnswer] =
-    gen[BasisOfClaimAnswer]
+  implicit lazy val arbitraryBasisOfClaim: Typeclass[BasisOfOverpaymentClaim] =
+    gen[BasisOfOverpaymentClaim]
 }

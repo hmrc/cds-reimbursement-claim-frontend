@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementMethodAnswerSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementMethodSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
@@ -153,7 +153,7 @@ class CheckYourAnswersControllerSpec
 
     if (whetherShowRepaymentMethod) {
       summary("Method") shouldBe messages(
-        ReimbursementMethodAnswerSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
+        ReimbursementMethodSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
       )
     }
 

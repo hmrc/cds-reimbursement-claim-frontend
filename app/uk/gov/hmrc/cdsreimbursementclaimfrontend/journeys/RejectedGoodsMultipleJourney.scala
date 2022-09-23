@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -586,7 +586,7 @@ final class RejectedGoodsMultipleJourney private (
           reimbursementClaims = getReimbursementClaims,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod = ReimbursementMethodAnswer.BankAccountTransfer,
+          reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
@@ -642,7 +642,7 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
     reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
-    reimbursementMethod: ReimbursementMethodAnswer,
+    reimbursementMethod: ReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
   )

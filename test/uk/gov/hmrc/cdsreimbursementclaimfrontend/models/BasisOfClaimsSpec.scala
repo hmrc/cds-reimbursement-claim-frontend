@@ -19,12 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -40,10 +38,10 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         whetherNorthernIrelandAnswer = No.some
       )
 
-      val claims = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
+      val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
 
       claims should be(
-        BasisOfClaims(items =
+        BasisOfOverpaymentClaimsList(items =
           List(
             DuplicateEntry,
             DutySuspension,
@@ -71,10 +69,10 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
       displayDeclaration = None
     )
 
-    val claims = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
+    val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
 
     claims should be(
-      BasisOfClaims(items =
+      BasisOfOverpaymentClaimsList(items =
         List(
           DuplicateEntry,
           DutySuspension,
@@ -96,7 +94,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "filter DuplicateEntry basis of claim" in {
-    BasisOfClaims.withoutDuplicateEntry.claims should be(
+    BasisOfOverpaymentClaimsList.withoutDuplicateEntry.claims should be(
       List(
         DutySuspension,
         EndUseRelief,
@@ -117,7 +115,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "contain DuplicateEntry basis of claim" in {
-    BasisOfClaims.all should be(
+    BasisOfOverpaymentClaimsList.all should be(
       List(
         DuplicateEntry,
         DutySuspension,
@@ -139,10 +137,10 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "build basis of claims key" in {
-    val basisOfClaim = sample[BasisOfClaimAnswer]
+    val basisOfClaim = sample[BasisOfOverpaymentClaim]
 
-    BasisOfClaims(List.empty).buildKey(parentKey = "key", basisOfClaim) should be(
-      s"key.reason.d${BasisOfClaims.indexOf(basisOfClaim)}"
+    BasisOfOverpaymentClaimsList(List.empty).buildKey(parentKey = "key", basisOfClaim) should be(
+      s"key.reason.d${BasisOfOverpaymentClaimsList.indexOf(basisOfClaim)}"
     )
   }
 }

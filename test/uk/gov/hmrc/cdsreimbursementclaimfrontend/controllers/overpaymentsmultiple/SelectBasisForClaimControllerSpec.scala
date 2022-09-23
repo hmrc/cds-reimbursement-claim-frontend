@@ -37,8 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -66,7 +66,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeReasonForClaim: Option[BasisOfClaimAnswer]
+    maybeReasonForClaim: Option[BasisOfOverpaymentClaim]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
       DraftClaim.blank.copy(
@@ -130,10 +130,10 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
       "the user has answered this question before" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(FakeRequest())
 
-        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
+        val basisOfClaim = BasisOfOverpaymentClaim.EndUseRelief.some
 
-        val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
+        val draftC285Claim                = sessionWithClaimState(basisOfClaim)._3
+        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaim)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -150,13 +150,13 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
       "the user has come from the CYA page and is amending their answer" in {
 
-        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
+        val basisOfClaim = BasisOfOverpaymentClaim.EndUseRelief.some
 
-        val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3
+        val draftC285Claim                = sessionWithClaimState(basisOfClaim)._3
           .copy(
-            basisOfClaimAnswer = basisOfClaimAnswer
+            basisOfClaimAnswer = basisOfClaim
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
+        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaim)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -182,11 +182,11 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
+        val basisOfClaim = BasisOfOverpaymentClaim.EndUseRelief.some
 
-        val draftC285Claim = sessionWithClaimState(basisOfClaimAnswer)._3.copy(basisOfClaimAnswer = basisOfClaimAnswer)
+        val draftC285Claim = sessionWithClaimState(basisOfClaim)._3.copy(basisOfClaimAnswer = basisOfClaim)
 
-        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
+        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaim)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -208,7 +208,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
           )
 
         val claim = sample(genValidDraftClaim(TypeOfClaimAnswer.Individual))
-        val idx   = BasisOfClaims.indexOf(claim.basisOfClaimAnswer.value)
+        val idx   = BasisOfOverpaymentClaimsList.indexOf(claim.basisOfClaimAnswer.value)
 
         val session = SessionData.empty.copy(
           journeyStatus = FillingOutClaim(
@@ -240,10 +240,10 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
       "the user does not select an option" in {
 
-        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
+        val basisOfClaim = BasisOfOverpaymentClaim.EndUseRelief.some
 
-        val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3.copy(basisOfClaimAnswer = basisOfClaimAnswer)
-        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
+        val draftC285Claim                = sessionWithClaimState(basisOfClaim)._3.copy(basisOfClaimAnswer = basisOfClaim)
+        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaim)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -269,12 +269,12 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
       "an invalid option value is submitted" in {
 
-        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
+        val basisOfClaim = BasisOfOverpaymentClaim.EndUseRelief.some
 
         val draftC285Claim =
-          sessionWithClaimState(basisOfClaimAnswer)._3.copy(basisOfClaimAnswer = basisOfClaimAnswer)
+          sessionWithClaimState(basisOfClaim)._3.copy(basisOfClaimAnswer = basisOfClaim)
 
-        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
+        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaim)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
