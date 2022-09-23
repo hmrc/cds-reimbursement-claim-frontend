@@ -32,10 +32,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberSingleController.enterExportMovementReferenceNumberKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberSingleController.exportMovementReferenceNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberMultipleController.enterExportMovementReferenceNumberMultipleKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberMultipleController.exportMovementReferenceNumberMultipleForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
@@ -102,7 +99,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                   val formErrorKey =
                     if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
                       enterExportMovementReferenceNumberMultipleKey
-                    else enterExportMovementReferenceNumberKey
+                    else enterExportMovementReferenceNumberSingleKey
                   val updatedForm  =
                     form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
                   (journey, getResultPage(journey, updatedForm, BadRequest))
@@ -143,27 +140,27 @@ class EnterExportMovementReferenceNumberController @Inject() (
     journey.getMethodOfDisposal match {
       case Some(mod) =>
         mod match {
-          case ExportedInSingleShipment    => exportMovementReferenceNumberForm
+          case ExportedInSingleShipment    => exportMovementReferenceNumberSingleForm
           case ExportedInMultipleShipments => exportMovementReferenceNumberMultipleForm
-          case _                           => exportMovementReferenceNumberForm
+          case _                           => exportMovementReferenceNumberSingleForm
         }
-      case None      => exportMovementReferenceNumberForm
+      case None      => exportMovementReferenceNumberSingleForm
     }
 
   private def getResultPage(journey: SecuritiesJourney, form: Form[MRN], method: Status)(implicit
     request: Request[_],
     messages: Messages
-  ): Result = {
-    val singlePageErrorResult = method(
-      enterExportMovementReferenceNumberSinglePage(
-        form.copy(data = Map.empty),
-        routes.EnterExportMovementReferenceNumberController.submit()
-      )
-    )
+  ): Result =
     journey.getMethodOfDisposal match {
       case Some(mod) =>
         mod match {
-          case ExportedInSingleShipment    => singlePageErrorResult
+          case ExportedInSingleShipment    =>
+            method(
+              enterExportMovementReferenceNumberSinglePage(
+                form.copy(data = Map.empty),
+                routes.EnterExportMovementReferenceNumberController.submit()
+              )
+            )
           case ExportedInMultipleShipments =>
             method(
               enterExportMovementReferenceNumberMultiplePage(
@@ -177,20 +174,21 @@ class EnterExportMovementReferenceNumberController @Inject() (
         }
       case None      =>
         logger.error(
-          "Method of Disposal does not exist. Must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]"
+          "MethodOfDisposal is empty. Must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]"
         )
         errorHandler.errorResult()
     }
-  }
 
 }
 
-object EnterExportMovementReferenceNumberSingleController {
-  val enterExportMovementReferenceNumberKey: String = "enter-export-movement-reference-number"
-  val exportMovementReferenceNumberForm: Form[MRN]  =
+object EnterExportMovementReferenceNumberController {
+  val enterExportMovementReferenceNumberSingleKey: String   = "enter-export-movement-reference-number"
+  val enterExportMovementReferenceNumberMultipleKey: String = "enter-export-movement-reference-number-multiple"
+
+  val exportMovementReferenceNumberSingleForm: Form[MRN] =
     Form(
       mapping(
-        enterExportMovementReferenceNumberKey ->
+        enterExportMovementReferenceNumberSingleKey ->
           nonEmptyText
             .verifying(
               "securities.invalid.number",
@@ -199,11 +197,6 @@ object EnterExportMovementReferenceNumberSingleController {
             .transform[MRN](MRN(_), _.value)
       )(identity)(Some(_))
     )
-}
-
-object EnterExportMovementReferenceNumberMultipleController {
-
-  val enterExportMovementReferenceNumberMultipleKey: String = "enter-export-movement-reference-number-multiple"
 
   val exportMovementReferenceNumberMultipleForm: Form[MRN] =
     Form(

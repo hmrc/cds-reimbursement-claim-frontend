@@ -142,11 +142,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-      mfd   <- Gen.oneOf(
-                 TemporaryAdmissionMethodOfDisposal.values.filterNot(
-                   _ === TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
-                 )
-               )
+      mfd   <-
+        Gen.oneOf(
+          TemporaryAdmissionMethodOfDisposal.values.diff(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal)
+        )
     } yield (mrn, rfs, acc14, mfd)
 
   lazy val mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen

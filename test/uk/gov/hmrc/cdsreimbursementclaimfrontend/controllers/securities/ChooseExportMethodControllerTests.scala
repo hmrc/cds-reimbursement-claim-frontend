@@ -150,7 +150,7 @@ class ChooseExportMethodControllerTests
         )
       }
 
-      "redirect to /enter-export-movement-reference-number single shipment is selected" in forAllWith(
+      "redirect to /enter-export-movement-reference-number when single shipment is selected" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.temporaryAdmissions.toList),
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
@@ -164,6 +164,24 @@ class ChooseExportMethodControllerTests
 
         checkIsRedirect(
           performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)),
+          routes.EnterExportMovementReferenceNumberController.show()
+        )
+      }
+
+      "redirect to /enter-export-movement-reference-number when multiple shipment is selected" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.temporaryAdmissions.toList),
+          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+        )
+      ) { case (journey, _) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)),
           routes.EnterExportMovementReferenceNumberController.show()
         )
       }
