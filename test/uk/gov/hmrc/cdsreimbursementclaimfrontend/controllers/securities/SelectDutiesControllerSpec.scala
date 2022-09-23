@@ -123,8 +123,10 @@ class SelectDutiesControllerSpec
         messages(s"$messagesKey.duty.caption").format(td.getAmount.toPoundSterlingString)
       )
     )
-    val taxCodeDescriptions: List[String] = checkboxes(doc).map(_._1.substring(6)).toList
-    taxCodeDescriptions should ===(taxCodeDescriptions.sorted)
+    val checkboxDescriptions: List[String] = checkboxes(doc).map(_._1).toList
+    val taxCodeDescriptions: List[String] = taxDetails.map(_.getTaxCode).sorted
+      .map(tc => s"$tc - ${messages(s"$messagesKey.duty.$tc")}").toList
+    checkboxDescriptions should ===(taxCodeDescriptions)
   }
 
   "Select Duties Controller" when {

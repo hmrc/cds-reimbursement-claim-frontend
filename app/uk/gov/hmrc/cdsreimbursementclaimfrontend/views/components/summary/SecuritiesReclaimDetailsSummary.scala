@@ -76,7 +76,7 @@ object SecuritiesReclaimDetailsSummary {
         key = Key(HtmlContent(messages(s"$key.duties-selected.label"))),
         value = Value(
           HtmlContent(
-            reclaims.keys
+            reclaims.keys.toList.sorted
               .map(taxCode => messages(s"tax-code.${taxCode.value}"))
               .mkString("<br>")
           )
@@ -93,7 +93,7 @@ object SecuritiesReclaimDetailsSummary {
           )
         )
       )
-    ) ++ reclaims.zipWithIndex.map { case ((taxCode, amount), index) =>
+    ) ++ reclaims.toList.sorted.zipWithIndex.map { case ((taxCode, amount), index) =>
       SummaryListRow(
         key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
         value = Value(Text(amount.toPoundSterlingString)),
