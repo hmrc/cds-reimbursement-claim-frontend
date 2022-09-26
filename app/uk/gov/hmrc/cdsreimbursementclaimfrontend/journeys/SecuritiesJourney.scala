@@ -784,19 +784,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
   import JourneyValidationErrors._
   import com.github.arturopala.validator.Validator._
 
-  object Checks {
-
-    val hasMovementReferenceNumber: Validate[SecuritiesJourney] =
-      checkIsTrue(
-        journey => journey.answers.movementReferenceNumber.isDefined,
-        MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER
-      )
-
-    val hasDisplayDeclaration: Validate[SecuritiesJourney] =
-      checkIsTrue(
-        journey => journey.answers.displayDeclaration.isDefined,
-        MISSING_DISPLAY_DECLARATION
-      )
+  object Checks extends CommonJourneyChecks[SecuritiesJourney] {
 
     val hasReasonForSecurity: Validate[SecuritiesJourney] =
       checkIsTrue(journey => journey.getReasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
@@ -814,58 +802,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         _.answers.similarClaimExistAlreadyInCDFPay.contains(false),
         SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY
       )
-
-    val declarantOrImporterEoriMatchesUserOrHasBeenVerified: Validate[SecuritiesJourney] =
-      conditionally[SecuritiesJourney](
-        _.needsDeclarantAndConsigneeEoriSubmission,
-        all(
-          checkIsDefined(
-            _.answers.declarantEoriNumber,
-            DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED
-          ),
-          checkEquals(
-            _.getDeclarantEoriFromACC14,
-            _.answers.declarantEoriNumber,
-            DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
-          ),
-          checkIsDefined(
-            _.answers.consigneeEoriNumber,
-            CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED
-          ),
-          checkEquals(
-            _.getConsigneeEoriFromACC14,
-            _.answers.consigneeEoriNumber,
-            CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
-          )
-        ),
-        all(
-          checkIsEmpty(
-            _.answers.declarantEoriNumber,
-            DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
-          ),
-          checkIsEmpty(
-            _.answers.consigneeEoriNumber,
-            CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
-          )
-        )
-      )
-
-    val paymentMethodHasBeenProvidedIfNeeded: Validate[SecuritiesJourney] =
-      conditionally[SecuritiesJourney](
-        _.needsBanksAccountDetailsSubmission,
-        checkIsDefined(
-          _.answers.bankAccountDetails,
-          BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
-        ),
-        checkIsEmpty(
-          _.answers.bankAccountDetails,
-          BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED
-        )
-      )
-
-    val contactDetailsHasBeenProvided: Validate[SecuritiesJourney] =
-      checkIsDefined[SecuritiesJourney](_.answers.contactDetails, MISSING_CONTACT_DETAILS) &
-        checkIsDefined[SecuritiesJourney](_.answers.contactAddress, MISSING_CONTACT_ADDRESS)
 
     val reclaimAmountsHasBeenDeclared: Validate[SecuritiesJourney] =
       checkIsTrue[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
@@ -892,7 +828,6 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         checkIsDefined(_.answers.exportMovementReferenceNumber, MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER),
         checkIsEmpty(_.answers.exportMovementReferenceNumber, "unexpected export MRN, should be empty")
       )
-
   }
 
   import Checks._
@@ -907,7 +842,7 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
       reclaimAmountsHasBeenDeclared,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
-      checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
+      supportingEvidenceHasBeenProvided
     )
 
   object Answers {

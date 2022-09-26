@@ -40,6 +40,7 @@ trait CommonJourneyProperties {
 
   def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
+  def needsBanksAccountDetailsSubmission: Boolean
 
   final val ZERO: BigDecimal = BigDecimal("0")
 

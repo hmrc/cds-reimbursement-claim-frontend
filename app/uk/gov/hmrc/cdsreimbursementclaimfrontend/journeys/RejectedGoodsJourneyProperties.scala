@@ -22,9 +22,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
 
 /** Common properties of the rejected-goods single, multiple and scheduled journeys. */
-trait RejectedGoodsCommonJourneyProperties extends CommonJourneyProperties {
+trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
 
-  override def answers: RejectedGoodsCommonAnswers
+  override def answers: RejectedGoodsAnswers
+
+  def hasCompleteReimbursementClaims: Boolean
+  def getTotalReimbursementAmount: BigDecimal
 
   final def getPotentialInspectionAddresses: Seq[(InspectionAddressType, String)] =
     Seq(
