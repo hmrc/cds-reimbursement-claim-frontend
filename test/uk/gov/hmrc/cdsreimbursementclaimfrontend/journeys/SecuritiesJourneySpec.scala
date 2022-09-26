@@ -29,9 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.immutable.SortedMap
-
 import SecuritiesJourneyGenerators._
 import JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
@@ -77,7 +77,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         output.claimantInformation.eori                     shouldBe journey.answers.userEoriNumber
         output.temporaryAdmissionMethodOfDisposal.isDefined shouldBe journey.needsMethodOfDisposalSubmission
         output.exportMovementReferenceNumber.isDefined      shouldBe journey.needsMethodOfDisposalSubmission && journey.answers.temporaryAdmissionMethodOfDisposal
-          .contains(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+          .exists(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains)
       }
     }
 
@@ -283,7 +283,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         genMRN,
         Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
         Gen.oneOf(
-          TemporaryAdmissionMethodOfDisposal.values - TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+          TemporaryAdmissionMethodOfDisposal.values.diff(exportedMethodsOfDisposal)
         ),
         securitiesDisplayDeclarationGen,
         exportMrnTrueGen

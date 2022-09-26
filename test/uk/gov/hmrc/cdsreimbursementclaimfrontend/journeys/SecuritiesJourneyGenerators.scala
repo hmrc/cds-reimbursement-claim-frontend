@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.implicits.catsSyntaxEq
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -160,6 +159,21 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
       mfd   <- Gen.oneOf(
                  List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+               )
+    } yield (mrn, rfs, acc14, mfd)
+
+  lazy val mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.temporaryAdmissions)
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+      mfd   <- Gen.oneOf(
+                 List(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)
                )
     } yield (mrn, rfs, acc14, mfd)
 
@@ -317,8 +331,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         else Gen.const(None)
       exportMrn                   <-
         if (
-          ReasonForSecurity.temporaryAdmissions(rfs) && methodOfDisposal.contains(
-            TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+          ReasonForSecurity.temporaryAdmissions(rfs) && methodOfDisposal.exists(
+            TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains
           )
         ) exportMrnTrueGen.map(Some.apply)
         else
@@ -333,7 +347,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           numberOfSecurities,
           Gen.zip(depositIdGen, taxCodesWithAmountsGen)
         )
-      allDutiesGuaranteeEligible  <- allDutiesGuaranteeEligibleOpt.map(Gen.const(_)).getOrElse(Gen.oneOf(true, false))
+      allDutiesGuaranteeEligible  <- allDutiesGuaranteeEligibleOpt.map(Gen.const).getOrElse(Gen.oneOf(true, false))
       acc14                        = buildSecuritiesDisplayDeclaration(
                                        id = mrn.value,
                                        securityReason = rfs.acc14Code,

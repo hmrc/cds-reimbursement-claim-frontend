@@ -204,8 +204,8 @@ final class SecuritiesJourney private (
 
   def needsExportMRNSubmission: Boolean =
     needsMethodOfDisposalSubmission &&
-      answers.temporaryAdmissionMethodOfDisposal.contains(
-        TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+      answers.temporaryAdmissionMethodOfDisposal.exists(
+        TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains
       )
 
   def getMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = answers.temporaryAdmissionMethodOfDisposal
