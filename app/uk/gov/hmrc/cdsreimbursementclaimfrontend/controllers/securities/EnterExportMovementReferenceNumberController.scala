@@ -162,14 +162,14 @@ class EnterExportMovementReferenceNumberController @Inject() (
           case ExportedInSingleShipment    =>
             method(
               enterExportMovementReferenceNumberSinglePage(
-                form.copy(data = Map.empty),
+                form,
                 routes.EnterExportMovementReferenceNumberController.submit()
               )
             )
           case ExportedInMultipleShipments =>
             method(
               enterExportMovementReferenceNumberMultiplePage(
-                form.copy(data = Map.empty),
+                form,
                 routes.EnterExportMovementReferenceNumberController.submit()
               )
             )
