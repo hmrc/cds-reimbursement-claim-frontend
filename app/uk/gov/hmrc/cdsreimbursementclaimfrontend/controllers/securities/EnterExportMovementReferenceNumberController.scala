@@ -113,7 +113,12 @@ class EnterExportMovementReferenceNumberController @Inject() (
     journey
       .submitExportMovementReferenceNumber(mrn)
       .fold(
-        _ => (journey, Redirect(routes.CheckClaimantDetailsController.show())),
+        _ =>
+          if (journey.userHasSeenCYAPage) {
+            (journey, Redirect(routes.CheckYourAnswersController.show()))
+          } else {
+            (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+          },
         (_, Redirect(routes.CheckClaimantDetailsController.show()))
       )
 
