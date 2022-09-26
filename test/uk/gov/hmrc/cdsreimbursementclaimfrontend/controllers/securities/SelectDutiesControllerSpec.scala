@@ -124,8 +124,11 @@ class SelectDutiesControllerSpec
       )
     )
     val checkboxDescriptions: List[String] = checkboxes(doc).map(_._1).toList
-    val taxCodeDescriptions: List[String] = taxDetails.map(_.getTaxCode).sorted
-      .map(tc => s"$tc - ${messages(s"$messagesKey.duty.$tc")}").toList
+    val taxCodeDescriptions: List[String]  = taxDetails
+      .map(_.getTaxCode)
+      .sorted
+      .map(tc => s"$tc - ${messages(s"$messagesKey.duty.$tc")}")
+      .toList
     checkboxDescriptions should ===(taxCodeDescriptions)
   }
 
@@ -244,7 +247,7 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId, Seq.empty),
               messageFromMessageKey(s"$messagesKey.title"),
-              doc => validateSelectDutiesPage(securityId, doc, journey, isError = true)
+              doc => validateSelectDutiesPage(securityId, doc, journey, true)
             )
           }
         }

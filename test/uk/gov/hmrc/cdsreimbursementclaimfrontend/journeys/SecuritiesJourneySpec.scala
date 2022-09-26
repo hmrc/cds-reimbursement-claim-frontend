@@ -77,7 +77,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         output.claimantInformation.eori                     shouldBe journey.answers.userEoriNumber
         output.temporaryAdmissionMethodOfDisposal.isDefined shouldBe journey.needsMethodOfDisposalSubmission
         output.exportMovementReferenceNumber.isDefined      shouldBe journey.needsMethodOfDisposalSubmission && journey.answers.temporaryAdmissionMethodOfDisposal
-          .contains(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+          .exists(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains)
       }
     }
 
@@ -136,11 +136,6 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           rfs
         ) && journey.answers.temporaryAdmissionMethodOfDisposal.contains(
           TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
-        ))
-        journey.needsExportMRNMultipleSubmission              shouldBe (ReasonForSecurity.temporaryAdmissions(
-          rfs
-        ) && journey.answers.temporaryAdmissionMethodOfDisposal.contains(
-          TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
         ))
       }
     }

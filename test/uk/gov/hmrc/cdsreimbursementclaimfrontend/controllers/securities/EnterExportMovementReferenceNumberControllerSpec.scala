@@ -63,9 +63,15 @@ class EnterExportMovementReferenceNumberControllerSpec
     with TestWithJourneyGenerator[SecuritiesJourney]
     with Logging {
 
-  val enterExportMovementReferenceNumberKey: String          = "enter-export-movement-reference-number"
-  val enterExportMovementReferenceNumberKeyAndSubKey: String = s"$enterExportMovementReferenceNumberKey.securities"
-  val mockClaimsService: ClaimService                        = mock[ClaimService]
+  val enterExportMovementReferenceNumberSingleKey: String          = "enter-export-movement-reference-number"
+  val enterExportMovementReferenceNumberSingleKeyAndSubKey: String =
+    s"$enterExportMovementReferenceNumberSingleKey.securities"
+
+  val enterExportMovementReferenceNumberMultipleKey: String          = "enter-export-movement-reference-number-multiple"
+  val enterExportMovementReferenceNumberMultipleKeyAndSubKey: String =
+    s"$enterExportMovementReferenceNumberMultipleKey.securities"
+
+  val mockClaimsService: ClaimService = mock[ClaimService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -90,12 +96,22 @@ class EnterExportMovementReferenceNumberControllerSpec
   val journey: SecuritiesJourney = SecuritiesJourney.empty(exampleEori)
   val session: SessionData       = SessionData(journey)
 
-  def validateChooseExportMethodPage(doc: Document): Assertion = {
+  def validateChooseExportMethodSinglePage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-heading-xl").html()
-    val input          = doc.select("#enter-export-movement-reference-number")
+    val input          = doc.select(s"#$enterExportMovementReferenceNumberSingleKey")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
 
-    headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"))
+    headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"))
+    input.attr("value") should ===("")
+    continueButton      should ===(List(messages("button.continue")))
+  }
+
+  def validateChooseExportMethodMultiplePage(doc: Document): Assertion = {
+    val headerHtml     = doc.select(".govuk-heading-xl").html()
+    val input          = doc.select(s"#$enterExportMovementReferenceNumberMultipleKey")
+    val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
+
+    headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"))
     input.attr("value") should ===("")
     continueButton      should ===(List(messages("button.continue")))
   }
@@ -116,7 +132,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page if acc14 is present" in forAllWith(
+      "display the page if acc14 is present (single shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
@@ -131,8 +147,28 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"),
-          validateChooseExportMethodPage
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
+          validateChooseExportMethodSinglePage
+        )
+      }
+
+      "display the page if acc14 is present (multiple shipment)" in forAllWith(
+        JourneyGenerator(
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+        )
+      ) { case (journey, _) =>
+        val session = SessionData(journey)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
+          validateChooseExportMethodMultiplePage
         )
       }
     }
@@ -148,7 +184,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "save an export MRN if valid and continue to the check claimant details page" in forAllWith(
+      "save an export MRN if valid and continue to the check claimant details page (single shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
@@ -166,12 +202,35 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction(enterExportMovementReferenceNumberKey -> exampleMrnAsString),
+          performAction(enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
           routes.CheckClaimantDetailsController.show()
         )
       }
 
-      "display error if acc14 returns a successful response" in forAllWith(
+      "save an export MRN if valid and continue to the check claimant details page (multiple shipment)" in forAllWith(
+        JourneyGenerator(
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+        )
+      ) { case (journey, (_, _, _, _)) =>
+        val session = SessionData(journey)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Left(Error("")))
+          mockStoreSession(
+            SessionData(journey.submitExportMovementReferenceNumber(exampleMrn).getOrFail)
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
+          routes.CheckClaimantDetailsController.show()
+        )
+      }
+
+      "display error if acc14 returns a successful response (single shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
@@ -186,17 +245,42 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberKey -> exampleMrnAsString),
-          messageFromMessageKey(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"),
+          performAction(enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$enterExportMovementReferenceNumberKeyAndSubKey.error.import"
+              s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.error.import"
             ),
           expectedStatus = BAD_REQUEST
         )
       }
 
-      "reject an invalid MRN" in forAllWith(
+      "display error if acc14 returns a successful response (multiple shipment)" in forAllWith(
+        JourneyGenerator(
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+        )
+      ) { case (journey, (_, _, acc14, _)) =>
+        val session = SessionData(journey)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Right(Some(acc14)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.error.import"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject an invalid MRN (single shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
@@ -211,17 +295,42 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberKey -> invalidMRN.value),
-          messageFromMessageKey(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"),
+          performAction(enterExportMovementReferenceNumberSingleKey -> invalidMRN.value),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$enterExportMovementReferenceNumberKeyAndSubKey.invalid.number"
+              s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.invalid.number"
             ),
           expectedStatus = BAD_REQUEST
         )
       }
 
-      "reject an empty MRN" in forAllWith(
+      "reject an invalid MRN (multiple shipment)" in forAllWith(
+        JourneyGenerator(
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+        )
+      ) { case (journey, _) =>
+        val session    = SessionData(journey)
+        val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterExportMovementReferenceNumberMultipleKey -> invalidMRN.value),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.invalid.number"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject an empty MRN (single shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
@@ -234,11 +343,34 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberKey -> ""),
-          messageFromMessageKey(s"$enterExportMovementReferenceNumberKeyAndSubKey.title"),
+          performAction(enterExportMovementReferenceNumberSingleKey -> ""),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$enterExportMovementReferenceNumberKey.error.required"
+              s"$enterExportMovementReferenceNumberSingleKey.error.required"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject an empty MRN (multiple shipment)" in forAllWith(
+        JourneyGenerator(
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+        )
+      ) { case (journey, _) =>
+        val session = SessionData(journey)
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterExportMovementReferenceNumberMultipleKey -> ""),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterExportMovementReferenceNumberSingleKey.error.required"
             ),
           expectedStatus = BAD_REQUEST
         )

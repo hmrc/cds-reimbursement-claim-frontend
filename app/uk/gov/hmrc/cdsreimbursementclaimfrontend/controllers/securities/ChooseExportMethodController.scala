@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_export_method
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class ChooseExportMethodController @Inject() (
@@ -53,21 +54,22 @@ class ChooseExportMethodController @Inject() (
     )
 
   def show(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    journey.getReasonForSecurity
-      .fold((journey, errorHandler.errorResult())) {
-        case rfs if ReasonForSecurity.temporaryAdmissions.contains(rfs) =>
-          (
-            journey,
-            Ok(chooseExportMethodPage(chooseExportMethodForm, routes.ChooseExportMethodController.submit()))
+    whenTemporaryAdmission(journey) {
+      (
+        journey,
+        Ok(
+          chooseExportMethodPage(
+            chooseExportMethodForm,
+            routes.ChooseExportMethodController.submit()
           )
-        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show()))
-      }
-      .asFuture
+        )
+      )
+    }
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form.bindFromRequest
-      .fold(
+    whenTemporaryAdmission(journey) {
+      form.bindFromRequest.fold(
         formWithErrors =>
           (
             journey,
@@ -80,43 +82,37 @@ class ChooseExportMethodController @Inject() (
           ),
         {
           case None                   =>
-            val e = "no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors"
-            routeTemporaryAdmissionWithError(journey, e)
+            logger.warn("no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors")
+            (journey, errorHandler.errorResult())
           case Some(methodOfDisposal) =>
             journey
               .submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal)
               .fold(
-                e => routeTemporaryAdmissionWithError(journey, e),
-                updatedJourney => routeTemporaryAdmission(updatedJourney, methodOfDisposal)
+                error => {
+                  logger.warn(error)
+                  (journey, errorHandler.errorResult())
+                },
+                updatedJourney =>
+                  methodOfDisposal match {
+                    case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
+                        TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments =>
+                      (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show()))
+                    case _ =>
+                      (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
+                  }
               )
         }
       )
-      .asFuture
-  }
-
-  def routeTemporaryAdmissionWithError(journey: SecuritiesJourney, error: String)(implicit
-    request: Request[_]
-  ): (SecuritiesJourney, Result) = journey.getReasonForSecurity match {
-    case Some(value) if !ReasonForSecurity.temporaryAdmissions.contains(value) =>
-      (journey, Redirect(routes.CheckClaimantDetailsController.show()))
-    case None                                                                  =>
-      logger.warn(error)
-      (journey, errorHandler.errorResult())
-  }
-
-  def routeTemporaryAdmission(updatedJourney: SecuritiesJourney, methodOfDisposal: TemporaryAdmissionMethodOfDisposal)(
-    implicit request: Request[_]
-  ): (SecuritiesJourney, Result) =
-    updatedJourney.getReasonForSecurity match {
-      case Some(value: ReasonForSecurity) if ReasonForSecurity.temporaryAdmissions.contains(value) =>
-        methodOfDisposal match {
-          case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment    =>
-            (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show()))
-          case TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments =>
-            (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberMultipleController.show()))
-          case _                                                              =>
-            (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
-        }
-      case None                                                                                    => (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
     }
+  }
+
+  def whenTemporaryAdmission(
+    journey: SecuritiesJourney
+  )(body: => (SecuritiesJourney, Result))(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
+    journey.getReasonForSecurity
+      .fold((journey, errorHandler.errorResult())) {
+        case rfs if ReasonForSecurity.temporaryAdmissions.contains(rfs) => body
+        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show))
+      }
+      .asFuture
 }
