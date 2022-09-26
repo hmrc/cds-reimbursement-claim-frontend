@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -60,7 +60,7 @@ final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends JourneyBase[RejectedGoodsScheduledJourney]
-    with RejectedGoodsCommonJourneyProperties
+    with RejectedGoodsJourneyProperties
     with FluentSyntax[RejectedGoodsScheduledJourney] {
 
   /** Check if all the selected duties have reimbursement and paid amounts provided. */
@@ -529,7 +529,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
     scheduledDocument: Option[UploadedFile] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = false
-  ) extends RejectedGoodsCommonAnswers
+  ) extends RejectedGoodsAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
@@ -552,91 +552,33 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
   import com.github.arturopala.validator.Validator._
   import JourneyValidationErrors._
 
+  object Checks extends RejectedGoodsJourneyChecks[RejectedGoodsScheduledJourney] {
+
+    val scheduledDocumentHasBeenDefined: Validate[RejectedGoodsScheduledJourney] =
+      checkIsDefined(_.answers.scheduledDocument, MISSING_SCHEDULED_DOCUMENT)
+
+  }
+
+  import Checks._
+
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   implicit val validator: Validate[RejectedGoodsScheduledJourney] =
     all(
-      checkIsDefined(_.getLeadMovementReferenceNumber, MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER),
-      checkIsDefined(_.getLeadDisplayDeclaration, MISSING_DISPLAY_DECLARATION),
-      checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM),
-      checkIsDefined(_.answers.detailsOfRejectedGoods, MISSING_DETAILS_OF_REJECTED_GOODS),
-      checkIsDefined(_.answers.inspectionDate, MISSING_INSPECTION_DATE),
-      checkIsDefined(_.answers.inspectionAddress, MISSING_INSPECTION_ADDRESS),
-      checkIsDefined(_.answers.methodOfDisposal, MISSING_METHOD_OF_DISPOSAL),
-      checkIsTrue(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
-      checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES),
-      checkIsDefined(_.answers.contactDetails, MISSING_CONTACT_DETAILS),
-      checkIsDefined(_.answers.contactAddress, MISSING_CONTACT_ADDRESS),
-      checkIsDefined(_.answers.scheduledDocument, MISSING_SCHEDULED_DOCUMENT),
-      checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO),
-      whenTrue(
-        _.needsDeclarantAndConsigneeEoriSubmission,
-        all(
-          checkIsDefined(
-            _.answers.declarantEoriNumber,
-            DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED
-          ),
-          checkEquals(
-            _.getDeclarantEoriFromACC14,
-            _.answers.declarantEoriNumber,
-            DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
-          ),
-          checkIsDefined(
-            _.answers.consigneeEoriNumber,
-            CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED
-          ),
-          checkEquals(
-            _.getConsigneeEoriFromACC14,
-            _.answers.consigneeEoriNumber,
-            CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
-          )
-        )
-      ),
-      whenFalse(
-        _.needsDeclarantAndConsigneeEoriSubmission,
-        all(
-          checkIsEmpty(
-            _.answers.declarantEoriNumber,
-            DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
-          ),
-          checkIsEmpty(
-            _.answers.consigneeEoriNumber,
-            CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
-          )
-        )
-      ),
-      whenTrue(
-        _.needsBanksAccountDetailsSubmission,
-        all(
-          checkIsDefined(
-            _.answers.bankAccountDetails,
-            BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED
-          )
-        )
-      ),
-      whenFalse(
-        _.needsBanksAccountDetailsSubmission,
-        all(
-          checkIsEmpty(
-            _.answers.bankAccountDetails,
-            BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED
-          )
-        )
-      ),
-      whenTrue(
-        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances),
-        checkIsDefined(
-          _.answers.basisOfClaimSpecialCircumstances,
-          BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED
-        )
-      ),
-      whenFalse(
-        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances),
-        checkIsEmpty(
-          _.answers.basisOfClaimSpecialCircumstances,
-          BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED
-        )
-      )
+      hasMRNAndDisplayDeclaration,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      scheduledDocumentHasBeenDefined,
+      basisOfClaimHasBeenProvided,
+      basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded,
+      detailsOfRejectedGoodsHasBeenProvided,
+      inspectionDateHasBeenProvided,
+      inspectionAddressHasBeenProvided,
+      methodOfDisposalHasBeenProvided,
+      reimbursementClaimsHasBeenProvided,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      supportingEvidenceHasBeenProvided
     )
+
   object Answers {
 
     implicit lazy val dutyFormat = DutyType.simpleDutyTypeFormat

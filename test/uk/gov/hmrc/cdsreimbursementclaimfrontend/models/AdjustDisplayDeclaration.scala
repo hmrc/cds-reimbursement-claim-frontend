@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsCommonJourneyProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsJourneyProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 trait AdjustDisplayDeclaration {
   def adjustWithDeclarantEori(
     displayDeclaration: DisplayDeclaration,
-    journey: RejectedGoodsCommonJourneyProperties
+    journey: RejectedGoodsJourneyProperties
   ): DisplayDeclaration =
     journey.getDeclarantEoriFromACC14
       .fold(displayDeclaration) { eori =>

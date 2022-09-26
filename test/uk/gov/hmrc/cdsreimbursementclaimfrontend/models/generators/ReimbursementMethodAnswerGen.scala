@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.magnolia.gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 
 object ReimbursementMethodGen {
 

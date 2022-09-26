@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 
 /** Common answers of the rejected-goods single, multiple and scheduled journeys. */
-trait RejectedGoodsCommonAnswers extends CommonAnswers {
+trait RejectedGoodsAnswers extends CommonAnswers {
 
   def basisOfClaim: Option[BasisOfRejectedGoodsClaim]
   def basisOfClaimSpecialCircumstances: Option[String]
