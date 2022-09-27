@@ -15,6 +15,10 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -42,6 +46,12 @@ class EnterBankAccountDetailsController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
     with EnterBankAccountDetailsMixin[SecuritiesJourney] {
+
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   final override def bankAccountType(journey: SecuritiesJourney): Option[BankAccountType] =
     journey.answers.bankAccountType

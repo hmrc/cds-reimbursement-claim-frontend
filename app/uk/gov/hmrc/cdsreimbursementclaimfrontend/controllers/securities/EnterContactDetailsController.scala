@@ -24,6 +24,10 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
 
 import scala.concurrent.ExecutionContext
@@ -37,6 +41,12 @@ class EnterContactDetailsController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   private def postAction: Call = routes.EnterContactDetailsController.submit()
+
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   val show: Action[AnyContent] =
     actionReadJourneyAndUser { implicit request => journey => userType =>

@@ -37,6 +37,16 @@ class ChooseFileTypeController @Inject() (
   chooseFileTypePage: choose_file_type
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+  import com.github.arturopala.validator.Validator.Validate
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   val submitAction: Call          = routes.ChooseFileTypeController.submit()
   val chooseFilesPageAction: Call = routes.UploadFilesController.show()

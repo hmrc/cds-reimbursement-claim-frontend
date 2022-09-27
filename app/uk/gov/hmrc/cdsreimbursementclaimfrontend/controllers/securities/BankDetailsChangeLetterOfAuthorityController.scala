@@ -15,6 +15,10 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -38,6 +42,12 @@ class BankDetailsChangeLetterOfAuthorityController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   private val submitRoute: Call = routes.BankDetailsChangeLetterOfAuthorityController.submit()
+
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(bankAccountLetterOfAuthority(bankAccountLetterOfAuthorityForm, submitRoute)).asFuture
