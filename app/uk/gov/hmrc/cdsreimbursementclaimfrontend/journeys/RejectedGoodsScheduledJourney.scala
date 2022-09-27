@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.Eq
 import cats.syntax.eq._
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
@@ -30,20 +31,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.time.LocalDate
 import scala.collection.immutable.SortedMap
@@ -60,8 +56,7 @@ final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends JourneyBase[RejectedGoodsScheduledJourney]
-    with RejectedGoodsJourneyProperties
-    with FluentSyntax[RejectedGoodsScheduledJourney] {
+    with RejectedGoodsJourneyProperties {
 
   /** Check if all the selected duties have reimbursement and paid amounts provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -494,11 +489,9 @@ final class RejectedGoodsScheduledJourney private (
         )
       )
 
-  def prettyPrint: String = Json.prettyPrint(Json.toJson(this))
-
 }
 
-object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsScheduledJourney] {
+object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsScheduledJourney] {
 
   /** A starting point to build new instance of the journey. */
   def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
@@ -579,37 +572,14 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
       supportingEvidenceHasBeenProvided
     )
 
+  import JourneyFormats._
+
   object Answers {
-
-    implicit lazy val dutyFormat = DutyType.simpleDutyTypeFormat
-
-    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, Option[AmountPaidWithRefund]]] =
-      MapFormat.formatSortedWithOptionalValue[TaxCode, AmountPaidWithRefund]
-
-    implicit lazy val mapFormat2: Format[ReimbursementClaims] =
-      MapFormat.formatSorted[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]
-
-    implicit lazy val mapFormat3: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
-      MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
-
-    implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
-    implicit val format: Format[Answers] = Json.using[Json.WithDefaultValues].format[Answers]
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
   }
 
   object Output {
-
-    implicit lazy val dutyFormat = DutyType.simpleDutyTypeFormat
-
-    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, AmountPaidWithRefund]] =
-      MapFormat.formatSorted[TaxCode, AmountPaidWithRefund]
-
-    implicit lazy val mapFormat2: Format[SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]]] =
-      MapFormat.formatSorted[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]]
-
-    implicit val amountFormat: Format[BigDecimal] =
-      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
-
-    implicit val equality: Eq[Output]   = Eq.fromUniversalEquals[Output]
     implicit val format: Format[Output] = Json.format[Output]
   }
 
@@ -623,7 +593,7 @@ object RejectedGoodsScheduledJourney extends FluentImplicits[RejectedGoodsSchedu
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  implicit val equality: Eq[RejectedGoodsScheduledJourney] =
-    Eq.fromUniversalEquals[RejectedGoodsScheduledJourney]
+  // TODO
+  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsScheduledJourney] = ???
 
 }

@@ -23,6 +23,7 @@ object JourneyValidationErrors {
   val MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER: String = "missingSecondMovementReferenceNumber"
   val MISSING_DISPLAY_DECLARATION: String              = "missingDisplayDeclaration"
   val MISSING_BASIS_OF_CLAIM: String                   = "missingBasisOfClaim"
+  val MISSING_DETAILS_OF_OVERPAYMENT: String           = "missingDetailsOfOverpayment"
   val MISSING_DETAILS_OF_REJECTED_GOODS: String        = "missingDetailsOfRejectedGoods"
   val MISSING_INSPECTION_DATE: String                  = "missingInspectionDate"
   val MISSING_INSPECTION_ADDRESS: String               = "missingInspectionAddress"
@@ -58,11 +59,20 @@ object JourneyValidationErrors {
   val REIMBURSEMENT_METHOD_MUST_BE_DEFINED: String                              =
     "reimbursementMethodMustBeDefined when all selected duties are CMA eligible"
   val REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED: String                   =
-    "reimbursementMethodAnswerMustNotBeDefined when not all of selected duties are CMA eligible"
+    "ReimbursementMethodMustNotBeDefined when not all of selected duties are CMA eligible"
   val CHOOSEN_REASON_FOR_SECURITY_REQUIRES_GOODS_TO_BE_ALREADY_EXPORTED: String =
     "choosenReasonForSecurityRequiresGoodsToBeAlreadyExported"
   val MISSING_CLAIM_DUPLICATE_CHECK_STATUS_WITH_TPI04: String                   =
     "missingClaimDuplicateCheckStatusWithTPI04"
   val SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY: String                            =
     "similarClaimExistAlreadyInCDFPay"
+  val DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED: String               =
+    "duplicateMovementReferenceNumber when basisOfClaim value is DuplicateEntry"
+  val DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_NOT_BE_DEFINED: String           =
+    "duplicateMovementReferenceNumber when basisOfClaim value is not DuplicateEntry"
+  val DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED: String                     =
+    "duplicateDisplayDeclaration when basisOfClaim value is DuplicateEntry"
+  val DUPLICATE_DISPLAY_DECLARATION_MUST_NOT_BE_DEFINED: String                 =
+    "duplicateDisplayDeclaration when basisOfClaim value is not DuplicateEntry"
+
 }

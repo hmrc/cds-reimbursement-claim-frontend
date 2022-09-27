@@ -52,6 +52,15 @@ trait SeqUtils {
       }
   }
 
+  implicit class OptionsOps[A](val option: Option[A]) {
+
+    final def zip[B](other: Option[B]): Option[(A, B)] =
+      for {
+        a <- option
+        b <- other
+      } yield (a, b)
+  }
+
   implicit class MapOps[K, V, M[K, V] <: Map[K, V]](val map: M[K, V]) {
 
     final def noneIfEmpty: Option[M[K, V]] =

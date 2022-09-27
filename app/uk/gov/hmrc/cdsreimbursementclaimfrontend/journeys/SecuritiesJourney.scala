@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.Eq
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
@@ -37,11 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
@@ -53,7 +48,6 @@ final class SecuritiesJourney private (
   val caseNumber: Option[String] = None
 ) extends JourneyBase[SecuritiesJourney]
     with CommonJourneyProperties
-    with FluentSyntax[SecuritiesJourney]
     with SeqUtils {
 
   import SecuritiesJourney.Answers
@@ -732,11 +726,9 @@ final class SecuritiesJourney private (
         )
       )
 
-  def prettyPrint: String = Json.prettyPrint(Json.toJson(this))
-
 }
 
-object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
+object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
   /** A starting point to build new instance of the journey. */
   def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): SecuritiesJourney =
@@ -845,35 +837,14 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
       supportingEvidenceHasBeenProvided
     )
 
+  import JourneyFormats._
+
   object Answers {
-    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, Option[BigDecimal]]] =
-      MapFormat.formatSortedWithOptionalValue[TaxCode, BigDecimal]
-
-    implicit lazy val mapFormat2: Format[SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]]] =
-      MapFormat.formatSorted[String, SortedMap[TaxCode, Option[BigDecimal]]]
-
-    implicit lazy val mapFormat3: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
-      MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
-
-    implicit val amountFormat: Format[BigDecimal] =
-      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
-
-    implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
-    implicit val format: Format[Answers] = Json.using[Json.WithDefaultValues].format[Answers]
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
   }
 
   object Output {
-
-    implicit lazy val mapFormat1: Format[SortedMap[TaxCode, BigDecimal]] =
-      MapFormat.formatSorted[TaxCode, BigDecimal]
-
-    implicit lazy val mapFormat2: Format[SortedMap[String, SortedMap[TaxCode, BigDecimal]]] =
-      MapFormat.formatSorted[String, SortedMap[TaxCode, BigDecimal]]
-
-    implicit val amountFormat: Format[BigDecimal] =
-      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
-
-    implicit val equality: Eq[Output]   = Eq.fromUniversalEquals[Output]
     implicit val format: Format[Output] = Json.format[Output]
   }
 
@@ -887,7 +858,45 @@ object SecuritiesJourney extends FluentImplicits[SecuritiesJourney] {
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  implicit val equality: Eq[SecuritiesJourney] =
-    Eq.fromUniversalEquals[SecuritiesJourney]
+  def tryBuildFrom(answers: Answers): Either[String, SecuritiesJourney] =
+    empty(answers.userEoriNumber, answers.nonce)
+      .mapWhenDefined(answers.movementReferenceNumber)(_.submitMovementReferenceNumber)
+      .flatMapWhenDefined(
+        answers.reasonForSecurity.zip(answers.displayDeclaration)
+      )(j => { case (rfs: ReasonForSecurity, decl: DisplayDeclaration) =>
+        j.submitReasonForSecurityAndDeclaration(rfs, decl)
+      })
+      .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
+      .flatMapWhenDefined(answers.temporaryAdmissionMethodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
+      .flatMapWhenDefined(answers.exportMovementReferenceNumber)(_.submitExportMovementReferenceNumber _)
+      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .flatMapEachWhenDefined(answers.securitiesReclaims.map(_.keySet.toSeq))(
+        _.selectSecurityDepositId
+      )
+      .map(_.submitCheckDeclarationDetailsChangeMode(answers.checkDeclarationDetailsChangeMode))
+      .flatMapEachWhenDefined(answers.securitiesReclaims)((journey: SecuritiesJourney) => {
+        case (depositId: String, reclaims: SortedMap[TaxCode, Option[BigDecimal]]) =>
+          journey
+            .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, reclaims.keySet.toSeq)
+            .flatMapEachWhenDefinedMapping(Some(reclaims))((journey: SecuritiesJourney) =>
+              (taxCode: TaxCode, amount: BigDecimal) => {
+                journey.submitAmountForReclaim(depositId, taxCode, amount)
+              }
+            )
+      })
+      .map(_.submitClaimFullAmountMode(answers.claimFullAmountMode))
+      .map(_.submitCheckClaimDetailsChangeMode(answers.checkClaimDetailsChangeMode))
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
+      )
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }

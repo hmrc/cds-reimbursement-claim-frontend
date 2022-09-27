@@ -18,15 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import scala.collection.JavaConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+
+import scala.collection.JavaConverters._
+import scala.collection.immutable.SortedMap
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData with SeqUtils {
@@ -381,31 +385,50 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
-      tryBuildSecuritiesJourney(
-        userEoriNumber = userEoriNumber,
-        mrn = mrn,
-        reasonForSecurity = rfs,
-        displayDeclaration = acc14,
-        similarClaimExistAlreadyInCDFPay = false,
-        reclaims = reclaims,
-        exportMrn,
-        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
-        consigneeEoriNumber =
-          if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI)
-          else None,
-        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        bankAccountDetails =
-          if (submitBankAccountDetails && (!allDutiesGuaranteeEligible))
-            Some(exampleBankAccountDetails)
-          else None,
-        bankAccountType =
-          if (submitBankAccountType && (!allDutiesGuaranteeEligible))
-            Some(bankAccountType)
-          else None,
-        supportingEvidences = supportingEvidences,
-        methodOfDisposal = methodOfDisposal
-      )
+      val securitiesReclaims: SortedMap[String, SecuritiesJourney.SecuritiesReclaims] =
+        SortedMap(
+          reclaims
+            .groupBy(_._1)
+            .mapValues(s => SortedMap(s.map { case (_, taxCode, amount) => (taxCode, Option(amount)) }: _*))
+            .toSeq: _*
+        )
+
+      val supportingEvidencesExpanded: Seq[UploadedFile] =
+        supportingEvidences.flatMap { case (documentType, size) =>
+          (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
+        }.toSeq
+
+      val answers =
+        new SecuritiesJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          reasonForSecurity = Some(rfs),
+          displayDeclaration = Some(acc14),
+          similarClaimExistAlreadyInCDFPay = Some(false),
+          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          exportMovementReferenceNumber = exportMrn,
+          temporaryAdmissionMethodOfDisposal = methodOfDisposal,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          securitiesReclaims = Some(securitiesReclaims),
+          selectedDocumentType = None,
+          supportingEvidences = supportingEvidencesExpanded,
+          bankAccountDetails =
+            if (submitBankAccountDetails && (!allDutiesGuaranteeEligible))
+              Some(exampleBankAccountDetails)
+            else None,
+          bankAccountType =
+            if (submitBankAccountType && (!allDutiesGuaranteeEligible))
+              Some(bankAccountType)
+            else None,
+          checkDeclarationDetailsChangeMode = false,
+          checkClaimDetailsChangeMode = true,
+          checkYourAnswersChangeMode = true
+        )
+
+      SecuritiesJourney.tryBuildFrom(answers)
     }
 
 }
