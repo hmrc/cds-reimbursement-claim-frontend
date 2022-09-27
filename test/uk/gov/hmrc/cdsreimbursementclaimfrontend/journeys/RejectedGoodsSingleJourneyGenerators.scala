@@ -27,9 +27,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
-object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with RejectedGoodsSingleJourneyTestData {
+object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
+
+  val emptyJourney: RejectedGoodsSingleJourney =
+    RejectedGoodsSingleJourney.empty(exampleEori)
 
   val completeJourneyWithMatchingUserEoriAndCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     Gen.oneOf(
@@ -192,13 +197,17 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]          =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
-      val reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) =>
-          (t, a, allDutiesCmaEligible)
-        }
+      val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
+        taxCodes
+          .take(numberOfSelectedTaxCodes)
+          .zip(reimbursementAmount)
+          .map { case (t, a) =>
+            (t, Option(a))
+          }
+          .toMap
 
       val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
@@ -212,38 +221,51 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Rejec
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
-      tryBuildRejectedGoodsSingleJourney(
-        userEoriNumber,
-        mrn,
-        displayDeclaration,
-        basisOfClaim,
-        "rejected goods details",
-        "special circumstances details",
-        exampleInspectionDate,
-        exampleInspectionAddress,
-        methodOfDisposal,
-        reimbursementClaims,
-        supportingEvidences,
-        if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
-        consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        bankAccountDetails =
-          if (
-            submitBankAccountDetails &&
-            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
-          )
-            Some(exampleBankAccountDetails)
-          else None,
-        bankAccountType =
-          if (
-            submitBankAccountType &&
-            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
-          )
-            Some(bankAccountType)
-          else None
-      )
+      val supportingEvidencesExpanded: Seq[UploadedFile] =
+        supportingEvidences.flatMap { case (documentType, size) =>
+          (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
+        }.toSeq
+
+      val answers =
+        RejectedGoodsSingleJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          displayDeclaration = Some(displayDeclaration),
+          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          basisOfClaim = Some(basisOfClaim),
+          basisOfClaimSpecialCircumstances =
+            if (basisOfClaim === BasisOfRejectedGoodsClaim.SpecialCircumstances) Some("special circumstances details")
+            else None,
+          methodOfDisposal = Some(methodOfDisposal),
+          detailsOfRejectedGoods = Some("rejected goods details"),
+          reimbursementClaims = Some(reimbursementClaims),
+          inspectionDate = Some(exampleInspectionDate),
+          inspectionAddress = Some(exampleInspectionAddress),
+          selectedDocumentType = None,
+          supportingEvidences = supportingEvidencesExpanded,
+          bankAccountDetails =
+            if (
+              submitBankAccountDetails &&
+              (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
+            )
+              Some(exampleBankAccountDetails)
+            else None,
+          bankAccountType =
+            if (
+              submitBankAccountType &&
+              (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
+            )
+              Some(bankAccountType)
+            else None,
+          reimbursementMethod = if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
+          checkYourAnswersChangeMode = true
+        )
+
+      RejectedGoodsSingleJourney.tryBuildFrom(answers)
     }
 
 }

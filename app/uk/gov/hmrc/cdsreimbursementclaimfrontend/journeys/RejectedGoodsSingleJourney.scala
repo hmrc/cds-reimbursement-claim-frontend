@@ -565,7 +565,38 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  // TODO
-  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsSingleJourney] = ???
+  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsSingleJourney] =
+    empty(answers.userEoriNumber, answers.nonce)
+      .flatMapWhenDefined(
+        answers.movementReferenceNumber.zip(answers.displayDeclaration)
+      )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
+        j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
+      })
+      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
+        _.submitBasisOfClaimSpecialCircumstancesDetails
+      )
+      .mapWhenDefined(answers.methodOfDisposal)(_.submitMethodOfDisposal)
+      .mapWhenDefined(answers.detailsOfRejectedGoods)(_.submitDetailsOfRejectedGoods)
+      .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
+        _.selectAndReplaceTaxCodeSetForReimbursement
+      )
+      .flatMapEachWhenDefinedMapping(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
+      .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
+      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod _)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
+      )
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }
