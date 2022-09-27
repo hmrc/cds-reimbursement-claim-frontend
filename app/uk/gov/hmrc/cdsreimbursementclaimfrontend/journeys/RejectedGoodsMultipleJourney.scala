@@ -597,7 +597,7 @@ final class RejectedGoodsMultipleJourney private (
 object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultipleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsMultipleJourney =
+  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsMultipleJourney =
     new RejectedGoodsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
@@ -656,7 +656,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
   import Checks._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  implicit val validator: Validate[RejectedGoodsMultipleJourney] =
+  override implicit val validator: Validate[RejectedGoodsMultipleJourney] =
     all(
       hasMRNAndDisplayDeclaration,
       hasMultipleMovementReferenceNumbers,
@@ -693,7 +693,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] =
+  override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] =
     empty(answers.userEoriNumber, answers.nonce)
       .flatMapEachWhenDefined(answers.movementReferenceNumbers.zip(answers.displayDeclarations).zipWithIndex)(j => {
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>

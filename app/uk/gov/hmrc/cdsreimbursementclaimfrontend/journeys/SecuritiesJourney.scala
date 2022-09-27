@@ -731,7 +731,7 @@ final class SecuritiesJourney private (
 object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): SecuritiesJourney =
+  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): SecuritiesJourney =
     new SecuritiesJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type SecuritiesReclaims = SortedMap[TaxCode, Option[BigDecimal]]
@@ -824,7 +824,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
   import Checks._
 
-  implicit val validator: Validate[SecuritiesJourney] =
+  override implicit val validator: Validate[SecuritiesJourney] =
     Validator.all(
       hasMRNAndDisplayDeclarationAndRfS,
       thereIsNoSimilarClaimInCDFPay,
@@ -858,7 +858,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  def tryBuildFrom(answers: Answers): Either[String, SecuritiesJourney] =
+  override def tryBuildFrom(answers: Answers): Either[String, SecuritiesJourney] =
     empty(answers.userEoriNumber, answers.nonce)
       .mapWhenDefined(answers.movementReferenceNumber)(_.submitMovementReferenceNumber)
       .flatMapWhenDefined(

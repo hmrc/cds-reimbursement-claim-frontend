@@ -452,7 +452,7 @@ final class RejectedGoodsSingleJourney private (
 object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsSingleJourney =
+  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
@@ -527,7 +527,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
   import Checks._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  implicit val validator: Validate[RejectedGoodsSingleJourney] =
+  override implicit val validator: Validate[RejectedGoodsSingleJourney] =
     all(
       hasMRNAndDisplayDeclaration,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
@@ -565,7 +565,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsSingleJourney] =
+  override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsSingleJourney] =
     empty(answers.userEoriNumber, answers.nonce)
       .flatMapWhenDefined(
         answers.movementReferenceNumber.zip(answers.displayDeclaration)

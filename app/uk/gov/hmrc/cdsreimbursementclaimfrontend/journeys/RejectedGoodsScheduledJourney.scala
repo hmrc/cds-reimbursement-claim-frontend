@@ -494,7 +494,7 @@ final class RejectedGoodsScheduledJourney private (
 object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsScheduledJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
+  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
     new RejectedGoodsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]
@@ -555,7 +555,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
   import Checks._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  implicit val validator: Validate[RejectedGoodsScheduledJourney] =
+  override implicit val validator: Validate[RejectedGoodsScheduledJourney] =
     all(
       hasMRNAndDisplayDeclaration,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
@@ -593,7 +593,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsScheduledJourney] =
+  override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsScheduledJourney] =
     empty(answers.userEoriNumber, answers.nonce)
       .flatMapWhenDefined(
         answers.movementReferenceNumber.zip(answers.displayDeclaration)
