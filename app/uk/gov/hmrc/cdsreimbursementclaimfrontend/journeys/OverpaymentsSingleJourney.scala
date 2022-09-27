@@ -603,7 +603,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
-      .flatMapEachWhenDefinedMapping(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(

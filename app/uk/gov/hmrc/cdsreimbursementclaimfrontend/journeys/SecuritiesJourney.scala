@@ -881,7 +881,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         case (depositId: String, reclaims: SortedMap[TaxCode, Option[BigDecimal]]) =>
           journey
             .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, reclaims.keySet.toSeq)
-            .flatMapEachWhenDefinedMapping(Some(reclaims))((journey: SecuritiesJourney) =>
+            .flatMapEachWhenMappingDefined(reclaims)((journey: SecuritiesJourney) =>
               (taxCode: TaxCode, amount: BigDecimal) => {
                 journey.submitAmountForReclaim(depositId, taxCode, amount)
               }

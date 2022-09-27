@@ -616,7 +616,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       )
       .flatMapEachWhenDefined(answers.reimbursementClaims)(j => { case (dutyType, reimbursements) =>
         j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, reimbursements.keySet.toSeq)
-          .flatMapEachWhenDefinedMapping(Some(reimbursements))(j => {
+          .flatMapEachWhenMappingDefined(reimbursements)(j => {
             case (taxCode, AmountPaidWithRefund(paidAmount, claimAmount)) =>
               j.submitAmountForReimbursement(dutyType, taxCode, paidAmount, claimAmount)
           })

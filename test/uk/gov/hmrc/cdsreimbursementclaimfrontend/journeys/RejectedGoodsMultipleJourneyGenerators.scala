@@ -20,17 +20,23 @@ import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import scala.collection.JavaConverters._
 
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
-object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with RejectedGoodsMultipleJourneyTestData {
+object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
+
+  final val emptyJourney: RejectedGoodsMultipleJourney =
+    RejectedGoodsMultipleJourney.empty(exampleEori)
 
   def incompleteJourneyWithMrnsGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
     def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) =
@@ -270,10 +276,20 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
           (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, allDutiesCmaEligible) })
         }
 
-      val reimbursementClaims: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])] =
-        mrns.zip(taxCodesWithAmounts).map { case (mrn, (_, selectedTaxCodes, _, reimbursementAmounts)) =>
-          (mrn, selectedTaxCodes.zip(reimbursementAmounts).map { case (t, r) => (t, r, allDutiesCmaEligible) })
-        }
+      val reimbursementClaims: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
+        OrderedMap(
+          mrns
+            .zip(taxCodesWithAmounts)
+            .map { case (mrn, (_, selectedTaxCodes, _, reimbursementAmounts)) =>
+              (
+                mrn,
+                selectedTaxCodes
+                  .zip(reimbursementAmounts)
+                  .map { case (taxCode, amount) => (taxCode, Option(amount)) }
+                  .toMap
+              )
+            }
+        )
 
       val displayDeclarations: Seq[DisplayDeclaration] =
         paidDuties.map { case (mrn, paidDutiesPerMrn) =>
@@ -289,25 +305,46 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Rej
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
-      tryBuildRejectedGoodsMultipleJourney(
-        userEoriNumber,
-        mrns,
-        displayDeclarations,
-        basisOfClaim,
-        "rejected goods details",
-        "special circumstances details",
-        exampleInspectionDate,
-        exampleInspectionAddress,
-        methodOfDisposal,
-        reimbursementClaims,
-        supportingEvidences,
-        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
-        consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
-        bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None
-      )
+      // val reimbursementClaims =
+      //   OrderedMap(reimbursements: _*)
+      //     .mapValues(s =>
+      //       s.map { case (taxCode, a1, a2) =>
+      //         (taxCode, Option(AmountPaidWithRefund(a1, a2)))
+      //       }
+      //     )
+
+      val supportingEvidencesExpanded: Seq[UploadedFile] =
+        supportingEvidences.flatMap { case (documentType, size) =>
+          (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
+        }.toSeq
+
+      val answers =
+        RejectedGoodsMultipleJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumbers = Some(mrns),
+          displayDeclarations = Some(displayDeclarations),
+          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          basisOfClaim = Some(basisOfClaim),
+          basisOfClaimSpecialCircumstances =
+            if (basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances) Some("special circumstances details")
+            else None,
+          methodOfDisposal = Some(methodOfDisposal),
+          detailsOfRejectedGoods = Some("rejected goods details"),
+          reimbursementClaims = Some(reimbursementClaims),
+          inspectionDate = Some(exampleInspectionDate),
+          inspectionAddress = Some(exampleInspectionAddress),
+          selectedDocumentType = None,
+          supportingEvidences = supportingEvidencesExpanded,
+          bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
+          bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None,
+          checkYourAnswersChangeMode = true
+        )
+
+      RejectedGoodsMultipleJourney.tryBuildFrom(answers)
     }
 
 }

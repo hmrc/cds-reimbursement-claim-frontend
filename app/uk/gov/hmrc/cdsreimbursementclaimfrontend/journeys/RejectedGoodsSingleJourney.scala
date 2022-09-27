@@ -585,7 +585,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
-      .flatMapEachWhenDefinedMapping(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
       .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
       .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
       .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod _)

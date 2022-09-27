@@ -32,8 +32,7 @@ class RejectedGoodsMultipleJourneyFormatSpec
     extends AnyWordSpec
     with JsonFormatTest
     with Matchers
-    with ScalaCheckPropertyChecks
-    with RejectedGoodsMultipleJourneyTestData {
+    with ScalaCheckPropertyChecks {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)

@@ -693,6 +693,38 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  // TODO
-  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] = ???
+  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] =
+    empty(answers.userEoriNumber, answers.nonce)
+      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zip(answers.displayDeclarations).zipWithIndex)(j => {
+        case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
+          j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
+      })
+      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
+        _.submitBasisOfClaimSpecialCircumstancesDetails
+      )
+      .mapWhenDefined(answers.methodOfDisposal)(_.submitMethodOfDisposal)
+      .mapWhenDefined(answers.detailsOfRejectedGoods)(_.submitDetailsOfRejectedGoods)
+      .flatMapEachWhenDefined(answers.reimbursementClaims)(j => {
+        case (mrn: MRN, reimbursements: Map[TaxCode, Option[BigDecimal]]) =>
+          j.selectAndReplaceTaxCodeSetForReimbursement(mrn, reimbursements.keySet.toSeq)
+            .flatMapEachWhenMappingDefined(reimbursements)(j =>
+              (taxCode, amount) => j.submitAmountForReimbursement(mrn, taxCode, amount)
+            )
+      })
+      .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
+      .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
+      )
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 }

@@ -253,26 +253,6 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
         )
 
       RejectedGoodsScheduledJourney.tryBuildFrom(answers)
-
-      // tryBuildRejectedGoodsScheduledJourney(
-      //   userEoriNumber,
-      //   mrn,
-      //   displayDeclaration,
-      //   basisOfClaim,
-      //   "rejected goods details",
-      //   "special circumstances details",
-      //   exampleInspectionDate,
-      //   exampleInspectionAddress,
-      //   methodOfDisposal,
-      //   reimbursementClaims,
-      //   supportingEvidences,
-      //   declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
-      //   consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-      //   contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-      //   contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-      //   bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
-      //   bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None
-      // )
     }
 
 }
