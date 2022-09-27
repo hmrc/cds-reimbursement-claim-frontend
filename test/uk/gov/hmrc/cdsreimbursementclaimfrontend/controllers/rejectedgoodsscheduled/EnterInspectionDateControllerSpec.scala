@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
@@ -42,10 +41,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReplaceEstablishmentAddr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
 class EnterInspectionDateControllerSpec
@@ -55,8 +55,7 @@ class EnterInspectionDateControllerSpec
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
     with AdjustDisplayDeclaration
-    with ReplaceEstablishmentAddresses
-    with RejectedGoodsScheduledJourneyTestData {
+    with ReplaceEstablishmentAddresses {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](

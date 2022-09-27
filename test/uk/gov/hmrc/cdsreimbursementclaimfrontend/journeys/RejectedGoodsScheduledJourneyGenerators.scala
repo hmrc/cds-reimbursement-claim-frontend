@@ -17,21 +17,27 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 import scala.collection.JavaConverters._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
+import scala.collection.immutable.SortedMap
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
-object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with RejectedGoodsScheduledJourneyTestData {
+object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with JourneyTestData {
+
+  val emptyJourney: RejectedGoodsScheduledJourney =
+    RejectedGoodsScheduledJourney.empty(exampleEori)
 
   val amountPaidWithRefundGen: Gen[AmountPaidWithRefund] = for {
     refundAmount <- Gen.choose(BigDecimal("0.01"), BigDecimal("1000.00"))
@@ -173,7 +179,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
       mrn                         <- IdGen.genMRN
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      reimbursementClaims         <- dutyTypesWithTaxCodesWithClaimAmountsGen
+      reimbursements              <- dutyTypesWithTaxCodesWithClaimAmountsGen
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
       numberOfSupportingEvidences <- Gen.choose(0, 3)
@@ -196,32 +202,77 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Re
           mrn.value,
           declarantEORI,
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-          reimbursementClaims.flatMap(_._2).map(d => (d._1, d._3, false)),
+          reimbursements.flatMap(_._2).map(d => (d._1, d._3, false)),
           if (submitConsigneeDetails) consigneeContact else None,
           declarantContact
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
-      tryBuildRejectedGoodsScheduledJourney(
-        userEoriNumber,
-        mrn,
-        displayDeclaration,
-        basisOfClaim,
-        "rejected goods details",
-        "special circumstances details",
-        exampleInspectionDate,
-        exampleInspectionAddress,
-        methodOfDisposal,
-        reimbursementClaims,
-        supportingEvidences,
-        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
-        consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
-        bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None
-      )
+      val reimbursementClaims =
+        SortedMap(reimbursements: _*)
+          .mapValues(s =>
+            SortedMap(s.map { case (taxCode, a1, a2) =>
+              (taxCode, Option(AmountPaidWithRefund(a1, a2)))
+            }: _*)
+          )
+
+      val scheduledDocument: UploadedFile =
+        buildUploadDocument("schedule").copy(cargo = Some(UploadDocumentType.ScheduleOfMRNs))
+
+      val supportingEvidencesExpanded: Seq[UploadedFile] =
+        supportingEvidences.flatMap { case (documentType, size) =>
+          (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
+        }.toSeq
+
+      val answers =
+        RejectedGoodsScheduledJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          displayDeclaration = Some(displayDeclaration),
+          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          scheduledDocument = Some(scheduledDocument),
+          basisOfClaim = Some(basisOfClaim),
+          basisOfClaimSpecialCircumstances =
+            if (basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances) Some("special circumstances details")
+            else None,
+          methodOfDisposal = Some(methodOfDisposal),
+          detailsOfRejectedGoods = Some("rejected goods details"),
+          reimbursementClaims = Some(reimbursementClaims),
+          inspectionDate = Some(exampleInspectionDate),
+          inspectionAddress = Some(exampleInspectionAddress),
+          selectedDocumentType = None,
+          supportingEvidences = supportingEvidencesExpanded,
+          bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
+          bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None,
+          checkYourAnswersChangeMode = true
+        )
+
+      RejectedGoodsScheduledJourney.tryBuildFrom(answers)
+
+      // tryBuildRejectedGoodsScheduledJourney(
+      //   userEoriNumber,
+      //   mrn,
+      //   displayDeclaration,
+      //   basisOfClaim,
+      //   "rejected goods details",
+      //   "special circumstances details",
+      //   exampleInspectionDate,
+      //   exampleInspectionAddress,
+      //   methodOfDisposal,
+      //   reimbursementClaims,
+      //   supportingEvidences,
+      //   declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+      //   consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+      //   contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+      //   contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+      //   bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
+      //   bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None
+      // )
     }
 
 }
