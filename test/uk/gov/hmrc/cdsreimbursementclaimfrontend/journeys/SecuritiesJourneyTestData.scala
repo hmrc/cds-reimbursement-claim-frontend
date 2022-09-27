@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
@@ -39,70 +38,6 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     )
     .flatMap(_.submitClaimDuplicateCheckStatus(false))
     .getOrFail
-
-  final def tryBuildSecuritiesJourney(
-    userEoriNumber: Eori,
-    mrn: MRN,
-    reasonForSecurity: ReasonForSecurity,
-    displayDeclaration: DisplayDeclaration,
-    similarClaimExistAlreadyInCDFPay: Boolean,
-    reclaims: Seq[(String, TaxCode, BigDecimal)],
-    exportMrn: Option[MRN],
-    consigneeEoriNumber: Option[Eori] = None,
-    declarantEoriNumber: Option[Eori] = None,
-    contactDetails: Option[MrnContactDetails] = None,
-    contactAddress: Option[ContactAddress] = None,
-    bankAccountDetails: Option[BankAccountDetails] = None,
-    bankAccountType: Option[BankAccountType] = None,
-    supportingEvidences: Map[UploadDocumentType, Int] = Map.empty,
-    methodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None
-  ): Either[String, SecuritiesJourney] = {
-
-    val supportingEvidencesExpanded: Map[UploadDocumentType, Seq[UploadedFile]] =
-      supportingEvidences.map { case (documentType, size) =>
-        (documentType, (0 until size).map(i => buildUploadDocument(s"$i")))
-      }
-
-    def receiveUploadedFiles(journey: SecuritiesJourney)(
-      documentTypeAndUploadedFiles: (UploadDocumentType, Seq[UploadedFile])
-    ): Either[String, SecuritiesJourney] = {
-      val (documentType, uploadedFiles) = documentTypeAndUploadedFiles
-      val allUploadedFiles              = journey.answers.supportingEvidences ++ uploadedFiles
-      journey.receiveUploadedFiles(documentType, journey.answers.nonce, allUploadedFiles)
-    }
-
-    SecuritiesJourney
-      .empty(userEoriNumber)
-      .submitMovementReferenceNumber(mrn)
-      .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
-      .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay))
-      .flatMapWhenDefined(methodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
-      .flatMapWhenDefined(exportMrn)(_.submitExportMovementReferenceNumber _)
-      .flatMapWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
-      .map(_.submitContactDetails(contactDetails))
-      .mapWhenDefined(contactAddress)(_.submitContactAddress _)
-      .flatMapEach(reclaims.map(_._1).distinct, (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_))
-      .flatMapEach(
-        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
-        (journey: SecuritiesJourney) =>
-          (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-            journey
-              .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
-              .flatMapEach(
-                args._2,
-                (journey: SecuritiesJourney) =>
-                  (args2: (TaxCode, BigDecimal)) => {
-                    journey.submitAmountForReclaim(args._1, args2._1, args2._2)
-                  }
-              )
-      )
-      .map(_.submitCheckClaimDetailsChangeMode(true))
-      .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
-      .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
-      .flatMapEach(supportingEvidencesExpanded, receiveUploadedFiles)
-      .map(_.submitCheckYourAnswersChangeMode(true))
-  }
 
   final def buildSecuritiesJourneyReadyForSelectingSecurities(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration)

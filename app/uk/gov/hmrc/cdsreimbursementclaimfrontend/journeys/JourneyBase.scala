@@ -18,11 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import com.github.arturopala.validator.Validator.Validate
 import com.github.arturopala.validator.Validator.ValidationResultOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
+import play.api.libs.json.Json
+import play.api.libs.json.Format
 
 /** The common base of the claim models
-  * @tparam A the type of the claim
+  * @tparam Journey the type of the claim
   */
-abstract class JourneyBase[Journey : Validate] {
+abstract class JourneyBase[Journey : Validate] extends DirectFluentSyntax[Journey] {
   self: Journey with CommonJourneyProperties =>
 
   final val validate: Validate[Journey] = implicitly[Validate[Journey]]
@@ -58,5 +61,8 @@ abstract class JourneyBase[Journey : Validate] {
   ): Either[String, Journey] =
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
     else condition(this).left.map(_.headMessage).flatMap(_ => body)
+
+  final def prettyPrint(implicit format: Format[Journey]): String =
+    Json.prettyPrint(Json.toJson[Journey](this))
 
 }

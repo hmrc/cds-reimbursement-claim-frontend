@@ -29,12 +29,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -56,8 +56,7 @@ final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends JourneyBase[RejectedGoodsMultipleJourney]
-    with RejectedGoodsJourneyProperties
-    with FluentSyntax[RejectedGoodsMultipleJourney] {
+    with RejectedGoodsJourneyProperties {
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -593,11 +592,9 @@ final class RejectedGoodsMultipleJourney private (
         )
       )
 
-  def prettyPrint: String = Json.prettyPrint(Json.toJson(this))
-
 }
 
-object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipleJourney] {
+object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultipleJourney] {
 
   /** A starting point to build new instance of the journey. */
   def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsMultipleJourney =
@@ -676,35 +673,14 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
       supportingEvidenceHasBeenProvided
     )
 
+  import JourneyFormats._
+
   object Answers {
-    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
-      MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
-
-    implicit lazy val mapFormat2: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
-      MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
-
-    implicit lazy val mapFormat3: Format[OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]]] =
-      MapFormat.formatOrdered[MRN, Map[TaxCode, Option[BigDecimal]]]
-
-    implicit val amountFormat: Format[BigDecimal] =
-      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
-
-    implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
-    implicit val format: Format[Answers] = Json.using[Json.WithDefaultValues].format[Answers]
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
   }
 
   object Output {
-
-    implicit lazy val mapFormat1: Format[Map[TaxCode, BigDecimal]] =
-      MapFormat.format[TaxCode, BigDecimal]
-
-    implicit lazy val mapFormat2: Format[OrderedMap[MRN, Map[TaxCode, BigDecimal]]] =
-      MapFormat.formatOrdered[MRN, Map[TaxCode, BigDecimal]]
-
-    implicit val amountFormat: Format[BigDecimal] =
-      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
-
-    implicit val equality: Eq[Output]   = Eq.fromUniversalEquals[Output]
     implicit val format: Format[Output] = Json.format[Output]
   }
 
@@ -717,7 +693,6 @@ object RejectedGoodsMultipleJourney extends FluentImplicits[RejectedGoodsMultipl
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  implicit val equality: Eq[RejectedGoodsMultipleJourney] =
-    Eq.fromUniversalEquals[RejectedGoodsMultipleJourney]
-
+  // TODO
+  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] = ???
 }
