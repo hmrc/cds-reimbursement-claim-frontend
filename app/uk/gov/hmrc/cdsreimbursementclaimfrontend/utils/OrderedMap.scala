@@ -40,7 +40,8 @@ class OrderedMap[A, B](private val underlying: LinkedHashMap[A, Any])
 @SuppressWarnings(Array("org.wartremover.warts.Any", "org.wartremover.warts.MutableDataStructures"))
 object OrderedMap {
 
-  def empty[A, B]: OrderedMap[A, B]                   = new OrderedMap(LinkedHashMap.empty[A, Any])
-  def apply[A, B](kv: (A, B)*): OrderedMap[A, B]      = new OrderedMap(LinkedHashMap(kv: _*))
-  def apply[A, B](other: Map[A, B]): OrderedMap[A, B] = new OrderedMap(LinkedHashMap(other.iterator.toSeq: _*))
+  def empty[A, B]: OrderedMap[A, B]                             = new OrderedMap(LinkedHashMap.empty[A, Any])
+  def apply[A, B](kv: (A, B)*): OrderedMap[A, B]                = new OrderedMap(LinkedHashMap(kv: _*))
+  def apply[A, B](other: Map[A, B]): OrderedMap[A, B]           = new OrderedMap(LinkedHashMap(other.iterator.toSeq: _*))
+  def apply[A, B](other: Traversable[(A, B)]): OrderedMap[A, B] = new OrderedMap(LinkedHashMap(other.toSeq: _*))
 }

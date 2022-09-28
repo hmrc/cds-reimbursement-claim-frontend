@@ -444,7 +444,7 @@ final class OverpaymentsSingleJourney private (
 object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): OverpaymentsSingleJourney =
+  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): OverpaymentsSingleJourney =
     new OverpaymentsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
@@ -546,7 +546,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   import Checks._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  implicit val validator: Validate[OverpaymentsSingleJourney] =
+  override implicit val validator: Validate[OverpaymentsSingleJourney] =
     all(
       hasMRNAndDisplayDeclaration,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
@@ -582,7 +582,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     )
 
   /** Try to build journey from the pre-existing answers. */
-  def tryBuildFrom(answers: Answers): Either[String, OverpaymentsSingleJourney] =
+  override def tryBuildFrom(answers: Answers): Either[String, OverpaymentsSingleJourney] =
     empty(answers.userEoriNumber, answers.nonce)
       .flatMapWhenDefined(
         answers.movementReferenceNumber.zip(answers.displayDeclaration)
@@ -603,7 +603,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
-      .flatMapEachWhenDefinedMapping(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(

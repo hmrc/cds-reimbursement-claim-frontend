@@ -452,7 +452,7 @@ final class RejectedGoodsSingleJourney private (
 object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsSingleJourney =
+  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
@@ -527,7 +527,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
   import Checks._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  implicit val validator: Validate[RejectedGoodsSingleJourney] =
+  override implicit val validator: Validate[RejectedGoodsSingleJourney] =
     all(
       hasMRNAndDisplayDeclaration,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
@@ -565,7 +565,38 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  // TODO
-  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsSingleJourney] = ???
+  override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsSingleJourney] =
+    empty(answers.userEoriNumber, answers.nonce)
+      .flatMapWhenDefined(
+        answers.movementReferenceNumber.zip(answers.displayDeclaration)
+      )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
+        j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
+      })
+      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
+        _.submitBasisOfClaimSpecialCircumstancesDetails
+      )
+      .mapWhenDefined(answers.methodOfDisposal)(_.submitMethodOfDisposal)
+      .mapWhenDefined(answers.detailsOfRejectedGoods)(_.submitDetailsOfRejectedGoods)
+      .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
+        _.selectAndReplaceTaxCodeSetForReimbursement
+      )
+      .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
+      .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
+      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod _)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
+      )
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }

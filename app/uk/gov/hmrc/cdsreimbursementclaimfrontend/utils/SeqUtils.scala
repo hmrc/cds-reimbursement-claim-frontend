@@ -79,9 +79,17 @@ trait SeqUtils {
           }
       }
 
+    final def zip[B](otherOptionOfSeq: Option[Seq[B]]): Option[Seq[(A, B)]] =
+      for {
+        as <- optionOfSeq
+        bs <- otherOptionOfSeq
+      } yield as.zip(bs)
+
+    final def zipWithIndex: Option[Seq[(A, Int)]] =
+      optionOfSeq.map(_.zip(Stream.iterate(0)(_ + 1)))
+
     final def containsSameElements(other: Seq[A]): Boolean =
       optionOfSeq.exists(_.toSet.sameElements(other.toSet))
-
   }
 
   implicit class OptionOfMapOps[K, V, M[K, V] <: Map[K, V]](val optionOfMap: Option[M[K, V]]) {

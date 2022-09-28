@@ -50,7 +50,7 @@ trait FluentSyntax[Journey] {
         }
     }
 
-  final def flatMapEachWhenDefinedMapping[K, V](option: Option[Map[K, Option[V]]])(
+  final def flatMapEachWhenDefinedAndMappingDefined[K, V](option: Option[Map[K, Option[V]]])(
     modifyFx: Journey => (K, V) => Either[String, Journey]
   ): Either[String, Journey] =
     option match {
@@ -62,6 +62,16 @@ trait FluentSyntax[Journey] {
 
           case (result, _) => result
         }
+    }
+
+  final def flatMapEachWhenMappingDefined[K, V](mappings: Map[K, Option[V]])(
+    modifyFx: Journey => (K, V) => Either[String, Journey]
+  ): Either[String, Journey] =
+    mappings.foldLeft(journeyEither) {
+      case (result, (key, Some(value))) =>
+        result.flatMap(journey => modifyFx(journey)(key, value))
+
+      case (result, _) => result
     }
 
   /** Try to modify the journey if the condition holds, otherwise return as is. */

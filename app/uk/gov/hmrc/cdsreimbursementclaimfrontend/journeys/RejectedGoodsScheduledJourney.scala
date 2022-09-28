@@ -494,7 +494,7 @@ final class RejectedGoodsScheduledJourney private (
 object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsScheduledJourney] {
 
   /** A starting point to build new instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
+  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
     new RejectedGoodsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]
@@ -555,7 +555,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
   import Checks._
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
-  implicit val validator: Validate[RejectedGoodsScheduledJourney] =
+  override implicit val validator: Validate[RejectedGoodsScheduledJourney] =
     all(
       hasMRNAndDisplayDeclaration,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
@@ -593,7 +593,44 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  // TODO
-  def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsScheduledJourney] = ???
+  override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsScheduledJourney] =
+    empty(answers.userEoriNumber, answers.nonce)
+      .flatMapWhenDefined(
+        answers.movementReferenceNumber.zip(answers.displayDeclaration)
+      )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
+        j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
+      })
+      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
+      .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
+        _.submitBasisOfClaimSpecialCircumstancesDetails
+      )
+      .mapWhenDefined(answers.methodOfDisposal)(_.submitMethodOfDisposal)
+      .mapWhenDefined(answers.detailsOfRejectedGoods)(_.submitDetailsOfRejectedGoods)
+      .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
+        _.selectAndReplaceDutyTypeSetForReimbursement
+      )
+      .flatMapEachWhenDefined(answers.reimbursementClaims)(j => { case (dutyType, reimbursements) =>
+        j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, reimbursements.keySet.toSeq)
+          .flatMapEachWhenMappingDefined(reimbursements)(j => {
+            case (taxCode, AmountPaidWithRefund(paidAmount, claimAmount)) =>
+              j.submitAmountForReimbursement(dutyType, taxCode, paidAmount, claimAmount)
+          })
+      })
+      .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
+      .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
+      )
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }
