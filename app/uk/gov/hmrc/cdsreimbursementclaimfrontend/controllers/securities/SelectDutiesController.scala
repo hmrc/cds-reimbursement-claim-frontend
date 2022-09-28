@@ -15,6 +15,10 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -45,6 +49,12 @@ class SelectDutiesController @Inject() (
   selectDutiesPage: securities.select_duties // todo check SecurityId display / clone page or
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
+
+  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 
   private def processAvailableDuties[T](
     securityId: String,

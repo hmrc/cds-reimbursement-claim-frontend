@@ -100,10 +100,15 @@ class ChooseBankAccountTypeControllerSpec
     }
 
     "fail to submit bank account type" when {
-      "nothing is selected" in {
+      "nothing is selected" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+        )
+      ) { case (initialJourney: SecuritiesJourney, _) =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(initialJourney))
         }
 
         checkPageIsDisplayed(
