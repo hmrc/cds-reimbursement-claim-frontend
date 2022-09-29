@@ -44,6 +44,25 @@ object BasisOfOverpaymentClaim {
   case object IncorrectAdditionalInformationCode extends BasisOfOverpaymentClaim //Northern Ireland only
   case object Miscellaneous extends BasisOfOverpaymentClaim
 
+  val values: Set[BasisOfOverpaymentClaim] =
+    Set(
+      DuplicateEntry,
+      DutySuspension,
+      EndUseRelief,
+      IncorrectCommodityCode,
+      IncorrectCpc,
+      IncorrectValue,
+      InwardProcessingReliefFromCustomsDuty,
+      OutwardProcessingRelief,
+      PersonalEffects,
+      Preference,
+      RGR,
+      ProofOfReturnRefundGiven,
+      IncorrectExciseValue,
+      IncorrectAdditionalInformationCode,
+      Miscellaneous
+    )
+
   val validator: Validator[Id, BasisOfOverpaymentClaim] = maybeBasisOfClaim =>
     maybeBasisOfClaim.toValidNel(MissingAnswerError("Basis of claims"))
 

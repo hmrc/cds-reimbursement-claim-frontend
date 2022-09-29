@@ -28,7 +28,12 @@ object BasisOfRejectedGoodsClaim extends EnumerationFormat[BasisOfRejectedGoodsC
   case object SpecialCircumstances extends BasisOfRejectedGoodsClaim
 
   override val values: Set[BasisOfRejectedGoodsClaim] =
-    Set(DamagedBeforeClearance, Defective, NotInAccordanceWithContract, SpecialCircumstances)
+    Set(
+      DamagedBeforeClearance,
+      Defective,
+      NotInAccordanceWithContract,
+      SpecialCircumstances
+    )
 
   val allButSpecialCircumstances: Set[BasisOfRejectedGoodsClaim] =
     values - SpecialCircumstances

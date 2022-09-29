@@ -65,6 +65,9 @@ final class OverpaymentsSingleJourney private (
     answers.reimbursementMethod.isEmpty ||
       answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
 
+  def needsDuplicateMrnAndDeclaration: Boolean =
+    answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
+
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
 
@@ -522,7 +525,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
             ),
             checkIsDefined(
               _.answers.duplicateDisplayDeclaration,
-              BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED
+              DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED
             )
           )
         ),
@@ -535,7 +538,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
             ),
             checkIsEmpty(
               _.answers.duplicateDisplayDeclaration,
-              BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED
+              DUPLICATE_DISPLAY_DECLARATION_MUST_NOT_BE_DEFINED
             )
           )
         )
@@ -604,6 +607,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
       .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(

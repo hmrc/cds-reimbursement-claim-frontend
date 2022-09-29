@@ -172,7 +172,7 @@ class SelectDutiesControllerSpec
 
       "redirect to ineligible page when there are no duties returned from ACC14" in
         forAll(genReasonForSecurity) { rfs =>
-          val journey = securitiesJourneyWithMrnAndRfsAndDeclaration(rfs)
+          val journey        = securitiesJourneyWithMrnAndRfsAndDeclaration(rfs)
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           securityIdWithTaxCodes(journey).fold {
             inAnyOrder {
