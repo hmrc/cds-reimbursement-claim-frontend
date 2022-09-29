@@ -99,6 +99,19 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       Other
     )
 
+  val overpaymentsSingleDocumentTypes: Seq[UploadDocumentType] =
+    Seq[UploadDocumentType](
+      AirWayBill,
+      BillOfLading,
+      CommercialInvoice,
+      CorrespondenceTrader,
+      ImportAndExportDeclaration,
+      PackingList,
+      ProofOfAuthority,
+      SubstituteEntry,
+      Other
+    )
+
   val rejectedGoodsSingleDocumentTypes: Seq[UploadDocumentType] =
     Seq[UploadDocumentType](
       AdditionalSupportingDocuments,
