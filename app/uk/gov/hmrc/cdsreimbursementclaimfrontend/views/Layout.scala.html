@@ -36,7 +36,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcLayout
-@import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
@@ -48,7 +48,7 @@
         head: Head,
         hmrcLayout: HmrcLayout,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-        StandardAlphaBanner: StandardAlphaBanner,
+        StandardBetaBanner: StandardBetaBanner,
         languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
         hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
         govukBackLink: GovukBackLink
@@ -111,7 +111,7 @@
     serviceUrl = Some(viewConfig.homePageUrl),
     signOutUrl = signOutUrl,
     accessibilityStatementUrl = Some(viewConfig.accessibilityStatementUrl),
-    phaseBanner = Some(StandardAlphaBanner(url = viewConfig.serviceFeedBackUrl)),
+    phaseBanner = Some(StandardBetaBanner(url = viewConfig.serviceFeedBackUrl)),
     nonce = CSPNonce.get,
     additionalHeadBlock = Some(head(Some(defaultHead))),
     additionalScriptsBlock = Some(scripts)
