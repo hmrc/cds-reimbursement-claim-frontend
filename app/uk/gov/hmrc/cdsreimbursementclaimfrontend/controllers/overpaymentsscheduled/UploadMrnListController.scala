@@ -197,7 +197,7 @@ class UploadMrnListController @Inject() (
       descriptionHtml = descriptionHtml,
       serviceUrl = viewConfig.homePageUrl,
       accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
-      phaseBanner = "alpha",
+      phaseBanner = "beta",
       phaseBannerUrl = viewConfig.serviceFeedBackUrl,
       signOutUrl = viewConfig.signOutUrl,
       timedOutUrl = viewConfig.ggTimedOutUrl,

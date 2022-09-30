@@ -90,7 +90,7 @@ class InternalUploadDocumentsConnectorSpec extends AnyWordSpec with Matchers wit
           descriptionHtml = "descriptionHtml",
           serviceUrl = "homePageUrl",
           accessibilityStatementUrl = "accessibilityStatementUrl",
-          phaseBanner = "alpha",
+          phaseBanner = "beta",
           phaseBannerUrl = "serviceFeedBackUrl",
           signOutUrl = "signOutUrl",
           timedOutUrl = "ggTimedOutUrl",
