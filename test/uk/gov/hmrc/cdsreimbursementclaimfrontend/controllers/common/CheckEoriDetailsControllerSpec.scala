@@ -249,7 +249,8 @@ class CheckEoriDetailsControllerSpec
         checkPageIsDisplayed(
           result,
           messageFromMessageKey("check-eori-details.title"),
-          _.select("#check-eori-details-error").text() shouldBe "Error: " + messageFromMessageKey(
+          _.select("#check-eori-details-error")
+            .html() shouldBe "<span class=\"govuk-visually-hidden\">Error:</span> " + messageFromMessageKey(
             s"check-eori-details.error.invalid"
           ),
           BAD_REQUEST
@@ -272,7 +273,8 @@ class CheckEoriDetailsControllerSpec
         checkPageIsDisplayed(
           result,
           messageFromMessageKey(s"$checkEoriDetailsKey.title"),
-          _.select("#check-eori-details-error").text() shouldBe "Error: " + messageFromMessageKey(
+          _.select("#check-eori-details-error")
+            .html() shouldBe "<span class=\"govuk-visually-hidden\">Error:</span> " + messageFromMessageKey(
             s"check-eori-details.error.invalid"
           ),
           BAD_REQUEST
