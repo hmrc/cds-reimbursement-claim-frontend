@@ -47,6 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genStringWith
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
 @SuppressWarnings(Array("org.wartremover.warts.EitherProjectionPartial"))
@@ -75,16 +76,12 @@ class ChooseRepaymentMethodControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
-
-  def sessionWithNdrcDetails(ndrcDetails: List[NdrcDetails], displayDeclaration: DisplayDeclaration) = {
+  def sessionWithNdrcDetails(ndrcDetails: List[NdrcDetails], displayDeclaration: DisplayDeclaration): SessionData = {
     val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
     val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
     val taxCode   = ndrcDetails.map(details => TaxCode(details.taxType))
     val journey   = RejectedGoodsSingleJourney
-      .empty(exampleEori)
+      .empty(displayDeclaration.getDeclarantEori)
       .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCode))
       .getOrFail
@@ -106,7 +103,7 @@ class ChooseRepaymentMethodControllerSpec
       "show the page on a new journey" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
 
         checkPageIsDisplayed(
@@ -158,7 +155,7 @@ class ChooseRepaymentMethodControllerSpec
       "reject an empty Repayment Method" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
 
         checkPageIsDisplayed(
@@ -174,7 +171,7 @@ class ChooseRepaymentMethodControllerSpec
           whenever(answer =!= "0" && answer =!= "1") {
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(session)
+              mockGetSession(SessionData(journeyWithMrnAndDD))
             }
 
             checkPageIsDisplayed(
@@ -190,11 +187,10 @@ class ChooseRepaymentMethodControllerSpec
       "reject any repayment method and show ineligible page" in {
         forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
           whenever(!ndrcDetails.isCmaEligible) {
-            val session = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
 
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(session)
+              mockGetSession(SessionData(journeyWithMrnAndDD))
             }
 
             checkIsRedirect(

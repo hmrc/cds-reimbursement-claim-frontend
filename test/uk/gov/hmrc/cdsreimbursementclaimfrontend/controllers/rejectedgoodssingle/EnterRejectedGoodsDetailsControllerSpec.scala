@@ -68,7 +68,12 @@ class EnterRejectedGoodsDetailsControllerSpec
     featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
+    rejectedGoodsSingleJourney = Some(
+      RejectedGoodsSingleJourney
+        .empty(exampleDisplayDeclaration.getDeclarantEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .getOrFail
+    )
   )
 
   "Enter Rejected Goods Details Controller" must {

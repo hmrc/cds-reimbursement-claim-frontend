@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSuppor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -73,9 +74,7 @@ class ChooseInspectionAddressTypeControllerSpec
       bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(emptyJourney)
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   val controller: ChooseInspectionAddressTypeController = instanceOf[ChooseInspectionAddressTypeController]
 
@@ -126,7 +125,8 @@ class ChooseInspectionAddressTypeControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(
               session.copy(rejectedGoodsSingleJourney =
-                emptyJourney
+                RejectedGoodsSingleJourney
+                  .empty(displayDeclaration.getDeclarantEori)
                   .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
                   .toOption
               )
@@ -162,7 +162,8 @@ class ChooseInspectionAddressTypeControllerSpec
 
         forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
           val journey =
-            emptyJourney
+            RejectedGoodsSingleJourney
+              .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 declaration.getMRN,
                 declarantContactDetailsLens.set(declaration)(contactDetails.some)
@@ -204,7 +205,8 @@ class ChooseInspectionAddressTypeControllerSpec
           )
 
           val journey =
-            emptyJourney
+            RejectedGoodsSingleJourney
+              .empty(updatedDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
               .toOption

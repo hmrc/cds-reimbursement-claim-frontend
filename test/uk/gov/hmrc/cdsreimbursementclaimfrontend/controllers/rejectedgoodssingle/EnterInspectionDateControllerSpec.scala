@@ -78,9 +78,7 @@ class EnterInspectionDateControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Enter Inspection Date Controller" must {
 
@@ -150,9 +148,11 @@ class EnterInspectionDateControllerSpec
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
         val initialJourney =
-          emptyJourney
+          RejectedGoodsSingleJourney
+            .empty(updatedDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
             .getOrFail
+
         val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
         val updatedJourney = initialJourney.submitInspectionDate(date)
         val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -186,7 +186,8 @@ class EnterInspectionDateControllerSpec
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
         val journey =
-          emptyJourney
+          RejectedGoodsSingleJourney
+            .empty(updatedDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
             .getOrFail
 

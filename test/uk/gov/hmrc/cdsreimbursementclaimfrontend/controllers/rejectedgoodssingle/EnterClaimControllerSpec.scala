@@ -69,16 +69,12 @@ class EnterClaimControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
-
-  def sessionWithNdrcDetails(ndrcDetails: List[NdrcDetails], displayDeclaration: DisplayDeclaration) = {
+  def sessionWithNdrcDetails(ndrcDetails: List[NdrcDetails], displayDeclaration: DisplayDeclaration): SessionData = {
     val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
     val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
     val taxCode   = ndrcDetails.map(details => TaxCode(details.taxType))
     val journey   = RejectedGoodsSingleJourney
-      .empty(exampleEori)
+      .empty(displayDeclaration.getDeclarantEori)
       .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCode))
       .getOrFail
@@ -134,7 +130,7 @@ class EnterClaimControllerSpec
             val taxCode       = TaxCode(ndrcDetails.taxType)
             val amountClaimed = BigDecimal(ndrcDetails.amount) - 10
             val journey       = RejectedGoodsSingleJourney
-              .empty(exampleEori)
+              .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(List(taxCode)))
               .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
@@ -163,7 +159,7 @@ class EnterClaimControllerSpec
             val amountPaid         = BigDecimal(ndrcDetails.amount)
             val amountClaimed      = BigDecimal(ndrcDetails.amount) - 10
             val journey            = RejectedGoodsSingleJourney
-              .empty(exampleEori)
+              .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(List(taxCode)))
               .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
@@ -199,7 +195,7 @@ class EnterClaimControllerSpec
       "redirect to the select tax codes page if none have been specified" in forAll {
         (displayDeclaration: DisplayDeclaration) =>
           val journey = RejectedGoodsSingleJourney
-            .empty(exampleEori)
+            .empty(displayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
             .getOrFail
           val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -322,7 +318,7 @@ class EnterClaimControllerSpec
               displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails1, ndrcDetails2)))
             val updatedDd     = displayDeclaration.copy(displayResponseDetail = drd)
             val journey       = RejectedGoodsSingleJourney
-              .empty(exampleEori)
+              .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
               .getOrFail
             val session       = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))

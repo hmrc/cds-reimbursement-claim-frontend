@@ -70,7 +70,12 @@ class EnterSpecialCircumstancesControllerSpec
     featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
+    rejectedGoodsSingleJourney = Some(
+      RejectedGoodsSingleJourney
+        .empty(exampleDisplayDeclaration.getDeclarantEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .getOrFail
+    )
   )
 
   def showPage(): Future[Result] =
@@ -120,9 +125,13 @@ class EnterSpecialCircumstancesControllerSpec
 
     "handle submit requests" when {
       "the user enters details for the first time" in {
-        val journey        = RejectedGoodsSingleJourney
-          .empty(exampleEori)
-          .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+        val journey: RejectedGoodsSingleJourney =
+          RejectedGoodsSingleJourney
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .map(_.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances))
+            .getOrFail
+
         val session        = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
         val updatedJourney = journey
           .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)

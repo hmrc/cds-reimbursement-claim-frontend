@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -32,6 +33,8 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_claim_details_single
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
@@ -44,7 +47,11 @@ class CheckClaimDetailsController @Inject() (
 
   val whetherClaimDetailsCorrect: Form[YesNo] = YesOrNoQuestionForm(checkClaimDetailsKey)
 
-  val enterClaimAction: TaxCode => Call = routes.EnterClaimController.showAmend(_)
+  val enterClaimAction: TaxCode => Call = routes.EnterClaimController.showAmend
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.movementReferenceNumber match {

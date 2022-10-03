@@ -86,9 +86,7 @@ class EnterBankAccountDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Enter Bank Account Details Controller" must {
 
@@ -459,7 +457,11 @@ class EnterBankAccountDetailsControllerSpec
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
         val initialJourney  =
-          RejectedGoodsSingleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
+          RejectedGoodsSingleJourney
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .flatMap(_.submitBankAccountType(BankAccountType.Personal))
+            .getOrFail
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
 
         val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
@@ -489,12 +491,9 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
-        val initialJourney  = RejectedGoodsSingleJourney.empty(exampleEori)
-        val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
-
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(requiredSession)
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
 
         checkIsRedirect(
@@ -510,8 +509,13 @@ class EnterBankAccountDetailsControllerSpec
       "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
-        val initialJourney  =
-          RejectedGoodsSingleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
+        val initialJourney =
+          RejectedGoodsSingleJourney
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .flatMap(_.submitBankAccountType(BankAccountType.Personal))
+            .getOrFail
+
         val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
         val boom            = new BadRequestException("Boom!")
 

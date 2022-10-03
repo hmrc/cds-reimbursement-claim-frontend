@@ -84,9 +84,7 @@ class CheckClaimantDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  private val session = SessionData(journeyWithMrnAndDD)
 
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {
@@ -164,7 +162,7 @@ class CheckClaimantDetailsControllerSpec
         forAll(displayDeclarationGen, genEmail, genName, genMrnContactDetails, genContactAddress) {
           (displayDeclaration, email, name, contactDeatils, address) =>
             val journey = RejectedGoodsSingleJourney
-              .empty(exampleEori)
+              .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .map(_.submitContactDetails(Some(contactDeatils)))
               .map(_.submitContactAddress(address))
@@ -244,7 +242,7 @@ class CheckClaimantDetailsControllerSpec
               displayDeclaration.getDeclarantDetails.declarantEORI =!= exampleEori.value
           ) {
             val journey = RejectedGoodsSingleJourney
-              .empty(exampleEori)
+              .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .getOrFail
             val session = SessionData.empty.copy(

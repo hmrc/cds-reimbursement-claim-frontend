@@ -66,9 +66,7 @@ class DisposalMethodControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Disposal Method Controller" when {
     "Disposal Method page" must {

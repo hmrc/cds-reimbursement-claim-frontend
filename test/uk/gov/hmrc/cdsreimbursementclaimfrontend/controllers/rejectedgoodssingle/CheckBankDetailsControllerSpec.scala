@@ -67,7 +67,7 @@ class CheckBankDetailsControllerSpec
 
     val rejectedGoodsSingleJourney: RejectedGoodsSingleJourney =
       RejectedGoodsSingleJourney
-        .empty(sample[Eori])
+        .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
         .getOrFail
 
@@ -82,7 +82,7 @@ class CheckBankDetailsControllerSpec
 
     val rejectedGoodsSingleJourney: RejectedGoodsSingleJourney =
       RejectedGoodsSingleJourney
-        .empty(sample[Eori])
+        .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(displayDeclaration.getAvailableTaxCodes.take(1)))
         .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
