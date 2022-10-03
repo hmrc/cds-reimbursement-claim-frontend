@@ -176,7 +176,7 @@ class EnterImporterEoriNumberControllerSpec
       }
 
       "reject an invalid Eori" in {
-        val invalidEori = Eori("INVALID_MOVEMENT_REFERENCE_NUMBER")
+        val invalidEori = Eori("INVALID_MRN")
 
         inSequence {
           mockAuthWithNoRetrievals()
