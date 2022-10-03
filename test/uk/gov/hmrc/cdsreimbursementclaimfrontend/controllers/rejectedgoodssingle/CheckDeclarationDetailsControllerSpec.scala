@@ -73,7 +73,7 @@ class CheckDeclarationDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori)))
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   val messagesKey: String = "check-declaration-details"
 
@@ -90,8 +90,7 @@ class CheckDeclarationDetailsControllerSpec
       "display the page" in {
         val journey = buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
-          acc14ConsigneeMatchesUserEori = false,
-          hasConsigneeDetailsInACC14 = true
+          acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(fail("Journey building has failed."))
 
         val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -129,15 +128,9 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "reject an empty Yes/No answer" in {
-        val displayDeclaration = sample[DisplayDeclaration]
-        val journey            = session.rejectedGoodsSingleJourney.get
-          .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-          .getOrFail
-        val sessionToAmend     = SessionData(journey)
-
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(sessionToAmend)
+          mockGetSession(session)
         }
 
         checkPageIsDisplayed(

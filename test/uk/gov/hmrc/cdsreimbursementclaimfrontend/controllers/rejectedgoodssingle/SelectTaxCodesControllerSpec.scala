@@ -89,7 +89,7 @@ class SelectTaxCodesControllerSpec
 
       "display the page the first time" in {
         val journey = RejectedGoodsSingleJourney
-          .empty(exampleEori)
+          .empty(exampleDisplayDeclaration.getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
@@ -141,7 +141,7 @@ class SelectTaxCodesControllerSpec
       "reject an empty tax code selection" in {
 
         val journey = RejectedGoodsSingleJourney
-          .empty(exampleEori)
+          .empty(exampleDisplayDeclaration.getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
@@ -163,7 +163,7 @@ class SelectTaxCodesControllerSpec
       "select valid tax codes when none have been selected before" in {
         forAll(displayDeclarationGen) { displayDeclaration =>
           val initialJourney = RejectedGoodsSingleJourney
-            .empty(exampleEori)
+            .empty(displayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
             .getOrFail
 

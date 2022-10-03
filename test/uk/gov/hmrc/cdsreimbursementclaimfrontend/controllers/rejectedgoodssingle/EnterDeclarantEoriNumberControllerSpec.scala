@@ -49,6 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+
 import scala.concurrent.Future
 
 class EnterDeclarantEoriNumberControllerSpec
@@ -74,9 +75,7 @@ class EnterDeclarantEoriNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Declarant Eori Number Controller" when {
     "Enter Declarant Eori page" must {
@@ -112,8 +111,7 @@ class EnterDeclarantEoriNumberControllerSpec
       "display the page on a pre-existing journey" in {
         val journey        = buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
-          acc14ConsigneeMatchesUserEori = false,
-          hasConsigneeDetailsInACC14 = true
+          acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(
           fail("Unable to generate complete journey")
         )

@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -63,9 +64,7 @@ class ChooseBankAccountTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(emptyJourney)
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
 
@@ -94,7 +93,9 @@ class ChooseBankAccountTypeControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(
           maybeBankAccountType.toList.foldLeft(session)((session, bankAccountType) =>
-            session.copy(rejectedGoodsSingleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption)
+            session.copy(rejectedGoodsSingleJourney =
+              journeyWithMrnAndDD.submitBankAccountType(bankAccountType).toOption
+            )
           )
         )
       }
@@ -134,8 +135,9 @@ class ChooseBankAccountTypeControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(
-              session.copy(
-                rejectedGoodsSingleJourney = emptyJourney
+              session.copy(rejectedGoodsSingleJourney =
+                RejectedGoodsSingleJourney
+                  .empty(updatedDeclaration.getDeclarantEori)
                   .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
                   .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
                   .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
@@ -158,7 +160,7 @@ class ChooseBankAccountTypeControllerSpec
           mockGetSession(session)
           mockStoreSession(
             session.copy(
-              rejectedGoodsSingleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption
+              rejectedGoodsSingleJourney = journeyWithMrnAndDD.submitBankAccountType(bankAccountType).toOption
             )
           )(Right(()))
         }

@@ -21,6 +21,7 @@ import cats.data.EitherT
 import javax.inject.Inject
 import javax.inject.Singleton
 import cats.implicits._
+import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -34,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
@@ -56,6 +58,10 @@ class EnterBankAccountDetailsController @Inject() (
 
   val formKey: String          = "enter-bank-account-details"
   private val postAction: Call = routes.EnterBankAccountDetailsController.submit()
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Future.successful {

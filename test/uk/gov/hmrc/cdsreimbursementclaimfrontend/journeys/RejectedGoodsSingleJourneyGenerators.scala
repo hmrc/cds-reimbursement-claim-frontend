@@ -36,6 +36,12 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
   val emptyJourney: RejectedGoodsSingleJourney =
     RejectedGoodsSingleJourney.empty(exampleEori)
 
+  val journeyWithMrnAndDD: RejectedGoodsSingleJourney =
+    RejectedGoodsSingleJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
   val completeJourneyWithMatchingUserEoriAndCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     Gen.oneOf(
       buildCompleteJourneyGen(

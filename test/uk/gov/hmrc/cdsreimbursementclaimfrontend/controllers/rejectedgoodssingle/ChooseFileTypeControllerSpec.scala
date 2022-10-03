@@ -99,16 +99,15 @@ class ChooseFileTypeControllerSpec
       }
 
       "display the page" in {
-        val journey = RejectedGoodsSingleJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journey)
+          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDD)
         )
 
       }
@@ -140,12 +139,13 @@ class ChooseFileTypeControllerSpec
       }
 
       "redirect to choose files when valid document type selection" in {
-        val journey = RejectedGoodsSingleJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
           mockStoreSession(
-            SessionData(journey.submitDocumentTypeSelection(UploadDocumentType.AdditionalSupportingDocuments))
+            SessionData(
+              journeyWithMrnAndDD.submitDocumentTypeSelection(UploadDocumentType.AdditionalSupportingDocuments)
+            )
           )(Right(()))
         }
         checkIsRedirect(
@@ -155,38 +155,35 @@ class ChooseFileTypeControllerSpec
       }
 
       "re-display the page when invalid document type selection" in {
-        val journey = RejectedGoodsSingleJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
         checkPageIsDisplayed(
           performAction("choose-file-type" -> "Foo"),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journey),
+          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDD),
           expectedStatus = 400
         )
       }
 
       "re-display the page when nothing has been selected" in {
-        val journey = RejectedGoodsSingleJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journey),
+          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDD),
           expectedStatus = 400
         )
       }
 
       "redirect to CYA when selected 'no documents to upload'" in {
-        val journey = RejectedGoodsSingleJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
         checkIsRedirect(
           performAction("choose-file-type" -> "none"),
