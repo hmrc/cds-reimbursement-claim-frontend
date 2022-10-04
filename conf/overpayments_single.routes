@@ -41,8 +41,8 @@ POST        /overpayments/single/enter-claim/:id                                
 GET         /overpayments/single/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterSingleClaimController.checkClaimSummary
 POST        /overpayments/single/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterSingleClaimController.checkClaimSummarySubmit
 
-GET         /overpayments/single/select-reimbursement-method                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ReimbursementMethodController.show
-POST        /overpayments/single/select-reimbursement-method                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ReimbursementMethodController.submit
+GET         /overpayments/single/choose-repayment-method                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ReimbursementMethodController.show
+POST        /overpayments/single/choose-repayment-method                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ReimbursementMethodController.submit
 
 GET         /overpayments/single/check-these-bank-details-are-correct                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BankAccountController.checkBankAccountDetails
 
