@@ -26,12 +26,11 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
-        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form : Form[MethodOfDisposal], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -57,15 +56,15 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
             legend = title,
-            classes = "govuk-visually-hidden",
+            legendAsHeading = true,
+            classes = "govuk-fieldset__legend--xl",
+            paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = radioItems
         )
 

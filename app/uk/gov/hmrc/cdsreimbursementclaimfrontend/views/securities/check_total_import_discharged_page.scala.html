@@ -28,7 +28,6 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
@@ -46,12 +45,13 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
-
         @radios(
             form = form,
             name = key,
-            legend = "",
+            legend = title,
+            legendAsHeading = true,
+            classes = "govuk-fieldset__legend--xl",
+            paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             hintKey = Some(s"$key.help-text"),
             inline = true,
             items = Seq(

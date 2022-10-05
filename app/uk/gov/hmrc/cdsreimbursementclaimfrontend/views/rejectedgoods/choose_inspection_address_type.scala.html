@@ -26,7 +26,6 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -67,16 +66,15 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
             legend = title,
-            legendAsHeading = false,
-            classes = "govuk-visually-hidden",
+            legendAsHeading = true,
+            classes = "govuk-fieldset__legend--xl",
+            paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = acc14AddressRadioItems
         )
 
