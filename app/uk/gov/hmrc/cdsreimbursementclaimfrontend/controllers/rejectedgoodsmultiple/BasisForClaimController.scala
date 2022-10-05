@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import com.github.arturopala.validator.Validator.Validate
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
@@ -29,6 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select
 
 import scala.concurrent.ExecutionContext
 import play.api.data.Form
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 
 @Singleton
 class BasisForClaimController @Inject() (
@@ -36,6 +40,10 @@ class BasisForClaimController @Inject() (
   basisForClaimPage: select_basis_for_claim
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val formKey: String = "select-basis-for-claim.rejected-goods"
 

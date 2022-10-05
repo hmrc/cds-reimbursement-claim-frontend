@@ -16,11 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import javax.inject.Inject
@@ -33,6 +36,10 @@ class EnterRejectedGoodsDetailsController @Inject() (
   enterRejectedGoodsDetailsPage: pages.enter_rejected_goods_details
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val form = enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods)

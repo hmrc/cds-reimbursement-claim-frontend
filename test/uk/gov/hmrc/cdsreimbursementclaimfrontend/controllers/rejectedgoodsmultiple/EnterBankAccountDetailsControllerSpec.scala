@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -89,9 +90,7 @@ class EnterBankAccountDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Enter Bank Account Details Controller" must {
 
@@ -651,8 +650,7 @@ class EnterBankAccountDetailsControllerSpec
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
-        val initialJourney  =
-          RejectedGoodsMultipleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
+        val initialJourney  = journeyWithMrnAndDD.submitBankAccountType(BankAccountType.Personal).getOrFail
         val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
 
         val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
@@ -682,8 +680,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
-        val initialJourney  = RejectedGoodsMultipleJourney.empty(exampleEori)
-        val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
+        val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(journeyWithMrnAndDD))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -703,8 +700,7 @@ class EnterBankAccountDetailsControllerSpec
       "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
-        val initialJourney  =
-          RejectedGoodsMultipleJourney.empty(exampleEori).submitBankAccountType(BankAccountType.Personal).getOrFail
+        val initialJourney  = journeyWithMrnAndDD.submitBankAccountType(BankAccountType.Personal).getOrFail
         val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
 
         inSequence {

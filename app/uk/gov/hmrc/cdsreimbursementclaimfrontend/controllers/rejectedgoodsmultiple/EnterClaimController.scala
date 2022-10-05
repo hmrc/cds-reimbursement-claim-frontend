@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -24,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
@@ -44,9 +46,13 @@ class EnterClaimController @Inject() (
   val subKey: Option[String] = MRNMultipleRoutes.subKey
 
   val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show()
-  val selectDutiesAction: Int => Call           = routes.SelectTaxCodesController.show(_)
-  val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show(_, _)
-  val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit(_, _)
+  val selectDutiesAction: Int => Call           = routes.SelectTaxCodesController.show
+  val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show
+  val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey
