@@ -56,7 +56,7 @@
 
     @for((mrn, index, claim) <- claims){
         @subHeading(Html(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value)), classes = "govuk-heading-m heading-mrn")
-        @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_)),Some(index))
+        @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_),Some(index)))
     }
 
     @subHeading(Html(messages(s"$key.multiple.overall-total.header")), classes = "govuk-heading-m")
