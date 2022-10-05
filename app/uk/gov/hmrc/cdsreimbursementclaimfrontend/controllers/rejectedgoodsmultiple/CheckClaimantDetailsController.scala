@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
@@ -38,6 +40,10 @@ class CheckClaimantDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController
     with AddressLookupMixin[RejectedGoodsMultipleJourney] {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val startAddressLookup: Call =
     routes.CheckClaimantDetailsController.redirectToALF()

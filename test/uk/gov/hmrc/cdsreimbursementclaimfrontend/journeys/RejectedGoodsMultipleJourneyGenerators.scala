@@ -35,6 +35,12 @@ import scala.collection.JavaConverters._
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
 
+  val journeyWithMrnAndDD: RejectedGoodsMultipleJourney =
+    RejectedGoodsMultipleJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
   final val emptyJourney: RejectedGoodsMultipleJourney =
     RejectedGoodsMultipleJourney.empty(exampleEori)
 

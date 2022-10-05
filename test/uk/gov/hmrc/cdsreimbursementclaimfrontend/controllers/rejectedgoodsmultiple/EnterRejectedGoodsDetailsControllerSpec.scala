@@ -32,9 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejected
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.exampleRejectedGoodsDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -65,9 +64,7 @@ class EnterRejectedGoodsDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Enter Rejected Goods Details Controller" must {
 

@@ -50,9 +50,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import java.util.UUID
 import cats.implicits.catsSyntaxEq
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
@@ -84,9 +86,7 @@ class CheckClaimantDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
-  )
+  private val session = SessionData(journeyWithMrnAndDD)
 
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {
@@ -164,7 +164,7 @@ class CheckClaimantDetailsControllerSpec
         forAll(displayDeclarationGen, genEmail, genName, genMrnContactDetails, genContactAddress) {
           (displayDeclaration, email, name, contactDetails, address) =>
             val journey = RejectedGoodsMultipleJourney
-              .empty(exampleEori)
+              .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .map(_.submitContactDetails(Some(contactDetails)))
               .map(_.submitContactAddress(address))
@@ -244,7 +244,7 @@ class CheckClaimantDetailsControllerSpec
               displayDeclaration.getDeclarantDetails.declarantEORI =!= exampleEori.value
           ) {
             val journey = RejectedGoodsMultipleJourney
-              .empty(exampleEori)
+              .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .getOrFail
             val session = SessionData.empty.copy(

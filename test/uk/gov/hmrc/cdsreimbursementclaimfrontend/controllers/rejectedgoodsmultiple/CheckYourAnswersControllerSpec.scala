@@ -193,7 +193,7 @@ class CheckYourAnswersControllerSpec
       "redirect to the proper page if any answer is missing" in {
         val journey =
           RejectedGoodsMultipleJourney
-            .empty(exampleEori)
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
 

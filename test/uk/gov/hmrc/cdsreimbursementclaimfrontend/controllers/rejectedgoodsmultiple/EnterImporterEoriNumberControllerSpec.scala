@@ -47,6 +47,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDD
+
 import scala.concurrent.Future
 
 class EnterImporterEoriNumberControllerSpec
@@ -73,9 +75,7 @@ class EnterImporterEoriNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
-  )
+  private val session = SessionData(journeyWithMrnAndDD)
 
   "Importer Eori Number Controller" when {
     "Enter Importer Eori page" must {

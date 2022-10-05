@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -23,6 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select_tax_codes
@@ -38,6 +41,10 @@ class SelectTaxCodesController @Inject() (
   mrnDoesNotExistPage: mrn_does_not_exist
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val showFirst: Action[AnyContent] = show(1)
 

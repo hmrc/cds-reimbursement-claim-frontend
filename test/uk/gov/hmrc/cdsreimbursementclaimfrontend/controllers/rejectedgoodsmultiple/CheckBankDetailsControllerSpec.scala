@@ -76,7 +76,7 @@ class CheckBankDetailsControllerSpec
 
     val rejectedGoodsMultipleJourney: RejectedGoodsMultipleJourney =
       RejectedGoodsMultipleJourney
-        .empty(sample[Eori])
+        .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
         .getOrFail
 
@@ -93,8 +93,7 @@ class CheckBankDetailsControllerSpec
 
   def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-  val session: SessionData =
-    SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori)))
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Check Bank Details Controller" must {
 

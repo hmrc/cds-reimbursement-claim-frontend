@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.emptyJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -54,9 +54,7 @@ class ChooseBankAccountTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(emptyJourney)
-  )
+  val session = SessionData(journeyWithMrnAndDD)
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
 
@@ -85,7 +83,9 @@ class ChooseBankAccountTypeControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(
           maybeBankAccountType.toList.foldLeft(session)((session, bankAccountType) =>
-            session.copy(rejectedGoodsMultipleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption)
+            session.copy(rejectedGoodsMultipleJourney =
+              journeyWithMrnAndDD.submitBankAccountType(bankAccountType).toOption
+            )
           )
         )
       }
@@ -123,7 +123,7 @@ class ChooseBankAccountTypeControllerSpec
             mockGetSession(session)
             mockStoreSession(
               session.copy(
-                rejectedGoodsMultipleJourney = emptyJourney.submitBankAccountType(bankAccountType).toOption
+                rejectedGoodsMultipleJourney = journeyWithMrnAndDD.submitBankAccountType(bankAccountType).toOption
               )
             )(Right(()))
           }
