@@ -32,10 +32,10 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 object ReimbursementsClaimsSummary {
 
   def singleFull(
-    mrnIndex: Option[Int],
     reimbursementClaims: Seq[(TaxCode, BigDecimal)],
     key: String,
-    enterClaimAction: TaxCode => Call
+    enterClaimAction: TaxCode => Call,
+    mrnIndex: Option[Int]
   )(implicit
     messages: Messages
   ): SummaryList =
