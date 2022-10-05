@@ -34,12 +34,13 @@ object ReimbursementsClaimsSummary {
   def singleFull(
     reimbursementClaims: Seq[(TaxCode, BigDecimal)],
     key: String,
-    enterClaimAction: TaxCode => Call
+    enterClaimAction: TaxCode => Call,
+    mrnIndex: Option[Int]
   )(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(rows =
-      reimbursementClaims.zipWithIndex.map { case ((taxCode, amount), index) =>
+      reimbursementClaims.map { case (taxCode, amount) =>
         SummaryListRow(
           key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
           value = Value(Text(amount.toPoundSterlingString)),
@@ -49,8 +50,9 @@ object ReimbursementsClaimsSummary {
                 ActionItem(
                   href = enterClaimAction(taxCode).url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
-                    .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
+                  visuallyHiddenText =
+                    Some(s"${OrdinalNumber.label(mrnIndex.getOrElse(0) + 1).capitalize} MRN: ${TaxCodes
+                      .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
                 )
               )
             )

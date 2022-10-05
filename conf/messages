@@ -194,15 +194,15 @@ landing-securities.help.p2=For general enquiries about importing, you can <a cla
 #===================================================
 #  UNAUTHORISED PAGE
 #===================================================
-unauthorised.title=Sorry, this service is unavailable
-unauthorised.help=You must have an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number associated with your <abbr title="Customs Declaration Service">CDS</abbr> enrolment before you can use this service. This number will then be associated with your Government Gateway credentials.
-unauthorised.help-text=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">How to get an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number (opens in new tab)</a>.
+unauthorised.title=There is a problem
+unauthorised.help=You need an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number to use this service. An <abbr title="Economic Operator Registration and Identification">EORI</abbr> number must be 14 characters or less, and only include letters a to z and numbers 1 to 9
+unauthorised.help-text=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">how to get an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number (opens in new tab)</a>
 
 #===================================================
 #  INELIGIBLE PAGE
 #===================================================
-ineligible.title=Sorry, you are unable to make a claim
-ineligible.help=You are not eligible to make a claim. If you need help, you can contact <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a> via the imports and exports general enquiries.
+ineligible.title=You are not able to submit a claim
+ineligible.help=You are not eligible to make a claim. If you need help, you can contact <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">HMRC (opens in new tab)</a>.
 
 #===================================================
 #  CHECK EORI DETAILS PAGE
@@ -215,8 +215,8 @@ check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
-check-eori-details.error.required=Select yes if details are correct
-check-eori-details.error.invalid=Select yes if details are correct
+check-eori-details.error.required=Select yes if these <abbr title="Economic Operator Registration and Identification">EORI</abbr> details are correct
+check-eori-details.error.invalid=Select yes if these <abbr title="Economic Operator Registration and Identification">EORI</abbr> details are correct
 
 
 #===================================================
@@ -229,9 +229,9 @@ rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple <abbr title="M
 rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
-rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
+rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
+rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
 rejected-goods.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
@@ -247,8 +247,8 @@ select-number-of-claims.multiple.title=Enter multiple <abbr title="Movement Refe
 select-number-of-claims.multiple.hint=Manually enter details for each <abbr title="Movement Reference Number">MRN</abbr>
 select-number-of-claims.scheduled.title=Upload multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
 select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all <abbr title="Movement Reference Numbers">MRNs</abbr>
-select-number-of-claims.error.required=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
-select-number-of-claims.invalid=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+select-number-of-claims.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+select-number-of-claims.invalid=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
 #  ENTER MRN PAGE
@@ -259,9 +259,9 @@ enter-movement-reference-number.details.paragraph=You can find your <abbr title=
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001
 enter-movement-reference-number.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-movement-reference-number.error.required=Enter a movement reference number
-enter-movement-reference-number.multiple.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.invalid.number=Enter a movement reference number (MRN)
+enter-movement-reference-number.error.required=Enter a movement reference number (MRN)
+enter-movement-reference-number.multiple.error.existingMRN=This movement reference number (MRN) has already been used. Enter a different MRN
 enter-movement-reference-number.multiple.title=Enter the first <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter first <abbr title="Movement Reference Number">MRN</abbr>
@@ -272,17 +272,17 @@ enter-movement-reference-number.scheduled.enter-mrn.label=Enter first <abbr titl
 enter-movement-reference-number.rejected-goods.single.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number
-enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=Try a different <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number (MRN)
+enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
+enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about <abbr title="Movement Reference Numbers">MRNs</abbr> (PDF, 581KB, opens in a new tab)</a>.
 enter-movement-reference-number.rejected-goods.multiple.help-text3=The first <abbr title="Movement Reference Number">MRN</abbr> is the one with the highest paid amount of duties.
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001
-enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=Try a different <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised
+enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about <abbr title="Movement Reference Numbers">MRNs</abbr> (PDF, 581KB, opens in a new tab)</a>.
@@ -297,7 +297,7 @@ enter-movement-reference-number.securities.help=Must be 18 characters, for examp
 enter-movement-reference-number.securities.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.securities.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-movement-reference-number.securities.error.required=Enter a movement reference number
+enter-movement-reference-number.securities.error.required=Enter a movement reference number (MRN)
 
 #===================================================
 #  ENTER EXPORT MRN PAGE
@@ -334,11 +334,11 @@ enter-associated-mrn.title=Tell us the {0} <abbr title="Movement Reference Numbe
 enter-associated-mrn.help-text=The <abbr title="Movement Reference Number">MRN</abbr> will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
 enter-associated-mrn.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001
-enter-associated-mrn.error.required=Enter a movement reference number
-enter-associated-mrn.invalid.number=Enter a movement reference number
-enter-associated-mrn.error.exists=You have already entered this <abbr title="Movement Reference Number">MRN</abbr>. Enter a different <abbr title="Movement Reference Number">MRN</abbr>
-enter-associated-mrn.error.eori-not-matching=The <abbr title="Movement Reference Number">MRN</abbr> number you entered is not linked to your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-associated-mrn.error.missing-declaration=This <abbr title="Movement Reference Number">MRN</abbr> does not exist
+enter-associated-mrn.error.required=Enter a movement reference number (MRN)
+enter-associated-mrn.invalid.number=Enter a movement reference number (MRN)
+enter-associated-mrn.error.exists=This movement reference number (MRN) has already been used. Enter a different MRN
+enter-associated-mrn.error.eori-not-matching=This movement reference number (MRN) is not linked to your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
+enter-associated-mrn.error.missing-declaration=This movement reference number (MRN) has not been recognised
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS
@@ -346,8 +346,8 @@ enter-associated-mrn.error.missing-declaration=This <abbr title="Movement Refere
 check-movement-reference-numbers.title=All the <abbr title="Movement Reference Numbers">MRNs</abbr> entered in this claim
 check-movement-reference-numbers.help-text=These are the <abbr title="Movement Reference Numbers">MRNs</abbr> that you have added so far. You can add more if you wish.
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
-check-movement-reference-numbers.error.invalid=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
-check-movement-reference-numbers.error.required=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
+check-movement-reference-numbers.error.invalid=Select yes to add another movement reference number (MRN)
+check-movement-reference-numbers.error.required=Select yes to add another movement reference number (MRN)
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS - REJECTED GOODS
@@ -357,8 +357,8 @@ check-movement-reference-numbers.rejected-goods.help-text=These are the <abbr ti
 check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
 check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
-check-movement-reference-numbers.rejected-goods.error.invalid=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
-check-movement-reference-numbers.rejected-goods.error.required=Select yes if you want to add another <abbr title="Movement Reference Number">MRN</abbr>
+check-movement-reference-numbers.rejected-goods.error.invalid=Select yes to add another movement reference number (MRN)
+check-movement-reference-numbers.rejected-goods.error.required=Select yes to add another movement reference number (MRN)
 
 #===================================================
 #  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
@@ -374,9 +374,9 @@ enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate <abbr 
 enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
 enter-duplicate-movement-reference-number.mrn.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.mrn.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.mrn.error.required=Enter a valid <abbr title="Movement Reference Number">MRN</abbr>
-enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=Enter a different <abbr title="Movement Reference Number">MRN</abbr>, you have already entered this one
+enter-duplicate-movement-reference-number.mrn.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
+enter-duplicate-movement-reference-number.mrn.error.required=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
+enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN
 
 #===================================================
 #  ENTER DUPLICATE ENTRY NUMBER PAGE
@@ -385,9 +385,9 @@ enter-duplicate-movement-reference-number.entry.title=Tell us your duplicate Ent
 enter-duplicate-movement-reference-number.entry.input-title=Enter duplicate Entry Number
 enter-duplicate-movement-reference-number.entry.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.entry.help=Must be 18 characters, for example 190007914H11112017.
-enter-duplicate-movement-reference-number.entry.invalid.number=Enter a valid entry number
-enter-duplicate-movement-reference-number.entry.invalid=Enter a valid entry number
-enter-duplicate-movement-reference-number.entry.error.required=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.invalid.number=Entry number must only include letters a to z and numbers 1 to 9
+enter-duplicate-movement-reference-number.entry.invalid=Entry number must only include letters a to z and numbers 1 to 10
+enter-duplicate-movement-reference-number.entry.error.required=Enter an entry number
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE
@@ -402,23 +402,23 @@ enter-importer-eori-number.title=Enter the importer’s <abbr title="Economic Op
 enter-importer-eori-number.caption=Importer <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-importer-eori-number.help=You can get the <abbr title="Economic Operator Registration and Identification">EORI</abbr> number from the importer, otherwise you will be unable to make a claim.
 enter-importer-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
-enter-importer-eori-number.invalid.number=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
-enter-importer-eori-number.error.maxLength=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
-enter-importer-eori-number.invalid=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-importer-eori-number.error.required=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
+enter-importer-eori-number.invalid.number=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
+enter-importer-eori-number.error.maxLength=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must be 14 characters or less
+enter-importer-eori-number.invalid=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
+enter-importer-eori-number.error.required=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-importer-eori-number.input-label=Enter importer <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 
 #===================================================
 #  ENTER DECLARANT EORI NUMBER PAGE
 #===================================================
-enter-declarant-eori-number.title=Enter the declarant’s EORI number
+enter-declarant-eori-number.title=Enter the declarant’s <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-declarant-eori-number.caption=Declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-declarant-eori-number.help=You can get the <abbr title="Economic Operator Registration and Identification">EORI</abbr> number from the declarant, otherwise you will be unable to make a claim.
 enter-declarant-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
-enter-declarant-eori-number.invalid.number=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
-enter-declarant-eori-number.error.maxLength=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number in the correct format
-enter-declarant-eori-number.invalid=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-declarant-eori-number.error.required=Enter a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
+enter-declarant-eori-number.invalid.number=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
+enter-declarant-eori-number.error.maxLength=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must be 14 characters or less
+enter-declarant-eori-number.invalid=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
+enter-declarant-eori-number.error.required=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
 
 #===================================================
@@ -426,8 +426,8 @@ enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Op
 #===================================================
 error-claim-invalid-TPI04.title=There is a problem with your claim
 error-claim-invalid-TPI04.para.1=This may be because:
-error-claim-invalid-TPI04.bullet.1=HMRC have already collected the duty for this shipment.<br /><br />This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed.
-error-claim-invalid-TPI04.bullet.2=this claim has already been submitted as part of a whole or partial claim.<br /><br />You can <a class="govuk-link" href="{0}">claim repayment of import duty and VAT if you have overpaid (C285)</a> if HMRC have already collected the tax for this claim.<br /><br />If you have made a partial claim before and want to claim more, you should <a class="govuk-link" href="{1}">contact HMRC</a>.
+error-claim-invalid-TPI04.bullet.1=HMRC have already collected the duty for this shipment.<br /><br />This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed
+error-claim-invalid-TPI04.bullet.2=this claim has already been submitted as part of a whole or partial claim.<br /><br />You can <a class="govuk-link" href="{0}">claim repayment of import duty and VAT if you have overpaid (C285)</a> if HMRC have already collected the tax for this claim.<br /><br />If you have made a partial claim before and want to claim more, you should <a class="govuk-link" href="{1}">contact HMRC</a>
 
 #===================================================
 #  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
@@ -480,15 +480,15 @@ enter-your-contact-details.title=Enter your contact details
 enter-your-contact-details.caption=Contact details
 enter-your-contact-details.help-text=These are the contact details if we need to get in touch about this claim.
 enter-your-contact-details.contact-name.label=Full name
-enter-your-contact-details.contact-name.error.required=Enter your full name
-enter-your-contact-details.contact-name.error.maxLength=Enter a shorter name
+enter-your-contact-details.contact-name.error.required=Enter your full name, like John Smith
+enter-your-contact-details.contact-name.error.maxLength=Full name must be 512 characters or less
 enter-your-contact-details.contact-email.label=Email address
-enter-your-contact-details.contact-email.error.required=Enter a valid email
-enter-your-contact-details.contact-email.error.maxLength=Enter a valid email
-enter-your-contact-details.contact-email.invalid=Enter a valid email
-enter-your-contact-details.contact-phone-number.error.required=Enter a valid phone number
-enter-your-contact-details.contact-phone-number.error.maxLength=Enter a valid phone number
-enter-your-contact-details.contact-phone-number.invalid=Enter a valid phone number
+enter-your-contact-details.contact-email.error.required=Enter an email address in the correct format, like name@example.com
+enter-your-contact-details.contact-email.error.maxLength=Email address must be 241 characters or less
+enter-your-contact-details.contact-email.invalid=Enter an email address in the correct format, like name@example.com
+enter-your-contact-details.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
+enter-your-contact-details.contact-phone-number.error.maxLength=Phone number must be 30 characters or less
+enter-your-contact-details.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 enter-your-contact-details.contact-phone-number.label=Phone number
 enter-your-contact-details.contact-phone-number.help=For international numbers include the country code.
 enter-your-contact-details.importer-contact-address.label=Contact address
@@ -507,7 +507,7 @@ enter-your-contact-details.countryCode.error.required=Enter a country
 enter-your-contact-details.add-company-details.label=<h2>Do you want to add company details?</h2>
 enter-your-contact-details.add-company-details.no=No
 enter-your-contact-details.add-company-details.yes=Yes
-enter-your-contact-details.add-company-details.error.required=Choose if you want to add company details
+enter-your-contact-details.add-company-details.error.required=Enter company name
 countryCode.enter-your-contact-details.error.required=Enter a country
 
 #===================================================
@@ -526,8 +526,8 @@ claimant-details.want-to-continue.title=Do you want to continue using these cont
 claimant-details.want-to-continue.hint=If you select No we will contact you using your <abbr title="Customs Declaration Service">CDS</abbr> registered details.
 claimant-details.yes=Yes
 claimant-details.no=No
-claimant-details.error.required.change=Select yes if you wish to continue using these contact details
-claimant-details.error.invalid=Select yes if you wish to add different contact details
+claimant-details.error.required.change=Select yes to use these contact details
+claimant-details.error.invalid=Select yes to change these contact details
 claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
 claimant-details.add-different.hint=Adding different contact details will not amend the contact details registered with <abbr title="Customs Declaration Service">CDS</abbr>.
 
@@ -555,15 +555,15 @@ enter-contact-details.add.title=Add contact details
 enter-contact-details.h2=Enter your personal details
 enter-contact-details.contact-name.label=Full name
 enter-contact-details.contact-name.error.required=Enter your full name
-enter-contact-details.contact-name.error.maxLength=Enter a shorter name
+enter-contact-details.contact-name.error.maxLength=Full name must be 512 characters or less
 enter-contact-details.contact-email.label=Email address
-enter-contact-details.contact-email.error.required=Enter a valid email
-enter-contact-details.contact-email.invalid=Enter a valid email
-enter-contact-details.contact-email.error.maxLength=Enter a shorter email
+enter-contact-details.contact-email.error.required=Enter an email address in the correct format, like name@example.com
+enter-contact-details.contact-email.invalid=Enter an email address in the correct format, like name@example.com
+enter-contact-details.contact-email.error.maxLength=Email address must be 241 characters or less
 enter-contact-details.contact-phone-number.label=Telephone (optional)
-enter-contact-details.contact-phone-number.error.required=Enter a valid phone number
-enter-contact-details.contact-phone-number.error.maxLength=Enter a valid phone number
-enter-contact-details.contact-phone-number.invalid=Enter a valid phone number
+enter-contact-details.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
+enter-contact-details.contact-phone-number.error.maxLength=Phone number must be 30 characters or less
+enter-contact-details.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 
 #===================================================
 #  SELECT DECLARANT TYPE PAGE
@@ -594,9 +594,9 @@ check-declaration-details.help-text=These are the declarant details we have from
 check-declaration-details.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
-check-declaration-details.error.invalid=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.error.number=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.error.required=Select ''yes'' if you wish to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.error.invalid=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.error.number=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.error.required=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.scheduled.mrn-number.label=First <abbr title="Movement Reference Number">MRN</abbr>
 check-declaration-details.payment-method.label=Payment method
 check-declaration-details.payment-method.unavailable=Unavailable
@@ -613,9 +613,9 @@ check-declaration-details.single.details.paragraph.text.2=The declarant is the p
 check-declaration-details.single.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.multiple.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
 check-declaration-details.scheduled.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
-check-declaration-details.scheduled.error.invalid=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.scheduled.error.number=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.scheduled.error.required=Select ''yes'' if you want to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.scheduled.error.invalid=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.scheduled.error.number=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.scheduled.error.required=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
 
 #===================================================
 #  SECURITIES: CHOOSE EXPORT METHOD PAGE
@@ -643,8 +643,8 @@ claim-northern-ireland.title=Were your goods moved through or imported to Northe
 claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
-claim-northern-ireland.error.required=Select Yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were imported to or moved through Northern Ireland
-claim-northern-ireland.error.invalid=Select Yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were imported to or moved through Northern Ireland
+claim-northern-ireland.error.required=Select yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were moved through or imported to Northern Ireland
+claim-northern-ireland.error.invalid=Select yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were moved through or imported to Northern Ireland
 
 claim-northern-ireland.scheduled.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
 claim-northern-ireland.multiple.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
@@ -652,8 +652,8 @@ claim-northern-ireland.multiple.help-text=If you select Yes, then all the <abbr 
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================
 select-basis-for-claim.title=Choose the basis for claim
-select-basis-for-claim.error.number=Choose the basis for claim
-select-basis-for-claim.error.required=Choose the basis for claim
+select-basis-for-claim.error.number=Select the reason for making this claim
+select-basis-for-claim.error.required=Select the reason for making this claim
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-basis-for-claim.details.heading=Examples of basis of claim
@@ -732,7 +732,7 @@ select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Damaged befo
 select-basis-for-claim.rejected-goods.reason.Defective=Defective
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Not in accordance with contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
-select-basis-for-claim.rejected-goods.error.required=Choose the basis for claim
+select-basis-for-claim.rejected-goods.error.required=Select the reason for making this claim
 
 #===================================================
 #  ENTER SPECIAL CIRCUMSTANCES DETAILS PAGE
@@ -740,8 +740,8 @@ select-basis-for-claim.rejected-goods.error.required=Choose the basis for claim
 enter-special-circumstances.rejected-goods.title=Enter any special circumstances
 enter-special-circumstances.rejected-goods.label=Enter any special circumstances
 enter-special-circumstances.rejected-goods.hint=Describe any special circumstances about your claim.
-enter-special-circumstances.rejected-goods.error.required=Enter special circumstances
-enter-special-circumstances.rejected-goods.error.maxLength=Special circumstances must be 500 characters or fewer
+enter-special-circumstances.rejected-goods.error.required=Enter the special circumstances of this claim
+enter-special-circumstances.rejected-goods.error.maxLength=Special circumstances must be 500 characters or less
 
 #===================================================
 #  SELECT METHOD OF DISPOSAL PAGE
@@ -753,7 +753,7 @@ select-method-of-disposal.rejected-goods.method.DonationToCharity=Donation to ch
 select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Placed in customs warehouse
 select-method-of-disposal.rejected-goods.method.ExportInBaggage=Export in baggage
 select-method-of-disposal.rejected-goods.method.Destruction=Destruction
-select-method-of-disposal.rejected-goods.error.required=Choose the method of disposal
+select-method-of-disposal.rejected-goods.error.required=Select the method of disposal
 
 #===================================================
 #  CHECK TOTAL IMPORT DISCHARGED
@@ -782,8 +782,8 @@ enter-rejected-goods-details.rejected-goods.bullet.2=the quantity of goods being
 enter-rejected-goods-details.rejected-goods.bullet.3=the value of the goods being claimed for
 enter-rejected-goods-details.rejected-goods.bullet.4=the reason for rejection
 enter-rejected-goods-details.rejected-goods.label=Provide details of the rejected goods
-enter-rejected-goods-details.rejected-goods.error.required=Enter details of rejected goods
-enter-rejected-goods-details.rejected-goods.error.maxLength=Details of rejected goods must be 500 characters or fewer
+enter-rejected-goods-details.rejected-goods.error.required=Enter the details of the rejected goods
+enter-rejected-goods-details.rejected-goods.error.maxLength=Details of the rejected goods must be 500 characters or less
 
 #===================================================
 #  ENTER ADDITIONAL DETAILS PAGE
@@ -797,7 +797,7 @@ enter-additional-details.bullet.4=additional information about the claim
 enter-additional-details.p1=If it is relevant to your case, you should also include your Transfer of Residence number, the commodity code and the Customs Procedure Code (CPC) to be amended to.
 enter-additional-details.label=Provide additional details about this claim
 enter-additional-details.error.required=Enter additional details
-enter-additional-details.error.maxLength=Additional details must be 500 characters or fewer
+enter-additional-details.error.maxLength=Additional details must be 500 characters or less
 enter-additional-details.hint=Provide brief details about this claim
 
 
@@ -809,11 +809,11 @@ enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} 
 enter-claim.rejected-goods.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
-enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30
-enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid
-enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be 0.01 or more
+enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
+enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
+enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be more than zero
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 
 #===================================================
@@ -822,7 +822,7 @@ enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.securities.title=Claim details for {0} - {1}
 enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount
 enter-claim.securities.title.caption=Security ID: {0}
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
@@ -838,11 +838,11 @@ check-claim.rejected-goods.single.label=Your repayment or remission calculations
 check-claim.rejected-goods.multiple.label=These are the calculations based on the information you gave us.
 check-claim.rejected-goods.single.mrn.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
 check-claim.rejected-goods.single.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
-check-claim.rejected-goods.error.required=Select Yes if these duties are correct
+check-claim.rejected-goods.error.required=Select yes if these duties are correct
 check-claim.rejected-goods.are-duties-correct=Are these duties correct?
 check-claim.rejected-goods.yes=Yes
 check-claim.rejected-goods.no=No, select different duties
-check-claim.rejected-goods.error.invalid=Select Yes if these duties are correct
+check-claim.rejected-goods.error.invalid=Select yes if these duties are correct
 check-claim.rejected-goods.multiple.duty.label={0} MRN: {1}
 check-claim.rejected-goods.multiple.overall-total.header=Total
 check-claim.rejected-goods.multiple.overall-total.label=Total repayment
@@ -853,8 +853,8 @@ check-claim.rejected-goods.multiple.overall-total.label=Total repayment
 choose-payment-method.rejected-goods.single.title=Choose repayment method
 choose-payment-method.rejected-goods.single.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
-choose-payment-method.rejected-goods.single.error.required=Choose if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
-choose-payment-method.rejected-goods.single.error.number=Choose if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
+choose-payment-method.rejected-goods.single.error.required=Select to be repaid by current month adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or bank account transfer
+choose-payment-method.rejected-goods.single.error.number=Select to be repaid by current month adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or bank account transfer
 
 #===================================================
 #  CONTACT DETAILS REJECTED GOODS
@@ -863,16 +863,16 @@ enter-contact-details-rejected-goods.change.title=Change contact details
 enter-contact-details-rejected-goods.add.title=Add contact details
 enter-contact-details-rejected-goods.h2=Enter your personal details
 enter-contact-details-rejected-goods.contact-name.label=Full name
-enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact Name
-enter-contact-details-rejected-goods.contact-name.error.maxLength=Enter a shorter name
+enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact name, like John Smith
+enter-contact-details-rejected-goods.contact-name.error.maxLength=Name must be 512 characters or less
 enter-contact-details-rejected-goods.contact-email.label=Email address
-enter-contact-details-rejected-goods.contact-email.error.required=Enter a contact email address
+enter-contact-details-rejected-goods.contact-email.error.required=Enter an email address in the correct format, like name@example.com
 enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com
-enter-contact-details-rejected-goods.contact-email.error.maxLength=Enter a shorter email
+enter-contact-details-rejected-goods.contact-email.error.maxLength=Email address must be 241 characters or less
 enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optional)
-enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
-enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
-enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
+enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
+enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
+enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 
 #===================================================
 #  CONTACT DETAILS SECURITIES
@@ -990,15 +990,15 @@ tax-code.99C = 99C - Gas supplied by a gas utility or any gas supplied in a gase
 tax-code.99D = 99D - Electricity
 
 select-duty-types.title=Select the duty types you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
-select-duty-types.error.required=Select one or more duty types you want to claim for
-select-duty-types.error.invalid=Invalid duty type code
+select-duty-types.error.required=Choose the duties you want to include in your claim
+select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.checkbox-legend.1=Customs, Additional, <abbr title="Value Added Tax">VAT</abbr> & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
 select-duty-codes.title=Select the {0} duties you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
-select-duty-codes.error.required=Select one or more duties to be repaid for
-select-duty-codes.error.invalid=Invalid duty code
+select-duty-codes.error.required=Choose the duties you want to include in your claim
+select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.eu-duty=EU
@@ -1020,7 +1020,7 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 reimbursement-method.title=Select repayment method
 reimbursement-method.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 reimbursement-method.bank-transfer=Bank account transfer
-reimbursement-method.error.required=Select if you would like to be repaid via Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or via Bank Account Transfer
+reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -1046,7 +1046,7 @@ select-duties.multiple.title=Select the duties you want to claim for under {0} <
 select-duties.multiple.help-text.1=These are the duties that have been paid under <abbr title="Movement Reference Number">MRN</abbr>: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
 select-duties.duty.hint=This duty is not eligible for <abbr title="Current Month Adjustment">CMA</abbr> repayment
 select-duties.duty.caption=How much was paid: %s
-select-duties.error.required=Select one or more duties to be repaid for
+select-duties.error.required=Choose the duties you want to include in your claim
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
 select-duties.duty.A30=Definitive Anti-Dumping Duty
@@ -1134,11 +1134,12 @@ enter-claim.help-text=This is to calculate your repayment as part of your claim.
 enter-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 enter-claim.paid-amount-label=How much was paid: {0}
 enter-claim.actual-amount=How much should have been paid, in pounds?
-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
-enter-claim.actual-amount.error.invalid=Amount that should have been paid must be a number, like 30
+enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
+
+enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
-enter-claim.error.invalid=Amount that should have been paid must be a number, like 30
-enter-claim.invalid.claim=Amount that should have been paid must be lower than the amount paid
+enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
+enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
 
 #===================================================
 #  ENTER SCHEDULE CLAIM PAGE C285
@@ -1151,12 +1152,12 @@ enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
 enter-scheduled-claim.actual-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
 enter-scheduled-claim.paid-amount.error.required=Enter the amount that was paid, in pounds
-enter-scheduled-claim.paid-amount.error.invalid=Paid amount must be a number, like 30
-enter-scheduled-claim.paid-amount.error.zero=Paid amount cannot be 0
+enter-scheduled-claim.paid-amount.error.invalid=The amount paid must be a number, like 30 or 60.55
+enter-scheduled-claim.paid-amount.error.zero=The amount paid must be more than zero
 enter-scheduled-claim.actual-amount.error.required=Enter the amount that should have been paid, in pounds
-enter-scheduled-claim.actual-amount.error.invalid=Amount that should have been paid must be a number, like 30
-enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been paid must be lower than the amount paid
-enter-scheduled-claim.invalid.claim=The amount must be a number, like 30
+enter-scheduled-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
+enter-scheduled-claim.actual-amount.invalid.claim=The amount that should have been paid must be less than the amount paid
+enter-scheduled-claim.invalid.claim=The amount paid must be a number, like 30 or 60.55
 
 #===================================================
 #  ENTER CLAIM SCHEDULED PAGE C&E1179
@@ -1168,13 +1169,13 @@ enter-claim-scheduled.rejected-goods.paid-amount=How much was paid, in pounds?
 enter-claim-scheduled.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
 enter-claim-scheduled.rejected-goods.claim-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
 enter-claim-scheduled.rejected-goods.paid-amount.error.required=Enter the amount that was paid, in pounds
-enter-claim-scheduled.rejected-goods.paid-amount.error.invalid=The paid amount must be a number, like 30
-enter-claim-scheduled.rejected-goods.paid-amount.error.zero=The paid amount cannot be 0
+enter-claim-scheduled.rejected-goods.paid-amount.error.invalid=The amount paid must be a number, like 30 or 60.55
+enter-claim-scheduled.rejected-goods.paid-amount.error.zero=The amount paid must be more than zero
 enter-claim-scheduled.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
-enter-claim-scheduled.rejected-goods.claim-amount.error.invalid=The claim amount must be a number, like 30
-enter-claim-scheduled.rejected-goods.claim-amount.invalid.claim=The claim amount must be lower than or equal to the paid amount
-enter-claim-scheduled.rejected-goods.claim-amount.error.zero=The claim amount cannot be 0
-enter-claim-scheduled.rejected-goods.invalid.claim=The amount must be a number, like 30
+enter-claim-scheduled.rejected-goods.claim-amount.error.invalid=The claim amount must be a number, like 30 or 60.55
+enter-claim-scheduled.rejected-goods.claim-amount.invalid.claim=The claim amount must be equal to or less than the amount paid
+enter-claim-scheduled.rejected-goods.claim-amount.error.zero=The claim amount must be more than zero
+enter-claim-scheduled.rejected-goods.invalid.claim=The claim amount must be a number, like 30 or 60.55
 
 
 #===================================================
@@ -1185,11 +1186,11 @@ multiple-enter-claim.help-text=This is to calculate your repayment as part of yo
 multiple-enter-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
-multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
-multiple-enter-claim.actual-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
+multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
+multiple-enter-claim.actual-amount.error.invalid=The claim amount must be equal to or less than the amount paid
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
-multiple-enter-claim.error.invalid=Amount that should have been paid must be a number, like 30
-multiple-enter-claim.invalid.claim=Amount that should have been paid must be lower than the amount paid
+multiple-enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
+multiple-enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
 
 #===================================================
 #  CHECK CLAIM PAGE FOR SECURITIES
@@ -1217,8 +1218,8 @@ check-claim-summary.total=Repayment for this <abbr title="Movement Reference Num
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
-check-claim-summary.error.required=Select yes if duties are correct
-check-claim-summary.error.invalid=Select yes if duties are correct
+check-claim-summary.error.required=Select yes if the claim details are correct
+check-claim-summary.error.invalid=Select yes if the claim details are correct
 check-claim-summary.duty-code.row.key={0} repayment
 check-claim-summary.duty-code.total.key={0} claims total repayment
 check-claim-summary.total.header=Total
@@ -1232,15 +1233,15 @@ multiple-check-claim-summary.overall-total.label=Total repayment
 multiple-check-claim-summary.are-duties-correct=Are these duties correct?
 multiple-check-claim-summary.yes=Yes
 multiple-check-claim-summary.no=No, select different duties
-multiple-check-claim-summary.error.invalid=Select yes if duties are correct
+multiple-check-claim-summary.error.invalid=Select yes if the claim details are correct
 multiple-check-claim-summary.error.required=Select yes if duties are correct
 
 #===================================================
 #  CHECK CLAIM TIMEOUT PAGE
 #===================================================
-check-claim-timed-out.title=For your security, we signed you out.
-check-claim-timed-out.p1=This was because you were inactive for too long.
-check-claim-timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
+check-claim-timed-out.title=Your session has ended due to inactivity
+check-claim-timed-out.p1=For your security, this session has ended as you have been inactive for 15 minutes
+check-claim-timed-out.p2=To access the Claim back import duty and VAT service, you’ll need to sign back in.
 check-claim-timed-out.button=Sign in
 
 #===================================================
@@ -1250,15 +1251,15 @@ enter-inspection-date.rejected-goods.title=Tell us when the goods will be availa
 enter-inspection-date.rejected-goods.help-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> may want to inspect your goods to process your claim. You must allow at least 2 full working days between submitting this claim and returning or disposing of your goods.
 enter-inspection-date.rejected-goods.label=Enter inspection date
 enter-inspection-date.rejected-goods.hint=Tell us the date your goods will be made available for inspection until. For example, 26 6 2020.
-enter-inspection-date.rejected-goods.error.required=Enter your inspection date
+enter-inspection-date.rejected-goods.error.required=Enter the date your goods will be made available for inspection until. For example, 26 6 2020 or 15 12 2021
 enter-inspection-date.rejected-goods.day.error.required=Inspection date must include a day
 enter-inspection-date.rejected-goods.month.error.required=Inspection date must include a month
 enter-inspection-date.rejected-goods.year.error.required=Inspection date must include a year
 enter-inspection-date.rejected-goods.monthAndYear.error.required=Inspection date must include a month and a year
 enter-inspection-date.rejected-goods.dayAndYear.error.required=Inspection date must include a day and a year
 enter-inspection-date.rejected-goods.dayAndMonth.error.required=Inspection date must include a day and a month
-enter-inspection-date.rejected-goods.error.invalid=Inspection date must be a real date
-enter-inspection-date.rejected-goods.error.before1900=Inspection date must be a real date
+enter-inspection-date.rejected-goods.error.invalid=Enter the date your goods will be made available for inspection until. For example, 26 6 2020 or 15 12 2021
+enter-inspection-date.rejected-goods.error.before1900=Enter the date your goods will be made available for inspection until. For example, 26 6 2020 or 15 12 2021
 
 #===================================================
 #  CHECK BANK DETAILS PAGE
@@ -1285,7 +1286,7 @@ account-number.mask=Ending with {0}
 select-bank-account-type.title=What type of account details are you providing?
 select-bank-account-type.business-bank-account=Business bank account
 select-bank-account-type.personal-bank-account=Personal bank account
-select-bank-account-type.error.required=Choose if you are providing details for a business bank account or a personal bank account
+select-bank-account-type.error.required=Select if this is a business bank account or a personal bank account
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
@@ -1327,37 +1328,37 @@ supporting-evidence.upload.details.heading=Examples of supporting documents
 supporting-evidence.check-your-answers.title=You have added {0} document{1} to your claim
 supporting-evidence.check-your-answers.help-text=These are the documents you have added so far to support this claim. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.check-your-answers.add-another-document-question=Do you want to add another document?
-supporting-evidence.check-your-answers.error.required=Select yes if you would like to add a supporting document
-supporting-evidence.check-your-answers.error.invalid=Select yes if you would like to add a supporting document
+supporting-evidence.check-your-answers.error.required=Select yes to add a supporting document to your claim, or no to continue
+supporting-evidence.check-your-answers.error.invalid=Select yes to add a supporting document to your claim, or no to continue
 supporting-evidence.upload.title=Add documents to support your claim
-supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
+supporting-evidence.upload.error.required=Upload a supporting document
 supporting-evidence.upload.p1=Upload supporting evidence you have received for the commodities you have imported. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.upload.p2=The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
 supporting-evidence.upload.input-title=Select document
 supporting-evidence.upload.allowed-file-types=JPG, PNG, or PDF
-file.error.required=Select a file containing your supporting evidence
+file.error.required=Select a supporting document
 supporting-evidence.scan-progress.title=We are checking your document
 supporting-evidence.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
 supporting-evidence.scan-progress.p2=You’ll need to keep selecting ’continue’ every few seconds until the check is complete to go to the next page.
-supporting-evidence.upload-failed.title=There is a problem with the file you uploaded
-supporting-evidence.upload-failed.p1=We could not scan your file.
+supporting-evidence.upload-failed.title=There is a problem with the file you tried to upload
+supporting-evidence.upload-failed.p1=Your file could not be scanned
 supporting-evidence.upload-failed.p2=This could be because:
-supporting-evidence.upload-failed.bullet1=the service has experienced technical issues
-supporting-evidence.upload-failed.bullet2=your file was larger than 10MB
-supporting-evidence.upload-failed.p3=You’ll need to try again.
+supporting-evidence.upload-failed.bullet1=the service experienced technical issues
+supporting-evidence.upload-failed.bullet2=your file was larger than 9MB
+supporting-evidence.upload-failed.p3=You will need to upload your file again
 supporting-evidence.upload-failed.button.tryAgain=Try again
-supporting-evidence.scan-failed.title=There is a problem with your file
-supporting-evidence.scan-failed.p1=The problem could be that:
-supporting-evidence.scan-failed.l1=the file had a virus or was corrupt
-supporting-evidence.scan-failed.l2=you did not select a file to upload
-supporting-evidence.scan-failed.l3=you uploaded the wrong type of file
-supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG and PDF.
-supporting-evidence.scan-failed.p3=You’ll need to try again.
+supporting-evidence.scan-failed.title=There is a problem with the file you tried to upload
+supporting-evidence.scan-failed.p1=This could be because:
+supporting-evidence.scan-failed.l1=The file contained a virus or was damaged
+supporting-evidence.scan-failed.l2=You did not select a file to upload
+supporting-evidence.scan-failed.l3=You tried to upload the wrong type of document
+supporting-evidence.scan-failed.p2=The selected file must be a JPG, PNG or PDF.
+supporting-evidence.scan-failed.p3=You will need to upload your file again
 supporting-evidence.scan-failed.button.tryAgain=Try again
 supporting-evidence.choose-document-type.title=Add supporting documents to your claim
-supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
-supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
+supporting-evidence.choose-document-type.error.number=Select the type of document to add to your claim
+supporting-evidence.choose-document-type.error.required=Select the type of document to add to your claim
 supporting-evidence.choose-document-type.help-text=You can repeat this step to add more types of documents to your claim
 supporting-evidence.choose-document-type.document-type.AirWayBill=Air waybill
 supporting-evidence.upload.details.bullet.AirWayBill=Air waybill:
@@ -1405,7 +1406,7 @@ supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calc
 supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
 supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet
 
-supporting-evidence.choose-document-type.error.invalid-document-type=Invalid supporting evidence document type
+supporting-evidence.choose-document-type.error.invalid-document-type=The selected file must be a JPG, PNG or PDF
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES
@@ -1417,26 +1418,26 @@ schedule-document.upload.things-to-show.l1=the type of duty or tax you are claim
 schedule-document.upload.things-to-show.l2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.things-to-show.l3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.input-title=Select document
-schedule-document.upload.error.required=Upload a scheduled document with all the <abbr title="Movement Reference Numbers">MRNs</abbr>
+schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.choose.description=Document
 schedule-document.upload.allowed-file-types=JPG, PNG, or PDF
-schedule-document.upload-failed.title=There is a problem with the file you uploaded
-schedule-document.upload-failed.p1=We could not scan your file.
-schedule-document.upload-failed.p2=This could be because:
-schedule-document.upload-failed.bullet1=the service has experienced technical issues
-schedule-document.upload-failed.bullet2=your file was larger than 10MB
-schedule-document.upload-failed.p3=You’ll need to try again.
+schedule-document.upload-failed.title=Your file could not be scanned
+schedule-document.upload-failed.p1=This could be because:
+schedule-document.upload-failed.p2=the service experienced technical issues
+schedule-document.upload-failed.bullet1=your file was larger than 9MB
+schedule-document.upload-failed.bullet2=You will need to upload your file again
+schedule-document.upload-failed.p3=Try again
 schedule-document.upload-failed.button.tryAgain=Try again
 schedule-document.scan-progress.title=We are checking your document
 schedule-document.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
 schedule-document.scan-progress.p2=You’ll need to keep selecting ’continue’ every few seconds until the check is complete to go to the next page.
-schedule-document.scan-failed.title=There is a problem with your file
-schedule-document.scan-failed.p1=The problem could be that:
-schedule-document.scan-failed.l1=the file had a virus or was corrupt
-schedule-document.scan-failed.l2=you did not select a file to upload
+schedule-document.scan-failed.title=There is a problem with the file you tried to upload
+schedule-document.scan-failed.p1=This could be because:
+schedule-document.scan-failed.l1=The file contained a virus or was damaged
+schedule-document.scan-failed.l2=You tried to upload the wrong type of document
 schedule-document.scan-failed.l3=you uploaded the wrong type of file
-schedule-document.scan-failed.p2=We only accept these file types: JPG, PNG and PDF.
-schedule-document.scan-failed.p3=You’ll need to try again.
+schedule-document.scan-failed.p2=The selected file must be a JPG, PNG or PDF.
+schedule-document.scan-failed.p3=You will need to upload your file again
 schedule-document.scan-failed.button.tryAgain=Try again
 
 schedule-document.check-your-answers.title=You have successfully uploaded a document showing all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim
@@ -1578,9 +1579,11 @@ check-your-answers.claim-calculation.multiple.total=Total
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded
+check-your-answers.attached-documents.hidden-label=uploaded supporting documents
 check-your-answers.attached-documents.empty=No documents attached
 check-your-answers.documents.h2=Documents
 check-your-answers.documents.label={0}
+check-your-answers.documents.hidden-label={0} supporting documents
 check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.claimant-details.h2=Contact information for this claim
@@ -1643,7 +1646,7 @@ check-your-answers.claim-for-security.label=Claim for {0}
 check-your-answers.claim-for-security.yes=Yes
 check-your-answers.claim-for-security.no=No
 check-your-answers.claim-for-security.total=Total security deposit value
-check-your-answers.claim-for-security.paid-total=Total security deposit paid 
+check-your-answers.claim-for-security.paid-total=Total security deposit paid
 check-your-answers.claim-for-security.claim-total=Total
 check-your-answers.claim-for-security.claim-full-amount.label=Claim full amount
 check-your-answers.claim-for-security.claim-full-amount.yes=Yes
@@ -1700,13 +1703,13 @@ problem-with-address.button.tryAgain=Try again
 #===================================================
 choose-claim-type.title=Choose type of claim
 choose-claim-type.c285.title=Claim back import duty and <abbr title="Value Added Tax">VAT</abbr> if you have overpaid
-choose-claim-type.c285.hint=For goods you imported or received from abroad 
+choose-claim-type.c285.hint=For goods you imported or received from abroad
 choose-claim-type.ce1179.title=Claim back customs charges paid on rejected imports
 choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance
 choose-claim-type.securities.title=Claim back a security deposit
 choose-claim-type.securities.hint=If <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> required a security deposit or guarantee for goods you imported
-choose-claim-type.error.required=Choose the type of claim you want to submit
-choose-claim-type.error.unknown=Choose the type of claim you want to submit
+choose-claim-type.error.required=Select the reason for making this claim
+choose-claim-type.error.unknown=Select the reason for making this claim
 
 
 #===================================================
@@ -1769,9 +1772,9 @@ choose-file-type.file-type.ClaimWorksheet.hint=Claim information should include 
 
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
-choose-file-type.error.required=Choose the type of file you are uploading
+choose-file-type.error.required=Select which type of document you are uploading
 choose-file-type.or=or
-choose-file-type.choose-file-type.error.invalid-file-type=Invalid type of supporting documents
+choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be a JPG, PNG or PDF
 
 choose-file-type.securities.title=Add supporting documents to your claim
 choose-file-type.securities.help-text=You can repeat this step to add more types of documents to your claim
@@ -1781,12 +1784,12 @@ choose-file-type.securities.help-text=You can repeat this step to add more types
 #===================================================
 choose-files.uploaded.label=Uploaded
 choose-files.rejected-goods.title=Upload {0}
-choose-files.rejected-goods.p1={0} can be up to a maximum of {1} size per file. The selected file must be a JPG, PNG or PDF. 
+choose-files.rejected-goods.p1={0} can be up to a maximum of {1} size per file. The selected file must be a JPG, PNG or PDF.
 choose-files.rejected-goods.allowed-file-types=JPG, PNG, or PDF
-choose-files.rejected-goods.choose.first.label=Upload {0} 
-choose-files.rejected-goods.choose.next.label=Upload another {0} 
+choose-files.rejected-goods.choose.first.label=Upload {0}
+choose-files.rejected-goods.choose.next.label=Upload another {0}
 choose-files.rejected-goods.add-another-document-question=Add a different type of supporting evidence to your claim?
-choose-files.rejected-goods.add-another-document-question.error.required=Select ''yes'' if you want to add a different type of supporting evidence
+choose-files.rejected-goods.add-another-document-question.error.required=Select yes to add a different type of supporting document to your claim
 
 #===================================================
 #  COUNTRIES - START
