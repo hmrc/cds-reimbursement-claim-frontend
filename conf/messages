@@ -229,9 +229,9 @@ rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple <abbr title="M
 rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
-rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
+rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
+rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
 rejected-goods.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
@@ -261,7 +261,7 @@ enter-movement-reference-number.help-text=The Movement Reference Number (<abbr t
 enter-movement-reference-number.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.invalid.number=Enter a movement reference number (MRN)
 enter-movement-reference-number.error.required=Enter a movement reference number (MRN)
-enter-movement-reference-number.multiple.error.existingMRN=This movement reference number (MRN) has already been used. Enter a different MRN.
+enter-movement-reference-number.multiple.error.existingMRN=This movement reference number (MRN) has already been used. Enter a different MRN
 enter-movement-reference-number.multiple.title=Enter the first <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.multiple.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter first <abbr title="Movement Reference Number">MRN</abbr>
@@ -273,16 +273,16 @@ enter-movement-reference-number.rejected-goods.single.title=Enter the <abbr titl
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number (MRN)
-enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised.
-enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before.
+enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
+enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about <abbr title="Movement Reference Numbers">MRNs</abbr> (PDF, 581KB, opens in a new tab)</a>.
 enter-movement-reference-number.rejected-goods.multiple.help-text3=The first <abbr title="Movement Reference Number">MRN</abbr> is the one with the highest paid amount of duties.
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001
-enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised.
-enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before.
+enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised
+enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} <abbr title="Movement Reference Number">MRN</abbr>
 enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about <abbr title="Movement Reference Numbers">MRNs</abbr> (PDF, 581KB, opens in a new tab)</a>.
@@ -336,9 +336,9 @@ enter-associated-mrn.enter-mrn.label=Enter {0} <abbr title="Movement Reference N
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001
 enter-associated-mrn.error.required=Enter a movement reference number (MRN)
 enter-associated-mrn.invalid.number=Enter a movement reference number (MRN)
-enter-associated-mrn.error.exists=This movement reference number (MRN) has already been used. Enter a different MRN.
-enter-associated-mrn.error.eori-not-matching=This movement reference number (MRN) is not linked to your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number.
-enter-associated-mrn.error.missing-declaration=This movement reference number (MRN) has not been recognised.
+enter-associated-mrn.error.exists=This movement reference number (MRN) has already been used. Enter a different MRN
+enter-associated-mrn.error.eori-not-matching=This movement reference number (MRN) is not linked to your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
+enter-associated-mrn.error.missing-declaration=This movement reference number (MRN) has not been recognised
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS
@@ -376,7 +376,7 @@ enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for ex
 enter-duplicate-movement-reference-number.mrn.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-duplicate-movement-reference-number.mrn.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
 enter-duplicate-movement-reference-number.mrn.error.required=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
-enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN.
+enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN
 
 #===================================================
 #  ENTER DUPLICATE ENTRY NUMBER PAGE
@@ -426,8 +426,8 @@ enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Op
 #===================================================
 error-claim-invalid-TPI04.title=There is a problem with your claim
 error-claim-invalid-TPI04.para.1=This may be because:
-error-claim-invalid-TPI04.bullet.1=HMRC have already collected the duty for this shipment.<br /><br />This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed.
-error-claim-invalid-TPI04.bullet.2=this claim has already been submitted as part of a whole or partial claim.<br /><br />You can <a class="govuk-link" href="{0}">claim repayment of import duty and VAT if you have overpaid (C285)</a> if HMRC have already collected the tax for this claim.<br /><br />If you have made a partial claim before and want to claim more, you should <a class="govuk-link" href="{1}">contact HMRC</a>.
+error-claim-invalid-TPI04.bullet.1=HMRC have already collected the duty for this shipment.<br /><br />This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed
+error-claim-invalid-TPI04.bullet.2=this claim has already been submitted as part of a whole or partial claim.<br /><br />You can <a class="govuk-link" href="{0}">claim repayment of import duty and VAT if you have overpaid (C285)</a> if HMRC have already collected the tax for this claim.<br /><br />If you have made a partial claim before and want to claim more, you should <a class="govuk-link" href="{1}">contact HMRC</a>
 
 #===================================================
 #  CHOOSE REASON FOR SECURITY PAGE - SECURITIES
@@ -809,7 +809,7 @@ enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} 
 enter-claim.rejected-goods.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
@@ -822,7 +822,7 @@ enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.securities.title=Claim details for {0} - {1}
 enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount
 enter-claim.securities.title.caption=Security ID: {0}
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
@@ -991,14 +991,14 @@ tax-code.99D = 99D - Electricity
 
 select-duty-types.title=Select the duty types you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
 select-duty-types.error.required=Choose the duties you want to include in your claim
-select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct.
+select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.checkbox-legend.1=Customs, Additional, <abbr title="Value Added Tax">VAT</abbr> & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
 select-duty-codes.title=Select the {0} duties you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
 select-duty-codes.error.required=Choose the duties you want to include in your claim
-select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct.
+select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.eu-duty=EU
@@ -1134,7 +1134,8 @@ enter-claim.help-text=This is to calculate your repayment as part of your claim.
 enter-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 enter-claim.paid-amount-label=How much was paid: {0}
 enter-claim.actual-amount=How much should have been paid, in pounds?
-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
+enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
+
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
 enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
@@ -1185,7 +1186,7 @@ multiple-enter-claim.help-text=This is to calculate your repayment as part of yo
 multiple-enter-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
-multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
+multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
 multiple-enter-claim.actual-amount.error.invalid=The claim amount must be equal to or less than the amount paid
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
 multiple-enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
@@ -1405,7 +1406,7 @@ supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calc
 supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
 supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet
 
-supporting-evidence.choose-document-type.error.invalid-document-type=The selected file must be a JPG, PNG or PDF.
+supporting-evidence.choose-document-type.error.invalid-document-type=The selected file must be a JPG, PNG or PDF
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES
@@ -1773,7 +1774,7 @@ choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
 choose-file-type.error.required=Select which type of document you are uploading
 choose-file-type.or=or
-choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be a JPG, PNG or PDF.
+choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be a JPG, PNG or PDF
 
 choose-file-type.securities.title=Add supporting documents to your claim
 choose-file-type.securities.help-text=You can repeat this step to add more types of documents to your claim
