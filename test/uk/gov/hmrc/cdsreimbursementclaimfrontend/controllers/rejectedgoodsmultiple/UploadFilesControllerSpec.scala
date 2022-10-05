@@ -87,8 +87,11 @@ class UploadFilesControllerSpec
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in {
         val journey =
           RejectedGoodsMultipleJourney
-            .empty(exampleEori)
-            .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .map(_.submitDocumentTypeSelection(UploadDocumentType.AirWayBill))
+            .getOrFail
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
@@ -108,7 +111,9 @@ class UploadFilesControllerSpec
       "redirect to 'Upload Documents' when document type set and some files uploaded already" in {
         val journey =
           RejectedGoodsMultipleJourney
-            .empty(exampleEori)
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .getOrFail
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
@@ -181,7 +186,7 @@ class UploadFilesControllerSpec
       }
 
       "return 204 if callback accepted" in {
-        val journey = RejectedGoodsMultipleJourney.empty(exampleEori)
+        val journey = journeyWithMrnAndDD
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
@@ -198,26 +203,24 @@ class UploadFilesControllerSpec
       }
 
       "return 400 if callback rejected because of invalid nonce" in {
-        val journey = RejectedGoodsMultipleJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(journeyWithMrnAndDD)
           )
         }
-        val result  = performAction(callbackPayload.copy(nonce = Nonce.random))
+        val result = performAction(callbackPayload.copy(nonce = Nonce.random))
         status(result) shouldBe 400
       }
 
       "return 400 if callback rejected because of invalid request" in {
-        val journey = RejectedGoodsMultipleJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(journeyWithMrnAndDD)
           )
         }
-        val result  = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
+        val result = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
         status(result) shouldBe 400
       }
 
