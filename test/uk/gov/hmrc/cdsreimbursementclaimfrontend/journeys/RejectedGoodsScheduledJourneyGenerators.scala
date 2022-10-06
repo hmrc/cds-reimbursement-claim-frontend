@@ -39,6 +39,12 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
   val emptyJourney: RejectedGoodsScheduledJourney =
     RejectedGoodsScheduledJourney.empty(exampleEori)
 
+  val journeyWithMrnAndDD: RejectedGoodsScheduledJourney =
+    RejectedGoodsScheduledJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
   val amountPaidWithRefundGen: Gen[AmountPaidWithRefund] = for {
     refundAmount <- Gen.choose(BigDecimal("0.01"), BigDecimal("1000.00"))
     random       <- Gen.choose(BigDecimal("0.01"), BigDecimal("100.00"))

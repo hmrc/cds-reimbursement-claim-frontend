@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
+import com.github.arturopala.validator.Validator.Validate
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.mvc.Action
@@ -24,7 +26,10 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -35,6 +40,10 @@ class EnterRejectedGoodsDetailsController @Inject() (
     extends RejectedGoodsScheduledJourneyBaseController {
 
   private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit()
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Ok(

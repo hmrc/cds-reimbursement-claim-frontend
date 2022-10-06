@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -79,14 +80,9 @@ class SelectDutyTypesControllerSpec
       }
 
       "display the page for the first time" in {
-        val journey = RejectedGoodsScheduledJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
-          .getOrFail
-
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
 
         checkPageIsDisplayed(
@@ -125,10 +121,9 @@ class SelectDutyTypesControllerSpec
       }
 
       "reject an empty duty type selection" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
         }
 
         checkPageIsDisplayed(
@@ -140,12 +135,11 @@ class SelectDutyTypesControllerSpec
       }
 
       "select valid duty types when none have been selected before" in forAll { dutyType: DutyType =>
-        val initialJourney = RejectedGoodsScheduledJourney.empty(exampleEori)
-        val updatedJourney = initialJourney.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+        val updatedJourney = journeyWithMrnAndDD.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
           mockStoreSession(SessionData(updatedJourney))(Right(()))
         }
 

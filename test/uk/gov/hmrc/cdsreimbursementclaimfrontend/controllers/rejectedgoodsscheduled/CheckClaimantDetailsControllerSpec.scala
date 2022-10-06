@@ -83,9 +83,7 @@ class CheckClaimantDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData.empty.copy(
-    rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
-  )
+  private val session = SessionData(journeyWithMrnAndDD)
 
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {
@@ -160,37 +158,33 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the basis for claims page and do not update the contact/address details if they are already present" in {
-        forAll(displayDeclarationGen, genEmail, genName, genMrnContactDetails, genContactAddress) {
-          (displayDeclaration, email, name, contactDetails, address) =>
-            val journey = RejectedGoodsScheduledJourney
-              .empty(exampleEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-              .map(_.submitContactDetails(Some(contactDetails)))
-              .map(_.submitContactAddress(address))
-              .getOrFail
+        forAll(genEmail, genName, genMrnContactDetails, genContactAddress) { (email, name, contactDetails, address) =>
+          val journey = journeyWithMrnAndDD
+            .submitContactDetails(Some(contactDetails))
+            .submitContactAddress(address)
 
-            val session = SessionData.empty.copy(
-              rejectedGoodsScheduledJourney = Some(journey)
+          val session = SessionData.empty.copy(
+            rejectedGoodsScheduledJourney = Some(journey)
+          )
+
+          inSequence {
+            mockAuthWithAllRetrievals(
+              Some(AffinityGroup.Individual),
+              Some(email.value),
+              Set(
+                Enrolment(EoriEnrolment.key)
+                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+              ),
+              Some(Credentials("id", "GovernmentGateway")),
+              Some(Name(name.name, name.lastName))
             )
+            mockGetSession(session)
+          }
 
-            inSequence {
-              mockAuthWithAllRetrievals(
-                Some(AffinityGroup.Individual),
-                Some(email.value),
-                Set(
-                  Enrolment(EoriEnrolment.key)
-                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-                ),
-                Some(Credentials("id", "GovernmentGateway")),
-                Some(Name(name.name, name.lastName))
-              )
-              mockGetSession(session)
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.BasisForClaimController.show()
-            )
+          checkIsRedirect(
+            performAction(),
+            routes.BasisForClaimController.show()
+          )
         }
       }
 
@@ -242,13 +236,7 @@ class CheckClaimantDetailsControllerSpec
             displayDeclaration.getConsigneeDetails.get.consigneeEORI =!= exampleEori.value &&
               displayDeclaration.getDeclarantDetails.declarantEORI =!= exampleEori.value
           ) {
-            val journey = RejectedGoodsScheduledJourney
-              .empty(exampleEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-              .getOrFail
-            val session = SessionData.empty.copy(
-              rejectedGoodsScheduledJourney = Some(journey)
-            )
+            val session = SessionData(journeyWithMrnAndDD)
 
             inSequence {
               mockAuthWithAllRetrievals(
@@ -256,7 +244,7 @@ class CheckClaimantDetailsControllerSpec
                 Some(email.value),
                 Set(
                   Enrolment(EoriEnrolment.key)
-                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
+                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journeyWithMrnAndDD.getClaimantEori.value)
                 ),
                 Some(Credentials("id", "GovernmentGateway")),
                 Some(Name(name.name, name.lastName))
