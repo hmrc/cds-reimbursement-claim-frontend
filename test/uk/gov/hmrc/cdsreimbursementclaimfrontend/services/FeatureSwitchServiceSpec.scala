@@ -20,8 +20,11 @@ import org.scalatest.OptionValues
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.Configuration
 import play.api.mvc.Action
+import play.api.mvc.ActionBuilder
+import play.api.mvc.ActionFilter
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -29,14 +32,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyChecks with OptionValues {
 
   "FeatureSwitchService" should {
-    val configuration = Configuration.from(Map("feature.bulk-claim" -> "abc"))
-    val featureSwitch =
-      new FeatureSwitchService(configuration, instanceOf[ErrorHandler], instanceOf[MessagesControllerComponents])
+    val configuration                       =
+      Configuration.from(Map("feature.bulk-claim" -> "abc"))
+
+    val featureSwitch: FeatureSwitchService =
+      new ConfiguredFeatureSwitchService(configuration)
 
     val featureList =
       Table[Feature](
@@ -55,7 +61,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       val featureSwitch  = instanceOf[FeatureSwitchService]
       featureSwitch.enable(Feature.RejectedGoods)
       val testController =
-        new TestController(featureSwitch)(instanceOf[MessagesControllerComponents])
+        new TestController(featureSwitch)(instanceOf[ErrorHandler], instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
       status(result)          shouldBe 200
       contentAsString(result) shouldBe "ok"
@@ -65,7 +71,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       val featureSwitch  = instanceOf[FeatureSwitchService]
       featureSwitch.disable(Feature.RejectedGoods)
       val testController =
-        new TestController(featureSwitch)(instanceOf[MessagesControllerComponents])
+        new TestController(featureSwitch)(instanceOf[ErrorHandler], instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
       status(result) shouldBe 404
     }
@@ -73,11 +79,27 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
   }
 
   class TestController(fs: FeatureSwitchService)(implicit
-    val cc: MessagesControllerComponents
-  ) extends FrontendController(cc) {
-    def test(): Action[AnyContent] = fs.hideIfNotEnabled(Feature.RejectedGoods) async {
-      Future.successful(Ok("ok"))
-    }
+    val errorHandler: ErrorHandler,
+    override val controllerComponents: MessagesControllerComponents
+  ) extends FrontendController(controllerComponents) {
+
+    private def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
+      new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
+
+        def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
+          if (fs.isEnabled(feature)) None
+          else Some(NotFound(errorHandler.notFoundTemplate(input)))
+        }
+
+        override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
+
+        override protected def executionContext: ExecutionContext = controllerComponents.executionContext
+      }
+
+    def test(): Action[AnyContent] =
+      hideIfNotEnabled(Feature.RejectedGoods) async {
+        Future.successful(Ok("ok"))
+      }
   }
 
 }

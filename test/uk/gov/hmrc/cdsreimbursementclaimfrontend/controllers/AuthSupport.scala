@@ -30,6 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 
 trait AuthSupport {
   this: ControllerSpec with SessionSupport =>
@@ -40,7 +41,8 @@ trait AuthSupport {
     mockAuthConnector,
     instanceOf[Configuration],
     instanceOf[ErrorHandler],
-    mockSessionCache
+    mockSessionCache,
+    new TestFeatureSwitchService()
   )(instanceOf[ExecutionContext])
 
   def mockAuth[R](predicate: Predicate, retrieval: Retrieval[R])(

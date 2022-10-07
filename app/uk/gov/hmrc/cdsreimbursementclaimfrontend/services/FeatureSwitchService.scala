@@ -16,53 +16,46 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
+import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
-import play.api.mvc.Results.NotFound
-import play.api.mvc._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+
+@ImplementedBy(classOf[ConfiguredFeatureSwitchService])
+trait FeatureSwitchService {
+  def enable(feature: Feature): Boolean
+  def disable(feature: Feature): Boolean
+  def isEnabled(feature: Feature): Boolean
+
+  final def isDisabled(feature: Feature): Boolean =
+    !isEnabled(feature)
+
+  final def optionally[A](feature: Feature, value: A): Option[A] =
+    if (isEnabled(feature)) Some(value) else None
+}
 
 @Singleton
-class FeatureSwitchService @Inject() (
-  val configuration: Configuration,
-  errorHandler: ErrorHandler,
-  val controllerComponents: MessagesControllerComponents
-) {
+class ConfiguredFeatureSwitchService @Inject() (
+  val configuration: Configuration
+) extends FeatureSwitchService {
 
   private val features: ConcurrentHashMap[Feature, Boolean] =
     new ConcurrentHashMap[Feature, Boolean]()
 
   def enable(feature: Feature): Boolean =
-    features.put(feature, true)
+    Option(features.put(feature, true))
+      .getOrElse(false)
 
   def disable(feature: Feature): Boolean =
-    features.put(feature, false)
+    Option(features.put(feature, false))
+      .getOrElse(false)
 
   def isEnabled(feature: Feature): Boolean =
     Option(features.get(feature))
       .orElse(sys.props.get(s"features.${feature.name}").map(_.toBoolean))
       .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
       .getOrElse(false)
-
-  def optionally[A](feature: Feature, value: A): Option[A] =
-    if (isEnabled(feature)) Some(value) else None
-
-  def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
-    new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
-
-      def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
-        if (isEnabled(feature)) None
-        else Some(NotFound(errorHandler.notFoundTemplate(input)))
-      }
-
-      override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
-
-      override protected def executionContext: ExecutionContext = controllerComponents.executionContext
-    }
 }
