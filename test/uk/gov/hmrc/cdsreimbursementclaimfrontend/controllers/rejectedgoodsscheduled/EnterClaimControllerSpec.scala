@@ -71,9 +71,7 @@ class EnterClaimControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Enter Claim Controller" should {
 
@@ -106,8 +104,7 @@ class EnterClaimControllerSpec
 
       "the user has selected duty and tax codes for the first time" in forAll(genDutyWithRandomlySelectedTaxCode) {
         case (dutyType: DutyType, taxCode: TaxCode) =>
-          val initialJourney = RejectedGoodsScheduledJourney
-            .empty(exampleEori)
+          val initialJourney = journeyWithMrnAndDD
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
             .getOrFail
@@ -162,8 +159,7 @@ class EnterClaimControllerSpec
       "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
         forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise), amountPaidWithRefundGen) {
           (customDuty, exciseDuty, reimbursement) =>
-            val initialJourney = RejectedGoodsScheduledJourney
-              .empty(exampleEori)
+            val initialJourney = journeyWithMrnAndDD
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(customDuty.taxCodes.head)))
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exciseDuty, Seq(exciseDuty.taxCodes(1))))
@@ -200,8 +196,7 @@ class EnterClaimControllerSpec
 
       "save user defined amounts and redirect to the next page" in {
         forAll(Gen.oneOf(DutyTypes.custom), amountPaidWithRefundGen) { (dutyType, reimbursement) =>
-          val initialJourney = RejectedGoodsScheduledJourney
-            .empty(exampleEori)
+          val initialJourney = journeyWithMrnAndDD
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(dutyType.taxCodes.head)))
             .getOrFail

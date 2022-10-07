@@ -69,7 +69,7 @@ class BasisForClaimControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
+  val session = SessionData(journeyWithMrnAndDD)
 
   "Enter Basis for claim Controller" when {
     "Show Basis for claim page" must {

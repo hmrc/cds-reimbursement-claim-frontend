@@ -39,9 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -73,14 +70,12 @@ class CheckBankDetailsControllerSpec
   private def sessionWithBankDetailsInACC14(maybeBankDetails: Option[BankDetails]): SessionData = {
     val displayDeclaration: DisplayDeclaration = displayDeclarationGen.sample.get.withBankDetails(maybeBankDetails)
 
-    val rejectedGoodsMultipleJourney: RejectedGoodsScheduledJourney =
+    SessionData(
       RejectedGoodsScheduledJourney
-        .empty(sample[Eori])
+        .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
         .getOrFail
-
-    session.copy(rejectedGoodsScheduledJourney = Some(rejectedGoodsMultipleJourney))
-
+    )
   }
 
   private def sessionWithBankDetailsStored(
@@ -91,9 +86,6 @@ class CheckBankDetailsControllerSpec
   )
 
   def performAction(): Future[Result] = controller.show()(FakeRequest())
-
-  val session: SessionData =
-    SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori)))
 
   "Check Bank Details Controller" must {
 
@@ -155,7 +147,7 @@ class CheckBankDetailsControllerSpec
     "display the page with submitted bank details" in forAll(genBankAccountDetails) { bankDetails: BankAccountDetails =>
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(sessionWithBankDetailsStored(session, bankDetails))
+        mockGetSession(sessionWithBankDetailsStored(SessionData(journeyWithMrnAndDD), bankDetails))
       }
 
       checkPageIsDisplayed(
@@ -173,10 +165,9 @@ class CheckBankDetailsControllerSpec
     "display the page on a pre-existing journey" in forAll(
       buildCompleteJourneyGen()
     ) { journey =>
-      val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(sessionToAmend)
+        mockGetSession(SessionData(journey))
       }
 
       checkPageIsDisplayed(
