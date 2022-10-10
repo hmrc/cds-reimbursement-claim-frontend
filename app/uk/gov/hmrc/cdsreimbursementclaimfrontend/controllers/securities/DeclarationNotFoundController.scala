@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 class DeclarationNotFoundController @Inject() (
   val jcc: JourneyControllerComponents,
   declarationNotFound: declaration_not_found
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   val enterMRN: Call = routes.EnterMovementReferenceNumberController.show()

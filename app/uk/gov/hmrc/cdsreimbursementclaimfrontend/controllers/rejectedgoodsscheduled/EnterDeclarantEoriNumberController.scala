@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   enterDeclarantEoriNumber: pages.enter_declarant_eori_number
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   val eoriNumberFormKey: String       = "enter-declarant-eori-number"

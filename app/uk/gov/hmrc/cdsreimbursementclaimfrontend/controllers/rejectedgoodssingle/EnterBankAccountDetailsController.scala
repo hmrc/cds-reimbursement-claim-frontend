@@ -53,7 +53,7 @@ class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val bankAccountReputationService: BankAccountReputationService,
   enterBankAccountDetailsPage: enter_bank_account_details
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController {
 
   val formKey: String          = "enter-bank-account-details"

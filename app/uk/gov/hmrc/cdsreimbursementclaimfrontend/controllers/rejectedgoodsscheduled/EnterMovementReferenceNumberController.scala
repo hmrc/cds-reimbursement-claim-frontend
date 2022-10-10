@@ -44,7 +44,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>

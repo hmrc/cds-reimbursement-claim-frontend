@@ -43,7 +43,7 @@ class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val enterBankAccountDetailsPage: enter_bank_account_details,
   val bankAccountReputationService: BankAccountReputationService
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
     with EnterBankAccountDetailsMixin[SecuritiesJourney] {
 

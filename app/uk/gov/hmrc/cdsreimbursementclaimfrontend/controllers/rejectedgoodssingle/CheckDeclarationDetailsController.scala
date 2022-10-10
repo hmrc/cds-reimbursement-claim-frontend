@@ -39,7 +39,7 @@ import scala.concurrent.Future
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController {
 
   implicit val subKey: Option[String]                = Some("single")

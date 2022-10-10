@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 class EnterImporterEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   enterImporterEoriNumber: pages.enter_importer_eori_number
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with Logging {
 

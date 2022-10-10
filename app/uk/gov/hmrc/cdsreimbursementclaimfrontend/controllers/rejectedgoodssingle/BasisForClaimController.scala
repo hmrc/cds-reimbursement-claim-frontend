@@ -39,7 +39,7 @@ import scala.concurrent.Future
 class BasisForClaimController @Inject() (
   val jcc: JourneyControllerComponents,
   basisForClaimPage: select_basis_for_claim
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   val formKey: String = "select-basis-for-claim.rejected-goods"

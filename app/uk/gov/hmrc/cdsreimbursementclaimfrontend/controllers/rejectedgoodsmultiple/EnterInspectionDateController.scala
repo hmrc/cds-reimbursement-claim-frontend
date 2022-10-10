@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 class EnterInspectionDateController @Inject() (
   val jcc: JourneyControllerComponents,
   enterInspectionDatePage: pages.enter_inspection_date
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val formKey: String          = "enter-inspection-date.rejected-goods"

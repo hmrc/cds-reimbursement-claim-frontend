@@ -47,7 +47,7 @@ class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   cdsReimbursementClaimConnector: CDSReimbursementClaimConnector,
   enterDeclarantEoriNumberPage: pages.enter_declarant_eori_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
 
   val formKey: String  = "enter-declarant-eori-number"

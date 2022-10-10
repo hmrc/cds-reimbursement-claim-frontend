@@ -37,7 +37,7 @@ import scala.concurrent.Future
 class DisposalMethodController @Inject() (
   val jcc: JourneyControllerComponents,
   enterOrChangeMethodOfDisposal: pages.enter_or_change_method_of_disposal
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController
     with Logging {
 

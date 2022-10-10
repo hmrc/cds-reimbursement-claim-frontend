@@ -53,7 +53,7 @@ class EnterScheduledClaimController @Inject() (
   val sessionCache: SessionCache,
   val controllerComponents: MessagesControllerComponents,
   enterScheduledClaimPage: pages.enter_scheduled_claim
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging

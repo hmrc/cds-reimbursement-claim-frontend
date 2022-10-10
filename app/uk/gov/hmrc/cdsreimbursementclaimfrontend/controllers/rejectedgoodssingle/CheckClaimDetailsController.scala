@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 class CheckClaimDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkClaimDetails: check_claim_details_single
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   val checkClaimDetailsKey: String = "check-claim.rejected-goods"

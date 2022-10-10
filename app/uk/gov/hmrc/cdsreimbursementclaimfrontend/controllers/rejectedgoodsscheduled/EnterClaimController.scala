@@ -41,7 +41,7 @@ import scala.concurrent.Future
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
   enterClaimPage: pages.enter_claim_scheduled
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.

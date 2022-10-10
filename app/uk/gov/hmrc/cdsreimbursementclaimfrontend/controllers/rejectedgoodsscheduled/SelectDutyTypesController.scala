@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 class SelectDutyTypesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectDutyTypesPage: pages.select_duty_types
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   val postAction: Call = routes.SelectDutyTypesController.submit()

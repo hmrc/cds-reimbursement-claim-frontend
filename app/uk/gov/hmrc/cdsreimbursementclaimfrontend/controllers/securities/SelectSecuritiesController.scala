@@ -39,7 +39,7 @@ import scala.concurrent.ExecutionContext
 class SelectSecuritiesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectSecuritiesPage: select_securities
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
     with SecuritiesJourneyRouter
     with Logging {

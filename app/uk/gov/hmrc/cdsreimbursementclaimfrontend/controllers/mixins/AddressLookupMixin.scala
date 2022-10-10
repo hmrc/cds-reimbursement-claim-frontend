@@ -22,22 +22,19 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
-trait AddressLookupMixin[Journey <: JourneyBase[Journey]] { self: JourneyBaseController[Journey] =>
+trait AddressLookupMixin[Journey <: JourneyBase[Journey]] {
+  self: JourneyBaseController[Journey] =>
 
-  implicit val ec: ExecutionContext
-  implicit val viewConfig: ViewConfig
   implicit val errorHandler: ErrorHandler
 
   val addressLookupService: AddressLookupService

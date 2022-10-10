@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 class EnterRejectedGoodsDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   enterRejectedGoodsDetailsPage: pages.enter_rejected_goods_details
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit()

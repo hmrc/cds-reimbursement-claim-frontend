@@ -49,7 +49,7 @@ class ChooseReasonForSecurityController @Inject() (
   claimService: ClaimService,
   cdsReimbursementClaimConnector: CDSReimbursementClaimConnector,
   chooseReasonForSecurityPage: choose_reason_for_security
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
 
   private val postAction: Call = routes.ChooseReasonForSecurityController.submit()

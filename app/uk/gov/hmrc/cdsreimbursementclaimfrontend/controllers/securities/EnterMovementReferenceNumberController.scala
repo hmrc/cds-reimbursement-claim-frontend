@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>

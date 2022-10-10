@@ -47,7 +47,7 @@ class UploadFilesController @Inject() (
   val fileUploadConfig: FileUploadConfig,
   val upload_files_description: upload_files_description,
   featureSwitchService: FeatureSwitchService
-)(implicit val ec: ExecutionContext, val appConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
     with UploadFilesMixin[SecuritiesJourney] {
 

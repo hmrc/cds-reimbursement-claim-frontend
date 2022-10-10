@@ -63,7 +63,7 @@ class SelectMultipleDutiesController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   selectMultipleDutiesPage: pages.select_multiple_duties,
   mrnDoesNotExistPage: pages.mrn_does_not_exist
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging

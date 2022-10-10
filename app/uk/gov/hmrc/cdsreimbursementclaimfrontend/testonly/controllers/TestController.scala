@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.Securiti
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 // This controller will be deleted at the end of CDSR-1781
 
@@ -33,7 +34,7 @@ import scala.concurrent.ExecutionContext
 class TestController @Inject() (
   connector: CDSReimbursementClaimConnector,
   val jcc: JourneyControllerComponents
-)(implicit val ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   def testIsDuplicate(mrn: String, reason: String): Action[AnyContent] = Action.async { implicit request =>

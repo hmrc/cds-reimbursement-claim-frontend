@@ -58,7 +58,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   val sessionStore: SessionCache,
   claimService: ClaimService,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor

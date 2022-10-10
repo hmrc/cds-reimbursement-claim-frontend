@@ -47,7 +47,7 @@ import scala.concurrent.Future
 class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectDutiesPage: securities.select_duties // todo check SecurityId display / clone page or
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
