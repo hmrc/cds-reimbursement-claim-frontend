@@ -20,25 +20,27 @@ import cats.syntax.eq._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
-import play.api.mvc.Results.Redirect
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
+import play.api.mvc.Results.Redirect
 import play.api.mvc.WrappedRequest
+import play.api.mvc._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -56,7 +58,8 @@ class AuthenticatedActionWithRetrievedData @Inject() (
   val authConnector: AuthConnector,
   val config: Configuration,
   val errorHandler: ErrorHandler,
-  val sessionStore: SessionCache
+  val sessionStore: SessionCache,
+  featureSwitchService: FeatureSwitchService
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequestWithRetrievedData] {
 
@@ -106,6 +109,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
               Future.successful(Left(errorHandler.errorResult()(request)))
           }
         }
+
       }
   }
 
@@ -123,9 +127,15 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     hasEoriEnrolment(enrolments, request) map {
       case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
-        handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, name, request)
+        if (
+          featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
+          checkEoriIsAllowed(eori.value)
+        )
+          handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, name, request)
+        else
+          Left(Results.Redirect(limitedAccessErrorPageUrl))
       case Right(None)       =>
-        Left(Redirect(routes.UnauthorisedController.unauthorised()))
+        Left(Redirect(unauthorizedErrorPageUrl))
     }
 
   private def hasEoriEnrolment[A](
@@ -206,15 +216,18 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
       case Some(Credentials(_, otherProvider)) =>
         Future.successful(
-          Right(
-            AuthenticatedRequestWithRetrievedData(
-              RetrievedUserType.NonGovernmentGatewayRetrievedUser(
-                otherProvider
-              ),
-              Some(NonGovernmentGatewayUser),
-              request
+          if (featureSwitchService.isDisabled(models.Feature.LimitedAccess))
+            Right(
+              AuthenticatedRequestWithRetrievedData(
+                RetrievedUserType.NonGovernmentGatewayRetrievedUser(
+                  otherProvider
+                ),
+                Some(NonGovernmentGatewayUser),
+                request
+              )
             )
-          )
+          else
+            Left(Results.Redirect(limitedAccessErrorPageUrl))
         )
     }
 }
