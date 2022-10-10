@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
@@ -38,9 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
 trait EnterBankAccountDetailsMixin[Journey <: JourneyBase[Journey]] {
   self: JourneyBaseController[Journey] =>
@@ -143,7 +142,6 @@ trait EnterBankAccountDetailsMixin[Journey <: JourneyBase[Journey]] {
     nextPage: NextPage
   )(implicit
     request: Request[_],
-    viewConfig: ViewConfig,
     messages: Messages
   ): (Journey, Result) = bankAccountReputation match {
     case BankAccountReputation(Yes, Some(Yes), None) =>
@@ -178,10 +176,8 @@ trait EnterBankAccountDetailsMixin[Journey <: JourneyBase[Journey]] {
   )(implicit
     hc: HeaderCarrier,
     request: Request[_],
-    viewConfig: ViewConfig,
     errorHandler: ErrorHandler,
-    messages: Messages,
-    executionContext: ExecutionContext
+    messages: Messages
   ): Future[(Journey, Result)] =
     getBankAccountType(journey, nextPage.getBankAccountTypePath)
       .fold(

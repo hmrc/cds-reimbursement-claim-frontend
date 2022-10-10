@@ -46,7 +46,7 @@ class UploadMrnListController @Inject() (
   val fileUploadConfig: FileUploadConfig,
   val upload_mrn_list_description: upload_mrn_list_description,
   featureSwitchService: FeatureSwitchService
-)(implicit val ec: ExecutionContext, val appConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   final val backlinkUrl: Call    = routes.CheckDeclarationDetailsController.show()
@@ -136,7 +136,7 @@ class UploadMrnListController @Inject() (
       content = uploadDocumentsContent,
       features = UploadDocumentsSessionConfig.Features(
         showUploadMultiple = true,
-        showLanguageSelection = appConfig.enableLanguageSwitching,
+        showLanguageSelection = viewConfig.enableLanguageSwitching,
         showAddAnotherDocumentButton = false,
         showYesNoQuestionBeforeContinue = false
       )
@@ -151,15 +151,15 @@ class UploadMrnListController @Inject() (
       serviceName = messages("service.title"),
       title = messages("schedule-document.upload.title"),
       descriptionHtml = descriptionHtml,
-      serviceUrl = appConfig.homePageUrl,
-      accessibilityStatementUrl = appConfig.accessibilityStatementUrl,
+      serviceUrl = viewConfig.homePageUrl,
+      accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
       phaseBanner = "beta",
-      phaseBannerUrl = appConfig.serviceFeedBackUrl,
-      signOutUrl = appConfig.signOutUrl,
-      timedOutUrl = appConfig.ggTimedOutUrl,
-      keepAliveUrl = appConfig.ggKeepAliveUrl,
-      timeoutSeconds = appConfig.ggTimeoutSeconds.toInt,
-      countdownSeconds = appConfig.ggCountdownSeconds.toInt,
+      phaseBannerUrl = viewConfig.serviceFeedBackUrl,
+      signOutUrl = viewConfig.signOutUrl,
+      timedOutUrl = viewConfig.ggTimedOutUrl,
+      keepAliveUrl = viewConfig.ggKeepAliveUrl,
+      timeoutSeconds = viewConfig.ggTimeoutSeconds.toInt,
+      countdownSeconds = viewConfig.ggCountdownSeconds.toInt,
       pageTitleClasses = "govuk-heading-xl",
       allowedFilesTypesHint = messages("schedule-document.upload.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),

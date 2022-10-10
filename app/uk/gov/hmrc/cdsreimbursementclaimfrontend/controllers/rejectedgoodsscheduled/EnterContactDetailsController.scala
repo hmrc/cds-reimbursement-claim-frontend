@@ -37,7 +37,7 @@ import scala.concurrent.Future
 class EnterContactDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   enterOrChangeContactDetailsPage: pages.enter_or_change_contact_details
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with Logging {
 

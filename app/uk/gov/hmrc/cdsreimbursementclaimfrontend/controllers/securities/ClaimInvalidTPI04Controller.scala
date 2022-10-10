@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 class ClaimInvalidTPI04Controller @Inject() (
   val jcc: JourneyControllerComponents,
   errorClaimInvalidTPI04Page: error_claim_invalid_tpi04
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   val show: Action[AnyContent] =

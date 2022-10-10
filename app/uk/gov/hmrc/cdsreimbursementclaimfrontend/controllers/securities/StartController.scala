@@ -23,10 +23,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgre
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @Singleton
 class StartController @Inject() (
   val jcc: JourneyControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
     with WorkInProgressMixin[SecuritiesJourney]

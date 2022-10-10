@@ -40,7 +40,7 @@ class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
   enterClaim: enter_claim,
   mrnDoesNotExistPage: mrn_does_not_exist
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val subKey: Option[String] = MRNMultipleRoutes.subKey

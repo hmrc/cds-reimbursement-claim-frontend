@@ -49,7 +49,7 @@ class ReimbursementMethodController @Inject() (
   val sessionCache: SessionCache,
   val controllerComponents: MessagesControllerComponents,
   selectReimbursementMethod: pages.select_reimbursement_method
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging

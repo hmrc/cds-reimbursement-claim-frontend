@@ -36,7 +36,7 @@ import SecuritiesJourney.Checks._
 class CheckClaimDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkClaimDetailsPage: check_claim_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   private val postAction: Call = routes.CheckClaimDetailsController.submit()

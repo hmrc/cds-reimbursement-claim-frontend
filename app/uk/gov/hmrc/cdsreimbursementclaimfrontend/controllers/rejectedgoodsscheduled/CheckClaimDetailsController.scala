@@ -39,7 +39,7 @@ import scala.concurrent.ExecutionContext
 class CheckClaimDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkClaimDetailsPage: pages.check_claim_details_scheduled
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.checkClaimDetailsKey)

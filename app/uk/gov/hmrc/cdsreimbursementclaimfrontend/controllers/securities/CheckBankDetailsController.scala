@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext
 class CheckBankDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkBankAccountDetailsPage: check_bank_account_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   import SecuritiesJourney.Checks._

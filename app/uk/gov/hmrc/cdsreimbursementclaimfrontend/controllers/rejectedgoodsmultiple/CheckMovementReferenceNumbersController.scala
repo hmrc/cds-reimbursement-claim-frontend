@@ -39,7 +39,7 @@ import scala.concurrent.ExecutionContext
 class CheckMovementReferenceNumbersController @Inject() (
   val jcc: JourneyControllerComponents,
   checkMovementReferenceNumbers: check_movement_reference_numbers
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers.rejected-goods"

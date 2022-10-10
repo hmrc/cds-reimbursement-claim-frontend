@@ -53,7 +53,7 @@ class SelectBasisForClaimController @Inject() (
   val featureSwitch: FeatureSwitchService,
   val controllerComponents: MessagesControllerComponents,
   selectReasonForClaimPage: pages.select_basis_for_claim
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionUpdates

@@ -42,7 +42,7 @@ import scala.concurrent.Future
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
   enterClaim: pages.enter_claim
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   val key: String               = "enter-claim.rejected-goods"

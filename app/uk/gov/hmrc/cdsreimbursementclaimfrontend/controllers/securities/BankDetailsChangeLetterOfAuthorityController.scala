@@ -38,7 +38,7 @@ import scala.concurrent.ExecutionContext
 class BankDetailsChangeLetterOfAuthorityController @Inject() (
   val jcc: JourneyControllerComponents,
   bankAccountLetterOfAuthority: bank_account_letter_of_authority
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   private val submitRoute: Call = routes.BankDetailsChangeLetterOfAuthorityController.submit()

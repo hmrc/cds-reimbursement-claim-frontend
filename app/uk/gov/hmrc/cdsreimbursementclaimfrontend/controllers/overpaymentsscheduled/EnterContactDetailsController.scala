@@ -51,7 +51,7 @@ class EnterContactDetailsController @Inject() (
   val featureSwitch: FeatureSwitchService,
   val controllerComponents: MessagesControllerComponents,
   enterOrChangeContactDetailsPage: pages.enter_or_change_contact_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionUpdates

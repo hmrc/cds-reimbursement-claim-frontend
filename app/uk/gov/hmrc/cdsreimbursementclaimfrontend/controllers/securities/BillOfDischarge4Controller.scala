@@ -40,7 +40,7 @@ class BillOfDischarge4Controller @Inject() (
   val jcc: JourneyControllerComponents,
   confirmBillOfDischarge: confirm_bill_of_discharge,
   invalidBillOfDischarge: invalid_bill_of_discharge
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.

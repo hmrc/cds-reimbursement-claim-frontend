@@ -20,8 +20,9 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import java.util.UUID
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
+
+import java.util.UUID
 
 trait WorkInProgressMixin[Journey <: JourneyBase[Journey]] {
   self: JourneyBaseController[Journey] =>

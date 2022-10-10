@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val checkDeclarationDetailsPage: check_declaration_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   private val postAction: Call = routes.CheckDeclarationDetailsController.submit()

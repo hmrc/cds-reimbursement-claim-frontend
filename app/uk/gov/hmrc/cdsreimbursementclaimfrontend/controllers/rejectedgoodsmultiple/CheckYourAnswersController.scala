@@ -42,7 +42,7 @@ class CheckYourAnswersController @Inject() (
   checkYourAnswersPage: pages.check_your_answers_multiple,
   confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
   submitClaimFailedPage: claimPages.submit_claim_error
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
     with Logging {
 

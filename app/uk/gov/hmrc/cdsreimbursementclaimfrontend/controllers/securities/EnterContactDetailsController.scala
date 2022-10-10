@@ -37,7 +37,7 @@ import scala.concurrent.Future
 class EnterContactDetailsController @Inject() (
   enterOrChangeContactDetailsPage: pages.enter_or_change_contact_details,
   val jcc: JourneyControllerComponents
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   private def postAction: Call = routes.EnterContactDetailsController.submit()

@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 class ChooseBankAccountTypeController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseBankAccountType: pages.choose_bank_account_type_page
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with Logging {
 

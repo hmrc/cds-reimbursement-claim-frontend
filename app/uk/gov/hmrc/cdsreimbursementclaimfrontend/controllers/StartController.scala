@@ -50,7 +50,7 @@ class StartController @Inject() (
   val config: Configuration,
   weOnlySupportGGPage: views.html.we_only_support_gg,
   timedOutPage: views.html.timed_out
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthRetrievalsAndSessionDataAction
     with WithAuthAndSessionDataAction

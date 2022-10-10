@@ -51,7 +51,7 @@ class EnterAdditionalDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   val config: Configuration,
   enterAdditionalDetailsPage: pages.enter_additional_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor

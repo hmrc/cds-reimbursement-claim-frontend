@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 class EnterSpecialCircumstancesController @Inject() (
   val jcc: JourneyControllerComponents,
   enterSpecialCircumstancesPage: pages.enter_special_circumstances
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val formKey: String          = "enter-special-circumstances.rejected-goods"

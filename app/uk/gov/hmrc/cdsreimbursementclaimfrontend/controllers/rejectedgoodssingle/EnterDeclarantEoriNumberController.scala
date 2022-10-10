@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   enterDeclarantEoriNumber: pages.enter_declarant_eori_number
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   val eoriNumberFormKey: String = "enter-declarant-eori-number"

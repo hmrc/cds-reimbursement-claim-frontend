@@ -29,7 +29,7 @@ import scala.concurrent.ExecutionContext
 class ClaimInvalidNotExportedAllController @Inject() (
   val jcc: JourneyControllerComponents,
   claimInvalidNotExportedAll: claim_invalid_not_exported_all
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>

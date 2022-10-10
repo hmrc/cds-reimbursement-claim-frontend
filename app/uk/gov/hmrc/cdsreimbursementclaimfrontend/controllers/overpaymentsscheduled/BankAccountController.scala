@@ -68,7 +68,7 @@ class BankAccountController @Inject() (
   val bankAccountReputationService: BankAccountReputationService,
   checkBankAccountDetailsPage: check_bank_account_details,
   enterBankAccountDetailsPage: enter_bank_account_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging

@@ -37,7 +37,7 @@ import com.github.arturopala.validator.Validator.Validate
 class EnterImporterEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   enterImporterEoriNumberPage: pages.enter_importer_eori_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   val eoriNumberFormKey: String = "enter-importer-eori-number"

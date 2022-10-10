@@ -23,9 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 
-import scala.concurrent.ExecutionContext
-
-abstract class RejectedGoodsMultipleJourneyBaseController(implicit ec: ExecutionContext)
+abstract class RejectedGoodsMultipleJourneyBaseController
     extends JourneyBaseController[RejectedGoodsMultipleJourney]
     with RejectedGoodsMultipleJourneyRouter {
 

@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.FakeRequest
@@ -38,8 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import play.api.libs.json.Json
 
 class UploadFilesControllerSpec
     extends PropertyBasedControllerSpec

@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 class CheckBankDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkBankAccountDetailsPage: pages.check_bank_account_details
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.

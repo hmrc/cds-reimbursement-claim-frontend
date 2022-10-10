@@ -39,7 +39,7 @@ import scala.concurrent.Future
 class SelectTaxCodesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectTaxCodesPage: select_tax_codes
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   val postAction: Call = routes.SelectTaxCodesController.submit()

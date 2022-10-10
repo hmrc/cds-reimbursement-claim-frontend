@@ -40,7 +40,7 @@ import scala.concurrent.Future
 class SelectTaxCodesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectDutyCodesPage: pages.select_duty_codes
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.

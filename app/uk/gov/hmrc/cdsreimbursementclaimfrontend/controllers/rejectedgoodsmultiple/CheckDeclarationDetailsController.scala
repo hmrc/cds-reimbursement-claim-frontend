@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   implicit val subKey: Option[String] = MRNMultipleRoutes.subKey

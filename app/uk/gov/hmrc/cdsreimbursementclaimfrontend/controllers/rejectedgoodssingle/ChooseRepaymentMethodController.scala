@@ -38,7 +38,7 @@ import scala.concurrent.ExecutionContext
 class ChooseRepaymentMethodController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseReimbursementMethod: pages.choose_repayment_method
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   private val form                 = reimbursementMethodForm("choose-payment-method.rejected-goods.single")

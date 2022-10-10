@@ -17,27 +17,27 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.syntax.eq._
+import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
 import play.api.i18n.Messages
+import play.api.libs.json.Format
+import play.api.libs.json.Json
 import play.api.mvc._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import play.api.libs.json.Format
-import play.api.libs.json.Json
-
-import com.github.arturopala.validator.Validator.Validate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -47,11 +47,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
   *  - journey completeness check and redirect to the CYA page
   */
 abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
-  ec: ExecutionContext,
   fmt: Format[Journey]
 ) extends FrontendBaseController
     with Logging
     with SeqUtils {
+
+  implicit def ec: ExecutionContext
+  implicit def viewConfig: ViewConfig
 
   /** [Inject] Component expected to be injected by the implementing controller. */
   val jcc: JourneyControllerComponents

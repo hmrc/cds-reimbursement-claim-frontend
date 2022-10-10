@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.data.EitherT
-import com.google.inject.Inject
-import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyModifications
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -33,27 +33,28 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_movement_reference_number
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
-@Singleton
-class EnterMovementReferenceNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
-  claimService: ClaimService,
-  enterMovementReferenceNumberPage: enter_movement_reference_number
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends RejectedGoodsSingleJourneyBaseController {
+trait EnterMovementReferenceNumberMixin[Journey <: JourneyBase[Journey] with CommonJourneyModifications[Journey]] {
+  self: JourneyBaseController[Journey] =>
 
-  private val subKey = Some("rejected-goods.single")
+  def claimService: ClaimService
+  def enterMovementReferenceNumberPage: enter_movement_reference_number
+
+  def subKey: Option[String]
+
+  def showCall: Call
+  def submitCall: Call
+
+  def redirectLocation(journey: Journey): Result
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       Ok(
         enterMovementReferenceNumberPage(
-          Forms.movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
+          Forms.movementReferenceNumberForm.withDefault(journey.getLeadMovementReferenceNumber),
           subKey,
-          routes.EnterMovementReferenceNumberController.submit()
+          submitCall
         )
       )
     }
@@ -71,7 +72,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 enterMovementReferenceNumberPage(
                   formWithErrors,
                   subKey,
-                  routes.EnterMovementReferenceNumberController.submit()
+                  submitCall
                 )
               )
             )
@@ -79,9 +80,9 @@ class EnterMovementReferenceNumberController @Inject() (
         mrn =>
           {
             for {
-              maybeAcc14    <- getDeclaration(mrn)
-              updateJourney <- updateJourney(journey, mrn, maybeAcc14)
-            } yield updateJourney
+              maybeAcc14     <- getDeclaration(mrn)
+              updatedJourney <- updateJourney(journey, mrn, maybeAcc14)
+            } yield updatedJourney
           }.fold(
             errors => {
               logger.error(s"Unable to record $mrn", errors.toException)
@@ -92,18 +93,11 @@ class EnterMovementReferenceNumberController @Inject() (
       )
   }
 
-  private def redirectLocation(journey: RejectedGoodsSingleJourney): Result =
-    if (journey.needsDeclarantAndConsigneeEoriSubmission) {
-      Redirect(routes.EnterImporterEoriNumberController.show())
-    } else {
-      Redirect(routes.CheckDeclarationDetailsController.show())
-    }
-
   private def updateJourney(
-    journey: RejectedGoodsSingleJourney,
+    journey: Journey,
     mrn: MRN,
     maybeAcc14: Option[DisplayDeclaration]
-  ): EitherT[Future, Error, RejectedGoodsSingleJourney] =
+  ): EitherT[Future, Error, Journey] =
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
@@ -116,4 +110,5 @@ class EnterMovementReferenceNumberController @Inject() (
   private def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     claimService
       .getDisplayDeclaration(mrn)
+
 }

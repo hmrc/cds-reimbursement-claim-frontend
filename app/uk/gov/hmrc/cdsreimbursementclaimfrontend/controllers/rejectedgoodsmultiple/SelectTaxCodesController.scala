@@ -39,7 +39,7 @@ class SelectTaxCodesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectTaxCodesPage: select_tax_codes,
   mrnDoesNotExistPage: mrn_does_not_exist
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.

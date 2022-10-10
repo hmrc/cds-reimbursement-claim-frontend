@@ -67,7 +67,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
   checkYourAnswersPage: pages.check_your_answers,
   confirmationOfSubmissionPage: pages.confirmation_of_submission,
   submitClaimFailedPage: pages.submit_claim_error
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor

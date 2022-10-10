@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 class CheckClaimDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkClaimDetails: check_claim_details_multiple
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val form: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.key)
