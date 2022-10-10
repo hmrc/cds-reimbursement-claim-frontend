@@ -49,7 +49,8 @@ final class OverpaymentsSingleJourney private (
   val answers: OverpaymentsSingleJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends JourneyBase[OverpaymentsSingleJourney]
-    with OverpaymentsJourneyProperties {
+    with OverpaymentsJourneyProperties
+    with CommonJourneyModifications[OverpaymentsSingleJourney] {
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =

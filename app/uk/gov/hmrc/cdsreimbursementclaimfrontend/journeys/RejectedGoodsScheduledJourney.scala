@@ -56,7 +56,8 @@ final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None
 ) extends JourneyBase[RejectedGoodsScheduledJourney]
-    with RejectedGoodsJourneyProperties {
+    with RejectedGoodsJourneyProperties
+    with CommonJourneyModifications[RejectedGoodsScheduledJourney] {
 
   /** Check if all the selected duties have reimbursement and paid amounts provided. */
   def hasCompleteReimbursementClaims: Boolean =

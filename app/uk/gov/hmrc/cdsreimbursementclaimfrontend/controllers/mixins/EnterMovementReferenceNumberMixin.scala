@@ -17,51 +17,48 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.data.EitherT
+import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.Call
+import play.api.mvc.Request
 import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyModifications
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_movement_reference_number
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait EnterMovementReferenceNumberMixin[Journey <: JourneyBase[Journey] with CommonJourneyModifications[Journey]] {
+trait EnterMovementReferenceNumberMixin[Journey <: JourneyBase[
+  Journey
+] with CommonJourneyProperties with CommonJourneyModifications[Journey]] {
   self: JourneyBaseController[Journey] =>
 
   def claimService: ClaimService
-  def enterMovementReferenceNumberPage: enter_movement_reference_number
 
-  def subKey: Option[String]
+  val form: Form[MRN]
+  def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
+  def afterSuccessfullSubmit(journey: Journey): Result
 
-  def showCall: Call
-  def submitCall: Call
-
-  def redirectLocation(journey: Journey): Result
-
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       Ok(
-        enterMovementReferenceNumberPage(
-          Forms.movementReferenceNumberForm.withDefault(journey.getLeadMovementReferenceNumber),
-          subKey,
-          submitCall
-        )
+        viewTemplate(
+          form.withDefault(journey.getLeadMovementReferenceNumber)
+        )(request)
       )
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    Forms.movementReferenceNumberForm
+  final val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    form
       .bindFromRequest()
       .fold(
         formWithErrors =>
@@ -69,11 +66,7 @@ trait EnterMovementReferenceNumberMixin[Journey <: JourneyBase[Journey] with Com
             (
               journey,
               BadRequest(
-                enterMovementReferenceNumberPage(
-                  formWithErrors,
-                  subKey,
-                  submitCall
-                )
+                viewTemplate(formWithErrors)(request)
               )
             )
           ),
@@ -88,7 +81,7 @@ trait EnterMovementReferenceNumberMixin[Journey <: JourneyBase[Journey] with Com
               logger.error(s"Unable to record $mrn", errors.toException)
               (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
             },
-            updatedJourney => (updatedJourney, redirectLocation(updatedJourney))
+            updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
           )
       )
   }

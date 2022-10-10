@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
@@ -179,7 +178,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> ""),
+          performAction("enter-movement-reference-number.rejected-goods" -> ""),
           messageFromMessageKey(s"$messageKey.scheduled.title", "first"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
@@ -195,7 +194,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
+          performAction("enter-movement-reference-number.rejected-goods" -> invalidMRN.value),
           messageFromMessageKey(s"$messageKey.scheduled.title", "first"),
           doc => {
             getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
@@ -213,7 +212,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
           baseRoutes.IneligibleController.ineligible()
         )
       }
@@ -241,7 +240,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
           routes.CheckDeclarationDetailsController.show()
         )
       }
@@ -274,7 +273,7 @@ class EnterMovementReferenceNumberControllerSpec
             }
 
             checkIsRedirect(
-              performAction(enterMovementReferenceNumberKey -> mrn.value),
+              performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
               routes.EnterImporterEoriNumberController.show()
             )
           }
