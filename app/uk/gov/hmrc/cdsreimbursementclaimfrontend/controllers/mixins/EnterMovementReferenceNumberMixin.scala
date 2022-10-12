@@ -25,7 +25,6 @@ import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyModifications
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -35,11 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CanSubmitMrnAndDeclaration
 
-trait EnterMovementReferenceNumberMixin[Journey <: JourneyBase[
-  Journey
-] with CommonJourneyProperties with CommonJourneyModifications[Journey]] {
-  self: JourneyBaseController[Journey] =>
+trait EnterMovementReferenceNumberMixin extends JourneyBaseController {
+
+  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey with JourneyBase with CommonJourneyProperties with CanSubmitMrnAndDeclaration
+
+  def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey]
 
   def claimService: ClaimService
 
@@ -94,7 +95,7 @@ trait EnterMovementReferenceNumberMixin[Journey <: JourneyBase[
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
-          journey.submitMovementReferenceNumberAndDeclaration(mrn, acc14).left.map(Error.apply(_))
+          modifyJourney(journey, mrn, acc14).left.map(Error.apply(_))
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))

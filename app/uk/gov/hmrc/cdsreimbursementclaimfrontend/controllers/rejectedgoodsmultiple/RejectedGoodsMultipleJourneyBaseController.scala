@@ -22,10 +22,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import play.api.libs.json.Format
 
 abstract class RejectedGoodsMultipleJourneyBaseController
-    extends JourneyBaseController[RejectedGoodsMultipleJourney]
+    extends JourneyBaseController
     with RejectedGoodsMultipleJourneyRouter {
+
+  final type Journey = RejectedGoodsMultipleJourney
+
+  final val format: Format[RejectedGoodsMultipleJourney] =
+    RejectedGoodsMultipleJourney.format
 
   final override val requiredFeature: Option[Feature] =
     Some(Feature.RejectedGoods)

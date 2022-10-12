@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_movement_reference_number
 
@@ -40,7 +41,7 @@ class EnterMovementReferenceNumberController @Inject() (
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController
-    with EnterMovementReferenceNumberMixin[RejectedGoodsSingleJourney] {
+    with EnterMovementReferenceNumberMixin {
 
   override val form: Form[MRN] = Forms.movementReferenceNumberForm
 
@@ -52,6 +53,9 @@ class EnterMovementReferenceNumberController @Inject() (
           Some("rejected-goods.single"),
           routes.EnterMovementReferenceNumberController.submit()
         )
+
+  override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
+    journey.submitMovementReferenceNumberAndDeclaration(mrn, declaration)
 
   override def afterSuccessfullSubmit(journey: RejectedGoodsSingleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {

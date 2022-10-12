@@ -185,7 +185,7 @@ class ChooseRepaymentMethodControllerSpec
       }
 
       "reject any repayment method and show ineligible page" in {
-        forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
+        forAll { (ndrcDetails: NdrcDetails) =>
           whenever(!ndrcDetails.isCmaEligible) {
 
             inSequence {

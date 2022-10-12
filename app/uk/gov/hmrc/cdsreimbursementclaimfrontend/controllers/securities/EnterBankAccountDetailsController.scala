@@ -45,7 +45,7 @@ class EnterBankAccountDetailsController @Inject() (
   val bankAccountReputationService: BankAccountReputationService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
-    with EnterBankAccountDetailsMixin[SecuritiesJourney] {
+    with EnterBankAccountDetailsMixin {
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(

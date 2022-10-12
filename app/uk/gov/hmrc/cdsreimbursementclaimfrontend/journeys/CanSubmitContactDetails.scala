@@ -16,17 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
-/** Common properties of the rejected-goods single, multiple and scheduled journeys. */
-trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
+trait CanSubmitContactDetails {
+  this: Journey =>
 
-  def answers: RejectedGoodsAnswers
-
-  def hasCompleteReimbursementClaims: Boolean
-  def getTotalReimbursementAmount: BigDecimal
-
-  final def needsSpecialCircumstancesBasisOfClaim: Boolean =
-    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]): Journey
+  def submitContactAddress(contactAddress: ContactAddress): Journey
 }

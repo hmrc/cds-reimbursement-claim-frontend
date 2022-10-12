@@ -16,17 +16,27 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
-/** Common properties of the rejected-goods single, multiple and scheduled journeys. */
-trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
+object sandbox {
 
-  def answers: RejectedGoodsAnswers
+  trait Journey {
+    type Type
+  }
 
-  def hasCompleteReimbursementClaims: Boolean
-  def getTotalReimbursementAmount: BigDecimal
+  trait HaveMrn {
+    this: Journey =>
 
-  final def needsSpecialCircumstancesBasisOfClaim: Boolean =
-    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+    def submitMrn(mrn: MRN): Either[String, this.Type]
+  }
+
+  final case class X() extends Journey with HaveMrn {
+
+    type Type = X
+
+    override def submitMrn(mrn: MRN): Either[String, X] =
+      Right(new X)
+
+  }
 
 }

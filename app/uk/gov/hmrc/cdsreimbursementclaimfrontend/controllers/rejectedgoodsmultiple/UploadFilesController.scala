@@ -48,7 +48,7 @@ class UploadFilesController @Inject() (
   featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
-    with UploadFilesMixin[RejectedGoodsMultipleJourney] {
+    with UploadFilesMixin {
 
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
   final val callbackAction: Call               = routes.UploadFilesController.submit()

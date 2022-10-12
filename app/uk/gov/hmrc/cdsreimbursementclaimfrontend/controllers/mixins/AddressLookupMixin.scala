@@ -24,16 +24,13 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 
 import java.util.UUID
 import scala.concurrent.Future
-
-trait AddressLookupMixin[Journey <: JourneyBase[Journey]] {
-  self: JourneyBaseController[Journey] =>
+trait AddressLookupMixin extends JourneyBaseController {
 
   implicit val errorHandler: ErrorHandler
 
@@ -41,6 +38,10 @@ trait AddressLookupMixin[Journey <: JourneyBase[Journey]] {
 
   val problemWithAddressPage: Call
   val retrieveLookupAddress: Call
+
+  def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey
+
+  def redirectToTheNextPage(journey: Journey): (Journey, Result)
 
   def redirectToALF: Action[AnyContent] =
     Action.andThen(jcc.authenticatedAction).async { implicit request =>
@@ -68,13 +69,13 @@ trait AddressLookupMixin[Journey <: JourneyBase[Journey]] {
                 else Redirect(baseRoutes.IneligibleController.ineligible())
               )
             },
-            update(journey) andThen redirectToTheNextPage
+            contactAddress =>
+              redirectToTheNextPage(
+                modifyJourney(journey, contactAddress)
+              )
           )
       },
       fastForwardToCYAEnabled = false
     )
 
-  def update(journey: Journey): ContactAddress => Journey
-
-  def redirectToTheNextPage(journey: Journey): (Journey, Result)
 }

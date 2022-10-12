@@ -298,7 +298,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
         val expectedJourney = emptyJourney.submitInspectionAddress(inspectionAddress)
 
-        controller.update(emptyJourney)(address) shouldBe expectedJourney
+        controller.modifyJourney(emptyJourney, address) shouldBe expectedJourney
       }
 
       "redirect to the next page" when {

@@ -19,7 +19,8 @@ lazy val wartremoverSettings =
       Wart.ImplicitParameter,
       Wart.Nothing,
       Wart.Overloading,
-      Wart.ToString
+      Wart.ToString,
+      Wart.PublicInference
     ),
     WartRemover.autoImport.wartremoverExcluded += target.value,
     Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
