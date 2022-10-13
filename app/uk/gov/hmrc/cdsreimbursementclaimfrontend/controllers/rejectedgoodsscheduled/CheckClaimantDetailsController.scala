@@ -68,41 +68,6 @@ class CheckClaimantDetailsController @Inject() (
 
   override val retrieveLookupAddress: Call = routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
-  // val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-  //   val changeCd: Call                             = routes.EnterContactDetailsController.show()
-  //   val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
-  //   val (maybeContactDetails, maybeAddressDetails) =
-  //     (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
-
-  //   (maybeContactDetails, maybeAddressDetails) match {
-  //     case (Some(cd), Some(ca)) =>
-  //       Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)).asFuture
-  //     case _                    =>
-  //       logger.warn(
-  //         s"${maybeContactDetails.map(_ => "Contact details is defined").getOrElse("Cannot compute contact details")} " +
-  //           s"${maybeAddressDetails.map(_ => "Address details is defined").getOrElse("Cannot compute address details")}"
-  //       )
-  //       Redirect(routes.EnterMovementReferenceNumberController.show()).asFuture
-  //   }
-
-  // }
-
-  // val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { _ => journey => retrievedUserType =>
-  //   (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
-  //     case (Some(cd), Some(ca)) =>
-  //       (
-  //         journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
-  //         Redirect(routes.BasisForClaimController.show())
-  //       ).asFuture
-  //     case _                    =>
-  //       (
-  //         journey,
-  //         Redirect(routes.EnterMovementReferenceNumberController.show())
-  //       ).asFuture
-  //   }
-
-  // }
-
   override def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey =
     journey.submitContactDetails(Some(contactDetails))
 

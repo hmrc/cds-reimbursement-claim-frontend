@@ -71,36 +71,6 @@ class CheckClaimantDetailsController @Inject() (
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
-  // val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-  //   val maybeContactDetails = journey.computeContactDetails(retrievedUserType)
-  //   val maybeAddressDetails = journey.computeAddressDetails
-  //   Future.successful(
-  //     (maybeContactDetails, maybeAddressDetails) match {
-  //       case (Some(contactDetails), Some(contactAddress)) =>
-  //         Ok(claimantDetailsPage(contactDetails, contactAddress, changeContactDetails, startAddressLookup, postAction))
-  //       case _                                            =>
-  //         logger.warn(
-  //           s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
-  //         )
-  //         Redirect(routes.EnterMovementReferenceNumberController.show())
-  //     }
-  //   )
-  // }
-
-  // val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { _ => journey => retrievedUserType =>
-  //   Future.successful(
-  //     (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
-  //       case (Some(cd), Some(ca)) =>
-  //         (
-  //           journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
-  //           Redirect(routes.BasisForClaimController.show())
-  //         )
-  //       case _                    =>
-  //         (journey, Redirect(routes.EnterMovementReferenceNumberController.show()))
-  //     }
-  //   )
-  // }
-
   override def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey =
     journey.submitContactDetails(Some(contactDetails))
 
