@@ -16,152 +16,40 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.data.EitherT
-
-import javax.inject.Inject
-import javax.inject.Singleton
-import cats.implicits._
-import com.github.arturopala.validator.Validator.Validate
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
-import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val bankAccountReputationService: BankAccountReputationService,
-  enterBankAccountDetailsPage: enter_bank_account_details
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends RejectedGoodsSingleJourneyBaseController {
+  val enterBankAccountDetailsPage: enter_bank_account_details
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
+    extends RejectedGoodsSingleJourneyBaseController
+    with EnterBankAccountDetailsMixin {
 
-  val formKey: String          = "enter-bank-account-details"
-  private val postAction: Call = routes.EnterBankAccountDetailsController.submit()
+  final override def modifyJourney(
+    journey: Journey,
+    bankAccountDetails: BankAccountDetails
+  ): Either[String, Journey] =
+    journey.submitBankAccountDetails(bankAccountDetails)
 
-  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
-
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Future.successful {
-      val form = enterBankDetailsForm
-      Ok(enterBankAccountDetailsPage(form, postAction))
-    }
-  }
-
-  private def processCdsError[T : CdsError](error: T)(implicit request: Request[_]): Result =
-    error match {
-      case e @ ServiceUnavailableError(_, _) =>
-        logger.warn(s"could not contact bank account service: $e")
-        Redirect(rejectedGoodsRoutes.ServiceUnavailableController.show())
-      case e                                 =>
-        logAndDisplayError("could not process bank account details: ", e)
-    }
-
-  def handleBankAccountReputation[E : CdsError](
-    bankAccountDetails: BankAccountDetails,
-    reputation: EitherT[Future, E, BankAccountReputation]
-  )(implicit request: Request[_], journey: RejectedGoodsSingleJourney): Future[(RejectedGoodsSingleJourney, Result)] =
-    reputation.fold(
-      e => (journey, processCdsError(e)),
-      {
-        case BankAccountReputation(Yes, Some(Yes), None)                                  =>
-          journey
-            .submitBankAccountDetails(bankAccountDetails)
-            .fold(
-              errors => {
-                logger.error(s"Unable to get bank account details - $errors")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-              },
-              updatedJourney => (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
-            )
-        case BankAccountReputation(_, _, Some(errorResponse))                             =>
-          val form = enterBankDetailsForm
-            .fill(bankAccountDetails)
-            .withError("enter-bank-account-details", s"error.${errorResponse.code}")
-          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
-        case BankAccountReputation(No, _, None)                                           =>
-          val form = enterBankDetailsForm
-            .fill(bankAccountDetails)
-            .withError("enter-bank-account-details", "error.moc-check-no")
-          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
-        case BankAccountReputation(sortCodeResponse, _, None) if sortCodeResponse =!= Yes =>
-          val form = enterBankDetailsForm
-            .fill(bankAccountDetails)
-            .withError("enter-bank-account-details", "error.moc-check-failed")
-          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
-        case BankAccountReputation(_, Some(ReputationResponse.Error), None)               =>
-          val form = enterBankDetailsForm
-            .fill(bankAccountDetails)
-            .withError("enter-bank-account-details", "error.account-exists-error")
-          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
-        case BankAccountReputation(_, _, None)                                            =>
-          val form = enterBankDetailsForm
-            .fill(bankAccountDetails)
-            .withError("enter-bank-account-details", "error.account-does-not-exist")
-          (journey, BadRequest(enterBankAccountDetailsPage(form, postAction)))
-      }
-    )
-
-  def validateBankAccountDetails(
-    bankAccountType: Option[BankAccountType],
-    bankAccountDetails: BankAccountDetails,
-    postCode: Option[String]
-  )(implicit request: Request[_], journey: RejectedGoodsSingleJourney): Future[(RejectedGoodsSingleJourney, Result)] =
-    bankAccountType match {
-      case Some(BankAccountType.Personal) =>
-        handleBankAccountReputation(
-          bankAccountDetails,
-          bankAccountReputationService.getPersonalAccountReputation(bankAccountDetails, postCode)
-        )
-      case Some(BankAccountType.Business) =>
-        handleBankAccountReputation(
-          bankAccountDetails,
-          bankAccountReputationService.getBusinessAccountReputation(bankAccountDetails)
-        )
-      case _                              =>
-        (journey, Redirect(routes.ChooseBankAccountTypeController.show())).asFuture
-    }
-
-  val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => implicit journey =>
-      enterBankDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                enterBankAccountDetailsPage(
-                  formWithErrors,
-                  postAction
-                )
-              )
-            ).asFuture,
-          validateBankAccountDetails(journey.answers.bankAccountType, _, None)
-        )
-    },
-    fastForwardToCYAEnabled = false
+  override val routesPack: RoutesPack = RoutesPack(
+    errorPath = commonRoutes.BankAccountVerificationUnavailable.show(),
+    retryPath = routes.EnterBankAccountDetailsController.show(),
+    successPath = routes.CheckBankDetailsController.show(),
+    submitPath = routes.EnterBankAccountDetailsController.submit(),
+    getBankAccountTypePath = routes.ChooseBankAccountTypeController.show()
   )
+
 }

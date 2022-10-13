@@ -430,7 +430,7 @@ class BankAccountControllerSpec
       //        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
       //        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
       //
-      //        checkIsRedirect(result, routes.ServiceUnavailableController.unavailable(journey))
+      //        checkIsRedirect(result, routes.BankAccountVerificationUnavailable.unavailable(journey))
       //      }
     }
 
@@ -644,7 +644,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show)
+        checkIsRedirect(result, commonRoutes.BankAccountVerificationUnavailable.show)
       }
 
     }

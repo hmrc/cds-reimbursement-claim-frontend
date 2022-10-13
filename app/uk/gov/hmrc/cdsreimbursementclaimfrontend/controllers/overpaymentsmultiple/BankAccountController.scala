@@ -133,7 +133,7 @@ class BankAccountController @Inject() (
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
-        Redirect(commonRoutes.ServiceUnavailableController.show)
+        Redirect(commonRoutes.BankAccountVerificationUnavailable.show)
       case e                                 =>
         logAndDisplayError("could not process bank account details: ", e)
     }

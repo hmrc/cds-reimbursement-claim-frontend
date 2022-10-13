@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
@@ -310,10 +310,10 @@ class EnterBankAccountDetailsControllerSpec
           )
         }
 
-        "show the bank account details page if the accountNumberWithSortCodeIsValid is a No or Error" in forAll(
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is a No" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(No, ReputationResponse.Error),
+          Gen.const(No),
           genReputationResponse
         ) { (bankAccountDetails, postCode, accountWithSortCodeResponse, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
@@ -331,6 +331,35 @@ class EnterBankAccountDetailsControllerSpec
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
               getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Error" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.const(ReputationResponse.Error),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, accountWithSortCodeResponse, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = accountWithSortCodeResponse,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -559,10 +588,10 @@ class EnterBankAccountDetailsControllerSpec
           )
         }
 
-        "show the bank account details page if the accountNumberWithSortCodeIsValid is No or Error" in forAll(
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is No" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(No, ReputationResponse.Error),
+          Gen.const(No),
           genReputationResponse
         ) { (bankAccountDetails, postCode, accountNumberWithSortCodeResponse, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
@@ -580,6 +609,35 @@ class EnterBankAccountDetailsControllerSpec
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
               getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
+              getInputBoxValue(doc, "account-name")   shouldBe Some("")
+              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
+              getInputBoxValue(doc, "account-number") shouldBe Some("")
+            },
+            BAD_REQUEST
+          )
+        }
+
+        "show the bank account details page if the accountNumberWithSortCodeIsValid is Error" in forAll(
+          genBankAccountDetails,
+          Gen.option(genPostcode),
+          Gen.const(ReputationResponse.Error),
+          genReputationResponse
+        ) { (bankAccountDetails, postCode, accountNumberWithSortCodeResponse, accountResponse) =>
+          val expectedResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = accountNumberWithSortCodeResponse,
+            accountExists = Some(accountResponse),
+            otherError = None
+          )
+
+          inSequence(
+            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+          )
+
+          checkPageIsDisplayed(
+            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
               getInputBoxValue(doc, "account-name")   shouldBe Some("")
               getInputBoxValue(doc, "sort-code")      shouldBe Some("")
               getInputBoxValue(doc, "account-number") shouldBe Some("")
@@ -669,9 +727,9 @@ class EnterBankAccountDetailsControllerSpec
 
         checkIsRedirect(
           performAction(
-            s"${controller.formKey}.account-name"   -> bankDetails.accountName.value,
-            s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
-            s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
+            s"enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+            s"enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+            s"enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
           routes.CheckBankDetailsController.show()
         )
@@ -686,9 +744,9 @@ class EnterBankAccountDetailsControllerSpec
 
         checkIsRedirect(
           performAction(
-            s"${controller.formKey}.account-name"   -> bankDetails.accountName.value,
-            s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
-            s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
+            s"enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+            s"enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+            s"enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
           routes.ChooseBankAccountTypeController.show()
         )
@@ -715,11 +773,11 @@ class EnterBankAccountDetailsControllerSpec
 
         checkIsRedirect(
           performAction(
-            s"${controller.formKey}.account-name"   -> bankDetails.accountName.value,
-            s"${controller.formKey}.sort-code"      -> bankDetails.sortCode.value,
-            s"${controller.formKey}.account-number" -> bankDetails.accountNumber.value
+            s"enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+            s"enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+            s"enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          rejectedGoodsRoutes.ServiceUnavailableController.show()
+          commonRoutes.BankAccountVerificationUnavailable.show()
         )
 
       }
