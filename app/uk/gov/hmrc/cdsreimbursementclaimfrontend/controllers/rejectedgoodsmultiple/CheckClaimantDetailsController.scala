@@ -21,16 +21,18 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ContactAddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import play.twirl.api.HtmlFormat
 
 @Singleton
 class CheckClaimantDetailsController @Inject() (
@@ -39,7 +41,7 @@ class CheckClaimantDetailsController @Inject() (
   claimantDetailsPage: check_claimant_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController
-    with AddressLookupMixin[RejectedGoodsMultipleJourney] {
+    with ContactAddressLookupMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
@@ -48,53 +50,32 @@ class CheckClaimantDetailsController @Inject() (
   val startAddressLookup: Call =
     routes.CheckClaimantDetailsController.redirectToALF()
 
+  val changeCd: Call =
+    routes.EnterContactDetailsController.show()
+
+  val postAction: Call =
+    routes.CheckClaimantDetailsController.submit()
+
+  override def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable =
+    cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)
+
+  override val redirectWhenNoAddressDetailsFound: Call =
+    routes.EnterMovementReferenceNumberController.showFirst()
+
+  override val nextPageInTheJourney: Call =
+    routes.BasisForClaimController.show()
+
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
-  val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-    val changeCd: Call                             =
-      routes.EnterContactDetailsController.show()
-    val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
-    val (maybeContactDetails, maybeAddressDetails) =
-      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
-    (maybeContactDetails, maybeAddressDetails) match {
-      case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)).asFuture
-      case _                    =>
-        logger.warn(
-          s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
-        )
-        Redirect(
-          routes.EnterMovementReferenceNumberController.showFirst()
-        ).asFuture
-    }
+  override def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey =
+    journey.submitContactDetails(Some(contactDetails))
 
-  }
-
-  val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { _ => journey => retrievedUserType =>
-    (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
-      case (Some(cd), Some(ca)) =>
-        (
-          journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
-          Redirect(routes.BasisForClaimController.show())
-        ).asFuture
-      case _                    =>
-        (
-          journey,
-          Redirect(routes.EnterMovementReferenceNumberController.showFirst())
-        ).asFuture
-    }
-
-  }
-
-  override def update(journey: RejectedGoodsMultipleJourney): ContactAddress => RejectedGoodsMultipleJourney =
-    journey.submitContactAddress
+  override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
+    journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) =
     (journey, Redirect(routes.CheckClaimantDetailsController.show()))
-}
-
-object CheckClaimantDetailsController {
-  val checkContactDetailsKey: String = "check-claimant-details"
 }

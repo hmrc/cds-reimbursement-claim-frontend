@@ -22,12 +22,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import play.api.libs.json.Format
 
-import scala.concurrent.ExecutionContext
+trait RejectedGoodsSingleJourneyBaseController extends JourneyBaseController with RejectedGoodsSingleJourneyRouter {
 
-abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionContext)
-    extends JourneyBaseController[RejectedGoodsSingleJourney]
-    with RejectedGoodsSingleJourneyRouter {
+  final type Journey = RejectedGoodsSingleJourney
+
+  final val format: Format[RejectedGoodsSingleJourney] =
+    RejectedGoodsSingleJourney.format
 
   final override val requiredFeature: Option[Feature] =
     Some(Feature.RejectedGoods)

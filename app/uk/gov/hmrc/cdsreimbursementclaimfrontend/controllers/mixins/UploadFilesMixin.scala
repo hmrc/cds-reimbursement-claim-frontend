@@ -21,7 +21,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
@@ -29,8 +28,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload
 
 import java.util.Locale
 
-trait UploadFilesMixin[Journey <: JourneyBase[Journey]] {
-  self: JourneyBaseController[Journey] =>
+trait UploadFilesMixin {
+  self: JourneyBaseController =>
 
   val uploadDocumentsConfig: UploadDocumentsConfig
   val fileUploadConfig: FileUploadConfig

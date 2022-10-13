@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 import scala.concurrent.ExecutionContext
 
@@ -42,7 +43,7 @@ class EnterMovementReferenceNumberController @Inject() (
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
-    with EnterMovementReferenceNumberMixin[RejectedGoodsScheduledJourney] {
+    with EnterMovementReferenceNumberMixin {
 
   override val form: Form[MRN] = Form(
     mapping(
@@ -65,6 +66,9 @@ class EnterMovementReferenceNumberController @Inject() (
           1,
           routes.EnterMovementReferenceNumberController.submit()
         )
+
+  override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
+    journey.submitMovementReferenceNumberAndDeclaration(mrn, declaration)
 
   override def afterSuccessfullSubmit(updatedJourney: RejectedGoodsScheduledJourney): Result =
     Redirect(

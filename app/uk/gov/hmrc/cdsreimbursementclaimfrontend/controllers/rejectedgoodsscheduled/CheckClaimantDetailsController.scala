@@ -21,16 +21,18 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ContactAddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import play.twirl.api.HtmlFormat
 
 @Singleton
 class CheckClaimantDetailsController @Inject() (
@@ -39,55 +41,38 @@ class CheckClaimantDetailsController @Inject() (
   claimantDetailsPage: check_claimant_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsScheduledJourneyBaseController
-    with AddressLookupMixin[RejectedGoodsScheduledJourney] {
-
-  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
-
-  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
-
-  override val retrieveLookupAddress: Call = routes.CheckClaimantDetailsController.retrieveAddressFromALF()
+    with ContactAddressLookupMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
-    val changeCd: Call                             = routes.EnterContactDetailsController.show()
-    val postAction: Call                           = routes.CheckClaimantDetailsController.submit()
-    val (maybeContactDetails, maybeAddressDetails) =
-      (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails)
+  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
 
-    (maybeContactDetails, maybeAddressDetails) match {
-      case (Some(cd), Some(ca)) =>
-        Ok(claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)).asFuture
-      case _                    =>
-        logger.warn(
-          s"${maybeContactDetails.map(_ => "Contact details is defined").getOrElse("Cannot compute contact details")} " +
-            s"${maybeAddressDetails.map(_ => "Address details is defined").getOrElse("Cannot compute address details")}"
-        )
-        Redirect(routes.EnterMovementReferenceNumberController.show()).asFuture
-    }
+  val changeCd: Call =
+    routes.EnterContactDetailsController.show()
 
-  }
+  val postAction: Call =
+    routes.CheckClaimantDetailsController.submit()
 
-  val submit: Action[AnyContent] = actionReadWriteJourneyAndUser { _ => journey => retrievedUserType =>
-    (journey.computeContactDetails(retrievedUserType), journey.computeAddressDetails) match {
-      case (Some(cd), Some(ca)) =>
-        (
-          journey.submitContactDetails(Some(cd)).submitContactAddress(ca),
-          Redirect(routes.BasisForClaimController.show())
-        ).asFuture
-      case _                    =>
-        (
-          journey,
-          Redirect(routes.EnterMovementReferenceNumberController.show())
-        ).asFuture
-    }
+  override def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable =
+    cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)
 
-  }
+  override val redirectWhenNoAddressDetailsFound: Call =
+    routes.EnterMovementReferenceNumberController.show()
 
-  override def update(journey: RejectedGoodsScheduledJourney): ContactAddress => RejectedGoodsScheduledJourney =
-    journey.submitContactAddress
+  override val nextPageInTheJourney: Call =
+    routes.BasisForClaimController.show()
+
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
+
+  override val retrieveLookupAddress: Call = routes.CheckClaimantDetailsController.retrieveAddressFromALF()
+
+  override def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey =
+    journey.submitContactDetails(Some(contactDetails))
+
+  override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
+    journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: RejectedGoodsScheduledJourney): (RejectedGoodsScheduledJourney, Result) =
     (journey, Redirect(routes.CheckClaimantDetailsController.show()))

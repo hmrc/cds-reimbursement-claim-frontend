@@ -18,21 +18,27 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import com.github.arturopala.validator.Validator.Validate
 import com.github.arturopala.validator.Validator.ValidationResultOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import play.api.libs.json.Json
 import play.api.libs.json.Format
+
+trait Journey {
+
+  /** Concrete type of the journey */
+  type Type
+}
 
 /** The common base of the claim models
   * @tparam Journey the type of the claim
   */
-abstract class JourneyBase[Journey : Validate] extends DirectFluentSyntax[Journey] {
-  self: Journey with CommonJourneyProperties =>
+trait JourneyBase extends Journey {
+  this: CommonJourneyProperties =>
 
-  final val validate: Validate[Journey] = implicitly[Validate[Journey]]
+  val self: Type
+  implicit val validate: Validate[Type]
 
   /** Check if the claim is ready to submit, i.e. to get the output. */
   final def hasCompleteAnswers: Boolean =
-    validate(this).isValid
+    validate(self).isValid
 
   /** Check if the claim has been successfully submitted. */
   final def isFinalized: Boolean = caseNumber.isDefined
@@ -41,28 +47,28 @@ abstract class JourneyBase[Journey : Validate] extends DirectFluentSyntax[Journe
   final def userHasSeenCYAPage: Boolean = answers.checkYourAnswersChangeMode
 
   /** Execute the following code only when claim wasn't submitted yet. */
-  final protected def whileClaimIsAmendable(body: => Journey): Journey =
-    if (isFinalized) this else body
+  final protected def whileClaimIsAmendable(body: => Type): Type =
+    if (isFinalized) self else body
 
   /** Execute the following code only when claim wasn't submitted yet. */
   final protected def whileClaimIsAmendable(
-    body: => Either[String, Journey]
-  ): Either[String, Journey] =
+    body: => Either[String, Type]
+  ): Either[String, Type] =
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
     else body
 
-  final protected def whileClaimIsAmendable(condition: Validate[Journey])(body: => Journey): Either[String, Journey] =
-    if (isFinalized) Right(this)
-    else condition(this).map(_ => body).left.map(_.headMessage)
+  final protected def whileClaimIsAmendable(condition: Validate[Type])(body: => Type): Either[String, Type] =
+    if (isFinalized) Right(self)
+    else condition(self).map(_ => body).left.map(_.headMessage)
 
   /** Execute the following code only when claim wasn't submitted yet and requirements are met. */
-  final protected def whileClaimIsAmendableAnd(condition: Validate[Journey])(
-    body: => Either[String, Journey]
-  ): Either[String, Journey] =
+  final protected def whileClaimIsAmendableAnd(condition: Validate[Type])(
+    body: => Either[String, Type]
+  ): Either[String, Type] =
     if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
-    else condition(this).left.map(_.headMessage).flatMap(_ => body)
+    else condition(self).left.map(_.headMessage).flatMap(_ => body)
 
-  final def prettyPrint(implicit format: Format[Journey]): String =
-    Json.prettyPrint(Json.toJson[Journey](this))
+  final def prettyPrint(implicit format: Format[Type]): String =
+    Json.prettyPrint(Json.toJson[Type](self))
 
 }

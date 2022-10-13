@@ -49,7 +49,7 @@ class UploadFilesController @Inject() (
   featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
-    with UploadFilesMixin[SecuritiesJourney] {
+    with UploadFilesMixin {
 
   final val precedingAction: Call              = routes.CheckClaimDetailsController.show()
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()

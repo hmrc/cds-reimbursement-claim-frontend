@@ -19,112 +19,51 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.inspectionAddressTypeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.InspectionAddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Declarant
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Importer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.AddressLookupMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseInspectionAddressTypeController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
   val jcc: JourneyControllerComponents,
   val addressLookupService: AddressLookupService,
-  inspectionAddressPage: pages.choose_inspection_address_type
+  val inspectionAddressPage: pages.choose_inspection_address_type
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
-    with AddressLookupMixin[RejectedGoodsSingleJourney] {
-
-  val applyChoice: Call =
-    routes.ChooseInspectionAddressTypeController.submit()
-
-  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
-
-  val startAddressLookup: Call =
-    routes.ChooseInspectionAddressTypeController.redirectToALF()
-
-  override val retrieveLookupAddress: Call =
-    routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
+    with InspectionAddressLookupMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getPotentialInspectionAddresses match {
-      case Nil =>
-        Redirect(startAddressLookup).asFuture
-      case xs  =>
-        Ok(
-          inspectionAddressPage(
-            xs,
-            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
-            applyChoice
-          )
-        ).asFuture
-    }
-  }
+  override val postAction: Call =
+    routes.ChooseInspectionAddressTypeController.submit()
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      inspectionAddressTypeForm
-        .bindFromRequest()
-        .fold(
-          errors =>
-            (
-              journey,
-              BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, applyChoice))
-            ).asFuture,
-          {
-            case Other     =>
-              (journey, Redirect(startAddressLookup)).asFuture
-            case Declarant =>
-              journey.getDeclarantContactDetailsFromACC14
-                .map {
-                  InspectionAddress.ofType(Declarant).mapFrom(_) |>
-                    journey.submitInspectionAddress |>
-                    redirectToTheNextPage
-                }
-                .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
-                .asFuture
-            case Importer  =>
-              journey.getConsigneeContactDetailsFromACC14
-                .map {
-                  InspectionAddress.ofType(Importer).mapFrom(_) |>
-                    journey.submitInspectionAddress |>
-                    redirectToTheNextPage
-                }
-                .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
-                .asFuture
-          }
-        )
-    },
-    fastForwardToCYAEnabled = false
-  )
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 
-  override def update(journey: RejectedGoodsSingleJourney): ContactAddress => RejectedGoodsSingleJourney =
-    InspectionAddress.ofType(Other).mapFrom(_) |> journey.submitInspectionAddress
+  override val startAddressLookup: Call =
+    routes.ChooseInspectionAddressTypeController.redirectToALF()
+
+  override val retrieveLookupAddress: Call =
+    routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
+
+  final override def modifyJourney(journey: Journey, inspectionAddress: InspectionAddress): Journey =
+    journey.submitInspectionAddress(inspectionAddress)
+
+  final override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
+    journey.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
 
   override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
     if (journey.hasCompleteAnswers)

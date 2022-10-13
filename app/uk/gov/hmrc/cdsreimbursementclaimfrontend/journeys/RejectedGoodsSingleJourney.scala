@@ -42,6 +42,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 import java.time.LocalDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
+import com.github.arturopala.validator.Validator
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -54,9 +56,19 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[RejectedGoodsSingleJourney]
+) extends JourneyBase
+    with DirectFluentSyntax[RejectedGoodsSingleJourney]
     with RejectedGoodsJourneyProperties
-    with CommonJourneyModifications[RejectedGoodsSingleJourney] {
+    with CanSubmitMrnAndDeclaration
+    with CanSubmitContactDetails
+    with HaveInspectionDetails {
+
+  type Type = RejectedGoodsSingleJourney
+
+  val self: RejectedGoodsSingleJourney = this
+
+  val validate: Validator.Validate[RejectedGoodsSingleJourney] =
+    RejectedGoodsSingleJourney.validator
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -121,7 +133,7 @@ final class RejectedGoodsSingleJourney private (
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ): Either[String, RejectedGoodsSingleJourney] =
+  ) =
     whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn)
@@ -172,14 +184,14 @@ final class RejectedGoodsSingleJourney private (
       else Left("submitDeclarantEoriNumber.unexpected")
     }
 
-  def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsSingleJourney =
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]) =
     whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
-  def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsSingleJourney =
+  def submitContactAddress(contactAddress: ContactAddress) =
     whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
         answers.copy(contactAddress = Some(contactAddress))
