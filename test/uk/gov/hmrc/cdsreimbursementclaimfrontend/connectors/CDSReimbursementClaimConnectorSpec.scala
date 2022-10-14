@@ -83,7 +83,7 @@ class CDSReimbursementClaimConnectorSpec
 
   "CDS Reimbursement Connector Duplicate" should {
     def url(mrn: MRN, reasonForSecurity: ReasonForSecurity) =
-      s"http://localhost:7501/cds-reimbursement-claim/declaration/${mrn.value}/is-duplicate?reasonForSecurity=$reasonForSecurity"
+      s"http://localhost:7501/cds-reimbursement-claim/declaration/${mrn.value}/claim-exists?reasonForSecurity=$reasonForSecurity"
 
     "handling requests to see if a declaration is a duplicate do a http call and return the result" in forAll {
       (mrn: MRN, reason: ReasonForSecurity, existingClaim: ExistingClaim) =>
