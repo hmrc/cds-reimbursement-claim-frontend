@@ -10,4 +10,4 @@ POST        /choose-how-many-mrns                  uk.gov.hmrc.cdsreimbursementc
 GET         /single/change-number-of-claims        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController.show()
 POST        /single/change-number-of-claims        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController.submit()
 
-GET         /single/bank-account-unavailable       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ServiceUnavailableController.show()
+GET         /bank-account-verification-unavailable uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.BankAccountVerificationUnavailable.show()

@@ -251,187 +251,187 @@ class BankAccountControllerSpec
         checkIsRedirect(result, OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))
       }
 
-      //      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
-      //        journeys
-      //      ) { journey =>
-      //        val answers         = Business
-      //        val (session, _, _) =
-      //          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-      //        val form            = enterBankDetailsForm.fill(Business).data.toSeq
-      //        val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
-      //
-      //        val accountExistsCases = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
-      //
-      //        accountExistsCases.foreach { accountExists =>
-      //          val businessResponse =
-      //            BankAccountReputation(
-      //              accountNumberWithSortCodeIsValid = No,
-      //              accountExists = accountExists,
-      //              otherError = None
-      //            )
-      //          inSequence {
-      //            mockAuthWithNoRetrievals()
-      //            mockGetSession(session)
-      //            mockBusinessReputation(answers, Right(businessResponse))
-      //            mockStoreSessionNotCalled
-      //          }
-      //          val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
-      //          val doc              = Jsoup.parse(contentAsString(result))
-      //          getAccountNameValue(doc) shouldBe ""
-      //          val error = getGlobalErrors(doc).text()
-      //          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
-      //          status(result) shouldBe BAD_REQUEST
-      //        }
-      //      }
-      //
-      //      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
-      //        journeys
-      //      ) { journey =>
-      //        val answers         = Business
-      //        val (session, _, _) =
-      //          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-      //        val form            = enterBankDetailsForm.fill(Business).data.toSeq
-      //        val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
-      //
-      //        val accountNumberWithSortCodeIsValidCases = Seq(Indeterminate, ReputationResponse.Error)
-      //        val accountExistsCases                    = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
-      //
-      //        accountNumberWithSortCodeIsValidCases.foreach(accountNumberWithSortCodeIsValid =>
-      //          accountExistsCases.foreach { accountExists =>
-      //            val businessResponse =
-      //              BankAccountReputation(
-      //                accountNumberWithSortCodeIsValid = accountNumberWithSortCodeIsValid,
-      //                accountExists = accountExists,
-      //                otherError = None
-      //              )
-      //            inSequence {
-      //              mockAuthWithNoRetrievals()
-      //              mockGetSession(session)
-      //              mockBusinessReputation(answers, Right(businessResponse))
-      //              mockStoreSessionNotCalled
-      //            }
-      //            val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
-      //            val doc              = Jsoup.parse(contentAsString(result))
-      //            getAccountNameValue(doc) shouldBe ""
-      //            val error = getGlobalErrors(doc).text()
-      //            error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
-      //            status(result) shouldBe BAD_REQUEST
-      //          }
-      //        )
-      //      }
-      //
-      //      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = Yes and accountExists = Some(Error)" in forAll(
-      //        journeys
-      //      ) { journey =>
-      //        val answers         = Business
-      //        val (session, _, _) =
-      //          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-      //        val form            = enterBankDetailsForm.fill(Business).data.toSeq
-      //        val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
-      //
-      //        val businessResponse =
-      //          BankAccountReputation(
-      //            accountNumberWithSortCodeIsValid = Yes,
-      //            accountExists = Some(ReputationResponse.Error),
-      //            otherError = None
-      //          )
-      //        inSequence {
-      //          mockAuthWithNoRetrievals()
-      //          mockGetSession(session)
-      //          mockBusinessReputation(answers, Right(businessResponse))
-      //          mockStoreSessionNotCalled
-      //        }
-      //        val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
-      //        val doc              = Jsoup.parse(contentAsString(result))
-      //        getAccountNameValue(doc) shouldBe Business.accountName.value
-      //        val error = getGlobalErrors(doc).text()
-      //        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-exists-error")
-      //        status(result) shouldBe BAD_REQUEST
-      //      }
-      //
-      //      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = Yes and accountExists = (Some(Indeterminate) or Some(No) or None)" in forAll(
-      //        journeys
-      //      ) { journey =>
-      //        val answers            = Business
-      //        val (session, _, _)    =
-      //          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-      //        val form               = enterBankDetailsForm.fill(Business).data.toSeq
-      //        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
-      //        val accountExistsCases = Seq(Some(No), Some(Indeterminate), None)
-      //
-      //        accountExistsCases.foreach { accountExists =>
-      //          val businessResponse =
-      //            BankAccountReputation(
-      //              accountNumberWithSortCodeIsValid = Yes,
-      //              accountExists = accountExists,
-      //              otherError = None
-      //            )
-      //          inSequence {
-      //            mockAuthWithNoRetrievals()
-      //            mockGetSession(session)
-      //            mockBusinessReputation(answers, Right(businessResponse))
-      //            mockStoreSessionNotCalled
-      //          }
-      //          val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
-      //          val doc              = Jsoup.parse(contentAsString(result))
-      //          getAccountNameValue(doc) shouldBe ""
-      //          val error = getGlobalErrors(doc).text()
-      //          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-does-not-exist")
-      //          status(result) shouldBe BAD_REQUEST
-      //        }
-      //
-      //      }
-      //
-      //      "Fail when the Bank Account Number is invalid" in forAll(journeys) { journey =>
-      //        val errorResponse    =
-      //          ReputationErrorResponse(code = "INVALID_ACCOUNT_NUMBER", desc = "123456: invalid account number")
-      //        val businessResponse = BankAccountReputation(
-      //          accountNumberWithSortCodeIsValid = Yes,
-      //          accountExists = Some(Yes),
-      //          otherError = Some(errorResponse)
-      //        )
-      //        val answers          = Business
-      //        val (session, _, _)  =
-      //          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-      //        inSequence {
-      //          mockAuthWithNoRetrievals()
-      //          mockGetSession(session)
-      //          mockBusinessReputation(answers, Right(businessResponse))
-      //          mockStoreSessionNotCalled
-      //        }
-      //        val form             = enterBankDetailsForm.fill(Business).data.toSeq
-      //        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
-      //        val result           = controller.enterBankAccountDetailsSubmit(journey)(request)
-      //        val doc              = Jsoup.parse(contentAsString(result))
-      //
-      //        val error = getGlobalErrors(doc).text()
-      //        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.INVALID_ACCOUNT_NUMBER")
-      //        status(result) shouldBe BAD_REQUEST
-      //      }
-      //
-      //      "Redirect to error page if the bank reputation service is down" in forAll(journeys) { journey =>
-      //        val error           =
-      //          new BadGatewayException(
-      //            "POST of 'http://localhost:7502/personal/v3/assess' failed. Caused by: 'Connection refused: localhost/0:0:0:0:0:0:0:1:7502'"
-      //          )
-      //        val errorResponse   = ServiceUnavailableError(error.message)
-      //        val answers         = Business
-      //        val (session, _, _) =
-      //          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
-      //
-      //        inSequence {
-      //          mockAuthWithNoRetrievals()
-      //          mockGetSession(session)
-      //          mockBusinessReputation(answers, Left(errorResponse))
-      //          mockStoreSessionNotCalled
-      //        }
-      //
-      //        val form    = enterBankDetailsForm.fill(Business).data.toSeq
-      //        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
-      //        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
-      //
-      //        checkIsRedirect(result, routes.ServiceUnavailableController.unavailable(journey))
-      //      }
+      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
+        journeys
+      ) { journey =>
+        val answers         = Business
+        val (session, _, _) =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
+        val form            = enterBankDetailsForm.fill(Business).data.toSeq
+        val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
+
+        val accountExistsCases = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
+
+        accountExistsCases.foreach { accountExists =>
+          val businessResponse =
+            BankAccountReputation(
+              accountNumberWithSortCodeIsValid = No,
+              accountExists = accountExists,
+              otherError = None
+            )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockBusinessReputation(answers, Right(businessResponse))
+            mockStoreSessionNotCalled
+          }
+          val result           = controller.enterBankAccountDetailsSubmit(request)
+          val doc              = Jsoup.parse(contentAsString(result))
+          getAccountNameValue(doc) shouldBe ""
+          val error = getGlobalErrors(doc).text()
+          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
+          status(result) shouldBe BAD_REQUEST
+        }
+      }
+
+      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
+        journeys
+      ) { journey =>
+        val answers         = Business
+        val (session, _, _) =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
+        val form            = enterBankDetailsForm.fill(Business).data.toSeq
+        val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
+
+        val accountNumberWithSortCodeIsValidCases = Seq(Indeterminate, ReputationResponse.Error)
+        val accountExistsCases                    = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
+
+        accountNumberWithSortCodeIsValidCases.foreach(accountNumberWithSortCodeIsValid =>
+          accountExistsCases.foreach { accountExists =>
+            val businessResponse =
+              BankAccountReputation(
+                accountNumberWithSortCodeIsValid = accountNumberWithSortCodeIsValid,
+                accountExists = accountExists,
+                otherError = None
+              )
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+              mockBusinessReputation(answers, Right(businessResponse))
+              mockStoreSessionNotCalled
+            }
+            val result           = controller.enterBankAccountDetailsSubmit(request)
+            val doc              = Jsoup.parse(contentAsString(result))
+            getAccountNameValue(doc) shouldBe ""
+            val error = getGlobalErrors(doc).text()
+            error          shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
+            status(result) shouldBe BAD_REQUEST
+          }
+        )
+      }
+
+      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = Yes and accountExists = Some(Error)" in forAll(
+        journeys
+      ) { journey =>
+        val answers         = Business
+        val (session, _, _) =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
+        val form            = enterBankDetailsForm.fill(Business).data.toSeq
+        val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
+
+        val businessResponse =
+          BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(ReputationResponse.Error),
+            otherError = None
+          )
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockBusinessReputation(answers, Right(businessResponse))
+          mockStoreSessionNotCalled
+        }
+        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val doc              = Jsoup.parse(contentAsString(result))
+        getAccountNameValue(doc) shouldBe Business.accountName.value
+        val error = getGlobalErrors(doc).text()
+        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-exists-error")
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = Yes and accountExists = (Some(Indeterminate) or Some(No) or None)" in forAll(
+        journeys
+      ) { journey =>
+        val answers            = Business
+        val (session, _, _)    =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
+        val form               = enterBankDetailsForm.fill(Business).data.toSeq
+        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val accountExistsCases = Seq(Some(No), Some(Indeterminate), None)
+
+        accountExistsCases.foreach { accountExists =>
+          val businessResponse =
+            BankAccountReputation(
+              accountNumberWithSortCodeIsValid = Yes,
+              accountExists = accountExists,
+              otherError = None
+            )
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockBusinessReputation(answers, Right(businessResponse))
+            mockStoreSessionNotCalled
+          }
+          val result           = controller.enterBankAccountDetailsSubmit(request)
+          val doc              = Jsoup.parse(contentAsString(result))
+          getAccountNameValue(doc) shouldBe ""
+          val error = getGlobalErrors(doc).text()
+          error          shouldBe messageFromMessageKey("enter-bank-account-details.error.account-does-not-exist")
+          status(result) shouldBe BAD_REQUEST
+        }
+
+      }
+
+      "Fail when the Bank Account Number is invalid" in forAll(journeys) { journey =>
+        val errorResponse    =
+          ReputationErrorResponse(code = "INVALID_ACCOUNT_NUMBER", desc = "123456: invalid account number")
+        val businessResponse = BankAccountReputation(
+          accountNumberWithSortCodeIsValid = Yes,
+          accountExists = Some(Yes),
+          otherError = Some(errorResponse)
+        )
+        val answers          = Business
+        val (session, _, _)  =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockBusinessReputation(answers, Right(businessResponse))
+          mockStoreSessionNotCalled
+        }
+        val form             = enterBankDetailsForm.fill(Business).data.toSeq
+        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val doc              = Jsoup.parse(contentAsString(result))
+
+        val error = getGlobalErrors(doc).text()
+        error          shouldBe messageFromMessageKey("enter-bank-account-details.error.INVALID_ACCOUNT_NUMBER")
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "Redirect to error page if the bank reputation service is down" in forAll(journeys) { journey =>
+        val error           =
+          new BadGatewayException(
+            "POST of 'http://localhost:7502/personal/v3/assess' failed. Caused by: 'Connection refused: localhost/0:0:0:0:0:0:0:1:7502'"
+          )
+        val errorResponse   = ServiceUnavailableError(error.message)
+        val answers         = Business
+        val (session, _, _) =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockBusinessReputation(answers, Left(errorResponse))
+          mockStoreSessionNotCalled
+        }
+
+        val form    = enterBankDetailsForm.fill(Business).data.toSeq
+        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result  = controller.enterBankAccountDetailsSubmit(request)
+
+        checkIsRedirect(result, commonRoutes.BankAccountVerificationUnavailable.show)
+      }
     }
 
     "Personal Bank Account" should {
@@ -644,7 +644,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, commonRoutes.ServiceUnavailableController.show)
+        checkIsRedirect(result, commonRoutes.BankAccountVerificationUnavailable.show)
       }
 
     }

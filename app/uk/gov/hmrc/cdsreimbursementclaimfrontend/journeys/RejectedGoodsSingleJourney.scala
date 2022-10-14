@@ -371,7 +371,11 @@ final class RejectedGoodsSingleJourney private (
   def resetReimbursementMethod(): RejectedGoodsSingleJourney =
     whileClaimIsAmendable {
       new RejectedGoodsSingleJourney(
-        answers.copy(reimbursementMethod = None)
+        answers.copy(
+          reimbursementMethod = None,
+          bankAccountType = None,
+          bankAccountDetails = None
+        )
       )
     }
 

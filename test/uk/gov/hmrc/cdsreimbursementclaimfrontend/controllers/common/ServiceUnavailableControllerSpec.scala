@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 
 class ServiceUnavailableControllerSpec extends ControllerSpec {
 
-  lazy val controller: ServiceUnavailableController = instanceOf[ServiceUnavailableController]
+  lazy val controller: BankAccountVerificationUnavailable = instanceOf[BankAccountVerificationUnavailable]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 

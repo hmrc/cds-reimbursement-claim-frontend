@@ -32,13 +32,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CanSubmitMrnAndDeclaration
 
 trait EnterMovementReferenceNumberMixin extends JourneyBaseController {
 
-  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey with JourneyBase with CommonJourneyProperties with CanSubmitMrnAndDeclaration
+  type Journey <: journeys.Journey with JourneyBase with CommonJourneyProperties with CanSubmitMrnAndDeclaration
 
   def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey]
 
