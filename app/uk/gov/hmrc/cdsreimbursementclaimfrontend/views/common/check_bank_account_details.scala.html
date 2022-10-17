@@ -50,10 +50,10 @@
             paragraph(Html(messages(s"$key.details.p2"))),
             bulletList(
                 Seq(
-                    Html(messages(s"$key.details.bullet1")),
-                    Html(messages(s"$key.details.bullet2"))
+                    Html(messages(s"$key.details.bullet1"))
                 )
-            )
+            ),
+            paragraph(Html(messages(s"$key.details.p3")))
         ))
 
     @summary(BankAccountDetailsSummary(bankAccount, key, subKey, changeAction))
