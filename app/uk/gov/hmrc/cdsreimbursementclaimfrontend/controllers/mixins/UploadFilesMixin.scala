@@ -17,27 +17,162 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.i18n.Messages
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_files_description
 
 import java.util.Locale
 
-trait UploadFilesMixin {
-  self: JourneyBaseController =>
+trait UploadFilesMixin extends JourneyBaseController {
 
+  type Journey <: journeys.Journey with JourneyBase with CommonJourneyProperties
+
+  val uploadDocumentsConnector: UploadDocumentsConnector
   val uploadDocumentsConfig: UploadDocumentsConfig
   val fileUploadConfig: FileUploadConfig
   val upload_files_description: upload_files_description
   val selectDocumentTypePageAction: Call
   val callbackAction: Call
+  val featureSwitchService: FeatureSwitchService
+
+  def modifyJourney(
+    journey: Journey,
+    documentType: UploadDocumentType,
+    requestNonce: Nonce,
+    uploadedFiles: Seq[UploadedFile]
+  ): Either[String, Journey]
 
   final val selfUrl: String = jcc.servicesConfig.getString("self.url")
+
+  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey.answers.selectedDocumentType match {
+      case None =>
+        Redirect(selectDocumentTypePageAction).asFuture
+
+      case Some(documentType) =>
+        val continueAfterYesAnswerUrl =
+          selfUrl + selectDocumentTypePageAction.url
+
+        val continueAfterNoAnswerUrl =
+          selfUrl + checkYourAnswers.url
+
+        uploadDocumentsConnector
+          .initialize(
+            UploadDocumentsConnector
+              .Request(
+                uploadDocumentsSessionConfig(
+                  journey.answers.nonce,
+                  documentType,
+                  continueAfterYesAnswerUrl,
+                  continueAfterNoAnswerUrl
+                ),
+                journey.answers.supportingEvidences
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
+                featureSwitchService
+                  .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
+              )
+          )
+          .map {
+            case Some(url) =>
+              Redirect(url)
+
+            case None =>
+              Redirect(
+                s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}"
+              )
+          }
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+  final val submit: Action[AnyContent] = simpleActionReadWriteJourney(
+    { implicit request => journey =>
+      request
+        .asInstanceOf[Request[AnyContent]]
+        .body
+        .asJson
+        .flatMap(_.asOpt[UploadDocumentsCallback]) match {
+        case None =>
+          logger.warn("missing or invalid callback payload")
+          (journey, BadRequest("missing or invalid callback payload"))
+
+        case Some(callback) =>
+          modifyJourney(
+            journey,
+            callback.documentType,
+            callback.nonce,
+            callback.uploadedFiles.map(_.copy(description = None))
+          )
+            .fold(
+              error => (journey, BadRequest(error)),
+              modifiedJourney => (modifiedJourney, NoContent)
+            )
+      }
+    },
+    isCallback = true
+  )
+
+  final val summary: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey.answers.selectedDocumentType match {
+      case None =>
+        Redirect(selectDocumentTypePageAction).asFuture
+
+      case Some(documentType) =>
+        val continueAfterYesAnswerUrl =
+          selfUrl + selectDocumentTypePageAction.url
+
+        val continueAfterNoAnswerUrl =
+          selfUrl + checkYourAnswers.url
+
+        uploadDocumentsConnector
+          .initialize(
+            UploadDocumentsConnector
+              .Request(
+                uploadDocumentsSessionConfig(
+                  journey.answers.nonce,
+                  documentType,
+                  continueAfterYesAnswerUrl,
+                  continueAfterNoAnswerUrl
+                ),
+                journey.answers.supportingEvidences
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
+                featureSwitchService
+                  .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
+              )
+          )
+          .map {
+            case Some(url) =>
+              Redirect(
+                if (featureSwitchService.isEnabled(Feature.InternalUploadDocuments))
+                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController
+                    .summary()
+                    .url
+                else
+                  url
+              )
+
+            case None =>
+              Redirect(s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}/summary")
+
+          }
+    }
+  }
 
   def uploadDocumentsSessionConfig(
     nonce: Nonce,

@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.implicits._
-import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
