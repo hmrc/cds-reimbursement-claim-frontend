@@ -74,7 +74,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
   "BankDetailsChangeLetterOfAuthorityController" when {
 
     def getContentsOfParagraph(p: Int)(implicit doc: Document): String =
-      doc.select(s"#main-content > div > div p:nth-of-type($p)").html()
+      doc.select(s"#main-content > div > div > p:nth-of-type($p)").html()
 
     "show page" must {
 
