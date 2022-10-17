@@ -74,7 +74,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
   "BankDetailsChangeLetterOfAuthorityController" when {
 
     def getContentsOfParagraph(p: Int)(implicit doc: Document): String =
-      doc.select(s"#main-content > div > div > p:eq($p)").html()
+      doc.select(s"#main-content > div > div > p:nth-of-type($p)").html()
 
     "show page" must {
 
@@ -97,6 +97,8 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
           implicit doc => {
             messageFromMessageKey(s"$confirmBodMessagesKey.p1") shouldBe getContentsOfParagraph(1)
             messageFromMessageKey(s"$confirmBodMessagesKey.p2") shouldBe getContentsOfParagraph(2)
+            messageFromMessageKey(s"$confirmBodMessagesKey.p3") shouldBe getContentsOfParagraph(3)
+            messageFromMessageKey(s"$confirmBodMessagesKey.p4") shouldBe getContentsOfParagraph(4)
           }
         )
       }
