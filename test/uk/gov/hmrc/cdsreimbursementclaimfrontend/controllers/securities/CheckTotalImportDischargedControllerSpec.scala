@@ -77,7 +77,7 @@ class CheckTotalImportDischargedControllerSpec
     doc: Document,
     isError: Boolean = false
   ) = {
-    val header      = doc.select("h1.govuk-heading-xl").eachText().asScala.toList
+    val header      = doc.select("h1").eachText().asScala.toList
     val hint        = doc.select("#check-total-import-discharged-hint").eachText().asScala.toList
     val radioValues = doc.select("input.govuk-radios__input").eachAttr("value").asScala.toList
     val radioLabels = doc.select("label.govuk-radios__label").eachText().asScala.toList

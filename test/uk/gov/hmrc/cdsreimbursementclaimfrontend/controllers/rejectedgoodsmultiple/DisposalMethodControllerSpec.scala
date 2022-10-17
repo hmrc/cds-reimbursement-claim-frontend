@@ -92,7 +92,7 @@ class DisposalMethodControllerSpec
           messageFromMessageKey("select-method-of-disposal.rejected-goods.title"),
           doc => {
             doc
-              .select("body > div > main > div > div > h1")
+              .select("h1")
               .text()               shouldBe messageFromMessageKey("select-method-of-disposal.rejected-goods.title")
             selectedRadioValue(doc) shouldBe None
           }
