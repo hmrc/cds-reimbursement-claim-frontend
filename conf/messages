@@ -1479,10 +1479,14 @@ bill-of-discharge-error.p5=For general enquiries about importing, you can <a hre
 #===================================================
 #  BANK ACCOUNT CHANGE LETTER OF AUTHORITY PAGE
 #===================================================
-bank_account_letter_of_authority.title=Letter of Authority confirmation
-bank_account_letter_of_authority.p1=You will need to provide HMRC with a letter of authority to update the bank account details for this claim. You can upload this document or send by post to HMRC after your claim has been submitted.
-bank_account_letter_of_authority.p2=Your claim will not be processed until HMRC have received this document.
-bank_account_letter_of_authority.subheading=Continue updating bank account details?
+bank_account_letter_of_authority.title=Is a Letter of Authority required?
+bank_account_letter_of_authority.subheading1=Bank account in the same name
+bank_account_letter_of_authority.p1=A letter of authority is not required if you are updating the bank details for a personal or business account held in the same name.
+bank_account_letter_of_authority.subheading2=Bank account in a different name
+bank_account_letter_of_authority.p2=To change bank details to an account held in a different name, we need to confirm you have permission to do this.
+bank_account_letter_of_authority.p3=You will need to provide HMRC with a letter of authority to update the bank account details for this claim. You can upload this document or send by post to HMRC after your claim has been submitted.
+bank_account_letter_of_authority.p4=Your claim will not be processed until HMRC have received this document.
+bank_account_letter_of_authority.label=Continue updating bank account details?
 bank_account_letter_of_authority.yes=Yes
 bank_account_letter_of_authority.no=No
 bank_account_letter_of_authority.error.required=Select yes to continue updating bank account details

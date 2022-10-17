@@ -47,20 +47,25 @@
 
     @heading(Html(title))
 
+    @subHeading(Html(messages(s"$key.subheading1")), "govuk-heading-m")
+
     @paragraph(Html(messages(s"$key.p1")))
+
+    @subHeading(Html(messages(s"$key.subheading2")), "govuk-heading-m")
 
     @paragraph(Html(messages(s"$key.p2")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @paragraph(Html(messages(s"$key.p3")))
 
-        @subHeading(Html(messages(s"$key.subheading")), "govuk-heading-m")
+    @paragraph(Html(messages(s"$key.p4")))
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
-            legend = title,
+            legend = messages(s"$key.label"),
             hintKey = None,
-            classes = "govuk-visually-hidden",
             inline = true,
             items = Seq(
                 RadioItem(
