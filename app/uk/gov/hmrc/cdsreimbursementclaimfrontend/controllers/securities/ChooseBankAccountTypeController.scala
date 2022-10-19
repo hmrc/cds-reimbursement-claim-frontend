@@ -15,19 +15,17 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import com.github.arturopala.validator.Validator.Validate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
-
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.bankAccountTypeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseBankAccountTypeMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 
 import scala.concurrent.ExecutionContext
@@ -35,47 +33,27 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class ChooseBankAccountTypeController @Inject() (
   val jcc: JourneyControllerComponents,
-  chooseBankAccountTypePage: pages.choose_bank_account_type_page
+  val chooseBankAccountTypePage: pages.choose_bank_account_type_page
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesJourneyBaseController
+    with ChooseBankAccountTypeMixin {
+
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(
-      chooseBankAccountTypePage(
-        bankAccountTypeForm.withDefault(journey.answers.bankAccountType),
-        routes.ChooseBankAccountTypeController.submit()
-      )
-    ).asFuture
-  }
+  final override val postAction: Call =
+    routes.ChooseBankAccountTypeController.submit()
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      bankAccountTypeForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(chooseBankAccountTypePage(formWithErrors, routes.ChooseBankAccountTypeController.submit()))
-            ).asFuture,
-          bankAccountType =>
-            journey
-              .submitBankAccountType(bankAccountType)
-              .fold(
-                e => {
-                  logger.warn(e)
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                },
-                updatedJourney => (updatedJourney, Redirect(routes.EnterBankAccountDetailsController.show()))
-              )
-              .asFuture
-        )
-    },
-    fastForwardToCYAEnabled = false
-  )
+  final override val enterBankAccountDetailsRoute: Call =
+    routes.EnterBankAccountDetailsController.show()
+
+  final override def modifyJourney(
+    journey: Journey,
+    bankAccountType: BankAccountType
+  ): Either[String, Journey] =
+    journey.submitBankAccountType(bankAccountType)
+
 }
