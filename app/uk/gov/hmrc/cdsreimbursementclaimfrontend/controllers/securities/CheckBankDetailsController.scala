@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_account_details
@@ -32,9 +32,10 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CheckBankDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkBankAccountDetailsPage: check_bank_account_details
+  val checkBankAccountDetailsPage: check_bank_account_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesJourneyBaseController
+    with CheckBankDetailsMixin {
 
   import SecuritiesJourney.Checks._
 
@@ -45,45 +46,20 @@ class CheckBankDetailsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show(): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      val continueRoute =
-        if (journey.userHasSeenCYAPage | journey.needsDocumentTypeSelection) {
-          routes.ChooseFileTypeController.show()
-        } else {
-          routes.UploadFilesController.show()
-        }
-
-      journey.computeBankAccountDetails
-        .map { bankAccountDetails: BankAccountDetails =>
-          journey
-            .submitBankAccountDetails(bankAccountDetails)
-            .fold(
-              _ => (journey, Redirect(continueRoute)),
-              journeyWithBankDetails =>
-                (
-                  journeyWithBankDetails,
-                  Ok(
-                    checkBankAccountDetailsPage(
-                      bankAccountDetails.masked,
-                      continueRoute,
-                      routes.BankDetailsChangeLetterOfAuthorityController.show()
-                    )
-                  )
-                )
-            )
-        }
-        .getOrElse {
-          (
-            journey,
-            Redirect(
-              if (journey.needsBanksAccountDetailsSubmission && !journey.haveBankDetailsOnAcc14)
-                routes.ChooseBankAccountTypeController.show()
-              else
-                continueRoute
-            )
-          )
-        }
-        .asFuture
+  final override def continueRoute(journey: Journey): Call =
+    if (journey.userHasSeenCYAPage | journey.needsDocumentTypeSelection) {
+      routes.ChooseFileTypeController.show()
+    } else {
+      routes.UploadFilesController.show()
     }
+
+  final override val chooseBankAccountTypeRoute: Call =
+    routes.ChooseBankAccountTypeController.show()
+
+  final override val changeBankAccountDetailsRoute: Call =
+    routes.BankDetailsChangeLetterOfAuthorityController.show()
+
+  final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
+    journey.submitBankAccountDetails(bankAccountDetails)
+
 }
