@@ -21,73 +21,45 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc._
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
-)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends RejectedGoodsSingleJourneyBaseController {
-
-  implicit val subKey: Option[String]                = Some("single")
-  val checkDeclarationDetailsAnswerForm: Form[YesNo] = YesOrNoQuestionForm("check-declaration-details")
+)(implicit val viewConfig: ViewConfig, val errorHandler: ErrorHandler, val ec: ExecutionContext)
+    extends RejectedGoodsSingleJourneyBaseController
+    with CheckDeclarationDetailsMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val postAction: Call = routes.CheckDeclarationDetailsController.submit()
-    Future.successful(
-      journey.answers.displayDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-        Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = false, postAction))
-      )
-    )
-  }
+  final override def continueRoute(journey: Journey): Call =
+    routes.CheckClaimantDetailsController.show()
 
-  val submit: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.CheckDeclarationDetailsController.submit()
-    checkDeclarationDetailsAnswerForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            journey.answers.displayDeclaration
-              .map(declaration =>
-                BadRequest(
-                  checkDeclarationDetailsPage(
-                    declaration,
-                    formWithErrors,
-                    isDuplicate = false,
-                    postAction
-                  )
-                )
-              )
-              .getOrElse(errorHandler.errorResult())
-          ),
-        answer =>
-          (
-            journey,
-            Redirect(answer match {
-              case Yes => routes.CheckClaimantDetailsController.show()
-              case No  => routes.EnterMovementReferenceNumberController.submit()
-            })
-          )
-      )
+  final override val enterMovementReferenceNumberRoute: Call =
+    routes.EnterMovementReferenceNumberController.submit()
+
+  private val postAction: Call =
+    routes.CheckDeclarationDetailsController.submit()
+
+  override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
+    case (decl, form) =>
+      implicit request =>
+        checkDeclarationDetailsPage(decl, form, false, postAction, Some("single"))
   }
 
 }

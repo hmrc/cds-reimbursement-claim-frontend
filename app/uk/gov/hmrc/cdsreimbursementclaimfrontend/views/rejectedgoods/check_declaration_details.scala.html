@@ -40,7 +40,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @subKeyDetail = @{subKey.map(sk => s".$sk").getOrElse("")}
 @key = @{s"check-declaration-details"}

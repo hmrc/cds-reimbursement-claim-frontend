@@ -140,7 +140,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(controller.checkDeclarationDetailsKey -> ""),
+          performAction("check-declaration-details" -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
@@ -157,7 +157,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.checkDeclarationDetailsKey -> "true"),
+          performAction("check-declaration-details" -> "true"),
           routes.UploadMrnListController.show()
         )
       }
@@ -169,7 +169,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.checkDeclarationDetailsKey -> "false"),
+          performAction("check-declaration-details" -> "false"),
           routes.EnterMovementReferenceNumberController.submit()
         )
 

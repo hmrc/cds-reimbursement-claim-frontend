@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
+import play.api.libs.json.Format
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes.subKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
-import play.api.libs.json.Format
 
 trait RejectedGoodsScheduledJourneyBaseController
     extends JourneyBaseController
@@ -48,6 +47,4 @@ trait RejectedGoodsScheduledJourneyBaseController
 
   final override def updateJourney(sessionData: SessionData, journey: RejectedGoodsScheduledJourney): SessionData =
     sessionData.copy(rejectedGoodsScheduledJourney = Some(journey))
-
-  implicit val implicitSubKey: Option[String] = subKey
 }
