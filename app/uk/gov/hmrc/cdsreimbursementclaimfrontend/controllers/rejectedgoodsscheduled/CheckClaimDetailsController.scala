@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pa
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
@@ -43,6 +44,8 @@ class CheckClaimDetailsController @Inject() (
     extends RejectedGoodsScheduledJourneyBaseController {
 
   val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.checkClaimDetailsKey)
+
+  implicit val subKey: Option[String] = MRNScheduledRoutes.subKey
 
   private val postAction: Call         = routes.CheckClaimDetailsController.submit()
   private val selectDutiesAction: Call = routes.SelectDutyTypesController.show()

@@ -32,14 +32,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+
 import scala.concurrent.Future
 
 class CheckDeclarationDetailsControllerSpec
@@ -111,7 +113,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          "enter-movement-reference-number"
+          baseRoutes.IneligibleController.ineligible()
         )
       }
     }
@@ -136,7 +138,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(controller.checkDeclarationDetailsKey -> ""),
+          performAction("check-declaration-details" -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
@@ -153,7 +155,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.checkDeclarationDetailsKey -> "true"),
+          performAction("check-declaration-details" -> "true"),
           routes.EnterMovementReferenceNumberController.show(1)
         )
       }
@@ -165,7 +167,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.checkDeclarationDetailsKey -> "false"),
+          performAction("check-declaration-details" -> "false"),
           routes.EnterMovementReferenceNumberController.showFirst()
         )
       }
