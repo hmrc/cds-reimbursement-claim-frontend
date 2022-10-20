@@ -26,9 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
@@ -42,8 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 import scala.concurrent.Future
 
 trait EnterBankAccountDetailsMixin extends JourneyBaseController {
-
-  type Journey <: journeys.Journey with JourneyBase with CommonJourneyProperties
 
   val enterBankAccountDetailsPage: enter_bank_account_details
   val bankAccountReputationService: BankAccountReputationService

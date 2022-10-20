@@ -16,31 +16,28 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterContactDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import com.github.arturopala.validator.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterContactDetailsController @Inject() (
-  enterOrChangeContactDetailsPage: pages.enter_or_change_contact_details,
-  val jcc: JourneyControllerComponents
+  val jcc: JourneyControllerComponents,
+  val enterOrChangeContactDetailsPage: enter_or_change_contact_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
-
-  private def postAction: Call = routes.EnterContactDetailsController.submit()
+    extends SecuritiesJourneyBaseController
+    with EnterContactDetailsMixin {
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
@@ -48,28 +45,12 @@ class EnterContactDetailsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val show: Action[AnyContent] =
-    actionReadJourneyAndUser { implicit request => journey => userType =>
-      Future.successful(
-        Ok(
-          enterOrChangeContactDetailsPage(
-            Forms.securitiesContactDetailsForm.withDefault(journey.computeContactDetails(userType)),
-            postAction
-          )
-        )
-      )
-    }
+  final override val postAction: Call =
+    routes.EnterContactDetailsController.submit()
 
-  val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      Forms.securitiesContactDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors => (journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction))).asFuture,
-          contactDetails => {
-            val updatedJourney = journey.submitContactDetails(Some(contactDetails))
-            (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
-          }
-        )
-    }
+  final override val continueRoute: Call =
+    routes.CheckClaimantDetailsController.show()
+
+  final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =
+    journey.submitContactDetails(contactDetails)
 }

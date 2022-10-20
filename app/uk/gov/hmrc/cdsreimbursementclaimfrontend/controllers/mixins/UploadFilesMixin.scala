@@ -25,9 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
@@ -40,8 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload
 import java.util.Locale
 
 trait UploadFilesMixin extends JourneyBaseController {
-
-  type Journey <: journeys.Journey with JourneyBase with CommonJourneyProperties
 
   val uploadDocumentsConnector: UploadDocumentsConnector
   val uploadDocumentsConfig: UploadDocumentsConfig

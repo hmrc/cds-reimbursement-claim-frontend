@@ -19,60 +19,35 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterContactDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterContactDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterOrChangeContactDetailsPage: pages.enter_or_change_contact_details
+  val enterOrChangeContactDetailsPage: enter_or_change_contact_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
-    with Logging {
-
-  private def postAction: Call = routes.EnterContactDetailsController.submit()
+    with EnterContactDetailsMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] =
-    actionReadJourneyAndUser { implicit request => journey => userType =>
-      Future.successful(
-        Ok(
-          enterOrChangeContactDetailsPage(
-            Forms.rejectedGoodsContactDetailsForm.withDefault(journey.computeContactDetails(userType)),
-            postAction
-          )
-        )
-      )
-    }
+  final override val postAction: Call =
+    routes.EnterContactDetailsController.submit()
 
-  val submit: Action[AnyContent] =
-    actionReadWriteJourney(
-      { implicit request => journey =>
-        Forms.rejectedGoodsContactDetailsForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction))).asFuture,
-            contactDetails => {
-              val updatedJourney = journey.submitContactDetails(Some(contactDetails))
-              (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
-            }
-          )
-      },
-      fastForwardToCYAEnabled = false
-    )
+  final override val continueRoute: Call =
+    routes.CheckClaimantDetailsController.show()
+
+  final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =
+    journey.submitContactDetails(contactDetails)
 }
