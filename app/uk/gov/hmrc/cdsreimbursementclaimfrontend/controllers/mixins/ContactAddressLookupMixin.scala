@@ -19,15 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 import play.api.mvc._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CanSubmitContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookupMixin {
-
-  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey with JourneyBase with CommonJourneyProperties with CanSubmitContactDetails
 
   val redirectWhenNoAddressDetailsFound: Call
   val nextPageInTheJourney: Call

@@ -857,42 +857,6 @@ choose-payment-method.rejected-goods.single.error.required=Select to be repaid b
 choose-payment-method.rejected-goods.single.error.number=Select to be repaid by current month adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or bank account transfer
 
 #===================================================
-#  CONTACT DETAILS REJECTED GOODS
-#===================================================
-enter-contact-details-rejected-goods.change.title=Change contact details
-enter-contact-details-rejected-goods.add.title=Add contact details
-enter-contact-details-rejected-goods.h2=Enter your personal details
-enter-contact-details-rejected-goods.contact-name.label=Full name
-enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact name, like John Smith
-enter-contact-details-rejected-goods.contact-name.error.maxLength=Name must be 512 characters or less
-enter-contact-details-rejected-goods.contact-email.label=Email address
-enter-contact-details-rejected-goods.contact-email.error.required=Enter an email address in the correct format, like name@example.com
-enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com
-enter-contact-details-rejected-goods.contact-email.error.maxLength=Email address must be 241 characters or less
-enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optional)
-enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-
-#===================================================
-#  CONTACT DETAILS SECURITIES
-#===================================================
-enter-contact-details-securities.change.title=Change contact details
-enter-contact-details-securities.add.title=Add contact details
-enter-contact-details-securities.h2=Enter your personal details
-enter-contact-details-securities.contact-name.label=Full name
-enter-contact-details-securities.contact-name.error.required=Enter your full name, like John Smith
-enter-contact-details-securities.contact-name.error.maxLength=Enter a shorter name
-enter-contact-details-securities.contact-email.label=Email address
-enter-contact-details-securities.contact-email.error.required=Enter an email address in the correct format, like name@example.com
-enter-contact-details-securities.contact-email.invalid=Enter an email address in the correct format, like name@example.com
-enter-contact-details-securities.contact-email.error.maxLength=Enter a shorter email
-enter-contact-details-securities.contact-phone-number.label=Telephone (optional)
-enter-contact-details-securities.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-enter-contact-details-securities.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
-enter-contact-details-securities.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-
-#===================================================
 #  REIMBURSEMENT PAGES
 #===================================================
 duty-type.uk-duty=UK Duty

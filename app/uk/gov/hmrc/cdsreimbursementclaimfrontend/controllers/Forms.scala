@@ -160,22 +160,6 @@ object Forms {
     )(BankAccountDetails.apply)(BankAccountDetails.unapply)
   )
 
-  val rejectedGoodsContactDetailsForm: Form[MrnContactDetails] = Form(
-    mapping(
-      "enter-contact-details-rejected-goods.contact-name"         -> nonEmptyText(maxLength = 512),
-      "enter-contact-details-rejected-goods.contact-email"        -> Email.mappingMaxLength,
-      "enter-contact-details-rejected-goods.contact-phone-number" -> optional(PhoneNumber.mapping)
-    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
-  )
-
-  val securitiesContactDetailsForm: Form[MrnContactDetails] = Form(
-    mapping(
-      "enter-contact-details-securities.contact-name"         -> nonEmptyText(maxLength = 512),
-      "enter-contact-details-securities.contact-email"        -> Email.mappingMaxLength,
-      "enter-contact-details-securities.contact-phone-number" -> optional(PhoneNumber.mapping)
-    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
-  )
-
   val enterRejectedGoodsDetailsForm: Form[String] = Form(
     "enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500)
   )

@@ -38,6 +38,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -48,7 +49,7 @@ import scala.concurrent.Future
   */
 trait JourneyBaseController extends FrontendBaseController with Logging with SeqUtils {
 
-  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey with JourneyBase
+  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey with JourneyBase with CommonJourneyProperties
 
   implicit def ec: ExecutionContext
   implicit def viewConfig: ViewConfig
