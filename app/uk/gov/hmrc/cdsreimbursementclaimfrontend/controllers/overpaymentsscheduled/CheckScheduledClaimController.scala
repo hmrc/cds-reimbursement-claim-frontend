@@ -58,7 +58,7 @@ class CheckScheduledClaimController @Inject() (
   val sessionCache: SessionCache,
   val controllerComponents: MessagesControllerComponents,
   checkScheduledClaimPage: pages.check_scheduled_claim_summary
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor

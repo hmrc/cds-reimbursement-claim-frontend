@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import cats.implicits.catsSyntaxEq
-import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
@@ -33,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes.s
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
@@ -45,12 +43,8 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
-
-  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   def showFirst(): Action[AnyContent] = show(1)
 

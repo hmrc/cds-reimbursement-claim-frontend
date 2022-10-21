@@ -43,7 +43,7 @@ import scala.concurrent.Future
 class ConfirmFullRepaymentController @Inject() (
   val jcc: JourneyControllerComponents,
   confirmFullRepaymentPage: confirm_full_repayment
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
   private val form: Form[YesNo] = confirmFullRepaymentForm

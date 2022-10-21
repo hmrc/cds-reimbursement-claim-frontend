@@ -17,27 +17,28 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.syntax.eq._
+import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
 import play.api.i18n.Messages
+import play.api.libs.json.Format
+import play.api.libs.json.Json
 import play.api.mvc._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import play.api.libs.json.Format
-import play.api.libs.json.Json
-
-import com.github.arturopala.validator.Validator.Validate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -46,12 +47,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
   *  - sesion data retrieval and journey update
   *  - journey completeness check and redirect to the CYA page
   */
-abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
-  ec: ExecutionContext,
-  fmt: Format[Journey]
-) extends FrontendBaseController
-    with Logging
-    with SeqUtils {
+trait JourneyBaseController extends FrontendBaseController with Logging with SeqUtils {
+
+  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey with JourneyBase with CommonJourneyProperties
+
+  implicit def ec: ExecutionContext
+  implicit def viewConfig: ViewConfig
 
   /** [Inject] Component expected to be injected by the implementing controller. */
   val jcc: JourneyControllerComponents
@@ -126,7 +127,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
         Future.successful(
           request.sessionData
             .flatMap(getJourney)
-            .map(journey =>
+            .map((journey: Journey) =>
               if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
               else
                 checkIfMaybeActionPreconditionFails(journey) match {
@@ -146,7 +147,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .async { implicit request =>
         getJourney(request.sessionData)
-          .map(journey =>
+          .map((journey: Journey) =>
             if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
@@ -165,7 +166,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .apply { implicit request =>
         getJourney(request.sessionData)
-          .map(journey =>
+          .map((journey: Journey) =>
             if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
             else
               checkIfMaybeActionPreconditionFails(journey) match {
@@ -185,7 +186,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
       .async { implicit request =>
         request.sessionData
           .flatMap(getJourney)
-          .map(journey =>
+          .map((journey: Journey) =>
             if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
@@ -208,7 +209,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)
-              .map(journey =>
+              .map((journey: Journey) =>
                 if (journey.isFinalized) (journey, Redirect(claimSubmissionConfirmation))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
@@ -240,7 +241,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .async { implicit request =>
         getJourney(request.sessionData)
-          .map(journey =>
+          .map((journey: Journey) =>
             if (journey.isFinalized) (journey, Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
@@ -271,7 +272,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)
-              .map(journey =>
+              .map((journey: Journey) =>
                 if (journey.isFinalized) Future.successful((journey, Redirect(claimSubmissionConfirmation)))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
@@ -304,7 +305,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)
-              .map(journey =>
+              .map((journey: Journey) =>
                 if (journey.isFinalized) Future.successful(Right((journey, Redirect(claimSubmissionConfirmation))))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
@@ -340,7 +341,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .async { implicit request =>
         getJourney(request.sessionData)
-          .fold(redirectToTheStartOfTheJourney) { journey =>
+          .fold(redirectToTheStartOfTheJourney) { (journey: Journey) =>
             if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               (checkIfMaybeActionPreconditionFails(journey) match {
@@ -368,7 +369,7 @@ abstract class JourneyBaseController[Journey <: JourneyBase[Journey]](implicit
     def |>[B](f: A => B): B = f(value)
   }
 
-  final def prettyPrint(journey: Journey): String =
+  final def prettyPrint(journey: Journey)(implicit format: Format[Journey]): String =
     Json.prettyPrint(Json.toJson(journey))
 
   final def logAndDisplayError(

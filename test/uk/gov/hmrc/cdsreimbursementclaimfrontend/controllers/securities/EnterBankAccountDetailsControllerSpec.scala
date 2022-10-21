@@ -177,7 +177,7 @@ class EnterBankAccountDetailsControllerSpec
               }
               checkIsRedirect(
                 performAction(bankAccountDataToEnter),
-                commonRoutes.ServiceUnavailableController.show()
+                commonRoutes.BankAccountVerificationUnavailable.show()
               )
             }
         }

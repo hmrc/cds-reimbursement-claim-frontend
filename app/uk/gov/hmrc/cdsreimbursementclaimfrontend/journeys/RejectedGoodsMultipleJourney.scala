@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
+import com.github.arturopala.validator.Validator
 
 import java.time.LocalDate
 
@@ -55,8 +56,19 @@ import java.time.LocalDate
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[RejectedGoodsMultipleJourney]
-    with RejectedGoodsJourneyProperties {
+) extends JourneyBase
+    with DirectFluentSyntax[RejectedGoodsMultipleJourney]
+    with RejectedGoodsJourneyProperties
+    with CanSubmitMrnAndDeclaration
+    with CanSubmitContactDetails
+    with HaveInspectionDetails {
+
+  type Type = RejectedGoodsMultipleJourney
+
+  val self: RejectedGoodsMultipleJourney = this
+
+  val validate: Validator.Validate[RejectedGoodsMultipleJourney] =
+    RejectedGoodsMultipleJourney.validator
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -193,14 +205,14 @@ final class RejectedGoodsMultipleJourney private (
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ): Either[String, RejectedGoodsMultipleJourney] =
+  ) =
     submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
 
   def submitMovementReferenceNumberAndDeclaration(
     index: Int,
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ): Either[String, RejectedGoodsMultipleJourney] =
+  ) =
     whileClaimIsAmendable {
       if (index < 0)
         Left("submitMovementReferenceNumber.negativeIndex")
@@ -328,14 +340,14 @@ final class RejectedGoodsMultipleJourney private (
       else Left("submitDeclarantEoriNumber.unexpected")
     }
 
-  def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsMultipleJourney =
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]) =
     whileClaimIsAmendable {
       new RejectedGoodsMultipleJourney(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
-  def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsMultipleJourney =
+  def submitContactAddress(contactAddress: ContactAddress) =
     whileClaimIsAmendable {
       new RejectedGoodsMultipleJourney(
         answers.copy(contactAddress = Some(contactAddress))

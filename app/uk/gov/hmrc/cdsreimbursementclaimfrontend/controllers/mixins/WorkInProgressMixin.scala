@@ -20,15 +20,15 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import java.util.UUID
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 
-trait WorkInProgressMixin[Journey <: JourneyBase[Journey]] {
-  self: JourneyBaseController[Journey] =>
+import java.util.UUID
+
+trait WorkInProgressMixin {
+  self: JourneyBaseController =>
 
   val show: Action[AnyContent] =
-    simpleActionReadJourney { journey =>
-      Ok(s"Work in progress ...\n\nJourney state:\n\n${prettyPrint(journey)}")
+    simpleActionReadJourney { _ =>
+      Ok(s"Work in progress ...")
     }
 
   def show(a: Any): Action[AnyContent]         = show
@@ -42,7 +42,7 @@ trait WorkInProgressMixin[Journey <: JourneyBase[Journey]] {
       (
         journey,
         Ok(
-          s"Submitted form data:\n\n${request.asInstanceOf[Request[AnyContent]].body.asFormUrlEncoded.map(_.mkString("\n")).getOrElse("<empty>")}\n\nJourney state:\n\n${prettyPrint(journey)}"
+          s"Submitted form data:\n\n${request.asInstanceOf[Request[AnyContent]].body.asFormUrlEncoded.map(_.mkString("\n")).getOrElse("<empty>")}"
         )
       ).asFuture
     }

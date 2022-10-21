@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.OptionValues
+import play.api.i18n.Lang
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
@@ -29,16 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import play.api.i18n.MessagesImpl
-import play.api.i18n.Lang
 
 class CheckBankDetailsControllerSpec
     extends PropertyBasedControllerSpec

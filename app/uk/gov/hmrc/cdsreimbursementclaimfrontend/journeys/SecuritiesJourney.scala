@@ -42,13 +42,25 @@ import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
+
+import com.github.arturopala.validator.Validator
 
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[SecuritiesJourney]
+) extends JourneyBase
     with CommonJourneyProperties
+    with CanSubmitContactDetails
+    with DirectFluentSyntax[SecuritiesJourney]
     with SeqUtils {
+
+  type Type = SecuritiesJourney
+
+  val self: SecuritiesJourney = this
+
+  val validate: Validator.Validate[SecuritiesJourney] =
+    SecuritiesJourney.validator
 
   import SecuritiesJourney.Answers
   import SecuritiesJourney.Checks._
@@ -74,11 +86,6 @@ final class SecuritiesJourney private (
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
     getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
-
-  /** Returns true if bank details are on the ACC14 declaration. */
-  def haveBankDetailsOnAcc14: Boolean =
-    getLeadDisplayDeclaration
-      .exists(_.hasBankDetails)
 
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
@@ -571,14 +578,14 @@ final class SecuritiesJourney private (
         Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     }
 
-  def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]) =
     whileClaimIsAmendable {
       new SecuritiesJourney(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
-  def submitContactAddress(contactAddress: ContactAddress): SecuritiesJourney =
+  def submitContactAddress(contactAddress: ContactAddress) =
     whileClaimIsAmendable {
       new SecuritiesJourney(
         answers.copy(contactAddress = Some(contactAddress))

@@ -33,21 +33,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 

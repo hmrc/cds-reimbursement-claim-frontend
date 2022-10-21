@@ -18,15 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckExportDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
-    with WorkInProgressMixin[SecuritiesJourney]
+    with WorkInProgressMixin

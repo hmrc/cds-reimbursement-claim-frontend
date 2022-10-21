@@ -58,7 +58,7 @@ class EnterImporterEoriNumberController @Inject() (
   claimService: ClaimService,
   val controllerComponents: MessagesControllerComponents,
   enterImporterEoriNumberPage: pages.enter_importer_eori_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionUpdates

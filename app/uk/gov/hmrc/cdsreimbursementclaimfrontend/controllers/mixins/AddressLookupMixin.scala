@@ -22,28 +22,26 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
+trait AddressLookupMixin extends JourneyBaseController {
 
-trait AddressLookupMixin[Journey <: JourneyBase[Journey]] { self: JourneyBaseController[Journey] =>
-
-  implicit val ec: ExecutionContext
-  implicit val viewConfig: ViewConfig
   implicit val errorHandler: ErrorHandler
 
   val addressLookupService: AddressLookupService
 
   val problemWithAddressPage: Call
   val retrieveLookupAddress: Call
+
+  def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey
+
+  def redirectToTheNextPage(journey: Journey): (Journey, Result)
 
   def redirectToALF: Action[AnyContent] =
     Action.andThen(jcc.authenticatedAction).async { implicit request =>
@@ -71,13 +69,13 @@ trait AddressLookupMixin[Journey <: JourneyBase[Journey]] { self: JourneyBaseCon
                 else Redirect(baseRoutes.IneligibleController.ineligible())
               )
             },
-            update(journey) andThen redirectToTheNextPage
+            contactAddress =>
+              redirectToTheNextPage(
+                modifyJourney(journey, contactAddress)
+              )
           )
       },
       fastForwardToCYAEnabled = false
     )
 
-  def update(journey: Journey): ContactAddress => Journey
-
-  def redirectToTheNextPage(journey: Journey): (Journey, Result)
 }

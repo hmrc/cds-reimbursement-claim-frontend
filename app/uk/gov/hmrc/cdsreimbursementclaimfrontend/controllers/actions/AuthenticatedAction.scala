@@ -22,8 +22,11 @@ import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.AuthorisedFunctions
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -37,7 +40,8 @@ class AuthenticatedAction @Inject() (
   val authConnector: AuthConnector,
   val config: Configuration,
   val errorHandler: ErrorHandler,
-  val sessionStore: SessionCache
+  val sessionStore: SessionCache,
+  featureSwitchService: FeatureSwitchService
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequest] {
 
@@ -49,7 +53,20 @@ class AuthenticatedAction @Inject() (
       HeaderCarrierConverter
         .fromRequestAndSession(request, request.session)
 
-    auth.authorised()(Future.successful(Right(AuthenticatedRequest(request))))
+    if (featureSwitchService.isDisabled(Feature.LimitedAccess))
+      auth
+        .authorised()(Future.successful(Right(AuthenticatedRequest(request))))
+    else
+      auth
+        .authorised()
+        .retrieve(
+          Retrievals.allEnrolments
+        ) { case enrolments =>
+          if (checkUserHasAccess(enrolments))
+            Future.successful(Right(AuthenticatedRequest(request)))
+          else
+            Future.successful(Left(Results.Redirect(limitedAccessErrorPageUrl)))
+        }
   }
 
   final def readHeadersFromRequestOnly(onlyRequest: Boolean): AuthenticatedAction =
@@ -58,14 +75,28 @@ class AuthenticatedAction @Inject() (
         authConnector,
         config,
         errorHandler,
-        sessionStore
+        sessionStore,
+        featureSwitchService
       ) {
         override def authorisedFunction[A](
           auth: AuthorisedFunctions,
           request: MessagesRequest[A]
         ): Future[Either[Result, AuthenticatedRequest[A]]] = {
           implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-          auth.authorised()(Future.successful(Right(AuthenticatedRequest(request))))
+          if (featureSwitchService.isDisabled(Feature.LimitedAccess))
+            auth
+              .authorised()(Future.successful(Right(AuthenticatedRequest(request))))
+          else
+            auth
+              .authorised()
+              .retrieve(
+                Retrievals.allEnrolments
+              ) { case enrolments =>
+                if (checkUserHasAccess(enrolments))
+                  Future.successful(Right(AuthenticatedRequest(request)))
+                else
+                  Future.successful(Left(Results.Redirect(limitedAccessErrorPageUrl)))
+              }
         }
       }
     else

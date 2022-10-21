@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 class ProblemWithAddressController @Inject() (
   val jcc: JourneyControllerComponents,
   problemWithAddressPage: problem_with_address
-)(implicit ec: ExecutionContext, val viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
   val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()

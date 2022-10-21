@@ -94,6 +94,10 @@ trait CommonJourneyProperties {
       getDeclarantBankAccountDetails.forall(_ =!= bankDetails)
     }
 
+  final def haveBankDetailsOnAcc14: Boolean =
+    getLeadDisplayDeclaration
+      .exists(_.hasBankDetails)
+
   final def getClaimantType: ClaimantType =
     if (getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
       ClaimantType.Consignee

@@ -111,13 +111,13 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title"),
+            messageFromMessageKey("enter-contact-details.change.title"),
             doc => {
               doc
-                .select("form input[name='enter-contact-details-rejected-goods.contact-name']")
+                .select("form input[name='enter-contact-details.contact-name']")
                 .`val`() shouldBe contactDetails.get.fullName
               doc
-                .select("form input[name='enter-contact-details-rejected-goods.contact-email']")
+                .select("form input[name='enter-contact-details.contact-email']")
                 .`val`() shouldBe contactDetails.get.emailAddress.value
             }
           )
@@ -156,12 +156,12 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
+            messageFromMessageKey("enter-contact-details.change.title")
           )
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title"),
+            messageFromMessageKey("enter-contact-details.change.title"),
             doc => {
               getErrorSummary(doc) contains messageFromMessageKey(
                 "enter-your-contact-details.contact-name.error.required"
@@ -199,13 +199,13 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details-rejected-goods.change.title")
+            messageFromMessageKey("enter-contact-details.change.title")
           )
 
           checkIsRedirect(
             performAction(
-              "enter-contact-details-rejected-goods.contact-name"  -> name.toFullName,
-              "enter-contact-details-rejected-goods.contact-email" -> email.value
+              "enter-contact-details.contact-name"  -> name.toFullName,
+              "enter-contact-details.contact-email" -> email.value
             ),
             routes.CheckClaimantDetailsController.show()
           )

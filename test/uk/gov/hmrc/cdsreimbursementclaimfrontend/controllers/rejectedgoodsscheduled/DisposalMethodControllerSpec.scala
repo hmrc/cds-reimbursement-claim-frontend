@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
@@ -66,9 +65,7 @@ class DisposalMethodControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(journeyWithMrnAndDD)
 
   "Disposal Method Controller" when {
     "Disposal Method page" must {

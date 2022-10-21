@@ -42,7 +42,7 @@ import scala.concurrent.Future
 class ChooseExportMethodController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseExportMethodPage: choose_export_method
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
   private val form: Form[Option[TemporaryAdmissionMethodOfDisposal]] = chooseExportMethodForm

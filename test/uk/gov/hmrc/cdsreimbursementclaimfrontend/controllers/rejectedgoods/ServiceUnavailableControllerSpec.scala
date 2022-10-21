@@ -25,10 +25,11 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.BankAccountVerificationUnavailable
 
 class ServiceUnavailableControllerSpec extends ControllerSpec {
 
-  val controller: ServiceUnavailableController = instanceOf[ServiceUnavailableController]
+  val controller: BankAccountVerificationUnavailable = instanceOf[BankAccountVerificationUnavailable]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)

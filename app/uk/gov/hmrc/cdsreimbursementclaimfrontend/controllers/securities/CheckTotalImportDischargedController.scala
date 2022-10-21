@@ -41,7 +41,7 @@ import scala.concurrent.ExecutionContext
 class CheckTotalImportDischargedController @Inject() (
   val jcc: JourneyControllerComponents,
   checkTotalImportDischargedPage: check_total_import_discharged_page
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
   private val form: Form[YesNo] = checkTotalImportDischargedForm
 

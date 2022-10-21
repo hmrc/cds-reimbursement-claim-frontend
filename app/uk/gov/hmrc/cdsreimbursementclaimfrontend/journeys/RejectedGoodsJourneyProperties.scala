@@ -17,36 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
 
 /** Common properties of the rejected-goods single, multiple and scheduled journeys. */
 trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
 
-  override def answers: RejectedGoodsAnswers
+  def answers: RejectedGoodsAnswers
 
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal
 
-  final def getPotentialInspectionAddresses: Seq[(InspectionAddressType, String)] =
-    Seq(
-      getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer  -> _),
-      getDeclarantContactDetailsFromACC14.flatMap(_.showAddress).map(Declarant -> _)
-    ).flatten(Option.option2Iterable)
-
-  final def getInspectionAddressForType(
-    addressType: InspectionAddressType
-  ): Option[InspectionAddress] =
-    addressType match {
-      case Importer  => getConsigneeContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
-      case Declarant => getDeclarantContactDetailsFromACC14.map(InspectionAddress.ofType(addressType).mapFrom(_))
-      case Other     => None
-    }
-
   final def needsSpecialCircumstancesBasisOfClaim: Boolean =
     answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
-  final def getInspectionAddressType: Option[InspectionAddressType] =
-    answers.inspectionAddress.map(_.addressType)
 }

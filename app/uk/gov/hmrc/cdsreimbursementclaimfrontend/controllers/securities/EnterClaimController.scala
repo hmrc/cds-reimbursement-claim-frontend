@@ -42,7 +42,7 @@ import SecuritiesJourney.Checks._
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
   enterClaimPage: enter_claim
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.

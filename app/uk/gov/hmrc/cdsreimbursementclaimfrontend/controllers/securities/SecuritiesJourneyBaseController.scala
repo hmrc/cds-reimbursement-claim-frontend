@@ -22,12 +22,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import play.api.libs.json.Format
 
-import scala.concurrent.ExecutionContext
+trait SecuritiesJourneyBaseController extends JourneyBaseController with SecuritiesJourneyRouter {
 
-abstract class SecuritiesJourneyBaseController(implicit ec: ExecutionContext)
-    extends JourneyBaseController[SecuritiesJourney]
-    with SecuritiesJourneyRouter {
+  final type Journey = SecuritiesJourney
+
+  final val format: Format[SecuritiesJourney] =
+    SecuritiesJourney.format
 
   final override val requiredFeature: Option[Feature] =
     Some(Feature.Securities)

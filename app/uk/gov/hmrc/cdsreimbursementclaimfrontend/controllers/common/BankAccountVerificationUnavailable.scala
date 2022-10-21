@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.service_unava
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
-class ServiceUnavailableController @Inject() (
+class BankAccountVerificationUnavailable @Inject() (
   val controllerComponents: MessagesControllerComponents,
   serviceUnavailablePage: service_unavailable
 )(implicit viewConfig: ViewConfig)

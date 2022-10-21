@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 class EnterRejectedGoodsDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   enterRejectedGoodsDetailsPage: pages.enter_rejected_goods_details
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.

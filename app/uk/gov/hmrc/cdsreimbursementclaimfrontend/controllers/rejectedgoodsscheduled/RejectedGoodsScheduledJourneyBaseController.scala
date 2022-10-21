@@ -16,19 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
+import play.api.libs.json.Format
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes.subKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 
-import scala.concurrent.ExecutionContext
-
-abstract class RejectedGoodsScheduledJourneyBaseController(implicit ec: ExecutionContext)
-    extends JourneyBaseController[RejectedGoodsScheduledJourney]
+trait RejectedGoodsScheduledJourneyBaseController
+    extends JourneyBaseController
     with RejectedGoodsScheduledJourneyRouter {
+
+  final type Journey = RejectedGoodsScheduledJourney
+
+  final val format: Format[RejectedGoodsScheduledJourney] =
+    RejectedGoodsScheduledJourney.format
 
   final override val requiredFeature: Option[Feature] =
     Some(Feature.RejectedGoods)
@@ -44,6 +47,4 @@ abstract class RejectedGoodsScheduledJourneyBaseController(implicit ec: Executio
 
   final override def updateJourney(sessionData: SessionData, journey: RejectedGoodsScheduledJourney): SessionData =
     sessionData.copy(rejectedGoodsScheduledJourney = Some(journey))
-
-  implicit val implicitSubKey: Option[String] = subKey
 }

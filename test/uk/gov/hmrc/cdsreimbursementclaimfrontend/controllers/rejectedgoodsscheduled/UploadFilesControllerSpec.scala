@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.FakeRequest
@@ -38,8 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import play.api.libs.json.Json
 
 class UploadFilesControllerSpec
     extends PropertyBasedControllerSpec
@@ -85,10 +84,7 @@ class UploadFilesControllerSpec
       }
 
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in {
-        val journey =
-          RejectedGoodsScheduledJourney
-            .empty(exampleEori)
-            .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
+        val journey = journeyWithMrnAndDD.submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
@@ -106,16 +102,17 @@ class UploadFilesControllerSpec
       }
 
       "redirect to 'Upload Documents' when document type set and some files uploaded already" in {
-        val journey =
-          RejectedGoodsScheduledJourney
-            .empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
             SessionData(
-              journey
+              journeyWithMrnAndDD
                 .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
-                .receiveUploadedFiles(UploadDocumentType.AirWayBill, journey.answers.nonce, Seq(uploadDocument))
+                .receiveUploadedFiles(
+                  UploadDocumentType.AirWayBill,
+                  journeyWithMrnAndDD.answers.nonce,
+                  Seq(uploadDocument)
+                )
                 .getOrFail
             )
           )
@@ -181,43 +178,44 @@ class UploadFilesControllerSpec
       }
 
       "return 204 if callback accepted" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(journeyWithMrnAndDD))
           mockStoreSession(
             SessionData(
-              journey
-                .receiveUploadedFiles(UploadDocumentType.CommercialInvoice, journey.answers.nonce, Seq(uploadDocument))
+              journeyWithMrnAndDD
+                .receiveUploadedFiles(
+                  UploadDocumentType.CommercialInvoice,
+                  journeyWithMrnAndDD.answers.nonce,
+                  Seq(uploadDocument)
+                )
                 .getOrFail
             )
           )(Right(()))
         }
-        val result  = performAction(callbackPayload.copy(nonce = journey.answers.nonce))
+        val result = performAction(callbackPayload.copy(nonce = journeyWithMrnAndDD.answers.nonce))
         status(result) shouldBe 204
       }
 
       "return 400 if callback rejected because of invalid nonce" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(journeyWithMrnAndDD)
           )
         }
-        val result  = performAction(callbackPayload.copy(nonce = Nonce.random))
+        val result = performAction(callbackPayload.copy(nonce = Nonce.random))
         status(result) shouldBe 400
       }
 
       "return 400 if callback rejected because of invalid request" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(journeyWithMrnAndDD)
           )
         }
-        val result  = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
+        val result = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
         status(result) shouldBe 400
       }
 

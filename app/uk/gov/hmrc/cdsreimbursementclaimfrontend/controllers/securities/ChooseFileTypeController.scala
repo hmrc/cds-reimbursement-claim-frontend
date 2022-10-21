@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 class ChooseFileTypeController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseFileTypePage: choose_file_type
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
   import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
   import com.github.arturopala.validator.Validator.Validate

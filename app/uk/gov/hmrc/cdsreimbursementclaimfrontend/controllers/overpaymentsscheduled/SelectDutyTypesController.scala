@@ -50,7 +50,7 @@ class SelectDutyTypesController @Inject() (
   val sessionCache: SessionCache,
   val controllerComponents: MessagesControllerComponents,
   selectDutyTypesPage: pages.select_duty_types
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging

@@ -54,7 +54,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
   claimService: ClaimService,
   enterExportMovementReferenceNumberSinglePage: enter_export_movement_reference_number,
   enterExportMovementReferenceNumberMultiplePage: enter_export_movement_reference_number_multiple
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =

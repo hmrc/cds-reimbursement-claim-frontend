@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 class ChooseFileTypeController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseFileTypePage: choose_file_type
-)(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
   val submitAction: Call          = routes.ChooseFileTypeController.submit()

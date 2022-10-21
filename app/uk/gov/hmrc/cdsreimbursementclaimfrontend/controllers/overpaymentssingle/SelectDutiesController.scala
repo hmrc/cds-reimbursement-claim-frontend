@@ -58,7 +58,7 @@ class SelectDutiesController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   val config: Configuration,
   selectDutiesPage: pages.select_duties
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging

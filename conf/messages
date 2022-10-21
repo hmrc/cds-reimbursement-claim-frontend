@@ -857,42 +857,6 @@ choose-payment-method.rejected-goods.single.error.required=Select to be repaid b
 choose-payment-method.rejected-goods.single.error.number=Select to be repaid by current month adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or bank account transfer
 
 #===================================================
-#  CONTACT DETAILS REJECTED GOODS
-#===================================================
-enter-contact-details-rejected-goods.change.title=Change contact details
-enter-contact-details-rejected-goods.add.title=Add contact details
-enter-contact-details-rejected-goods.h2=Enter your personal details
-enter-contact-details-rejected-goods.contact-name.label=Full name
-enter-contact-details-rejected-goods.contact-name.error.required=Enter a contact name, like John Smith
-enter-contact-details-rejected-goods.contact-name.error.maxLength=Name must be 512 characters or less
-enter-contact-details-rejected-goods.contact-email.label=Email address
-enter-contact-details-rejected-goods.contact-email.error.required=Enter an email address in the correct format, like name@example.com
-enter-contact-details-rejected-goods.contact-email.invalid=Enter an email address in the correct format, like name@example.com
-enter-contact-details-rejected-goods.contact-email.error.maxLength=Email address must be 241 characters or less
-enter-contact-details-rejected-goods.contact-phone-number.label=Telephone (optional)
-enter-contact-details-rejected-goods.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-enter-contact-details-rejected-goods.contact-phone-number.error.maxLength=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-enter-contact-details-rejected-goods.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-
-#===================================================
-#  CONTACT DETAILS SECURITIES
-#===================================================
-enter-contact-details-securities.change.title=Change contact details
-enter-contact-details-securities.add.title=Add contact details
-enter-contact-details-securities.h2=Enter your personal details
-enter-contact-details-securities.contact-name.label=Full name
-enter-contact-details-securities.contact-name.error.required=Enter your full name, like John Smith
-enter-contact-details-securities.contact-name.error.maxLength=Enter a shorter name
-enter-contact-details-securities.contact-email.label=Email address
-enter-contact-details-securities.contact-email.error.required=Enter an email address in the correct format, like name@example.com
-enter-contact-details-securities.contact-email.invalid=Enter an email address in the correct format, like name@example.com
-enter-contact-details-securities.contact-email.error.maxLength=Enter a shorter email
-enter-contact-details-securities.contact-phone-number.label=Telephone (optional)
-enter-contact-details-securities.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-enter-contact-details-securities.contact-phone-number.error.maxLength=Enter a UK telephone number, like 01632 960 001, 07700 900 982 or +44 808 157 0192
-enter-contact-details-securities.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-
-#===================================================
 #  REIMBURSEMENT PAGES
 #===================================================
 duty-type.uk-duty=UK Duty
@@ -1266,11 +1230,11 @@ enter-inspection-date.rejected-goods.error.before1900=Enter the date your goods 
 #===================================================
 bank-details.title=Check these bank details are correct
 bank-details.p1=These are the details of where your repayments will be made in the UK based on our records.
-bank-details.details.heading=How to change bank details
-bank-details.details.p1=To change these bank details to an account under a different name, we need to confirm you have permission to do this.
+bank-details.details.heading=How to change bank details for an account in a different name
+bank-details.details.p1=To change bank details to an account under a different name, we need to confirm you have permission to do this.
 bank-details.details.p2=You will need to provide:
-bank-details.details.bullet1=a letter from the company whose bank details are being changed, confirming you have permission to make this change
-bank-details.details.bullet2=a letter of authority from the original account holder to their bank, confirming the updated bank account details
+bank-details.details.bullet1=a letter of authority confirming you have permission to change these bank account details.
+bank-details.details.p3=A letter of authority is not required if you are updating the bank details for a personal or business account held in the same name.
 bank-details.account-name.label=Name on the account
 bank-details.account-name.label.hidden=bank details
 bank-details.sort-code.label=Sort code
@@ -1479,10 +1443,14 @@ bill-of-discharge-error.p5=For general enquiries about importing, you can <a hre
 #===================================================
 #  BANK ACCOUNT CHANGE LETTER OF AUTHORITY PAGE
 #===================================================
-bank_account_letter_of_authority.title=Letter of Authority confirmation
-bank_account_letter_of_authority.p1=You will need to provide HMRC with a letter of authority to update the bank account details for this claim. You can upload this document or send by post to HMRC after your claim has been submitted.
-bank_account_letter_of_authority.p2=Your claim will not be processed until HMRC have received this document.
-bank_account_letter_of_authority.subheading=Continue updating bank account details?
+bank_account_letter_of_authority.title=Is a Letter of Authority required?
+bank_account_letter_of_authority.subheading1=Bank account in the same name
+bank_account_letter_of_authority.p1=A letter of authority is not required if you are updating the bank details for a personal or business account held in the same name.
+bank_account_letter_of_authority.subheading2=Bank account in a different name
+bank_account_letter_of_authority.p2=To change bank details to an account held in a different name, we need to confirm you have permission to do this.
+bank_account_letter_of_authority.p3=You will need to provide HMRC with a letter of authority to update the bank account details for this claim. You can upload this document or send by post to HMRC after your claim has been submitted.
+bank_account_letter_of_authority.p4=Your claim will not be processed until HMRC have received this document.
+bank_account_letter_of_authority.label=Continue updating bank account details?
 bank_account_letter_of_authority.yes=Yes
 bank_account_letter_of_authority.no=No
 bank_account_letter_of_authority.error.required=Select yes to continue updating bank account details
@@ -1757,7 +1725,7 @@ choose-file-type.file-type.ImportPackingList=Import packing list
 choose-file-type.file-type.ExportPackingList=Export packing list
 choose-file-type.file-type.ProofOfOrigin=Proof of origin
 choose-file-type.file-type.ProofOfOrigin.hint=Proof of origin documentation is required for this claim
-choose-file-type.file-type.ProofOfAuthority=Proof of authority
+choose-file-type.file-type.ProofOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfAuthority.hint=Required when bank account details have been updated
 choose-file-type.file-type.CalculationWorksheetOrFinalSalesFigures=Calculation Worksheet or Final Sales Figures
 choose-file-type.file-type.BillOfDischarge3=Bill of discharge 3

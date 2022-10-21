@@ -57,7 +57,7 @@ class EnterDeclarantEoriNumberController @Inject() (
   val sessionStore: SessionCache,
   val controllerComponents: MessagesControllerComponents,
   enterDeclarantEoriNumberPage: pages.enter_declarant_eori_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionUpdates

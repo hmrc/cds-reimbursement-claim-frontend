@@ -83,7 +83,7 @@ class DefaultCDSReimbursementClaimConnector @Inject() (http: HttpClient, service
     reason: ReasonForSecurity
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, ExistingClaim] = {
     val getDeclarationUrl =
-      s"$baseUrl/cds-reimbursement-claim/declaration/${mrn.value}/is-duplicate?reasonForSecurity=$reason"
+      s"$baseUrl/cds-reimbursement-claim/declaration/${mrn.value}/claim-exists?reasonForSecurity=$reason"
 
     EitherT[Future, Error, ExistingClaim](
       http

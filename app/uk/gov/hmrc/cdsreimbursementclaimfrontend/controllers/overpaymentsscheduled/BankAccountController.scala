@@ -68,7 +68,7 @@ class BankAccountController @Inject() (
   val bankAccountReputationService: BankAccountReputationService,
   checkBankAccountDetailsPage: check_bank_account_details,
   enterBankAccountDetailsPage: enter_bank_account_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with Logging
@@ -133,7 +133,7 @@ class BankAccountController @Inject() (
     error match {
       case e @ ServiceUnavailableError(_, _) =>
         logger.warn(s"could not contact bank account service: $e")
-        Redirect(commonRoutes.ServiceUnavailableController.show())
+        Redirect(commonRoutes.BankAccountVerificationUnavailable.show())
       case e                                 =>
         logAndDisplayError("could not process bank account details: ", e)
     }

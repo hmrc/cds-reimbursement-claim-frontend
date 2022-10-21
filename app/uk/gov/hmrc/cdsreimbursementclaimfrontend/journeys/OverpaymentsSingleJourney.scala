@@ -36,6 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
+import com.github.arturopala.validator.Validator
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -48,8 +50,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 final class OverpaymentsSingleJourney private (
   val answers: OverpaymentsSingleJourney.Answers,
   val caseNumber: Option[String] = None
-) extends JourneyBase[OverpaymentsSingleJourney]
-    with OverpaymentsJourneyProperties {
+) extends JourneyBase
+    with DirectFluentSyntax[OverpaymentsSingleJourney]
+    with OverpaymentsJourneyProperties
+    with CanSubmitMrnAndDeclaration {
+
+  type Type = OverpaymentsSingleJourney
+
+  val self: OverpaymentsSingleJourney = this
+
+  val validate: Validator.Validate[OverpaymentsSingleJourney] =
+    OverpaymentsSingleJourney.validator
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -117,7 +128,7 @@ final class OverpaymentsSingleJourney private (
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ): Either[String, OverpaymentsSingleJourney] =
+  ) =
     whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn)

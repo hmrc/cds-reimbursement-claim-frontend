@@ -20,71 +20,39 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc._
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
-    extends RejectedGoodsScheduledJourneyBaseController {
+)(implicit val viewConfig: ViewConfig, val errorHandler: ErrorHandler, val ec: ExecutionContext)
+    extends RejectedGoodsScheduledJourneyBaseController
+    with CheckDeclarationDetailsMixin {
 
-  val checkDeclarationDetailsKey: String = s"check-declaration-details"
+  final override def continueRoute(journey: Journey): Call =
+    routes.UploadMrnListController.show()
 
-  val checkDeclarationDetailsAnswerForm: Form[YesNo] =
-    YesOrNoQuestionForm(checkDeclarationDetailsKey)
+  final override val enterMovementReferenceNumberRoute: Call =
+    routes.EnterMovementReferenceNumberController.submit()
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val postAction: Call = routes.CheckDeclarationDetailsController.submit()
-    Future.successful(
-      journey.answers.displayDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-        Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = false, postAction))
-      )
-    )
-  }
+  private val postAction: Call =
+    routes.CheckDeclarationDetailsController.submit()
 
-  val submit: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.CheckDeclarationDetailsController.submit()
-    checkDeclarationDetailsAnswerForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            journey.answers.displayDeclaration
-              .map(declaration =>
-                BadRequest(
-                  checkDeclarationDetailsPage(
-                    declaration,
-                    formWithErrors,
-                    isDuplicate = false,
-                    postAction
-                  )
-                )
-              )
-              .getOrElse(errorHandler.errorResult())
-          ),
-        answer =>
-          (
-            journey,
-            Redirect(answer match {
-              case Yes =>
-                routes.UploadMrnListController.show()
-              case No  =>
-                routes.EnterMovementReferenceNumberController.submit()
-            })
-          )
-      )
+  override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
+    case (decl, form) =>
+      implicit request =>
+        checkDeclarationDetailsPage(decl, form, false, postAction, MRNScheduledRoutes.subKey)
   }
 
 }
