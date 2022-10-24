@@ -16,16 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Request
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_file_type
 
@@ -37,63 +35,23 @@ import scala.concurrent.ExecutionContext
 class ChooseFileTypeController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseFileTypePage: choose_file_type
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController {
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
+    extends RejectedGoodsMultipleJourneyBaseController
+    with ChooseFileTypeMixin {
 
-  val submitAction: Call          = routes.ChooseFileTypeController.submit()
-  val chooseFilesPageAction: Call = routes.UploadFilesController.show()
+  final override val uploadFilesRoute: Call =
+    routes.UploadFilesController.show()
 
-  val availableDocumentTypes: Seq[UploadDocumentType] =
-    UploadDocumentType.rejectedGoodsMultipleDocumentTypes
+  final override def viewTemplate
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[_] => HtmlFormat.Appendable =
+    (form, documentTypes, hasExistingUploads) =>
+      implicit request =>
+        chooseFileTypePage(form, documentTypes, hasExistingUploads, routes.ChooseFileTypeController.submit())
 
-  val form: Form[Option[UploadDocumentType]] =
-    Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
-
-  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
-
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(
-      chooseFileTypePage(
-        form,
-        availableDocumentTypes,
-        journey.answers.supportingEvidences.nonEmpty,
-        submitAction
-      )
-    ).asFuture
-  }
-
-  val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      form.bindFromRequest
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                chooseFileTypePage(
-                  formWithErrors,
-                  availableDocumentTypes,
-                  journey.answers.supportingEvidences.nonEmpty,
-                  submitAction
-                )
-              )
-            ),
-          {
-            case None =>
-              (journey, Redirect(checkYourAnswers))
-
-            case Some(documentType) =>
-              (
-                journey.submitDocumentTypeSelection(documentType),
-                Redirect(chooseFilesPageAction)
-              )
-          }
-        )
-        .asFuture
-    },
-    fastForwardToCYAEnabled = false
-  )
+  final override def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey] =
+    Right(
+      journey
+        .submitDocumentTypeSelection(documentType)
+    )
 
 }

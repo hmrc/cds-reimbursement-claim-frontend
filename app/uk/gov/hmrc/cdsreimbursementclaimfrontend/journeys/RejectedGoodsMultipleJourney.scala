@@ -202,6 +202,9 @@ final class RejectedGoodsMultipleJourney private (
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
     new RejectedGoodsMultipleJourney(answers.copy(dutiesChangeMode = enabled))
 
+  override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+    Some(UploadDocumentType.rejectedGoodsMultipleDocumentTypes)
+
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
