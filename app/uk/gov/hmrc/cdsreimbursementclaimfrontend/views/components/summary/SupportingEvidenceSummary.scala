@@ -17,18 +17,18 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswerList
 
-object SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer] {
+object SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswerList] {
 
   override def render(
-    answers: SupportingEvidencesAnswer,
+    answers: SupportingEvidencesAnswerList,
     key: String,
     subKey: Option[String],
     changeCallOpt: Option[Call]
@@ -52,7 +52,6 @@ object SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer
                       .getOrElse("")
                   ).toString
                 )
-                .toList
                 .mkString("")
             )
           ),
