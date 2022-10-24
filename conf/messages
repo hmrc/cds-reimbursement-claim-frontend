@@ -1383,7 +1383,7 @@ schedule-document.upload.things-to-show.l2=the amount that was paid to <abbr tit
 schedule-document.upload.things-to-show.l3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
-schedule-document.upload.choose.description=Document
+schedule-document.upload.choose.description=Select a document to upload
 schedule-document.upload.allowed-file-types=JPG, PNG, or PDF
 schedule-document.upload-failed.title=Your file could not be scanned
 schedule-document.upload-failed.p1=This could be because:
