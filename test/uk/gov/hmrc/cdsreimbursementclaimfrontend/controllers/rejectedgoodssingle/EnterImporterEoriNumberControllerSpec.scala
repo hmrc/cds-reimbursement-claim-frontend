@@ -49,6 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 
 class EnterImporterEoriNumberControllerSpec
     extends ControllerSpec
@@ -73,7 +74,12 @@ class EnterImporterEoriNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(
+    RejectedGoodsSingleJourney
+      .empty(anotherExampleEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
+      .getOrFail
+  )
 
   "Importer Eori Number Controller" when {
     "Enter Importer Eori page" must {
@@ -103,6 +109,47 @@ class EnterImporterEoriNumberControllerSpec
             doc.select("#enter-importer-eori-number").`val`() shouldBe ""
             doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
           }
+        )
+      }
+
+      "redirect to basis of claim selection when eori check not needed (user eori is declarant eori)" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(
+            SessionData(
+              RejectedGoodsSingleJourney
+                .empty(exampleDisplayDeclaration.getDeclarantEori)
+                .submitMovementReferenceNumberAndDeclaration(
+                  exampleDisplayDeclaration.getMRN,
+                  exampleDisplayDeclaration
+                )
+                .getOrFail
+            )
+          )
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.BasisForClaimController.show()
+        )
+      }
+
+      "redirect to basis of claim selection when eori check not needed (user eori is consignee eori)" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(
+            SessionData(
+              RejectedGoodsSingleJourney
+                .empty(exampleDisplayDeclaration.getConsigneeEori.get)
+                .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+                .getOrFail
+            )
+          )
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.BasisForClaimController.show()
         )
       }
 

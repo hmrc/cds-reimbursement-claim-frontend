@@ -16,32 +16,26 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterImporterEoriNumberMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_importer_eori_number
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import com.github.arturopala.validator.Validator.Validate
 
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterImporterEoriNumberPage: pages.enter_importer_eori_number
+  val enterImporterEoriNumber: enter_importer_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
-
-  val eoriNumberFormKey: String = "enter-importer-eori-number"
-  val postAction: Call          = routes.EnterImporterEoriNumberController.submit()
+    extends SecuritiesJourneyBaseController
+    with EnterImporterEoriNumberMixin {
 
   import SecuritiesJourney.Checks._
 
@@ -49,54 +43,66 @@ class EnterImporterEoriNumberController @Inject() (
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(hasMRNAndDisplayDeclarationAndRfS)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    (if (!journey.needsDeclarantAndConsigneeEoriSubmission)
-       Redirect(routes.SelectSecuritiesController.showFirst())
-     else
-       Ok(
-         enterImporterEoriNumberPage(
-           eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.consigneeEoriNumber),
-           postAction
-         )
-       )).asFuture
-  }
+  final override val postAction: Call =
+    routes.EnterImporterEoriNumberController.submit()
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if (!journey.needsDeclarantAndConsigneeEoriSubmission)
-      (journey, Redirect(routes.SelectSecuritiesController.showFirst())).asFuture
-    else
-      eoriNumberForm(eoriNumberFormKey)
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(
-              (
-                journey,
-                BadRequest(
-                  enterImporterEoriNumberPage(
-                    formWithErrors.fill(Eori("")),
-                    postAction
-                  )
-                )
-              )
-            ),
-          eori =>
-            Future.successful(
-              journey
-                .submitConsigneeEoriNumber(eori)
-                .fold(
-                  errors => {
-                    logger.error(s"Unable to record $eori - $errors")
-                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                  },
-                  updatedJourney =>
-                    (
-                      updatedJourney,
-                      Redirect(routes.EnterDeclarantEoriNumberController.show())
-                    )
-                )
-            )
-        )
-  }
+  final override val continueAction: Call =
+    routes.EnterDeclarantEoriNumberController.show()
+
+  final override val whenEoriInputNotRequiredAction: Call =
+    routes.SelectSecuritiesController.showFirst()
+
+  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
+    journey.submitConsigneeEoriNumber(eori)
+
+  // val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  //   (if (!journey.needsDeclarantAndConsigneeEoriSubmission)
+  //      Redirect(routes.SelectSecuritiesController.showFirst())
+  //    else
+  //      Ok(
+  //        enterImporterEoriNumberPage(
+  //          eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.consigneeEoriNumber),
+  //          postAction
+  //        )
+  //      )).asFuture
+  // }
+
+  // val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  //   if (!journey.needsDeclarantAndConsigneeEoriSubmission)
+  //     (journey, Redirect(routes.SelectSecuritiesController.showFirst())).asFuture
+  //   else
+  //     eoriNumberForm(eoriNumberFormKey)
+  //       .bindFromRequest()
+  //       .fold(
+  //         formWithErrors =>
+  //           Future.successful(
+  //             (
+  //               journey,
+  //               BadRequest(
+  //                 enterImporterEoriNumberPage(
+  //                   formWithErrors.fill(Eori("")),
+  //                   postAction
+  //                 )
+  //               )
+  //             )
+  //           ),
+  //         eori =>
+  //           Future.successful(
+  //             journey
+  //               .submitConsigneeEoriNumber(eori)
+  //               .fold(
+  //                 errors => {
+  //                   logger.error(s"Unable to record $eori - $errors")
+  //                   (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+  //                 },
+  //                 updatedJourney =>
+  //                   (
+  //                     updatedJourney,
+  //                     Redirect(routes.EnterDeclarantEoriNumberController.show())
+  //                   )
+  //               )
+  //           )
+  //       )
+  // }
 
 }

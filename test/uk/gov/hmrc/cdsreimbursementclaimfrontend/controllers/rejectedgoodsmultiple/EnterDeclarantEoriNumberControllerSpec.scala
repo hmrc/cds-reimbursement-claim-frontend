@@ -48,6 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 
 class EnterDeclarantEoriNumberControllerSpec
     extends ControllerSpec
@@ -76,7 +77,12 @@ class EnterDeclarantEoriNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(
+    RejectedGoodsMultipleJourney
+      .empty(anotherExampleEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
+      .getOrFail
+  )
 
   "Declarant Eori Number Controller" when {
     "Enter Declarant Eori page" must {
@@ -106,6 +112,28 @@ class EnterDeclarantEoriNumberControllerSpec
             doc.select("#enter-declarant-eori-number").`val`()             shouldBe ""
             doc.select("form").attr("action")                              shouldBe routes.EnterDeclarantEoriNumberController.submit().url
           }
+        )
+      }
+
+      "redirect to basis of claim selection when eori check not needed (user eori is declarant eori)" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(
+            SessionData(
+              RejectedGoodsMultipleJourney
+                .empty(exampleDisplayDeclaration.getDeclarantEori)
+                .submitMovementReferenceNumberAndDeclaration(
+                  exampleDisplayDeclaration.getMRN,
+                  exampleDisplayDeclaration
+                )
+                .getOrFail
+            )
+          )
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.BasisForClaimController.show()
         )
       }
 
