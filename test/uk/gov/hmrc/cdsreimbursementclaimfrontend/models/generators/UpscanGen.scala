@@ -66,8 +66,6 @@ object UpscanGen extends OptionValues {
     } yield evidences.value
   )
 
-  implicit lazy val arbitraryDocumentTypeAnswer: Typeclass[UploadDocumentType] = gen[UploadDocumentType]
-
   implicit lazy val arbitrarySupportingEvidenceAnswerList: Typeclass[SupportingEvidencesAnswerList] = Arbitrary(
     for {
       n         <- Gen.chooseNum(1, 9)
