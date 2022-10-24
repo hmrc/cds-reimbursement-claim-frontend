@@ -17,76 +17,41 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterDeclarantEoriNumberMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 
 @Singleton
 class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterDeclarantEoriNumber: pages.enter_declarant_eori_number
+  val enterDeclarantEoriNumber: pages.enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController {
-
-  val eoriNumberFormKey: String = "enter-declarant-eori-number"
+    extends RejectedGoodsSingleJourneyBaseController
+    with EnterDeclarantEoriNumberMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Future.successful {
-      val form = eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.declarantEoriNumber)
-      Ok(
-        enterDeclarantEoriNumber(
-          form,
-          routes.EnterDeclarantEoriNumberController.submit()
-        )
-      )
-    }
-  }
+  final override val postAction: Call =
+    routes.EnterDeclarantEoriNumberController.submit()
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    eoriNumberForm(eoriNumberFormKey)
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          Future.successful(
-            (
-              journey,
-              BadRequest(
-                enterDeclarantEoriNumber(
-                  formWithErrors.fill(Eori("")),
-                  routes.EnterDeclarantEoriNumberController.submit()
-                )
-              )
-            )
-          ),
-        eori =>
-          Future.successful(
-            journey
-              .submitDeclarantEoriNumber(eori)
-              .fold(
-                errors => {
-                  logger.error(s"Unable to record $eori - $errors")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                },
-                updatedJourney => (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show()))
-              )
-          )
-      )
-  }
+  final override val continueAction: Call =
+    routes.CheckDeclarationDetailsController.show()
+
+  final override val whenEoriInputNotRequiredAction: Call =
+    routes.BasisForClaimController.show()
+
+  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
+    journey.submitDeclarantEoriNumber(eori)
+
 }
