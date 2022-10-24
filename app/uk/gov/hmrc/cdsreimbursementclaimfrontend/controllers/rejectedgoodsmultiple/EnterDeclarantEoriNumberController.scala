@@ -16,70 +16,34 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterDeclarantEoriNumberMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks.hasMRNAndDisplayDeclaration
 
 @Singleton
 class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterDeclarantEoriNumber: pages.enter_declarant_eori_number
+  val enterDeclarantEoriNumber: pages.enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController {
+    extends RejectedGoodsMultipleJourneyBaseController
+    with EnterDeclarantEoriNumberMixin {
 
-  val eoriNumberFormKey: String = "enter-declarant-eori-number"
+  final override val postAction: Call =
+    routes.EnterDeclarantEoriNumberController.submit()
 
-  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
-    Some(hasMRNAndDisplayDeclaration)
+  final override val continueAction: Call =
+    routes.CheckDeclarationDetailsController.show()
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(
-      enterDeclarantEoriNumber(
-        eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.declarantEoriNumber),
-        routes.EnterDeclarantEoriNumberController.submit()
-      )
-    ).asFuture
-  }
+  final override val whenEoriInputNotRequiredAction: Call =
+    routes.BasisForClaimController.show()
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    eoriNumberForm(eoriNumberFormKey)
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            BadRequest(
-              enterDeclarantEoriNumber(
-                formWithErrors.fill(Eori("")),
-                routes.EnterDeclarantEoriNumberController.submit()
-              )
-            )
-          ).asFuture,
-        eori =>
-          journey
-            .submitDeclarantEoriNumber(eori)
-            .fold(
-              errors => {
-                logger.error(s"Unable to record $eori - $errors")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-              },
-              updatedJourney => (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show()))
-            )
-            .asFuture
-      )
-  }
+  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
+    journey.submitDeclarantEoriNumber(eori)
 }

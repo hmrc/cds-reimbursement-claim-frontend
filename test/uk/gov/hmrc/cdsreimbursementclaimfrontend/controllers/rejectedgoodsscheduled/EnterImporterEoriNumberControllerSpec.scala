@@ -35,8 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.buildCompleteJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDD
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
@@ -74,7 +74,12 @@ class EnterImporterEoriNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData(journeyWithMrnAndDD)
+  private val session = SessionData(
+    RejectedGoodsScheduledJourney
+      .empty(anotherExampleEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
+      .getOrFail
+  )
 
   "Importer Eori Number Controller" when {
     "Enter Importer Eori page" must {
@@ -104,6 +109,28 @@ class EnterImporterEoriNumberControllerSpec
             doc.select("#enter-importer-eori-number").`val`() shouldBe ""
             doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
           }
+        )
+      }
+
+      "redirect to the upload mrn list page when eori check not needed (user eori is declarant eori)" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(
+            SessionData(
+              RejectedGoodsScheduledJourney
+                .empty(exampleDisplayDeclaration.getDeclarantEori)
+                .submitMovementReferenceNumberAndDeclaration(
+                  exampleDisplayDeclaration.getMRN,
+                  exampleDisplayDeclaration
+                )
+                .getOrFail
+            )
+          )
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.UploadMrnListController.show()
         )
       }
 
