@@ -132,7 +132,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
           logAndDisplayError("Error while trying to update session"),
           {
             case SubmitClaimError(e) =>
-              logger.warn(s"Could not submit return}", e)
+              logger.warn(s"Could not submit return:", e)
               Redirect(
                 routes.CheckYourAnswersAndSubmitController.submissionError
               )

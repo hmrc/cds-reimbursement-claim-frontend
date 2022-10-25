@@ -27,9 +27,10 @@ package object answers {
   type LeadMrn       = MRN
   type AssociatedMrn = MRN
 
-  type SupportingEvidencesAnswer   = NonEmptyList[UploadedFile]
-  type DutiesSelectedAnswer        = NonEmptyList[Duty]
-  type ClaimedReimbursementsAnswer = NonEmptyList[ClaimedReimbursement]
+  type SupportingEvidencesAnswerList = List[UploadedFile]
+  type SupportingEvidencesAnswer     = NonEmptyList[UploadedFile]
+  type DutiesSelectedAnswer          = NonEmptyList[Duty]
+  type ClaimedReimbursementsAnswer   = NonEmptyList[ClaimedReimbursement]
 
   type AssociatedMRNsAnswer               = NonEmptyList[AssociatedMrn]
   type AssociatedMRNsDeclarationAnswer    = NonEmptyList[DisplayDeclaration]

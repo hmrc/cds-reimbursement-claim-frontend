@@ -36,7 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodGen.arbitraryReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswerList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.genScheduledDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.YesNoGen.arbitraryYesNo
 
@@ -52,7 +53,8 @@ object DraftClaimGen {
       bankAccountDetailsAnswer    <- arbitraryBankAccountDetailsGen.arbitrary
       bankAccountTypeAnswer       <- arbitraryBankAccountType.arbitrary
       basisOfClaim                <- arbitraryBasisOfClaim.arbitrary
-      supportingEvidencesAnswer   <- arbitrarySupportingEvidenceAnswer.arbitrary
+      documentTypeAnswer          <- arbitrarySupportingEvidenceDocumentType.arbitrary
+      supportingEvidencesAnswer   <- arbitrarySupportingEvidenceAnswerList.arbitrary
       dutiesSelectedAnswer        <- arbitraryDutiesSelectedAnswerGen.arbitrary
       additionalDetailsAnswer     <- arbitraryCompleteAdditionalDetailsAnswer.arbitrary
       whetherNorthernIrelandClaim <- arbitraryYesNo.arbitrary
@@ -72,6 +74,7 @@ object DraftClaimGen {
       bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,
       bankAccountTypeAnswer = bankAccountTypeAnswer.some,
       basisOfClaimAnswer = basisOfClaim.some,
+      documentTypeAnswer = documentTypeAnswer.some,
       supportingEvidencesAnswer = supportingEvidencesAnswer.some,
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
       additionalDetailsAnswer = additionalDetailsAnswer.some,
