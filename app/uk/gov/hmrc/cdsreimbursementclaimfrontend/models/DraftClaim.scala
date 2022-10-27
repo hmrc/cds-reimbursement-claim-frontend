@@ -49,7 +49,7 @@ final case class DraftClaim(
   bankAccountTypeAnswer: Option[BankAccountType] = None,
   basisOfClaimAnswer: Option[BasisOfOverpaymentClaim] = None,
   documentTypeAnswer: Option[UploadDocumentType] = None,
-  supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
+  supportingEvidencesAnswer: Option[SupportingEvidencesAnswerList] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
   additionalDetailsAnswer: Option[AdditionalDetailsAnswer] = None,
   whetherNorthernIrelandAnswer: Option[YesNo] = None,
@@ -138,7 +138,7 @@ final case class DraftClaim(
     ).find(_.nonEmpty).flatten
 
     def isSingleJourneyComplete: Boolean =
-      SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+      UploadDocumentType.validator.validate(documentTypeAnswer).isValid &&
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
@@ -147,7 +147,7 @@ final case class DraftClaim(
         MRN.validator.validate(movementReferenceNumber).isValid
 
     def isMultipleJourneyComplete: Boolean =
-      SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+      UploadDocumentType.validator.validate(documentTypeAnswer).isValid &&
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&
         BasisOfOverpaymentClaim.validator.validate(basisOfClaimAnswer).isValid &&
@@ -157,7 +157,7 @@ final case class DraftClaim(
         MRN.validator.validate(movementReferenceNumber).isValid
 
     def isScheduledJourneyComplete: Boolean =
-      SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+      UploadDocumentType.validator.validate(documentTypeAnswer).isValid &&
         BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         AdditionalDetailsAnswer.validator.validate(additionalDetailsAnswer).isValid &&

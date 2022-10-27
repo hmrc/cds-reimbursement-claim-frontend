@@ -370,10 +370,9 @@ object Forms {
         "enter-duplicate-movement-reference-number" ->
           nonEmptyText
             .verifying(Constraint[String] { str: String =>
-              if (str.isEmpty) Invalid("error.required")
-              else if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
-              else if (MRN(str).isValid) Valid
-              else Invalid("invalid.number")
+              if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
+              else if (str.nonEmpty && !MRN(str).isValid) Invalid("invalid.number")
+              else Valid
             })
             .transform[MRN](MRN(_), _.value)
       )(identity)(Some(_))

@@ -144,7 +144,7 @@ class UploadFilesController @Inject() (
                   _.copy(
                     journeyStatus = FillingOutClaim
                       .from(fillingOutClaim)(
-                        _.copy(supportingEvidencesAnswer = uploadedFilesWithDocumentTypeAdded.someNelOrNone)
+                        _.copy(supportingEvidencesAnswer = Option(uploadedFilesWithDocumentTypeAdded.toList))
                       )
                       .some
                   )

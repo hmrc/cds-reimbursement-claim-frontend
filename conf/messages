@@ -5,6 +5,9 @@ service.signOut=Sign out
 hmrc_branding=HM Revenue & Customs
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 
+phasebanner.phase=Beta
+phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
+
 lang=en
 currency=£
 
@@ -369,14 +372,14 @@ mrn-does-not-exist.help-text=You have tried to reach an <abbr title="Movement Re
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.mrn.title=Enter the duplicate <abbr title="Movement Reference Number">MRN</abbr>
-enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate <abbr title="Movement Reference Number">MRN</abbr>
-enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
-enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-duplicate-movement-reference-number.mrn.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.mrn.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
-enter-duplicate-movement-reference-number.mrn.error.required=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
-enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN
+enter-duplicate-movement-reference-number.title=Enter the duplicate <abbr title="Movement Reference Number">MRN</abbr>
+enter-duplicate-movement-reference-number.input-title=Enter duplicate <abbr title="Movement Reference Number">MRN</abbr>
+enter-duplicate-movement-reference-number.help-text=This will help us to process your claim more efficiently.
+enter-duplicate-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
+enter-duplicate-movement-reference-number.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-duplicate-movement-reference-number.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
+enter-duplicate-movement-reference-number.error.required=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
+enter-duplicate-movement-reference-number.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN
 
 #===================================================
 #  ENTER DUPLICATE ENTRY NUMBER PAGE
@@ -836,7 +839,7 @@ check-claim.rejected-goods.single.title=Check the claim total for the <abbr titl
 check-claim.rejected-goods.multiple.title=Check the repayment claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
 check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim.rejected-goods.multiple.label=These are the calculations based on the information you gave us.
-check-claim.rejected-goods.single.mrn.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
+check-claim.rejected-goods.single.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
 check-claim.rejected-goods.single.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
 check-claim.rejected-goods.error.required=Select yes if these duties are correct
 check-claim.rejected-goods.are-duties-correct=Are these duties correct?

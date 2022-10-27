@@ -53,7 +53,7 @@
 
     @paragraph(Html(messages(s"$key.single.label")))
 
-    @subHeading(Html(messages(s"$key.single.mrn.label", mrn.value)), classes = "govuk-heading-m")
+    @subHeading(Html(messages(s"$key.single.label", mrn.value)), classes = "govuk-heading-m")
 
     @summary(ReimbursementsClaimsSummary.singleFull(claims, key, enterClaimAction, None))
 

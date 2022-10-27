@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswerList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
@@ -91,7 +91,7 @@ class BankAccountControllerSpec
     maybeBankAccountDetails: Option[BankAccountDetails],
     bankAccountType: Option[BankAccountType],
     maybeTypeOfClaim: Option[TypeOfClaimAnswer],
-    supportingEvidences: Option[SupportingEvidencesAnswer] = None
+    supportingEvidences: Option[SupportingEvidencesAnswerList] = None
   ): (SessionData, FillingOutClaim, DraftClaim) = {
 
     val draftC285Claim =
