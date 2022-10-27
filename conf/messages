@@ -1302,7 +1302,7 @@ supporting-evidence.upload.error.required=Upload a supporting document
 supporting-evidence.upload.p1=Upload supporting evidence you have received for the commodities you have imported. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.upload.p2=The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
-supporting-evidence.upload.input-title=Select document
+supporting-evidence.upload.input-title=Select a document to upload
 supporting-evidence.upload.allowed-file-types=JPG, PNG, or PDF
 file.error.required=Select a supporting document
 supporting-evidence.scan-progress.title=We are checking your document
@@ -1384,7 +1384,7 @@ schedule-document.upload.things-to-show.p1=The document should show:
 schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.things-to-show.l2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.things-to-show.l3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.upload.input-title=Select document
+schedule-document.upload.input-title=Select a document to upload
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.choose.description=Select a document to upload
 schedule-document.upload.allowed-file-types=JPG, PNG, or PDF
