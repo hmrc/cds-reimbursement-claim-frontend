@@ -290,8 +290,8 @@ object Forms {
         s"$key.claim-amount" -> moneyMapping(
           errorMsg = s"error.invalid-text",
           zeroErrorMsg = Some(s"error.zero")
-        ).verifying("error.invalid-amount", amount => amount >= 0 && amount <= paidAmount)
-      )(amount => amount)(amount => Some(amount))
+        ).verifying("error.invalid-amount", _ <= paidAmount)
+      )(amount => amount)(Some(_))
     )
 
   def reimbursementMethodForm(reimbursementMethodKey: String): Form[ReimbursementMethod] =
