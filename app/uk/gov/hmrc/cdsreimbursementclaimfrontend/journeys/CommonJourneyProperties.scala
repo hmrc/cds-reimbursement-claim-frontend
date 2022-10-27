@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 /** Common properties and computations of all of the journeys. */
 trait CommonJourneyProperties {
@@ -41,6 +42,7 @@ trait CommonJourneyProperties {
   def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
   def needsBanksAccountDetailsSubmission: Boolean
+  def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]]
 
   final val ZERO: BigDecimal = BigDecimal("0")
 

@@ -46,13 +46,13 @@
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
+    @heading(Html(title))
+
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @errorSummary(form.errors)
-
-        @heading(Html(title))
-
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
         <dl class="govuk-summary-list cds-multi-action">
             <div class="govuk-summary-list__row">
