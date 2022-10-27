@@ -49,7 +49,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import play.api.data.FormError
 
 @Singleton
 class EnterDuplicateMovementReferenceNumberController @Inject() (
@@ -72,13 +71,6 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     _.duplicateMovementReferenceNumberAnswer
 
   val duplicateMovementReferenceNumberKey: String = "enter-duplicate-movement-reference-number"
-
-  def processFormErrors(refKey: Option[String], errors: Seq[FormError]): FormError = {
-    val mainKey = duplicateMovementReferenceNumberKey + refKey.map(a => s".$a").getOrElse("")
-    errors.headOption
-      .map(fe => FormError(mainKey, fe.messages))
-      .getOrElse(FormError(mainKey, List("invalid")))
-  }
 
   val enterDuplicateMrn: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -104,8 +96,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 enterDuplicateMovementReferenceNumberPage(
-                  requestFormWithErrors
-                    .copy(errors = Seq(processFormErrors(router.refNumberKey, requestFormWithErrors.errors))),
+                  requestFormWithErrors,
                   router.refNumberKey,
                   routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
                 )

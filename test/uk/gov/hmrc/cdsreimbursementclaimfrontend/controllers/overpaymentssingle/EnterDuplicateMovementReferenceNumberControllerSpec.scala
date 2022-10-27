@@ -91,7 +91,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       checkPageIsDisplayed(
         performAction(),
-        messageFromMessageKey("enter-duplicate-movement-reference-number.mrn.title")
+        messageFromMessageKey("enter-duplicate-movement-reference-number.title")
       )
     }
   }
