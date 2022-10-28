@@ -74,14 +74,14 @@
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @checkboxes(
-            field = form(s"$key-custom"),
+            field = form(s"$key"),
             legend = HtmlContent(messages(s"$key.checkbox-legend.1")),
             legendAsHeading = false,
             items = customsOptions
         )
 
         @checkboxes(
-            field = form(s"$key-excise"),
+            field = form(s"$key"),
             legend = HtmlContent(messages(s"$key.checkbox-legend.2")),
             legendAsHeading = false,
             items = exciseOptions
