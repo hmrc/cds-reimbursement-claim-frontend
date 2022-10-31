@@ -32,25 +32,29 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    notificationBanner: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.notification_banner,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        notificationBanner: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.notification_banner,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(displayDeclaration: DisplayDeclaration, securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(displayDeclaration: DisplayDeclaration, securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-declaration-details"}
-@title = @{messages(s"$key.title")}
+@key = @{
+    "check-declaration-details"
+}
+@title = @{
+    messages(s"$key.title")
+}
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @if(securitiesReclaims.isEmpty){
+    @if(securitiesReclaims.isEmpty) {
         @notificationBanner(messages(s"$key.banner.empty-securities-selection"))
     }
 
@@ -69,33 +73,43 @@
     )
 
     @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
-            displayDeclaration, 
-            s"check-your-answers.declaration-details",
-            routes.EnterMovementReferenceNumberController.show(),
-            routes.ChooseReasonForSecurityController.show()
-        ).rows ++ 
-        SecuritiesSelectionSummary(
-            securitiesReclaims, 
-            displayDeclaration,
-            "check-your-answers",
-            routes.SelectSecuritiesController.show(_),
-            showTotalSecuritiesPaidAmount = true
-        ).rows ++
-        Seq(SummaryListRow(
-            key = Key(Text(messages(s"check-declaration-details.payment-method.label"))),
-            value = Value(Text(
-                    messages(
-                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)){
-                             s"check-your-answers.payment-method.guarantee" 
-                        } else if(displayDeclaration.isAnySelectedSecuritiesEligibleForBankAccountPayment(securitiesReclaims.keySet)){
-                            s"check-your-answers.payment-method.bt"
-                        } else {
-                            s"check-declaration-details.payment-method.unavailable" 
-                        }
-    )))))))
+        displayDeclaration,
+        s"check-your-answers.declaration-details",
+        routes.EnterMovementReferenceNumberController.show(),
+        routes.ChooseReasonForSecurityController.show()
+    ).rows ++
+            SecuritiesSelectionSummary(
+                securitiesReclaims,
+                displayDeclaration,
+                "check-your-answers",
+                routes.SelectSecuritiesController.show,
+                showTotalSecuritiesPaidAmount = true
+            ).rows ++
+            (if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securitiesReclaims.keySet)) {
+                Seq.empty[SummaryListRow]
+            } else {
+                Seq(
+                    SummaryListRow(
+                        key = Key(Text(messages(s"check-declaration-details.payment-method.label"))),
+                        value = Value(Text(
+                            messages(
+                                if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)) {
+                                    s"check-your-answers.payment-method.guarantee"
+                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(securitiesReclaims.keySet)) {
+                                    s"check-your-answers.payment-method.bt"
+                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(securitiesReclaims.keySet)) {
+                                    s"check-your-answers.payment-method.cash-account"
+                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(securitiesReclaims.keySet)) {
+                                    s"check-your-answers.payment-method.duty-deferment"
+                                } else {
+                                    s"check-declaration-details.payment-method.unavailable"
+                                }
+                            ))))
+                )
+            })
+    ))
 
-
-    @if(securitiesReclaims.nonEmpty){
+    @if(securitiesReclaims.nonEmpty) {
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
             @submitButton("button.continue")
         }

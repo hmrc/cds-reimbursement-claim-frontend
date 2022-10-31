@@ -90,6 +90,11 @@ final case class DisplayDeclaration(
       .getOrElse(Nil)
       .find(_.securityDepositId === securityDepositId)
 
+  def getAllSecurityDetailsFor(securityDepositId: String): Seq[SecurityDetails] =
+    displayResponseDetail.securityDetails
+      .getOrElse(Nil)
+      .filter(_.securityDepositId === securityDepositId)
+
   def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
     getSecurityDetailsFor(securityDepositId)
       .flatMap(_.taxDetails.find(td => td.getTaxCode === taxCode))
@@ -152,6 +157,32 @@ final case class DisplayDeclaration(
   def isFullSecurityAmount(securityDepositId: String, reclaimedAmount: BigDecimal): Boolean =
     getSecurityDetailsFor(securityDepositId)
       .exists(_.getTotalAmount === reclaimedAmount)
+
+  def isAllSelectedSecuritiesEligibleForBankAccount(securityDepositIds: Set[String]): Boolean = {
+    val eligible: Set[Boolean] = securityDepositIds
+      .map(sid => getAllSecurityDetailsFor(sid).exists(_.isBankAccountPayment))
+
+    eligible.nonEmpty && eligible.forall(identity)
+  }
+
+  def isAllSelectedSecuritiesEligibleForCashAccount(securityDepositIds: Set[String]): Boolean = {
+    val eligible: Set[Boolean] = securityDepositIds
+      .map(sid => getAllSecurityDetailsFor(sid).exists(_.isCashAccount))
+
+    eligible.nonEmpty && eligible.forall(identity)
+  }
+
+  def isAllSelectedSecuritiesEligibleForDefermentAccount(securityDepositIds: Set[String]): Boolean = {
+    val eligible: Set[Boolean] = securityDepositIds
+      .map(sid => getAllSecurityDetailsFor(sid).exists(_.isDefermentAccount))
+
+    eligible.nonEmpty && eligible.forall(identity)
+  }
+
+  def isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securityDepositIds: Set[String]): Boolean =
+    securityDepositIds
+      .flatMap(getAllSecurityDetailsFor(_).map(_.paymentMethod))
+      .size > 1
 
   def isAllSelectedSecuritiesEligibleForGuaranteePayment(securityDepositIds: Set[String]): Boolean = {
     val eligible: Set[Boolean] = securityDepositIds
