@@ -986,7 +986,7 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 #===================================================
 #  SELECT REIMBURSEMENT METHOD PAGE
 #===================================================
-reimbursement-method.title=Select repayment method
+reimbursement-method.title=Choose repayment method
 reimbursement-method.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 reimbursement-method.bank-transfer=Bank account transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
