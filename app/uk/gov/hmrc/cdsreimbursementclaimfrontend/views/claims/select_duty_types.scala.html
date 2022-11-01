@@ -71,6 +71,8 @@
 
     @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
 
+    @paragraph(Html(messages(s"$key.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
+
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @checkboxes(
