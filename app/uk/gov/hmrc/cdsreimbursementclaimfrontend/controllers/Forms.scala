@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
@@ -393,5 +394,13 @@ object Forms {
         "choose-reason-for-security.securities" -> nonEmptyText
           .verifying("error.required", _.nonEmpty)
       )(ReasonForSecurity.findUnsafe)(rfs => Option(rfs.toString))
+    )
+
+  def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
+    Form(
+      mapping(
+        "enter-claim" -> moneyMapping("actual-amount.error.invalid", allowZero = true)
+      )(ClaimAmount.apply)(ClaimAmount.unapply)
+        .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )
 }

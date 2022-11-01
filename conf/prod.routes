@@ -3,6 +3,7 @@
 ->          /claim-back-import-duty-vat                   upload_documents.Routes
 ->          /claim-back-import-duty-vat                   common.Routes
 ->          /claim-back-import-duty-vat                   overpayments_single.Routes
+->          /claim-back-import-duty-vat                   overpayments_single_v2.Routes
 ->          /claim-back-import-duty-vat                   overpayments_multiple.Routes
 ->          /claim-back-import-duty-vat                   overpayments_scheduled.Routes
 ->          /claim-back-import-duty-vat                   rejected_goods.Routes

@@ -65,6 +65,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genN
 import scala.concurrent.Future
 import scala.util.Random
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
 class EnterSingleClaimControllerSpec
     extends ControllerSpec
@@ -578,7 +579,7 @@ class EnterSingleClaimControllerSpec
   }
 
   "MRN Claim Amount Validation" must {
-    val form        = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
+    val form        = Forms.mrnClaimAmountForm(BigDecimal("99999999999.99"))
     val claimAmount = "enter-claim"
 
     val goodData = Map(
@@ -616,7 +617,7 @@ class EnterSingleClaimControllerSpec
         errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject when claimAmount > paidAmount" in {
-        val testForm = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("100.00"))
+        val testForm = Forms.mrnClaimAmountForm(BigDecimal("100.00"))
         val data     = Map(claimAmount -> "101.00")
         val errors   = testForm.bind(data).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
