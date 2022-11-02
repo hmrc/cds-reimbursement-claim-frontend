@@ -962,6 +962,7 @@ select-duty-types.title=Select the duty types you want to claim for all <abbr ti
 select-duty-types.error.required=Choose the duties you want to include in your claim
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-types.checkbox-legend.1=Customs, Additional, <abbr title="Value Added Tax">VAT</abbr> & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
@@ -969,6 +970,7 @@ select-duty-codes.title=Select the {0} duties you want to claim for all <abbr ti
 select-duty-codes.error.required=Choose the duties you want to include in your claim
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.eu-duty=EU
 select-duty-codes.h1.beer=beer
@@ -986,7 +988,7 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 #===================================================
 #  SELECT REIMBURSEMENT METHOD PAGE
 #===================================================
-reimbursement-method.title=Select repayment method
+reimbursement-method.title=Choose repayment method
 reimbursement-method.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 reimbursement-method.bank-transfer=Bank account transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
@@ -1032,7 +1034,7 @@ select-duties.duty.A95=Provisional Countervailing Duty
 select-duties.duty.B05=Value Added Tax
 select-duties.duty.407=Beer made in the UK (standard rate, that is, annual production more than 60,000 hectolitres)
 select-duties.duty.411=Wine (sparkling), of fresh grape, 8.5% vol. and above, but not exceeding 15% vol.
-select-duties.duty.412=Wine (sparkling]), of fresh grape, exceeding 5.5% vol. but less than 8.5% vol.
+select-duties.duty.412=Wine (sparkling), of fresh grape, exceeding 5.5% vol. but less than 8.5% vol.
 select-duties.duty.413=Wine (still), exceeding 5.5% vol. but not exceeding 15% vol.
 select-duties.duty.415=Wine (still or sparkling), exceeding 15% vol. but not exceeding 22% vol.
 select-duties.duty.419=Wine (still or sparkling), exceeding 22% vol.

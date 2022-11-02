@@ -56,6 +56,6 @@
     hint = hintKey.map { hint => Hint(
         content = HtmlContent(messages(hint))
     )},
-    items = items,
+    items = items.headOption.map(item => item.copy(id = Some(name), attributes = item.attributes + (("data-id",item.id.getOrElse(""))))).fold(Seq.empty[RadioItem])(_ +: items.tail.map(item => item.copy(attributes = item.attributes + (("data-id",item.id.getOrElse("")))))),
     errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else HtmlContent(messages(s"${name}.${err.message}", err.args:_*)))))
 ))
