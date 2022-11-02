@@ -74,10 +74,6 @@ object SecurityDetailsSummary {
                   s"$key.payment-method.bank-account"
                 else if (securityDetailsOpt.exists(_.isGuaranteeEligible))
                   s"$key.payment-method.guarantee"
-                else if (securityDetailsOpt.exists(_.isDefermentAccount))
-                  s"$key.payment-method.duty-deferment"
-                else if (securityDetailsOpt.exists(_.isCashAccount))
-                  s"$key.payment-method.cash-account"
                 else
                   s"$key.payment-method.unavailable"
               )
