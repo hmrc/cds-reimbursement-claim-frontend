@@ -45,21 +45,24 @@
             )
         )
     )),
-    id = id,
+    id = s"$id-all",
     items = Seq(
         InputItem(
+            id = id,
             classes = "govuk-input--width-2",
             name =  s"$id.day",
             label = Some(messages("date.day")),
             value = form(s"$id.day").value
         ),
         InputItem(
+            id = s"$id-month",
             classes = "govuk-input--width-2",
             name = s"$id.month",
             label = Some(messages("date.month")),
             value = form(s"$id.month").value
         ),
         InputItem(
+            id = s"$id-year",
             classes = "govuk-input--width-4",
             name = s"$id.year",
             label = Some(messages("date.year")),
