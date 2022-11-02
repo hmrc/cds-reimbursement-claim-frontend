@@ -78,35 +78,35 @@
         routes.EnterMovementReferenceNumberController.show(),
         routes.ChooseReasonForSecurityController.show()
     ).rows ++
-            SecuritiesSelectionSummary(
-                securitiesReclaims,
-                displayDeclaration,
-                "check-your-answers",
-                routes.SelectSecuritiesController.show,
-                showTotalSecuritiesPaidAmount = true
-            ).rows ++
-            (if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securitiesReclaims.keySet)) {
-                Seq.empty[SummaryListRow]
-            } else {
-                Seq(
-                    SummaryListRow(
-                        key = Key(Text(messages(s"check-declaration-details.payment-method.label"))),
-                        value = Value(Text(
-                            messages(
-                                if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)) {
-                                    s"check-your-answers.payment-method.guarantee"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(securitiesReclaims.keySet)) {
-                                    s"check-your-answers.payment-method.bt"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(securitiesReclaims.keySet)) {
-                                    s"check-your-answers.payment-method.cash-account"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(securitiesReclaims.keySet)) {
-                                    s"check-your-answers.payment-method.duty-deferment"
-                                } else {
-                                    s"check-declaration-details.payment-method.unavailable"
-                                }
-                            ))))
-                )
-            })
+    SecuritiesSelectionSummary(
+        securitiesReclaims,
+        displayDeclaration,
+        "check-your-answers",
+        routes.SelectSecuritiesController.show,
+        showTotalSecuritiesPaidAmount = true
+    ).rows ++
+    (if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securitiesReclaims.keySet)) {
+        Seq.empty[SummaryListRow]
+    } else {
+        Seq(
+            SummaryListRow(
+                key = Key(Text(messages(s"check-declaration-details.payment-method.label"))),
+                value = Value(Text(
+                    messages(
+                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)) {
+                            s"check-your-answers.payment-method.guarantee"
+                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(securitiesReclaims.keySet)) {
+                            s"check-your-answers.payment-method.bt"
+                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(securitiesReclaims.keySet)) {
+                            s"check-your-answers.payment-method.cash-account"
+                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(securitiesReclaims.keySet)) {
+                            s"check-your-answers.payment-method.duty-deferment"
+                        } else {
+                            s"check-declaration-details.payment-method.unavailable"
+                        }
+                    ))))
+        )
+    })
     ))
 
     @if(securitiesReclaims.nonEmpty) {
