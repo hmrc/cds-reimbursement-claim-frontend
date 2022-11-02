@@ -24,12 +24,14 @@ final case class SecurityDetails(
   securityDepositId: String,
   private val totalAmount: String,
   private val amountPaid: String,
-  paymentMethod: String, // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account, 004 = Guarantee Account, 005 = Individual Guarantee"
+  paymentMethod: String, // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account, 004 & 005 = GuaranteeAccount
   paymentReference: String,
   taxDetails: List[TaxDetails]
 ) {
 
   def isBankAccountPayment: Boolean = paymentMethod === "001"
+  def isCashAccount: Boolean        = paymentMethod === "002"
+  def isDefermentAccount: Boolean   = paymentMethod === "003"
   def isGuaranteeEligible: Boolean  = paymentMethod === "004" || paymentMethod === "005"
 
   def getTotalAmount: BigDecimal = taxDetails.map(_.getAmount).sum
