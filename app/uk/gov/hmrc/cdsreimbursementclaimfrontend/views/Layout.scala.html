@@ -36,19 +36,22 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcLayout
-@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPhaseBanner
+@import uk.gov.hmrc.govukfrontend.views.Aliases.PhaseBanner
+@import uk.gov.hmrc.govukfrontend.views.html.components.Tag
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukBackLink
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.backlink.BackLink
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         head: Head,
         hmrcLayout: HmrcLayout,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-        StandardBetaBanner: StandardBetaBanner,
+        govukPhaseBanner: GovukPhaseBanner,
         languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
         hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
         govukBackLink: GovukBackLink
@@ -92,6 +95,10 @@
 }
 
 @beforeContentBlock = {
+    @govukPhaseBanner(PhaseBanner(
+        tag = Some(Tag(content = HtmlContent(messages("phasebanner.phase")))),
+        content = HtmlContent(messages("phasebanner.feedback.text", viewConfig.serviceFeedBackUrl))))
+
     <div class="cds-user-banner cds-no-border">
         @if(!suppressBackLink) {
             <div id="cdsr-back-link">
@@ -110,7 +117,6 @@
     isWelshTranslationAvailable = false,
     serviceUrl = Some(viewConfig.homePageUrl),
     signOutUrl = signOutUrl,
-    phaseBanner = Some(StandardBetaBanner(url = viewConfig.serviceFeedBackUrl)),
     nonce = CSPNonce.get,
     additionalHeadBlock = Some(head(Some(defaultHead))),
     additionalScriptsBlock = Some(scripts)

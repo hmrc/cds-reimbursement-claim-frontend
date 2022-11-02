@@ -40,11 +40,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswerList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswerList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
@@ -274,7 +274,7 @@ class ReimbursementMethodControllerSpec
     sessionData.journeyStatus match {
       case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =
-          draftClaim.copy(supportingEvidencesAnswer = Some(sample[SupportingEvidencesAnswer]))
+          draftClaim.copy(supportingEvidencesAnswer = Some(sample[SupportingEvidencesAnswerList]))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()

@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.data.NonEmptyList
 import cats.data.Validated.Valid
 import cats.syntax.all._
 import play.api.libs.json.Format
@@ -38,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Consignee
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.User
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 final case class C285Claim(
   id: UUID,
@@ -50,7 +50,7 @@ final case class C285Claim(
   mrnContactAddressAnswer: Option[ContactAddress],
   basisOfClaimAnswer: BasisOfOverpaymentClaim,
   bankAccountDetailsAnswer: Option[BankAccountDetails],
-  documents: NonEmptyList[EvidenceDocument],
+  documents: List[EvidenceDocument],
   additionalDetailsAnswer: AdditionalDetailsAnswer,
   displayDeclaration: Option[DisplayDeclaration],
   duplicateDisplayDeclaration: Option[DisplayDeclaration],
@@ -109,7 +109,7 @@ object C285Claim {
             maybeBankAccountDetails,
             _,
             maybeBasisForClaim,
-            _,
+            maybeDocumentTypeAnswer,
             maybeSupportingEvidences,
             _,
             maybeDraftAdditionalAnswer,
@@ -133,7 +133,7 @@ object C285Claim {
           BasisOfOverpaymentClaim.validator.validate(maybeBasisForClaim),
           DisplayDeclaration.validator.validate(maybeDisplayDeclaration),
           AdditionalDetailsAnswer.validator.validate(maybeDraftAdditionalAnswer),
-          SupportingEvidencesAnswer.validator.validate(maybeSupportingEvidences),
+          UploadDocumentType.validator.validate(maybeDocumentTypeAnswer),
           ClaimedReimbursementsAnswer.validator.validate(maybeClaimedReimbursementsAnswer),
           if (maybeTypeOfClaim.exists(_ === Scheduled))
             ScheduledDocumentAnswer.validator.validate(maybeScheduledDocument)
@@ -144,7 +144,7 @@ object C285Claim {
                 basisOfClaims,
                 declaration,
                 additional,
-                evidences,
+                _,
                 claim,
                 maybeSchedule
               ) =>
@@ -159,7 +159,8 @@ object C285Claim {
               maybeDraftMrnContactAddress,
               basisOfClaims,
               maybeBankAccountDetails,
-              (evidences ++ maybeSchedule.map(_.uploadDocument).toList).map(EvidenceDocument.from),
+              (maybeSupportingEvidences.toList.flatten ++ maybeSchedule.map(_.uploadDocument).toList)
+                .map(EvidenceDocument.from),
               additional,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,

@@ -290,8 +290,8 @@ object Forms {
         s"$key.claim-amount" -> moneyMapping(
           errorMsg = s"error.invalid-text",
           zeroErrorMsg = Some(s"error.zero")
-        ).verifying("error.invalid-amount", amount => amount >= 0 && amount <= paidAmount)
-      )(amount => amount)(amount => Some(amount))
+        ).verifying("error.invalid-amount", _ <= paidAmount)
+      )(amount => amount)(Some(_))
     )
 
   def reimbursementMethodForm(reimbursementMethodKey: String): Form[ReimbursementMethod] =
@@ -370,10 +370,9 @@ object Forms {
         "enter-duplicate-movement-reference-number" ->
           nonEmptyText
             .verifying(Constraint[String] { str: String =>
-              if (str.isEmpty) Invalid("error.required")
-              else if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
-              else if (MRN(str).isValid) Valid
-              else Invalid("invalid.number")
+              if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
+              else if (str.nonEmpty && !MRN(str).isValid) Invalid("invalid.number")
+              else Valid
             })
             .transform[MRN](MRN(_), _.value)
       )(identity)(Some(_))

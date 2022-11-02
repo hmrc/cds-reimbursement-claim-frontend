@@ -35,22 +35,30 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    warning: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        warning: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
 )
 
-@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-your-answers"}
-@title = @{messages(s"$key.title")}
-@hasSupportingEvidence = @{claim.supportingEvidences.nonEmpty}
-@key2 = @{if(hasSupportingEvidence) "documents-evidence" else "documents-none"}
+@key = @{
+    "check-your-answers"
+}
+@title = @{
+    messages(s"$key.title")
+}
+@hasSupportingEvidence = @{
+    claim.supportingEvidences.nonEmpty
+}
+@key2 = @{
+    if(hasSupportingEvidence) "documents-evidence" else "documents-none"
+}
 
 @layout(pageTitle = Some(s"$title")) {
 
@@ -59,31 +67,45 @@
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
         @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
-            displayDeclaration, 
+            displayDeclaration,
             s"$key.declaration-details",
             routes.EnterMovementReferenceNumberController.show(),
             routes.ChooseReasonForSecurityController.show()
-        ).rows ++ 
-        SecuritiesSelectionSummary(
-            claim.securitiesReclaims, 
-            displayDeclaration,
-            key,
-            routes.SelectSecuritiesController.show
         ).rows ++
-        Seq(SummaryListRow(
-            key = Key(Text(messages(s"$key.payment-method.label"))),
-            value = Value(Text(
-                    messages(
-                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet)){
-                             s"$key.payment-method.guarantee" 
+                SecuritiesSelectionSummary(
+                    claim.securitiesReclaims,
+                    displayDeclaration,
+                    key,
+                    routes.SelectSecuritiesController.show
+                ).rows ++
+                (
+                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(claim.securitiesReclaims.keySet)) {
+                            Seq.empty[SummaryListRow]
                         } else {
-                            s"$key.payment-method.bt"
+                            Seq(
+                                SummaryListRow(
+                                    key = Key(Text(messages(s"$key.payment-method.label"))),
+                                    value = Value(Text(
+                                        messages(
+                                            if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet)) {
+                                                s"$key.payment-method.guarantee"
+                                            } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(claim.securitiesReclaims.keySet)) {
+                                                s"$key.payment-method.bt"
+                                            } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(claim.securitiesReclaims.keySet)) {
+                                                s"$key.payment-method.cash-account"
+                                            } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(claim.securitiesReclaims.keySet)) {
+                                                s"$key.payment-method.duty-deferment"
+                                            } else {
+                                                s"$key.payment-method.unknown"
+                                            }
+                                        ))))
+                            )
                         }
-        )))))))
+                        )))
     }
 
-    @exportDeclarationMrnOpt.map{ exportDeclarationMrn =>
-        @subHeading(Html(messages(s"$key.export-declaration-details.h2")))  
+    @exportDeclarationMrnOpt.map { exportDeclarationMrn =>
+        @subHeading(Html(messages(s"$key.export-declaration-details.h2")))
         @summary(SummaryList(Seq(SummaryListRow(
             key = Key(HtmlContent(messages(s"$key.export-declaration-details.mrn"))),
             value = Value(Text(exportDeclarationMrn.value)),
@@ -92,7 +114,7 @@
                     href = routes.EnterExportMovementReferenceNumberController.show().url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.export-declaration-details.mrn"))
-            ))))
+                ))))
         ))))
     }
 
@@ -104,22 +126,20 @@
         changeContactAddressCall = routes.CheckClaimantDetailsController.redirectToALF())
     )
 
-     @displayDeclarationOpt.map { displayDeclaration =>
+    @displayDeclarationOpt.map { displayDeclaration =>
         @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
             @subHeading(Html(messages(s"$key.claim-for-security.h2", securityDepositId)))
             @summary(SecuritiesReclaimDetailsSummary(
-                securityDepositId, 
-                reclaims, 
-                displayDeclaration, 
-                s"$key.claim-for-security", 
+                securityDepositId,
+                reclaims,
+                displayDeclaration,
+                s"$key.claim-for-security",
                 routes.ConfirmFullRepaymentController.show,
                 routes.SelectDutiesController.show,
                 routes.EnterClaimController.show
             ))
         }
     }
-
-
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
@@ -129,7 +149,8 @@
     @subHeading(Html(messages(s"$key.documents.h2")))
     @summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"$key.documents", routes.UploadFilesController.summary()))
 
-    @{if(hasSupportingEvidence)
+    @{
+        if(hasSupportingEvidence)
             subHeading(Html(messages(s"$key.$key2-h2")), classes = "govuk-heading-s govuk-!-margin-top-9")
         else
             warning(WarningText(content = Text(messages(s"$key.$key2-h2"))))
@@ -138,7 +159,9 @@
     @paragraph(Html(messages(s"$key.$key2-p1")))
     @paragraph(Html(messages(s"$key.$key2-p2")))
 
-    <a href="@{routes.UploadFilesController.summary().url}" class="govuk-link" role="button">
+    <a href="@{
+        routes.UploadFilesController.summary().url
+    }" class="govuk-link" role="button">
         <b style="font-size: larger">@messages(s"$key.$key2-link-text")</b>
     </a>
 

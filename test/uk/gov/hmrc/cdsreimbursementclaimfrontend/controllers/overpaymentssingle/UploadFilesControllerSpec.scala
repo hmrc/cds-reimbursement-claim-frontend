@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
-import cats.data.NonEmptyList
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
@@ -33,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswerList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -75,7 +74,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
   private def sessionWithSupportingEvidenceAnswer(
     documentTypeAnswer: Option[UploadDocumentType],
-    supportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
+    supportingEvidencesAnswer: Option[SupportingEvidencesAnswerList]
   ): (SessionData, Nonce) = {
     val nonce               = Nonce.random
     val draftC285Claim      =
@@ -97,7 +96,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
   }
 
-  val uploadDocument = buildUploadDocument(UUID.randomUUID().toString())
+  val uploadDocument: UploadedFile = buildUploadDocument(UUID.randomUUID().toString)
 
   "UploadFilesController in single" when {
 
@@ -128,7 +127,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = None,
-          supportingEvidencesAnswer = Some(NonEmptyList.of(uploadDocument))
+          supportingEvidencesAnswer = Some(List(uploadDocument))
         )
         inSequence {
           mockAuthWithNoRetrievals()
@@ -165,7 +164,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CommercialInvoice),
-          supportingEvidencesAnswer = Some(NonEmptyList.of(uploadDocument))
+          supportingEvidencesAnswer = Some(List(uploadDocument))
         )
         inSequence {
           mockAuthWithNoRetrievals()
@@ -208,7 +207,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = None,
-          supportingEvidencesAnswer = Some(NonEmptyList.of(uploadDocument))
+          supportingEvidencesAnswer = Some(List(uploadDocument))
         )
         inSequence {
           mockAuthWithNoRetrievals()
@@ -245,7 +244,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CommercialInvoice),
-          supportingEvidencesAnswer = Some(NonEmptyList.of(uploadDocument))
+          supportingEvidencesAnswer = Some(List(uploadDocument))
         )
         inSequence {
           mockAuthWithNoRetrievals()
@@ -283,7 +282,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CommercialInvoice),
-          supportingEvidencesAnswer = Some(NonEmptyList.of(uploadDocument))
+          supportingEvidencesAnswer = Some(List(uploadDocument))
         )
         inSequence {
           mockAuthWithNoRetrievals()
@@ -325,7 +324,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
           mockStoreSession(
             session.withUpdatedC285Claim(
               _.copy(supportingEvidencesAnswer =
-                Some(NonEmptyList.of(uploadDocument.copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))))
+                Some(List(uploadDocument.copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))))
               )
             )
           )(Right(()))
@@ -339,7 +338,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
         val (session, nonce) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CorrespondenceTrader),
-          supportingEvidencesAnswer = Some(NonEmptyList.of(buildUploadDocument("1"), buildUploadDocument("2")))
+          supportingEvidencesAnswer = Some(List(buildUploadDocument("1"), buildUploadDocument("2")))
         )
 
         inSequence {
@@ -348,7 +347,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
           mockStoreSession(
             session.withUpdatedC285Claim(
               _.copy(supportingEvidencesAnswer =
-                Some(NonEmptyList.of(uploadDocument.copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))))
+                Some(List(uploadDocument.copy(cargo = Some(UploadDocumentType.CorrespondenceTrader))))
               )
             )
           )(Right(()))
@@ -391,7 +390,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
   }
 
-  def buildUploadDocument(id: String) = UploadedFile(
+  def buildUploadDocument(id: String): UploadedFile = UploadedFile(
     upscanReference = s"upscan-reference-$id",
     fileName = s"file-name-$id",
     downloadUrl = s"download-url-$id",

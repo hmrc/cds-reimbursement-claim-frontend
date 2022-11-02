@@ -16,31 +16,32 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Request
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_file_type
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 
 @Singleton
 class ChooseFileTypeController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseFileTypePage: choose_file_type
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends SecuritiesJourneyBaseController {
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-  import com.github.arturopala.validator.Validator.Validate
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
+    extends SecuritiesJourneyBaseController
+    with ChooseFileTypeMixin {
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
@@ -48,67 +49,16 @@ class ChooseFileTypeController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val submitAction: Call          = routes.ChooseFileTypeController.submit()
-  val chooseFilesPageAction: Call = routes.UploadFilesController.show()
+  final override val uploadFilesRoute: Call =
+    routes.UploadFilesController.show()
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    (journey.getDocumentTypesIfRequired match {
-      case None =>
-        Redirect(routes.UploadFilesController.show())
+  final override def viewTemplate
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[_] => HtmlFormat.Appendable =
+    (form, documentTypes, _) =>
+      implicit request => chooseFileTypePage(form, documentTypes, routes.ChooseFileTypeController.submit())
 
-      case Some(availableDocumentTypes) =>
-        val form: Form[Option[UploadDocumentType]] =
-          Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
-
-        Ok(
-          chooseFileTypePage(
-            form,
-            availableDocumentTypes,
-            submitAction
-          )
-        )
-    }).asFuture
-  }
-
-  val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      (journey.getDocumentTypesIfRequired match {
-        case None =>
-          (journey, Redirect(routes.UploadFilesController.show()))
-
-        case Some(availableDocumentTypes) =>
-          val form: Form[Option[UploadDocumentType]] =
-            Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
-
-          form.bindFromRequest
-            .fold(
-              formWithErrors =>
-                (
-                  journey,
-                  BadRequest(
-                    chooseFileTypePage(
-                      formWithErrors,
-                      availableDocumentTypes,
-                      submitAction
-                    )
-                  )
-                ),
-              {
-                case None =>
-                  (journey, Redirect(checkYourAnswers))
-
-                case Some(documentType) =>
-                  journey
-                    .submitDocumentTypeSelection(documentType)
-                    .fold(
-                      error => (journey, logAndDisplayError("Unexpected", error)),
-                      upddatedJourney => (upddatedJourney, Redirect(chooseFilesPageAction))
-                    )
-              }
-            )
-      }).asFuture
-    },
-    fastForwardToCYAEnabled = false
-  )
+  final override def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey] =
+    journey
+      .submitDocumentTypeSelection(documentType)
 
 }

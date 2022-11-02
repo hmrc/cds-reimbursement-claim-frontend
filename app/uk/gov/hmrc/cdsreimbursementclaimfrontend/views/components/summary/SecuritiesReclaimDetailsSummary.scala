@@ -110,7 +110,7 @@ object SecuritiesReclaimDetailsSummary {
           )
         )
       )
-    }.toSeq ++ Seq(
+    } ++ Seq(
       SummaryListRow(
         key = Key(HtmlContent(messages(s"$key.claim-total"))),
         value = Value(Text(reclaims.values.sum.toPoundSterlingString))

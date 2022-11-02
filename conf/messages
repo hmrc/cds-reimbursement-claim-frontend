@@ -5,6 +5,9 @@ service.signOut=Sign out
 hmrc_branding=HM Revenue & Customs
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 
+phasebanner.phase=Beta
+phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
+
 lang=en
 currency=£
 
@@ -369,14 +372,14 @@ mrn-does-not-exist.help-text=You have tried to reach an <abbr title="Movement Re
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.mrn.title=Enter the duplicate <abbr title="Movement Reference Number">MRN</abbr>
-enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate <abbr title="Movement Reference Number">MRN</abbr>
-enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
-enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-duplicate-movement-reference-number.mrn.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.mrn.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
-enter-duplicate-movement-reference-number.mrn.error.required=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
-enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN
+enter-duplicate-movement-reference-number.title=Enter the duplicate <abbr title="Movement Reference Number">MRN</abbr>
+enter-duplicate-movement-reference-number.input-title=Enter duplicate <abbr title="Movement Reference Number">MRN</abbr>
+enter-duplicate-movement-reference-number.help-text=This will help us to process your claim more efficiently.
+enter-duplicate-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
+enter-duplicate-movement-reference-number.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-duplicate-movement-reference-number.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
+enter-duplicate-movement-reference-number.error.required=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
+enter-duplicate-movement-reference-number.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN
 
 #===================================================
 #  ENTER DUPLICATE ENTRY NUMBER PAGE
@@ -465,6 +468,8 @@ select-securities.payment-reference-label=Payment reference
 select-securities.payment-method-label=Payment method
 select-securities.payment-method.guarantee=Guarantee
 select-securities.payment-method.bank-account=Bank account
+select-securities.payment-method.cash-account=Cash Account
+select-securities.payment-method.duty-deferment=Duty Deferment Account
 select-securities.payment-method.unavailable=Unavailable
 select-securities.acceptance-date-label=Acceptance date
 select-securities.bta-due-date-label=Date duty collected
@@ -836,7 +841,7 @@ check-claim.rejected-goods.single.title=Check the claim total for the <abbr titl
 check-claim.rejected-goods.multiple.title=Check the repayment claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
 check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim.rejected-goods.multiple.label=These are the calculations based on the information you gave us.
-check-claim.rejected-goods.single.mrn.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
+check-claim.rejected-goods.single.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
 check-claim.rejected-goods.single.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
 check-claim.rejected-goods.error.required=Select yes if these duties are correct
 check-claim.rejected-goods.are-duties-correct=Are these duties correct?
@@ -957,6 +962,7 @@ select-duty-types.title=Select the duty types you want to claim for all <abbr ti
 select-duty-types.error.required=Choose the duties you want to include in your claim
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-types.checkbox-legend.1=Customs, Additional, <abbr title="Value Added Tax">VAT</abbr> & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
@@ -964,6 +970,7 @@ select-duty-codes.title=Select the {0} duties you want to claim for all <abbr ti
 select-duty-codes.error.required=Choose the duties you want to include in your claim
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.eu-duty=EU
 select-duty-codes.h1.beer=beer
@@ -981,7 +988,7 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 #===================================================
 #  SELECT REIMBURSEMENT METHOD PAGE
 #===================================================
-reimbursement-method.title=Select repayment method
+reimbursement-method.title=Choose repayment method
 reimbursement-method.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
 reimbursement-method.bank-transfer=Bank account transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
@@ -1027,7 +1034,7 @@ select-duties.duty.A95=Provisional Countervailing Duty
 select-duties.duty.B05=Value Added Tax
 select-duties.duty.407=Beer made in the UK (standard rate, that is, annual production more than 60,000 hectolitres)
 select-duties.duty.411=Wine (sparkling), of fresh grape, 8.5% vol. and above, but not exceeding 15% vol.
-select-duties.duty.412=Wine (sparkling]), of fresh grape, exceeding 5.5% vol. but less than 8.5% vol.
+select-duties.duty.412=Wine (sparkling), of fresh grape, exceeding 5.5% vol. but less than 8.5% vol.
 select-duties.duty.413=Wine (still), exceeding 5.5% vol. but not exceeding 15% vol.
 select-duties.duty.415=Wine (still or sparkling), exceeding 15% vol. but not exceeding 22% vol.
 select-duties.duty.419=Wine (still or sparkling), exceeding 22% vol.
@@ -1299,7 +1306,7 @@ supporting-evidence.upload.error.required=Upload a supporting document
 supporting-evidence.upload.p1=Upload supporting evidence you have received for the commodities you have imported. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.upload.p2=The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
-supporting-evidence.upload.input-title=Select document
+supporting-evidence.upload.input-title=Select a document to upload
 supporting-evidence.upload.allowed-file-types=JPG, PNG, or PDF
 file.error.required=Select a supporting document
 supporting-evidence.scan-progress.title=We are checking your document
@@ -1381,7 +1388,7 @@ schedule-document.upload.things-to-show.p1=The document should show:
 schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.things-to-show.l2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
 schedule-document.upload.things-to-show.l3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.upload.input-title=Select document
+schedule-document.upload.input-title=Select a document to upload
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.choose.description=Select a document to upload
 schedule-document.upload.allowed-file-types=JPG, PNG, or PDF
@@ -1587,6 +1594,10 @@ check-your-answers.repayment-method.bt=Bank account transfer
 check-your-answers.payment-method.label=Payment method
 check-your-answers.payment-method.bt=Bank account transfer
 check-your-answers.payment-method.guarantee=Guarantee
+check-your-answers.payment-method.cash-account=Cash account
+check-your-answers.payment-method.duty-deferment=Duty deferment account
+check-your-answers.payment-method.unavailable=Unavailable
+
 check-your-answers.inspection.h2=Details of inspection
 check-your-answers.inspection.inspection-date=Inspection date
 check-your-answers.inspection.inspection-address=Inspection address

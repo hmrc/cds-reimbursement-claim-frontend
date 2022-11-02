@@ -122,6 +122,9 @@ final class OverpaymentsSingleJourney private (
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
 
+  override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+    Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */

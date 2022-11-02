@@ -158,6 +158,9 @@ final class RejectedGoodsScheduledJourney private (
   def getTotalPaidAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
 
+  override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+    Some(UploadDocumentType.rejectedGoodsScheduledDocumentTypes)
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
