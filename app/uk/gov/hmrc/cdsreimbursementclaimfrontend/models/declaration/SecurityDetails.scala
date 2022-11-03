@@ -30,8 +30,8 @@ final case class SecurityDetails(
 ) {
 
   def isBankAccountPayment: Boolean = paymentMethod === "001"
-  def isCashAccount: Boolean        = paymentMethod === "002"
-  def isDefermentAccount: Boolean   = paymentMethod === "003"
+  def isDefermentAccount: Boolean   = paymentMethod === "002"
+  def isCashAccount: Boolean        = paymentMethod === "003"
   def isGuaranteeEligible: Boolean  = paymentMethod === "004" || paymentMethod === "005"
 
   def getTotalAmount: BigDecimal = taxDetails.map(_.getAmount).sum
