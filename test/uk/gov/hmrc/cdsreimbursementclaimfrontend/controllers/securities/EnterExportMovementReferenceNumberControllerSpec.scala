@@ -184,7 +184,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "save an export MRN if valid and continue to the check claimant details page (single shipment)" in forAllWith(
+      "show error page when acc14 response returns an error (single shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
@@ -201,13 +201,14 @@ class EnterExportMovementReferenceNumberControllerSpec
           )(Right(()))
         }
 
-        checkIsRedirect(
+        checkPageIsDisplayed(
           performAction(enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
-          routes.CheckClaimantDetailsController.show()
+          "Sorry, we're experiencing technical difficulties",
+          expectedStatus = INTERNAL_SERVER_ERROR
         )
       }
 
-      "save an export MRN if valid and continue to the check claimant details page (multiple shipment)" in forAllWith(
+      "show error page when acc14 response returns an error (multiple shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
           buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
@@ -224,9 +225,10 @@ class EnterExportMovementReferenceNumberControllerSpec
           )(Right(()))
         }
 
-        checkIsRedirect(
+        checkPageIsDisplayed(
           performAction(enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
-          routes.CheckClaimantDetailsController.show()
+          "Sorry, we're experiencing technical difficulties",
+          expectedStatus = INTERNAL_SERVER_ERROR
         )
       }
 

@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.tempor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number
@@ -86,27 +87,35 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
-      val form = getForm(journey)
+      val form                          = getForm(journey)
+      lazy val matchingOrExistingMRNErrors = (journey, getResultPage(journey, updatedForm(form, journey), BadRequest))
+
       form.bindFromRequest
         .fold(
-          (formWithErrors: Form[MRN]) => (journey, getResultPage(journey, formWithErrors, BadRequest)).asFuture,
+          formWithErrors => (journey, getResultPage(journey, formWithErrors, BadRequest)).asFuture,
           mrn =>
-            claimService
-              .getDisplayDeclaration(mrn)
-              .fold(
-                _ => submitMrnAndContinue(mrn, journey),
-                _ => {
-                  val formErrorKey =
-                    if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
-                      enterExportMovementReferenceNumberMultipleKey
-                    else enterExportMovementReferenceNumberSingleKey
-                  val updatedForm  =
-                    form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
-                  (journey, getResultPage(journey, updatedForm, BadRequest))
-                }
-              )
+            if (journey.getLeadMovementReferenceNumber.contains(mrn)) matchingOrExistingMRNErrors.asFuture
+            else {
+              claimService
+                .getDisplayDeclaration(mrn)
+                .fold(
+                  error => (journey, logAndDisplayError(s"Error fetching Display Declaration for [${mrn.value}] ", error)),
+                  {
+                    case Some(_) => matchingOrExistingMRNErrors
+                    case None => submitMrnAndContinue(mrn, journey)
+                  }
+                )
+            }
         )
     }
+  }
+
+  private def updatedForm(form: Form[MRN], journey: SecuritiesJourney): Form[MRN] = {
+    val formErrorKey =
+      if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
+        enterExportMovementReferenceNumberMultipleKey
+      else enterExportMovementReferenceNumberSingleKey
+    form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
   }
 
   private def submitMrnAndContinue(mrn: MRN, journey: SecuritiesJourney): (SecuritiesJourney, Result) =
