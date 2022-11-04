@@ -352,13 +352,16 @@ final class SecuritiesJourney private (
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       if (needsExportMRNSubmission)
-        Right(
-          new SecuritiesJourney(
-            answers.copy(
-              exportMovementReferenceNumber = Some(exportMrn)
+        if (answers.movementReferenceNumber.contains(exportMrn))
+          Left("submitExportMovementReferenceNumber.duplicated")
+        else
+          Right(
+            new SecuritiesJourney(
+              answers.copy(
+                exportMovementReferenceNumber = Some(exportMrn)
+              )
             )
           )
-        )
       else
         Left("submitExportMovementReferenceNumber.unexpected")
     }
