@@ -230,6 +230,60 @@ class EnterExportMovementReferenceNumberControllerSpec
         )
       }
 
+      "reject an export MRN if duplicate of import MRN (single shipment)" in forAllWith(
+        JourneyGenerator(
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+        )
+      ) { case (journey, _) =>
+        val session = SessionData(journey)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Left(Error("")))
+        }
+
+        checkPageIsDisplayed(
+          performAction(
+            enterExportMovementReferenceNumberSingleKey -> journey.answers.movementReferenceNumber.get.value
+          ),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterExportMovementReferenceNumberSingleKey.securities.error.import"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject an export MRN if duplicate of import MRN (multiple shipment)" in forAllWith(
+        JourneyGenerator(
+          mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
+          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+        )
+      ) { case (journey, _) =>
+        val session = SessionData(journey)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Left(Error("")))
+        }
+
+        checkPageIsDisplayed(
+          performAction(
+            enterExportMovementReferenceNumberMultipleKey -> journey.answers.movementReferenceNumber.get.value
+          ),
+          messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              s"$enterExportMovementReferenceNumberMultipleKey.securities.error.import"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
       "display error if acc14 returns a successful response (single shipment)" in forAllWith(
         JourneyGenerator(
           mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,

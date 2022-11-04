@@ -109,17 +109,31 @@ class EnterExportMovementReferenceNumberController @Inject() (
     }
   }
 
-  private def submitMrnAndContinue(mrn: MRN, journey: SecuritiesJourney): (SecuritiesJourney, Result) =
+  private def submitMrnAndContinue(mrn: MRN, journey: SecuritiesJourney)(implicit
+    request: Request[_]
+  ): (SecuritiesJourney, Result) =
     journey
       .submitExportMovementReferenceNumber(mrn)
       .fold(
-        _ =>
-          if (journey.userHasSeenCYAPage) {
-            (journey, Redirect(routes.CheckYourAnswersController.show()))
-          } else {
+        {
+          case "submitExportMovementReferenceNumber.unexpected" =>
             (journey, Redirect(routes.CheckClaimantDetailsController.show()))
-          },
-        (_, Redirect(routes.CheckClaimantDetailsController.show()))
+          case _                                                =>
+            val formErrorKey =
+              if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
+                enterExportMovementReferenceNumberMultipleKey
+              else enterExportMovementReferenceNumberSingleKey
+            (
+              journey,
+              getResultPage(journey, getForm(journey).withError(formErrorKey, "securities.error.import"), BadRequest)
+            )
+        },
+        updatedJourney =>
+          if (updatedJourney.userHasSeenCYAPage) {
+            (updatedJourney, Redirect(routes.CheckYourAnswersController.show()))
+          } else {
+            (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
+          }
       )
 
   private def whenTemporaryAdmissionExported(
