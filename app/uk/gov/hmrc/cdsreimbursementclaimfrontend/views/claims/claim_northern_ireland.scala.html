@@ -54,7 +54,7 @@
             name = key,
             legend = title,
             legendAsHeading = true,
-            hintKey = Some(messages(combine(key, journey, "help-text"))),
+            hintKey = Some(combine(key, journey, "help-text").head),
             classes = "govuk-fieldset__legend--xl",
             paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             inline = true,
