@@ -38,20 +38,20 @@ object ContactAndAddressSummary
         MrnContactDetails,
         ContactAddress,
         Call,
-        Call
+        Option[Call]
       )
     ] {
 
   override def render(
-    answer: (MrnContactDetails, ContactAddress, Call, Call),
+    answer: (MrnContactDetails, ContactAddress, Call, Option[Call]),
     key: String,
     subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
   ): SummaryList = {
-    val (contactDetails, contactAddress, changeContactDetailsCall, changeContactAddressCall) = answer
-    val contactData                                                                          = List(
+    val (contactDetails, contactAddress, changeContactDetailsCall, maybeChangeContactAddressCall) = answer
+    val contactData                                                                               = List(
       Some(Paragraph(contactDetails.fullName)),
       Some(Paragraph(contactDetails.emailAddress.value)),
       contactDetails.phoneNumber.map(n => Paragraph(n.value))
@@ -78,7 +78,7 @@ object ContactAndAddressSummary
       Some(Paragraph(messages(s"country.${contactAddress.country.code}")))
     ).flattenOption
 
-    val addressAction = Some(
+    val addressAction = maybeChangeContactAddressCall.map { changeContactAddressCall =>
       Actions(
         items = Seq(
           ActionItem(
@@ -88,7 +88,7 @@ object ContactAndAddressSummary
           )
         )
       )
-    )
+    }
 
     SummaryList(
       Seq(
