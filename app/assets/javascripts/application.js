@@ -1,7 +1,3 @@
-window.GOVUKFrontend.initAll();
-window.HMRCFrontend.initAll();
-
-
 // Functionality for CDSR service
 
 const CDSR = {
