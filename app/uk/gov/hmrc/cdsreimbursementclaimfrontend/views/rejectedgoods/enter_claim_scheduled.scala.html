@@ -61,6 +61,7 @@
             name = s"$key.paid-amount",
             label = s"$key.paid-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
+            inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
@@ -73,6 +74,7 @@
             name = s"$key.claim-amount",
             label = s"$key.claim-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
+            inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
             hintHtml = Some(hintText),

@@ -63,6 +63,7 @@
             name = key,
             label = s"$key.actual-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
+            inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
             hintHtml = Some(Html(messages(s"$key.actual-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))),
