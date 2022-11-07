@@ -645,12 +645,12 @@ choose-export-method.export-method-description.MultipleDisposalMethodsWereUsed=M
 #  CLAIM NORTHERN IRELAND PAGE
 #===================================================
 claim-northern-ireland.title=Were your goods moved through or imported to Northern Ireland?
-claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
 claim-northern-ireland.error.required=Select yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were moved through or imported to Northern Ireland
 claim-northern-ireland.error.invalid=Select yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were moved through or imported to Northern Ireland
 
+claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
 claim-northern-ireland.scheduled.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
 claim-northern-ireland.multiple.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
 #===================================================

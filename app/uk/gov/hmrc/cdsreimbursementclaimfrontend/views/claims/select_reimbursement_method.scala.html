@@ -45,15 +45,14 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), classes = "govuk-heading-xl govuk-!-margin-bottom-6")
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,
             legend = title,
-            hintKey = None,
-            classes = "govuk-visually-hidden",
+            legendAsHeading = true,
+            classes = "govuk-fieldset__legend--xl",
+            paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = Seq(
                 RadioItem(
                     id = Some(s"$key-cma"),
