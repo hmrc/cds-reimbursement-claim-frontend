@@ -79,7 +79,13 @@ class CheckContactDetailsController @Inject() (
         (maybeContactDetails, maybeAddressDetails) match {
           case (Some(contactDetails), Some(contactAddress)) =>
             val view =
-              claimantDetailsPage(contactDetails, contactAddress, changeContactDetails, startAddressLookup, postAction)
+              claimantDetailsPage(
+                contactDetails,
+                contactAddress,
+                changeContactDetails,
+                Some(startAddressLookup),
+                postAction
+              )
             Ok(view)
 
           case _ =>

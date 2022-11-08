@@ -37,7 +37,7 @@ object ClaimantInformationSummary {
     claimantInformation: ClaimantInformation,
     key: String,
     changeContactDetailsCall: Call,
-    changeContactAddressCall: Call
+    changeContactAddressCall: Option[Call]
   )(implicit
     messages: Messages
   ): SummaryList = {
@@ -58,17 +58,17 @@ object ClaimantInformationSummary {
 
     val addressData = getAddressDataHtml(claimantInformation)
 
-    val addressAction = Some(
+    val addressAction = changeContactAddressCall.map { addressCall =>
       Actions(
         items = Seq(
           ActionItem(
-            href = s"${changeContactAddressCall.url}",
+            href = s"${addressCall.url}",
             content = Text(messages("cya.change")),
             visuallyHiddenText = Some(messages(s"$key.change-hint.address"))
           )
         )
       )
-    )
+    }
 
     SummaryList(
       Seq(
