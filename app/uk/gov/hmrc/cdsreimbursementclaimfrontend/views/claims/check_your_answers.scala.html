@@ -79,9 +79,9 @@
 
     @claim.getClaimantInformation(userEoriNumber).map{ claimantInformation =>
         @subHeading(Html(messages(s"$key.contact-information.h2")))
-        @summary(ClaimantInformationSummary(claimantInformation, s"$key.contact-information", OverpaymentsRoutes.CheckContactDetailsController.show(journey), OverpaymentsRoutes.CheckContactDetailsController.show(journey)))
+        @summary(ClaimantInformationSummary(claimantInformation, s"$key.contact-information", OverpaymentsRoutes.CheckContactDetailsController.show(journey), Some(OverpaymentsRoutes.CheckContactDetailsController.show(journey))))
     }
-    
+
     @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
         @subHeading(Html(messages(s"$key.northern-ireland-claim.h2")))
         @summary(NorthernIrelandAnswerSummary(whetherNorthernIrelandClaim,s"$key.northern-ireland-claim",subKey,OverpaymentsRoutes.NorthernIrelandController.show(journey)))

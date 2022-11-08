@@ -123,8 +123,8 @@
         claimantInformation = claim.claimantInformation,
         key = s"$key.contact-information",
         changeContactDetailsCall = routes.EnterContactDetailsController.show(),
-        changeContactAddressCall = routes.CheckClaimantDetailsController.redirectToALF())
-    )
+        changeContactAddressCall = None
+    ))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>

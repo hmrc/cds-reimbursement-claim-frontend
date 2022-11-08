@@ -52,15 +52,14 @@ class CheckClaimantDetailsController @Inject() (
 
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 
-  val postAction: Call         = routes.CheckClaimantDetailsController.submit()
-  val changeCd: Call           = routes.EnterContactDetailsController.show()
-  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
+  val postAction: Call = routes.CheckClaimantDetailsController.submit()
+  val changeCd: Call   = routes.EnterContactDetailsController.show()
 
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
   override def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable =
-    cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)
+    cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, None, postAction)
 
   override val redirectWhenNoAddressDetailsFound: Call =
     routes.EnterMovementReferenceNumberController.show()

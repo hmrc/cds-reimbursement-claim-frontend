@@ -30,7 +30,7 @@
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout
 )
 
-@(contactDetails: MrnContactDetails, contactAddress: ContactAddress, contactChange: Call, addressChange: Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(contactDetails: MrnContactDetails, contactAddress: ContactAddress, contactChange: Call, addressChange: Option[Call], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-claimant-details"}
 @title = @{messages(s"$key.title")}
@@ -40,7 +40,7 @@
     @heading(Html(title))
 
     @summary(
-        ContactAndAddressSummary((contactDetails, contactAddress, contactChange, None), key, None)
+        ContactAndAddressSummary((contactDetails, contactAddress, contactChange, addressChange), key, None)
     )
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {

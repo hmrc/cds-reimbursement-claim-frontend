@@ -54,7 +54,7 @@
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information",routes.CheckClaimantDetailsController.show(), routes.CheckClaimantDetailsController.show()))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information",routes.CheckClaimantDetailsController.show(), Some(routes.CheckClaimantDetailsController.show())))
 
     @subHeading(Html(messages(s"$key.basis.h2")))
     @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim,s"$key.basis", subKey, routes.BasisForClaimController.show()))
