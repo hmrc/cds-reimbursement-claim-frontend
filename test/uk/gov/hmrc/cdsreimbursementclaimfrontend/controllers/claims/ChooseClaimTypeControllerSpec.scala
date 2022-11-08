@@ -45,7 +45,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, Nonce, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
@@ -58,8 +60,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 
-class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport with BeforeAndAfterEach {
+class ChooseClaimTypeControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -67,7 +75,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+  lazy val featureSwitch          = instanceOf[FeatureSwitchService]
   override def beforeEach(): Unit = featureSwitch.enable(Feature.ViewUpload)
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]

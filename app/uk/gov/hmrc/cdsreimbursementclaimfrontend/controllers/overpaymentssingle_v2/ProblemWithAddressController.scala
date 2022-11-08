@@ -16,27 +16,26 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-
 import javax.inject.Inject
 import javax.inject.Singleton
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProblemWithAddressController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
+  val jcc: JourneyControllerComponents,
   problemWithAddressPage: problem_with_address
-)(implicit viewConfig: ViewConfig)
-    extends FrontendBaseController {
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
+    extends OverpaymentsSingleJourneyBaseController {
 
-  def show: Action[AnyContent] = Action { implicit request =>
-    val postAction = OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(JourneyBindable.Single)
-    Ok(problemWithAddressPage(postAction))
+  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
+
+  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+    Ok(problemWithAddressPage(startAddressLookup)).asFuture
   }
 }

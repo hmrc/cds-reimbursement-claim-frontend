@@ -39,9 +39,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import play.api.data.Form
 
 @Singleton
 class CheckDuplicateDeclarationDetailsController @Inject() (
@@ -66,15 +67,15 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   def show(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-        val postAction: Call                = router.submitUrlForCheckDuplicateDeclarationDetails()
-        implicit val subKey: Option[String] = router.subKey
+        val postAction: Call = router.submitUrlForCheckDuplicateDeclarationDetails()
         maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
           Ok(
             checkDeclarationDetailsPage(
               declaration,
-              checkDeclarationDetailsAnswerForm,
+              CheckDuplicateDeclarationDetailsController.checkDeclarationDetailsAnswerForm,
               isDuplicate = true,
-              postAction
+              postAction,
+              None
             )
           )
         )
@@ -84,9 +85,8 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   def submit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, answer, router) =>
-        val postAction: Call                = router.submitUrlForCheckDuplicateDeclarationDetails()
-        implicit val subKey: Option[String] = router.subKey
-        checkDeclarationDetailsAnswerForm
+        val postAction: Call = router.submitUrlForCheckDuplicateDeclarationDetails()
+        CheckDuplicateDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
@@ -98,7 +98,8 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
                         declaration,
                         formWithErrors,
                         isDuplicate = true,
-                        postAction
+                        postAction,
+                        None
                       )
                     )
                   )
@@ -119,4 +120,12 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
           )
       }
     }
+}
+
+object CheckDuplicateDeclarationDetailsController {
+
+  val checkDeclarationDetailsKey: String = "check-declaration-details"
+
+  val checkDeclarationDetailsAnswerForm: Form[YesNo] =
+    YesOrNoQuestionForm(checkDeclarationDetailsKey)
 }

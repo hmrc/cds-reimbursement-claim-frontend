@@ -223,7 +223,7 @@ check-eori-details.error.invalid=Select yes if these <abbr title="Economic Opera
 
 
 #===================================================
-#  CHOOSE HOW MANY MRNS PAGE
+#  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
 rejected-goods.choose-how-many-mrns.title=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is a unique 18-digit number that is issued when an import is declared.
@@ -236,6 +236,20 @@ rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for eac
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
 rejected-goods.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+
+#  OVERPAYMENTS - CHOOSE HOW MANY MRNS PAGE
+#===================================================
+overpayments.choose-how-many-mrns.title=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+overpayments.choose-how-many-mrns.p1=A Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is a unique 18-digit number that is issued when an import is declared.
+overpayments.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+overpayments.choose-how-many-mrns.inset.title=Entering Multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
+overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
+overpayments.choose-how-many-mrns.individual.title=Enter one MRN
+overpayments.choose-how-many-mrns.multiple.title=Enter multiple MRNs
+overpayments.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
+overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
+overpayments.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
+overpayments.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
 #  SELECT NUMBER OF CLAIMS PAGE

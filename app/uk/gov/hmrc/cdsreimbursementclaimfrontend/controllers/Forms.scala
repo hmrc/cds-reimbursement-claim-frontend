@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -76,6 +77,13 @@ object Forms {
       "rejected-goods.choose-how-many-mrns" -> nonEmptyText
         .verifying("error.required", journey => journey.isEmpty || RejectedGoodsJourneyType.has(journey))
     )(RejectedGoodsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
+  )
+
+  val overpaymentsChooseHowManyMrnsForm: Form[OverpaymentsJourneyType] = Form(
+    mapping(
+      "overpayments.choose-how-many-mrns" -> nonEmptyText
+        .verifying("error.required", journey => journey.isEmpty || OverpaymentsJourneyType.has(journey))
+    )(OverpaymentsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
   )
 
   val northernIrelandForm: Form[YesNo] = YesOrNoQuestionForm(dataKey)

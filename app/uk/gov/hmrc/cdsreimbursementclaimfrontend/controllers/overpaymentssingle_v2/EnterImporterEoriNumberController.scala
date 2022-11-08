@@ -16,127 +16,42 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
-import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
-import cats.instances.future.catsStdInstancesForFuture
-import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ImporterEoriNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterImporterEoriNumberMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
-  claimService: ClaimService,
-  val controllerComponents: MessagesControllerComponents,
-  enterImporterEoriNumberPage: pages.enter_importer_eori_number
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends FrontendBaseController
-    with WithAuthAndSessionDataAction
-    with SessionUpdates
-    with Logging {
+  val jcc: JourneyControllerComponents,
+  val enterImporterEoriNumber: pages.enter_importer_eori_number
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
+    extends OverpaymentsSingleJourneyBaseController
+    with EnterImporterEoriNumberMixin {
 
-  val eoriNumberFormKey: String = "enter-importer-eori-number"
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+    Some(hasMRNAndDisplayDeclaration)
 
-  implicit val journey: JourneyBindable = JourneyBindable.Single
+  final override val postAction: Call =
+    routes.EnterImporterEoriNumberController.submit()
 
-  implicit val dataExtractor: DraftClaim => Option[ImporterEoriNumberAnswer] = _.importerEoriNumberAnswer
+  final override val continueAction: Call =
+    routes.EnterDeclarantEoriNumberController.show()
 
-  val enterImporterEoriNumber: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ImporterEoriNumberAnswer] { (_, answers) =>
-        val emptyForm              = Forms.eoriNumberForm(eoriNumberFormKey)
-        val filledForm: Form[Eori] =
-          answers.fold(emptyForm)(importerEoriNumberAnswer => emptyForm.fill(importerEoriNumberAnswer.value))
-        Ok(
-          enterImporterEoriNumberPage(
-            filledForm,
-            routes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit
-          )
-        )
-      }
-    }
+  final override val whenEoriInputNotRequiredAction: Call =
+    Call("GET", "/foo") //routes.BasisForClaimController.show()
 
-  val enterImporterEoriNumberSubmit: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ImporterEoriNumberAnswer] { (fillingOutClaim, _) =>
-        Forms
-          .eoriNumberForm(eoriNumberFormKey)
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                enterImporterEoriNumberPage(
-                  requestFormWithErrors.fill(Eori("")),
-                  routes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit
-                )
-              ),
-            importerEoriNumber => {
+  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
+    journey.submitConsigneeEoriNumber(eori)
 
-              def updateJourney() = EitherT {
-                val updatedJourney =
-                  FillingOutClaim.from(fillingOutClaim)(
-                    _.copy(importerEoriNumberAnswer = Some(ImporterEoriNumberAnswer(importerEoriNumber)))
-                  )
-                updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
-              }
-
-              def checkWhetherConsigneeEORIsMatch = for {
-                mrn         <-
-                  EitherT
-                    .fromOption[Future](fillingOutClaim.draftClaim.movementReferenceNumber, Error("could not get MRN"))
-                declaration <- claimService.getDisplayDeclaration(mrn)
-              } yield declaration
-                .flatMap(_.displayResponseDetail.consigneeDetails)
-                .exists(_.consigneeEORI === importerEoriNumber.value)
-
-              val updateAndRedirect = for {
-                eorisMatch <- checkWhetherConsigneeEORIsMatch
-                                .leftMap(_ => Redirect(controllers.routes.IneligibleController.ineligible()))
-                status     <-
-                  if (eorisMatch)
-                    updateJourney()
-                      .map(_ =>
-                        Redirect(
-                          routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber
-                        )
-                      )
-                      .leftMap(logAndDisplayError("could not get importer eori number"))
-                  else
-                    EitherT.rightT[Future, Result](Redirect(controllers.routes.IneligibleController.ineligible()))
-              } yield status
-
-              updateAndRedirect.merge
-            }
-          )
-      }
-    }
 }

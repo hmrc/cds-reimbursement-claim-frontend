@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import ChooseClaimTypeController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.{routes => overpaymentsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
@@ -83,16 +84,23 @@ class ChooseClaimTypeController @Inject() (
             Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
           },
           {
-            case C285          => Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
-            case RejectedGoods => Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
-            case Securities    =>
+            case C285 =>
+              if (featureSwitchSevice.isEnabled(cdsreimbursementclaimfrontend.models.Feature.Overpayments_v2))
+                Future.successful(Redirect(overpaymentsRoutes.ChooseHowManyMrnsController.show()))
+              else
+                Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
+
+            case RejectedGoods =>
+              Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
+
+            case Securities =>
               request.authenticatedRequest.journeyUserType.eoriOpt
                 .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
                   sessionStore
                     .store(SessionData(SecuritiesJourney.empty(eori, Nonce.random)))
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
                 }
-            case ViewUpload    =>
+            case ViewUpload =>
               if (featureSwitchService.isEnabled(Feature.ViewUpload))
                 Future.successful(Redirect(viewConfig.viewUploadUrl))
               else

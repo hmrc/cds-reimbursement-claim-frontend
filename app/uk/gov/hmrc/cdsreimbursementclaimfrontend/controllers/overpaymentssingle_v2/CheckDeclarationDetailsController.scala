@@ -16,107 +16,50 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
+
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
-  val controllerComponents: MessagesControllerComponents,
+  val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
-)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends FrontendBaseController
-    with WithAuthAndSessionDataAction
-    with SessionDataExtractor
-    with SessionUpdates
-    with Logging {
+)(implicit val viewConfig: ViewConfig, val errorHandler: ErrorHandler, val ec: ExecutionContext)
+    extends OverpaymentsSingleJourneyBaseController
+    with CheckDeclarationDetailsMixin {
 
-  implicit val journey: JourneyBindable = JourneyBindable.Single
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  implicit val declarationExtractor: DraftClaim => Option[DisplayDeclaration] = _.displayDeclaration
+  final override def continueRoute(journey: Journey): Call =
+    routes.CheckClaimantDetailsController.show
 
-  def show(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-      val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
-      implicit val subKey: Option[String] = router.subKey
-      maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-        Ok(
-          checkDeclarationDetailsPage(
-            declaration,
-            checkDeclarationDetailsAnswerForm,
-            isDuplicate = false,
-            postAction
-          )
-        )
-      )
-    }
+  final override val enterMovementReferenceNumberRoute: Call =
+    routes.EnterMovementReferenceNumberController.submit
+
+  private val postAction: Call =
+    routes.CheckDeclarationDetailsController.submit
+
+  override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
+    case (decl, form) =>
+      implicit request =>
+        checkDeclarationDetailsPage(decl, form, false, postAction, None)
   }
 
-  def submit(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
-        val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
-        implicit val subKey: Option[String] = router.subKey
-        CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              answer
-                .map(declaration =>
-                  Future.successful(
-                    BadRequest(
-                      checkDeclarationDetailsPage(
-                        declaration,
-                        formWithErrors,
-                        isDuplicate = false,
-                        postAction
-                      )
-                    )
-                  )
-                )
-                .getOrElse(Future.successful(errorHandler.errorResult())),
-            answer =>
-              Redirect(
-                router.nextPageForCheckDeclarationDetails(
-                  answer,
-                  fillingOutClaim.draftClaim.associatedMRNsAnswer.isDefined
-                )
-              )
-          )
-      }
-    }
-}
-
-object CheckDeclarationDetailsController {
-
-  val checkDeclarationDetailsKey: String = "check-declaration-details"
-
-  val checkDeclarationDetailsAnswerForm: Form[YesNo] =
-    YesOrNoQuestionForm(checkDeclarationDetailsKey)
 }

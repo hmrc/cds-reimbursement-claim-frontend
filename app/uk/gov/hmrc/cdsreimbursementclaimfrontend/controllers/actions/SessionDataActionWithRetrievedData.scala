@@ -43,21 +43,23 @@ final case class RequestWithSessionDataAndRetrievedData[A](
     authenticatedRequest.request.messagesApi
 
   val signedInUserDetails: Option[SignedInUserDetails] = sessionData match {
-    case SessionData(journeyStatus @ Some(_), None, None, None, None, None) =>
+    case SessionData(journeyStatus @ Some(_), None, None, None, None, None, None) =>
       journeyStatus.collect {
         case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => signedInUserDetails
         case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => signedInUserDetails
         case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => signedInUserDetails
       }
-    case SessionData(None, Some(singleJourney), None, None, None, None)     =>
+    case SessionData(None, Some(singleJourney), None, None, None, None, None)     =>
       Some(signedInUserDetailsFromRequest(singleJourney.getClaimantEori))
-    case SessionData(None, None, Some(multipeJourney), None, None, None)    =>
+    case SessionData(None, None, Some(singleJourney), None, None, None, None)     =>
+      Some(signedInUserDetailsFromRequest(singleJourney.getClaimantEori))
+    case SessionData(None, None, None, Some(multipeJourney), None, None, None)    =>
       Some(signedInUserDetailsFromRequest(multipeJourney.getClaimantEori))
-    case SessionData(None, None, None, Some(scheduledJourney), None, None)  =>
+    case SessionData(None, None, None, None, Some(scheduledJourney), None, None)  =>
       Some(signedInUserDetailsFromRequest(scheduledJourney.getClaimantEori))
-    case SessionData(None, None, None, None, Some(securitiesJourney), None) =>
+    case SessionData(None, None, None, None, None, Some(securitiesJourney), None) =>
       Some(signedInUserDetailsFromRequest(securitiesJourney.getClaimantEori))
-    case _                                                                  => None
+    case _                                                                        => None
   }
 
   def signedInUserDetailsFromRequest(eori: Eori): SignedInUserDetails =
