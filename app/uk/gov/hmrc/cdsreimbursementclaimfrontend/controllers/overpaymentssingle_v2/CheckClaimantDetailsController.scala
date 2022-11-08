@@ -58,7 +58,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.CheckClaimantDetailsController.submit()
 
   override def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable =
-    cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, startAddressLookup, postAction)
+    cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, Some(startAddressLookup), postAction)
 
   override val redirectWhenNoAddressDetailsFound: Call =
     routes.EnterMovementReferenceNumberController.show
