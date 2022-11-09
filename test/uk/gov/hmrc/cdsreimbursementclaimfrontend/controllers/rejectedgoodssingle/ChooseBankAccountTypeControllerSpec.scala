@@ -64,7 +64,7 @@ class ChooseBankAccountTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
 
@@ -94,7 +94,7 @@ class ChooseBankAccountTypeControllerSpec
         mockGetSession(
           maybeBankAccountType.toList.foldLeft(session)((session, bankAccountType) =>
             session.copy(rejectedGoodsSingleJourney =
-              journeyWithMrnAndDD.submitBankAccountType(bankAccountType).toOption
+              journeyWithMrnAndDeclaration.submitBankAccountType(bankAccountType).toOption
             )
           )
         )
@@ -160,7 +160,7 @@ class ChooseBankAccountTypeControllerSpec
           mockGetSession(session)
           mockStoreSession(
             session.copy(
-              rejectedGoodsSingleJourney = journeyWithMrnAndDD.submitBankAccountType(bankAccountType).toOption
+              rejectedGoodsSingleJourney = journeyWithMrnAndDeclaration.submitBankAccountType(bankAccountType).toOption
             )
           )(Right(()))
         }

@@ -101,13 +101,13 @@ class ChooseFileTypeControllerSpec
       "display the page" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDD)
+          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration)
         )
 
       }
@@ -141,10 +141,10 @@ class ChooseFileTypeControllerSpec
       "redirect to choose files when valid document type selection" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
           mockStoreSession(
             SessionData(
-              journeyWithMrnAndDD.submitDocumentTypeSelection(UploadDocumentType.AdditionalSupportingDocuments)
+              journeyWithMrnAndDeclaration.submitDocumentTypeSelection(UploadDocumentType.AdditionalSupportingDocuments)
             )
           )(Right(()))
         }
@@ -157,12 +157,12 @@ class ChooseFileTypeControllerSpec
       "re-display the page when invalid document type selection" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
         checkPageIsDisplayed(
           performAction("choose-file-type" -> "Foo"),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDD),
+          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration),
           expectedStatus = 400
         )
       }
@@ -170,12 +170,12 @@ class ChooseFileTypeControllerSpec
       "re-display the page when nothing has been selected" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDD),
+          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration),
           expectedStatus = 400
         )
       }
@@ -183,7 +183,7 @@ class ChooseFileTypeControllerSpec
       "redirect to CYA when selected 'no documents to upload'" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
         checkIsRedirect(
           performAction("choose-file-type" -> "none"),

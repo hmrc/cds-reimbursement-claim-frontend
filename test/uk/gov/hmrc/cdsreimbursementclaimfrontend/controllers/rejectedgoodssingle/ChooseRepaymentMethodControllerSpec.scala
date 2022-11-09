@@ -103,7 +103,7 @@ class ChooseRepaymentMethodControllerSpec
       "show the page on a new journey" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
@@ -155,7 +155,7 @@ class ChooseRepaymentMethodControllerSpec
       "reject an empty Repayment Method" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
@@ -171,7 +171,7 @@ class ChooseRepaymentMethodControllerSpec
           whenever(answer =!= "0" && answer =!= "1") {
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(journeyWithMrnAndDD))
+              mockGetSession(SessionData(journeyWithMrnAndDeclaration))
             }
 
             checkPageIsDisplayed(
@@ -190,7 +190,7 @@ class ChooseRepaymentMethodControllerSpec
 
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(journeyWithMrnAndDD))
+              mockGetSession(SessionData(journeyWithMrnAndDeclaration))
             }
 
             checkIsRedirect(

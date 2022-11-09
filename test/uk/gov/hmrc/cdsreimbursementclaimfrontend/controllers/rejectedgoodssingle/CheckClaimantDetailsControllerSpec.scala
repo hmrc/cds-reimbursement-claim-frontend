@@ -84,7 +84,7 @@ class CheckClaimantDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData(journeyWithMrnAndDD)
+  private val session = SessionData(journeyWithMrnAndDeclaration)
 
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {

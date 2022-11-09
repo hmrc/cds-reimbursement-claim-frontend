@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -34,8 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -67,7 +67,7 @@ class CheckDeclarationDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
@@ -79,7 +79,7 @@ class CheckDeclarationDetailsControllerSpec
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "does not find the page if the rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }
 
@@ -89,7 +89,7 @@ class CheckDeclarationDetailsControllerSpec
           acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val sessionToAmend = session.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -118,8 +118,7 @@ class CheckDeclarationDetailsControllerSpec
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
+        featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }
 
@@ -160,7 +159,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "false"),
-          routes.EnterMovementReferenceNumberController.submit()
+          routes.EnterMovementReferenceNumberController.submit
         )
 
       }

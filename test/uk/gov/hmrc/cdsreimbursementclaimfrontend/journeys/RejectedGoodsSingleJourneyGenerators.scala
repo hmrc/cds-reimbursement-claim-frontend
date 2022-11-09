@@ -36,7 +36,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
   val emptyJourney: RejectedGoodsSingleJourney =
     RejectedGoodsSingleJourney.empty(exampleEori)
 
-  val journeyWithMrnAndDD: RejectedGoodsSingleJourney =
+  val journeyWithMrnAndDeclaration: RejectedGoodsSingleJourney =
     RejectedGoodsSingleJourney
       .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random)
       .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)

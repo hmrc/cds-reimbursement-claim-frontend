@@ -86,7 +86,7 @@ class EnterBankAccountDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   "Enter Bank Account Details Controller" must {
 
@@ -556,7 +556,7 @@ class EnterBankAccountDetailsControllerSpec
       "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
         checkIsRedirect(
