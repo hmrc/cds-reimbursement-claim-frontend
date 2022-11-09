@@ -50,7 +50,7 @@ class EnterMovementReferenceNumberController @Inject() (
       implicit request =>
         enterMovementReferenceNumberPage(
           form,
-          Some("rejected-goods.single"),
+          Some("overpayments.single"),
           routes.EnterMovementReferenceNumberController.submit
         )
 
@@ -59,7 +59,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   override def afterSuccessfullSubmit(journey: OverpaymentsSingleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
-      ??? //TODO: Redirect(routes.EnterImporterEoriNumberController.show)
+      Redirect(routes.EnterImporterEoriNumberController.show)
     } else {
       Redirect(routes.CheckDeclarationDetailsController.show)
     }
