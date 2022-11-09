@@ -64,7 +64,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterMovementReferenceNumberController.show
 
   override val nextPageInTheJourney: Call =
-    Call("GET", "/foo") //routes.BasisForClaimController.show()
+    routes.BasisForClaimController.show
 
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 

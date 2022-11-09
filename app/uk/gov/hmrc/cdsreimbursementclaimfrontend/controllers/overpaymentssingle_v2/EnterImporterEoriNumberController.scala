@@ -49,7 +49,7 @@ class EnterImporterEoriNumberController @Inject() (
     routes.EnterDeclarantEoriNumberController.show()
 
   final override val whenEoriInputNotRequiredAction: Call =
-    Call("GET", "/foo") //routes.BasisForClaimController.show()
+    routes.BasisForClaimController.show
 
   final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
     journey.submitConsigneeEoriNumber(eori)
