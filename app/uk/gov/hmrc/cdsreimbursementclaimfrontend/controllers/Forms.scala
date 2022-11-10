@@ -387,7 +387,7 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  val reasonForClaimForm: Form[BasisOfOverpaymentClaim] =
+  val basisOfOverpaymentClaimForm: Form[BasisOfOverpaymentClaim] =
     Form(
       mapping(
         "select-basis-for-claim" -> number

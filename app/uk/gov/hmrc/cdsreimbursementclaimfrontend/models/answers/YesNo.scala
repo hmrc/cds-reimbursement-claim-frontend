@@ -20,14 +20,20 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait YesNo extends Product with Serializable
+sealed trait YesNo extends Product with Serializable {
+  def asBoolean: Boolean
+}
 
 object YesNo {
 
   def of(flag: Boolean): YesNo = if (flag) Yes else No
 
-  final case object No extends YesNo
-  final case object Yes extends YesNo
+  final case object No extends YesNo {
+    override final val asBoolean: Boolean = false
+  }
+  final case object Yes extends YesNo {
+    override final val asBoolean: Boolean = true
+  }
 
   implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
 

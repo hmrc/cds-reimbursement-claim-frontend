@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 @Singleton
 class SelectBasisForClaimController @Inject() (
@@ -66,14 +67,17 @@ class SelectBasisForClaimController @Inject() (
   private def getPossibleClaimTypes(draftClaim: DraftClaim): BasisOfOverpaymentClaimsList =
     BasisOfOverpaymentClaimsList
       .withoutDuplicateEntry()
-      .excludeNorthernIrelandClaims(draftClaim)
+      .excludeNorthernIrelandClaims(
+        draftClaim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+        draftClaim.displayDeclaration
+      )
 
   implicit val dataExtractor: DraftClaim => Option[BasisOfOverpaymentClaim] = _.basisOfClaimAnswer
 
   val selectBasisForClaim: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[BasisOfOverpaymentClaim] { (fillingOutClaim, answer) =>
-        val emptyForm  = Forms.reasonForClaimForm
+        val emptyForm  = Forms.basisOfOverpaymentClaimForm
         val filledForm = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(basisOfClaim))
         Ok(
           selectReasonForClaimPage(
@@ -90,7 +94,7 @@ class SelectBasisForClaimController @Inject() (
   val selectBasisForClaimSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[BasisOfOverpaymentClaim] { (fillingOutClaim, _) =>
-        Forms.reasonForClaimForm
+        Forms.basisOfOverpaymentClaimForm
           .bindFromRequest()
           .fold(
             formWithErrors =>

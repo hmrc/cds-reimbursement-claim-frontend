@@ -19,8 +19,8 @@ GET         /overpayments/v2/single/claimant-details/problem-with-address       
 GET         /overpayments/v2/single/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterContactDetailsController.show
 POST        /overpayments/v2/single/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterContactDetailsController.submit
 
-#GET         /overpayments/v2/single/enter-duplicate-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn
-#POST        /overpayments/v2/single/enter-duplicate-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit
+GET         /overpayments/v2/single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDuplicateMovementReferenceNumberController.show
+POST        /overpayments/v2/single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDuplicateMovementReferenceNumberController.submit
 
 #GET         /overpayments/v2/single/claim-northern-ireland                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.show
 #POST        /overpayments/v2/single/claim-northern-ireland                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.submit
@@ -36,8 +36,8 @@ GET          /overpayments/v2/single/check-bank-details                         
 GET          /overpayments/v2/single/enter-bank-account-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterBankAccountDetailsController.show
 POST         /overpayments/v2/single/enter-bank-account-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterBankAccountDetailsController.submit
 
-#GET         /overpayments/v2/single/enter-additional-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.show
-#POST        /overpayments/v2/single/enter-additional-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.submit
+GET         /overpayments/v2/single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.show
+POST        /overpayments/v2/single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.submit
 
 #GET         /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.selectDuties
 #POST        /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.selectDutiesSubmit
