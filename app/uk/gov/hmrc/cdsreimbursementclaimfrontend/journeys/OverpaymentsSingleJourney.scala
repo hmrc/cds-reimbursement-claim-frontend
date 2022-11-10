@@ -371,7 +371,11 @@ final class OverpaymentsSingleJourney private (
   def resetReimbursementMethod(): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
       new OverpaymentsSingleJourney(
-        answers.copy(reimbursementMethod = None)
+        answers.copy(
+          reimbursementMethod = None,
+          bankAccountType = None,
+          bankAccountDetails = None
+        )
       )
     }
 
