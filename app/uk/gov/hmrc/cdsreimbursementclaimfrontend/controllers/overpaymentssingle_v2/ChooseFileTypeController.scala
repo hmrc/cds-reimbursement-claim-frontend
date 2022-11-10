@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
 import play.api.data.Form
 import play.api.mvc.Call
@@ -36,17 +36,17 @@ class ChooseFileTypeController @Inject() (
   val jcc: JourneyControllerComponents,
   chooseFileTypePage: choose_file_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends RejectedGoodsScheduledJourneyBaseController
+    extends OverpaymentsSingleJourneyBaseController
     with ChooseFileTypeMixin {
 
   final override val uploadFilesRoute: Call =
-    routes.UploadFilesController.show()
+    routes.UploadFilesController.show
 
   final override def viewTemplate
     : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[_] => HtmlFormat.Appendable =
     (form, documentTypes, hasExistingUploads) =>
       implicit request =>
-        chooseFileTypePage(form, documentTypes, hasExistingUploads, routes.ChooseFileTypeController.submit())
+        chooseFileTypePage(form, documentTypes, hasExistingUploads, routes.ChooseFileTypeController.submit)
 
   final override def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey] =
     Right(

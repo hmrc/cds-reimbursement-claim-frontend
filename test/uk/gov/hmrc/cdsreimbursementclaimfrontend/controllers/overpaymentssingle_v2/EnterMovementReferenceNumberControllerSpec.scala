@@ -223,7 +223,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> mrn.value),
-          routes.CheckDeclarationDetailsController.show()
+          routes.CheckDeclarationDetailsController.show
         )
       }
 
@@ -256,7 +256,7 @@ class EnterMovementReferenceNumberControllerSpec
 
             checkIsRedirect(
               performAction(enterMovementReferenceNumberKey -> mrn.value),
-              routes.EnterImporterEoriNumberController.show()
+              routes.EnterImporterEoriNumberController.show
             )
           }
       }

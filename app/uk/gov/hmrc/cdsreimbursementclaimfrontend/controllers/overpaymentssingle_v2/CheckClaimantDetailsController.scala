@@ -49,13 +49,13 @@ class CheckClaimantDetailsController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val startAddressLookup: Call =
-    routes.CheckClaimantDetailsController.redirectToALF()
+    routes.CheckClaimantDetailsController.redirectToALF
 
   val changeCd: Call =
-    routes.EnterContactDetailsController.show()
+    routes.EnterContactDetailsController.show
 
   val postAction: Call =
-    routes.CheckClaimantDetailsController.submit()
+    routes.CheckClaimantDetailsController.submit
 
   override def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable =
     cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, Some(startAddressLookup), postAction)
@@ -66,7 +66,7 @@ class CheckClaimantDetailsController @Inject() (
   override val nextPageInTheJourney: Call =
     routes.BasisForClaimController.show
 
-  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
@@ -78,5 +78,5 @@ class CheckClaimantDetailsController @Inject() (
     journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: OverpaymentsSingleJourney): (OverpaymentsSingleJourney, Result) =
-    (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+    (journey, Redirect(routes.CheckClaimantDetailsController.show))
 }

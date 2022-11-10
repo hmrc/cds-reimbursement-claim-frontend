@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
 import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
@@ -24,13 +24,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.UploadFilesMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_files_description
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.upload_files_description
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,17 +47,17 @@ class UploadFilesController @Inject() (
   upload_files_description: upload_files_description,
   val featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController
+    extends OverpaymentsSingleJourneyBaseController
     with UploadFilesMixin {
 
-  final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
-  final val callbackAction: Call               = routes.UploadFilesController.submit()
+  final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show
+  final val callbackAction: Call               = routes.UploadFilesController.submit
 
   final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
-    documentType => messages => upload_files_description("choose-files.rejected-goods", documentType)(messages)
+    documentType => messages => upload_files_description("choose-files.overpayments", documentType)(messages)
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final override def modifyJourney(

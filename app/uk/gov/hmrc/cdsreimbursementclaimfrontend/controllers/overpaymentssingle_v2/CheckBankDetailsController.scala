@@ -17,41 +17,43 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
 import com.github.arturopala.validator.Validator.Validate
-import play.api.mvc.Call
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterImporterEoriNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDetailsMixin
 
 @Singleton
-class EnterImporterEoriNumberController @Inject() (
+class CheckBankDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  val enterImporterEoriNumber: pages.enter_importer_eori_number
+  val checkBankAccountDetailsPage: pages.check_bank_account_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController
-    with EnterImporterEoriNumberMixin {
+    with CheckBankDetailsMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
-    Some(hasMRNAndDisplayDeclaration)
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final override val postAction: Call =
-    routes.EnterImporterEoriNumberController.submit
+  final override def continueRoute(journey: Journey): Call =
+    if (journey.userHasSeenCYAPage) checkYourAnswers
+    else routes.ChooseFileTypeController.show
 
-  final override val continueAction: Call =
-    routes.EnterDeclarantEoriNumberController.show
+  final override val chooseBankAccountTypeRoute: Call =
+    routes.ChooseBankAccountTypeController.show
 
-  final override val whenEoriInputNotRequiredAction: Call =
-    routes.BasisForClaimController.show
+  final override val changeBankAccountDetailsRoute: Call =
+    chooseBankAccountTypeRoute
 
-  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
-    journey.submitConsigneeEoriNumber(eori)
+  final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
+    journey.submitBankAccountDetails(bankAccountDetails)
 
 }

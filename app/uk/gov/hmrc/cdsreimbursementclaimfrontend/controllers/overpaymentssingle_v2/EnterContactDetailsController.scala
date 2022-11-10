@@ -43,10 +43,10 @@ class EnterContactDetailsController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final override val postAction: Call =
-    routes.EnterContactDetailsController.submit()
+    routes.EnterContactDetailsController.submit
 
   final override val continueRoute: Call =
-    routes.CheckClaimantDetailsController.show()
+    routes.CheckClaimantDetailsController.show
 
   final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =
     journey.submitContactDetails(contactDetails)

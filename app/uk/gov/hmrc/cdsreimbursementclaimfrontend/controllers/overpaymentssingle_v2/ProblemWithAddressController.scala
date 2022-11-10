@@ -33,7 +33,7 @@ class ProblemWithAddressController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController {
 
-  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
+  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(problemWithAddressPage(startAddressLookup)).asFuture

@@ -92,7 +92,7 @@ class CheckClaimantDetailsControllerSpec
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
 
-      "do not find the page if rejected goods feature is disabled" in {
+      "do not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
@@ -119,7 +119,7 @@ class CheckClaimantDetailsControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("check-claimant-details.title"),
-            doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit().url
+            doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit.url
           )
         }
       }
@@ -152,7 +152,7 @@ class CheckClaimantDetailsControllerSpec
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      "do not find the page if rejected goods feature is disabled" in {
+      "do not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
@@ -303,7 +303,7 @@ class CheckClaimantDetailsControllerSpec
 
       checkIsRedirect(
         retrieveAddress(Some(UUID.randomUUID())),
-        routes.CheckClaimantDetailsController.show()
+        routes.CheckClaimantDetailsController.show
       )
     }
 
