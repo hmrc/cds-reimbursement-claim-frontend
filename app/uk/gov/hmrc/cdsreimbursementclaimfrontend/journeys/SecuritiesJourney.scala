@@ -46,6 +46,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import com.github.arturopala.validator.Validator
 
+/** An encapsulated Securities journey logic.
+  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+  *
+  * The journey uses two nested case classes:
+  *
+  *  - [[SecuritiesJourney.Answers]] - keeps record of user answers and acquired documents
+  *  - [[SecuritiesJourney.Output]] - final output of the journey to be sent to backend processing
+  */
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val caseNumber: Option[String] = None
@@ -727,7 +735,10 @@ final class SecuritiesJourney private (
           claimantInformation = claimantInformation,
           reasonForSecurity = rfs,
           securitiesReclaims = getSecuritiesReclaims,
-          bankAccountDetails = answers.bankAccountDetails,
+          bankAccountDetails =
+            if (needsBanksAccountDetailsSubmission)
+              answers.bankAccountDetails
+            else None,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           temporaryAdmissionMethodOfDisposal = answers.temporaryAdmissionMethodOfDisposal,
           exportMovementReferenceNumber = answers.exportMovementReferenceNumber
