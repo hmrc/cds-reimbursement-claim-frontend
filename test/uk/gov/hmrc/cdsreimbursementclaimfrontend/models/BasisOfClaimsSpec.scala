@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
@@ -38,7 +39,10 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         whetherNorthernIrelandAnswer = No.some
       )
 
-      val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
+      val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+        draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+        draftC285Claim.displayDeclaration
+      )
 
       claims should be(
         BasisOfOverpaymentClaimsList(items =
@@ -69,7 +73,10 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
       displayDeclaration = None
     )
 
-    val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
+    val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+      draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+      draftC285Claim.displayDeclaration
+    )
 
     claims should be(
       BasisOfOverpaymentClaimsList(items =
