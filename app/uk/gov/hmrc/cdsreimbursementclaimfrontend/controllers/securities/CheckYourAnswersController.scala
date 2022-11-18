@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckYourAnswersController @Inject() (
