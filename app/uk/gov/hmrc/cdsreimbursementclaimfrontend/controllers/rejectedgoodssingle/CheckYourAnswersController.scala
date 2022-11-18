@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
 
@@ -130,8 +129,7 @@ class CheckYourAnswersController @Inject() (
                 Ok(
                   confirmationOfSubmissionPage(
                     journey.getTotalReimbursementAmount,
-                    caseNumber,
-                    None
+                    caseNumber
                   )
                 )
               case None             => Redirect(checkYourAnswers)

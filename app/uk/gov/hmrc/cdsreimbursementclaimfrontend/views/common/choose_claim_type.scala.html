@@ -17,7 +17,6 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
-@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes
@@ -30,8 +29,7 @@
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form: Form[ClaimForm])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -76,16 +74,14 @@
      hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
      checked = form.value.contains(Securities)
     ),
-    Seq(
-     RadioItem(
-      id = Some(s"$key-viewupload"),
-      value = Some(ViewUpload.toString),
-      content = HtmlContent(messages(s"$key.view.title")),
-      hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
-      checked = form.value.contains(ViewUpload)
+    RadioItem(
+     id = Some(s"$key-viewupload"),
+     value = Some(ViewUpload.toString),
+     content = HtmlContent(messages(s"$key.view.title")),
+     hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
+     checked = form.value.contains(ViewUpload)
     )
-   )
-  )
+  ))
 
   @submitButton("button.continue")
 

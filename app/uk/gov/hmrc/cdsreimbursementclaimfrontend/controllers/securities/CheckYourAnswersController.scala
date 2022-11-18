@@ -122,8 +122,7 @@ class CheckYourAnswersController @Inject() (
                 Ok(
                   confirmationOfSubmissionPage(
                     journey.getTotalReclaimAmount,
-                    caseNumber,
-                    None
+                    caseNumber
                   )
                 )
               case None             => Redirect(checkYourAnswers)

@@ -181,8 +181,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
         Ok(
           confirmationOfSubmissionPage(
             claim.claim.totalReimbursementAmount,
-            claim.submissionResponse.caseNumber,
-            None
+            claim.submissionResponse.caseNumber
           )
         )
       )

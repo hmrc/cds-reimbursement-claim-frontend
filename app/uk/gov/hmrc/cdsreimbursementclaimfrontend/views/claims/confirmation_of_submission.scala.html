@@ -28,7 +28,7 @@
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
 )
 
-@(totalReimbursementAmount: BigDecimal, caseNumber: String, subKey: Option[String] = None, viewUploadUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(totalReimbursementAmount: BigDecimal, caseNumber: String, subKey: Option[String] = None)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key=@{"confirmation-of-submission" + subKey.map(k => s".$k").getOrElse("")}
     @title = @{ messages(s"$key.title") }
