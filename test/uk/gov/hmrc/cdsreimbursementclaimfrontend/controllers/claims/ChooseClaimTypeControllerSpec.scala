@@ -45,7 +45,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, TestFeatureSwitchService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 
 import scala.concurrent.Future
