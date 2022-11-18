@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
 
@@ -42,14 +41,11 @@ class CheckYourAnswersController @Inject() (
   rejectedGoodsScheduledClaimConnector: RejectedGoodsScheduledClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: pages.check_your_answers_scheduled,
-  val servicesConfig: ServicesConfig,
   confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
   submitClaimFailedPage: claimPages.submit_claim_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with Logging {
-
-  private def getString(key: String): String = servicesConfig.getString(key)
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit()
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
@@ -135,8 +131,7 @@ class CheckYourAnswersController @Inject() (
                   confirmationOfSubmissionPage(
                     journey.getTotalReimbursementAmount,
                     caseNumber,
-                    None,
-                    getString("external-url.customs-view-and-amend")
+                    None
                   )
                 )
               case None             => Redirect(checkYourAnswers)

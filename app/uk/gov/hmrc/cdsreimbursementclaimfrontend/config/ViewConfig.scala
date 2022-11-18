@@ -38,6 +38,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val selfBaseUrl: String = getString("self.url")
 
+  val viewUploadUrl: String = getString("external-url.customs-view-and-amend")
+
   val homePageUrl: String = selfBaseUrl + getString("home-page")
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +

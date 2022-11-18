@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
 
@@ -39,15 +38,13 @@ class CheckYourAnswersController @Inject() (
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: pages.check_your_answers,
   confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
-  val servicesConfig: ServicesConfig,
   submitClaimFailedPage: claimPages.submit_claim_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
     with Logging {
 
-  private val postAction: Call               = routes.CheckYourAnswersController.submit()
-  private val showConfirmationAction: Call   = routes.CheckYourAnswersController.showConfirmation()
-  private def getString(key: String): String = servicesConfig.getString(key)
+  private val postAction: Call             = routes.CheckYourAnswersController.submit()
+  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
 
   val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
@@ -126,8 +123,7 @@ class CheckYourAnswersController @Inject() (
                   confirmationOfSubmissionPage(
                     journey.getTotalReclaimAmount,
                     caseNumber,
-                    None,
-                    getString("external-url.customs-view-and-amend")
+                    None
                   )
                 )
               case None             => Redirect(checkYourAnswers)

@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
 
@@ -42,7 +41,6 @@ class CheckYourAnswersController @Inject() (
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: pages.check_your_answers_multiple,
   confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
-  val servicesConfig: ServicesConfig,
   submitClaimFailedPage: claimPages.submit_claim_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
@@ -50,8 +48,6 @@ class CheckYourAnswersController @Inject() (
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit()
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
-
-  private def getString(key: String): String = servicesConfig.getString(key)
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
@@ -135,8 +131,7 @@ class CheckYourAnswersController @Inject() (
                   confirmationOfSubmissionPage(
                     journey.getTotalReimbursementAmount,
                     caseNumber,
-                    None,
-                    getString("external-url.customs-view-and-amend")
+                    None
                   )
                 )
               case None             => Redirect(checkYourAnswers)

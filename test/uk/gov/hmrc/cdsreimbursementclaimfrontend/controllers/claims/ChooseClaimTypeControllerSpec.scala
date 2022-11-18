@@ -59,11 +59,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
-
-  val config = Configuration(ConfigFactory.load)
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -104,7 +101,6 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
-      new ServicesConfig(config),
       chooseClaimTypePage
     ) {
       override val logger: Logger = stubLogger
