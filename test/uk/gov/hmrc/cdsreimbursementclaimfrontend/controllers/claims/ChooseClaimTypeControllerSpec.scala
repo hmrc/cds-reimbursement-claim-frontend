@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import com.typesafe.config.ConfigFactory
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import play.api.Configuration
 import play.api.Logger
 import play.api.MarkerContext
 import play.api.http.Status.BAD_REQUEST
@@ -47,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, TestFeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 
 import scala.concurrent.Future
@@ -101,7 +99,8 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
-      chooseClaimTypePage
+      chooseClaimTypePage,
+      new TestFeatureSwitchService()
     ) {
       override val logger: Logger = stubLogger
     }

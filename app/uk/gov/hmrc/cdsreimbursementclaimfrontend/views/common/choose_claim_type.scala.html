@@ -23,13 +23,16 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        featureSwitchService: FeatureSwitchService
 )
 
 @(form: Form[ClaimForm])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -38,11 +41,50 @@
 @title = @{messages(s"$key.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
+@normalRadioItems = @{Seq(
+ RadioItem(
+  id = Some(s"$key-c285"),
+  value = Some(C285.toString),
+  content = HtmlContent(messages(s"$key.c285.title")),
+  hint = Some(Hint(content = HtmlContent(messages(s"$key.c285.hint")))),
+  checked = form.value.contains(C285)
+ ),
+ RadioItem(
+  id = Some(s"$key-ce1179"),
+  value = Some(RejectedGoods.toString),
+  content = HtmlContent(messages(s"$key.ce1179.title")),
+  hint = Some(Hint(content = HtmlContent(messages(s"$key.ce1179.hint")))),
+  checked = form.value.contains(RejectedGoods)
+ ),
+ RadioItem(
+  id = Some(s"$key-securities"),
+  value = Some(Securities.toString),
+  content = HtmlContent(messages(s"$key.securities.title")),
+  hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
+  checked = form.value.contains(Securities)
+ )
+)}
+
+@viewUploadRadio = @{RadioItem(
+ id = Some(s"$key-viewupload"),
+ value = Some(ViewUpload.toString),
+ content = HtmlContent(messages(s"$key.view.title")),
+ hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
+ checked = form.value.contains(ViewUpload)
+)}
+
+@radioItems = @{if(featureSwitchService.isEnabled(Feature.ViewUpload))
+                 normalRadioItems :+ viewUploadRadio
+                else
+                 normalRadioItems
+               }
+
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
  @errorSummary(form.errors)
 
  @formWithCSRF(routes.ChooseClaimTypeController.submit(), 'novalidate -> "novalidate") {
+
 
   @radios(
    form = form,
@@ -52,36 +94,8 @@
    classes = "govuk-fieldset__legend--xl",
    paddingClasses = "govuk-!-margin-bottom-4",
    hintKey = None,
-   items = Seq(
-    RadioItem(
-     id = Some(s"$key-c285"),
-     value = Some(C285.toString),
-     content = HtmlContent(messages(s"$key.c285.title")),
-     hint = Some(Hint(content = HtmlContent(messages(s"$key.c285.hint")))),
-     checked = form.value.contains(C285)
-    ),
-    RadioItem(
-     id = Some(s"$key-ce1179"),
-     value = Some(RejectedGoods.toString),
-     content = HtmlContent(messages(s"$key.ce1179.title")),
-     hint = Some(Hint(content = HtmlContent(messages(s"$key.ce1179.hint")))),
-     checked = form.value.contains(RejectedGoods)
-    ),
-    RadioItem(
-     id = Some(s"$key-securities"),
-     value = Some(Securities.toString),
-     content = HtmlContent(messages(s"$key.securities.title")),
-     hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
-     checked = form.value.contains(Securities)
-    ),
-    RadioItem(
-     id = Some(s"$key-viewupload"),
-     value = Some(ViewUpload.toString),
-     content = HtmlContent(messages(s"$key.view.title")),
-     hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
-     checked = form.value.contains(ViewUpload)
-    )
-  ))
+   items = radioItems
+  )
 
   @submitButton("button.continue")
 

@@ -59,7 +59,7 @@ class ChooseClaimTypeController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   chooseClaimTypePage: pages.choose_claim_type,
-  featureSwitchSevice: FeatureSwitchService
+  featureSwitchService: FeatureSwitchService
 )(implicit viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents, ec: ExecutionContext)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
@@ -93,7 +93,7 @@ class ChooseClaimTypeController @Inject() (
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
                 }
             case ViewUpload    =>
-              if (featureSwitchSevice.isEnabled(Feature.ViewUpload))
+              if (featureSwitchService.isEnabled(Feature.ViewUpload))
                 Future.successful(Redirect(viewConfig.viewUploadUrl))
               else
                 Future.failed(new Exception("Invalid option selected"))
