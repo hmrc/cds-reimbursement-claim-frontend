@@ -28,7 +28,7 @@
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
 )
 
-@(totalReimbursementAmount: BigDecimal, caseNumber: String, subKey: Option[String] = None)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(totalReimbursementAmount: BigDecimal, caseNumber: String, subKey: Option[String] = None, viewUploadUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key=@{"confirmation-of-submission" + subKey.map(k => s".$k").getOrElse("")}
     @title = @{ messages(s"$key.title") }
@@ -62,6 +62,10 @@
             )
         )
 
+        @subHeading(Html(messages(s"$key.view-upload")), classes = "govuk-heading-s")
+        <p class="govuk-body govuk-!-margin-bottom-4"><a href="@{viewUploadUrl}" class="govuk-link">@messages(s"$key.view-upload")</a></p>
+
+        @subHeading(Html(messages(s"$key.what-next.link.1.start-another-claim")), classes = "govuk-heading-s")
         <p class="govuk-body govuk-!-margin-bottom-9"><a href="@{routes.LandingPageController.showLandingPage().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
 
         @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.ggSignOut)))

@@ -17,6 +17,7 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes
@@ -29,7 +30,8 @@
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
 @(form: Form[ClaimForm])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -73,6 +75,24 @@
      content = HtmlContent(messages(s"$key.securities.title")),
      hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
      checked = form.value.contains(Securities)
+    )
+   )
+  )
+
+  @paragraph(Html("or"))
+
+  @radios(
+   form = form,
+   name = key,
+   classes = "govuk-fieldset__legend--xl",
+   paddingClasses = "govuk-!-margin-bottom-4",
+   items = Seq(
+    RadioItem(
+    id = Some(s"$key-view"),
+    value = Some(ViewUpload.toString),
+    content = HtmlContent(messages(s"$key.view.title")),
+    hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
+    checked = form.value.contains(ViewUpload)
     )
    )
   )

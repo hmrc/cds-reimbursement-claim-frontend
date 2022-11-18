@@ -51,11 +51,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimSuccess
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class CheckYourAnswersAndSubmitController @Inject() (
@@ -63,6 +63,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val controllerComponents: MessagesControllerComponents,
+  val servicesConfig: ServicesConfig,
   claimService: ClaimService,
   checkYourAnswersPage: pages.check_your_answers,
   confirmationOfSubmissionPage: pages.confirmation_of_submission,
@@ -73,6 +74,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
     with SessionDataExtractor
     with SessionUpdates
     with Logging {
+
+  private def getString(key: String): String = servicesConfig.getString(key)
 
   val journey: JourneyBindable = JourneyBindable.Multiple
 
@@ -180,7 +183,12 @@ class CheckYourAnswersAndSubmitController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withJustSubmittedClaim(claim =>
         Ok(
-          confirmationOfSubmissionPage(claim.claim.totalReimbursementAmount, claim.submissionResponse.caseNumber, None)
+          confirmationOfSubmissionPage(
+            claim.claim.totalReimbursementAmount,
+            claim.submissionResponse.caseNumber,
+            None,
+            getString("external-url.customs-view-and-amend")
+          )
         )
       )
     }

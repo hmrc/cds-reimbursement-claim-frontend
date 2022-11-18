@@ -1665,7 +1665,7 @@ confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
 confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
-
+confirmation-of-submission.view-upload=View or update an existing claim
 #===================================================
 #  PROBLEM WITH ADDRESS
 #===================================================
@@ -1685,6 +1685,8 @@ choose-claim-type.c285.title=Claim back import duty and <abbr title="Value Added
 choose-claim-type.c285.hint=For goods you imported or received from abroad
 choose-claim-type.ce1179.title=Claim back customs charges paid on rejected imports
 choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance
+choose-claim-type.view.title=View claims or upload documents
+choose-claim-type.view.hint=Upload documents or view the details of claims you have submitted
 choose-claim-type.securities.title=Claim back a security deposit
 choose-claim-type.securities.hint=If <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> required a security deposit or guarantee for goods you imported
 choose-claim-type.error.required=Select the reason for making this claim

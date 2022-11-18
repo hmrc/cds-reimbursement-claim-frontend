@@ -45,8 +45,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+
 import scala.concurrent.ExecutionContext
 import play.api.mvc.Result
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class ChooseClaimTypeController @Inject() (
@@ -55,6 +57,7 @@ class ChooseClaimTypeController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
+  val servicesConfig: ServicesConfig,
   chooseClaimTypePage: pages.choose_claim_type
 )(implicit viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents, ec: ExecutionContext)
     extends FrontendBaseController
@@ -64,7 +67,8 @@ class ChooseClaimTypeController @Inject() (
     with SessionUpdates
     with Logging {
 
-  def show(): Action[AnyContent] =
+  private def getString(key: String): String = servicesConfig.getString(key)
+  def show(): Action[AnyContent]             =
     authenticatedActionWithSessionData { implicit request =>
       Ok(chooseClaimTypePage(claimFormForm))
     }
@@ -89,6 +93,7 @@ class ChooseClaimTypeController @Inject() (
                     .store(SessionData(SecuritiesJourney.empty(eori, Nonce.random)))
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
                 }
+            case ViewUpload    => Future.successful(Redirect(getString("external-url.customs-view-and-amend")))
           }
         )
     }
@@ -101,7 +106,9 @@ object ChooseClaimTypeController {
   case object RejectedGoods extends ClaimForm
   case object Securities extends ClaimForm
 
-  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities")
+  case object ViewUpload extends ClaimForm
+
+  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities", "ViewUpload")
 
   val dataKey: String = "choose-claim-type"
 
@@ -115,6 +122,7 @@ object ChooseClaimTypeController {
               case "C285"          => C285
               case "RejectedGoods" => RejectedGoods
               case "Securities"    => Securities
+              case "ViewUpload"    => ViewUpload
             },
             _.toString
           )
