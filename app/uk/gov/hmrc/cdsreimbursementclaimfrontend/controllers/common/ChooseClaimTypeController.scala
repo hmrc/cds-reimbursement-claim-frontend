@@ -105,7 +105,6 @@ object ChooseClaimTypeController {
   case object C285 extends ClaimForm
   case object RejectedGoods extends ClaimForm
   case object Securities extends ClaimForm
-
   case object ViewUpload extends ClaimForm
 
   val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities", "ViewUpload")

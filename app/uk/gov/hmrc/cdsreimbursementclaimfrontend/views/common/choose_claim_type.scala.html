@@ -75,24 +75,14 @@
      content = HtmlContent(messages(s"$key.securities.title")),
      hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
      checked = form.value.contains(Securities)
-    )
-   )
-  )
-
-  @paragraph(Html("or"))
-
-  @radios(
-   form = form,
-   name = key,
-   classes = "govuk-fieldset__legend--xl",
-   paddingClasses = "govuk-!-margin-bottom-4",
-   items = Seq(
-    RadioItem(
-    id = Some(s"$key-view"),
-    value = Some(ViewUpload.toString),
-    content = HtmlContent(messages(s"$key.view.title")),
-    hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
-    checked = form.value.contains(ViewUpload)
+    ),
+    Seq(
+     RadioItem(
+     id = Some(s"$key-viewupload"),
+     value = Some(ViewUpload.toString),
+     content = HtmlContent(messages(s"$key.view.title")),
+     hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
+     checked = form.value.contains(ViewUpload)
     )
    )
   )

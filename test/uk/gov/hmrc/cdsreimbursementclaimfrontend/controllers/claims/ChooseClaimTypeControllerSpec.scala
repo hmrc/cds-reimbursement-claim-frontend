@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import com.typesafe.config.ConfigFactory
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import play.api.Configuration
 import play.api.Logger
 import play.api.MarkerContext
 import play.api.http.Status.BAD_REQUEST
@@ -60,13 +62,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
-  val mockSessionConfig: ServicesConfig = mock[ServicesConfig]
+
+  val config = Configuration(ConfigFactory.load)
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache),
-      bind[ServicesConfig].toInstance(mockSessionConfig)
+      bind[SessionCache].toInstance(mockSessionCache)
     )
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
@@ -102,7 +104,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
-      mockSessionConfig,
+      new ServicesConfig(config),
       chooseClaimTypePage
     ) {
       override val logger: Logger = stubLogger
