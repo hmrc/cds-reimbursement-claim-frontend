@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import org.scalatest.BeforeAndAfterEach
 import play.api.Logger
 import play.api.MarkerContext
 import play.api.http.Status.BAD_REQUEST
@@ -44,8 +45,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, Nonce, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 
 import scala.concurrent.Future
@@ -56,15 +58,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 
-class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
+class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.ViewUpload)
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
   implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]
@@ -99,15 +103,14 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
-      chooseClaimTypePage
+      chooseClaimTypePage,
+      featureSwitch
     ) {
       override val logger: Logger = stubLogger
     }
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  val featureSwitch: FeatureSwitchService = instanceOf[FeatureSwitchService]
 
   private val formKey = "choose-claim-type"
 
@@ -131,12 +134,15 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
           val c285Button          = extractButton(buttons, "C285")
           val rejectedGoodsButton = extractButton(buttons, "RejectedGoods")
           val securitiesButton    = extractButton(buttons, "Securities")
+          val viewUploadButton    = extractButton(buttons, "ViewUpload")
           extractLabel(c285Button)          shouldBe messageFromMessageKey(s"$formKey.c285.title")
           extractHint(c285Button)           shouldBe messageFromMessageKey(s"$formKey.c285.hint")
           extractLabel(rejectedGoodsButton) shouldBe messageFromMessageKey(s"$formKey.ce1179.title")
           extractHint(rejectedGoodsButton)  shouldBe messageFromMessageKey(s"$formKey.ce1179.hint")
           extractLabel(securitiesButton)    shouldBe messageFromMessageKey(s"$formKey.securities.title")
           extractHint(securitiesButton)     shouldBe messageFromMessageKey(s"$formKey.securities.hint")
+          extractLabel(viewUploadButton)    shouldBe messageFromMessageKey(s"$formKey.view.title")
+          extractHint(viewUploadButton)     shouldBe messageFromMessageKey(s"$formKey.view.hint")
         }
       )
     }
@@ -154,6 +160,16 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
         val result = performAction(Seq(dataKey -> C285.toString))
         checkIsRedirect(result, commonRoutes.SelectTypeOfClaimController.show())
+      }
+
+      "Redirect to View Upload if user chooses ViewUpload" in {
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetSession(SessionData.empty)
+        }
+
+        val result = performAction(Seq(dataKey -> ViewUpload.toString))
+        checkIsRedirect(result, viewConfig.viewUploadUrl)
       }
 
       "Redirect to choose how many mrns if user chooses C&E1179" in {

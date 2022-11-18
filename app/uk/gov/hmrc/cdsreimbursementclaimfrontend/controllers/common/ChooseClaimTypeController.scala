@@ -39,14 +39,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+
 import scala.concurrent.ExecutionContext
 import play.api.mvc.Result
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 @Singleton
 class ChooseClaimTypeController @Inject() (
@@ -55,7 +58,8 @@ class ChooseClaimTypeController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  chooseClaimTypePage: pages.choose_claim_type
+  chooseClaimTypePage: pages.choose_claim_type,
+  featureSwitchService: FeatureSwitchService
 )(implicit viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents, ec: ExecutionContext)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
@@ -63,7 +67,6 @@ class ChooseClaimTypeController @Inject() (
     with SessionDataExtractor
     with SessionUpdates
     with Logging {
-
   def show(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       Ok(chooseClaimTypePage(claimFormForm))
@@ -89,6 +92,12 @@ class ChooseClaimTypeController @Inject() (
                     .store(SessionData(SecuritiesJourney.empty(eori, Nonce.random)))
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
                 }
+            case ViewUpload    =>
+              if (featureSwitchService.isEnabled(Feature.ViewUpload))
+                Future.successful(Redirect(viewConfig.viewUploadUrl))
+              else
+                Future.failed(new Exception("Invalid option selected"))
+
           }
         )
     }
@@ -100,8 +109,9 @@ object ChooseClaimTypeController {
   case object C285 extends ClaimForm
   case object RejectedGoods extends ClaimForm
   case object Securities extends ClaimForm
+  case object ViewUpload extends ClaimForm
 
-  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities")
+  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities", "ViewUpload")
 
   val dataKey: String = "choose-claim-type"
 
@@ -115,6 +125,7 @@ object ChooseClaimTypeController {
               case "C285"          => C285
               case "RejectedGoods" => RejectedGoods
               case "Securities"    => Securities
+              case "ViewUpload"    => ViewUpload
             },
             _.toString
           )

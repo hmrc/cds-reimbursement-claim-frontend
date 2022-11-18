@@ -118,7 +118,13 @@ class CheckYourAnswersController @Inject() (
           .flatMap(getJourney)
           .map(journey =>
             (journey.caseNumber match {
-              case Some(caseNumber) => Ok(confirmationOfSubmissionPage(journey.getTotalReclaimAmount, caseNumber))
+              case Some(caseNumber) =>
+                Ok(
+                  confirmationOfSubmissionPage(
+                    journey.getTotalReclaimAmount,
+                    caseNumber
+                  )
+                )
               case None             => Redirect(checkYourAnswers)
             }).asFuture
           )

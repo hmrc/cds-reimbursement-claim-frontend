@@ -51,7 +51,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimSuccess
@@ -180,7 +179,10 @@ class CheckYourAnswersAndSubmitController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withJustSubmittedClaim(claim =>
         Ok(
-          confirmationOfSubmissionPage(claim.claim.totalReimbursementAmount, claim.submissionResponse.caseNumber, None)
+          confirmationOfSubmissionPage(
+            claim.claim.totalReimbursementAmount,
+            claim.submissionResponse.caseNumber
+          )
         )
       )
     }
