@@ -57,13 +57,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
+  val mockSessionConfig: ServicesConfig = mock[ServicesConfig]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[ServicesConfig].toInstance(mockSessionConfig)
     )
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
@@ -99,6 +102,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
+      mockSessionConfig,
       chooseClaimTypePage
     ) {
       override val logger: Logger = stubLogger
