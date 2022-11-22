@@ -223,7 +223,7 @@ check-eori-details.error.invalid=Select yes if these <abbr title="Economic Opera
 
 
 #===================================================
-#  CHOOSE HOW MANY MRNS PAGE
+#  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
 rejected-goods.choose-how-many-mrns.title=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is a unique 18-digit number that is issued when an import is declared.
@@ -236,6 +236,20 @@ rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for eac
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
 rejected-goods.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+
+#  OVERPAYMENTS - CHOOSE HOW MANY MRNS PAGE
+#===================================================
+overpayments.choose-how-many-mrns.title=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+overpayments.choose-how-many-mrns.p1=A Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is a unique 18-digit number that is issued when an import is declared.
+overpayments.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+overpayments.choose-how-many-mrns.inset.title=Entering Multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
+overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
+overpayments.choose-how-many-mrns.individual.title=Enter one MRN
+overpayments.choose-how-many-mrns.multiple.title=Enter multiple MRNs
+overpayments.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
+overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
+overpayments.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
+overpayments.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
 
 #===================================================
 #  SELECT NUMBER OF CLAIMS PAGE
@@ -1720,6 +1734,10 @@ declaration-not-found.submit=Enter a different MRN
 choose-file-type.title=Choose the type of supporting documents you are uploading
 choose-file-type.help-text=You can upload multiple documents of the same type on the next page. This will help us to process your claim more efficiently.
 
+choose-file-type.file-type.AirWayBill=Air waybill
+choose-file-type.file-type.BillOfLading=Bill of lading
+choose-file-type.file-type.PackingList=Packing list
+choose-file-type.file-type.SubstituteEntry=Substitute entry
 choose-file-type.file-type.AdditionalSupportingDocuments=Additional supporting documents
 choose-file-type.file-type.CalculationWorksheet=Calculation worksheet
 choose-file-type.file-type.CommercialInvoice=Commercial invoice
@@ -1771,6 +1789,22 @@ choose-files.rejected-goods.choose.first.label=Upload {0}
 choose-files.rejected-goods.choose.next.label=Upload another {0}
 choose-files.rejected-goods.add-another-document-question=Add a different type of supporting evidence to your claim?
 choose-files.rejected-goods.add-another-document-question.error.required=Select yes to add a different type of supporting document to your claim
+
+choose-files.overpayments.title=Upload {0}
+choose-files.overpayments.p1={0} can be up to a maximum of {1} size per file. The selected file must be a JPG, PNG or PDF.
+choose-files.overpayments.allowed-file-types=JPG, PNG, or PDF
+choose-files.overpayments.choose.first.label=Upload {0}
+choose-files.overpayments.choose.next.label=Upload another {0}
+choose-files.overpayments.add-another-document-question=Add a different type of supporting evidence to your claim?
+choose-files.overpayments.add-another-document-question.error.required=Select yes to add a different type of supporting document to your claim
+
+choose-files.securities.title=Upload {0}
+choose-files.securities.p1={0} can be up to a maximum of {1} size per file. The selected file must be a JPG, PNG or PDF.
+choose-files.securities.allowed-file-types=JPG, PNG, or PDF
+choose-files.securities.choose.first.label=Upload {0}
+choose-files.securities.choose.next.label=Upload another {0}
+choose-files.securities.add-another-document-question=Add a different type of supporting evidence to your claim?
+choose-files.securities.add-another-document-question.error.required=Select yes to add a different type of supporting document to your claim
 
 #===================================================
 #  COUNTRIES - START

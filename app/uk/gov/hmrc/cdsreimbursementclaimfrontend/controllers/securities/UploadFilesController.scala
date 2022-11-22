@@ -29,13 +29,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_files_description
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.upload_files_description
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 import SecuritiesJourney.Checks._
+import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
 
 @Singleton
 class UploadFilesController @Inject() (
@@ -43,7 +45,7 @@ class UploadFilesController @Inject() (
   val uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
-  val upload_files_description: upload_files_description,
+  upload_files_description: upload_files_description,
   val featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
@@ -52,6 +54,9 @@ class UploadFilesController @Inject() (
   final val precedingAction: Call              = routes.CheckClaimDetailsController.show()
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
   final val callbackAction: Call               = routes.UploadFilesController.submit()
+
+  final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
+    documentType => messages => upload_files_description("choose-files.securities", documentType)(messages)
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =

@@ -24,32 +24,33 @@ import play.api.data.Forms.text
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import ChooseClaimTypeController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectGoodsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.{routes => overpaymentsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectGoodsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-
 import scala.concurrent.ExecutionContext
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import scala.concurrent.Future
+
+import ChooseClaimTypeController._
 
 @Singleton
 class ChooseClaimTypeController @Inject() (
@@ -67,12 +68,13 @@ class ChooseClaimTypeController @Inject() (
     with SessionDataExtractor
     with SessionUpdates
     with Logging {
-  def show(): Action[AnyContent] =
+
+  final val show: Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       Ok(chooseClaimTypePage(claimFormForm))
     }
 
-  def submit(): Action[AnyContent] =
+  final val submit: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
       claimFormForm
         .bindFromRequest()
@@ -83,16 +85,23 @@ class ChooseClaimTypeController @Inject() (
             Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
           },
           {
-            case C285          => Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
-            case RejectedGoods => Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
-            case Securities    =>
+            case C285 =>
+              if (featureSwitchService.isEnabled(Feature.Overpayments_v2))
+                Future.successful(Redirect(overpaymentsRoutes.ChooseHowManyMrnsController.show()))
+              else
+                Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
+
+            case RejectedGoods =>
+              Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
+
+            case Securities =>
               request.authenticatedRequest.journeyUserType.eoriOpt
                 .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
                   sessionStore
                     .store(SessionData(SecuritiesJourney.empty(eori, Nonce.random)))
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
                 }
-            case ViewUpload    =>
+            case ViewUpload =>
               if (featureSwitchService.isEnabled(Feature.ViewUpload))
                 Future.successful(Redirect(viewConfig.viewUploadUrl))
               else

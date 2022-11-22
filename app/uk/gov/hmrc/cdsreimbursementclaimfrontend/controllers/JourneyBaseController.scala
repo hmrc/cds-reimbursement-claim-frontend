@@ -66,8 +66,10 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   /** [Config] Defines where to redirect when missing journey or missing session data after user has been authorized. */
   val startOfTheJourney: Call
 
-  final lazy val redirectToTheStartOfTheJourney: Future[Result] =
+  final lazy val redirectToTheStartOfTheJourney: Future[Result] = {
+    logger.warn(MISSING_JOURNEY_DATA_LOG_MESSAGE)
     Future.successful(Redirect(startOfTheJourney))
+  }
 
   /** [Config] Defines where to redirect when journey is already complete, a.k.a CYA page. */
   val checkYourAnswers: Call
@@ -90,10 +92,19 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   /** Optional action precondition. */
   val actionPrecondition: Option[Validate[Journey]] = None
 
+  private val MISSING_JOURNEY_DATA_LOG_MESSAGE =
+    "Missing journey data in session, redirecting to the start page."
+
   /** Check if action precondition met when defined, and if not then return the list of errors. */
   final def checkIfMaybeActionPreconditionFails(journey: Journey): Option[Seq[String]] =
     actionPrecondition.fold[Option[Seq[String]]](None)(
-      _.apply(journey).fold(errors => Some(errors.messages), _ => None)
+      _.apply(journey).fold(
+        errors => {
+          logger.warn(s"Action preconditions not met: ${errors.messages.mkString(",")}")
+          Some(errors.messages)
+        },
+        _ => None
+      )
     )
 
   /** Check if the CYA page should be displayed next. */
@@ -135,7 +146,10 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
                   case Some(errors) => Redirect(routeForValidationErrors(errors))
                 }
             )
-            .getOrElse(Redirect(startOfTheJourney))
+            .getOrElse {
+              logger.warn(MISSING_JOURNEY_DATA_LOG_MESSAGE)
+              Redirect(startOfTheJourney)
+            }
         )
       }
 
@@ -174,7 +188,10 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
                 case Some(errors) => Redirect(routeForValidationErrors(errors))
               }
           )
-          .getOrElse(Redirect(startOfTheJourney))
+          .getOrElse {
+            logger.warn(MISSING_JOURNEY_DATA_LOG_MESSAGE)
+            Redirect(startOfTheJourney)
+          }
       }
 
   /** Async GET action to show page based on the request and the current journey state. */

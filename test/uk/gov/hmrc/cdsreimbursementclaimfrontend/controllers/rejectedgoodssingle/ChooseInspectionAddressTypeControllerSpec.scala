@@ -74,7 +74,7 @@ class ChooseInspectionAddressTypeControllerSpec
       bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   val controller: ChooseInspectionAddressTypeController = instanceOf[ChooseInspectionAddressTypeController]
 

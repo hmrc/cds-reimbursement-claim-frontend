@@ -32,19 +32,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_files_description
-
 import java.util.Locale
+import play.twirl.api.HtmlFormat
 
 trait UploadFilesMixin extends JourneyBaseController {
 
   val uploadDocumentsConnector: UploadDocumentsConnector
   val uploadDocumentsConfig: UploadDocumentsConfig
   val fileUploadConfig: FileUploadConfig
-  val upload_files_description: upload_files_description
   val selectDocumentTypePageAction: Call
   val callbackAction: Call
   val featureSwitchService: FeatureSwitchService
+
+  def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
 
   def modifyJourney(
     journey: Journey,
@@ -206,8 +206,7 @@ trait UploadFilesMixin extends JourneyBaseController {
     dt: UploadDocumentType
   )(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
     val documentTypeLabel = documentTypeDescription(dt).toLowerCase(Locale.ENGLISH)
-    val descriptionHtml   = upload_files_description(
-      "choose-files.rejected-goods",
+    val descriptionHtml   = chooseFilesPageDescriptionTemplate(
       documentTypeLabel
     )(messages).body
 

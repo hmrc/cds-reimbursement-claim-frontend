@@ -63,15 +63,15 @@ class CheckDeclarationDetailsController @Inject() (
 
   def show(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-      val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
-      implicit val subKey: Option[String] = router.subKey
+      val postAction: Call = router.submitUrlForCheckDeclarationDetails()
       maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
         Ok(
           checkDeclarationDetailsPage(
             declaration,
             checkDeclarationDetailsAnswerForm,
             isDuplicate = false,
-            postAction
+            postAction,
+            None
           )
         )
       )
@@ -81,8 +81,7 @@ class CheckDeclarationDetailsController @Inject() (
   def submit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
-        val postAction: Call                = router.submitUrlForCheckDeclarationDetails()
-        implicit val subKey: Option[String] = router.subKey
+        val postAction: Call = router.submitUrlForCheckDeclarationDetails()
         CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -95,7 +94,8 @@ class CheckDeclarationDetailsController @Inject() (
                         declaration,
                         formWithErrors,
                         isDuplicate = false,
-                        postAction
+                        postAction,
+                        None
                       )
                     )
                   )

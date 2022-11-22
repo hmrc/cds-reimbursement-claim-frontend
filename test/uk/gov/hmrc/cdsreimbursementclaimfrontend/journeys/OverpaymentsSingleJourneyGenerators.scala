@@ -35,6 +35,12 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
   val emptyJourney: OverpaymentsSingleJourney =
     OverpaymentsSingleJourney.empty(exampleEori)
 
+  val journeyWithMrnAndDeclaration: OverpaymentsSingleJourney =
+    OverpaymentsSingleJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
   val completeJourneyWithMatchingUserEoriAndCMAEligibleGen: Gen[OverpaymentsSingleJourney] =
     Gen.oneOf(
       buildCompleteJourneyGen(

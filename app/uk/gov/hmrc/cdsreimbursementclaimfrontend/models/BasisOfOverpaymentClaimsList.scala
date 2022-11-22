@@ -17,8 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList.all
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 import scala.collection.immutable.HashSet
 
@@ -66,13 +65,13 @@ object BasisOfOverpaymentClaimsList {
 
   final case class Builder(claims: List[BasisOfOverpaymentClaim]) {
 
-    def excludeNorthernIrelandClaims(claim: DraftClaim): BasisOfOverpaymentClaimsList = {
+    def excludeNorthernIrelandClaims(
+      isNorthernIrelandJourney: Boolean,
+      displayDeclarationOpt: Option[DisplayDeclaration]
+    ): BasisOfOverpaymentClaimsList = {
 
-      val isNorthernIrelandJourney =
-        claim.whetherNorthernIrelandAnswer.getOrElse(No)
-
-      val receivedExciseCodes =
-        claim.displayDeclaration
+      val receivedExciseCodes: List[String] =
+        displayDeclarationOpt
           .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
           .getOrElse(Nil)
 
@@ -80,9 +79,9 @@ object BasisOfOverpaymentClaimsList {
         receivedExciseCodes.toSet.intersect(ukExciseCodeStrings).nonEmpty
 
       val items = isNorthernIrelandJourney match {
-        case No  =>
+        case false =>
           claims.diff(northernIreland)
-        case Yes =>
+        case true  =>
           if (hasNorthernIrelandExciseCodes) claims
           else claims.diff(IncorrectExciseValue :: Nil)
       }

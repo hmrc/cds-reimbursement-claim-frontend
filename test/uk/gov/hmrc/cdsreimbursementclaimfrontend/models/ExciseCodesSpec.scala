@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.util.Random
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 class ExciseCodesSpec extends AnyWordSpec with Matchers {
 
@@ -46,7 +47,10 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
         )
 
       val codes: List[BasisOfOverpaymentClaim] =
-        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+          draftC285Claim.displayDeclaration
+        )
 
       codes.size shouldBe 13
       codes        should not contain IncorrectExciseValue
@@ -75,7 +79,10 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           )
 
       val codes: List[BasisOfOverpaymentClaim] =
-        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+          draftC285Claim.displayDeclaration
+        )
 
       codes.size shouldBe 15
       codes        should contain(IncorrectExciseValue)
@@ -97,7 +104,10 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           )
 
       val codes: List[BasisOfOverpaymentClaim] =
-        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(draftC285Claim)
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+          draftC285Claim.displayDeclaration
+        )
 
       codes.size shouldBe 14
       codes        should contain(IncorrectAdditionalInformationCode)

@@ -35,6 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
 
 @Singleton
 class UploadFilesController @Inject() (
@@ -42,7 +44,7 @@ class UploadFilesController @Inject() (
   val uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
-  val upload_files_description: upload_files_description,
+  upload_files_description: upload_files_description,
   val featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
@@ -50,6 +52,9 @@ class UploadFilesController @Inject() (
 
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
   final val callbackAction: Call               = routes.UploadFilesController.submit()
+
+  final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
+    documentType => messages => upload_files_description("choose-files.rejected-goods", documentType)(messages)
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =

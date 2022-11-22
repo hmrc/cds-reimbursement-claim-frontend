@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -70,7 +69,7 @@ class CheckDeclarationDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   val messagesKey: String = "check-declaration-details"
 
@@ -131,7 +130,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(checkDeclarationDetailsKey -> ""),
+          performAction("check-declaration-details" -> ""),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
@@ -148,7 +147,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(checkDeclarationDetailsKey -> "true"),
+          performAction("check-declaration-details" -> "true"),
           routes.CheckClaimantDetailsController.show()
         )
       }
@@ -160,7 +159,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(checkDeclarationDetailsKey -> "false"),
+          performAction("check-declaration-details" -> "false"),
           routes.EnterMovementReferenceNumberController.submit()
         )
 

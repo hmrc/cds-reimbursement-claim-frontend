@@ -29,6 +29,7 @@ object Feature {
   case object InternalUploadDocuments extends Feature { val name = "internal-upload-documents" }
   case object LimitedAccess extends Feature { val name = "limited-access" }
   case object ViewUpload extends Feature { val name = "view-upload" }
+  case object Overpayments_v2 extends Feature { val name = "overpayments_v2" }
 
   def of(name: String): Option[Feature] =
     Seq[Feature](
@@ -36,7 +37,8 @@ object Feature {
       InternalUploadDocuments,
       Securities,
       LimitedAccess,
-      ViewUpload
+      ViewUpload,
+      Overpayments_v2
     ).find(_.name === name)
 
 }

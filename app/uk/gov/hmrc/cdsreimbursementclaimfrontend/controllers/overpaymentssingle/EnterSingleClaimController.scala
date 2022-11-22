@@ -22,37 +22,37 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.data.Form
-import play.api.data.Forms.mapping
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterSingleClaimController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -107,7 +107,7 @@ class EnterSingleClaimController @Inject() (
         answer
           .flatMap(_.find(_.id === id))
           .map { claim =>
-            val emptyForm = mrnClaimAmountForm(claim.paidAmount)
+            val emptyForm = Forms.mrnClaimAmountForm(claim.paidAmount)
             val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.correctedAmount)), emptyForm).merge
             Future.successful(
               Ok(enterSingleClaimPage(form, claim, routes.EnterSingleClaimController.enterClaimSubmit(id)))
@@ -128,7 +128,8 @@ class EnterSingleClaimController @Inject() (
               case None                =>
                 Redirect(routes.EnterSingleClaimController.startClaim)
               case Some(reimbursement) =>
-                mrnClaimAmountForm(reimbursement.paidAmount)
+                Forms
+                  .mrnClaimAmountForm(reimbursement.paidAmount)
                   .bindFromRequest()
                   .fold(
                     formWithErrors => {
@@ -242,8 +243,6 @@ class EnterSingleClaimController @Inject() (
 
 object EnterSingleClaimController {
 
-  final case class ClaimAmount(amount: BigDecimal)
-
   def isCmaEligible(draftC285Claim: DraftClaim): Boolean = {
     val duties = selectedDuties(draftC285Claim)
     duties.nonEmpty && duties
@@ -266,14 +265,6 @@ object EnterSingleClaimController {
         Nil
     }
   }
-
-  def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
-    Form(
-      mapping(
-        "enter-claim" -> moneyMapping("actual-amount.error.invalid", allowZero = true)
-      )(ClaimAmount.apply)(ClaimAmount.unapply)
-        .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
-    )
 
   def generateReimbursementsFromDuties(draftC285Claim: DraftClaim): Either[Error, List[ClaimedReimbursement]] = {
     val claims      = draftC285Claim.claimedReimbursementsAnswer.map(_.toList).getOrElse(Nil)

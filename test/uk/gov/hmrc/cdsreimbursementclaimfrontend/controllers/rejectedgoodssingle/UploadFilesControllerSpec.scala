@@ -113,11 +113,11 @@ class UploadFilesControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(
             SessionData(
-              journeyWithMrnAndDD
+              journeyWithMrnAndDeclaration
                 .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
                 .receiveUploadedFiles(
                   UploadDocumentType.AirWayBill,
-                  journeyWithMrnAndDD.answers.nonce,
+                  journeyWithMrnAndDeclaration.answers.nonce,
                   Seq(uploadDocument)
                 )
                 .getOrFail
@@ -187,27 +187,27 @@ class UploadFilesControllerSpec
       "return 204 if callback accepted" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
           mockStoreSession(
             SessionData(
-              journeyWithMrnAndDD
+              journeyWithMrnAndDeclaration
                 .receiveUploadedFiles(
                   UploadDocumentType.CommercialInvoice,
-                  journeyWithMrnAndDD.answers.nonce,
+                  journeyWithMrnAndDeclaration.answers.nonce,
                   Seq(uploadDocument)
                 )
                 .getOrFail
             )
           )(Right(()))
         }
-        val result = performAction(callbackPayload.copy(nonce = journeyWithMrnAndDD.answers.nonce))
+        val result = performAction(callbackPayload.copy(nonce = journeyWithMrnAndDeclaration.answers.nonce))
         status(result) shouldBe 204
       }
 
       "return 400 if callback rejected because of invalid nonce" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
         val result = performAction(callbackPayload.copy(nonce = Nonce.random))
         status(result) shouldBe 400
@@ -216,7 +216,7 @@ class UploadFilesControllerSpec
       "return 400 if callback rejected because of invalid request" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
         val result = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
         status(result) shouldBe 400

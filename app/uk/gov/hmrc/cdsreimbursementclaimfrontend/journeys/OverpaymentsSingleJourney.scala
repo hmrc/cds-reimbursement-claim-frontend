@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import com.github.arturopala.validator.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -124,6 +125,10 @@ final class OverpaymentsSingleJourney private (
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
+
+  def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
+    BasisOfOverpaymentClaimsList()
+      .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -371,7 +376,11 @@ final class OverpaymentsSingleJourney private (
   def resetReimbursementMethod(): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
       new OverpaymentsSingleJourney(
-        answers.copy(reimbursementMethod = None)
+        answers.copy(
+          reimbursementMethod = None,
+          bankAccountType = None,
+          bankAccountDetails = None
+        )
       )
     }
 
