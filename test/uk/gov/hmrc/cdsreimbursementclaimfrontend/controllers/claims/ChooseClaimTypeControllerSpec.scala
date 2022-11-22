@@ -39,29 +39,27 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 
-import scala.concurrent.Future
-import collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
+import scala.concurrent.Future
+
+import collection.JavaConverters._
 
 class ChooseClaimTypeControllerSpec
     extends ControllerSpec

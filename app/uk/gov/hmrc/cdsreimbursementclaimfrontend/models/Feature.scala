@@ -37,7 +37,8 @@ object Feature {
       InternalUploadDocuments,
       Securities,
       LimitedAccess,
-      ViewUpload Overpayments_v2
+      ViewUpload,
+      Overpayments_v2
     ).find(_.name === name)
 
 }
