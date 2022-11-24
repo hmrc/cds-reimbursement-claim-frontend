@@ -11,6 +11,8 @@ phasebanner.feedback.text=This is a new service - your <a class="govuk-link" hre
 lang=en
 currency=£
 
+radio.divider=or
+
 session-expired-message=For your security, we will time you out in
 session-expired.sign-out-button-text=Sign-out
 session-expired.keep-alive-button-text=Continue
