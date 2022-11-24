@@ -65,6 +65,10 @@
  )
 )}
 
+@dividerRadio = @{RadioItem(
+ divider = Some(messages("radio.divider"))
+)}
+
 @viewUploadRadio = @{RadioItem(
  id = Some(s"$key-viewupload"),
  value = Some(ViewUpload.toString),
@@ -74,10 +78,10 @@
 )}
 
 @radioItems = @{if(featureSwitchService.isEnabled(Feature.ViewUpload))
-                 normalRadioItems :+ viewUploadRadio
-                else
-                 normalRadioItems
-               }
+ normalRadioItems :+ dividerRadio :+ viewUploadRadio
+else
+ normalRadioItems
+}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
