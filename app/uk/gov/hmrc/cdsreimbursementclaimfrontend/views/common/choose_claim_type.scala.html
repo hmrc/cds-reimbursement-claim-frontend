@@ -65,21 +65,17 @@
  )
 )}
 
-@dividerRadio = @{
- RadioItem(
-  divider = Some(messages("radio.divider"))
- )
-}
+@dividerRadio = @{RadioItem(
+ divider = Some(messages("radio.divider"))
+)}
 
-@viewUploadRadio = @{
- RadioItem(
-  id = Some(s"$key-viewupload"),
-  value = Some(ViewUpload.toString),
-  content = HtmlContent(messages(s"$key.view.title")),
-  hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
-  checked = form.value.contains(ViewUpload)
- )
-}
+@viewUploadRadio = @{RadioItem(
+ id = Some(s"$key-viewupload"),
+ value = Some(ViewUpload.toString),
+ content = HtmlContent(messages(s"$key.view.title")),
+ hint = Some(Hint(content = HtmlContent(messages(s"$key.view.hint")))),
+ checked = form.value.contains(ViewUpload)
+)}
 
 @radioItems = @{if(featureSwitchService.isEnabled(Feature.ViewUpload))
  normalRadioItems :+ dividerRadio :+ viewUploadRadio
