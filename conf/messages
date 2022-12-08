@@ -93,10 +93,10 @@ we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government 
 #===================================================
 landing.title=Claim back import duty and VAT
 landing.help.p1=You can use this service to apply to claim repayments on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
-landing.help.p2=You can use this service for multiple claims (bulk), and be repaid via either Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or by bank account transfer.
+landing.help.p2=You can use this service for multiple claims (bulk), and be repaid via either Current Month Adjustment (CMA) or by bank account transfer.
 landing.who.heading=Who can claim
-landing.who.p1=You can claim if you have a valid <abbr title="Economic Operator Registration and Identification">EORI</abbr> number associated with your Government Gateway login, and one or more Movement Reference Number(s) (<abbr title="Movement Reference Number">MRN</abbr>) or an entry number.
-landing.who.p2=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">more about an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number (opens in new tab)</a> and an <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}"><abbr title="Movement Reference Number">MRN</abbr> (opens in new tab)</a>.
+landing.who.p1=You can claim if you have a valid EORI number associated with your Government Gateway login, and one or more Movement Reference Number(s) (MRN) or an entry number.
+landing.who.p2=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">more about an EORI number (opens in new tab)</a> and an <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">MRN (opens in new tab)</a>.
 landing.who.p3=As a claim declarant you can be an:
 landing.who.l1=importer or a representative of the importer
 landing.who.l2=agent, freight forwarder or accountant
@@ -110,14 +110,14 @@ landing.start-button=Start now
 landing.before.heading=Before you start
 landing.before.p1=To use this service, you will need:
 landing.before.l1=Government Gateway credentials
-landing.before.l2=to have your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number associated with your <abbr title="Customs Declaration Service">CDS</abbr> enrolment
-landing.before.l3=a <abbr title="Movement Reference Number">MRN</abbr> or entry number
+landing.before.l2=to have your EORI number associated with your CDS enrolment
+landing.before.l3=a MRN or entry number
 landing.before.l4=to know the type of duty you want to claim repayment for
 landing.before.l5=the reason for overpayment
 landing.before.l6=details of the goods
 landing.before.l7=your bank details
 landing.before.l8=name and address details of the declarant
-landing.before.l9=duty or <abbr title="Value Added Tax">VAT</abbr> amount due and paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr>
+landing.before.l9=duty or VAT amount due and paid to HMRC
 landing.details.heading=Examples of supporting documents
 landing.details.p1=You will need supporting evidence you have received relating to goods you have imported. You can scan copies in advance to make it easier to upload in this service. They can be any of these documents:
 landing.details.l1=C88/E2 (proof to authorise imports from the country of origin)
@@ -126,7 +126,7 @@ landing.details.l3=packing list (document that states packaging details in each 
 landing.details.l4=air waybill (in your cargo documents)
 landing.details.l5=bill of lading (this is a receipt of shipped goods)
 landing.details.l6=substitute entry (a form to declare a substitute when goods have been incorrectly declared)
-landing.details.l7=schedule of <abbr title="Movement Reference Numbers">MRNs</abbr> (a list of previous <abbr title="Movement Reference Number">MRN</abbr> numbers)
+landing.details.l7=schedule of MRNs (a list of previous MRN numbers)
 landing.details.l8=proof of authority (from importer for duty to be repaid)
 landing.details.l9=correspondence trader or internal (an email chain or letters between you and the trader)
 landing.details.l10=additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
@@ -200,8 +200,8 @@ landing-securities.help.p2=For general enquiries about importing, you can <a cla
 #  UNAUTHORISED PAGE
 #===================================================
 unauthorised.title=There is a problem
-unauthorised.help=You need an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number to use this service. An <abbr title="Economic Operator Registration and Identification">EORI</abbr> number must be 14 characters or less, and only include letters a to z and numbers 1 to 9
-unauthorised.help-text=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">how to get an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number (opens in new tab)</a>
+unauthorised.help=You need an EORI number to use this service. An EORI number must be 14 characters or less, and only include letters a to z and numbers 1 to 9
+unauthorised.help-text=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">how to get an EORI number (opens in new tab)</a>
 
 #===================================================
 #  INELIGIBLE PAGE
@@ -212,109 +212,109 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 #  CHECK EORI DETAILS PAGE
 #===================================================
-check-eori-details.title=Check the <abbr title="Economic Operator Registration and Identification">EORI</abbr> associated with the Government Gateway Name is correct
+check-eori-details.title=Check the EORI associated with the Government Gateway Name is correct
 check-eori-details.paragraph=More information about <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Economic Operators Registration and Identification numbers (EORI) (opens in new tab)</a>.
-check-eori-details.eori-number.label=<abbr title="Economic Operator Registration and Identification">EORI</abbr>
+check-eori-details.eori-number.label=EORI
 check-eori-details.name.label=Government Gateway Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
-check-eori-details.error.required=Select yes if these <abbr title="Economic Operator Registration and Identification">EORI</abbr> details are correct
-check-eori-details.error.invalid=Select yes if these <abbr title="Economic Operator Registration and Identification">EORI</abbr> details are correct
+check-eori-details.error.required=Select yes if these EORI details are correct
+check-eori-details.error.invalid=Select yes if these EORI details are correct
 
 
 #===================================================
 #  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
-rejected-goods.choose-how-many-mrns.title=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
-rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is a unique 18-digit number that is issued when an import is declared.
+rejected-goods.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
+rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
-rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
+rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple MRNs
+rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
-rejected-goods.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 
 #  OVERPAYMENTS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
-overpayments.choose-how-many-mrns.title=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
-overpayments.choose-how-many-mrns.p1=A Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is a unique 18-digit number that is issued when an import is declared.
+overpayments.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
+overpayments.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
 overpayments.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-overpayments.choose-how-many-mrns.inset.title=Entering Multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
-overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
+overpayments.choose-how-many-mrns.inset.title=Entering Multiple MRNs
+overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
 overpayments.choose-how-many-mrns.individual.title=Enter one MRN
 overpayments.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 overpayments.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
 overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 overpayments.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
-overpayments.choose-how-many-mrns.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+overpayments.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 
 #===================================================
 #  SELECT NUMBER OF CLAIMS PAGE
 #===================================================
-select-number-of-claims.title=Choose how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
-select-number-of-claims.p1=A Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is a unique 18-digit number that is issued when an import is declared.
+select-number-of-claims.title=Choose how many MRNs you want to submit in this claim
+select-number-of-claims.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
 select-number-of-claims.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-select-number-of-claims.inset.title=Entering Multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
-select-number-of-claims.inset.paragraph=If your claim includes multiple <abbr title="Movement Reference Numbers">MRNs</abbr>, the goods must all be from the same importer and have the same reason for overpayment.
-select-number-of-claims.individual.title=Enter one <abbr title="Movement Reference Number">MRN</abbr>
-select-number-of-claims.multiple.title=Enter multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
-select-number-of-claims.multiple.hint=Manually enter details for each <abbr title="Movement Reference Number">MRN</abbr>
-select-number-of-claims.scheduled.title=Upload multiple <abbr title="Movement Reference Numbers">MRNs</abbr>
-select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all <abbr title="Movement Reference Numbers">MRNs</abbr>
-select-number-of-claims.error.required=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
-select-number-of-claims.invalid=Select how many <abbr title="Movement Reference Numbers">MRNs</abbr> you want to submit in this claim
+select-number-of-claims.inset.title=Entering Multiple MRNs
+select-number-of-claims.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
+select-number-of-claims.individual.title=Enter one MRN
+select-number-of-claims.multiple.title=Enter multiple MRNs
+select-number-of-claims.multiple.hint=Manually enter details for each MRN
+select-number-of-claims.scheduled.title=Upload multiple MRNs
+select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all MRNs
+select-number-of-claims.error.required=Select how many MRNs you want to submit in this claim
+select-number-of-claims.invalid=Select how many MRNs you want to submit in this claim
 
 #===================================================
 #  ENTER MRN PAGE
 #===================================================
-enter-movement-reference-number.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.details.heading=Finding your <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-movement-reference-number.title=Enter the MRN
+enter-movement-reference-number.details.heading=Finding your MRN
+enter-movement-reference-number.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001
-enter-movement-reference-number.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
-enter-movement-reference-number.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number (MRN)
 enter-movement-reference-number.error.required=Enter a movement reference number (MRN)
 enter-movement-reference-number.multiple.error.existingMRN=This movement reference number (MRN) has already been used. Enter a different MRN
-enter-movement-reference-number.multiple.title=Enter the first <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.multiple.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
-enter-movement-reference-number.multiple.enter-mrn.label=Enter first <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.scheduled.title=Enter the first <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
-enter-movement-reference-number.scheduled.enter-mrn.label=Enter first <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.multiple.title=Enter the first MRN
+enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.multiple.enter-mrn.label=Enter first MRN
+enter-movement-reference-number.scheduled.title=Enter the first MRN
+enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.scheduled.enter-mrn.label=Enter first MRN
 
-enter-movement-reference-number.rejected-goods.single.title=Enter the <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
+enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number (MRN)
 enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
-enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about <abbr title="Movement Reference Numbers">MRNs</abbr> (PDF, 581KB, opens in a new tab)</a>.
-enter-movement-reference-number.rejected-goods.multiple.help-text3=The first <abbr title="Movement Reference Number">MRN</abbr> is the one with the highest paid amount of duties.
-enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} MRN
+enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
+enter-movement-reference-number.rejected-goods.multiple.help-text3=The first MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001
 enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
-enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about <abbr title="Movement Reference Numbers">MRNs</abbr> (PDF, 581KB, opens in a new tab)</a>.
-enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first <abbr title="Movement Reference Number">MRN</abbr> is the one with the highest paid amount of duties.
-enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} MRN
+enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
+enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001
 
-enter-movement-reference-number.securities.title=Enter the import <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.securities.details.heading=Finding your <abbr title="Movement Reference Number">MRN</abbr>
-enter-movement-reference-number.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-movement-reference-number.securities.title=Enter the import MRN
+enter-movement-reference-number.securities.details.heading=Finding your MRN
+enter-movement-reference-number.securities.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
-enter-movement-reference-number.securities.help-text=The Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>) is issued when an import is declared.
-enter-movement-reference-number.securities.enter-mrn.label=Enter <abbr title="Movement Reference Number">MRN</abbr>
+enter-movement-reference-number.securities.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.securities.enter-mrn.label=Enter MRN
 enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.securities.error.required=Enter a movement reference number (MRN)
 
@@ -322,12 +322,12 @@ enter-movement-reference-number.securities.error.required=Enter a movement refer
 #  ENTER EXPORT MRN PAGE
 #===================================================
 
-enter-export-movement-reference-number.securities.title=Enter the export <abbr title="Movement Reference Number">MRN</abbr> in the declaration
-enter-export-movement-reference-number.securities.details.heading=Finding your export <abbr title="Movement Reference Number">MRN</abbr> number
-enter-export-movement-reference-number.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-export-movement-reference-number.securities.title=Enter the export MRN in the declaration
+enter-export-movement-reference-number.securities.details.heading=Finding your export MRN number
+enter-export-movement-reference-number.securities.details.paragraph=You can find your MRN number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
 enter-export-movement-reference-number.securities.help-text=A repayment can only be processed once the goods have departed.
-enter-export-movement-reference-number.securities.enter-mrn.label=Enter export <abbr title="Movement Reference Number">MRN</abbr>
+enter-export-movement-reference-number.securities.enter-mrn.label=Enter export MRN
 enter-export-movement-reference-number.securities.invalid.number=Export movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-export-movement-reference-number.error.required=Enter your Export movement reference number
 enter-export-movement-reference-number.securities.error.import=Enter an export movement reference number (MRN)
@@ -335,13 +335,13 @@ enter-export-movement-reference-number.securities.error.import=Enter an export m
 #===================================================
 #  ENTER EXPORT MRN MULTIPLE PAGE
 #===================================================
-enter-export-movement-reference-number-multiple.securities.title=Enter the first export <abbr title="Movement Reference Number">MRN</abbr> in the declaration
-enter-export-movement-reference-number-multiple.inset-text=You will be able to add any additional export <abbr title="Movement Reference Number">MRN</abbr> later.
-enter-export-movement-reference-number-multiple.securities.details.heading=Finding your export <abbr title="Movement Reference Number">MRN</abbr> number
-enter-export-movement-reference-number-multiple.securities.details.paragraph=You can find your <abbr title="Movement Reference Number">MRN</abbr> number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-export-movement-reference-number-multiple.securities.title=Enter the first export MRN in the declaration
+enter-export-movement-reference-number-multiple.inset-text=You will be able to add any additional export MRN later.
+enter-export-movement-reference-number-multiple.securities.details.heading=Finding your export MRN number
+enter-export-movement-reference-number-multiple.securities.details.paragraph=You can find your MRN number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-export-movement-reference-number-multiple.securities.help=Must be 18 characters, for example 19GB03I52858027001
 enter-export-movement-reference-number-multiple.securities.help-text=A repayment can only be processed once the goods have departed.
-enter-export-movement-reference-number-multiple.securities.enter-mrn.label=Enter the first export <abbr title="Movement Reference Number">MRN</abbr>
+enter-export-movement-reference-number-multiple.securities.enter-mrn.label=Enter the first export MRN
 enter-export-movement-reference-number-multiple.securities.invalid.number=Export movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-export-movement-reference-number-multiple.error.required=Enter your Export movement reference number
 enter-export-movement-reference-number-multiple.securities.error.import=Enter an export movement reference number (MRN)
@@ -349,47 +349,47 @@ enter-export-movement-reference-number-multiple.securities.error.import=Enter an
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
 #===================================================
-enter-associated-mrn.title=Tell us the {0} <abbr title="Movement Reference Number">MRN</abbr>
-enter-associated-mrn.help-text=The <abbr title="Movement Reference Number">MRN</abbr> will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
-enter-associated-mrn.enter-mrn.label=Enter {0} <abbr title="Movement Reference Number">MRN</abbr>
+enter-associated-mrn.title=Tell us the {0} MRN
+enter-associated-mrn.help-text=The MRN will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001
 enter-associated-mrn.error.required=Enter a movement reference number (MRN)
 enter-associated-mrn.invalid.number=Enter a movement reference number (MRN)
 enter-associated-mrn.error.exists=This movement reference number (MRN) has already been used. Enter a different MRN
-enter-associated-mrn.error.eori-not-matching=This movement reference number (MRN) is not linked to your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
+enter-associated-mrn.error.eori-not-matching=This movement reference number (MRN) is not linked to your EORI number
 enter-associated-mrn.error.missing-declaration=This movement reference number (MRN) has not been recognised
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS
 #===================================================
-check-movement-reference-numbers.title=All the <abbr title="Movement Reference Numbers">MRNs</abbr> entered in this claim
-check-movement-reference-numbers.help-text=These are the <abbr title="Movement Reference Numbers">MRNs</abbr> that you have added so far. You can add more if you wish.
-check-movement-reference-numbers.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
+check-movement-reference-numbers.title=All the MRNs entered in this claim
+check-movement-reference-numbers.help-text=These are the MRNs that you have added so far. You can add more if you wish.
+check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
 check-movement-reference-numbers.error.invalid=Select yes to add another movement reference number (MRN)
 check-movement-reference-numbers.error.required=Select yes to add another movement reference number (MRN)
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS - REJECTED GOODS
 #===================================================
-check-movement-reference-numbers.rejected-goods.title=All the <abbr title="Movement Reference Numbers">MRNs</abbr> entered in this claim
-check-movement-reference-numbers.rejected-goods.help-text=These are the <abbr title="Movement Reference Numbers">MRNs</abbr> that you have added so far. You can add more if you wish.
-check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=First <abbr title="Movement Reference Number">MRN</abbr>
-check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
-check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another <abbr title="Movement Reference Number">MRN</abbr>?
+check-movement-reference-numbers.rejected-goods.title=All the MRNs entered in this claim
+check-movement-reference-numbers.rejected-goods.help-text=These are the MRNs that you have added so far. You can add more if you wish.
+check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=First MRN
+check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} MRN
+check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another MRN?
 check-movement-reference-numbers.rejected-goods.error.invalid=Select yes to add another movement reference number (MRN)
 check-movement-reference-numbers.rejected-goods.error.required=Select yes to add another movement reference number (MRN)
 
 #===================================================
 #  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
 #===================================================
-mrn-does-not-exist.title=This <abbr title="Movement Reference Number">MRN</abbr> does not exist
-mrn-does-not-exist.help-text=You have tried to reach an <abbr title="Movement Reference Number">MRN</abbr> which has not been entered.
+mrn-does-not-exist.title=This MRN does not exist
+mrn-does-not-exist.help-text=You have tried to reach an MRN which has not been entered.
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.title=Enter the duplicate <abbr title="Movement Reference Number">MRN</abbr>
-enter-duplicate-movement-reference-number.input-title=Enter duplicate <abbr title="Movement Reference Number">MRN</abbr>
+enter-duplicate-movement-reference-number.title=Enter the duplicate MRN
+enter-duplicate-movement-reference-number.input-title=Enter duplicate MRN
 enter-duplicate-movement-reference-number.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
 enter-duplicate-movement-reference-number.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
@@ -411,34 +411,34 @@ enter-duplicate-movement-reference-number.entry.error.required=Enter an entry nu
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE
 #===================================================
-mrn-not-linked-to-eori.title=The <abbr title="Movement Reference Number">MRN</abbr> number you entered is not linked to your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-mrn-not-linked-to-eori.help-text=The <abbr title="Movement Reference Number">MRN</abbr> number must be linked to your <abbr title="Economic Operator Registration and Identification">EORI</abbr> number. Please enter a valid <abbr title="Movement Reference Number">MRN</abbr> number.
+mrn-not-linked-to-eori.title=The MRN number you entered is not linked to your EORI number
+mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI number. Please enter a valid MRN number.
 
 #===================================================
 #  ENTER IMPORTER EORI NUMBER PAGE
 #===================================================
-enter-importer-eori-number.title=Enter the importer’s <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-importer-eori-number.caption=Importer <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-importer-eori-number.help=You can get the <abbr title="Economic Operator Registration and Identification">EORI</abbr> number from the importer, otherwise you will be unable to make a claim.
+enter-importer-eori-number.title=Enter the importer’s EORI number
+enter-importer-eori-number.caption=Importer EORI number
+enter-importer-eori-number.help=You can get the EORI number from the importer, otherwise you will be unable to make a claim.
 enter-importer-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
-enter-importer-eori-number.invalid.number=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
-enter-importer-eori-number.error.maxLength=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must be 14 characters or less
-enter-importer-eori-number.invalid=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
-enter-importer-eori-number.error.required=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-importer-eori-number.input-label=Enter importer <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
+enter-importer-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+enter-importer-eori-number.error.maxLength=EORI number must be 14 characters or less
+enter-importer-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
+enter-importer-eori-number.error.required=Enter an EORI number
+enter-importer-eori-number.input-label=Enter importer EORI number
 
 #===================================================
 #  ENTER DECLARANT EORI NUMBER PAGE
 #===================================================
-enter-declarant-eori-number.title=Enter the declarant’s <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-declarant-eori-number.caption=Declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-declarant-eori-number.help=You can get the <abbr title="Economic Operator Registration and Identification">EORI</abbr> number from the declarant, otherwise you will be unable to make a claim.
+enter-declarant-eori-number.title=Enter the declarant’s EORI number
+enter-declarant-eori-number.caption=Declarant EORI number
+enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
 enter-declarant-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
-enter-declarant-eori-number.invalid.number=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
-enter-declarant-eori-number.error.maxLength=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must be 14 characters or less
-enter-declarant-eori-number.invalid=<abbr title="Economic Operator Registration and Identification">EORI</abbr> number must only include letters a to z and numbers 1 to 9
-enter-declarant-eori-number.error.required=Enter an <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
-enter-declarant-eori-number.input-label=Enter declarant <abbr title="Economic Operator Registration and Identification">EORI</abbr> number
+enter-declarant-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+enter-declarant-eori-number.error.maxLength=EORI number must be 14 characters or less
+enter-declarant-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
+enter-declarant-eori-number.error.required=Enter an EORI number
+enter-declarant-eori-number.input-label=Enter declarant EORI number
 
 #===================================================
 #  ERROR - CLAIM INVALID TPI04 PAGE - SECURITIES
@@ -476,7 +476,7 @@ choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties
 select-securities.title.caption=Security {0} of {1}
 select-securities.title=Include this security deposit in your claim?
 select-securities.securityId=Security deposit ID: {0}
-select-securities.mrn-label=Import <abbr title="Movement Reference Number">MRN</abbr>
+select-securities.mrn-label=Import MRN
 select-securities.reason-for-security-label=Reason for security deposit
 select-securities.total-amount-label=Total security deposit value
 select-securities.paid-amount-label=Security deposit paid
@@ -535,22 +535,22 @@ countryCode.enter-your-contact-details.error.required=Enter a country
 #  CLAIMANT DETAILS PAGE
 #===================================================
 claimant-details.title=How we will contact you about this claim
-claimant-details.registered.title=Details as registered with <abbr title="Customs Declaration Service">CDS</abbr>
-claimant-details.registered.details=Details as registered with <abbr title="Customs Declaration Service">CDS</abbr>
-claimant-details.registered.address=Address as registered with <abbr title="Customs Declaration Service">CDS</abbr>
+claimant-details.registered.title=Details as registered with CDS
+claimant-details.registered.details=Details as registered with CDS
+claimant-details.registered.address=Address as registered with CDS
 claimant-details.contact.title=Contact details
 claimant-details.contact.description=These are the details we will use to contact you about your claim.
 claimant-details.contact.details=Contact details
 claimant-details.contact.address=Contact address
 claimant-details.change=Change
 claimant-details.want-to-continue.title=Do you want to continue using these contact details?
-claimant-details.want-to-continue.hint=If you select No we will contact you using your <abbr title="Customs Declaration Service">CDS</abbr> registered details.
+claimant-details.want-to-continue.hint=If you select No we will contact you using your CDS registered details.
 claimant-details.yes=Yes
 claimant-details.no=No
 claimant-details.error.required.change=Select yes to use these contact details
 claimant-details.error.invalid=Select yes to change these contact details
 claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
-claimant-details.add-different.hint=Adding different contact details will not amend the contact details registered with <abbr title="Customs Declaration Service">CDS</abbr>.
+claimant-details.add-different.hint=Adding different contact details will not amend the contact details registered with CDS.
 
 #===================================================
 #  CHECK CLAIMANT DETAILS PAGE
@@ -566,7 +566,7 @@ check-claimant-details.change-hint.address=Contact address
 #===================================================
 claimant-details-timed-out.title=For your security, we signed you out
 claimant-details-timed-out.help=We did not save your additional contact details.
-claimant-details-timed-out.button=Check your contact details as registered with <abbr title="Customs Declaration Service">CDS</abbr>
+claimant-details-timed-out.button=Check your contact details as registered with CDS
 
 #===================================================
 #  ENTER OR CHANGE CONTACT DETAILS PAGE
@@ -605,20 +605,20 @@ select-who-is-making-the-claim.details.paragraph.2=A representative company can 
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
 check-declaration-details.title=Check these declaration details are correct
-check-declaration-details.duplicate.title=Check these declaration details are correct for the duplicate <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.duplicate.title=Check these declaration details are correct for the duplicate MRN
 check-declaration-details.details.title=Who is the importer and the declarant?
 check-declaration-details.details.h1=Importer
 check-declaration-details.details.p1=The importer is the person or company that purchased the goods brought into the UK.
 check-declaration-details.details.h2=Declarant
 check-declaration-details.details.p2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
-check-declaration-details.help-text=These are the declarant details we have from the <abbr title="Movement Reference Number">MRN</abbr> declaration. If they are incorrect, you can change them by <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contacting the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a>.
-check-declaration-details.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
+check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contacting the CDS team (opens in new tab)</a>.
+check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
-check-declaration-details.error.invalid=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.error.number=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.error.required=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.scheduled.mrn-number.label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.error.invalid=Select yes to continue with this MRN
+check-declaration-details.error.number=Select yes to continue with this MRN
+check-declaration-details.error.required=Select yes to continue with this MRN
+check-declaration-details.scheduled.mrn-number.label=First MRN
 check-declaration-details.payment-method.label=Payment method
 check-declaration-details.payment-method.unavailable=Unavailable
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
@@ -631,12 +631,12 @@ check-declaration-details.single.details.paragraph.heading.1=Importer
 check-declaration-details.single.details.paragraph.text.1=The importer is the person or company that purchased the goods brought into the UK.
 check-declaration-details.single.details.paragraph.heading.2=Declarant
 check-declaration-details.single.details.paragraph.text.2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
-check-declaration-details.single.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
-check-declaration-details.multiple.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
-check-declaration-details.scheduled.is-information-correct=Continue with this <abbr title="Movement Reference Number">MRN</abbr>?
-check-declaration-details.scheduled.error.invalid=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.scheduled.error.number=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
-check-declaration-details.scheduled.error.required=Select yes to continue with this <abbr title="Movement Reference Number">MRN</abbr>
+check-declaration-details.single.is-information-correct=Continue with this MRN?
+check-declaration-details.multiple.is-information-correct=Continue with this MRN?
+check-declaration-details.scheduled.is-information-correct=Continue with this MRN?
+check-declaration-details.scheduled.error.invalid=Select yes to continue with this MRN
+check-declaration-details.scheduled.error.number=Select yes to continue with this MRN
+check-declaration-details.scheduled.error.required=Select yes to continue with this MRN
 
 #===================================================
 #  SECURITIES: CHOOSE EXPORT METHOD PAGE
@@ -663,12 +663,12 @@ choose-export-method.export-method-description.MultipleDisposalMethodsWereUsed=M
 claim-northern-ireland.title=Were your goods moved through or imported to Northern Ireland?
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
-claim-northern-ireland.error.required=Select yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were moved through or imported to Northern Ireland
-claim-northern-ireland.error.invalid=Select yes if all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim were moved through or imported to Northern Ireland
+claim-northern-ireland.error.required=Select yes if all the MRNs in this claim were moved through or imported to Northern Ireland
+claim-northern-ireland.error.invalid=Select yes if all the MRNs in this claim were moved through or imported to Northern Ireland
 
 claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
-claim-northern-ireland.scheduled.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
-claim-northern-ireland.multiple.help-text=If you select Yes, then all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim must have been imported to or moved through Northern Ireland.
+claim-northern-ireland.scheduled.help-text=If you select Yes, then all the MRNs in this claim must have been imported to or moved through Northern Ireland.
+claim-northern-ireland.multiple.help-text=If you select Yes, then all the MRNs in this claim must have been imported to or moved through Northern Ireland.
 #===================================================
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================
@@ -679,7 +679,7 @@ select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-basis-for-claim.details.heading=Examples of basis of claim
 
-select-basis-for-claim.details.bullet.0=Duplicate <abbr title="Movement Reference Number">MRN</abbr>:
+select-basis-for-claim.details.bullet.0=Duplicate MRN:
 select-basis-for-claim.details.hint.0=A shipment was declared more than once by error and duties were overpaid
 
 select-basis-for-claim.details.bullet.1=Duty suspension:
@@ -704,7 +704,7 @@ select-basis-for-claim.details.bullet.7=Incorrect value:
 select-basis-for-claim.details.hint.7=Total customs value was entered incorrectly and duties were overpaid
 
 select-basis-for-claim.details.bullet.8=Inward processing relief from Customs Duty:
-select-basis-for-claim.details.hint.8=Delay or reduce import duties or <abbr title="Value Added Tax">VAT</abbr> on goods that were processed or repaired
+select-basis-for-claim.details.hint.8=Delay or reduce import duties or VAT on goods that were processed or repaired
 
 select-basis-for-claim.details.bullet.9=Outward processing relief:
 select-basis-for-claim.details.hint.9=A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported
@@ -742,7 +742,7 @@ select-basis-for-claim.reason.d12=Proof of return or refund given
 select-basis-for-claim.reason.d13=Returned goods relief (RGR)
 select-basis-for-claim.reason.d14=Other reason
 
-select-basis-for-claim.scheduled.help-text=Your basis must apply to all <abbr title="Movement Reference Numbers">MRNs</abbr> in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
+select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
 
 #===================================================
 #  SELECT BASIS OF REJECTED GOODS PAGE
@@ -826,8 +826,8 @@ enter-additional-details.hint=Provide brief details about this claim
 #  ENTER CLAIM REJECTED GOODS - SINGLE
 #===================================================
 enter-claim.rejected-goods.single.title=Claim details for {0} - {1}
-enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} <abbr title="Movement Reference Number">MRN</abbr>
-enter-claim.rejected-goods.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
+enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
+enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
 enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount
@@ -853,12 +853,12 @@ enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
 #===================================================
 #  CHECK CLAIM REJECTED GOODS - SINGLE
 #===================================================
-check-claim.rejected-goods.single.title=Check the claim total for the <abbr title="Movement Reference Number">MRN</abbr>
-check-claim.rejected-goods.multiple.title=Check the repayment claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
+check-claim.rejected-goods.single.title=Check the claim total for the MRN
+check-claim.rejected-goods.multiple.title=Check the repayment claim totals for all MRNs
 check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim.rejected-goods.multiple.label=These are the calculations based on the information you gave us.
-check-claim.rejected-goods.single.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
-check-claim.rejected-goods.single.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
+check-claim.rejected-goods.single.label=MRN: {0}
+check-claim.rejected-goods.single.total=Repayment for this MRN
 check-claim.rejected-goods.error.required=Select yes if these duties are correct
 check-claim.rejected-goods.are-duties-correct=Are these duties correct?
 check-claim.rejected-goods.yes=Yes
@@ -872,10 +872,10 @@ check-claim.rejected-goods.multiple.overall-total.label=Total repayment
 #  CHOOSE REPAYMENT METHOD REJECTED GOODS - SINGLE
 #===================================================
 choose-payment-method.rejected-goods.single.title=Choose repayment method
-choose-payment-method.rejected-goods.single.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
+choose-payment-method.rejected-goods.single.cma=Current Month Adjustment (CMA)
 choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
-choose-payment-method.rejected-goods.single.error.required=Select to be repaid by current month adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or bank account transfer
-choose-payment-method.rejected-goods.single.error.number=Select to be repaid by current month adjustment (<abbr title="Current Month Adjustment">CMA</abbr>) or bank account transfer
+choose-payment-method.rejected-goods.single.error.required=Select to be repaid by current month adjustment (CMA) or bank account transfer
+choose-payment-method.rejected-goods.single.error.number=Select to be repaid by current month adjustment (CMA) or bank account transfer
 
 #===================================================
 #  REIMBURSEMENT PAGES
@@ -974,15 +974,15 @@ tax-code.99B = 99B - Any petroleum gas, or other gaseous hydrocarbon supplied in
 tax-code.99C = 99C - Gas supplied by a gas utility or any gas supplied in a gaseous state that is of a kind supplied by a gas utility Great Britain
 tax-code.99D = 99D - Electricity
 
-select-duty-types.title=Select the duty types you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
+select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
 select-duty-types.error.required=Choose the duties you want to include in your claim
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
-select-duty-types.checkbox-legend.1=Customs, Additional, <abbr title="Value Added Tax">VAT</abbr> & Anti-Subsidy
+select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
-select-duty-codes.title=Select the {0} duties you want to claim for all <abbr title="Movement Reference Numbers">MRNs</abbr> in the file you uploaded
+select-duty-codes.title=Select the {0} duties you want to claim for all MRNs in the file you uploaded
 select-duty-codes.error.required=Choose the duties you want to include in your claim
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
@@ -1005,7 +1005,7 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 #  SELECT REIMBURSEMENT METHOD PAGE
 #===================================================
 reimbursement-method.title=Choose repayment method
-reimbursement-method.cma=Current Month Adjustment (<abbr title="Current Month Adjustment">CMA</abbr>)
+reimbursement-method.cma=Current Month Adjustment (CMA)
 reimbursement-method.bank-transfer=Bank account transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 
@@ -1029,9 +1029,9 @@ confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like t
 #===================================================
 select-duties.caption=Security ID: {0}
 select-duties.title=Select the duties you want to claim for
-select-duties.multiple.title=Select the duties you want to claim for under {0} <abbr title="Movement Reference Number">MRN</abbr>
-select-duties.multiple.help-text.1=These are the duties that have been paid under <abbr title="Movement Reference Number">MRN</abbr>: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
-select-duties.duty.hint=This duty is not eligible for <abbr title="Current Month Adjustment">CMA</abbr> repayment
+select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
+select-duties.multiple.help-text.1=These are the duties that have been paid under MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
+select-duties.duty.hint=This duty is not eligible for CMA repayment
 select-duties.duty.caption=How much was paid: %s
 select-duties.error.required=Choose the duties you want to include in your claim
 select-duties.duty.A00=Customs Duty
@@ -1110,15 +1110,15 @@ select-duties.duty.99B=Any petroleum gas, or other gaseous hydrocarbon supplied 
 select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a gaseous state that is of a kind supplied by a gas utility Great Britain
 select-duties.duty.99D=Electricity
 
-multiple-select-duties.title=Select the duties you want to claim for under {0} <abbr title="Movement Reference Number">MRN</abbr>
-multiple-select-duties.help-text.1=These are the duties that have been paid under <abbr title="Movement Reference Number">MRN</abbr>: {0}
+multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
+multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: {0}
 
 #===================================================
 #  ENTER SINGLE CLAIM PAGE
 #===================================================
 enter-claim.title=Claim details for {0} - {1}
 enter-claim.help-text=This is to calculate your repayment as part of your claim.
-enter-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
+enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=How much was paid: {0}
 enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
@@ -1131,10 +1131,10 @@ enter-claim.invalid.claim=The amount that should have been paid must be less tha
 #===================================================
 #  ENTER SCHEDULE CLAIM PAGE C285
 #===================================================
-enter-scheduled-claim.title=Claim details for all <abbr title="Movement Reference Numbers">MRNs</abbr> under {0} {1}
+enter-scheduled-claim.title=Claim details for all MRNs under {0} {1}
 enter-scheduled-claim.help-text=Provide your claim details for {0}.
 enter-scheduled-claim.p1=This is to calculate your repayment as part of your claim.
-enter-scheduled-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
+enter-scheduled-claim.inset-text=HMRC does not refund agents’ fees.
 enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
 enter-scheduled-claim.actual-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
@@ -1149,9 +1149,9 @@ enter-scheduled-claim.invalid.claim=The amount paid must be a number, like 30 or
 #===================================================
 #  ENTER CLAIM SCHEDULED PAGE C&E1179
 #===================================================
-enter-claim-scheduled.rejected-goods.title=Claim details for all <abbr title="Movement Reference Numbers">MRNs</abbr> under {0} {1}
+enter-claim-scheduled.rejected-goods.title=Claim details for all MRNs under {0} {1}
 enter-claim-scheduled.rejected-goods.help-text=Provide your claim details for {0}.
-enter-claim-scheduled.rejected-goods.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
+enter-claim-scheduled.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim-scheduled.rejected-goods.paid-amount=How much was paid, in pounds?
 enter-claim-scheduled.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
 enter-claim-scheduled.rejected-goods.claim-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
@@ -1168,9 +1168,9 @@ enter-claim-scheduled.rejected-goods.invalid.claim=The claim amount must be a nu
 #===================================================
 #  ENTER MULTIPLE CLAIM PAGE
 #===================================================
-multiple-enter-claim.title=Claim details for {0} - {1} under {2} <abbr title="Movement Reference Number">MRN</abbr>
-multiple-enter-claim.help-text=This is to calculate your repayment as part of your claim for <abbr title="Movement Reference Number">MRN</abbr>: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
-multiple-enter-claim.inset-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> does not refund agents’ fees.
+multiple-enter-claim.title=Claim details for {0} - {1} under {2} MRN
+multiple-enter-claim.help-text=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
+multiple-enter-claim.inset-text=HMRC does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
 multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
@@ -1191,17 +1191,17 @@ check-claim.securities.claim-for-security.h2=Security ID: {0}
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the claim total for the <abbr title="Movement Reference Number">MRN</abbr>
-check-claim-summary.scheduled.title=Check the repayment claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
+check-claim-summary.title=Check the claim total for the MRN
+check-claim-summary.scheduled.title=Check the repayment claim totals for all MRNs
 check-claim-summary.help-text=Your repayment or remissions calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
-check-claim-summary.duty.label=<abbr title="Movement Reference Number">MRN</abbr>: {0}
+check-claim-summary.duty.label=MRN: {0}
 check-claim-summary.uk-duty.label=UK Duty
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
 check-claim-summary.overall-total.label=Overall total
 check-claim-summary.change-amount=Change amount
-check-claim-summary.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
+check-claim-summary.total=Repayment for this MRN
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
@@ -1211,10 +1211,10 @@ check-claim-summary.duty-code.row.key={0} repayment
 check-claim-summary.duty-code.total.key={0} claims total repayment
 check-claim-summary.total.header=Total
 
-multiple-check-claim-summary.title=Check the repayment claim totals for all <abbr title="Movement Reference Numbers">MRNs</abbr>
+multiple-check-claim-summary.title=Check the repayment claim totals for all MRNs
 multiple-check-claim-summary.help-text=These are the calculations based on the information you gave us.
 multiple-check-claim-summary.duty.label={0} MRN: {1}
-multiple-check-claim-summary.total=Repayment for this <abbr title="Movement Reference Number">MRN</abbr>
+multiple-check-claim-summary.total=Repayment for this MRN
 multiple-check-claim-summary.overall-total.header=Total
 multiple-check-claim-summary.overall-total.label=Total repayment
 multiple-check-claim-summary.are-duties-correct=Are these duties correct?
@@ -1235,7 +1235,7 @@ check-claim-timed-out.button=Sign in
 #  ENTER INSPECTION DATE PAGE
 #===================================================
 enter-inspection-date.rejected-goods.title=Tell us when the goods will be available until for inspection
-enter-inspection-date.rejected-goods.help-text=<abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> may want to inspect your goods to process your claim. You must allow at least 2 full working days between submitting this claim and returning or disposing of your goods.
+enter-inspection-date.rejected-goods.help-text=HMRC may want to inspect your goods to process your claim. You must allow at least 2 full working days between submitting this claim and returning or disposing of your goods.
 enter-inspection-date.rejected-goods.label=Enter inspection date
 enter-inspection-date.rejected-goods.hint=Tell us the date your goods will be made available for inspection until. For example, 26 6 2020.
 enter-inspection-date.rejected-goods.error.required=Enter the date your goods will be made available for inspection until. For example, 26 6 2020 or 15 12 2021
@@ -1280,7 +1280,7 @@ select-bank-account-type.error.required=Select if this is a business bank accoun
 #===================================================
 enter-bank-account-details.title=Enter your bank account details
 enter-bank-account-details.p1=This is where you would like repayments to be made in the UK.
-enter-bank-account-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
+enter-bank-account-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
 enter-bank-account-details.account-name.label=Name on the account
 enter-bank-account-details.account-name.label.hidden=bank details
 enter-bank-account-details.account-name.error.required=Enter the name on the account
@@ -1306,7 +1306,7 @@ enter-bank-account-details.error.INVALID_SORTCODE=Invalid sort code
 #  BANK ACCOUNT UNAVAILABLE PAGE
 #===================================================
 bank-service-unavailable.title=Sorry, the service is unavailable
-bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a> if you need to make a change to your bank account information to complete this claim.
+bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> if you need to make a change to your bank account information to complete this claim.
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
@@ -1398,12 +1398,12 @@ supporting-evidence.choose-document-type.error.invalid-document-type=The selecte
 #===================================================
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
-schedule-document.upload.title=Add a document which shows all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim
-schedule-document.upload.help-text=Upload a list of all <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim, known as a scheduled document. This document can be up to {0} and must be a JPG, PNG or PDF. The <abbr title="Movement Reference Numbers">MRNs</abbr> in the document must all be from the same importer and have the same reason for overpayment.
+schedule-document.upload.title=Add a document which shows all the MRNs in this claim
+schedule-document.upload.help-text=Upload a list of all MRNs in this claim, known as a scheduled document. This document can be up to {0} and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
 schedule-document.upload.things-to-show.p1=The document should show:
-schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.upload.things-to-show.l2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.upload.things-to-show.l3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
+schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each MRN
+schedule-document.upload.things-to-show.l2=the amount that was paid to HMRC for each MRN
+schedule-document.upload.things-to-show.l3=the amount that should have been paid to HMRC for each MRN
 schedule-document.upload.input-title=Select a document to upload
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.choose.description=Select a document to upload
@@ -1427,12 +1427,12 @@ schedule-document.scan-failed.p2=The selected file must be a JPG, PNG or PDF.
 schedule-document.scan-failed.p3=You will need to upload your file again
 schedule-document.scan-failed.button.tryAgain=Try again
 
-schedule-document.check-your-answers.title=You have successfully uploaded a document showing all the <abbr title="Movement Reference Numbers">MRNs</abbr> in this claim
-schedule-document.check-your-answers.help-text=The document should show:<ul class="govuk-list govuk-list--bullet"><li>the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr><li>the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr><li>the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr></ul>
+schedule-document.check-your-answers.title=You have successfully uploaded a document showing all the MRNs in this claim
+schedule-document.check-your-answers.help-text=The document should show:<ul class="govuk-list govuk-list--bullet"><li>the type of duty or tax you are claiming for each MRN<li>the amount that was paid to HMRC for each MRN<li>the amount that should have been paid to HMRC for each MRN</ul>
 schedule-document.check-your-answers.p1=The document should show:
-schedule-document.check-your-answers.bullet1=the type of duty or tax you are claiming for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.check-your-answers.bullet2=the amount that was paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
-schedule-document.check-your-answers.bullet3=the amount that should have been paid to <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> for each <abbr title="Movement Reference Number">MRN</abbr>
+schedule-document.check-your-answers.bullet1=the type of duty or tax you are claiming for each MRN
+schedule-document.check-your-answers.bullet2=the amount that was paid to HMRC for each MRN
+schedule-document.check-your-answers.bullet3=the amount that should have been paid to HMRC for each MRN
 schedule-document.check-your-answers.remove=Remove
 schedule-document.check-your-answers.assistive=the file named {0}
 
@@ -1485,27 +1485,27 @@ check-your-answers.title=Check your answers before sending your claim
 check-your-answers.scheduled.title=Check your answers before sending your claim
 check-your-answers.rejectedgoods.scheduled.title=Check your answers before sending your claim
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
-check-your-answers.reference-number.label=<abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.label=MRN
 check-your-answers.reference-number.label-plaintext=Movement Reference Number (MRN)""
-check-your-answers.reference-number.multiple.label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.multiple.label=First MRN
 check-your-answers.reference-number.multiple.label-plaintext=First Movement Reference Number (MRN)
-check-your-answers.reference-number.scheduled.label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.scheduled.label=First MRN
 check-your-answers.reference-number.scheduled.label-plaintext=First Movement Reference Number (MRN)
-check-your-answers.reference-number.rejectedgoods.scheduled.label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.rejectedgoods.scheduled.label=First MRN
 check-your-answers.reference-number.rejectedgoods.scheduled.label-plaintext=First Movement Reference Number (MRN)
-check-your-answers.reference-number.associated-mrn-label={0} <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.associated-mrn-label={0} MRN
 check-your-answers.reference-number.associated-mrn-label-plaintext={0} Movement Reference Number (MRN)
-check-your-answers.reference-number.rejectedgoodsmultiple.label={0} <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.reference-number.rejectedgoodsmultiple.label={0} MRN
 check-your-answers.reference-number.rejectedgoodsmultiple.label-plaintext={0} Movement Reference Number (MRN)
 
 check-your-answers.declaration-details.label=Declaration details
-check-your-answers.declaration-details.mrn-label=Import <abbr title="Movement Reference Number">MRN</abbr>
-check-your-answers.declaration-details.multiple.mrn-label=First <abbr title="Movement Reference Number">MRN</abbr>
-check-your-answers.declaration-details.scheduled.mrn-label=First <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.declaration-details.mrn-label=Import MRN
+check-your-answers.declaration-details.multiple.mrn-label=First MRN
+check-your-answers.declaration-details.scheduled.mrn-label=First MRN
 check-your-answers.declaration-details.import-date-label=Import date
-check-your-answers.declaration-details.paid-charges-label=Duties and <abbr title="Value Added Tax">VAT</abbr> paid
+check-your-answers.declaration-details.paid-charges-label=Duties and VAT paid
 check-your-answers.declaration-details.paid-duties-charges-label=Duties paid
-check-your-answers.declaration-details.paid-vat-charges-label=<abbr title="Value Added Tax">VAT</abbr> paid
+check-your-answers.declaration-details.paid-vat-charges-label=VAT paid
 check-your-answers.declaration-details.importer-name-label=Importer name
 check-your-answers.declaration-details.importer-email-label=Importer email
 check-your-answers.declaration-details.importer-telephone-label=Importer telephone
@@ -1551,19 +1551,19 @@ check-your-answers.bank-details.account-name.label.hidden=bank details
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
 
-check-your-answers.reference-number.h2=Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
-check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (<abbr title="Movement Reference Numbers">MRNs</abbr>)
-check-your-answers.reference-number.scheduled.h2=First Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
-check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (<abbr title="Movement Reference Number">MRN</abbr>)
+check-your-answers.reference-number.h2=Movement Reference Number (MRN)
+check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (MRNs)
+check-your-answers.reference-number.scheduled.h2=First Movement Reference Number (MRN)
+check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (MRN)
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
 check-your-answers.additional-details.h2=Reason for claim
 check-your-answers.claim-calculation.h2=Claim total
-check-your-answers.claim-calculation.scheduled.h2=Total repayment claim for all <abbr title="Movement Reference Numbers">MRNs</abbr>
+check-your-answers.claim-calculation.scheduled.h2=Total repayment claim for all MRNs
 check-your-answers.claim-calculation.uk-duty.label=UK Duty
 check-your-answers.claim-calculation.eu-duty.label=EU Duty
 check-your-answers.claim-calculation.excise-duty.label=Excise Duty
-check-your-answers.claim-calculation.duty.label=repayment claim for <abbr title="Movement Reference Number">MRN</abbr> {0}
+check-your-answers.claim-calculation.duty.label=repayment claim for MRN {0}
 check-your-answers.claim-calculation.total=Total
 check-your-answers.claim-calculation.multiple.total=Total
 
@@ -1586,8 +1586,8 @@ check-your-answers.reimbursement-method.h2=Repayment method
 check-your-answers.reimbursement-method.label=Method
 check-your-answers.reimbursement-method.cma=Current Month Adjustment (CMA)
 check-your-answers.reimbursement-method.bt=Bank account transfer
-check-your-answers.claimant-details.cds.contact.details=Details as registered with <abbr title="Customs Declaration Service">CDS</abbr>
-check-your-answers.claimant-details.cds.contact.address=Address as registered with <abbr title="Customs Declaration Service">CDS</abbr>
+check-your-answers.claimant-details.cds.contact.details=Details as registered with CDS
+check-your-answers.claimant-details.cds.contact.address=Address as registered with CDS
 check-your-answers.claimant-details.contact.additional=Use different contact details
 check-your-answers.claimant-details.additional.contact.details=Contact details
 check-your-answers.claimant-details.additional.contact.address=Contact address
@@ -1620,7 +1620,7 @@ check-your-answers.inspection.inspection-address=Inspection address
 check-your-answers.inspection.inspection-address-type=Inspection address type
 check-your-answers.claim-total.h2=Claim total
 check-your-answers.claim-total.total=Total
-check-your-answers.claim-total.duty.label=repayment claim for <abbr title="Movement Reference Number">MRN</abbr> {0}
+check-your-answers.claim-total.duty.label=repayment claim for MRN {0}
 check-your-answers.claim-total.multiple.total=Total
 check-your-answers.claim-total.scheduled.total=Total
 check-your-answers.contact-information.change-hint.contact=Contact details
@@ -1648,8 +1648,8 @@ check-your-answers.claim-for-security.claim-full-amount.yes=Yes
 check-your-answers.claim-for-security.claim-full-amount.no=No
 check-your-answers.claim-for-security.duties-selected.label=Duties selected
 
-check-your-answers.export-declaration-details.h2=Export movement reference number (<abbr title="Movement Reference Number">MRN</abbr>)
-check-your-answers.export-declaration-details.mrn=Export <abbr title="Movement Reference Number">MRN</abbr>
+check-your-answers.export-declaration-details.h2=Export movement reference number (MRN)
+check-your-answers.export-declaration-details.mrn=Export MRN
 
 #===================================================
 # INSPECTION ADDRESS TYPE
@@ -1666,7 +1666,7 @@ inspection-address.type.error.required=Choose the address where the goods can be
 #===================================================
 submit-claim-error.title=Claim submission failed
 submit-claim-error.p1=Sorry, your claim submission failed
-submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">contact the <abbr title="Customs Declaration Service">CDS</abbr> team (opens in new tab)</a> via the imports and exports general enquiries.
+submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 
 #===================================================
 # CONFIRMATION PAGE
@@ -1674,9 +1674,9 @@ submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href
 confirmation-of-submission.title=Claim submitted
 confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.claim-reference=Your claim reference number
-confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your spam folder or contact <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr>.
+confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your spam folder or contact HMRC.
 confirmation-of-submission.whatNext=What happens next?
-confirmation-of-submission.what-next.p1=Your application will be reviewed by <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> and we will aim to email or write a letter to you to tell you the outcome within 30 working days. We will contact you to either:
+confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will aim to email or write a letter to you to tell you the outcome within 30 working days. We will contact you to either:
 confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
@@ -1697,14 +1697,14 @@ problem-with-address.button.tryAgain=Try again
 #  CHOOSE CLAIM TYPE - PAGE
 #===================================================
 choose-claim-type.title=Choose type of claim
-choose-claim-type.c285.title=Claim back import duty and <abbr title="Value Added Tax">VAT</abbr> if you have overpaid
+choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
 choose-claim-type.c285.hint=For goods you imported or received from abroad
 choose-claim-type.ce1179.title=Claim back customs charges paid on rejected imports
 choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance
 choose-claim-type.view.title=View claims or upload documents
 choose-claim-type.view.hint=Upload documents or view the details of claims you have submitted
 choose-claim-type.securities.title=Claim back a security deposit
-choose-claim-type.securities.hint=If <abbr title="Her Majesty’s Revenue and Customs">HMRC</abbr> required a security deposit or guarantee for goods you imported
+choose-claim-type.securities.hint=If HMRC required a security deposit or guarantee for goods you imported
 choose-claim-type.error.required=Select the reason for making this claim
 choose-claim-type.error.unknown=Select the reason for making this claim
 

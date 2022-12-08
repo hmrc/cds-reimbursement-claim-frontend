@@ -195,7 +195,7 @@ class SelectTaxCodesControllerSpec
     "have CMA Eligible flag/Duties hint text" should {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "Acc14 excise code where the <abbr title=\"Current Month Adjustment\">CMA</abbr> eligible flag is true" in {
+      "Acc14 excise code where the CMA eligible flag is true" in {
 
         val displayDeclaration = buildDisplayDeclaration(
           dutyDetails = Seq(
@@ -217,7 +217,7 @@ class SelectTaxCodesControllerSpec
         }
 
         val hintText =
-          Some("This duty is not eligible for <abbr title=\"Current Month Adjustment\">CMA</abbr> repayment")
+          Some("This duty is not eligible for CMA repayment")
 
         checkPageIsDisplayed(
           performAction(),
