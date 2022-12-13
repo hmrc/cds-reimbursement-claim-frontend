@@ -232,7 +232,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
                   checkIfMaybeActionPreconditionFails(journey) match {
                     case None         => body(request)(journey)
                     case Some(errors) =>
-                      println((errors.headOption, routeForValidationErrors(errors)))
+                      logger.info(s"${errors.headOption}, ${routeForValidationErrors(errors)}")
                       (journey, Redirect(routeForValidationErrors(errors)))
                   }
               )
