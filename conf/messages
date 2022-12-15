@@ -158,7 +158,7 @@ landing-securities.what.l2=you will need to provide documents to support your cl
 landing-securities.what.l3=For inward processing relief or end use relief claims, a claim for a refund will only be accepted when 100% of the imported goods have been discharged
 landing-securities.before.heading=Before you start
 landing-securities.before.p1=To make a claim you will need:
-landing-securities.before.l1=an Economic Operators Registration and Identification Number (EORI number). Your number should start with ‘GB’. <a class="govuk-link" href="">Register here if you need an EORI Number</a>.
+landing-securities.before.l1=an EORI number that starts with ‘GB’. <a class="govuk-link" href="">Register here if you need an EORI number</a>.
 landing-securities.before.l2=an account to use HMRC online services. <a class="govuk-link" href="">Register here if you need a Government Gateway ID</a>
 landing-securities.before.l3=the Movement Reference Number (MRN) for each of your goods
 landing-securities.before.l4=details about the goods you imported
@@ -212,16 +212,16 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 #  CHECK EORI DETAILS PAGE
 #===================================================
-check-eori-details.title=Check the EORI associated with the Government Gateway Name is correct
-check-eori-details.paragraph=More information about <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Economic Operators Registration and Identification numbers (EORI) (opens in new tab)</a>.
-check-eori-details.eori-number.label=EORI
+check-eori-details.title=Check these EORI details are correct
+check-eori-details.paragraph=These are the EORI details associated with your Government Gateway Account.
+check-eori-details.eori-number.label=EORI number
 check-eori-details.name.label=Government Gateway Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
-check-eori-details.error.required=Select yes if these EORI details are correct
-check-eori-details.error.invalid=Select yes if these EORI details are correct
+check-eori-details.error.required=Are these details correct?
+check-eori-details.error.invalid=Are these details correct?
 
 
 #===================================================
