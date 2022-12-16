@@ -231,7 +231,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(Seq(checkDeclarationDetailsKey -> "false")),
-          "Enter the duplicate <abbr title=\"Movement Reference Number\">MRN</abbr>"
+          "Enter the duplicate MRN"
         )
       }
 
