@@ -27,7 +27,6 @@ final case class UploadDocumentsSessionConfig(
   continueUrl: String, // url to continue after uploading the files (when user answers NO)
   continueAfterYesAnswerUrl: Option[String] = None, // url to continue after user answers YES
   continueWhenFullUrl: String, // url to continue after all possible files has been uploaded
-  backlinkUrl: String, // backlink url
   callbackUrl: String, // url where to post uploaded files
   minimumNumberOfFiles: Int, // minimum number of files to upload
   maximumNumberOfFiles: Int, // maximum number of files to upload

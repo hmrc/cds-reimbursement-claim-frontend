@@ -122,7 +122,6 @@ class UploadMrnListController @Inject() (
       nonce = nonce,
       continueUrl = selfUrl + continueUrl.url,
       continueWhenFullUrl = selfUrl + continueUrl.url,
-      backlinkUrl = selfUrl + backlinkUrl.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = 1,
       maximumNumberOfFiles = 1,

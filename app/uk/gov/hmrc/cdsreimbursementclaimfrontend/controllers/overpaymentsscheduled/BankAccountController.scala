@@ -90,9 +90,10 @@ class BankAccountController @Inject() (
               Ok(
                 checkBankAccountDetailsPage(
                   bankAccountDetails,
-                  CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    OverpaymentsRoutes.ChooseFileTypeController.show(journey)
-                  ),
+                  CheckAnswers.when(
+                    fillingOutClaim.draftClaim.isComplete &&
+                      fillingOutClaim.draftClaim.supportingEvidencesAnswer.exists(_.nonEmpty)
+                  )(alternatively = OverpaymentsRoutes.ChooseFileTypeController.show(journey)),
                   OverpaymentsRoutes.SelectBankAccountTypeController.show(journey)
                 )
               )
