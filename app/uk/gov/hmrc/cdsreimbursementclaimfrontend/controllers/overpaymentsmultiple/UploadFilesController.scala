@@ -229,7 +229,6 @@ class UploadFilesController @Inject() (
       continueUrl = continueAfterNoAnswerUrl,
       continueAfterYesAnswerUrl = Some(continueAfterYesAnswerUrl),
       continueWhenFullUrl = selfUrl + routes.CheckYourAnswersAndSubmitController.checkAllAnswers.url,
-      backlinkUrl = selfUrl + routes.ChooseFileTypeController.show.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + routes.UploadFilesController.callback.url,
       minimumNumberOfFiles = 0, // user can skip uploading the files
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),

@@ -70,7 +70,6 @@ class InternalUploadDocumentsConnectorSpec extends AnyWordSpec with Matchers wit
   val uploadDocumentsParameters: UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       continueUrl = "/foo",
-      backlinkUrl = "/bar",
       callbackUrl = "/baz",
       nonce = Nonce.random,
       cargo = Some(UploadDocumentType.LetterOfAuthority),
