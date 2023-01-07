@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Im
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
-trait InspectionAddressLookupMixin extends JourneyBaseController with AddressLookupMixin {
+trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController with AddressLookupMixin {
 
   type Journey <: journeys.Journey with JourneyBase with RejectedGoodsJourneyProperties with HaveInspectionDetails
 

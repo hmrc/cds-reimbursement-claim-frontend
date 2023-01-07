@@ -126,7 +126,7 @@ final class OverpaymentsSingleJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
-  def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
+  override def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
     BasisOfOverpaymentClaimsList()
       .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
 

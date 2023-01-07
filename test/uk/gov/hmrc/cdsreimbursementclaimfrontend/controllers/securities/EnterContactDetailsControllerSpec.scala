@@ -80,16 +80,7 @@ class EnterContactDetailsControllerSpec
 
   private def mockCompleteJourney(journey: SecuritiesJourney, email: Email, name: contactdetails.Name) =
     inSequence {
-      mockAuthWithAllRetrievals(
-        Some(AffinityGroup.Individual),
-        Some(email.value),
-        Set(
-          Enrolment(EoriEnrolment.key)
-            .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-        ),
-        Some(Credentials("id", "GovernmentGateway")),
-        Some(Name(name.name, name.lastName))
-      )
+      mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
       mockGetSession(session.copy(securitiesJourney = Some(journey)))
     }
 
@@ -139,16 +130,7 @@ class EnterContactDetailsControllerSpec
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockAuthWithNoRetrievals()
             mockGetSession(session.copy(securitiesJourney = Some(journey.submitContactDetails(None))))
@@ -223,16 +205,7 @@ class EnterContactDetailsControllerSpec
       "submit a valid contact detail when journey is complete" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockAuthWithNoRetrievals()
             mockGetSession(session.copy(securitiesJourney = Some(journey)))

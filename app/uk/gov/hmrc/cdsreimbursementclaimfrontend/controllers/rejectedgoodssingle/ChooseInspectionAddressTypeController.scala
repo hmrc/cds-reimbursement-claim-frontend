@@ -24,7 +24,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.InspectionAddressLookupMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.RejectedGoodsInspectionAddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
@@ -42,7 +42,7 @@ class ChooseInspectionAddressTypeController @Inject() (
   val inspectionAddressPage: pages.choose_inspection_address_type
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
-    with InspectionAddressLookupMixin {
+    with RejectedGoodsInspectionAddressLookupMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =

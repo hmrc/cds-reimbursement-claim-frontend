@@ -39,8 +39,8 @@ POST         /overpayments/v2/single/enter-bank-account-details                 
 GET         /overpayments/v2/single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.show
 POST        /overpayments/v2/single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.submit
 
-#GET         /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.selectDuties
-#POST        /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.selectDutiesSubmit
+GET         /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.show
+POST        /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.submit
 
 #GET         /overpayments/v2/single/start-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.startClaim
 #GET         /overpayments/v2/single/enter-claim/:id                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.enterClaim(id: UUID)

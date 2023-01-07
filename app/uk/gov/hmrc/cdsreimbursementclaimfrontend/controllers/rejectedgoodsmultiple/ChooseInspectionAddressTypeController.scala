@@ -21,7 +21,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.InspectionAddressLookupMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.RejectedGoodsInspectionAddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
@@ -40,7 +40,7 @@ class ChooseInspectionAddressTypeController @Inject() (
   val inspectionAddressPage: pages.choose_inspection_address_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController
-    with InspectionAddressLookupMixin {
+    with RejectedGoodsInspectionAddressLookupMixin {
 
   private val nextPage: Call =
     routes.CheckBankDetailsController.show()

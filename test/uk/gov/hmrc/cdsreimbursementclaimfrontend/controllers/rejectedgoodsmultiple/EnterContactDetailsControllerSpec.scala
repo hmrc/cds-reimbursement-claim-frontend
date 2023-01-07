@@ -27,13 +27,8 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -79,16 +74,7 @@ class EnterContactDetailsControllerSpec
 
   private def mockCompleteJourney(journey: RejectedGoodsMultipleJourney, email: Email, name: contactdetails.Name) =
     inSequence {
-      mockAuthWithAllRetrievals(
-        Some(AffinityGroup.Individual),
-        Some(email.value),
-        Set(
-          Enrolment(EoriEnrolment.key)
-            .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-        ),
-        Some(Credentials("id", "GovernmentGateway")),
-        Some(Name(name.name, name.lastName))
-      )
+      mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
       mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
     }
 
@@ -138,16 +124,7 @@ class EnterContactDetailsControllerSpec
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
             mockAuthWithNoRetrievals()
             mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey.submitContactDetails(None))))
@@ -176,16 +153,7 @@ class EnterContactDetailsControllerSpec
       "submit a valid contact detail" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
             mockAuthWithNoRetrievals()
             mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))

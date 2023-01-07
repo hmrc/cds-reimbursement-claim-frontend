@@ -16,10 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.OverpaymentsEnterAdditionalDetailsMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_additional_details
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,7 +32,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterAdditionalDetailsController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
+  val jcc: JourneyControllerComponents,
+  override val enterAdditionalDetailsPage: enter_additional_details
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController
-    with WorkInProgressMixin
+    with OverpaymentsEnterAdditionalDetailsMixin {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
+  final val postAction: Call    = routes.EnterAdditionalDetailsController.submit
+  final val continueRoute: Call = routes.SelectDutiesController.show
+
+  final override def modifyJourney(journey: Journey, additionalDetails: String): Journey =
+    journey.submitAdditionalDetails(additionalDetails)
+
+}

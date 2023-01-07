@@ -16,11 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-/** Common properties of the rejected-goods single, multiple and scheduled journeys. */
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+
+/** Common properties of the overpayments single, multiple and scheduled journeys. */
 trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
 
   override def answers: OverpaymentsAnswers
 
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal
+
+  def getAvailableClaimTypes: BasisOfOverpaymentClaimsList
 }

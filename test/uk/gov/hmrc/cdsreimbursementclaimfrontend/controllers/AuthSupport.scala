@@ -140,4 +140,21 @@ trait AuthSupport {
       None
     )
 
+  def mockAuthorisedUserWithEoriNumber(
+    eori: Eori,
+    email: String,
+    firstName: Option[String],
+    lastName: Option[String]
+  ) =
+    mockAuthWithAllRetrievals(
+      Some(AffinityGroup.Individual),
+      Some(email),
+      Set(
+        Enrolment(EoriEnrolment.key)
+          .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)
+      ),
+      Some(Credentials("id", "GovernmentGateway")),
+      Some(Name(firstName, lastName))
+    )
+
 }
