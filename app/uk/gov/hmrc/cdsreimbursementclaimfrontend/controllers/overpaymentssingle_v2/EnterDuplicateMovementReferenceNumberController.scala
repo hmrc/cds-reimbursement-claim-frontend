@@ -16,10 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
+import com.github.arturopala.validator.Validator.Validate
+import play.api.data.Form
+import play.api.mvc.Request
+import play.api.mvc.Result
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_duplicate_movement_reference_number
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,7 +39,46 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterDuplicateMovementReferenceNumberController @Inject() (
-  val jcc: JourneyControllerComponents
+  val jcc: JourneyControllerComponents,
+  val claimService: ClaimService,
+  enterDuplicateMovementReferenceNumberPage: enter_duplicate_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends OverpaymentsSingleJourneyBaseController
-    with WorkInProgressMixin
+    with EnterMovementReferenceNumberMixin {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+    Some(
+      hasMRNAndDisplayDeclaration &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified &
+        needsDuplicateMrnAndDeclaration
+    )
+
+  override def form(journey: Journey): Form[MRN] =
+    journey.answers.movementReferenceNumber
+      .fold(Forms.enterDuplicateMrnWithNoCheck)(Forms.enterDuplicateMrnCheckingAgainst)
+
+  override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
+    journey.answers.duplicateMovementReferenceNumber
+
+  override def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable =
+    form =>
+      implicit request =>
+        enterDuplicateMovementReferenceNumberPage(
+          form,
+          Some("overpayments.single"),
+          routes.EnterDuplicateMovementReferenceNumberController.submit
+        )
+
+  override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
+    journey.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, declaration)
+
+  override def afterSuccessfullSubmit(journey: OverpaymentsSingleJourney): Result =
+    if (journey.needsDeclarantAndConsigneeEoriSubmissionForDuplicateMrn) {
+      // TODO implement EORI check
+      Redirect(routes.CheckDuplicateDeclarationDetailsController.show)
+    } else {
+      Redirect(routes.CheckDuplicateDeclarationDetailsController.show)
+    }
+
+}

@@ -40,6 +40,9 @@ class CheckDeclarationDetailsController @Inject() (
     extends RejectedGoodsScheduledJourneyBaseController
     with CheckDeclarationDetailsMixin {
 
+  final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
+    journey.getLeadDisplayDeclaration
+
   final override def continueRoute(journey: Journey): Call =
     routes.UploadMrnListController.show()
 

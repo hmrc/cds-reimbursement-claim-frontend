@@ -36,6 +36,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
 
   type Journey <: journeys.Journey with JourneyBase with CommonJourneyProperties
 
+  def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration]
   def continueRoute(journey: Journey): Call
   val enterMovementReferenceNumberRoute: Call
 
@@ -48,7 +49,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful(
-      journey.getLeadDisplayDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
+      getDisplayDeclaration(journey).fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
         Ok(
           viewTemplate(
             declaration,
@@ -66,7 +67,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
         formWithErrors =>
           (
             journey,
-            journey.getLeadDisplayDeclaration
+            getDisplayDeclaration(journey)
               .map(declaration =>
                 BadRequest(
                   viewTemplate(

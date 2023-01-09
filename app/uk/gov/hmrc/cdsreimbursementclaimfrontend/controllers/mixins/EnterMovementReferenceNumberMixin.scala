@@ -39,7 +39,8 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController {
 
   def claimService: ClaimService
 
-  val form: Form[MRN]
+  def form(journey: Journey): Form[MRN]
+  def getMovementReferenceNumber(journey: Journey): Option[MRN]
   def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
   def afterSuccessfullSubmit(journey: Journey): Result
 
@@ -47,14 +48,14 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController {
     Future.successful {
       Ok(
         viewTemplate(
-          form.withDefault(journey.getLeadMovementReferenceNumber)
+          form(journey).withDefault(getMovementReferenceNumber(journey))
         )(request)
       )
     }
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form
+    form(journey)
       .bindFromRequest()
       .fold(
         formWithErrors =>

@@ -28,7 +28,7 @@ trait OverpaymentsSingleJourneyRouter {
       case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation
       case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.show
       case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.show
-      // case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show
+      case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show
       // case MISSING_DETAILS_OF_REJECTED_GOODS                        => routes.EnterOverpaymentsDetailsController.show
       // case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => routes.CheckClaimDetailsController.show
       // case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show
@@ -47,6 +47,12 @@ trait OverpaymentsSingleJourneyRouter {
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
       //case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => routes.ChooseRepaymentMethodController.show
       //case REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED          => routes.ChooseRepaymentMethodController.reset
+      case DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED      =>
+        routes.EnterDuplicateMovementReferenceNumberController.show
+      case DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED            =>
+        routes.EnterDuplicateMovementReferenceNumberController.show
+      case DUPLICATE_MOVEMENT_REFERENCE_NUMBER_NOT_REQUIRED         =>
+        routes.EnterAdditionalDetailsController.show
       case _                                                        => undefined
     }
 

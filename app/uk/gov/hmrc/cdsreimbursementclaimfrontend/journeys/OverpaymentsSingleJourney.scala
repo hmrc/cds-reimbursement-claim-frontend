@@ -80,6 +80,10 @@ final class OverpaymentsSingleJourney private (
   def needsDuplicateMrnAndDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
 
+  def needsDeclarantAndConsigneeEoriSubmissionForDuplicateMrn: Boolean =
+    !(answers.duplicateDisplayDeclaration.map(_.getDeclarantEori).contains(answers.userEoriNumber) ||
+      answers.duplicateDisplayDeclaration.flatMap(_.getConsigneeEori).contains(answers.userEoriNumber))
+
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
 
@@ -566,6 +570,27 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
           )
         )
       )
+
+    val needsDuplicateMrnAndDeclaration: Validate[OverpaymentsSingleJourney] =
+      checkIsTrue(
+        journey => journey.answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry),
+        DUPLICATE_MOVEMENT_REFERENCE_NUMBER_NOT_REQUIRED
+      )
+
+    val hasDuplicateMovementReferenceNumber: Validate[OverpaymentsSingleJourney] =
+      checkIsTrue(
+        journey => journey.answers.duplicateMovementReferenceNumber.isDefined,
+        DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED
+      )
+
+    val hasDuplicateDisplayDeclaration: Validate[OverpaymentsSingleJourney] =
+      checkIsTrue(
+        journey => journey.answers.duplicateDisplayDeclaration.isDefined,
+        DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED
+      )
+
+    val hasDuplicateMRNAndDisplayDeclaration: Validate[OverpaymentsSingleJourney] =
+      hasDuplicateMovementReferenceNumber & hasDuplicateDisplayDeclaration
 
   }
 

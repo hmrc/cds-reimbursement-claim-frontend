@@ -14,7 +14,7 @@ object AppDependencies {
     "org.typelevel"         %% "cats-core"                  % "2.8.0",
     "com.github.kxbmap"     %% "configs"                    % "0.5.0",
     "org.julienrf"          %% "play-json-derived-codecs"   % "7.0.0",
-    "com.github.arturopala" %% "validator"                  % "0.16.0"
+    "com.github.arturopala" %% "validator"                  % "0.20.0"
   )
 
   val test = Seq(

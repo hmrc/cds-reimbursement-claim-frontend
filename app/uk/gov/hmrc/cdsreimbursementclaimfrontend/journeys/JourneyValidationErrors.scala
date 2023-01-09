@@ -74,5 +74,7 @@ object JourneyValidationErrors {
     "duplicateDisplayDeclaration when basisOfClaim value is DuplicateEntry"
   val DUPLICATE_DISPLAY_DECLARATION_MUST_NOT_BE_DEFINED: String                 =
     "duplicateDisplayDeclaration when basisOfClaim value is not DuplicateEntry"
+  val DUPLICATE_MOVEMENT_REFERENCE_NUMBER_NOT_REQUIRED: String                  =
+    "duplicateMovementReferenceNumberNotRequired"
 
 }
