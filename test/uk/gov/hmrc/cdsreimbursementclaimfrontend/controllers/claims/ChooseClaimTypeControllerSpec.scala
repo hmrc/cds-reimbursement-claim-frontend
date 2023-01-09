@@ -73,8 +73,11 @@ class ChooseClaimTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val featureSwitch          = instanceOf[FeatureSwitchService]
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.ViewUpload)
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.ViewUpload)
+    featureSwitch.disable(Feature.Overpayments_v2)
+  }
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
   implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]

@@ -179,6 +179,10 @@ object Forms {
     )
   )
 
+  val enterAdditionalDetailsForm: Form[String] = Form(
+    "enter-additional-details" -> nonEmptyText(maxLength = 500)
+  )
+
   val confirmFullRepaymentForm: Form[YesNo]                                    = YesOrNoQuestionForm("confirm-full-repayment")
   val chooseExportMethodForm: Form[Option[TemporaryAdmissionMethodOfDisposal]] = Form(
     mapping(
@@ -391,7 +395,7 @@ object Forms {
     Form(
       mapping(
         "select-basis-for-claim" -> number
-          .verifying("invalid reason for claim", idx => BasisOfOverpaymentClaimsList.contains(idx))
+          .verifying("error.number", idx => BasisOfOverpaymentClaimsList.contains(idx))
           .transform[BasisOfOverpaymentClaim](BasisOfOverpaymentClaimsList.all(_), BasisOfOverpaymentClaimsList.indexOf)
       )(identity)(Some(_))
     )

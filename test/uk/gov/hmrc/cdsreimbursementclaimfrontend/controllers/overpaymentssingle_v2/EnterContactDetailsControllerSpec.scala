@@ -27,19 +27,14 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -49,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genE
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import scala.concurrent.Future
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -80,16 +76,7 @@ class EnterContactDetailsControllerSpec
 
   private def mockCompleteJourney(journey: OverpaymentsSingleJourney, email: Email, name: contactdetails.Name) =
     inSequence {
-      mockAuthWithAllRetrievals(
-        Some(AffinityGroup.Individual),
-        Some(email.value),
-        Set(
-          Enrolment(EoriEnrolment.key)
-            .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-        ),
-        Some(Credentials("id", "GovernmentGateway")),
-        Some(Name(name.name, name.lastName))
-      )
+      mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
       mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))
     }
 
@@ -125,7 +112,7 @@ class EnterContactDetailsControllerSpec
       }
     }
 
-    "Submit Basis for claim page" must {
+    "Submit Contact Details" must {
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
@@ -139,16 +126,7 @@ class EnterContactDetailsControllerSpec
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))
             mockAuthWithNoRetrievals()
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey.submitContactDetails(None))))
@@ -174,19 +152,10 @@ class EnterContactDetailsControllerSpec
           )
       }
 
-      "submit a valid basis for claim" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
+      "submit a valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))
             mockAuthWithNoRetrievals()
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))

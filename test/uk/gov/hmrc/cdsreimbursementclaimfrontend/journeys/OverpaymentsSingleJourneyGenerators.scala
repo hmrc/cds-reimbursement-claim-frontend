@@ -169,6 +169,33 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None
   ): Gen[Either[String, OverpaymentsSingleJourney]] =
+    buildAnswersGen(
+      acc14DeclarantMatchesUserEori,
+      acc14ConsigneeMatchesUserEori,
+      allDutiesCmaEligible,
+      hasConsigneeDetailsInACC14,
+      submitDeclarantDetails,
+      submitConsigneeDetails,
+      submitContactDetails,
+      submitContactAddress,
+      submitBankAccountDetails,
+      submitBankAccountType,
+      reimbursementMethod
+    ).map(OverpaymentsSingleJourney.tryBuildFrom(_))
+
+  def buildAnswersGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    reimbursementMethod: Option[ReimbursementMethod] = None
+  ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
@@ -270,7 +297,64 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           checkYourAnswersChangeMode = true
         )
 
-      OverpaymentsSingleJourney.tryBuildFrom(answers)
+      answers
+    }
+
+  def buildJourneyGen(answersGen: Gen[OverpaymentsSingleJourney.Answers]): Gen[OverpaymentsSingleJourney] =
+    answersGen.map(
+      OverpaymentsSingleJourney
+        .tryBuildFrom(_)
+        .fold(e => throw new Exception(e), identity)
+    )
+
+  def answersUpToBasisForClaimGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true
+  ): Gen[OverpaymentsSingleJourney.Answers] =
+    for {
+      userEoriNumber   <- IdGen.genEori
+      mrn              <- IdGen.genMRN
+      declarantEORI    <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI    <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      numberOfTaxCodes <- Gen.choose(1, 5)
+      taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
+      paidAmounts      <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      consigneeContact <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact <- Gen.option(Acc14Gen.genContactDetails)
+    } yield {
+
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+
+      val displayDeclaration: DisplayDeclaration          =
+        buildDisplayDeclaration(
+          mrn.value,
+          declarantEORI,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          paidDuties,
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
+        )
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      OverpaymentsSingleJourney.Answers(
+        nonce = Nonce.random,
+        userEoriNumber = userEoriNumber,
+        movementReferenceNumber = Some(mrn),
+        displayDeclaration = Some(displayDeclaration),
+        consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+        checkYourAnswersChangeMode = false
+      )
     }
 
 }

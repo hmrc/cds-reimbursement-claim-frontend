@@ -103,16 +103,7 @@ class CheckClaimantDetailsControllerSpec
           val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(sessionToAmend)
           }
 
