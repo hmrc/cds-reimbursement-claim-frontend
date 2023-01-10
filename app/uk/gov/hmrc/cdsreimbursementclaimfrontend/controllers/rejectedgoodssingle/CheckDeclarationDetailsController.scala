@@ -47,6 +47,9 @@ class CheckDeclarationDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
+  final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
+    journey.getLeadDisplayDeclaration
+
   final override def continueRoute(journey: Journey): Call =
     routes.CheckClaimantDetailsController.show()
 

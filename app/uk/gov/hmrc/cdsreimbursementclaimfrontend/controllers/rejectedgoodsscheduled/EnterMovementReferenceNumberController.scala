@@ -45,7 +45,7 @@ class EnterMovementReferenceNumberController @Inject() (
     extends RejectedGoodsScheduledJourneyBaseController
     with EnterMovementReferenceNumberMixin {
 
-  override val form: Form[MRN] = Form(
+  override def form(journey: Journey): Form[MRN] = Form(
     mapping(
       "enter-movement-reference-number.rejected-goods" ->
         nonEmptyText
@@ -56,6 +56,9 @@ class EnterMovementReferenceNumberController @Inject() (
           .transform[MRN](MRN(_), _.value)
     )(identity)(Some(_))
   )
+
+  override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
+    journey.getLeadMovementReferenceNumber
 
   override def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable =
     form =>

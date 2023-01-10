@@ -21,12 +21,12 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc._
+import play.api.mvc._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class CheckDeclarationDetailsController @Inject() (
+class CheckDuplicateDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit val viewConfig: ViewConfig, val errorHandler: ErrorHandler, val ec: ExecutionContext)
@@ -45,21 +45,26 @@ class CheckDeclarationDetailsController @Inject() (
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+    Some(
+      hasMRNAndDisplayDeclaration &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified &
+        needsDuplicateMrnAndDeclaration &
+        hasDuplicateMRNAndDisplayDeclaration
+    )
 
   final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
-    journey.getLeadDisplayDeclaration
+    journey.answers.duplicateDisplayDeclaration
 
   final override def continueRoute(journey: Journey): Call =
-    routes.CheckClaimantDetailsController.show
+    routes.EnterAdditionalDetailsController.show
 
   final override val enterMovementReferenceNumberRoute: Call =
-    routes.EnterMovementReferenceNumberController.submit
+    routes.EnterDuplicateMovementReferenceNumberController.submit
 
   private val postAction: Call =
-    routes.CheckDeclarationDetailsController.submit
+    routes.CheckDuplicateDeclarationDetailsController.submit
 
-  override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
+  final override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
     case (decl, form) =>
       implicit request =>
         checkDeclarationDetailsPage(decl, form, false, postAction, None)
