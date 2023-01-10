@@ -25,8 +25,8 @@ POST        /overpayments/v2/single/enter-duplicate-movement-reference-number   
 GET         /overpayments/v2/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDuplicateDeclarationDetailsController.show
 POST        /overpayments/v2/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDuplicateDeclarationDetailsController.submit
 
-#GET         /overpayments/v2/single/claim-northern-ireland                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.show
-#POST        /overpayments/v2/single/claim-northern-ireland                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.submit
+GET         /overpayments/v2/single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.show
+POST        /overpayments/v2/single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.submit
 
 GET          /overpayments/v2/single/choose-basis-for-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.BasisForClaimController.show
 POST         /overpayments/v2/single/choose-basis-for-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.BasisForClaimController.submit

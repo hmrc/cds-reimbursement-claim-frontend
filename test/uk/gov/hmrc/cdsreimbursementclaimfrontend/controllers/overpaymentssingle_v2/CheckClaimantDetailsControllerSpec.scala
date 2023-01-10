@@ -149,7 +149,7 @@ class CheckClaimantDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "redirect to the basis for claims page and do not update the contact/address details if they are already present" in {
+      "redirect to the northern ireland page and do not update the contact/address details if they are already present" in {
         forAll(displayDeclarationGen, genEmail, genName, genMrnContactDetails, genContactAddress) {
           (displayDeclaration, email, name, contactDeatils, address) =>
             val journey = OverpaymentsSingleJourney
@@ -179,12 +179,12 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show
+              routes.NorthernIrelandController.show
             )
         }
       }
 
-      "redirect to the basis for claims page and update the contact/address details if the journey does not already contain them." in {
+      "redirect to the northern ireland page and update the contact/address details if the journey does not already contain them." in {
         forAll(displayDeclarationGen, genEmail, genName, individualGen, genConsigneeDetails, genDeclarantDetails) {
           (initialDisplayDeclaration, email, name, individual, consignee, declarant) =>
             val eori               = exampleEori
@@ -221,7 +221,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show
+              routes.NorthernIrelandController.show
             )
         }
       }
