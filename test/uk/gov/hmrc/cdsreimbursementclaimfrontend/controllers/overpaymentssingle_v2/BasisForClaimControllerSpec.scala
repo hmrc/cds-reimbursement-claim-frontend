@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
+import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -31,7 +31,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
@@ -41,18 +41,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-import scala.concurrent.Future
-import org.jsoup.nodes.Document
-
 import scala.collection.JavaConverters._
+import scala.concurrent.Future
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class BasisForClaimControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](

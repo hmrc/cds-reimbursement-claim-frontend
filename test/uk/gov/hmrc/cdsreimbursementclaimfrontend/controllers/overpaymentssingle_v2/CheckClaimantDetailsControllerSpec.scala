@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
+import cats.implicits.catsSyntaxEq
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -34,36 +34,35 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.buildCompleteJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import java.util.UUID
-import cats.implicits.catsSyntaxEq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
 
 class CheckClaimantDetailsControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with AddressLookupSupport
-    with ScalaCheckPropertyChecks {
+    with AddressLookupSupport {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](

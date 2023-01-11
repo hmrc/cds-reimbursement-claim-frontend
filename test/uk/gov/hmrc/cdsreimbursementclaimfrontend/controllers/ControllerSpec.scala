@@ -56,6 +56,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import java.util.concurrent.ConcurrentHashMap
+import org.scalacheck.ShrinkLowPriority
 
 @Singleton
 class TestMessagesApi(
@@ -345,7 +346,7 @@ trait ControllerSpec
     (doc: Document) => selectedRadioValue(doc).shouldBe(Some(expected))
 }
 
-trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks {
+trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)

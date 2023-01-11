@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -31,7 +30,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
@@ -41,13 +40,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
+import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 class SelectDutiesControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -86,6 +87,20 @@ class SelectDutiesControllerSpec
     )
   }
 
+  val journeyGen: Gen[OverpaymentsSingleJourney] =
+    buildJourneyGen(answersUpToBasisForClaimGen(forcedTaxCodes = Seq(TaxCode.NI411)))
+      .flatMap(j =>
+        Gen
+          .oneOf(j.getAvailableClaimTypes)
+          .map(b => j.submitBasisOfClaim(b))
+      )
+
+  val journeyWithNIExciseCodesGen: Gen[OverpaymentsSingleJourney] =
+    buildJourneyGen(
+      answersUpToBasisForClaimGen(taxCodes = TaxCodes.excise, forcedTaxCodes = Seq(TaxCode.A00, TaxCode.B05))
+    )
+      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectExciseValue))
+
   "Select Duties Controller" when {
 
     "Show select duties page" must {
@@ -98,17 +113,25 @@ class SelectDutiesControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page the first time" in {
-        val journey = OverpaymentsSingleJourney
-          .empty(exampleDisplayDeclaration.getDeclarantEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
-          .getOrFail
-
-        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
-
+      "display the page the first time" in forAll(journeyGen) { journey =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(SessionData(journey))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          assertPageContent(_, journey, Seq.empty)
+        )
+      }
+
+      "display the page the first time when NI excise code in ACC14 and IncorrectExciseValue" in forAll(
+        journeyWithNIExciseCodesGen
+      ) { journey =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -120,14 +143,12 @@ class SelectDutiesControllerSpec
 
       "display the page when a tax code has already been selected before" in {
         forAll(completeJourneyGen) { journey =>
-          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
-
           val selectedDuties: Seq[String] =
             journey.getSelectedDuties.map(_.map(_.value)).getOrElse(Seq.empty)
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(journey))
           }
 
           checkPageIsDisplayed(

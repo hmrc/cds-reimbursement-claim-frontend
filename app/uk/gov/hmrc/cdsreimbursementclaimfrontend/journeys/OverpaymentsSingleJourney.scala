@@ -231,6 +231,18 @@ final class OverpaymentsSingleJourney private (
         case BasisOfOverpaymentClaim.DuplicateEntry =>
           new OverpaymentsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
 
+        case BasisOfOverpaymentClaim.IncorrectExciseValue =>
+          new OverpaymentsSingleJourney(
+            answers.copy(
+              basisOfClaim = Some(basisOfClaim),
+              duplicateMovementReferenceNumber = None,
+              duplicateDisplayDeclaration = None,
+              reimbursementClaims = answers.reimbursementClaims.map(_.filter { case (taxCode, _) =>
+                TaxCodes.exciseTaxCodeSet.contains(taxCode)
+              })
+            )
+          )
+
         case _ =>
           new OverpaymentsSingleJourney(
             answers.copy(
