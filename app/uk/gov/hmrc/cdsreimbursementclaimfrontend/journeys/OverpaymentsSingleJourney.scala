@@ -90,8 +90,9 @@ final class OverpaymentsSingleJourney private (
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
-  def getAvailableDuties: Seq[(TaxCode, Boolean)] =
-    getNdrcDetails
+  def getAvailableDuties: Seq[(TaxCode, Boolean)] = {
+
+    val duties = getNdrcDetails
       .flatMap { ndrcs =>
         val taxCodes = ndrcs
           .map(ndrc =>
@@ -103,6 +104,18 @@ final class OverpaymentsSingleJourney private (
         if (taxCodes.isEmpty) None else Some(taxCodes)
       }
       .getOrElse(Seq.empty)
+
+    val wasIncorrectExciseCodeSelected: Boolean =
+      answers.basisOfClaim.exists(_ === BasisOfOverpaymentClaim.IncorrectExciseValue)
+
+    if (wasIncorrectExciseCodeSelected) {
+      duties.filter { case (duty, _) =>
+        TaxCodes.exciseTaxCodeSet.contains(duty)
+      }
+    } else {
+      duties
+    }
+  }
 
   def getSelectedDuties: Option[Seq[TaxCode]] =
     answers.reimbursementClaims.map(_.keys.toSeq)

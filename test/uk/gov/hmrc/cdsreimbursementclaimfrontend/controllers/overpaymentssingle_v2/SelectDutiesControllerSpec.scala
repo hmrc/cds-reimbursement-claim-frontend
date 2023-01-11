@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
-class SelectTaxCodesControllerSpec
+class SelectDutiesControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -55,7 +55,7 @@ class SelectTaxCodesControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: SelectTaxCodesController = instanceOf[SelectTaxCodesController]
+  val controller: SelectDutiesController = instanceOf[SelectDutiesController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -71,11 +71,11 @@ class SelectTaxCodesControllerSpec
   private val messagesKey: String = "select-duties"
 
   override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
+    featureSwitch.enable(Feature.Overpayments_v2)
 
   def assertPageContent(
     doc: Document,
-    journey: RejectedGoodsSingleJourney,
+    journey: OverpaymentsSingleJourney,
     selectedDuties: Seq[String]
   ): Unit = {
     selectedCheckBox(doc) should contain theSameElementsAs selectedDuties
@@ -86,25 +86,25 @@ class SelectTaxCodesControllerSpec
     )
   }
 
-  "Select Tax Codes Controller" when {
+  "Select Duties Controller" when {
 
-    "Show select tax codes page" must {
+    "Show select duties page" must {
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
       }
 
       "display the page the first time" in {
-        val journey = RejectedGoodsSingleJourney
+        val journey = OverpaymentsSingleJourney
           .empty(exampleDisplayDeclaration.getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -120,7 +120,7 @@ class SelectTaxCodesControllerSpec
 
       "display the page when a tax code has already been selected before" in {
         forAll(completeJourneyGen) { journey =>
-          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
           val selectedDuties: Seq[String] =
             journey.getSelectedDuties.map(_.map(_.value)).getOrElse(Seq.empty)
@@ -139,24 +139,24 @@ class SelectTaxCodesControllerSpec
       }
     }
 
-    "Submit Select Tax Codes page" must {
+    "Submit Select Duties page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
       }
 
       "reject an empty tax code selection" in {
 
-        val journey = RejectedGoodsSingleJourney
+        val journey = OverpaymentsSingleJourney
           .empty(exampleDisplayDeclaration.getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -173,7 +173,7 @@ class SelectTaxCodesControllerSpec
 
       "select valid tax codes when none have been selected before" in {
         forAll(displayDeclarationGen) { displayDeclaration =>
-          val initialJourney = RejectedGoodsSingleJourney
+          val initialJourney = OverpaymentsSingleJourney
             .empty(displayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
             .getOrFail
@@ -183,10 +183,10 @@ class SelectTaxCodesControllerSpec
             if (availableTaxCodes.size > 1) availableTaxCodes.drop(1)
             else availableTaxCodes
 
-          val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+          val initialSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(initialJourney))
 
           val updatedJourney = initialJourney.selectAndReplaceTaxCodeSetForReimbursement(selectedTaxCodes)
-          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = updatedJourney.toOption)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -196,7 +196,7 @@ class SelectTaxCodesControllerSpec
 
           checkIsRedirect(
             performAction(selectedTaxCodes.map(taxCode => s"select-duties[]" -> taxCode.value)),
-            routes.EnterClaimController.show()
+            routes.EnterClaimController.show
           )
         }
       }
@@ -215,12 +215,12 @@ class SelectTaxCodesControllerSpec
           )
         )
 
-        val journey = RejectedGoodsSingleJourney
+        val journey = OverpaymentsSingleJourney
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
           .getOrFail
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
