@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.implicits._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -32,9 +31,10 @@ import play.api.test.Helpers.status
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -50,14 +50,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 
 class EnterDeclarantEoriNumberControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](

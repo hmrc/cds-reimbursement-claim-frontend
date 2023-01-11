@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select_tax_codes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_tax_codes
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,7 +48,7 @@ class SelectTaxCodesController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
 
     if (availableDuties.isEmpty) {
@@ -60,7 +60,7 @@ class SelectTaxCodesController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
+  final val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
       Future.successful(if (availableDuties.isEmpty) {

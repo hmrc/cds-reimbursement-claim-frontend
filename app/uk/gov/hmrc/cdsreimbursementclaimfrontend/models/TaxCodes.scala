@@ -89,6 +89,8 @@ object TaxCodes {
     NI99D
   )
 
+  val exciseTaxCodeSet: Set[TaxCode] = excise.toSet
+
   def findTaxType(taxCode: TaxCode): String =
     if (UK.contains(taxCode)) {
       "UK"

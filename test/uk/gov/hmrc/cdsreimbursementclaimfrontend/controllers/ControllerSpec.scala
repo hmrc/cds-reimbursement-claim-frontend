@@ -39,6 +39,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.Metrics
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.MockMetrics
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
 import scala.collection.JavaConverters._
 import java.net.URLEncoder
@@ -55,6 +56,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import java.util.concurrent.ConcurrentHashMap
+import org.scalacheck.ShrinkLowPriority
 
 @Singleton
 class TestMessagesApi(
@@ -102,7 +104,13 @@ class TestDefaultMessagesApiProvider @Inject() (
     )
 }
 
-trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with MockFactory with SeqUtils {
+trait ControllerSpec
+    extends AnyWordSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with MockFactory
+    with SeqUtils
+    with SummaryMatchers {
 
   implicit val lang: Lang = Lang("en")
 
@@ -266,12 +274,14 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   import cats.instances.int._
   import cats.syntax.eq._
 
+  /** Returns sequence of pairs (message, value) */
   def radioItems(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-radios label").eachText()
     val values = doc.select("div.govuk-radios input").eachAttr("value")
     labels.asScala.zip(values.asScala)
   }
 
+  /** Returns sequence of pairs (message, value) */
   def checkboxes(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-checkboxes label").eachText()
     val values = doc.select("div.govuk-checkboxes input").eachAttr("value")
@@ -336,7 +346,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     (doc: Document) => selectedRadioValue(doc).shouldBe(Some(expected))
 }
 
-trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks {
+trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)

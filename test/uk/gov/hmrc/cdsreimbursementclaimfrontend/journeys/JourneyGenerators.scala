@@ -67,6 +67,17 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
   final val exampleDisplayDeclaration: DisplayDeclaration =
     displayDeclarationGen.sample.get
 
+  final def exampleDisplayDeclarationWithNIExciseCodes: DisplayDeclaration =
+    (for {
+      declarantEORI <- IdGen.genEori
+      consigneeEORI <- IdGen.genEori
+      paidAmounts   <- taxCodesWithAmountsGen(TaxCodes.excise)
+    } yield buildDisplayDeclaration(
+      declarantEORI = declarantEORI,
+      consigneeEORI = Some(consigneeEORI),
+      dutyDetails = (paidAmounts :+ ((TaxCode.A00, BigDecimal("1.01")))).map { case (t, a) => (t, a, false) }
+    )).sample.get
+
   final val exampleSecuritiesDisplayDeclaration: DisplayDeclaration =
     securitiesDisplayDeclarationGen.sample.get
 
@@ -74,6 +85,17 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
     for {
       numberOfTaxCodes <- Gen.choose(2, 5)
       taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
+      amounts          <-
+        listOfExactlyN(
+          numberOfTaxCodes,
+          amountNumberGen
+        )
+    } yield taxCodes.zip(amounts)
+
+  final def taxCodesWithAmountsGen(taxCodes: Seq[TaxCode]): Gen[Seq[(TaxCode, BigDecimal)]] =
+    for {
+      numberOfTaxCodes <- Gen.choose(2, Math.min(5, taxCodes.size))
+      taxCodes         <- Gen.pick(numberOfTaxCodes, taxCodes)
       amounts          <-
         listOfExactlyN(
           numberOfTaxCodes,

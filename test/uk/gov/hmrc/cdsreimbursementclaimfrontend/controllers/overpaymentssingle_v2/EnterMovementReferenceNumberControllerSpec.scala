@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import cats.data.EitherT
 import cats.implicits._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
@@ -34,12 +33,12 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.completeJourneyWithMatchingUserEoriAndCMAEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.completeJourneyWithMatchingUserEoriAndCMAEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -60,11 +59,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnterMovementReferenceNumberControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   val mockClaimService: ClaimService = mock[ClaimService]
 
