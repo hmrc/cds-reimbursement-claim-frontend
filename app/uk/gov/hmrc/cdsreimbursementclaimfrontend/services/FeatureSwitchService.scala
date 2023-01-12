@@ -23,39 +23,104 @@ import play.api.Configuration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 import java.util.concurrent.ConcurrentHashMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
+import uk.gov.hmrc.http.HeaderCarrier
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 @ImplementedBy(classOf[ConfiguredFeatureSwitchService])
 trait FeatureSwitchService {
-  def enable(feature: Feature): Boolean
-  def disable(feature: Feature): Boolean
-  def isEnabled(feature: Feature): Boolean
 
-  final def isDisabled(feature: Feature): Boolean =
+  def isEnabled(feature: Feature)(implicit hc: HeaderCarrier): Boolean
+
+  final def isDisabled(feature: Feature)(implicit hc: HeaderCarrier): Boolean =
     !isEnabled(feature)
 
-  final def optionally[A](feature: Feature, value: A): Option[A] =
+  def isEnabledForApplication(feature: Feature): Boolean
+
+  final def optionally[A](feature: Feature, value: A)(implicit hc: HeaderCarrier): Option[A] =
     if (isEnabled(feature)) Some(value) else None
+
+  /** Enable feature switch for the current session */
+  def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit
+
+  /** Enable feature switch for the current session */
+  def disableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit
+
+  /** Enable feature switch in JVM for testing */
+  def enable(feature: Feature): Unit
+
+  /** Disable feature switch in JVM for testing */
+  def disable(feature: Feature): Unit
 }
 
 @Singleton
 class ConfiguredFeatureSwitchService @Inject() (
-  val configuration: Configuration
+  val configuration: Configuration,
+  featuresCache: FeaturesCache
 ) extends FeatureSwitchService {
+
+  private val timeout = Duration("5s")
 
   private val features: ConcurrentHashMap[Feature, Boolean] =
     new ConcurrentHashMap[Feature, Boolean]()
 
-  def enable(feature: Feature): Boolean =
-    Option(features.put(feature, true))
-      .getOrElse(false)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  def enable(feature: Feature): Unit = {
+    features.put(feature, true)
+    ()
+  }
 
-  def disable(feature: Feature): Boolean =
-    Option(features.put(feature, false))
-      .getOrElse(false)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  def disable(feature: Feature): Unit = {
+    features.put(feature, false)
+    ()
+  }
 
-  def isEnabled(feature: Feature): Boolean =
+  def isEnabled(feature: Feature)(implicit hc: HeaderCarrier): Boolean =
     Option(features.get(feature))
+      .orElse(isEnabledInCache(feature))
       .orElse(sys.props.get(s"features.${feature.name}").map(_.toBoolean))
       .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
       .getOrElse(false)
+
+  @SuppressWarnings(Array("org.wartremover.warts.GlobalExecutionContext"))
+  def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
+    Await.result(
+      featuresCache
+        .update(_.enable(feature))
+        .map(_ => ()),
+      timeout
+    )
+
+  @SuppressWarnings(Array("org.wartremover.warts.GlobalExecutionContext"))
+  def disableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
+    Await.result(
+      featuresCache
+        .update(_.disable(feature))
+        .map(_ => ()),
+      timeout
+    )
+
+  def isEnabledForApplication(feature: Feature): Boolean =
+    sys.props
+      .get(s"features.${feature.name}")
+      .map(_.toBoolean)
+      .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
+      .getOrElse(false)
+
+  @SuppressWarnings(Array("org.wartremover.warts.GlobalExecutionContext", "org.wartremover.warts.Throw"))
+  private def isEnabledInCache(feature: Feature)(implicit hc: HeaderCarrier): Option[Boolean] =
+    Await.result(
+      featuresCache
+        .get()
+        .map(
+          _.fold(
+            e => throw e.toException,
+            _.isEnabled(feature)
+          )
+        ),
+      timeout
+    )
 }

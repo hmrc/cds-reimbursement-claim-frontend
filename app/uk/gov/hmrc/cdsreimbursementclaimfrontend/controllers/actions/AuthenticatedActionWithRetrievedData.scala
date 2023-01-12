@@ -123,7 +123,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     ggCredId: GGCredId,
     name: Option[Name],
     request: MessagesRequest[A]
-  ): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
+  )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
     hasEoriEnrolment(enrolments, request) map {
       case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
@@ -205,7 +205,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     f: GGCredId => Future[
       Either[Result, AuthenticatedRequestWithRetrievedData[A]]
     ]
-  ): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
+  )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
     credentials match {
       case None =>
         logger.warn("No credentials were retrieved")

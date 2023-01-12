@@ -24,16 +24,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 class FeatureSwitchProtectedAction(feature: Feature, featureSwitch: FeatureSwitchService, errorHandler: ErrorHandler)(
   implicit val executionContext: ExecutionContext
 ) extends ActionRefiner[MessagesRequest, MessagesRequest]
     with Logging { self =>
 
-  override protected def refine[A](request: MessagesRequest[A]): Future[Either[Result, MessagesRequest[A]]] =
+  override protected def refine[A](request: MessagesRequest[A]): Future[Either[Result, MessagesRequest[A]]] = {
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     Future.successful(
       if (featureSwitch.isEnabled(feature)) Right(request)
       else Left(Results.NotFound(errorHandler.notFoundTemplate(request)))
     )
+  }
 
 }

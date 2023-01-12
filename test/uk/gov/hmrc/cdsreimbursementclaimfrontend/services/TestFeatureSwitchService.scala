@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.http.HeaderCarrier
 
 class TestFeatureSwitchService(initialFeatures: Feature*) extends FeatureSwitchService {
 
@@ -24,13 +25,22 @@ class TestFeatureSwitchService(initialFeatures: Feature*) extends FeatureSwitchS
   private val features: collection.mutable.Set[Feature] =
     collection.mutable.Set(initialFeatures: _*)
 
-  def enable(feature: Feature): Boolean =
+  override def enable(feature: Feature): Unit =
     features.add(feature)
 
-  def disable(feature: Feature): Boolean =
+  override def disable(feature: Feature): Unit =
     features.remove(feature)
 
-  def isEnabled(feature: Feature): Boolean =
+  override def isEnabled(feature: Feature)(implicit hc: HeaderCarrier): Boolean =
     features.contains(feature)
+
+  override def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
+    enable(feature)
+
+  override def disableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
+    disable(feature)
+
+  override def isEnabledForApplication(feature: Feature): Boolean =
+    isEnabled(feature)(HeaderCarrier())
 
 }

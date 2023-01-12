@@ -16,13 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import cats.syntax.eq._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
+import play.api.libs.json.Format
+import play.api.libs.json.Json
 
 sealed trait Feature {
   def name: String
 }
 
-object Feature {
+object Feature extends EnumerationFormat[Feature] {
 
   case object RejectedGoods extends Feature { val name = "rejected-goods" }
   case object Securities extends Feature { val name = "securities" }
@@ -32,13 +36,43 @@ object Feature {
   case object Overpayments_v2 extends Feature { val name = "overpayments_v2" }
 
   def of(name: String): Option[Feature] =
-    Seq[Feature](
+    values.find(_.name === name)
+
+  override val values: Set[Feature] =
+    Set(
       RejectedGoods,
-      InternalUploadDocuments,
       Securities,
+      InternalUploadDocuments,
       LimitedAccess,
       ViewUpload,
       Overpayments_v2
-    ).find(_.name === name)
+    )
+}
 
+final case class FeatureSet(
+  enabled: Set[Feature] = Set.empty,
+  disabled: Set[Feature] = Set.empty
+) {
+
+  def isEnabled(feature: Feature): Option[Boolean] =
+    if (enabled.contains(feature)) Some(true)
+    else if (disabled.contains(feature)) Some(false)
+    else None
+
+  def enable(feature: Feature): FeatureSet =
+    copy(enabled + feature, disabled - feature)
+
+  def disable(feature: Feature): FeatureSet =
+    copy(enabled - feature, disabled + feature)
+}
+
+object FeatureSet {
+
+  val empty: FeatureSet = FeatureSet()
+
+  implicit val format: Format[FeatureSet] =
+    Json.format[FeatureSet]
+
+  implicit val eq: Eq[FeatureSet] =
+    Eq.fromUniversalEquals
 }
