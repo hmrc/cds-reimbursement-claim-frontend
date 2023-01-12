@@ -74,8 +74,29 @@ final class OverpaymentsMultipleJourney private (
   def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclarations.flatMap(_.headOption)
 
-  def getDisplayDeclaration(declarationId: MRN): Option[DisplayDeclaration] =
-    answers.displayDeclarations.toList.flatten.filter(_.getMRN.value == declarationId.value).headOption
+  def getDisplayDeclarationFor(mrn: MRN): Option[DisplayDeclaration] =
+    for {
+      declarations <- answers.displayDeclarations
+      declaration  <- declarations.find(_.getMRN === mrn)
+    } yield declaration
+
+  def getNthDisplayDeclaration(index: Int): Option[DisplayDeclaration] =
+    getNthMovementReferenceNumber(index).flatMap(getDisplayDeclarationFor)
+
+  def getNthMovementReferenceNumber(index: Int): Option[MRN] =
+    answers.movementReferenceNumbers.flatMap { mrns =>
+      if (index >= 0 && index < mrns.size) Some(mrns(index))
+      else None
+    }
+
+  def getIndexOfMovementReferenceNumber(mrn: MRN): Option[Int] =
+    answers.movementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
+
+  def countOfMovementReferenceNumbers: Int =
+    answers.movementReferenceNumbers.map(_.size).getOrElse(0)
+
+  def hasMinimumMovementReferenceNumbers: Boolean =
+    countOfMovementReferenceNumbers >= 2
 
   def needsBanksAccountDetailsSubmission: Boolean =
     answers.reimbursementMethod.isEmpty ||
@@ -114,17 +135,16 @@ final class OverpaymentsMultipleJourney private (
       .exists(_.forall(_.isCmaEligible))
 
   def isAllSelectedDutiesAreCMAEligible: Boolean =
-      answers.reimbursementClaims.toList.flatMap(_.keys).forall(isAllSelectedDutiesAreCMAEligible)
+    answers.reimbursementClaims.toList.flatMap(_.keys).forall(isAllSelectedDutiesAreCMAEligible)
 
-  def getReimbursementClaims(declarationId: MRN): Map[TaxCode, BigDecimal] =
+  def getReimbursementClaimsFor(declarationId: MRN): Map[TaxCode, BigDecimal] =
     answers.reimbursementClaims
       .flatMap(_.get(declarationId))
       .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
       .getOrElse(Map.empty)
 
-  def getAllReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] = {
-    answers.reimbursementClaims.getOrElse(Map.empty).keys.map(x => (x, getReimbursementClaims(x))).toMap
-  }
+  def getAllReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
+    answers.reimbursementClaims.getOrElse(Map.empty).keys.map(x => (x, getReimbursementClaimsFor(x))).toMap
 
   def getNextNdrcDetailsToClaim(declarationId: MRN): Option[NdrcDetails] =
     answers.reimbursementClaims
@@ -135,10 +155,10 @@ final class OverpaymentsMultipleJourney private (
       )
 
   def getReimbursementAmountForDeclaration(declarationId: MRN): BigDecimal =
-    getReimbursementClaims(declarationId).toSeq.map(_._2).sum
+    getReimbursementClaimsFor(declarationId).toSeq.map(_._2).sum
 
   def getTotalReimbursementAmount: BigDecimal =
-      answers.reimbursementClaims.map(_.keys.map(getReimbursementAmountForDeclaration).sum).getOrElse(0.0)
+    answers.reimbursementClaims.map(_.keys.map(getReimbursementAmountForDeclaration).sum).getOrElse(0.0)
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
@@ -151,34 +171,91 @@ final class OverpaymentsMultipleJourney private (
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
+    index: Int,
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ) =
+  ): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
-      getLeadMovementReferenceNumber match {
-        case Some(existingMrn)
-            if existingMrn === mrn &&
-              getLeadDisplayDeclaration.contains(displayDeclaration) =>
-          Right(this)
-        case _ =>
-          if (mrn =!= displayDeclaration.getMRN)
-            Left(
-              s"submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
-            )
-          else
-            Right(
-              new OverpaymentsMultipleJourney(
-                OverpaymentsMultipleJourney
-                  .Answers(
-                    userEoriNumber = answers.userEoriNumber,
-                    movementReferenceNumbers = Some(Seq(mrn)),
-                    displayDeclarations = Some(Seq(displayDeclaration)),
-                    nonce = answers.nonce
-                  )
+      if (index < 0)
+        Left("submitMovementReferenceNumber.negativeIndex")
+      else if (index > countOfMovementReferenceNumbers)
+        Left("submitMovementReferenceNumber.invalidIndex")
+      else if (mrn =!= displayDeclaration.getMRN)
+        Left(
+          s"submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+        )
+      else if (
+        index > 0 &&
+        !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs)
+      )
+        Left(
+          s"submitMovementReferenceNumber.wrongDisplayDeclarationEori"
+        )
+      else
+        getNthMovementReferenceNumber(index) match {
+          // do nothing if MRN value and positions does not change, and declaration is the same
+          case Some(existingMrn)
+              if existingMrn === mrn &&
+                getDisplayDeclarationFor(mrn).contains(displayDeclaration) =>
+            Right(this)
+
+          // change an existing MRN
+          case Some(existingMrn) =>
+            if (getIndexOfMovementReferenceNumber(mrn).exists(_ =!= index))
+              Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
+            else if (index === 0) {
+              // first MRN change resets all the journey
+              Right(
+                new OverpaymentsMultipleJourney(
+                  OverpaymentsMultipleJourney
+                    .Answers(
+                      userEoriNumber = answers.userEoriNumber,
+                      movementReferenceNumbers = Some(Seq(mrn)),
+                      displayDeclarations = Some(Seq(displayDeclaration)),
+                      nonce = answers.nonce
+                    )
+                )
               )
-            )
-      }
+            } else {
+              // change of an existing MRN removes related declaration and claims
+              Right(
+                new OverpaymentsMultipleJourney(
+                  answers.copy(
+                    movementReferenceNumbers = answers.movementReferenceNumbers
+                      .map(mrns => (mrns.take(index) :+ mrn) ++ mrns.drop(index + 1)),
+                    displayDeclarations = answers.displayDeclarations.map(
+                      _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
+                    ),
+                    reimbursementClaims = answers.reimbursementClaims.map(_ - existingMrn + (mrn -> Map.empty))
+                  )
+                )
+              )
+            }
+
+          // add new MRN
+          case None              =>
+            if (getIndexOfMovementReferenceNumber(mrn).isDefined)
+              Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
+            else
+              Right(
+                new OverpaymentsMultipleJourney(
+                  answers.copy(
+                    movementReferenceNumbers = answers.movementReferenceNumbers.map(_ :+ mrn).orElse(Some(Seq(mrn))),
+                    displayDeclarations =
+                      answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
+                    reimbursementClaims = answers.reimbursementClaims
+                      .map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
+                      .orElse(Some(OrderedMap(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
+                  )
+                )
+              )
+        }
     }
+
+  def submitMovementReferenceNumberAndDeclaration(
+    mrn: MRN,
+    displayDeclaration: DisplayDeclaration
+  ) = submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
@@ -249,9 +326,12 @@ final class OverpaymentsMultipleJourney private (
       )
     }
 
-  def selectAndReplaceTaxCodeSetForReimbursement(declarationId: MRN, taxCodes: Seq[TaxCode]): Either[String, OverpaymentsMultipleJourney] =
+  def selectAndReplaceTaxCodeSetForReimbursement(
+    declarationId: MRN,
+    taxCodes: Seq[TaxCode]
+  ): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
-      getDisplayDeclaration(declarationId) match {
+      getDisplayDeclarationFor(declarationId) match {
         case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
@@ -269,19 +349,22 @@ final class OverpaymentsMultipleJourney private (
                     taxCode -> reimbursementClaims.get(taxCode).flatten
                   }: _*)
               }
-              
-              Right(new OverpaymentsMultipleJourney(answers.copy(reimbursementClaims = 
-                answers.reimbursementClaims
-                  .orElse(Some(Map.empty[MRN,Map[TaxCode,Option[BigDecimal]]]))
-                  .map(_.updated(declarationId, newDeclarationReimbursementClaims))
-                  .map(OrderedMap(_))
-              )))
+
+              Right(
+                new OverpaymentsMultipleJourney(
+                  answers.copy(reimbursementClaims =
+                    answers.reimbursementClaims
+                      .orElse(Some(Map.empty[MRN, Map[TaxCode, Option[BigDecimal]]]))
+                      .map(_.updated(declarationId, newDeclarationReimbursementClaims))
+                      .map(OrderedMap(_))
+                  )
+                )
+              )
             } else
               Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
           }
       }
     }
-
 
   def isValidReimbursementAmount(reimbursementAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
     reimbursementAmount > 0 && reimbursementAmount <= BigDecimal(ndrcDetails.amount)
@@ -292,7 +375,7 @@ final class OverpaymentsMultipleJourney private (
     reimbursementAmount: BigDecimal
   ): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
-      getDisplayDeclaration(declarationId) match {
+      getDisplayDeclarationFor(declarationId) match {
         case None =>
           Left("submitAmountForReimbursement.missingDisplayDeclaration")
 
@@ -307,12 +390,16 @@ final class OverpaymentsMultipleJourney private (
                   case None                      => Map(taxCode -> Some(reimbursementAmount))
                   case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
                 }
-                Right(new OverpaymentsMultipleJourney(answers.copy(reimbursementClaims = 
-                  answers.reimbursementClaims
-                    .orElse(Some(Map.empty[MRN,Map[TaxCode,Option[BigDecimal]]]))
-                    .map(_.updated(declarationId, newReimbursementClaims))
-                    .map(OrderedMap(_))
-                )))
+                Right(
+                  new OverpaymentsMultipleJourney(
+                    answers.copy(reimbursementClaims =
+                      answers.reimbursementClaims
+                        .orElse(Some(Map.empty[MRN, Map[TaxCode, Option[BigDecimal]]]))
+                        .map(_.updated(declarationId, newReimbursementClaims))
+                        .map(OrderedMap(_))
+                    )
+                  )
+                )
               } else
                 Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
 
@@ -483,7 +570,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
     additionalDetails: Option[String] = None,
-    reimbursementClaims: Option[OrderedMap[MRN,ReimbursementClaims]] = None,
+    reimbursementClaims: Option[OrderedMap[MRN, ReimbursementClaims]] = None,
     bankAccountType: Option[BankAccountType] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
@@ -502,7 +589,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     basisOfClaim: BasisOfOverpaymentClaim,
     whetherNorthernIreland: Boolean,
     additionalDetails: String,
-    reimbursementClaims: OrderedMap[MRN, Map[TaxCode,BigDecimal]],
+    reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
     reimbursementMethod: ReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
@@ -571,11 +658,11 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     )
 
   /** Try to build journey from the pre-existing answers. */
-  override def tryBuildFrom(answers: Answers): Either[String, OverpaymentsMultipleJourney] = {
+  override def tryBuildFrom(answers: Answers): Either[String, OverpaymentsMultipleJourney] =
     empty(answers.userEoriNumber, answers.nonce)
       .flatMapEachWhenDefined(answers.movementReferenceNumbers.zip(answers.displayDeclarations).zipWithIndex)(j => {
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
-          j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
+          j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
       .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
@@ -601,5 +688,4 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
             j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
-    }
 }
