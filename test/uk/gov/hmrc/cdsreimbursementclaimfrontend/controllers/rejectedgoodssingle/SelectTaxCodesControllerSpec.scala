@@ -196,7 +196,7 @@ class SelectTaxCodesControllerSpec
 
           checkIsRedirect(
             performAction(selectedTaxCodes.map(taxCode => s"select-duties[]" -> taxCode.value)),
-            routes.EnterClaimController.show()
+            routes.EnterClaimController.showFirst
           )
         }
       }

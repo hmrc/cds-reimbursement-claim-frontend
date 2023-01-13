@@ -81,7 +81,7 @@ class SelectTaxCodesController @Inject() (
                 journey
                   .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
                   .getOrElse(journey),
-                Redirect(routes.EnterClaimController.show())
+                Redirect(routes.EnterClaimController.showFirst)
               )
           )
       })

@@ -88,6 +88,7 @@ class CheckClaimDetailsControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
+
           }
 
           checkPageIsDisplayed(
@@ -141,6 +142,7 @@ class CheckClaimDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(sessionWithMRN)
+          mockStoreSession(SessionData(journeyWithMrnAndDeclaration.withDutiesChangeMode(true)))(Right(()))
         }
 
         checkIsRedirect(

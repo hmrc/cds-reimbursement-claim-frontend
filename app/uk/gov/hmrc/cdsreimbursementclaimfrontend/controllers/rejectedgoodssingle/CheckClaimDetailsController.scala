@@ -47,58 +47,74 @@ class CheckClaimDetailsController @Inject() (
 
   val whetherClaimDetailsCorrect: Form[YesNo] = YesOrNoQuestionForm(checkClaimDetailsKey)
 
-  val enterClaimAction: TaxCode => Call = routes.EnterClaimController.showAmend
+  val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.answers.movementReferenceNumber match {
-      case None                                                =>
-        Redirect(routes.EnterMovementReferenceNumberController.show()).asFuture
-      case Some(mrn) if journey.hasCompleteReimbursementClaims =>
-        Ok(
-          checkClaimDetails(
-            whetherClaimDetailsCorrect,
-            mrn,
-            journey.getReimbursementClaims.toSeq,
-            enterClaimAction,
-            routes.CheckClaimDetailsController.submit()
-          )
-        ).asFuture
-      case _                                                   =>
-        Redirect(routes.EnterClaimController.show()).asFuture
-    }
-  }
+  val show: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      (
+        journey.withDutiesChangeMode(false),
+        journey.answers.movementReferenceNumber match {
+          case None                                                =>
+            Redirect(routes.EnterMovementReferenceNumberController.show())
+          case Some(mrn) if journey.hasCompleteReimbursementClaims =>
+            Ok(
+              checkClaimDetails(
+                whetherClaimDetailsCorrect,
+                mrn,
+                journey.getReimbursementClaims.toSeq,
+                enterClaimAction,
+                routes.CheckClaimDetailsController.submit()
+              )
+            )
 
-  val submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.answers.movementReferenceNumber match {
-      case Some(mrn) =>
-        whetherClaimDetailsCorrect
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              BadRequest(
-                checkClaimDetails(
-                  formWithErrors,
-                  mrn,
-                  journey.getReimbursementClaims.toSeq,
-                  enterClaimAction,
-                  routes.CheckClaimDetailsController.submit()
-                )
-              ).asFuture,
-            {
-              case Yes =>
-                Redirect(
-                  if (journey.userHasSeenCYAPage) checkYourAnswers
-                  else routes.EnterInspectionDateController.show()
-                ).asFuture
-              case No  => Redirect(routes.SelectTaxCodesController.show()).asFuture
-            }
-          )
-      case None      =>
-        Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
+          case _ =>
+            Redirect(routes.EnterClaimController.showFirst)
+        }
+      ).asFuture
     }
-  }
+
+  val submit: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      journey.answers.movementReferenceNumber match {
+        case Some(mrn) =>
+          whetherClaimDetailsCorrect
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                (
+                  journey,
+                  BadRequest(
+                    checkClaimDetails(
+                      formWithErrors,
+                      mrn,
+                      journey.getReimbursementClaims.toSeq,
+                      enterClaimAction,
+                      routes.CheckClaimDetailsController.submit()
+                    )
+                  )
+                ).asFuture,
+              {
+                case Yes =>
+                  (
+                    journey,
+                    Redirect(
+                      if (journey.userHasSeenCYAPage) checkYourAnswers
+                      else routes.EnterInspectionDateController.show()
+                    )
+                  ).asFuture
+                case No  =>
+                  (
+                    journey.withDutiesChangeMode(true),
+                    Redirect(routes.SelectTaxCodesController.show())
+                  ).asFuture
+              }
+            )
+        case None      =>
+          (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+      }
+    }
 }
