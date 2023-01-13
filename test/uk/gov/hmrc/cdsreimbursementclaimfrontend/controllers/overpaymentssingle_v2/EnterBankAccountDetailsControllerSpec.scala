@@ -90,7 +90,7 @@ class EnterBankAccountDetailsControllerSpec
 
   "Enter Bank Account Details Controller" must {
 
-    "not find the page if rejected goods feature is disabled" in {
+    "not find the page if overpayments feature is disabled" in {
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
 

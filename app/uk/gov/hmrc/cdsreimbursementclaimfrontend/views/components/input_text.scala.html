@@ -52,7 +52,8 @@
     label = Label(
         content = HtmlContent(messages(label, headingMessageArgs:_*)),
         isPageHeading = isPageHeading,
-        classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else "")
+        classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else ""),
+        attributes = Map("id" -> s"$id-label")
     ),
     hint = hint.map(hintKey => Hint(
         content = HtmlContent(messages(hintKey))

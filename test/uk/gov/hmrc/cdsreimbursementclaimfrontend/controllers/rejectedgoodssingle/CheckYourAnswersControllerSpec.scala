@@ -164,7 +164,7 @@ class CheckYourAnswersControllerSpec
     summary("Inspection address")      shouldBe summaryAddress(claim.inspectionAddress, " ")
 
     claim.reimbursementClaims.foreach { case (taxCode, amount) =>
-      summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString
+      summary(messages(s"tax-code.$taxCode")) shouldBe amount.toPoundSterlingString
     }
 
     summary("Total") shouldBe claim.reimbursementClaims.values.sum.toPoundSterlingString

@@ -116,7 +116,7 @@ class CheckYourAnswersControllerSpec
       // "Contact information for this claim",
       // "Basis for claim",
       // "Disposal method",
-      // "Details of rejected goods",
+      // "Details of overpayments",
       // "Claim total",
       // "Details of inspection",
       // "Supporting documents",
@@ -129,7 +129,7 @@ class CheckYourAnswersControllerSpec
     //   "Contact address",
     //   "This is the basis behind the claim",
     //   "This is how the goods will be disposed of",
-    //   "These are the details of the rejected goods",
+    //   "These are the details of the overpayments",
     //   "Total",
     //   "Inspection date",
     //   "Inspection address type",
@@ -149,7 +149,7 @@ class CheckYourAnswersControllerSpec
     // summary("This is how the goods will be disposed of")   shouldBe messages(
     //   s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}"
     // )
-    // summary("These are the details of the rejected goods") shouldBe claim.detailsOfOverpayments
+    // summary("These are the details of the overpayments") shouldBe claim.detailsOfOverpayments
 
     // if (whetherShowRepaymentMethod) {
     //   summary("Method") shouldBe messages(
@@ -164,7 +164,7 @@ class CheckYourAnswersControllerSpec
     // summary("Inspection address")      shouldBe summaryAddress(claim.inspectionAddress, " ")
 
     // claim.reimbursementClaims.foreach { case (taxCode, amount) =>
-    //   summary(messages(s"tax-code.${taxCode.value}")) shouldBe amount.toPoundSterlingString
+    //   summary(messages(s"tax-code.$taxCode")) shouldBe amount.toPoundSterlingString
     // }
 
     // summary("Total") shouldBe claim.reimbursementClaims.values.sum.toPoundSterlingString
@@ -193,7 +193,7 @@ class CheckYourAnswersControllerSpec
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }
@@ -300,7 +300,7 @@ class CheckYourAnswersControllerSpec
 
       def performAction(): Future[Result] = controller.showConfirmation()(FakeRequest())
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }

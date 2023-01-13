@@ -103,7 +103,7 @@ class CheckClaimDetailsControllerSpec
               .getSelectedDutiesFor(sid)
               .get
               .sorted
-              .map(taxCode => messages(s"tax-code.${taxCode.value}"))
+              .map(taxCode => messages(s"tax-code.$taxCode"))
               .mkString(" ")
           )),
           ("Total"             -> Some(journey.getTotalReclaimAmountFor(sid).getOrElse(BigDecimal("0.00")).toPoundSterlingString))
@@ -112,10 +112,10 @@ class CheckClaimDetailsControllerSpec
           .get
           .map {
             case (taxCode, Some(amount)) =>
-              (messages(s"tax-code.${taxCode.value}") -> Some(amount.toPoundSterlingString))
+              (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
             case (taxCode, None)         =>
               throw new Exception(
-                s"Expected claims to be provided for all duties for depositId=$sid, but missing one for the ${taxCode.value}"
+                s"Expected claims to be provided for all duties for depositId=$sid, but missing one for the $taxCode"
               )
           }
       )

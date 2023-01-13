@@ -33,60 +33,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_tax_codes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
 
 @Singleton
-class SelectDutiesController @Inject() (
-  val jcc: JourneyControllerComponents,
-  selectTaxCodesPage: select_tax_codes
+class CheckClaimDetailsController @Inject() (
+  val jcc: JourneyControllerComponents
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsSingleJourneyBaseController {
+    extends OverpaymentsSingleJourneyBaseController
+    with WorkInProgressMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val postAction: Call =
-    routes.SelectDutiesController.submit
-
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-
-    if (availableDuties.isEmpty) {
-      logger.warn("No available duties")
-      Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
-    } else {
-      val form = selectTaxCodesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
-      Ok(selectTaxCodesPage(form, availableDuties, None, true, None, postAction)).asFuture
-    }
-  }
-
-  final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-      (if (availableDuties.isEmpty) {
-         logger.warn("No available duties")
-         (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-       } else {
-         val form = selectTaxCodesForm(availableDuties.map(_._1))
-         form
-           .bindFromRequest()
-           .fold(
-             formWithErrors =>
-               (
-                 journey,
-                 BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, true, None, postAction))
-               ),
-             taxCodesSelected =>
-               (
-                 journey
-                   .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
-                   .getOrElse(journey),
-                 Redirect(routes.EnterClaimController.showFirst)
-               )
-           )
-       }).asFuture
-    },
-    fastForwardToCYAEnabled = false
-  )
 }

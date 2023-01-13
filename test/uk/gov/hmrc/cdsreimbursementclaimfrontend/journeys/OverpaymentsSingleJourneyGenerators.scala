@@ -32,6 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
 
+  val ZERO = BigDecimal("0.00")
+
   val emptyJourney: OverpaymentsSingleJourney =
     OverpaymentsSingleJourney.empty(exampleEori)
 
@@ -202,7 +204,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
-    taxCodes: Seq[TaxCode] = TaxCodes.all
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -211,14 +214,16 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
       numberOfTaxCodes            <- Gen.choose(1, 5)
-      taxCodes                    <- Gen.pick(
-                                       numberOfTaxCodes,
-                                       if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
-                                     )
+      taxCodes                    <- Gen
+                                       .pick(
+                                         numberOfTaxCodes,
+                                         if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
+                                       )
+                                       .map(_ ++ forcedTaxCodes)
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       reimbursementAmount         <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
+          paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
         )
       duplicateMrn                <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
                                      else Gen.const(None)
@@ -370,4 +375,172 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       )
     }
 
+  def answersWithDutiesSelectedGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+  ): Gen[OverpaymentsSingleJourney.Answers] =
+    for {
+      userEoriNumber           <- IdGen.genEori
+      mrn                      <- IdGen.genMRN
+      declarantEORI            <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI            <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      basisOfClaim             <- Gen.oneOf(BasisOfOverpaymentClaim.values)
+      numberOfTaxCodes         <- Gen.choose(1, 5)
+      taxCodes                 <- Gen
+                                    .pick(
+                                      numberOfTaxCodes,
+                                      if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
+                                    )
+                                    .map(_ ++ forcedTaxCodes)
+      paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      duplicateMrn             <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
+                                  else Gen.const(None)
+      whetherNorthernIreland   <- Gen.oneOf(true, false)
+      numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
+      consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
+    } yield {
+
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+
+      val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
+        taxCodes
+          .take(numberOfSelectedTaxCodes)
+          .map { t =>
+            (t, None)
+          }
+          .toMap
+
+      val displayDeclaration: DisplayDeclaration =
+        buildDisplayDeclaration(
+          mrn.value,
+          declarantEORI,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          paidDuties,
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
+        )
+
+      val duplicateDisplayDeclaration: Option[DisplayDeclaration] =
+        duplicateMrn.map(mrn => displayDeclaration.withDeclarationId(mrn.value))
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      val answers =
+        OverpaymentsSingleJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          displayDeclaration = Some(displayDeclaration),
+          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          basisOfClaim = Some(basisOfClaim),
+          duplicateMovementReferenceNumber = duplicateMrn,
+          duplicateDisplayDeclaration = duplicateDisplayDeclaration,
+          whetherNorthernIreland = Some(whetherNorthernIreland),
+          additionalDetails = Some("additional details"),
+          reimbursementClaims = Some(reimbursementClaims),
+          checkYourAnswersChangeMode = false
+        )
+
+      answers
+    }
+
+  def answersWithAllAmountsProvidedGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+  ): Gen[OverpaymentsSingleJourney.Answers] =
+    for {
+      userEoriNumber           <- IdGen.genEori
+      mrn                      <- IdGen.genMRN
+      declarantEORI            <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI            <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      basisOfClaim             <- Gen.oneOf(BasisOfOverpaymentClaim.values)
+      numberOfTaxCodes         <- Gen.choose(1, 5)
+      taxCodes                 <- Gen
+                                    .pick(
+                                      numberOfTaxCodes,
+                                      if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
+                                    )
+                                    .map(_ ++ forcedTaxCodes)
+      paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      reimbursementAmount      <-
+        Gen.sequence[Seq[BigDecimal], BigDecimal](
+          paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
+        )
+      duplicateMrn             <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
+                                  else Gen.const(None)
+      whetherNorthernIreland   <- Gen.oneOf(true, false)
+      numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
+      consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
+    } yield {
+
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+
+      val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
+        taxCodes
+          .take(numberOfSelectedTaxCodes)
+          .zip(reimbursementAmount)
+          .map { case (t, a) =>
+            (t, Option(a))
+          }
+          .toMap
+
+      val displayDeclaration: DisplayDeclaration =
+        buildDisplayDeclaration(
+          mrn.value,
+          declarantEORI,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          paidDuties,
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
+        )
+
+      val duplicateDisplayDeclaration: Option[DisplayDeclaration] =
+        duplicateMrn.map(mrn => displayDeclaration.withDeclarationId(mrn.value))
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      val answers =
+        OverpaymentsSingleJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          displayDeclaration = Some(displayDeclaration),
+          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          basisOfClaim = Some(basisOfClaim),
+          duplicateMovementReferenceNumber = duplicateMrn,
+          duplicateDisplayDeclaration = duplicateDisplayDeclaration,
+          whetherNorthernIreland = Some(whetherNorthernIreland),
+          additionalDetails = Some("additional details"),
+          reimbursementClaims = Some(reimbursementClaims),
+          checkYourAnswersChangeMode = false
+        )
+
+      answers
+    }
 }

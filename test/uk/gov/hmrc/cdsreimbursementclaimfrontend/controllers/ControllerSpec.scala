@@ -176,13 +176,17 @@ trait ControllerSpec
     super.afterAll()
   }
 
-  def messageFromMessageKey(messageKey: String, args: Any*): String = {
+  final def messageFromMessageKey(messageKey: String, args: Any*): String = {
     val m = theMessagesApi(messageKey, args: _*)
     if (m === messageKey) sys.error(s"Message key `$messageKey` is missing a message")
     m
   }
 
-  def checkIsTechnicalErrorPage(
+  /** Resolves key to message, reports an error if message is missing. */
+  final def m(messageKey: String, args: Any*): String =
+    messageFromMessageKey(messageKey, args: _*)
+
+  final def checkIsTechnicalErrorPage(
     result: Future[Result]
   )(implicit pos: Position): Any = {
     import cats.instances.int._
@@ -195,24 +199,21 @@ trait ControllerSpec
     )
   }
 
-  def checkIsRedirect(
+  final def checkIsRedirect(
     result: Future[Result],
     expectedRedirectUrl: String
   )(implicit pos: Position): Any = {
-    import cats.instances.int._
-    import cats.syntax.eq._
-    if (status(result) =!= SEE_OTHER)
-      status(result)         shouldBe SEE_OTHER
+    status(result)           shouldBe SEE_OTHER
     redirectLocation(result) shouldBe Some(expectedRedirectUrl)
   }
 
-  def checkIsRedirect(
+  final def checkIsRedirect(
     result: Future[Result],
     expectedRedirectCall: Call
   )(implicit pos: Position): Any =
     checkIsRedirect(result, expectedRedirectCall.url)
 
-  def checkPageIsDisplayed(
+  final def checkPageIsDisplayed(
     result: Future[Result],
     expectedTitle: String,
     contentChecks: Document => Any = _ => (),
@@ -233,7 +234,7 @@ trait ControllerSpec
     else contentChecks(doc)
   }
 
-  def checkPageWithErrorIsDisplayed(
+  final def checkPageWithErrorIsDisplayed(
     result: Future[Result],
     expectedTitle: String,
     expectedErrorMessage: String
@@ -255,18 +256,18 @@ trait ControllerSpec
     }
   }
 
-  def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
+  final def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
 
-  def toTypeOfClaim(journeyBindable: JourneyBindable): TypeOfClaimAnswer = journeyBindable match {
+  final def toTypeOfClaim(journeyBindable: JourneyBindable): TypeOfClaimAnswer = journeyBindable match {
     case JourneyBindable.Single    => TypeOfClaimAnswer.Individual
     case JourneyBindable.Multiple  => TypeOfClaimAnswer.Multiple
     case JourneyBindable.Scheduled => TypeOfClaimAnswer.Scheduled
   }
 
-  def isCheckboxChecked(document: Document, fieldValue: String): Boolean =
+  final def isCheckboxChecked(document: Document, fieldValue: String): Boolean =
     document.select(s"""input[value="$fieldValue"] """).hasAttr("checked")
 
-  def isChecked(document: Document, fieldId: String): Boolean =
+  final def isChecked(document: Document, fieldId: String): Boolean =
     Option(document.getElementById(fieldId))
       .orElse {
         val es = document.getElementsByAttributeValue("data-id", fieldId)
@@ -285,75 +286,115 @@ trait ControllerSpec
   import cats.syntax.eq._
 
   /** Returns sequence of pairs (message, value) */
-  def radioItems(doc: Document): Seq[(String, String)] = {
+  final def radioItems(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-radios label").eachText()
     val values = doc.select("div.govuk-radios input").eachAttr("value")
     labels.asScala.zip(values.asScala)
   }
 
   /** Returns sequence of pairs (message, value) */
-  def checkboxes(doc: Document): Seq[(String, String)] = {
+  final def checkboxes(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-checkboxes label").eachText()
     val values = doc.select("div.govuk-checkboxes input").eachAttr("value")
     labels.asScala.zip(values.asScala)
   }
 
-  def checkboxesWithHints(doc: Document): Seq[(String, String)] = {
+  final def checkboxesWithHints(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-checkboxes label").eachText()
     val hints  = doc.select("div.govuk-checkboxes div.govuk-hint").eachText()
     labels.asScala.zip(hints.asScala).toList
   }
 
-  def selectedRadioValue(doc: Document): Option[String] = {
+  final def selectedRadioValue(doc: Document): Option[String] = {
     val radioItems = doc.select("div.govuk-radios input[checked]")
     if (radioItems.size() =!= 0) Some(radioItems.`val`())
     else None
   }
 
-  def selectedTextArea(doc: Document): Option[String] = {
+  final def selectedTextArea(doc: Document): Option[String] = {
     val textArea = doc.select("textarea.govuk-textarea")
     if (textArea.size() =!= 0) Some(textArea.`val`()) else None
   }
 
-  def selectedCheckBox(doc: Document): Seq[String] = {
+  final def selectedCheckBox(doc: Document): Seq[String] = {
     val checkBoxes: Elements = doc.select("div.govuk-checkboxes input[checked]")
     checkBoxes.eachAttr("value").asScala.toSeq
   }
 
-  def selectedInputBox(doc: Document, inputName: String): Option[String] = {
+  final def selectedInputBox(doc: Document, inputName: String): Option[String] = {
     val inputString: String = s"input.govuk-input[name='$inputName']"
     val input               = doc.select(inputString)
     if (input.size() =!= 0) Some(input.`val`()) else None
   }
 
-  def selectedInput(doc: Document): Option[String] = {
+  final def selectedInput(doc: Document): Option[String] = {
     val input = doc.select(s"input.govuk-input[checked]")
     if (input.size() =!= 0) Some(input.`val`()) else None
   }
 
-  def summaryKeyValue(doc: Document): (Seq[String], Seq[String]) = {
+  final def summaryKeyValue(doc: Document): (Seq[String], Seq[String]) = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     (summaryKeys.asScala, summaryValues.asScala)
   }
 
-  def summaryKeyValueMap(doc: Document): Map[String, String] = {
+  final def summaryKeyValueMap(doc: Document): Map[String, String] = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     summaryKeys.asScala.zip(summaryValues.asScala).toMap
   }
 
-  def hasContinueButton(doc: Document) =
+  final def hasContinueButton(doc: Document) =
     doc.select(s"button.govuk-button").text() shouldBe "Continue"
 
-  def formAction(doc: Document) =
+  final def formAction(doc: Document) =
     doc.select("form").attr("action")
 
-  def assertThatNoneRadioButtonIsSelected: Document => Any               =
+  final def assertThatNoneRadioButtonIsSelected: Document => Any                                                    =
     (doc: Document) => selectedRadioValue(doc).shouldBe(None)
 
-  def assertThatRadioButtonIsSelected(expected: String): Document => Any =
+  final def assertThatRadioButtonIsSelected(expected: String): Document => Any                                      =
     (doc: Document) => selectedRadioValue(doc).shouldBe(Some(expected))
+
+  final def assertPageElementsByIdAndExpectedText(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =
+    idsWithExpectedContentMap.foreach { case (elementId, expectedText) =>
+      val element = doc.getElementById(elementId)
+      if (element == null) {
+        fail(s"""Missing page element with id="$elementId"""")
+      } else {
+        withClue(s"Inside ${element.outerHtml()} expected text ")(
+          doc.getElementById(elementId).text() shouldBe expectedText
+        )
+      }
+    }
+
+  final def assertPageInputsByIdAndExpectedValue(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =
+    idsWithExpectedContentMap.foreach { case (elementId, expectedValue) =>
+      val element = doc.getElementById(elementId)
+      if (element == null) {
+        fail(s"""Missing page element with id="$elementId"""")
+      } else {
+        withClue(s"Inside ${element.outerHtml()} expected value ")(
+          doc.getElementById(elementId).`val`() shouldBe expectedValue
+        )
+      }
+    }
+
+  final def assertShowsInputError(doc: Document, errorMessage: Option[String] = None): Any = {
+    val summaryError =
+      Option(doc.select(".govuk-error-summary__list > li:nth-child(1) > a")).map(_.text())
+    val inputError   =
+      Option(doc.select("p.govuk-error-message").first()).map(_.ownText())
+
+    withClue(s"when asserting errors on page") {
+      summaryError shouldBe defined
+      inputError   shouldBe defined
+      errorMessage.foreach { m =>
+        summaryError.get shouldBe m
+        inputError.get   shouldBe m
+      }
+    }
+  }
 }
 
 trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks with ShrinkLowPriority {

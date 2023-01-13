@@ -54,7 +54,7 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
         val reimbursement = taxCodeWithClaim._2
 
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))),
+          key = Key(HtmlContent(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))),
           value = Value(Text(reimbursement.refundAmount.toPoundSterlingString)),
           actions = Some(
             Actions(
@@ -62,7 +62,7 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
                 ActionItem(
                   href = overpaymentsScheduledRoutes.EnterScheduledClaimController.enterClaim(duty, taxCode).url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))
+                  visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))
                 )
               )
             )

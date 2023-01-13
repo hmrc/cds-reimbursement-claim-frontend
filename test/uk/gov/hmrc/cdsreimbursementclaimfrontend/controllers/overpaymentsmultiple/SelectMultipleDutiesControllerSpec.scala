@@ -140,12 +140,12 @@ class SelectMultipleDutiesControllerSpec
   }
   def hasCheckbox(document: Document, taxCode: TaxCode): Boolean =
     !document
-      .select(s"""input[value="${taxCode.value}"] """)
+      .select(s"""input[value="$taxCode"] """)
       .isEmpty
 
   def isChecked(document: Document, taxCode: TaxCode): Boolean =
     document
-      .select(s"""input[value="${taxCode.value}"] """)
+      .select(s"""input[value="$taxCode"] """)
       .hasAttr("checked")
 
   def getBackLink(document: Document): String =
