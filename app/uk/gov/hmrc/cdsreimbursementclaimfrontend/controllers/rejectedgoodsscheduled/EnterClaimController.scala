@@ -48,7 +48,7 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.findNextDutyToSelectTaxCodes match {
       case None =>
         (journey.getSelectedDuties.headOption
@@ -68,7 +68,7 @@ class EnterClaimController @Inject() (
     }
   }
 
-  def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
+  final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
     implicit request => journey =>
       journey.findNextDutyToSelectTaxCodes match {
         case None =>
@@ -84,7 +84,7 @@ class EnterClaimController @Inject() (
 
   }
 
-  def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
+  final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       journey.findNextDutyToSelectTaxCodes match {
         case None =>

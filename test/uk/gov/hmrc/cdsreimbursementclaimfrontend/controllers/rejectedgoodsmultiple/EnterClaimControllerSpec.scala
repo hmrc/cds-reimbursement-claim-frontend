@@ -74,11 +74,11 @@ class EnterClaimControllerSpec
     taxCode: TaxCode
   ) = {
     hasContinueButton(doc)
-    doc.select("#amount-paid").text() shouldBe amountPaid
-    doc.select("input").attr("value") shouldBe claimAmount
+    doc.select("#amount-paid").text()                                                 shouldBe amountPaid
+    doc.select("input[name='enter-claim.rejected-goods.claim-amount']").attr("value") shouldBe claimAmount
     formAction(
       doc
-    )                                 shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/$pageIndex/$taxCode"
+    )                                                                                 shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/$pageIndex/$taxCode"
   }
 
   "EnterClaimController" when {

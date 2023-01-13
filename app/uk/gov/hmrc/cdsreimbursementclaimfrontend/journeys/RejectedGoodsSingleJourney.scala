@@ -127,6 +127,9 @@ final class RejectedGoodsSingleJourney private (
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
 
+  def withDutiesChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
+    new RejectedGoodsSingleJourney(answers.copy(dutiesChangeMode = enabled))
+
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsSingleDocumentTypes)
 
@@ -499,7 +502,8 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false
+    checkYourAnswersChangeMode: Boolean = false,
+    dutiesChangeMode: Boolean = false
   ) extends RejectedGoodsAnswers
 
   // Final minimal output of the journey we want to pass to the backend.

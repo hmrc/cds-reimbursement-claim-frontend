@@ -24,7 +24,6 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.Cookie
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -85,7 +84,7 @@ class EnterClaimControllerSpec
     "Enter Claim page" must {
 
       def performAction(taxCode: Option[TaxCode] = None): Future[Result] =
-        controller.showInner(taxCode)(FakeRequest())
+        taxCode.fold(controller.showFirst)(controller.show(_))(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -93,7 +92,26 @@ class EnterClaimControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page on a new journey" in forAll {
+      "redirect to the first enter claim page on a new journey" in forAll {
+        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
+          val session = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          val taxCode: TaxCode = TaxCode(ndrcDetails.taxType)
+
+          val result = performAction()
+
+          checkIsRedirect(
+            result,
+            routes.EnterClaimController.show(taxCode)
+          )
+      }
+
+      "display the enter claim page on a new journey" in forAll {
         (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
           val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
           val amountPaid         = BigDecimal(ndrcDetails.amount)
@@ -104,7 +122,9 @@ class EnterClaimControllerSpec
             mockGetSession(session)
           }
 
-          val result = performAction()
+          val taxCode: TaxCode = TaxCode(ndrcDetails.taxType)
+
+          val result = performAction(Some(taxCode))
 
           checkPageIsDisplayed(
             result,
@@ -115,38 +135,9 @@ class EnterClaimControllerSpec
                 .html()                                                                   shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
               doc.select("#amount-paid").text()                                           shouldBe amountPaid.toPoundSterlingString
               doc.select("input[name='enter-claim.rejected-goods.claim-amount']").`val`() shouldBe ""
-              doc.select("form").attr("action")                                           shouldBe routes.EnterClaimController.submit().url
+              doc.select("form").attr("action")                                           shouldBe routes.EnterClaimController.submit(taxCode).url
             }
           )
-
-          cookies(result).get(controller.taxCodeCookieName).map(_.value) shouldBe Some(ndrcDetails.taxType)
-      }
-
-      "redirect to the total reimbursement page is all reimbursements have been specified" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(BigDecimal(ndrcDetails.amount) > 12) {
-            val drd           = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
-            val updatedDd     = displayDeclaration.copy(displayResponseDetail = drd)
-            val taxCode       = TaxCode(ndrcDetails.taxType)
-            val amountClaimed = BigDecimal(ndrcDetails.amount) - 10
-            val journey       = RejectedGoodsSingleJourney
-              .empty(displayDeclaration.getDeclarantEori)
-              .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
-              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(List(taxCode)))
-              .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
-              .getOrFail
-            val session       = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.CheckClaimDetailsController.show()
-            )
-          }
       }
 
       "display the page when trying to amend a specific tax code" in forAll {
@@ -164,7 +155,7 @@ class EnterClaimControllerSpec
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(List(taxCode)))
               .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
               .getOrFail
-            val session            = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+            val session            = SessionData(journey)
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -184,11 +175,9 @@ class EnterClaimControllerSpec
                 doc
                   .select("input[name='enter-claim.rejected-goods.claim-amount']")
                   .`val`()                        shouldBe f"$amountClaimed%1.2f"
-                doc.select("form").attr("action") shouldBe routes.EnterClaimController.submit().url
+                doc.select("form").attr("action") shouldBe routes.EnterClaimController.submit(taxCode).url
               }
             )
-
-            cookies(result).get(controller.taxCodeCookieName).map(_.value) shouldBe Some(ndrcDetails.taxType)
           }
       }
 
@@ -215,8 +204,8 @@ class EnterClaimControllerSpec
     "Submit Enter Claim  page" must {
 
       def performAction(taxCode: String, data: (String, String)*): Future[Result] =
-        controller.submit()(
-          FakeRequest().withFormUrlEncodedBody(data: _*).withCookies(Cookie(controller.taxCodeCookieName, taxCode))
+        controller.submit(TaxCode(taxCode))(
+          FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
       "do not find the page if rejected goods feature is disabled" in {
@@ -321,7 +310,7 @@ class EnterClaimControllerSpec
               .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
               .getOrFail
-            val session       = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+            val session       = SessionData(journey)
             val amountToClaim = BigDecimal(ndrcDetails1.amount) - 10
 
             inSequence {
@@ -334,7 +323,7 @@ class EnterClaimControllerSpec
                 ndrcDetails1.taxType,
                 "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
               ),
-              routes.EnterClaimController.show()
+              routes.SelectTaxCodesController.show()
             )
           }
       }
@@ -344,7 +333,7 @@ class EnterClaimControllerSpec
           whenever(ndrcDetails.amount.toInt > 11) {
             val journey       = RejectedGoodsSingleJourney
               .empty(exampleEori)
-            val session       = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+            val session       = SessionData(journey)
             val amountToClaim = BigDecimal(ndrcDetails.amount) - 10
 
             inSequence {
@@ -362,7 +351,6 @@ class EnterClaimControllerSpec
               routes.EnterMovementReferenceNumberController.show()
             )
 
-            cookies(result).get(controller.taxCodeCookieName) shouldBe None
           }
       }
 
@@ -392,7 +380,6 @@ class EnterClaimControllerSpec
               routes.CheckClaimDetailsController.show()
             )
 
-            cookies(result).get(controller.taxCodeCookieName) shouldBe None
           }
       }
 
@@ -422,7 +409,6 @@ class EnterClaimControllerSpec
               routes.CheckClaimDetailsController.show()
             )
 
-            cookies(result).get(controller.taxCodeCookieName) shouldBe None
           }
       }
 
@@ -449,10 +435,9 @@ class EnterClaimControllerSpec
 
             checkIsRedirect(
               result,
-              routes.EnterClaimController.show()
+              routes.EnterClaimController.show(TaxCode(ndrcDetails2.taxType))
             )
 
-            cookies(result).get(controller.taxCodeCookieName) shouldBe None
           }
       }
     }
