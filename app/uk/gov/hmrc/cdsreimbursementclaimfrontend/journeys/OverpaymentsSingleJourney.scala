@@ -17,10 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
+import com.github.arturopala.validator.Validator
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
@@ -37,8 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
-import com.github.arturopala.validator.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -90,8 +90,9 @@ final class OverpaymentsSingleJourney private (
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
-  def getAvailableDuties: Seq[(TaxCode, Boolean)] =
-    getNdrcDetails
+  def getAvailableDuties: Seq[(TaxCode, Boolean)] = {
+
+    val duties = getNdrcDetails
       .flatMap { ndrcs =>
         val taxCodes = ndrcs
           .map(ndrc =>
@@ -103,6 +104,18 @@ final class OverpaymentsSingleJourney private (
         if (taxCodes.isEmpty) None else Some(taxCodes)
       }
       .getOrElse(Seq.empty)
+
+    val wasIncorrectExciseCodeSelected: Boolean =
+      answers.basisOfClaim.exists(_ === BasisOfOverpaymentClaim.IncorrectExciseValue)
+
+    if (wasIncorrectExciseCodeSelected) {
+      duties.filter { case (duty, _) =>
+        TaxCodes.exciseTaxCodeSet.contains(duty)
+      }
+    } else {
+      duties
+    }
+  }
 
   def getSelectedDuties: Option[Seq[TaxCode]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
@@ -217,6 +230,18 @@ final class OverpaymentsSingleJourney private (
       basisOfClaim match {
         case BasisOfOverpaymentClaim.DuplicateEntry =>
           new OverpaymentsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+
+        case BasisOfOverpaymentClaim.IncorrectExciseValue =>
+          new OverpaymentsSingleJourney(
+            answers.copy(
+              basisOfClaim = Some(basisOfClaim),
+              duplicateMovementReferenceNumber = None,
+              duplicateDisplayDeclaration = None,
+              reimbursementClaims = answers.reimbursementClaims.map(_.filter { case (taxCode, _) =>
+                TaxCodes.exciseTaxCodeSet.contains(taxCode)
+              })
+            )
+          )
 
         case _ =>
           new OverpaymentsSingleJourney(

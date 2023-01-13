@@ -17,26 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 
 import com.typesafe.config.ConfigFactory
+import org.scalacheck.Gen
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.TestEnvironment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.config
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCacheSpec.TestEnvironment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCacheSpec.config
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
-
-import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.mongo.CurrentTimestampSupport
 import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 
-class SessionCacheSpec
+import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class FeaturesCacheSpec
     extends AnyWordSpec
     with CleanMongoCollectionSupport
     with Matchers
@@ -44,45 +43,51 @@ class SessionCacheSpec
     with ScalaCheckDrivenPropertyChecks {
 
   val sessionStore =
-    new DefaultSessionCache(mongoComponent, new CurrentTimestampSupport(), config)
+    new DefaultFeaturesCache(mongoComponent, new CurrentTimestampSupport(), config)
 
-  "SessionCache" must {
+  val featureSetGen: Gen[FeatureSet] =
+    for {
+      enabled  <- Gen.listOf(Gen.oneOf(Feature.values))
+      disabled <- Gen.listOf(Gen.oneOf(Feature.values))
+    } yield FeatureSet(enabled.toSet, disabled.toSet)
 
-    "be able to insert SessionData into mongo and read it back" in new TestEnvironment {
-      forAll { sessionData: SessionData =>
-        val result = sessionStore.store(sessionData)
+  "FeaturesCache" must {
+
+    "be able to insert FeatureSet into mongo and read it back" in new TestEnvironment {
+      forAll(featureSetGen) { featureSet: FeatureSet =>
+        val result = sessionStore.store(featureSet)
 
         await(result) should be(Right(()))
 
         eventually {
           val getResult = sessionStore.get()
-          await(getResult) should be(Right(Some(sessionData)))
+          await(getResult) should be(Right(featureSet))
         }
       }
     }
 
-    "return no SessionData if there is no data in mongo" in new TestEnvironment {
-      await(sessionStore.get()) should be(Right(None))
+    "return empty FeatureSet if there is no data in mongo" in new TestEnvironment {
+      await(sessionStore.get()) should be(Right(FeatureSet.empty))
     }
 
-    "return an error there is no session id in the header carrier" in {
+    "return empty FeatureSet if there is no session id in the header carrier" in {
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      val sessionData                = sample[SessionData]
+      val featureSet                 = featureSetGen.sample.get
 
-      await(sessionStore.store(sessionData)).isLeft shouldBe true
-      await(sessionStore.get()).isLeft              shouldBe true
+      await(sessionStore.store(featureSet)) shouldBe Right(())
+      await(sessionStore.get())               should be(Right(FeatureSet.empty))
     }
 
   }
 
 }
 
-object SessionCacheSpec {
+object FeaturesCacheSpec {
 
   val config = Configuration(
     ConfigFactory.parseString(
       """
-        | session-store.expiry-time = 7 days
+        | features-store.expiry-time = 7 days
         |""".stripMargin
     )
   )

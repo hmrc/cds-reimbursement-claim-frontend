@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
-import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
@@ -35,17 +34,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-class BasisForClaimControllerSpec
+class NorthernIrelandControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -57,7 +53,7 @@ class BasisForClaimControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: BasisForClaimController = instanceOf[BasisForClaimController]
+  val controller: NorthernIrelandController = instanceOf[NorthernIrelandController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -69,35 +65,8 @@ class BasisForClaimControllerSpec
   val journeyGen: Gen[OverpaymentsSingleJourney] =
     buildJourneyGen(answersUpToBasisForClaimGen())
 
-  def assertPageContent(
-    doc: Document,
-    expectedBasisOfClaims: BasisOfOverpaymentClaimsList,
-    selectedBasisOfClaim: Option[BasisOfOverpaymentClaim]
-  ): Any =
-    doc
-      .select("div.govuk-radios__item > input[name='select-basis-for-claim']")
-      .listIterator()
-      .asScala
-      .map(e =>
-        (
-          e.siblingElements().first().text(),
-          e.attr("value").toInt,
-          e.hasAttr("checked")
-        )
-      )
-      .toSeq should contain theSameElementsAs (
-      expectedBasisOfClaims
-        .map(basisOfClaim =>
-          (
-            messages(expectedBasisOfClaims.buildKey("select-basis-for-claim", basisOfClaim)),
-            BasisOfOverpaymentClaimsList.indexOf(basisOfClaim),
-            selectedBasisOfClaim.contains(basisOfClaim)
-          )
-        )
-    )
-
-  "Basis For Claim Controller" when {
-    "Basis For Claim page" must {
+  "Northern Ireland Controller" when {
+    "Northern Ireland page" must {
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
@@ -116,32 +85,22 @@ class BasisForClaimControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("select-basis-for-claim.title"),
-            assertPageContent(_, journey.getAvailableClaimTypes, None)
+            messageFromMessageKey("claim-northern-ireland.title")
           )
         }
       }
 
-      "display page back with answer populated" in {
-        forAll(journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))) {
-          case (journey, basisOfClaim) =>
-            val journeyWithBasisOfClaim =
-              journey.submitBasisOfClaim(basisOfClaim)
+      "display page back with details populated" in {
+        forAll(journeyGen.map(_.submitAdditionalDetails("foo bar 123"))) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+          }
 
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(journeyWithBasisOfClaim))
-            }
-
-            checkPageIsDisplayed(
-              performAction(),
-              messageFromMessageKey("select-basis-for-claim.title"),
-              assertPageContent(
-                _,
-                journeyWithBasisOfClaim.getAvailableClaimTypes,
-                journeyWithBasisOfClaim.answers.basisOfClaim
-              )
-            )
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("claim-northern-ireland.title")
+          )
         }
       }
 
@@ -154,14 +113,13 @@ class BasisForClaimControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("select-basis-for-claim.title"),
-            assertPageContent(_, journey.getAvailableClaimTypes, journey.answers.basisOfClaim)
+            messageFromMessageKey("claim-northern-ireland.title")
           )
         }
       }
     }
 
-    "Submit Basis For Claim" must {
+    "Norther Ireland choice" must {
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
@@ -172,42 +130,40 @@ class BasisForClaimControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "submit a valid basis for claim index" in forAll(
-        journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))
-      ) { case (journey, basisOfClaim) =>
+      "submit user choice YES" in forAll(journeyGen) { journey =>
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
-            SessionData(journey.submitBasisOfClaim(basisOfClaim))
+            SessionData(journey.submitWhetherNorthernIreland(true))
           )(Right(()))
         }
 
-        val number: Int =
-          BasisOfOverpaymentClaimsList.indexOf(basisOfClaim)
-
         checkIsRedirect(
-          performAction("select-basis-for-claim" -> number.toString),
-          if (basisOfClaim === BasisOfOverpaymentClaim.DuplicateEntry)
-            routes.EnterDuplicateMovementReferenceNumberController.show
-          else
-            routes.EnterAdditionalDetailsController.show
+          performAction(
+            "claim-northern-ireland" -> "true"
+          ),
+          routes.BasisForClaimController.show
         )
       }
 
-      "submit an invalid basis for claim index" in forAll(journeyGen) { journey =>
+      "submit user choice NO" in forAll(journeyGen) { journey =>
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
+          mockStoreSession(
+            SessionData(journey.submitWhetherNorthernIreland(false))
+          )(Right(()))
         }
 
-        checkPageIsDisplayed(
-          performAction("select-basis-for-claim" -> "1000"),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          assertPageContent(_, journey.getAvailableClaimTypes, None),
-          expectedStatus = BAD_REQUEST
+        checkIsRedirect(
+          performAction(
+            "claim-northern-ireland" -> "false"
+          ),
+          routes.BasisForClaimController.show
         )
       }
+
     }
   }
 

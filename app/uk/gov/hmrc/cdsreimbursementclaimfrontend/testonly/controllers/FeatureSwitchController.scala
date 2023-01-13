@@ -29,17 +29,17 @@ class FeatureSwitchController @Inject() (
   val controllerComponents: MessagesControllerComponents
 ) extends FrontendBaseController {
 
-  def enable(featureName: String): Action[AnyContent] = Action {
+  def enable(featureName: String): Action[AnyContent] = Action { implicit request =>
     Feature
       .of(featureName)
-      .map(featureSwitch.enable(_))
+      .map(featureSwitch.enableForSession(_))
       .fold(NotFound(s"No $featureName feature exists"))(_ => Ok(s"Enabled feature $featureName"))
   }
 
-  def disable(featureName: String): Action[AnyContent] = Action {
+  def disable(featureName: String): Action[AnyContent] = Action { implicit request =>
     Feature
       .of(featureName)
-      .map(featureSwitch.disable(_))
+      .map(featureSwitch.disableForSession(_))
       .fold(NotFound(s"No $featureName feature exists"))(_ => Ok(s"Disabled feature $featureName"))
   }
 }

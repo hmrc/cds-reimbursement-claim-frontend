@@ -25,8 +25,8 @@ POST        /overpayments/v2/single/enter-duplicate-movement-reference-number   
 GET         /overpayments/v2/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDuplicateDeclarationDetailsController.show
 POST        /overpayments/v2/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDuplicateDeclarationDetailsController.submit
 
-#GET         /overpayments/v2/single/claim-northern-ireland                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.show
-#POST        /overpayments/v2/single/claim-northern-ireland                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.submit
+GET         /overpayments/v2/single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.show
+POST        /overpayments/v2/single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.NorthernIrelandController.submit
 
 GET          /overpayments/v2/single/choose-basis-for-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.BasisForClaimController.show
 POST         /overpayments/v2/single/choose-basis-for-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.BasisForClaimController.submit
@@ -45,9 +45,9 @@ POST        /overpayments/v2/single/enter-additional-details                    
 GET         /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.show
 POST        /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.submit
 
-#GET         /overpayments/v2/single/start-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.startClaim
-#GET         /overpayments/v2/single/enter-claim/:id                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.enterClaim(id: UUID)
-#POST        /overpayments/v2/single/enter-claim/:id                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.enterClaimSubmit(id: UUID)
+GET         /overpayments/v2/single/enter-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.show
+GET         /overpayments/v2/single/enter-claim/:taxCode                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.showAmend(taxCode: TaxCode)
+POST        /overpayments/v2/single/enter-claim                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.submit
 
 #GET         /overpayments/v2/single/check-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.checkClaimSummary
 #POST        /overpayments/v2/single/check-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.checkClaimSummarySubmit

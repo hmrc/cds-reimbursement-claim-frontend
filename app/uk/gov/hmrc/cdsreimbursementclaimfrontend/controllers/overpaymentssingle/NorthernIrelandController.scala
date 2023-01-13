@@ -72,7 +72,7 @@ class NorthernIrelandController @Inject() (
         withAnswers[YesNo] { (_, answer) =>
           val emptyForm  = northernIrelandForm
           val filledForm = answer.fold(emptyForm)(emptyForm.fill)
-          Ok(northernIrelandAnswerPage(filledForm, postAction))
+          Ok(northernIrelandAnswerPage(filledForm, None, postAction))
         }
       }
 
@@ -85,7 +85,7 @@ class NorthernIrelandController @Inject() (
           northernIrelandForm
             .bindFromRequest()
             .fold(
-              formWithErrors => BadRequest(northernIrelandAnswerPage(formWithErrors, postAction)),
+              formWithErrors => BadRequest(northernIrelandAnswerPage(formWithErrors, None, postAction)),
               currentAnswer => {
                 val updatedJourney = from(fillingOutClaim)(
                   _.copy(

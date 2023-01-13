@@ -54,83 +54,85 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey
-      .getNthMovementReferenceNumber(pageIndex - 1)
-      .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-        journey.getAmountPaidForIfSelected(mrn, taxCode) match {
-          case None =>
-            logger.warn(s"Claim data for selected MRN and tax code $taxCode does not exist.")
-            Redirect(selectDutiesAction(pageIndex))
-
-          case Some(paidAmount) =>
-            val claimedAmountOpt = journey.getReimbursementClaimFor(mrn, taxCode)
-            val form             = Forms.claimAmountForm(EnterClaimController.key, paidAmount).withDefault(claimedAmountOpt)
-            Ok(
-              enterClaim(
-                form,
-                taxCode,
-                Some(pageIndex),
-                paidAmount,
-                subKey,
-                submitClaimAction(pageIndex, taxCode)
-              )
-            )
-        }
-      }
-      .asFuture
-  }
-
-  def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
+  final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
+    actionReadJourney { implicit request => journey =>
       journey
         .getNthMovementReferenceNumber(pageIndex - 1)
-        .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+        .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
           journey.getAmountPaidForIfSelected(mrn, taxCode) match {
             case None =>
-              // case when tax code not selectable nor selected
-              (journey, Redirect(selectDutiesAction(pageIndex)))
+              logger.warn(s"Claim data for selected MRN and tax code $taxCode does not exist.")
+              Redirect(selectDutiesAction(pageIndex))
 
             case Some(paidAmount) =>
-              Forms
-                .claimAmountForm(EnterClaimController.key, paidAmount)
-                .bindFromRequest()
-                .fold(
-                  formWithErrors =>
-                    (
-                      journey,
-                      BadRequest(
-                        enterClaim(
-                          formWithErrors,
-                          taxCode,
-                          Some(pageIndex),
-                          paidAmount,
-                          subKey,
-                          submitClaimAction(pageIndex, taxCode)
-                        )
-                      )
-                    ),
-                  amount =>
-                    journey
-                      .submitAmountForReimbursement(mrn, taxCode, amount)
-                      .fold(
-                        error => {
-                          logger.error(s"Error submitting reimbursement claim amount - $error")
-                          (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
-                        },
-                        modifiedJourney =>
-                          (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
-                      )
+              val claimedAmountOpt = journey.getReimbursementClaimFor(mrn, taxCode)
+              val form             = Forms.claimAmountForm(EnterClaimController.key, paidAmount).withDefault(claimedAmountOpt)
+              Ok(
+                enterClaim(
+                  form,
+                  taxCode,
+                  Some(pageIndex),
+                  paidAmount,
+                  subKey,
+                  submitClaimAction(pageIndex, taxCode)
                 )
-
+              )
           }
         }
         .asFuture
-    },
-    fastForwardToCYAEnabled = false
-  )
+    }
 
-  def decideNextRoute(journey: RejectedGoodsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
+  final def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
+    actionReadWriteJourney(
+      { implicit request => journey =>
+        journey
+          .getNthMovementReferenceNumber(pageIndex - 1)
+          .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+            journey.getAmountPaidForIfSelected(mrn, taxCode) match {
+              case None =>
+                // case when tax code not selectable nor selected
+                (journey, Redirect(selectDutiesAction(pageIndex)))
+
+              case Some(paidAmount) =>
+                Forms
+                  .claimAmountForm(EnterClaimController.key, paidAmount)
+                  .bindFromRequest()
+                  .fold(
+                    formWithErrors =>
+                      (
+                        journey,
+                        BadRequest(
+                          enterClaim(
+                            formWithErrors,
+                            taxCode,
+                            Some(pageIndex),
+                            paidAmount,
+                            subKey,
+                            submitClaimAction(pageIndex, taxCode)
+                          )
+                        )
+                      ),
+                    amount =>
+                      journey
+                        .submitAmountForReimbursement(mrn, taxCode, amount)
+                        .fold(
+                          error => {
+                            logger.error(s"Error submitting reimbursement claim amount - $error")
+                            (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
+                          },
+                          modifiedJourney =>
+                            (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
+                        )
+                  )
+
+            }
+          }
+          .asFuture
+      },
+      fastForwardToCYAEnabled = false
+    )
+
+  private def decideNextRoute(journey: RejectedGoodsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
     if (journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode)
       claimsSummaryAction
     else {

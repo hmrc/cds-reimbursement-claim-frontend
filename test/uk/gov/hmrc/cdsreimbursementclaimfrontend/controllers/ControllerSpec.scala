@@ -39,6 +39,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.Metrics
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.MockMetrics
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
 import scala.collection.JavaConverters._
 import java.net.URLEncoder
@@ -50,10 +51,17 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import uk.gov.hmrc.mongo.play.PlayMongoModule
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
+import java.util.concurrent.ConcurrentHashMap
+import org.scalacheck.ShrinkLowPriority
+
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FeatureSet
 import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
@@ -102,14 +110,24 @@ class TestDefaultMessagesApiProvider @Inject() (
     )
 }
 
-trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with MockFactory with SeqUtils {
+trait ControllerSpec
+    extends AnyWordSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with MockFactory
+    with SeqUtils
+    with SummaryMatchers {
 
   implicit val lang: Lang = Lang("en")
 
   val sessionCacheBinding: GuiceableModule =
     bind[SessionCache].to[TestSessionCache]
 
-  def overrideBindings: List[GuiceableModule] = List(sessionCacheBinding)
+  val featuresCacheBinding: GuiceableModule =
+    bind[FeaturesCache].to[TestFeaturesCache]
+
+  def overrideBindings: List[GuiceableModule] =
+    List(sessionCacheBinding)
 
   def getErrorSummary(document: Document): String =
     document.select(".govuk-error-summary__list > li > a").html()
@@ -135,7 +153,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
         ).withFallback(additionalConfig)
       )
       .disable[PlayMongoModule]
-      .overrides(metricsBinding :: overrideBindings: _*)
+      .overrides(featuresCacheBinding :: metricsBinding :: overrideBindings: _*)
       .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
       .build()
   }
@@ -266,12 +284,14 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   import cats.instances.int._
   import cats.syntax.eq._
 
+  /** Returns sequence of pairs (message, value) */
   def radioItems(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-radios label").eachText()
     val values = doc.select("div.govuk-radios input").eachAttr("value")
     labels.asScala.zip(values.asScala)
   }
 
+  /** Returns sequence of pairs (message, value) */
   def checkboxes(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-checkboxes label").eachText()
     val values = doc.select("div.govuk-checkboxes input").eachAttr("value")
@@ -336,7 +356,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     (doc: Document) => selectedRadioValue(doc).shouldBe(Some(expected))
 }
 
-trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks {
+trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)
@@ -369,6 +389,40 @@ class TestSessionCache extends SessionCache {
         Right(())
       case None                       =>
         Left(uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error("no session found"))
+    })
+
+}
+@Singleton
+class TestFeaturesCache extends FeaturesCache {
+
+  import scala.collection.JavaConverters.mapAsScalaConcurrentMap
+
+  val sessions: scala.collection.concurrent.Map[String, FeatureSet] =
+    mapAsScalaConcurrentMap(new ConcurrentHashMap[String, FeatureSet]())
+
+  override def get()(implicit
+    hc: HeaderCarrier
+  ): Future[Either[uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error, FeatureSet]] =
+    Future.successful(hc.sessionId match {
+      case Some(SessionId(sessionId)) =>
+        Right(
+          sessions
+            .get(sessionId)
+            .getOrElse(FeatureSet.empty)
+        )
+      case None                       =>
+        Right(FeatureSet.empty)
+    })
+
+  override def store(featureSet: FeatureSet)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error, Unit]] =
+    Future.successful(hc.sessionId match {
+      case Some(SessionId(sessionId)) =>
+        sessions.put(sessionId, featureSet)
+        Right(())
+      case None                       =>
+        Right(())
     })
 
 }

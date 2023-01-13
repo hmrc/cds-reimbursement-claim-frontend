@@ -43,9 +43,9 @@ GET          /rejected-goods/single/inspection-address/update-address           
 GET          /rejected-goods/single/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterInspectionDateController.show()
 POST         /rejected-goods/single/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterInspectionDateController.submit()
 
-GET          /rejected-goods/single/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.show()
-GET          /rejected-goods/single/enter-claim/:taxCode                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.showAmend(taxCode: TaxCode)
-POST         /rejected-goods/single/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.submit()
+GET          /rejected-goods/single/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.showFirst
+GET          /rejected-goods/single/enter-claim/:taxCode                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.show(taxCode: TaxCode)
+POST         /rejected-goods/single/enter-claim/:taxCode                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.submit(taxCode: TaxCode)
 
 GET          /rejected-goods/single/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.show()
 POST         /rejected-goods/single/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.submit()

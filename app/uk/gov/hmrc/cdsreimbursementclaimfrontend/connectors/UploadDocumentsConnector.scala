@@ -85,7 +85,7 @@ class UploadDocumentsConnectorProvider @Inject() (
 ) extends Provider[UploadDocumentsConnector] {
 
   override def get(): UploadDocumentsConnector =
-    if (features.isEnabled(Feature.InternalUploadDocuments))
+    if (features.isEnabledForApplication(Feature.InternalUploadDocuments))
       internal
     else
       external

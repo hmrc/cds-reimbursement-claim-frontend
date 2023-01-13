@@ -111,9 +111,12 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       completeJourneyNotCMAEligibleGen
     )
 
-  val completeJourneyGenWithoutDuplicateEntry: Gen[OverpaymentsSingleJourney] = for {
+  val completeJourneyGenWithoutDuplicateEntryAndIncorrectExciseValue: Gen[OverpaymentsSingleJourney] = for {
     journey      <- completeJourneyGen
-    basisOfClaim <- Gen.oneOf(BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry)
+    basisOfClaim <-
+      Gen.oneOf(
+        BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry - BasisOfOverpaymentClaim.IncorrectExciseValue
+      )
   } yield journey.submitBasisOfClaim(basisOfClaim)
 
   val completeJourneyGenWithDuplicateEntry: Gen[OverpaymentsSingleJourney] = for {
@@ -133,7 +136,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethod] = None
+    reimbursementMethod: Option[ReimbursementMethod] = None,
+    taxCodes: Seq[TaxCode] = TaxCodes.all
   ): Gen[OverpaymentsSingleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -145,7 +149,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
-      reimbursementMethod = reimbursementMethod
+      reimbursementMethod = reimbursementMethod,
+      taxCodes = taxCodes
     ).map(
       _.fold(
         error =>
@@ -167,7 +172,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethod] = None
+    reimbursementMethod: Option[ReimbursementMethod] = None,
+    taxCodes: Seq[TaxCode] = TaxCodes.all
   ): Gen[Either[String, OverpaymentsSingleJourney]] =
     buildAnswersGen(
       acc14DeclarantMatchesUserEori,
@@ -180,7 +186,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       submitContactAddress,
       submitBankAccountDetails,
       submitBankAccountType,
-      reimbursementMethod
+      reimbursementMethod,
+      taxCodes
     ).map(OverpaymentsSingleJourney.tryBuildFrom(_))
 
   def buildAnswersGen(
@@ -194,21 +201,25 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethod] = None
+    reimbursementMethod: Option[ReimbursementMethod] = None,
+    taxCodes: Seq[TaxCode] = TaxCodes.all
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
       numberOfTaxCodes            <- Gen.choose(1, 5)
-      taxCodes                    <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
+      taxCodes                    <- Gen.pick(
+                                       numberOfTaxCodes,
+                                       if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
+                                     )
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       reimbursementAmount         <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
         )
-      basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
       duplicateMrn                <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
                                      else Gen.const(None)
       whetherNorthernIreland      <- Gen.oneOf(true, false)
@@ -315,7 +326,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitDeclarantDetails: Boolean = true,
     submitConsigneeDetails: Boolean = true,
     submitContactDetails: Boolean = true,
-    submitContactAddress: Boolean = true
+    submitContactAddress: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber   <- IdGen.genEori
@@ -323,7 +336,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantEORI    <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI    <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes <- Gen.choose(1, 5)
-      taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
+      taxCodes         <- Gen.pick(numberOfTaxCodes, taxCodes).map(_ ++ forcedTaxCodes)
       paidAmounts      <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       consigneeContact <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact <- Gen.option(Acc14Gen.genContactDetails)

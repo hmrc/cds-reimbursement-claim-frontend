@@ -526,8 +526,10 @@ class OverpaymentsSingleJourneySpec
 
     "change basis of claim" in {
       forAll(
-        completeJourneyGenWithoutDuplicateEntry,
-        Gen.oneOf(BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry)
+        completeJourneyGenWithoutDuplicateEntryAndIncorrectExciseValue,
+        Gen.oneOf(
+          BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry - BasisOfOverpaymentClaim.IncorrectExciseValue
+        )
       ) { (journey, basisOfClaim) =>
         val modifiedJourney = journey.submitBasisOfClaim(basisOfClaim)
 
@@ -537,13 +539,21 @@ class OverpaymentsSingleJourneySpec
     }
 
     "change basis of claim if duplicate entry" in {
-      forAll(completeJourneyGenWithoutDuplicateEntry) { journey =>
+      forAll(completeJourneyGenWithoutDuplicateEntryAndIncorrectExciseValue) { journey =>
         val modifiedJourney = journey.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry)
 
         modifiedJourney.hasCompleteAnswers           shouldBe false
         modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Left(
           DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED :: DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED :: Nil
         )
+      }
+    }
+
+    "change basis of claim if incorrect excise entry" in {
+      forAll(completeJourneyGenWithoutDuplicateEntryAndIncorrectExciseValue) { journey =>
+        val modifiedJourney = journey.submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectExciseValue)
+
+        modifiedJourney.hasCompleteAnswers shouldBe modifiedJourney.hasCompleteReimbursementClaims
       }
     }
 
