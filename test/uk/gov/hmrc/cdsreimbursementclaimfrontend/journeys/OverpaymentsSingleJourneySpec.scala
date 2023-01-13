@@ -741,7 +741,7 @@ class OverpaymentsSingleJourneySpec
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
-      val journeyEitherTestZero     = declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
+      val journeyEitherTestZero     = declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("10.00")))
       val journeyEitherTestNegative =
         declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("-10.00")))
       val journeyEitherTestGreater  =
@@ -779,9 +779,11 @@ class OverpaymentsSingleJourneySpec
 
     "change to invalid amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims.toSeq
-        for ((taxCode, amount) <- taxCodes) {
-          val newAmount     = BigDecimal("0.00")
+        val taxCodes: Seq[TaxCode] = journey.getSelectedDuties.get
+
+        for (taxCode <- taxCodes) {
+          val ndrcDetails   = journey.getNdrcDetailsFor(taxCode).get
+          val newAmount     = BigDecimal(ndrcDetails.amount)
           val journeyEither = journey.submitAmountForReimbursement(taxCode, newAmount)
 
           journeyEither shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
@@ -806,7 +808,7 @@ class OverpaymentsSingleJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
+          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.99")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
 
       journeyEither.isRight shouldBe true
@@ -820,7 +822,7 @@ class OverpaymentsSingleJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
+          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
 
       journeyEither shouldBe Left("submitReimbursementMethod.notCMAEligible")
@@ -834,7 +836,7 @@ class OverpaymentsSingleJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
+          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.01")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
 
       journeyEither.isRight shouldBe true
@@ -848,7 +850,7 @@ class OverpaymentsSingleJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
+          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
 
       journeyEither shouldBe Left("submitReimbursementMethod.notCMAEligible")
@@ -862,7 +864,7 @@ class OverpaymentsSingleJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
+          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
@@ -878,7 +880,7 @@ class OverpaymentsSingleJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("1.00")))
+          .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))

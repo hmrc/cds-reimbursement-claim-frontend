@@ -39,7 +39,7 @@ object ReimbursementClaimsRejectedGoodsSummary {
       reimbursementClaims
         .map { case (taxCode, amount) =>
           SummaryListRow(
-            key = Key(Text(messages(s"tax-code.${taxCode.value}"))),
+            key = Key(Text(messages(s"tax-code.$taxCode"))),
             value = Value(Text(amount.toPoundSterlingString)),
             actions = Some(
               Actions(
@@ -47,7 +47,7 @@ object ReimbursementClaimsRejectedGoodsSummary {
                   ActionItem(
                     href = enterClaimAction(taxCode).url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
+                    visuallyHiddenText = Some(messages(s"tax-code.$taxCode"))
                   )
                 )
               )
@@ -70,7 +70,7 @@ object ReimbursementClaimsRejectedGoodsSummary {
       reimbursementClaims.toSeq
         .map { case (taxCode, amount) =>
           SummaryListRow(
-            key = Key(Text(messages(s"tax-code.${taxCode.value}"))),
+            key = Key(Text(messages(s"tax-code.$taxCode"))),
             value = Value(Text(amount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -78,7 +78,7 @@ object ReimbursementClaimsRejectedGoodsSummary {
                   ActionItem(
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
+                    visuallyHiddenText = Some(messages(s"tax-code.$taxCode"))
                   )
                 )
               )

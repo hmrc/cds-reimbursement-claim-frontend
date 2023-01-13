@@ -190,7 +190,7 @@ class CheckYourAnswersControllerSpec
             )),
             ("Duties selected"   -> Some(
               reclaims.keys.toList.sorted
-                .map(taxCode => messages(s"tax-code.${taxCode.value}"))
+                .map(taxCode => messages(s"tax-code.$taxCode"))
                 .mkString(" ")
             )),
             ("Total"             -> Some(
@@ -198,7 +198,7 @@ class CheckYourAnswersControllerSpec
             ))
           ) ++
             reclaims.map { case (taxCode, amount) =>
-              (messages(s"tax-code.${taxCode.value}") -> Some(amount.toPoundSterlingString))
+              (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
             }
         } ++
         claim.supportingEvidences

@@ -53,7 +53,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
         val reimbursement = taxCodeWithClaim._2
 
         SummaryListRow(
-          key = Key(Text(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))),
+          key = Key(Text(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))),
           value = Value(Text(reimbursement.refundAmount.toPoundSterlingString)),
           actions = Some(
             Actions(
@@ -61,7 +61,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
                 ActionItem(
                   href = routes.EnterClaimController.show(duty, taxCode).url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))
+                  visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))
                 )
               )
             )

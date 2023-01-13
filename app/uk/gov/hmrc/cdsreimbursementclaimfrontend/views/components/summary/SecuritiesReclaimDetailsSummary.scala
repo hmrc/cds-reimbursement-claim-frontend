@@ -77,7 +77,7 @@ object SecuritiesReclaimDetailsSummary {
         value = Value(
           HtmlContent(
             reclaims.keys.toList.sorted
-              .map(taxCode => messages(s"tax-code.${taxCode.value}"))
+              .map(taxCode => messages(s"tax-code.$taxCode"))
               .mkString("<br>")
           )
         ),
@@ -95,7 +95,7 @@ object SecuritiesReclaimDetailsSummary {
       )
     ) ++ reclaims.toList.sorted.zipWithIndex.map { case ((taxCode, amount), index) =>
       SummaryListRow(
-        key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
+        key = Key(HtmlContent(messages(s"tax-code.$taxCode"))),
         value = Value(Text(amount.toPoundSterlingString)),
         actions = Some(
           Actions(
@@ -104,7 +104,7 @@ object SecuritiesReclaimDetailsSummary {
                 href = reclaimAmountChangeCall(securityDepositId, taxCode).url,
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
-                  .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
+                  .findTaxType(taxCode)} Duty $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
               )
             )
           )

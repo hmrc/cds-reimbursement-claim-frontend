@@ -176,7 +176,7 @@ class EnterClaimController @Inject() (
               case None =>
                 Left(
                   logAndDisplayError(
-                    s"Cannot find the amount of a taxType=${taxCode.value} paid for a depositId=$securityDepositId. Available tax codes",
+                    s"Cannot find the amount of a taxType=$taxCode paid for a depositId=$securityDepositId. Available tax codes",
                     journey.getSecurityTaxCodesFor(securityDepositId).mkString(",")
                   )
                 )

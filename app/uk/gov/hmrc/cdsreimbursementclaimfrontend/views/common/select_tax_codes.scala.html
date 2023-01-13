@@ -55,7 +55,7 @@
         CheckboxItem(
             name = Some(s"$key[]"),
             value = taxCode.value,
-            content = Text(taxCode.value + " - " + messages(s"$key.duty.${taxCode.value}")),
+            content = Text(taxCode.value + " - " + messages(s"$key.duty.$taxCode")),
             hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = HtmlContent(messages(s"$key.duty.hint")))),
             checked = form.data.exists(_._2 == taxCode.value)
         )

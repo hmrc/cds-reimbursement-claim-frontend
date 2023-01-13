@@ -42,7 +42,7 @@ object ReimbursementsClaimsSummary {
     SummaryList(rows =
       reimbursementClaims.map { case (taxCode, amount) =>
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
+          key = Key(HtmlContent(messages(s"tax-code.$taxCode"))),
           value = Value(Text(amount.toPoundSterlingString)),
           actions = Some(
             Actions(
@@ -51,7 +51,7 @@ object ReimbursementsClaimsSummary {
                   href = enterClaimAction(taxCode).url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(s"${OrdinalNumber.label(mrnIndex.getOrElse(1)).capitalize} MRN: ${TaxCodes
-                    .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
+                    .findTaxType(taxCode)} Duty $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
                 )
               )
             )
@@ -74,7 +74,7 @@ object ReimbursementsClaimsSummary {
       reimbursementClaims.toSeq
         .map { case (taxCode, amount) =>
           SummaryListRow(
-            key = Key(HtmlContent(messages(s"tax-code.${taxCode.value}"))),
+            key = Key(HtmlContent(messages(s"tax-code.$taxCode"))),
             value = Value(Text(amount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -82,7 +82,7 @@ object ReimbursementsClaimsSummary {
                   ActionItem(
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"tax-code.${taxCode.value}"))
+                    visuallyHiddenText = Some(messages(s"tax-code.$taxCode"))
                   )
                 )
               )

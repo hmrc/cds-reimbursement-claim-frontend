@@ -42,15 +42,15 @@ POST         /overpayments/v2/single/enter-bank-account-details                 
 GET         /overpayments/v2/single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.show
 POST        /overpayments/v2/single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterAdditionalDetailsController.submit
 
-GET         /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.show
-POST        /overpayments/v2/single/select-duties                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.submit
+GET         /overpayments/v2/single/select-duties                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.show
+POST        /overpayments/v2/single/select-duties                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.SelectDutiesController.submit
 
-GET         /overpayments/v2/single/enter-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.show
-GET         /overpayments/v2/single/enter-claim/:taxCode                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.showAmend(taxCode: TaxCode)
-POST        /overpayments/v2/single/enter-claim                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.submit
+GET         /overpayments/v2/single/enter-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.showFirst
+GET         /overpayments/v2/single/enter-claim/:taxCode                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.show(taxCode: TaxCode)
+POST        /overpayments/v2/single/enter-claim/:taxCode                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterClaimController.submit(taxCode: TaxCode)
 
-#GET         /overpayments/v2/single/check-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.checkClaimSummary
-#POST        /overpayments/v2/single/check-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterSingleClaimController.checkClaimSummarySubmit
+GET         /overpayments/v2/single/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckClaimDetailsController.show
+POST        /overpayments/v2/single/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckClaimDetailsController.submit
 
 #GET         /overpayments/v2/single/choose-repayment-method                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.ReimbursementMethodController.show
 #POST        /overpayments/v2/single/choose-repayment-method                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.ReimbursementMethodController.submit

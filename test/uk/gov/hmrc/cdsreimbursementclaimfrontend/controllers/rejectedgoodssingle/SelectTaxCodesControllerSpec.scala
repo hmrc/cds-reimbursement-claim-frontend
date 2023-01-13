@@ -81,7 +81,7 @@ class SelectTaxCodesControllerSpec
     selectedCheckBox(doc) should contain theSameElementsAs selectedDuties
     checkboxes(doc)       should containOnlyPairsOf(
       journey.getAvailableDuties.map { case (taxCode, _) =>
-        (taxCode.value + " - " + messages(s"select-duties.duty.${taxCode.value}"), taxCode.value)
+        (taxCode.value + " - " + messages(s"select-duties.duty.$taxCode"), taxCode.value)
       }
     )
   }
