@@ -135,7 +135,10 @@ final class OverpaymentsMultipleJourney private (
       .exists(_.forall(_.isCmaEligible))
 
   def isAllSelectedDutiesAreCMAEligible: Boolean =
-    answers.reimbursementClaims.toList.flatMap(_.keys).forall(isAllSelectedDutiesAreCMAEligible)
+    answers.reimbursementClaims.toList
+      .flatMap(_.keys)
+      .map(isAllSelectedDutiesAreCMAEligible)
+      .contains(true)
 
   def getReimbursementClaimsFor(declarationId: MRN): Map[TaxCode, BigDecimal] =
     answers.reimbursementClaims

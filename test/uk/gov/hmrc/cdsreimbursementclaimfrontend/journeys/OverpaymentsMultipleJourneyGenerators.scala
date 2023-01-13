@@ -231,28 +231,36 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]                 =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
-      val reimbursementClaims: Map[MRN, Map[TaxCode, Option[BigDecimal]]] = 
-        mrns.map(mrn => (mrn, 
-        taxCodes
-          .take(numberOfSelectedTaxCodes)
-          .zip(reimbursementAmount)
-          .map { case (t, a) =>
-            (t, Option(a))
-          }
-          .toMap)).toMap
+      val reimbursementClaims: Map[MRN, Map[TaxCode, Option[BigDecimal]]] =
+        mrns
+          .map(mrn =>
+            (
+              mrn,
+              taxCodes
+                .take(numberOfSelectedTaxCodes)
+                .zip(reimbursementAmount)
+                .map { case (t, a) =>
+                  (t, Option(a))
+                }
+                .toMap
+            )
+          )
+          .toMap
 
       val displayDeclarations: Seq[DisplayDeclaration] =
-      mrns.map(mrn => buildDisplayDeclaration(
-        mrn.value,
-        declarantEORI,
-        if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-        paidDuties,
-        consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
-        declarantContact = declarantContact
-      ))
+        mrns.map(mrn =>
+          buildDisplayDeclaration(
+            mrn.value,
+            declarantEORI,
+            if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+            paidDuties,
+            consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+            declarantContact = declarantContact
+          )
+        )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
@@ -317,7 +325,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
   ): Gen[OverpaymentsMultipleJourney.Answers] =
     for {
       userEoriNumber   <- IdGen.genEori
-      mrns              <- Gen.listOfN(3, IdGen.genMRN)
+      mrns             <- Gen.listOfN(3, IdGen.genMRN)
       declarantEORI    <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI    <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes <- Gen.choose(1, 5)
@@ -330,15 +338,17 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
-      val displayDeclarations: Seq[DisplayDeclaration]          =
-        mrns.map(mrn => buildDisplayDeclaration(
-          mrn.value,
-          declarantEORI,
-          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-          paidDuties,
-          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
-          declarantContact = declarantContact
-        ))
+      val displayDeclarations: Seq[DisplayDeclaration]    =
+        mrns.map(mrn =>
+          buildDisplayDeclaration(
+            mrn.value,
+            declarantEORI,
+            if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+            paidDuties,
+            consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+            declarantContact = declarantContact
+          )
+        )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 

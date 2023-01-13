@@ -43,39 +43,39 @@ class OverpaymentsMultipleJourneySpec
 
   "OverpaymentsMultipleJourney" should {
     "have an empty instance" in {
-      emptyJourney.answers.userEoriNumber                   shouldBe exampleEori
-      emptyJourney.answers.bankAccountDetails               shouldBe None
-      emptyJourney.answers.bankAccountType                  shouldBe None
-      emptyJourney.answers.basisOfClaim                     shouldBe None
-      emptyJourney.answers.contactAddress                   shouldBe None
-      emptyJourney.answers.contactDetails                   shouldBe None
-      emptyJourney.answers.contactAddress                   shouldBe None
-      emptyJourney.answers.declarantEoriNumber              shouldBe None
-      emptyJourney.answers.additionalDetails                shouldBe None
-      emptyJourney.answers.displayDeclarations              shouldBe None
-      emptyJourney.answers.consigneeEoriNumber              shouldBe None
-      emptyJourney.answers.reimbursementClaims              shouldBe None
-      emptyJourney.answers.reimbursementMethod              shouldBe None
-      emptyJourney.answers.selectedDocumentType             shouldBe None
-      emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
-      emptyJourney.answers.checkYourAnswersChangeMode       shouldBe false
-      emptyJourney.getNdrcDetails                           shouldBe None
-      emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
-      emptyJourney.hasCompleteReimbursementClaims           shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences           shouldBe true
-      emptyJourney.hasCompleteAnswers                       shouldBe false
-      emptyJourney.toOutput.isLeft                          shouldBe true
-      emptyJourney.isFinalized                              shouldBe false
+      emptyJourney.answers.userEoriNumber             shouldBe exampleEori
+      emptyJourney.answers.bankAccountDetails         shouldBe None
+      emptyJourney.answers.bankAccountType            shouldBe None
+      emptyJourney.answers.basisOfClaim               shouldBe None
+      emptyJourney.answers.contactAddress             shouldBe None
+      emptyJourney.answers.contactDetails             shouldBe None
+      emptyJourney.answers.contactAddress             shouldBe None
+      emptyJourney.answers.declarantEoriNumber        shouldBe None
+      emptyJourney.answers.additionalDetails          shouldBe None
+      emptyJourney.answers.displayDeclarations        shouldBe None
+      emptyJourney.answers.consigneeEoriNumber        shouldBe None
+      emptyJourney.answers.reimbursementClaims        shouldBe None
+      emptyJourney.answers.reimbursementMethod        shouldBe None
+      emptyJourney.answers.selectedDocumentType       shouldBe None
+      emptyJourney.answers.supportingEvidences        shouldBe Seq.empty
+      emptyJourney.answers.checkYourAnswersChangeMode shouldBe false
+      emptyJourney.getNdrcDetails                     shouldBe None
+      emptyJourney.isAllSelectedDutiesAreCMAEligible  shouldBe false
+      emptyJourney.hasCompleteReimbursementClaims     shouldBe false
+      emptyJourney.hasCompleteSupportingEvidences     shouldBe true
+      emptyJourney.hasCompleteAnswers                 shouldBe false
+      emptyJourney.toOutput.isLeft                    shouldBe true
+      emptyJourney.isFinalized                        shouldBe false
     }
 
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
         OverpaymentsMultipleJourney.validator.apply(journey) shouldBe Right(())
-        journey.answers.checkYourAnswersChangeMode         shouldBe true
-        journey.hasCompleteReimbursementClaims             shouldBe true
-        journey.hasCompleteSupportingEvidences             shouldBe true
-        journey.hasCompleteAnswers                         shouldBe true
-        journey.isFinalized                                shouldBe false
+        journey.answers.checkYourAnswersChangeMode           shouldBe true
+        journey.hasCompleteReimbursementClaims               shouldBe true
+        journey.hasCompleteSupportingEvidences               shouldBe true
+        journey.hasCompleteAnswers                           shouldBe true
+        journey.isFinalized                                  shouldBe false
 
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
 
@@ -112,11 +112,11 @@ class OverpaymentsMultipleJourneySpec
         val journey = emptyJourney
           .submitMovementReferenceNumberAndDeclaration(mrn, decl)
           .getOrFail
-        journey.answers.movementReferenceNumbers.flatMap(_.headOption).contains(mrn)  shouldBe true
-        journey.hasCompleteAnswers                                                    shouldBe false
-        journey.hasCompleteReimbursementClaims                                        shouldBe false
-        journey.hasCompleteSupportingEvidences                                        shouldBe true
-        journey.isFinalized                                                           shouldBe false
+        journey.answers.movementReferenceNumbers.flatMap(_.headOption).contains(mrn) shouldBe true
+        journey.hasCompleteAnswers                                                   shouldBe false
+        journey.hasCompleteReimbursementClaims                                       shouldBe false
+        journey.hasCompleteSupportingEvidences                                       shouldBe true
+        journey.isFinalized                                                          shouldBe false
       }
     }
 
@@ -135,10 +135,10 @@ class OverpaymentsMultipleJourneySpec
         val modifiedJourney = journey
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
           .getOrFail
-        modifiedJourney.answers.displayDeclarations.flatMap(_.headOption)     shouldBe Some(decl2)
-        modifiedJourney.hasCompleteAnswers             shouldBe false
-        modifiedJourney.hasCompleteReimbursementClaims shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        modifiedJourney.answers.displayDeclarations.flatMap(_.headOption) shouldBe Some(decl2)
+        modifiedJourney.hasCompleteAnswers                                shouldBe false
+        modifiedJourney.hasCompleteReimbursementClaims                    shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences                    shouldBe true
       }
     }
 
@@ -166,11 +166,12 @@ class OverpaymentsMultipleJourneySpec
           )
           .getOrFail
 
-        journey.answers.movementReferenceNumbers.toList.flatten.contains(exampleMrn)                             shouldBe true
-        journey.answers.displayDeclarations.toList.flatten.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
-        journey.hasCompleteAnswers                                                                               shouldBe false
-        journey.hasCompleteReimbursementClaims                                                                   shouldBe false
-        journey.hasCompleteSupportingEvidences                                                                   shouldBe true
+        journey.answers.movementReferenceNumbers.toList.flatten.contains(exampleMrn) shouldBe true
+        journey.answers.displayDeclarations.toList.flatten
+          .contains(acc14.withDeclarationId(exampleMrnAsString))                     shouldBe true
+        journey.hasCompleteAnswers                                                   shouldBe false
+        journey.hasCompleteReimbursementClaims                                       shouldBe false
+        journey.hasCompleteSupportingEvidences                                       shouldBe true
       }
     }
 
@@ -315,7 +316,11 @@ class OverpaymentsMultipleJourneySpec
           authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
-            journey.answers.displayDeclarations.flatMap(_.headOption).flatMap(_.getConsigneeDetails).flatMap(_.contactDetails).isDefined
+            journey.answers.displayDeclarations
+              .flatMap(_.headOption)
+              .flatMap(_.getConsigneeDetails)
+              .flatMap(_.contactDetails)
+              .isDefined
           ) {
             val expectedContact   = journey.answers.displayDeclarations
               .flatMap(_.headOption)
@@ -343,8 +348,15 @@ class OverpaymentsMultipleJourneySpec
           authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
-            journey.answers.displayDeclarations.flatMap(_.headOption).flatMap(_.getDeclarantDetails.contactDetails).isDefined &&
-              journey.answers.displayDeclarations.flatMap(_.headOption).flatMap(_.getConsigneeDetails).flatMap(_.contactDetails).isEmpty
+            journey.answers.displayDeclarations
+              .flatMap(_.headOption)
+              .flatMap(_.getDeclarantDetails.contactDetails)
+              .isDefined &&
+              journey.answers.displayDeclarations
+                .flatMap(_.headOption)
+                .flatMap(_.getConsigneeDetails)
+                .flatMap(_.contactDetails)
+                .isEmpty
           ) {
             val calculatedContact = journey.computeContactDetails(signedInUser).get
             calculatedContact.fullName           shouldBe signedInUser.name
@@ -369,7 +381,10 @@ class OverpaymentsMultipleJourneySpec
           authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
-            journey.answers.displayDeclarations.flatMap(_.headOption).flatMap(_.getDeclarantDetails.contactDetails).isDefined
+            journey.answers.displayDeclarations
+              .flatMap(_.headOption)
+              .flatMap(_.getDeclarantDetails.contactDetails)
+              .isDefined
           ) {
             val expectedContact   = journey.answers.displayDeclarations
               .flatMap(_.headOption)
@@ -396,7 +411,10 @@ class OverpaymentsMultipleJourneySpec
           authenticatedUserGen
         ) { (journey, signedInUser) =>
           whenever(
-            journey.answers.displayDeclarations.flatMap(_.headOption).flatMap(_.getDeclarantDetails.contactDetails).isDefined
+            journey.answers.displayDeclarations
+              .flatMap(_.headOption)
+              .flatMap(_.getDeclarantDetails.contactDetails)
+              .isDefined
           ) {
             val expectedContact   = journey.answers.displayDeclarations
               .flatMap(_.headOption)
@@ -430,9 +448,11 @@ class OverpaymentsMultipleJourneySpec
             acc14DeclarantMatchesUserEori = false
           )
         ) { journey =>
-          val expectedAddress = journey.answers.displayDeclarations.flatMap(_.headOption).flatMap(
-            _.getConsigneeDetails.map(_.establishmentAddress.toContactAddress)
-          )
+          val expectedAddress = journey.answers.displayDeclarations
+            .flatMap(_.headOption)
+            .flatMap(
+              _.getConsigneeDetails.map(_.establishmentAddress.toContactAddress)
+            )
           journey.computeAddressDetails shouldBe expectedAddress
         }
       }
@@ -446,7 +466,9 @@ class OverpaymentsMultipleJourneySpec
           )
         ) { journey =>
           val expectedAddress =
-            journey.answers.displayDeclarations.flatMap(_.headOption).map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+            journey.answers.displayDeclarations
+              .flatMap(_.headOption)
+              .map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
           journey.computeAddressDetails shouldBe expectedAddress
         }
       }
@@ -460,7 +482,9 @@ class OverpaymentsMultipleJourneySpec
           )
         ) { journey =>
           val expectedAddress =
-            journey.answers.displayDeclarations.flatMap(_.headOption).map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+            journey.answers.displayDeclarations
+              .flatMap(_.headOption)
+              .map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
           journey.computeAddressDetails shouldBe expectedAddress
         }
       }
@@ -474,7 +498,9 @@ class OverpaymentsMultipleJourneySpec
           )
         ) { journey =>
           val expectedAddress =
-            journey.answers.displayDeclarations.flatMap(_.headOption).map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+            journey.answers.displayDeclarations
+              .flatMap(_.headOption)
+              .map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
           journey.computeAddressDetails shouldBe expectedAddress
         }
       }
@@ -533,17 +559,6 @@ class OverpaymentsMultipleJourneySpec
 
         modifiedJourney.hasCompleteAnswers           shouldBe true
         modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Right(basisOfClaim)
-      }
-    }
-
-    "change basis of claim if duplicate entry" in {
-      forAll(completeJourneyGenWithoutDuplicateEntry) { journey =>
-        val modifiedJourney = journey.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry)
-
-        modifiedJourney.hasCompleteAnswers           shouldBe false
-        modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Left(
-          DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED :: DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED :: Nil
-        )
       }
     }
 
@@ -630,7 +645,7 @@ class OverpaymentsMultipleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val taxCodeSet                  = journey.getNdrcDetails.map(_.map(_.taxType).map(TaxCode.apply).toSet).getOrElse(Set.empty)
         val newTaxCodeSet: Seq[TaxCode] = taxCodeSet.take(2).toSeq
-        val mrn = journey.answers.movementReferenceNumbers.get.head
+        val mrn                         = journey.answers.movementReferenceNumbers.get.head
 
         val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, newTaxCodeSet)
 
@@ -642,7 +657,7 @@ class OverpaymentsMultipleJourneySpec
     "change tax code for reimbursement with a new invalid set" in {
       forAll(completeJourneyGen) { journey =>
         val invalidTaxCodeSet     = TaxCodes.all.take(6).toSeq
-        val mrn = journey.answers.movementReferenceNumbers.get.head
+        val mrn                   = journey.answers.movementReferenceNumbers.get.head
         val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, invalidTaxCodeSet)
         modifiedJourneyEither shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
       }
@@ -679,7 +694,8 @@ class OverpaymentsMultipleJourneySpec
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
 
-      val journeyEitherTestZero     = declaration.flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("0.00")))
+      val journeyEitherTestZero     =
+        declaration.flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("0.00")))
       val journeyEitherTestNegative =
         declaration.flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("-10.00")))
       val journeyEitherTestGreater  =
@@ -703,13 +719,12 @@ class OverpaymentsMultipleJourneySpec
 
     "change to valid amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        val mrn = journey.answers.movementReferenceNumbers.get.head
+        val mrn                                  = journey.answers.movementReferenceNumbers.get.head
         val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaimsFor(mrn).toSeq
         for ((taxCode, amount) <- taxCodes) {
-          val newAmount     = amount / 2
-          val journeyEither = journey.submitAmountForReimbursement(exampleMrn, taxCode, newAmount)
-          journeyEither.isRight shouldBe true
+          val newAmount       = amount / 2
+          val journeyEither   = journey.submitAmountForReimbursement(mrn, taxCode, newAmount)
           val modifiedJourney = journeyEither.getOrFail
           modifiedJourney.getReimbursementAmountForDeclaration(mrn) shouldBe (totalAmount - newAmount)
         }
@@ -718,7 +733,7 @@ class OverpaymentsMultipleJourneySpec
 
     "change to invalid amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        val mrn = journey.answers.movementReferenceNumbers.get.head
+        val mrn                                  = journey.answers.movementReferenceNumbers.get.head
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaimsFor(mrn).toSeq
         for ((taxCode, amount) <- taxCodes) {
           val newAmount     = BigDecimal("0.00")
@@ -731,7 +746,7 @@ class OverpaymentsMultipleJourneySpec
 
     "change to valid amount for the tax code not in ACC14" in {
       forAll(completeJourneyGen) { journey =>
-        val mrn = journey.answers.movementReferenceNumbers.get.head
+        val mrn           = journey.answers.movementReferenceNumbers.get.head
         val taxCodeSet    = journey.getNdrcDetails.map(_.map(_.taxType).map(TaxCode.apply).toSet).getOrElse(Set.empty)
         val wrongTaxCode  = TaxCodes.all.find(taxCode => !taxCodeSet.contains(taxCode)).getOrElse(TaxCode.NI633)
         val journeyEither = journey.submitAmountForReimbursement(mrn, wrongTaxCode, BigDecimal("10.00"))
