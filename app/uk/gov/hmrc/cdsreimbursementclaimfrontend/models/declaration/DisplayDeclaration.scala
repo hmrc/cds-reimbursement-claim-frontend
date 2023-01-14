@@ -54,6 +54,10 @@ final case class DisplayDeclaration(
   def getNdrcDetailsFor(taxType: String): Option[NdrcDetails] =
     getNdrcDetailsList.flatMap(_.find(_.taxType === taxType))
 
+  lazy val getNdrcDutiesWithAmount: Option[List[(TaxCode, BigDecimal)]] =
+    getNdrcDetailsList
+      .map(_.map(ndrcDetails => (TaxCode(ndrcDetails.taxType), BigDecimal(ndrcDetails.amount))))
+
   def getAvailableTaxCodes: Seq[TaxCode] =
     getNdrcDetailsList.map(_.map(d => TaxCode(d.taxType))).getOrElse(Seq.empty)
 
