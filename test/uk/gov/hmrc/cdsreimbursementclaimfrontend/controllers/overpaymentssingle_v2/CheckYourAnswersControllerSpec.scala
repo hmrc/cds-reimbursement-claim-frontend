@@ -41,12 +41,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ReimbursementMethodSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ReimbursementMethodSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec

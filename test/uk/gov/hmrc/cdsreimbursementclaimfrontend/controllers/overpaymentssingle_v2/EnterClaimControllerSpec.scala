@@ -193,7 +193,7 @@ class EnterClaimControllerSpec
             }
 
             val actualAmountOpt: Option[BigDecimal] =
-              journey.answers.reimbursementClaims.flatMap(_.get(taxCode).flatten)
+              journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
 
             checkPageIsDisplayed(
               performAction(taxCode),
@@ -272,7 +272,7 @@ class EnterClaimControllerSpec
                   mockStoreSession(
                     SessionData(
                       journey
-                        .submitAmountForReimbursement(taxCode, actualAmount)
+                        .submitCorrectAmount(taxCode, actualAmount)
                         .getOrFail
                     )
                   )(
