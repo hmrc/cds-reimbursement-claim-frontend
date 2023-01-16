@@ -61,8 +61,11 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .timedOut()
       .url
 
+  val signOutPage: String =
+    s"$selfBaseUrl/claim-back-import-duty-vat/sign-out"
+
   val ggSignOut: String =
-    signOutUrl + s"?continue=$serviceFeedBackUrl"
+    signOutUrl + s"?continue=$signOutPage"
 
   val weSignedYouOutPageUrl: String =
     s"$selfBaseUrl/claim-back-import-duty-vat${baseRoutes.StartController.timedOut().url}"
