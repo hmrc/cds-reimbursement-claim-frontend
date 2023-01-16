@@ -27,30 +27,49 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import play.api.mvc.Call
 
-class ClaimSummaryHelper() {
+object ClaimSummaryHelper {
 
   private val key = "check-claim-summary"
 
   def makeClaimSummary(claims: NonEmptyList[ClaimedReimbursement])(implicit messages: Messages): List[SummaryListRow] =
     makeClaimSummaryRows(claims) ++ makeTotalRow(claims)
 
+  def makeClaimSummary(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): List[SummaryListRow] =
+    makeClaimSummaryRows(claims) ++ makeTotalRow(claims)
+
   def makeClaimSummaryRows(claims: NonEmptyList[ClaimedReimbursement])(implicit
     messages: Messages
   ): List[SummaryListRow] =
-    claims.toList.zipWithIndex.map { case (claim, index) =>
+    makeClaimSummaryRows(
+      claims.toList
+        .map(c =>
+          (
+            c.taxCode,
+            c.claimAmount,
+            overpaymentsSingleRoutes.EnterSingleClaimController.enterClaim(c.id)
+          )
+        )
+    )
+
+  def makeClaimSummaryRows(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit
+    messages: Messages
+  ): List[SummaryListRow] =
+    claims.toList.zipWithIndex.map { case ((taxCode, claimAmount, changeCall), index) =>
       SummaryListRow(
-        key = Key(Text(s"${claim.taxCode} - ${messages(s"select-duties.duty.${claim.taxCode}")}")),
-        value = Value(Text(claim.claimAmount.toPoundSterlingString)),
+        key = Key(Text(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")),
+        value = Value(Text(claimAmount.toPoundSterlingString)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${overpaymentsSingleRoutes.EnterSingleClaimController.enterClaim(claim.id).url}",
+                href = s"${changeCall.url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
                   s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
-                    .findTaxType(claim.taxCode)} Duty ${claim.taxCode.value} - ${messages(s"select-duties.duty.${claim.taxCode}")}"
+                    .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}"
                 )
               )
             )
@@ -63,6 +82,13 @@ class ClaimSummaryHelper() {
     SummaryListRow(
       key = Key(HtmlContent(messages(s"$key.total"))),
       value = Value(Text(claims.toList.map(_.claimAmount).sum.toPoundSterlingString)),
+      classes = "govuk-!-margin-bottom-9"
+    ) :: Nil
+
+  def makeTotalRow(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): List[SummaryListRow] =
+    SummaryListRow(
+      key = Key(HtmlContent(messages(s"$key.total"))),
+      value = Value(Text(claims.map(_._2).sum.toPoundSterlingString)),
       classes = "govuk-!-margin-bottom-9"
     ) :: Nil
 

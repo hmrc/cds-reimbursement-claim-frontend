@@ -38,7 +38,8 @@
     classes: String = "govuk-fieldset__legend--m",
     paddingClasses: String = "govuk-!-margin-top-6",
     inline: Boolean = false,
-    hideError: Boolean = false
+    hideError: Boolean = false,
+    id: String = null
 )(implicit messages: Messages)
 
 @legendClasses = @{classes + " " + paddingClasses}
@@ -51,7 +52,8 @@
             content = HtmlContent(legend),
             isPageHeading = legendAsHeading,
             classes = legendClasses
-        ))
+        )),
+        attributes = Map("id" -> Option(id).fold(s"$name-radios")(identity))
     )),
     hint = hintKey.map { hint => Hint(
         content = HtmlContent(messages(hint))

@@ -50,13 +50,13 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")), id = Some(s"$key-description"))
+    @paragraph(Html(messages(s"$key.help-text")), id = s"$key-description")
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"), id = Some(s"$key-agent-fees-disclaimer"))
+    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"), id = s"$key-agent-fees-disclaimer")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"), id = Some(s"$key-how-much-was-paid"))
+        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"$key-how-much-was-paid")
 
         @inputText(
             form = form,

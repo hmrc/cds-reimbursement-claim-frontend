@@ -188,6 +188,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       submitContactAddress,
       submitBankAccountDetails,
       submitBankAccountType,
+      true,
+      true,
       reimbursementMethod,
       taxCodes
     ).map(OverpaymentsSingleJourney.tryBuildFrom(_))
@@ -203,9 +205,12 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    submitReimbursementMethod: Boolean = true,
+    submitEvidence: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty,
+    checkYourAnswersChangeMode: Boolean = true
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -294,7 +299,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
-          supportingEvidences = supportingEvidencesExpanded,
+          supportingEvidences =
+            if (submitEvidence) supportingEvidencesExpanded
+            else Seq.empty,
           bankAccountDetails =
             if (
               submitBankAccountDetails &&
@@ -309,8 +316,10 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
             )
               Some(bankAccountType)
             else None,
-          reimbursementMethod = if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-          checkYourAnswersChangeMode = true
+          reimbursementMethod =
+            if (submitReimbursementMethod && allDutiesCmaEligible) Some(reimbursementMethod)
+            else None,
+          checkYourAnswersChangeMode = checkYourAnswersChangeMode
         )
 
       answers

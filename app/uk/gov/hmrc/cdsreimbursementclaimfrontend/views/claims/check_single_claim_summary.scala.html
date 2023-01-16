@@ -26,10 +26,10 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.govukfrontend.views.Aliases.{RadioItem, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimSummaryHelper
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        claimSummaryHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimSummaryHelper,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
@@ -57,7 +57,7 @@
 
     @subHeading(Html(messages(s"$key.duty.label",mrn.value)), classes = "govuk-heading-m")
     
-    @summary(SummaryList(claimSummaryHelper.makeClaimSummary(claims)))
+    @summary(SummaryList(ClaimSummaryHelper.makeClaimSummary(claims)))
 
     @formWithCSRF(overpaymentsSingleRoutes.EnterSingleClaimController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
         @radios(

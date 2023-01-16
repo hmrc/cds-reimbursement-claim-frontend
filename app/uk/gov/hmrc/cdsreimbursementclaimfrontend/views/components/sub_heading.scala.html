@@ -21,9 +21,12 @@
 @(
     heading: Html,
     classes: String = "govuk-heading-m govuk-!-margin-top-9",
-    level: String = "h2"
+    level: String = "h2",
+    id: String  = null
 )
 
-<@level class="@classes">
+@if(id==null){<@level class="@classes">
     @heading
-</@level>
+</@level>} else {<@level class="@classes" id="@id">
+    @heading
+</@level>}
