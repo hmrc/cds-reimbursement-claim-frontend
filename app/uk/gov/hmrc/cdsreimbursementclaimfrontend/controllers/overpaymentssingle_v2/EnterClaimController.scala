@@ -72,7 +72,7 @@ class EnterClaimController @Inject() (
 
             case Some(ndrcDetails) =>
               val actualAmount: Option[BigDecimal] =
-                journey.answers.reimbursementClaims.flatMap(_.get(taxCode).flatten)
+                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
               val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
               val form                             =
@@ -116,7 +116,7 @@ class EnterClaimController @Inject() (
                       ),
                     reimbursementAmount =>
                       journey
-                        .submitAmountForReimbursement(taxCode, reimbursementAmount)
+                        .submitCorrectAmount(taxCode, reimbursementAmount)
                         .fold(
                           error =>
                             Future.failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),

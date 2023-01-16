@@ -21,11 +21,11 @@
 @(
     content: Html,
     classes: Option[String] = Some("govuk-body"),
-    id: Option[String] = None
+    id: String = null
 )
 
-@id.fold{<p class="@classes">
+@if(id==null){<p class="@classes">
     @content
-</p>}{ id =><p class="@classes" id="@id">
+</p>} else {<p class="@classes" id="@id">
     @content
 </p>}

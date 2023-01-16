@@ -338,6 +338,12 @@ trait ControllerSpec
     (summaryKeys.asScala, summaryValues.asScala)
   }
 
+  final def summaryKeyValueList(doc: Document): Seq[(String, String)] = {
+    val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+    val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+    summaryKeys.asScala.zip(summaryValues.asScala)
+  }
+
   final def summaryKeyValueMap(doc: Document): Map[String, String] = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()

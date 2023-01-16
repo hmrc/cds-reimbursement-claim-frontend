@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._

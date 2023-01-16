@@ -26,19 +26,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 /** The common base of the claim model companion objects.
   * @tparam Journey the type of the claim
   */
-trait JourneyCompanion[Journey] extends ImplicitFluentSyntax[Journey] with SeqUtils {
+trait JourneyCompanion[T] extends ImplicitFluentSyntax[T] with SeqUtils {
 
   type Answers
   type Output
 
   /** Create an empty initial instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): Journey
+  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): T
 
   /** Validator of the journey answers consistency and completeness. */
-  def validator: Validate[Journey]
+  def validator: Validate[T]
 
   /** Tries to build journey state out of supplied answers. */
-  def tryBuildFrom(answers: Answers): Either[String, Journey]
+  def tryBuildFrom(answers: Answers): Either[String, T]
 
   implicit final lazy val answersEquality: Eq[Answers] =
     Eq.fromUniversalEquals[Answers]
@@ -46,10 +46,10 @@ trait JourneyCompanion[Journey] extends ImplicitFluentSyntax[Journey] with SeqUt
   implicit final lazy val outputEquality: Eq[Output] =
     Eq.fromUniversalEquals[Output]
 
-  implicit final lazy val equality: Eq[Journey] =
-    Eq.fromUniversalEquals[Journey]
+  implicit final lazy val equality: Eq[T] =
+    Eq.fromUniversalEquals[T]
 
-  implicit final val companion: JourneyCompanion[Journey] =
+  implicit final val companion: JourneyCompanion[T] =
     this
 
 }

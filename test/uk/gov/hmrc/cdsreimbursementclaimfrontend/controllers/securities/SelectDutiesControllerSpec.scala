@@ -53,7 +53,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.SelectDutiesSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SelectDutiesSummary
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future

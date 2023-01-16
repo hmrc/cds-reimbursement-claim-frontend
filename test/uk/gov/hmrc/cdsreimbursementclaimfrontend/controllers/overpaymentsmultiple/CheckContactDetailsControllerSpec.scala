@@ -63,7 +63,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 
 import java.net.URL
 import java.util.UUID

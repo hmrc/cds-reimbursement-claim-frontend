@@ -188,6 +188,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       submitContactAddress,
       submitBankAccountDetails,
       submitBankAccountType,
+      true,
+      true,
       reimbursementMethod,
       taxCodes
     ).map(OverpaymentsSingleJourney.tryBuildFrom(_))
@@ -203,9 +205,12 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    submitReimbursementMethod: Boolean = true,
+    submitEvidence: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty,
+    checkYourAnswersChangeMode: Boolean = true
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -221,7 +226,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
                                        )
                                        .map(_ ++ forcedTaxCodes)
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
-      reimbursementAmount         <-
+      correctAmount               <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
         )
@@ -245,13 +250,13 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
-      val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
+      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
-          .zip(reimbursementAmount)
+          .zip(correctAmount)
           .map { case (t, a) =>
             (t, Option(a))
           }
@@ -292,9 +297,11 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           duplicateDisplayDeclaration = duplicateDisplayDeclaration,
           whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
-          reimbursementClaims = Some(reimbursementClaims),
+          correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
-          supportingEvidences = supportingEvidencesExpanded,
+          supportingEvidences =
+            if (submitEvidence) supportingEvidencesExpanded
+            else Seq.empty,
           bankAccountDetails =
             if (
               submitBankAccountDetails &&
@@ -309,8 +316,10 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
             )
               Some(bankAccountType)
             else None,
-          reimbursementMethod = if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-          checkYourAnswersChangeMode = true
+          reimbursementMethod =
+            if (submitReimbursementMethod && allDutiesCmaEligible) Some(reimbursementMethod)
+            else None,
+          checkYourAnswersChangeMode = checkYourAnswersChangeMode
         )
 
       answers
@@ -409,10 +418,10 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
-      val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
+      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
           .map { t =>
@@ -450,7 +459,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           duplicateDisplayDeclaration = duplicateDisplayDeclaration,
           whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
-          reimbursementClaims = Some(reimbursementClaims),
+          correctedAmounts = Some(correctedAmounts),
           checkYourAnswersChangeMode = false
         )
 
@@ -483,7 +492,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
                                     )
                                     .map(_ ++ forcedTaxCodes)
       paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
-      reimbursementAmount      <-
+      correctAmount            <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
         )
@@ -495,13 +504,13 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
-      val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
+      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
-          .zip(reimbursementAmount)
+          .zip(correctAmount)
           .map { case (t, a) =>
             (t, Option(a))
           }
@@ -537,7 +546,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           duplicateDisplayDeclaration = duplicateDisplayDeclaration,
           whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
-          reimbursementClaims = Some(reimbursementClaims),
+          correctedAmounts = Some(correctedAmounts),
           checkYourAnswersChangeMode = false
         )
 

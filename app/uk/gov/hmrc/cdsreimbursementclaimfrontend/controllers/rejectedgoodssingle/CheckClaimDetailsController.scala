@@ -43,17 +43,16 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val checkClaimDetailsKey: String = "check-claim.rejected-goods"
-
-  val whetherClaimDetailsCorrect: Form[YesNo] = YesOrNoQuestionForm(checkClaimDetailsKey)
-
-  val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] =
+  final val whetherClaimDetailsCorrect: Form[YesNo] =
+    YesOrNoQuestionForm("check-claim.rejected-goods")
+
+  final val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
+
+  final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       (
         journey.withDutiesChangeMode(false),
@@ -77,7 +76,7 @@ class CheckClaimDetailsController @Inject() (
       ).asFuture
     }
 
-  val submit: Action[AnyContent] =
+  final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       journey.answers.movementReferenceNumber match {
         case Some(mrn) =>
