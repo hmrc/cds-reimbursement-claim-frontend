@@ -80,7 +80,7 @@ final class OverpaymentsSingleJourney private (
   def needsDuplicateMrnAndDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
 
-  def needsDeclarantAndConsigneeEoriSubmissionForDuplicateMrn: Boolean =
+  def needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration: Boolean =
     !(answers.duplicateDisplayDeclaration.map(_.getDeclarantEori).contains(answers.userEoriNumber) ||
       answers.duplicateDisplayDeclaration.flatMap(_.getConsigneeEori).contains(answers.userEoriNumber))
 
@@ -336,6 +336,28 @@ final class OverpaymentsSingleJourney private (
               )
             )
       }
+    }
+
+  def checkConsigneeEoriNumberWithDuplicateDeclaration(
+    consigneeEoriNumber: Eori
+  ): Either[String, OverpaymentsSingleJourney] =
+    whileClaimIsAmendable {
+      if (needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration)
+        if (answers.duplicateDisplayDeclaration.flatMap(_.getConsigneeEori).contains(consigneeEoriNumber))
+          Right(this)
+        else Left("checkConsigneeEoriNumberWithDuplicateDeclaration.shouldMatchConsigneeEoriFromACC14")
+      else Left("checkConsigneeEoriNumberWithDuplicateDeclaration.unexpected")
+    }
+
+  def checkDeclarantEoriNumberWithDuplicateDeclaration(
+    declarantEoriNumber: Eori
+  ): Either[String, OverpaymentsSingleJourney] =
+    whileClaimIsAmendable {
+      if (needsDeclarantAndConsigneeEoriSubmission)
+        if (answers.duplicateDisplayDeclaration.map(_.getDeclarantEori).contains(declarantEoriNumber))
+          Right(this)
+        else Left("checkDeclarantEoriNumberWithDuplicateDeclaration.shouldMatchDeclarantEoriFromACC14")
+      else Left("checkDeclarantEoriNumberWithDuplicateDeclaration.unexpected")
     }
 
   def submitAdditionalDetails(

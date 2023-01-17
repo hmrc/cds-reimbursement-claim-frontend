@@ -23,6 +23,12 @@ POST        /overpayments/v2/single/claimant-details/change-contact-details     
 GET         /overpayments/v2/single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDuplicateMovementReferenceNumberController.show
 POST        /overpayments/v2/single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDuplicateMovementReferenceNumberController.submit
 
+GET         /overpayments/v2/single/enter-importer-eori-of-duplicate-declaration             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterImporterEoriNumberOfDuplicateDeclaration.show
+POST        /overpayments/v2/single/enter-importer-eori-of-duplicate-declaration             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterImporterEoriNumberOfDuplicateDeclaration.submit
+
+GET         /overpayments/v2/single/enter-declarant-eori-of-duplicate-declaration            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDeclarantEoriNumberOfDuplicateDeclarationController.show
+POST        /overpayments/v2/single/enter-declarant-eori-of-duplicate-declaration            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterDeclarantEoriNumberOfDuplicateDeclarationController.submit
+
 GET         /overpayments/v2/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDuplicateDeclarationDetailsController.show
 POST        /overpayments/v2/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckDuplicateDeclarationDetailsController.submit
 

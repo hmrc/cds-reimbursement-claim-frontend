@@ -74,7 +74,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     journey.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, declaration)
 
   override def afterSuccessfullSubmit(journey: OverpaymentsSingleJourney): Result =
-    if (journey.needsDeclarantAndConsigneeEoriSubmissionForDuplicateMrn) {
+    if (journey.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration) {
       // TODO implement EORI check
       Redirect(routes.CheckDuplicateDeclarationDetailsController.show)
     } else {
