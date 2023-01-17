@@ -31,6 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
+import scala.collection.JavaConverters._
+
 /** A collection of generators supporting the tests of OverpaymentsMultipleJourney. */
 object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
 
@@ -135,6 +137,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    minNumberOfMRNs: Int = 2,
+    maxNumberOfMRNs: Int = 6,
+    maxSize: Int = 5,
     reimbursementMethod: Option[ReimbursementMethod] = None
   ): Gen[OverpaymentsMultipleJourney] =
     buildJourneyGen(
@@ -147,6 +152,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
+      minNumberOfMRNs = minNumberOfMRNs,
+      maxNumberOfMRNs = maxNumberOfMRNs,
+      maxSize = maxSize,
       reimbursementMethod = reimbursementMethod
     ).map(
       _.fold(
@@ -157,6 +165,21 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
         identity
       )
     )
+
+  type TaxCodesAndAmounts = (Seq[TaxCode], Seq[TaxCode], List[BigDecimal], Seq[BigDecimal])
+
+  def taxCodesAndAmountsGen(maxSize: Int): Gen[TaxCodesAndAmounts] = for {
+    numberOfTaxCodes         <- Gen.choose(1, maxSize)
+    numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
+    taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
+    paidAmounts              <- Gen.listOfN(numberOfTaxCodes, amountNumberGen)
+    reimbursementAmounts     <-
+      Gen
+        .sequence[Seq[BigDecimal], BigDecimal](
+          paidAmounts.take(numberOfSelectedTaxCodes).map(a => Gen.choose(BigDecimal.exact("0.01"), a))
+        )
+  } yield (taxCodes, taxCodes.take(numberOfSelectedTaxCodes), paidAmounts, reimbursementAmounts)
+
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -169,6 +192,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    minNumberOfMRNs: Int = 2,
+    maxNumberOfMRNs: Int = 6,
+    maxSize: Int = 5,
     reimbursementMethod: Option[ReimbursementMethod] = None
   ): Gen[Either[String, OverpaymentsMultipleJourney]] =
     buildAnswersGen(
@@ -182,8 +208,12 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       submitContactAddress,
       submitBankAccountDetails,
       submitBankAccountType,
+      minNumberOfMRNs,
+      maxNumberOfMRNs,
+      maxSize,
       reimbursementMethod
-    ).map(OverpaymentsMultipleJourney.tryBuildFrom(_))
+    )
+    .map(OverpaymentsMultipleJourney.tryBuildFrom(_))
 
   def buildAnswersGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -196,23 +226,25 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    minNumberOfMRNs: Int = 2,
+    maxNumberOfMRNs: Int = 6,
+    maxSize: Int = 5,
     reimbursementMethod: Option[ReimbursementMethod] = None
   ): Gen[OverpaymentsMultipleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
-      mrns                        <- Gen.listOfN(3, IdGen.genMRN)
+      numberOfMRNs                <- Gen.choose(minNumberOfMRNs, Math.max(minNumberOfMRNs, maxNumberOfMRNs))
+      mrns                        <- Gen.listOfN(numberOfMRNs, IdGen.genMRN)
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes            <- Gen.choose(1, 5)
-      taxCodes                    <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
+      taxCodesWithAmounts         <- Gen.sequence(mrns.map(_ => taxCodesAndAmountsGen(maxSize))).map(_.asScala)
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       reimbursementAmount         <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
         )
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
-      duplicateMrn                <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
-                                     else Gen.const(None)
       whetherNorthernIreland      <- Gen.oneOf(true, false)
       reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.values))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
@@ -231,36 +263,39 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]                 =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+      val paidDuties: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])] =
+        mrns.zip(taxCodesWithAmounts).map { case (mrn, (taxCodes, _, paidAmounts, _)) =>
+          (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, allDutiesCmaEligible) })
+        }
 
-      val reimbursementClaims: Map[MRN, Map[TaxCode, Option[BigDecimal]]] =
-        mrns
-          .map(mrn =>
-            (
-              mrn,
-              taxCodes
-                .take(numberOfSelectedTaxCodes)
-                .zip(reimbursementAmount)
-                .map { case (t, a) =>
-                  (t, Option(a))
-                }
-                .toMap
-            )
-          )
-          .toMap
+      val reimbursementClaims: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
+        OrderedMap(
+          mrns
+            .zip(taxCodesWithAmounts)
+            .map { case (mrn, (_, selectedTaxCodes, _, reimbursementAmounts)) =>
+              (
+                mrn,
+                selectedTaxCodes
+                  .zip(reimbursementAmounts)
+                  .map { case (taxCode, amount) => (taxCode, Option(amount)) }
+                  .toMap
+              )
+            }
+        )
+
 
       val displayDeclarations: Seq[DisplayDeclaration] =
-        mrns.map(mrn =>
+        paidDuties.map { case (mrn, paidDutiesPerMrn) =>
           buildDisplayDeclaration(
             mrn.value,
             declarantEORI,
             if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-            paidDuties,
+            paidDutiesPerMrn,
             consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
             declarantContact = declarantContact
           )
-        )
+        }
+
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 

@@ -108,8 +108,11 @@ final class OverpaymentsMultipleJourney private (
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
 
-  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
+  def getNdrcDetailsFor(declarationid: MRN, taxCode: TaxCode): Option[NdrcDetails] =
+    getDisplayDeclarationFor(declarationid).flatMap(_.getNdrcDetailsFor(taxCode.value))
+    
+  // def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
+  //   getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
   def getAvailableDuties: Seq[(TaxCode, Boolean)] =
     getNdrcDetails
@@ -131,7 +134,7 @@ final class OverpaymentsMultipleJourney private (
   def isAllSelectedDutiesAreCMAEligible(declarationId: MRN): Boolean =
     answers.reimbursementClaims
       .flatMap(_.get(declarationId))
-      .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
+      .map(_.keySet.map(getNdrcDetailsFor(declarationId, _)).collect { case Some(d) => d })
       .exists(_.forall(_.isCmaEligible))
 
   def isAllSelectedDutiesAreCMAEligible: Boolean =
@@ -154,7 +157,7 @@ final class OverpaymentsMultipleJourney private (
       .flatMap(_.get(declarationId))
       .flatMap(
         _.collectFirst { case (taxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor)
+          .flatMap(getNdrcDetailsFor(declarationId, _))
       )
 
   def getReimbursementAmountForDeclaration(declarationId: MRN): BigDecimal =
@@ -341,7 +344,7 @@ final class OverpaymentsMultipleJourney private (
           if (taxCodes.isEmpty)
             Left("selectTaxCodeSetForReimbursement.emptySelection")
           else {
-            val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
+            val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(declarationId, _).isDefined)
             if (allTaxCodesExistInACC14) {
               val newDeclarationReimbursementClaims = answers.reimbursementClaims.flatMap(_.get(declarationId)) match {
                 case None                      =>
@@ -383,7 +386,7 @@ final class OverpaymentsMultipleJourney private (
           Left("submitAmountForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
-          getNdrcDetailsFor(taxCode) match {
+          getNdrcDetailsFor(declarationId, taxCode) match {
             case None =>
               Left("submitAmountForReimbursement.taxCodeNotInACC14")
 
@@ -621,6 +624,10 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
         )
       )
 
+    
+    val hasMultipleMovementReferenceNumbers: Validate[OverpaymentsMultipleJourney] =
+      checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
+
   }
 
   import Checks._
@@ -636,7 +643,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       reimbursementMethodHasBeenProvidedIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided
+      supportingEvidenceHasBeenProvided,
+      hasMultipleMovementReferenceNumbers
     )
 
   import JourneyFormats._

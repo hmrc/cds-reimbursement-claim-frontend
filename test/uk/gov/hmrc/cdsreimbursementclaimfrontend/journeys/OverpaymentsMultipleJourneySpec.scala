@@ -88,6 +88,21 @@ class OverpaymentsMultipleJourneySpec
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
+        output.reimbursementClaims      shouldBe journey.getAllReimbursementClaims
+        output.reimbursementClaims.size shouldBe journey.countOfMovementReferenceNumbers
+      }
+    }
+
+    "check incompleteness if less than two MRNs" in {
+      forAll(buildCompleteJourneyGen(minNumberOfMRNs = 1, maxNumberOfMRNs = 1)) { journey =>
+        OverpaymentsMultipleJourney.validator(journey).headErrorOption shouldBe Some(
+          MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER
+        )
+        journey.answers.checkYourAnswersChangeMode                      shouldBe false
+        journey.hasCompleteReimbursementClaims                          shouldBe true
+        journey.hasCompleteSupportingEvidences                          shouldBe true
+        journey.hasCompleteAnswers                                      shouldBe false
+        journey.isFinalized                                             shouldBe false
       }
     }
 
@@ -720,7 +735,7 @@ class OverpaymentsMultipleJourneySpec
     "change to valid amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         val mrn                                  = journey.answers.movementReferenceNumbers.get.head
-        val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
+        val totalAmount: BigDecimal              = journey.getReimbursementAmountForDeclaration(mrn)
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaimsFor(mrn).toSeq
         for ((taxCode, amount) <- taxCodes) {
           val newAmount       = amount / 2
@@ -881,12 +896,12 @@ class OverpaymentsMultipleJourneySpec
               val taxCodes             = ndrcDetails.map(details => TaxCode(details.taxType))
               val drd                  = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
               val updatedDd            = displayDeclaration.copy(displayResponseDetail = drd)
-              val journey              = OverpaymentsMultipleJourney
+              val journey              = RejectedGoodsMultipleJourney
                 .empty(exampleEori)
-                .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
+                .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, updatedDd)
                 .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, taxCodes))
                 .getOrFail
-              val claimedReimbursement = journey.answers.reimbursementClaims.get(exampleMrn)
+              val claimedReimbursement = journey.getReimbursementClaimsFor(exampleMrn).get
               val nextDetails          = journey.getNextNdrcDetailsToClaim(exampleMrn).get
               claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
               // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it
@@ -914,9 +929,9 @@ class OverpaymentsMultipleJourneySpec
               val taxCodes       = ndrcDetails.map(details => TaxCode(details.taxType))
               val drd            = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
               val updatedDd      = displayDeclaration.copy(displayResponseDetail = drd)
-              val initialJourney = OverpaymentsMultipleJourney
+              val initialJourney = RejectedGoodsMultipleJourney
                 .empty(exampleEori)
-                .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
+                .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, updatedDd)
                 .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, taxCodes))
                 .getOrFail
               val journeyToTest  = ndrcDetails.dropRight(1).foldLeft(initialJourney) { case (journey, ndrcDetails) =>
@@ -938,9 +953,9 @@ class OverpaymentsMultipleJourneySpec
             ) {
               val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
               val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
-              val journey   = OverpaymentsMultipleJourney
+              val journey   = RejectedGoodsMultipleJourney
                 .empty(exampleEori)
-                .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
+                .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, updatedDd)
                 .getOrFail
 
               journey.hasCompleteReimbursementClaims shouldBe false
