@@ -349,8 +349,10 @@ enter-export-movement-reference-number-multiple.securities.error.import=Enter an
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
 #===================================================
-enter-associated-mrn.title=Tell us the {0} MRN
-enter-associated-mrn.help-text=The MRN will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-associated-mrn.title=Enter the {0} MRN
+enter-associated-mrn.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-associated-mrn.details.heading=Finding your MRN number
+enter-associated-mrn.details.para=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001
 enter-associated-mrn.error.required=Enter a movement reference number (MRN)
@@ -611,7 +613,7 @@ check-declaration-details.details.h1=Importer
 check-declaration-details.details.p1=The importer is the person or company that purchased the goods brought into the UK.
 check-declaration-details.details.h2=Declarant
 check-declaration-details.details.p2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
-check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contacting the CDS team (opens in new tab)</a>.
+check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contacting the Customs Declaration Service (CDS) team (opens in new tab)</a>.
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
@@ -1111,7 +1113,7 @@ select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a ga
 select-duties.duty.99D=Electricity
 
 multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
-multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: {0}
+multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: <strong>{0}</strong>
 
 #===================================================
 #  ENTER SINGLE CLAIM PAGE
@@ -1212,7 +1214,6 @@ check-claim-summary.duty-code.total.key={0} claims total repayment
 check-claim-summary.total.header=Total
 
 multiple-check-claim-summary.title=Check the repayment claim totals for all MRNs
-multiple-check-claim-summary.help-text=These are the calculations based on the information you gave us.
 multiple-check-claim-summary.duty.label={0} MRN: {1}
 multiple-check-claim-summary.total=Repayment for this MRN
 multiple-check-claim-summary.overall-total.header=Total
@@ -1253,11 +1254,10 @@ enter-inspection-date.rejected-goods.error.before1900=Enter the date your goods 
 #===================================================
 bank-details.title=Check these bank details are correct
 bank-details.p1=These are the details of where your repayments will be made in the UK based on our records.
-bank-details.details.heading=How to change bank details for an account in a different name
-bank-details.details.p1=To change bank details to an account under a different name, we need to confirm you have permission to do this.
-bank-details.details.p2=You will need to provide:
-bank-details.details.bullet1=a letter of authority confirming you have permission to change these bank account details.
-bank-details.details.p3=A letter of authority is not required if you are updating the bank details for a personal or business account held in the same name.
+bank-details.details.heading=How to change bank details if you are a representative
+bank-details.details.p1=If you are a representative and want to change these bank details, you will need to provide:
+bank-details.details.bullet1=a letter of authority from the company you represent that proves you are their representative
+bank-details.details.bullet2=a letter from the company you represent to their bank, confirming what the bank details should be changed to
 bank-details.account-name.label=Name on the account
 bank-details.account-name.label.hidden=bank details
 bank-details.sort-code.label=Sort code

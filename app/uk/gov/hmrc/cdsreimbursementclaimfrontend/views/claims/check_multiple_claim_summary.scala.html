@@ -53,8 +53,6 @@
     @errorSummary(form.errors)
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")))
-
     @for((index, mrn, claims) <- mrnWithClaimsList.toList){
         @subHeading(Html(messages(s"$key.duty.label",OrdinalNumeral(index+1).capitalize,mrn.value)))
         @summary(SummaryList(claimSummaryHelper.makeClaimSummaryRows(index+1,claims,changeCall)))
