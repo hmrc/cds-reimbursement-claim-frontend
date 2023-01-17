@@ -17,18 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.LeadMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper.combine
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import play.api.mvc.Call
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper
 object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
 
   override def render(mrns: List[MRN], key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit

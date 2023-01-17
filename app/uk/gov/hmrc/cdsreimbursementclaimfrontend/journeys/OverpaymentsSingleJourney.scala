@@ -163,6 +163,21 @@ final class OverpaymentsSingleJourney private (
       .getOrElse(Map.empty)
   }
 
+  def getUKDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)
+
+  def getEUDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.euTaxCodeSet)
+
+  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
+
+  private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
+    getReimbursementClaims.foldLeft[Option[BigDecimal]](None) { case (a, (taxCode, amount)) =>
+      if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
+      else a
+    }
+
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
 
@@ -250,7 +265,17 @@ final class OverpaymentsSingleJourney private (
   def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
       new OverpaymentsSingleJourney(
-        answers.copy(whetherNorthernIreland = Some(whetherNorthernIreland))
+        answers.copy(
+          whetherNorthernIreland = Some(whetherNorthernIreland),
+          basisOfClaim =
+            if (whetherNorthernIreland) answers.basisOfClaim
+            else
+              // review basis of claim if nothern ireland claims should not be allowed
+              answers.basisOfClaim.flatMap { case basisOfClaim =>
+                if (BasisOfOverpaymentClaimsList.northernIreland.contains(basisOfClaim)) None
+                else Some(basisOfClaim)
+              }
+        )
       )
     }
 
@@ -647,6 +672,12 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     val hasDuplicateMRNAndDisplayDeclaration: Validate[OverpaymentsSingleJourney] =
       hasDuplicateMovementReferenceNumber & hasDuplicateDisplayDeclaration
 
+    val changeDutiesModeDisabled: Validate[OverpaymentsSingleJourney] =
+      checkIsFalse(
+        _.answers.dutiesChangeMode,
+        DUTIES_CHANGE_MODE_ENABLED
+      )
+
   }
 
   import Checks._
@@ -660,6 +691,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       duplicateMovementReferenceNumberHasBeenProvidedIfNeeded,
       additionalDetailsHasBeenProvided,
       reimbursementClaimsHasBeenProvided,
+      changeDutiesModeDisabled,
       reimbursementMethodHasBeenProvidedIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
@@ -710,6 +742,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
       .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
+      .map(_.withDutiesChangeMode(answers.dutiesChangeMode))
       .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)

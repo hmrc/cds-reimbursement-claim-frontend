@@ -24,12 +24,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
-object ReimbursementMethodSummary extends AnswerSummary[ReimbursementMethod] {
+object ReimbursementMethodSummary {
 
-  override def render(
+  def apply(
     answer: ReimbursementMethod,
     key: String,
-    subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages

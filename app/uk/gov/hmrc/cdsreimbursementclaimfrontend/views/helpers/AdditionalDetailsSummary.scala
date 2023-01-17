@@ -17,17 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
+import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import play.api.mvc.Call
 
-object AdditionalDetailsSummary extends AnswerSummary[AdditionalDetailsAnswer] {
+object AdditionalDetailsSummary {
 
-  override def render(
-    answer: AdditionalDetailsAnswer,
+  def apply(
+    answer: String,
     key: String,
-    subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
@@ -38,7 +36,7 @@ object AdditionalDetailsSummary extends AnswerSummary[AdditionalDetailsAnswer] {
       List(
         SummaryListRow(
           key = Key(Text(label)),
-          value = Value(Text(answer.value)),
+          value = Value(Text(answer)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(

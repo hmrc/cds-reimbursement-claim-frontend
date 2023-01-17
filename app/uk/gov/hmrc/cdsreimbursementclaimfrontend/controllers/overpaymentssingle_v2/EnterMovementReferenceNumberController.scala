@@ -33,6 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_movement_reference_number
 
 import scala.concurrent.ExecutionContext
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
@@ -66,5 +68,8 @@ class EnterMovementReferenceNumberController @Inject() (
     } else {
       Redirect(routes.CheckDeclarationDetailsController.show)
     }
+
+  final val start: Action[AnyContent] =
+    Action(Redirect(routes.EnterMovementReferenceNumberController.show))
 
 }

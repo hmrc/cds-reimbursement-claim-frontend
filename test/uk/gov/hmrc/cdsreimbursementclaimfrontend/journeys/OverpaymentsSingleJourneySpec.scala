@@ -61,6 +61,7 @@ class OverpaymentsSingleJourneySpec
       emptyJourney.answers.selectedDocumentType             shouldBe None
       emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode       shouldBe false
+      emptyJourney.answers.dutiesChangeMode                 shouldBe false
       emptyJourney.getNdrcDetails                           shouldBe None
       emptyJourney.getSelectedDuties                        shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
@@ -79,6 +80,12 @@ class OverpaymentsSingleJourneySpec
         journey.hasCompleteSupportingEvidences             shouldBe true
         journey.hasCompleteAnswers                         shouldBe true
         journey.isFinalized                                shouldBe false
+
+        journey.getTotalReimbursementAmount shouldBe (
+          journey.getEUDutyReimbursementTotal.getOrElse(ZERO) +
+            journey.getUKDutyReimbursementTotal.getOrElse(ZERO) +
+            journey.getExciseDutyReimbursementTotal.getOrElse(ZERO)
+        )
 
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
 

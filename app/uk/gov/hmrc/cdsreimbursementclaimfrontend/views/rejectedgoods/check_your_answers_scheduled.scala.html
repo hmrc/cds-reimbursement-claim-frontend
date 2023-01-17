@@ -82,11 +82,11 @@
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey, routes.CheckBankDetailsController.show()))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show())))
     }
     
     @subHeading(Html(messages(s"$key.attached-documents.h2")))
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", subKey, routes.UploadFilesController.summary()))
+    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", Some(routes.UploadFilesController.summary())))
 
     @subHeading(Html(messages(combine(s"$key", subKey, "confirmation-statement.h2"))))
     @paragraph(Html(messages(s"$key.confirmation-statement")))

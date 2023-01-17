@@ -29,30 +29,27 @@ trait OverpaymentsSingleJourneyRouter {
       case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.show
       case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.show
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show
-      // case MISSING_DETAILS_OF_REJECTED_GOODS                        => routes.EnterOverpaymentsDetailsController.show
-      // case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => routes.CheckClaimDetailsController.show
-      // case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show
+      case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => routes.CheckClaimDetailsController.show
+      case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show
       case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show
       case MISSING_CONTACT_ADDRESS                                  => routes.CheckClaimantDetailsController.redirectToALF
-      //case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => routes.CheckClaimDetailsController.show
+      case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => routes.CheckClaimDetailsController.show
       case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterDeclarantEoriNumberController.show
       case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterDeclarantEoriNumberController.show
       case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterImporterEoriNumberController.show
       case CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterImporterEoriNumberController.show
       case DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
-      //case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => routes.CheckBankDetailsController.show
+      case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => routes.CheckBankDetailsController.show
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
-      //case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED     => routes.EnterSpecialCircumstancesController.show
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
-      //case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => routes.ChooseRepaymentMethodController.show
-      //case REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED          => routes.ChooseRepaymentMethodController.reset
+      case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => routes.ReimbursementMethodController.show
+      // case REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED          => routes.ReimbursementMethodController.reset
       case DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED      =>
         routes.EnterDuplicateMovementReferenceNumberController.show
-      case DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED            =>
-        routes.EnterDuplicateMovementReferenceNumberController.show
-      case DUPLICATE_MOVEMENT_REFERENCE_NUMBER_NOT_REQUIRED         =>
-        routes.EnterAdditionalDetailsController.show
+      case DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED            => routes.EnterDuplicateMovementReferenceNumberController.show
+      case DUPLICATE_MOVEMENT_REFERENCE_NUMBER_NOT_REQUIRED         => routes.EnterAdditionalDetailsController.show
+      case DUTIES_CHANGE_MODE_ENABLED                               => routes.CheckClaimDetailsController.show
       case _                                                        => undefined
     }
 
