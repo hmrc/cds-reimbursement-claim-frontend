@@ -47,13 +47,12 @@
     @dropdownDetails(summary = s"$key.details.heading",
         html(
             paragraph(Html(messages(s"$key.details.p1"))),
-            paragraph(Html(messages(s"$key.details.p2"))),
             bulletList(
                 Seq(
-                    Html(messages(s"$key.details.bullet1"))
+                    Html(messages(s"$key.details.bullet1")),
+                    Html(messages(s"$key.details.bullet2"))
                 )
-            ),
-            paragraph(Html(messages(s"$key.details.p3")))
+            )
         ))
 
     @summary(BankAccountDetailsSummary(bankAccount, key, Some(changeAction)))
