@@ -20,12 +20,13 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -54,7 +55,36 @@
         @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
     } 
 
-    // TODO
+    @subHeading(Html(messages(s"$key.contact-information.h2")))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.CheckClaimantDetailsController.show, Some(routes.CheckClaimantDetailsController.show)))
+    
+    @subHeading(Html(messages(s"$key.northern-ireland-claim.h2")))
+    @summary(NorthernIrelandAnswerSummary(YesNo.of(claim.whetherNorthernIreland), s"$key.northern-ireland-claim", Some(routes.NorthernIrelandController.show)))
+    
+    @subHeading(Html(messages(s"$key.basis.h2")))
+    @summary(BasisOfClaimSummary(claim.basisOfClaim,s"$key.basis", Some(routes.BasisForClaimController.show)))
+    
+    @subHeading(Html(messages(s"$key.additional-details.h2")))
+    @summary(AdditionalDetailsSummary(claim.additionalDetails, s"$key.additional-details", Some(routes.EnterAdditionalDetailsController.show)))
+    
+    @subHeading(Html(messages(combine(s"$key.claim-calculation", subKey, "h2"))))
+    @summary(ClaimedReimbursementsAnswerSummary(claim.reimbursementClaims.toSeq, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
+
+    @if(isAllSelectedDutiesAreCMAEligible) {
+        @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
+        @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.reimbursement-method", Some(routes.ReimbursementMethodController.show)))
+    }
+
+    @claim.bankAccountDetails.map { bankAccountDetails =>
+        @subHeading(Html(messages(s"$key.bank-details.h2")))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show)))
+    }
+
+    @subHeading(Html(messages(s"$key.attached-documents.h2")))
+    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", Some(routes.UploadFilesController.summary)))
+    
+    @subHeading(Html(messages(s"$key.confirmation-statement.h2")))
+    @paragraph(Html(messages(s"$key.confirmation-statement")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")

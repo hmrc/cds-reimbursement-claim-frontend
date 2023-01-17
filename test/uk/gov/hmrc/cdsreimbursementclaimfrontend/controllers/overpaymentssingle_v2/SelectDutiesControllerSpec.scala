@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
 import org.jsoup.nodes.Document
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -34,15 +35,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -82,7 +82,7 @@ class SelectDutiesControllerSpec
     selectedCheckBox(doc) should contain theSameElementsAs selectedDuties
     checkboxes(doc)       should containOnlyPairsOf(
       journey.getAvailableDuties.map { case (taxCode, _) =>
-        (taxCode.value + " - " + messages(s"select-duties.duty.${taxCode.value}"), taxCode.value)
+        (taxCode.value + " - " + messages(s"select-duties.duty.$taxCode"), taxCode.value)
       }
     )
   }
@@ -107,7 +107,7 @@ class SelectDutiesControllerSpec
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
@@ -164,7 +164,7 @@ class SelectDutiesControllerSpec
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
@@ -217,7 +217,7 @@ class SelectDutiesControllerSpec
 
           checkIsRedirect(
             performAction(selectedTaxCodes.map(taxCode => s"select-duties[]" -> taxCode.value)),
-            routes.EnterClaimController.show
+            routes.EnterClaimController.showFirst
           )
         }
       }

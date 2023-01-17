@@ -130,7 +130,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
           ),
           doc => {
             def messageOf(taxCode: TaxCode) =
-              messages(s"$checkClaimSummaryKey.duty-code.row.key", messages(s"tax-code.${taxCode.value}"))
+              messages(s"$checkClaimSummaryKey.duty-code.row.key", messages(s"tax-code.$taxCode"))
 
             val a70ClaimedFunds   = BigDecimal(33 - 15)
             val a30ClaimedFunds   = BigDecimal(100 - 45)

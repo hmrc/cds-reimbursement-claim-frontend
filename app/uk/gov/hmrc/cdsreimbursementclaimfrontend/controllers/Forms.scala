@@ -304,7 +304,17 @@ object Forms {
           errorMsg = s"error.invalid-text",
           zeroErrorMsg = Some(s"error.zero")
         ).verifying("error.invalid-amount", _ <= paidAmount)
-      )(amount => amount)(Some(_))
+      )(identity)(Some.apply)
+    )
+
+  def actualAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
+    Form(
+      mapping(
+        s"$key" -> moneyMapping(
+          errorMsg = "actual-amount.error.invalid",
+          allowZero = true
+        ).verifying("invalid.claim", amount => amount >= 0 && amount < paidAmount)
+      )(identity)(Some.apply)
     )
 
   def reimbursementMethodForm(reimbursementMethodKey: String): Form[ReimbursementMethod] =

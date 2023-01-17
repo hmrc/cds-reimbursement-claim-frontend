@@ -76,7 +76,7 @@ class CheckDeclarationDetailsControllerSpec
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "does not find the page if the rejected goods feature is disabled" in {
+      "does not find the page if the overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }
@@ -115,7 +115,7 @@ class CheckDeclarationDetailsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }

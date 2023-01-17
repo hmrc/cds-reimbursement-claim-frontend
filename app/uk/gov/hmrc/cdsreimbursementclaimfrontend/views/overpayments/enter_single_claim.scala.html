@@ -1,0 +1,77 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import play.api.mvc.Request
+@import play.api.mvc.Call
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+
+@this(
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
+)
+
+@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"enter-claim"}
+@title = @{messages(s"$key.title", taxCode.value, messages(s"select-duties.duty.$taxCode"))}
+@hintText = @{Html(messages(s"$key.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @heading(Html(title))
+
+    @paragraph(Html(messages(s"$key.help-text")), id = s"$key-description")
+
+    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"), id = s"$key-agent-fees-disclaimer")
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"$key-how-much-was-paid")
+
+        @inputText(
+            form = form,
+            id = s"$key",
+            name = s"$key",
+            label = s"$key.actual-amount",
+            inputMode = Some("numeric"),
+            isPageHeading = false,
+            classes = Some("govuk-input govuk-input--width-5"),
+            hintHtml = Some(hintText),
+            labelClasses = Some("govuk-label govuk-label--m"),
+            prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
+        )
+
+        @submitButton("button.continue")
+    }
+}
+

@@ -29,8 +29,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, TypeOfClaimAnswer}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 @this(
@@ -84,17 +84,17 @@
 
     @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
         @subHeading(Html(messages(s"$key.northern-ireland-claim.h2")))
-        @summary(NorthernIrelandAnswerSummary(whetherNorthernIrelandClaim,s"$key.northern-ireland-claim",subKey,OverpaymentsRoutes.NorthernIrelandController.show(journey)))
+        @summary(NorthernIrelandAnswerSummary(whetherNorthernIrelandClaim,s"$key.northern-ireland-claim", Some(OverpaymentsRoutes.NorthernIrelandController.show(journey))))
     }
 
     @claim.basisOfClaimAnswer.map { basisOfClaim =>
         @subHeading(Html(messages(s"$key.basis.h2")))
-        @summary(BasisOfClaimSummary(basisOfClaim,s"$key.basis",subKey, OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(journey)))
+        @summary(BasisOfClaimSummary(basisOfClaim,s"$key.basis", Some(OverpaymentsRoutes.SelectBasisForClaimController.selectBasisForClaim(journey))))
     }
 
     @claim.additionalDetailsAnswer.map { additionalDetails =>
         @subHeading(Html(messages(s"$key.additional-details.h2")))
-        @summary(AdditionalDetailsSummary(additionalDetails,s"$key.additional-details",subKey,OverpaymentsRoutes.EnterAdditionalDetailsController.show(journey)))
+        @summary(AdditionalDetailsSummary(additionalDetails.value,s"$key.additional-details", Some(OverpaymentsRoutes.EnterAdditionalDetailsController.show(journey))))
     }
 
     @claim.claimedReimbursementsAnswer.map { reimbursement =>
@@ -102,7 +102,7 @@
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Individual) ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Scheduled)) {
             @subHeading(Html(messages(combine(s"$key.claim-calculation", subKey, "h2"))))
-            @summary(ClaimedReimbursementsAnswerSummary(reimbursement,s"$key.claim-calculation",subKey, if (journey == JourneyBindable.Scheduled) overpaymentsScheduledRoutes.CheckScheduledClaimController.showReimbursements() else overpaymentsSingleRoutes.EnterSingleClaimController.checkClaimSummary))
+            @summary(ClaimedReimbursementsAnswerSummary(reimbursement,s"$key.claim-calculation", Some(if (journey == JourneyBindable.Scheduled) overpaymentsScheduledRoutes.CheckScheduledClaimController.showReimbursements() else overpaymentsSingleRoutes.EnterSingleClaimController.checkClaimSummary)))
         }
     }
 
@@ -113,13 +113,13 @@
 
     @claim.reimbursementMethodAnswer.map { rma =>
         @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
-        @summary(ReimbursementMethodSummary(rma,s"$key.reimbursement-method",subKey,overpaymentsSingleRoutes.ReimbursementMethodController.show))
+        @summary(ReimbursementMethodSummary(rma, s"$key.reimbursement-method", Some(overpaymentsSingleRoutes.ReimbursementMethodController.show)))
     }
 
     @claim.findNonEmptyBankAccountDetails.map { bankAccountDetails =>
         @if(!claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)) {
             @subHeading(Html(messages(s"$key.bank-details.h2")))
-            @summary(BankAccountDetailsSummary(bankAccountDetails,s"$key.bank-details",subKey,OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey)))
+            @summary(BankAccountDetailsSummary(bankAccountDetails,s"$key.bank-details", Some(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))))
         }
     }
 

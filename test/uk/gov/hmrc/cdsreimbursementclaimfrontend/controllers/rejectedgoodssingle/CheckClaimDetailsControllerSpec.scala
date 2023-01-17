@@ -133,7 +133,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.checkClaimDetailsKey -> "true"),
+          performAction("check-claim.rejected-goods" -> "true"),
           routes.EnterInspectionDateController.show()
         )
       }
@@ -146,7 +146,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(controller.checkClaimDetailsKey -> "false"),
+          performAction("check-claim.rejected-goods" -> "false"),
           routes.SelectTaxCodesController.show()
         )
       }

@@ -29,8 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
 import scala.collection.JavaConverters._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyTypeSummary
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyTypeSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec
 
 class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with SummaryMatchers {

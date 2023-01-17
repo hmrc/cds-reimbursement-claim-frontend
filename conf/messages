@@ -79,6 +79,25 @@ exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of thi
 #===================================================
 
 #===================================================
+#  SIGN OUT PAGE
+#===================================================
+
+sign-out.title=You have successfully left the service
+sign-out.close=You can close this browser tab or use these links to get help or use the service again.
+sign-out.point1.h=Start a new claim
+sign-out.point1.p1=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Claim back import duty and VAT if you have overpaid</a>
+sign-out.point1.p2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Claim back customs charges paid on rejected imports</a>
+sign-out.point1.p3=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Claim back a security deposit or guarantee</a>
+sign-out.point2.h=View existing claims
+sign-out.point2.p1=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">View existing claims and upload missing documents</a>
+sign-out.point3.h=Information about making a claim
+sign-out.point3.p1=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Help for private individuals making a claim</a>
+sign-out.point3.p2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Help for import professionals making a claim</a>
+sign-out.point4.h=Help us improve the service
+sign-out.point4.p1=Tell us about your experience using this service to help us improve it.
+sign-out.point4.p2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Give feedback</a>
+
+#===================================================
 #  WE ONLY SUPPORT GG PAGE
 #===================================================
 we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
@@ -1010,6 +1029,7 @@ reimbursement-method.title=Choose repayment method
 reimbursement-method.cma=Current Month Adjustment (CMA)
 reimbursement-method.bank-transfer=Bank account transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
+reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 
 #===================================================
 #  MAKE CLAIM PAGES

@@ -23,7 +23,11 @@ object TaxCodes {
 
   val UK: Seq[TaxCode] = List(A00, A20, A30, A35, A40, A45, B00)
 
+  val ukTaxCodeSet: Set[TaxCode] = UK.toSet
+
   val EU: Seq[TaxCode] = List(A50, A70, A80, A85, A90, A95, B05)
+
+  val euTaxCodeSet: Set[TaxCode] = EU.toSet
 
   val excise: Seq[TaxCode] = List(
     NI407,
@@ -92,15 +96,19 @@ object TaxCodes {
   val exciseTaxCodeSet: Set[TaxCode] = excise.toSet
 
   def findTaxType(taxCode: TaxCode): String =
-    if (UK.contains(taxCode)) {
+    if (ukTaxCodeSet.contains(taxCode)) {
       "UK"
-    } else if (EU.contains(taxCode)) {
+    } else if (euTaxCodeSet.contains(taxCode)) {
       "EU"
-    } else {
+    } else if (excise.contains(taxCode)) {
       "Excise"
-    }
+    } else if (vatTaxCodeSet.contains(taxCode)) {
+      "VAT"
+    } else ""
 
   val vatTaxCodes: Seq[TaxCode] = List(B00, B05)
+
+  val vatTaxCodeSet: Set[TaxCode] = vatTaxCodes.toSet
 
   val all: Seq[TaxCode] = UK ++ EU ++ excise
 

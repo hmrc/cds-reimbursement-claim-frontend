@@ -79,7 +79,7 @@ class UploadFilesControllerSpec
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }
@@ -179,7 +179,7 @@ class UploadFilesControllerSpec
           cargo = UploadDocumentType.CommercialInvoice
         )
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction(callbackPayload)) shouldBe NOT_FOUND
       }

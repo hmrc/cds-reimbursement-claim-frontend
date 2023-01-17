@@ -20,9 +20,12 @@
 
 @(
     content: Html,
-    classes: Option[String] = Some("govuk-body")
+    classes: Option[String] = Some("govuk-body"),
+    id: String = null
 )
 
-<p class="@classes">
+@if(id==null){<p class="@classes">
     @content
-</p>
+</p>} else {<p class="@classes" id="@id">
+    @content
+</p>}

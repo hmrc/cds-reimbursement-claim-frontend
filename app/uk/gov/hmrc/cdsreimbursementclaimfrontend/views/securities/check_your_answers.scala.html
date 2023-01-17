@@ -20,7 +20,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -143,7 +143,7 @@
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", subKey, routes.BankDetailsChangeLetterOfAuthorityController.show()))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.BankDetailsChangeLetterOfAuthorityController.show())))
     }
 
     @subHeading(Html(messages(s"$key.documents.h2")))

@@ -1,5 +1,4 @@
-GET          /securities/                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.StartController.show()
-
+GET          /securities                                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.start
 GET          /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.show()
 POST         /securities/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.submit()
 

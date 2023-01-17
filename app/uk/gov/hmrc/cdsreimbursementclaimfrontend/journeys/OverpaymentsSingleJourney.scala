@@ -63,9 +63,9 @@ final class OverpaymentsSingleJourney private (
   val validate: Validator.Validate[OverpaymentsSingleJourney] =
     OverpaymentsSingleJourney.validator
 
-  /** Check if all the selected duties have reimbursement amount provided. */
+  /** Check if all the selected duties have correct amounts provided. */
   def hasCompleteReimbursementClaims: Boolean =
-    answers.reimbursementClaims.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
+    answers.correctedAmounts.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
 
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
@@ -118,27 +118,71 @@ final class OverpaymentsSingleJourney private (
   }
 
   def getSelectedDuties: Option[Seq[TaxCode]] =
-    answers.reimbursementClaims.map(_.keys.toSeq)
+    answers.correctedAmounts.map(_.keys.toSeq)
+
+  def isTaxCodeSelected(taxCode: TaxCode): Boolean =
+    answers.correctedAmounts.exists(_.contains(taxCode))
 
   def isAllSelectedDutiesAreCMAEligible: Boolean =
-    answers.reimbursementClaims
+    answers.correctedAmounts
       .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
       .exists(_.forall(_.isCmaEligible))
 
-  def getReimbursementClaims: Map[TaxCode, BigDecimal] =
-    answers.reimbursementClaims
-      .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
-      .getOrElse(Map.empty)
-
   def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
-    answers.reimbursementClaims
+    answers.correctedAmounts
       .flatMap(
         _.collectFirst { case (taxCode, None) => taxCode }
           .flatMap(getNdrcDetailsFor)
       )
 
+  def getSelectedTaxCodesWithCorrectAmount: Seq[(TaxCode, BigDecimal)] =
+    answers.correctedAmounts
+      .map(
+        _.collect { case (taxCode, Some(correctAmount)) => (taxCode, correctAmount) }.toSeq
+      )
+      .getOrElse(Seq.empty)
+
+  def getAvailableTaxCodesWithPaidAmounts: Seq[(TaxCode, BigDecimal)] =
+    getLeadDisplayDeclaration
+      .flatMap(_.getNdrcDutiesWithAmount)
+      .getOrElse(Seq.empty)
+
+  def getReimbursementClaims: Map[TaxCode, BigDecimal] = {
+    val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
+      getAvailableTaxCodesWithPaidAmounts.toMap
+
+    answers.correctedAmounts
+      .map(
+        _.map { case (taxCode, correctAmountOpt) =>
+          for {
+            correctAmount <- correctAmountOpt
+            paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
+          } yield (taxCode, paidAmount - correctAmount)
+        }.collect { case Some(x) => x }.toMap
+      )
+      .getOrElse(Map.empty)
+  }
+
+  def getUKDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)
+
+  def getEUDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.euTaxCodeSet)
+
+  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
+
+  private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
+    getReimbursementClaims.foldLeft[Option[BigDecimal]](None) { case (a, (taxCode, amount)) =>
+      if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
+      else a
+    }
+
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
+
+  def withDutiesChangeMode(enabled: Boolean): OverpaymentsSingleJourney =
+    new OverpaymentsSingleJourney(answers.copy(dutiesChangeMode = enabled))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
@@ -153,7 +197,7 @@ final class OverpaymentsSingleJourney private (
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ) =
+  ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn)
@@ -221,7 +265,17 @@ final class OverpaymentsSingleJourney private (
   def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
       new OverpaymentsSingleJourney(
-        answers.copy(whetherNorthernIreland = Some(whetherNorthernIreland))
+        answers.copy(
+          whetherNorthernIreland = Some(whetherNorthernIreland),
+          basisOfClaim =
+            if (whetherNorthernIreland) answers.basisOfClaim
+            else
+              // review basis of claim if nothern ireland claims should not be allowed
+              answers.basisOfClaim.flatMap { case basisOfClaim =>
+                if (BasisOfOverpaymentClaimsList.northernIreland.contains(basisOfClaim)) None
+                else Some(basisOfClaim)
+              }
+        )
       )
     }
 
@@ -237,7 +291,7 @@ final class OverpaymentsSingleJourney private (
               basisOfClaim = Some(basisOfClaim),
               duplicateMovementReferenceNumber = None,
               duplicateDisplayDeclaration = None,
-              reimbursementClaims = answers.reimbursementClaims.map(_.filter { case (taxCode, _) =>
+              correctedAmounts = answers.correctedAmounts.map(_.filter { case (taxCode, _) =>
                 TaxCodes.exciseTaxCodeSet.contains(taxCode)
               })
             )
@@ -304,7 +358,7 @@ final class OverpaymentsSingleJourney private (
           else {
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
             if (allTaxCodesExistInACC14) {
-              val newReimbursementClaims = answers.reimbursementClaims match {
+              val newCorrectedAmounts = answers.correctedAmounts match {
                 case None                      =>
                   Map(taxCodes.map(taxCode => taxCode -> None): _*)
 
@@ -313,42 +367,42 @@ final class OverpaymentsSingleJourney private (
                     taxCode -> reimbursementClaims.get(taxCode).flatten
                   }: _*)
               }
-              Right(new OverpaymentsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+              Right(new OverpaymentsSingleJourney(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
             } else
               Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
           }
       }
     }
 
-  def isValidReimbursementAmount(reimbursementAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    reimbursementAmount > 0 && reimbursementAmount <= BigDecimal(ndrcDetails.amount)
+  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
-  def submitAmountForReimbursement(
+  def submitCorrectAmount(
     taxCode: TaxCode,
-    reimbursementAmount: BigDecimal
+    correctAmount: BigDecimal
   ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       getLeadDisplayDeclaration match {
         case None =>
-          Left("submitAmountForReimbursement.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingDisplayDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(taxCode) match {
             case None =>
-              Left("submitAmountForReimbursement.taxCodeNotInACC14")
+              Left("submitCorrectAmount.taxCodeNotInACC14")
 
-            case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
+            case Some(ndrcDetails) if isValidCorrectAmount(correctAmount, ndrcDetails) =>
               if (getSelectedDuties.exists(_.contains(taxCode))) {
-                val newReimbursementClaims = answers.reimbursementClaims match {
-                  case None                      => Map(taxCode -> Some(reimbursementAmount))
-                  case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
+                val newCorrectedAmounts = answers.correctedAmounts match {
+                  case None                   => Map(taxCode -> Some(correctAmount))
+                  case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
                 }
-                Right(new OverpaymentsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+                Right(new OverpaymentsSingleJourney(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else
-                Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
+                Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
-              Left("submitAmountForReimbursement.invalidReimbursementAmount")
+              Left("submitCorrectAmount.invalidAmount")
           }
       }
     }
@@ -502,7 +556,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): OverpaymentsSingleJourney =
     new OverpaymentsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
-  type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
+  type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -519,13 +573,14 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
     whetherNorthernIreland: Option[Boolean] = None,
     additionalDetails: Option[String] = None,
-    reimbursementClaims: Option[ReimbursementClaims] = None,
+    correctedAmounts: Option[CorrectedAmounts] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false
+    checkYourAnswersChangeMode: Boolean = false,
+    dutiesChangeMode: Boolean = false
   ) extends OverpaymentsAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
@@ -617,6 +672,12 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     val hasDuplicateMRNAndDisplayDeclaration: Validate[OverpaymentsSingleJourney] =
       hasDuplicateMovementReferenceNumber & hasDuplicateDisplayDeclaration
 
+    val changeDutiesModeDisabled: Validate[OverpaymentsSingleJourney] =
+      checkIsFalse(
+        _.answers.dutiesChangeMode,
+        DUTIES_CHANGE_MODE_ENABLED
+      )
+
   }
 
   import Checks._
@@ -630,6 +691,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       duplicateMovementReferenceNumberHasBeenProvidedIfNeeded,
       additionalDetailsHasBeenProvided,
       reimbursementClaimsHasBeenProvided,
+      changeDutiesModeDisabled,
       reimbursementMethodHasBeenProvidedIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
@@ -676,10 +738,11 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
           j.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
       })
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
-      .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
+      .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
-      .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
+      .map(_.withDutiesChangeMode(answers.dutiesChangeMode))
       .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)

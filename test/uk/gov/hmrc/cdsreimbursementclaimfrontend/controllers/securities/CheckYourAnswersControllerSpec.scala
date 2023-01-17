@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.JavaConverters._
@@ -190,7 +190,7 @@ class CheckYourAnswersControllerSpec
             )),
             ("Duties selected"   -> Some(
               reclaims.keys.toList.sorted
-                .map(taxCode => messages(s"tax-code.${taxCode.value}"))
+                .map(taxCode => messages(s"tax-code.$taxCode"))
                 .mkString(" ")
             )),
             ("Total"             -> Some(
@@ -198,7 +198,7 @@ class CheckYourAnswersControllerSpec
             ))
           ) ++
             reclaims.map { case (taxCode, amount) =>
-              (messages(s"tax-code.${taxCode.value}") -> Some(amount.toPoundSterlingString))
+              (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
             }
         } ++
         claim.supportingEvidences
