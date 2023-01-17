@@ -1027,6 +1027,7 @@ reimbursement-method.title=Choose repayment method
 reimbursement-method.cma=Current Month Adjustment (CMA)
 reimbursement-method.bank-transfer=Bank account transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
+reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 
 #===================================================
 #  MAKE CLAIM PAGES

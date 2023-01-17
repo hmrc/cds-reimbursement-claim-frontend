@@ -1,0 +1,68 @@
+#GET         /overpayments/v2/scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterMovementReferenceNumberController.show
+#POST        /overpayments/v2/scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterMovementReferenceNumberController.submit
+
+#GET         /overpayments/v2/scheduled/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterImporterEoriNumberController.show
+#POST        /overpayments/v2/scheduled/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterImporterEoriNumberController.submit
+
+#GET         /overpayments/v2/scheduled/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterDeclarantEoriNumberController.show
+#POST        /overpayments/v2/scheduled/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterDeclarantEoriNumberController.submit
+
+#GET         /overpayments/v2/scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckDeclarationDetailsController.show
+#POST        /overpayments/v2/scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckDeclarationDetailsController.submit
+
+#GET         /overpayments/v2/scheduled/upload-mrn-list                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.UploadMrnListController.show
+#+nocsrf
+#POST        /overpayments/v2/scheduled/upload-mrn-list                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.UploadMrnListController.submit
+
+#GET         /overpayments/v2/scheduled/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckClaimantDetailsController.show
+#POST        /overpayments/v2/scheduled/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckClaimantDetailsController.submit
+
+#GET         /overpayments/v2/scheduled/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckClaimantDetailsController.redirectToALF
+#GET         /overpayments/v2/scheduled/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+
+#GET         /overpayments/v2/scheduled/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.ProblemWithAddressController.show
+
+#GET         /overpayments/v2/scheduled/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterContactDetailsController.show
+#POST        /overpayments/v2/scheduled/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterContactDetailsController.submit
+
+#GET         /overpayments/v2/scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.NorthernIrelandController.show
+#POST        /overpayments/v2/scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.NorthernIrelandController.submit
+
+#GET         /overpayments/v2/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.BasisForClaimController.show
+#POST        /overpayments/v2/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.BasisForClaimController.submit
+
+#GET         /overpayments/v2/scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.ChooseBankAccountTypeController.show
+#POST        /overpayments/v2/scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.ChooseBankAccountTypeController.submit
+
+#GET         /overpayments/v2/scheduled/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckBankDetailsController.show
+
+#GET         /overpayments/v2/scheduled/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterBankAccountDetailsController.show
+#POST        /overpayments/v2/scheduled/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterBankAccountDetailsController.submit
+
+#GET         /overpayments/v2/scheduled/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterAdditionalDetailsController.show
+#POST        /overpayments/v2/scheduled/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterAdditionalDetailsController.submit
+
+#GET         /overpayments/v2/scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.SelectDutyTypesController.show
+#POST        /overpayments/v2/scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.SelectDutyTypesController.submit
+
+#GET         /overpayments/v2/scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.SelectDutiesController.show(dutyType: DutyType)
+#POST        /overpayments/v2/scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.SelectDutiesController.submit(dutyType: DutyType)
+
+#GET         /overpayments/v2/scheduled/enter-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterClaimController.showFirst
+#GET         /overpayments/v2/scheduled/enter-claim/:dutyType/:taxCode                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterClaimController.show(dutyType: DutyType, taxCode: TaxCode)
+#POST        /overpayments/v2/scheduled/enter-claim/:dutyType/:taxCode                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterClaimController.submit(dutyType: DutyType, taxCode: TaxCode)
+
+#GET         /overpayments/v2/scheduled/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckClaimDetailsController.show
+#POST        /overpayments/v2/scheduled/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckClaimDetailsController.submit
+
+#GET         /overpayments/v2/scheduled/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.ChooseFileTypeController.show
+#POST        /overpayments/v2/scheduled/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.ChooseFileTypeController.submit
+
+#GET         /overpayments/v2/scheduled/choose-files                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.UploadFilesController.show
+#+nocsrf
+#POST        /overpayments/v2/scheduled/choose-files                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.UploadFilesController.submit
+#GET         /overpayments/v2/scheduled/upload-summary                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.UploadFilesController.summary
+
+#POST        /overpayments/v2/scheduled/submit-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckYourAnswersController.submit
+#GET         /overpayments/v2/scheduled/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckYourAnswersController.showConfirmation
+#GET         /overpayments/v2/scheduled/check-your-answers                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckYourAnswersController.show

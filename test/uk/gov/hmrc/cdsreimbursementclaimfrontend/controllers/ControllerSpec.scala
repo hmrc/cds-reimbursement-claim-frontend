@@ -368,9 +368,21 @@ trait ControllerSpec
       if (element == null) {
         fail(s"""Missing page element with id="$elementId"""")
       } else {
-        withClue(s"Inside ${element.outerHtml()} expected text ")(
-          doc.getElementById(elementId).text() shouldBe expectedText
+        withClue(s"Inside ${element.outerHtml()} has text ")(
+          element.text() shouldBe expectedText
         )
+      }
+    }
+
+  final def assertPageElementsBySelectorAndExpectedText(doc: Document)(
+    selectorsWithExpectedContentMap: (String, String)*
+  ): Any =
+    selectorsWithExpectedContentMap.foreach { case (selector, expectedText) =>
+      val elements = doc.select(selector)
+      if (elements == null || elements.isEmpty()) {
+        fail(s"""Missing page element selected by $selector""")
+      } else {
+        elements.asScala.foreach(e => withClue(s"Inside ${e.outerHtml()} has text ")(e.text() shouldBe expectedText))
       }
     }
 
@@ -380,8 +392,8 @@ trait ControllerSpec
       if (element == null) {
         fail(s"""Missing page element with id="$elementId"""")
       } else {
-        withClue(s"Inside ${element.outerHtml()} expected value ")(
-          doc.getElementById(elementId).`val`() shouldBe expectedValue
+        withClue(s"Inside ${element.outerHtml()} has value ")(
+          element.`val`() shouldBe expectedValue
         )
       }
     }
