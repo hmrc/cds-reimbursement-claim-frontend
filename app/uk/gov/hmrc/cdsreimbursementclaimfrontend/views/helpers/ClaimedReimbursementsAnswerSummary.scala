@@ -23,13 +23,22 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-object ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursementsAnswer] {
+object ClaimedReimbursementsAnswerSummary {
 
-  override def render(
+  def apply(
     reimbursements: ClaimedReimbursementsAnswer,
     key: String,
-    subKey: Option[String],
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    apply(reimbursements.toList.map(r => (r.taxCode, r.claimAmount)), key, changeCallOpt)
+
+  def apply(
+    reimbursements: Seq[(TaxCode, BigDecimal)],
+    key: String,
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages

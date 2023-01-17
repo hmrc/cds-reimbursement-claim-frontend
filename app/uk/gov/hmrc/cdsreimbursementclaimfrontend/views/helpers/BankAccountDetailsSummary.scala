@@ -23,12 +23,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
-object BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
+object BankAccountDetailsSummary {
 
-  override def render(
+  def apply(
     bankAccountDetails: BankAccountDetails,
     key: String,
-    subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages

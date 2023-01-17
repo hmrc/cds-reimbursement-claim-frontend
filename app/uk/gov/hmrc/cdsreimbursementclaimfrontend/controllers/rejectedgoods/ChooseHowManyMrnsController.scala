@@ -72,12 +72,15 @@ class ChooseHowManyMrnsController @Inject() (
   val form: Form[RejectedGoodsJourneyType] = chooseHowManyMrnsForm
   private val postAction: Call             = routes.ChooseHowManyMrnsController.submit()
 
-  val show: Action[AnyContent] =
+  final val start: Action[AnyContent] =
+    Action(Redirect(routes.ChooseHowManyMrnsController.show()))
+
+  final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
       Ok(chooseHowManyMrnsPage(form, postAction))
     }
 
-  val submit: Action[AnyContent] =
+  final val submit: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
       request.authenticatedRequest.journeyUserType.eoriOpt
         .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>

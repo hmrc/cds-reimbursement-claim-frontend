@@ -27,17 +27,26 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 
-object NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
+object NorthernIrelandAnswerSummary {
 
-  override def render(answer: YesNo, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
+  def apply(
+    answer: YesNo,
+    key: String,
+    changeCallOpt: Option[Call]
+  )(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.label"))),
-          value = Value(Text(answer.toString)),
+          value = Value(Text(answer match {
+            case Yes => messages("generic.yes")
+            case No  => messages("generic.no")
+          })),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(

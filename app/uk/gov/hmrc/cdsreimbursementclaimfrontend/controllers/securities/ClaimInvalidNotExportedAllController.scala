@@ -33,6 +33,6 @@ class ClaimInvalidNotExportedAllController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(claimInvalidNotExportedAll(routes.StartController.show().url)).asFuture
+    Ok(claimInvalidNotExportedAll(routes.EnterMovementReferenceNumberController.start.url)).asFuture
   }
 }

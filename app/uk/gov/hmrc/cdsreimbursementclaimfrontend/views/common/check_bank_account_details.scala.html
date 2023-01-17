@@ -33,7 +33,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(bankAccount: BankAccountDetails, continueAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String] = None)
+@(bankAccount: BankAccountDetails, continueAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"bank-details"}
 @title = @{messages(s"$key.title")}
@@ -56,7 +56,7 @@
             paragraph(Html(messages(s"$key.details.p3")))
         ))
 
-    @summary(BankAccountDetailsSummary(bankAccount, key, subKey, changeAction))
+    @summary(BankAccountDetailsSummary(bankAccount, key, Some(changeAction)))
 
     @buttonLink("button.continue", Some(continueAction.url))
 

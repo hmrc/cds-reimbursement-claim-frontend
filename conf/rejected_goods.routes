@@ -1,2 +1,3 @@
+GET          /rejected-goods                                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.ChooseHowManyMrnsController.start
 GET          /rejected-goods/choose-how-many-mrns                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.ChooseHowManyMrnsController.show()
 POST         /rejected-goods/choose-how-many-mrns                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.ChooseHowManyMrnsController.submit()

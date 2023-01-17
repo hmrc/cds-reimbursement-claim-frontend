@@ -24,12 +24,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 
-object BasisOfClaimSummary extends AnswerSummary[BasisOfOverpaymentClaim] {
+object BasisOfClaimSummary {
 
-  override def render(
+  def apply(
     answer: BasisOfOverpaymentClaim,
     key: String,
-    subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages

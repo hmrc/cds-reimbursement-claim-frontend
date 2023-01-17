@@ -26,12 +26,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 
-object EvidenceDocumentsSummary extends AnswerSummary[Seq[EvidenceDocument]] {
+object EvidenceDocumentsSummary {
 
-  override def render(
+  def apply(
     answers: Seq[EvidenceDocument],
     key: String,
-    subKey: Option[String],
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages

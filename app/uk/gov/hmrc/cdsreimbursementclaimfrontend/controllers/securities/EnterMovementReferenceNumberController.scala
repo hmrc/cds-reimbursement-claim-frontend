@@ -40,44 +40,49 @@ class EnterMovementReferenceNumberController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(
-      enterMovementReferenceNumberPage(
-        movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
-        routes.EnterMovementReferenceNumberController.submit()
-      )
-    ).asFuture
-  }
+  final val start: Action[AnyContent] =
+    Action(Redirect(routes.EnterMovementReferenceNumberController.show))
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    movementReferenceNumberForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            BadRequest(
-              enterMovementReferenceNumberPage(
-                formWithErrors.copy(data = Map.empty),
-                routes.EnterMovementReferenceNumberController.submit()
+  final val show: Action[AnyContent] =
+    actionReadJourney { implicit request => journey =>
+      Ok(
+        enterMovementReferenceNumberPage(
+          movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
+          routes.EnterMovementReferenceNumberController.submit()
+        )
+      ).asFuture
+    }
+
+  final val submit: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      movementReferenceNumberForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(
+                enterMovementReferenceNumberPage(
+                  formWithErrors.copy(data = Map.empty),
+                  routes.EnterMovementReferenceNumberController.submit()
+                )
               )
-            )
-          ).asFuture,
-        mrn =>
-          (
-            journey.submitMovementReferenceNumber(mrn),
-            Redirect(
-              if (
-                journey.getLeadMovementReferenceNumber.contains(mrn) &&
-                journey.answers.checkDeclarationDetailsChangeMode
+            ).asFuture,
+          mrn =>
+            (
+              journey.submitMovementReferenceNumber(mrn),
+              Redirect(
+                if (
+                  journey.getLeadMovementReferenceNumber.contains(mrn) &&
+                  journey.answers.checkDeclarationDetailsChangeMode
+                )
+                  routes.CheckDeclarationDetailsController.show()
+                else
+                  routes.ChooseReasonForSecurityController.show()
               )
-                routes.CheckDeclarationDetailsController.show()
-              else
-                routes.ChooseReasonForSecurityController.show()
-            )
-          ).asFuture
-      )
-  }
+            ).asFuture
+        )
+    }
 }
 
 object EnterMovementReferenceNumberController {

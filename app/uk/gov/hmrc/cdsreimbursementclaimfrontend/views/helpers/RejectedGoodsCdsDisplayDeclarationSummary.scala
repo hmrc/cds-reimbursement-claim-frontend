@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper.combine
@@ -27,9 +28,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import play.api.mvc.Call
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper
 object RejectedGoodsCdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
 
   override def render(

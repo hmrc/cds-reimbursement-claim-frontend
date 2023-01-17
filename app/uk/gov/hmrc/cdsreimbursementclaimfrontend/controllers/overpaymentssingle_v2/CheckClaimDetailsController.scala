@@ -101,7 +101,7 @@ class CheckClaimDetailsController @Inject() (
               {
                 case Yes =>
                   (
-                    journey,
+                    journey.withDutiesChangeMode(false),
                     Redirect(
                       if (journey.userHasSeenCYAPage)
                         checkYourAnswers
