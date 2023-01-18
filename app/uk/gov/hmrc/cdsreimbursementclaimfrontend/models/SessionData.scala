@@ -25,10 +25,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 final case class SessionData(
   journeyStatus: Option[JourneyStatus] = None,
   overpaymentsSingleJourney: Option[OverpaymentsSingleJourney] = None,
+  overpaymentsMultipleJourney: Option[OverpaymentsMultipleJourney] = None,
   rejectedGoodsSingleJourney: Option[RejectedGoodsSingleJourney] = None,
   rejectedGoodsMultipleJourney: Option[RejectedGoodsMultipleJourney] = None,
   rejectedGoodsScheduledJourney: Option[RejectedGoodsScheduledJourney] = None,
@@ -54,6 +57,9 @@ object SessionData {
   def apply(overpaymentsSingleJourney: OverpaymentsSingleJourney): SessionData =
     SessionData(overpaymentsSingleJourney = Some(overpaymentsSingleJourney))
 
+  def apply(overpaymentsMultipleJourney: OverpaymentsMultipleJourney): SessionData =
+    SessionData(overpaymentsMultipleJourney = Some(overpaymentsMultipleJourney))
+
   def apply(rejectedGoodsSingleJourney: RejectedGoodsSingleJourney): SessionData =
     SessionData(rejectedGoodsSingleJourney = Some(rejectedGoodsSingleJourney))
 
@@ -74,4 +80,15 @@ object SessionData {
   implicit val eq: Eq[SessionData] = Eq.fromUniversalEquals[SessionData]
 
   val empty: SessionData = SessionData()
+
+  object HasClaimantEori {
+    def unapply(session: SessionData): Option[Eori] =
+      session.overpaymentsSingleJourney
+        .map(_.getClaimantEori)
+        .orElse(session.overpaymentsMultipleJourney.map(_.getClaimantEori))
+        .orElse(session.rejectedGoodsSingleJourney.map(_.getClaimantEori))
+        .orElse(session.rejectedGoodsScheduledJourney.map(_.getClaimantEori))
+        .orElse(session.rejectedGoodsMultipleJourney.map(_.getClaimantEori))
+        .orElse(session.securitiesJourney.map(_.getClaimantEori))
+  }
 }

@@ -93,7 +93,9 @@ lazy val microservice = Project(appName, file("."))
   .settings(wartremoverSettings: _*)
   .settings(scoverageSettings: _*)
   .settings(PlayKeys.playDefaultPort := 7500)
-  .settings(scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s")
+  .settings(
+    scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s,src=${target.value}/scala-${scalaBinaryVersion.value}/twirl/.*:s"
+  )
   .settings(Compile / doc / sources := Seq.empty)
   .settings(scalacOptions --= Seq("-Xfatal-warnings"))
   .settings(Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"))

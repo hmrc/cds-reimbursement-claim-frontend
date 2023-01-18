@@ -98,11 +98,11 @@ class OverpaymentsMultipleJourneySpec
         OverpaymentsMultipleJourney.validator(journey).headErrorOption shouldBe Some(
           MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER
         )
-        journey.answers.checkYourAnswersChangeMode                      shouldBe false
-        journey.hasCompleteReimbursementClaims                          shouldBe true
-        journey.hasCompleteSupportingEvidences                          shouldBe true
-        journey.hasCompleteAnswers                                      shouldBe false
-        journey.isFinalized                                             shouldBe false
+        journey.answers.checkYourAnswersChangeMode                     shouldBe false
+        journey.hasCompleteReimbursementClaims                         shouldBe true
+        journey.hasCompleteSupportingEvidences                         shouldBe true
+        journey.hasCompleteAnswers                                     shouldBe false
+        journey.isFinalized                                            shouldBe false
       }
     }
 
