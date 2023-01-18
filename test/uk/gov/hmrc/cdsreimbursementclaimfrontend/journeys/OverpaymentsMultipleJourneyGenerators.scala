@@ -180,7 +180,6 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
         )
   } yield (taxCodes, taxCodes.take(numberOfSelectedTaxCodes), paidAmounts, reimbursementAmounts)
 
-
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
@@ -213,7 +212,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       maxSize,
       reimbursementMethod
     )
-    .map(OverpaymentsMultipleJourney.tryBuildFrom(_))
+      .map(OverpaymentsMultipleJourney.tryBuildFrom(_))
 
   def buildAnswersGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -283,7 +282,6 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
             }
         )
 
-
       val displayDeclarations: Seq[DisplayDeclaration] =
         paidDuties.map { case (mrn, paidDutiesPerMrn) =>
           buildDisplayDeclaration(
@@ -295,7 +293,6 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
             declarantContact = declarantContact
           )
         }
-
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 

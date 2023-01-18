@@ -20,8 +20,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.i18n._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper
 class MessagesHelperSpec extends AnyWordSpec with Matchers {
 
   implicit val messages: Map[String, String] = Map("a.b" -> "ab", "a.c" -> "ac", "a.b.c" -> "abc")

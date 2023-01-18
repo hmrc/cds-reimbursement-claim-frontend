@@ -110,7 +110,7 @@ final class OverpaymentsMultipleJourney private (
 
   def getNdrcDetailsFor(declarationid: MRN, taxCode: TaxCode): Option[NdrcDetails] =
     getDisplayDeclarationFor(declarationid).flatMap(_.getNdrcDetailsFor(taxCode.value))
-    
+
   // def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
   //   getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
@@ -624,7 +624,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
         )
       )
 
-    
     val hasMultipleMovementReferenceNumbers: Validate[OverpaymentsMultipleJourney] =
       checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
 
