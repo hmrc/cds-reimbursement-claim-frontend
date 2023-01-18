@@ -36,55 +36,63 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
 
   def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey]
 
+  def needsEoriSubmission(journey: Journey): Boolean =
+    journey.needsDeclarantAndConsigneeEoriSubmission
+
+  def getEoriNumberAnswer(journey: Journey): Option[Eori] =
+    journey.answers.declarantEoriNumber
+
   val eoriNumberFormKey: String = "enter-declarant-eori-number"
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Future.successful {
-      if (!journey.needsDeclarantAndConsigneeEoriSubmission)
-        Redirect(whenEoriInputNotRequiredAction)
-      else {
-        val form = eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.declarantEoriNumber)
-        Ok(
-          enterDeclarantEoriNumber(
-            form,
-            postAction
+  final val show: Action[AnyContent] =
+    actionReadJourney { implicit request => journey =>
+      Future.successful {
+        if (!needsEoriSubmission(journey))
+          Redirect(whenEoriInputNotRequiredAction)
+        else {
+          val form = eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(journey))
+          Ok(
+            enterDeclarantEoriNumber(
+              form,
+              postAction
+            )
           )
-        )
+        }
       }
     }
-  }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if (!journey.needsDeclarantAndConsigneeEoriSubmission)
-      (journey, Redirect(whenEoriInputNotRequiredAction)).asFuture
-    else {
-      eoriNumberForm(eoriNumberFormKey)
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(
-              (
-                journey,
-                BadRequest(
-                  enterDeclarantEoriNumber(
-                    formWithErrors.fill(Eori("")),
-                    postAction
+  final val submit: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      if (!needsEoriSubmission(journey))
+        (journey, Redirect(whenEoriInputNotRequiredAction)).asFuture
+      else {
+        eoriNumberForm(eoriNumberFormKey)
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              Future.successful(
+                (
+                  journey,
+                  BadRequest(
+                    enterDeclarantEoriNumber(
+                      formWithErrors.fill(Eori("")),
+                      postAction
+                    )
                   )
                 )
+              ),
+            eori =>
+              Future.successful(
+                modifyJourney(journey, eori)
+                  .fold(
+                    errors => {
+                      logger.error(s"Unable to record $eori - $errors")
+                      (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                    },
+                    updatedJourney => (updatedJourney, Redirect(continueAction))
+                  )
               )
-            ),
-          eori =>
-            Future.successful(
-              modifyJourney(journey, eori)
-                .fold(
-                  errors => {
-                    logger.error(s"Unable to record $eori - $errors")
-                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                  },
-                  updatedJourney => (updatedJourney, Redirect(continueAction))
-                )
-            )
-        )
+          )
+      }
     }
-  }
 }

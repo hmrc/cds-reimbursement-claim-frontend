@@ -49,6 +49,7 @@ trait OverpaymentsSingleJourneyRouter {
         routes.EnterDuplicateMovementReferenceNumberController.show
       case DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED            => routes.EnterDuplicateMovementReferenceNumberController.show
       case DUPLICATE_MOVEMENT_REFERENCE_NUMBER_NOT_REQUIRED         => routes.EnterAdditionalDetailsController.show
+      case DUPLICATE_DISPLAY_DECLARATION_MUST_BE_VERIFIED           => routes.EnterImporterEoriNumberOfDuplicateDeclaration.show
       case DUTIES_CHANGE_MODE_ENABLED                               => routes.CheckClaimDetailsController.show
       case _                                                        => undefined
     }

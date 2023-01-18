@@ -19,16 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import JourneyValidationErrors._
 import com.github.arturopala.validator.Validator._
 
-trait OverpaymentsJourneyChecks[Journey <: OverpaymentsJourneyProperties]
+trait OverpaymentsJourneyChecks[T <: OverpaymentsJourneyProperties]
     extends CommonJourneyChecks[OverpaymentsJourneyProperties] {
 
-  final val basisOfClaimHasBeenProvided: Validate[Journey] =
+  final val basisOfClaimHasBeenProvided: Validate[T] =
     checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM)
 
-  final val additionalDetailsHasBeenProvided: Validate[Journey] =
+  final val additionalDetailsHasBeenProvided: Validate[T] =
     checkIsDefined(_.answers.additionalDetails, MISSING_DETAILS_OF_OVERPAYMENT)
 
-  final val reimbursementClaimsHasBeenProvided: Validate[Journey] =
+  final val reimbursementClaimsHasBeenProvided: Validate[T] =
     all(
       checkIsTrue(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
       checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO)
