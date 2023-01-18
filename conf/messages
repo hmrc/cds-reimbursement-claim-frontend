@@ -95,7 +95,7 @@ sign-out.point3.p1=<a class="govuk-link" rel="noreferrer noopener" target="_blan
 sign-out.point3.p2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Help for import professionals making a claim</a>
 sign-out.point4.h=Help us improve the service
 sign-out.point4.p1=Tell us about your experience using this service to help us improve it.
-sign-out.point4.p2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Give feedback</a>
+sign-out.point4.p2=<a class="govuk-link" rel="noreferrer noopener" target="_self" href="{0}">Give feedback</a>
 
 #===================================================
 #  WE ONLY SUPPORT GG PAGE

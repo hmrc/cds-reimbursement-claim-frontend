@@ -47,7 +47,7 @@
 @key = @{"sign-out"}
 @title = @{messages(s"$key.title")}
 
-@layout(pageTitle = Some(s"$title")) {
+@layout(pageTitle = Some(s"$title"), suppressSignOutLink = true) {
     @heading(Html(title))
 
     @insetText(HtmlContent(messages(s"$key.close")))
