@@ -40,7 +40,12 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationController @Inject() (
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
-    Some(hasMRNAndDisplayDeclaration & hasDuplicateDisplayDeclaration)
+    Some(
+      hasMRNAndDisplayDeclaration &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified &
+        needsDuplicateMrnAndDeclaration &
+        hasDuplicateMRNAndDisplayDeclaration
+    )
 
   final override val postAction: Call =
     routes.EnterDeclarantEoriNumberOfDuplicateDeclarationController.submit

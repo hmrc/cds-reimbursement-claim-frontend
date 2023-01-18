@@ -261,7 +261,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         )
       }
 
-      "submit a valid MRN and user is not the declarant or consignee" in forAll(journeyGen, genMRN, genEori, genEori) {
+      "submit a valid MRN and user is not declarant nor consignee" in forAll(journeyGen, genMRN, genEori, genEori) {
         case (journey, mrn, declarant, consignee) =>
           whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
             val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
@@ -288,7 +288,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
             checkIsRedirect(
               performAction(enterDuplicateMovementReferenceNumberKey -> mrn.value),
-              routes.CheckDuplicateDeclarationDetailsController.show // TODO change after clarifying journey logic
+              routes.EnterImporterEoriNumberOfDuplicateDeclaration.show
             )
           }
       }

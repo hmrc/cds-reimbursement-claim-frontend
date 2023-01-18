@@ -74,16 +74,20 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
     for {
-      j1  <- buildJourneyGen(answersUpToBasisForClaimGen())
-               .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
-      mrn <- genMRN
-      decl = buildDisplayDeclaration(
-               id = mrn.value,
-               declarantEORI = j1.getDeclarantEoriFromACC14.getOrElse(exampleEori),
-               consigneeEORI = j1.getConsigneeEoriFromACC14
-             )
+      j1            <- buildJourneyGen(answersUpToBasisForClaimGen())
+                         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+      mrn           <- genMRN
+      consigneeEori <- genEori
+      declarantEori <- genEori
+      decl           = buildDisplayDeclaration(
+                         id = mrn.value,
+                         declarantEORI = declarantEori,
+                         consigneeEORI = Some(consigneeEori)
+                       )
     } yield j1
       .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
+      .flatMapWhenDefined(decl.getConsigneeEori)(_.checkConsigneeEoriNumberWithDuplicateDeclaration _)
+      .flatMap(_.checkDeclarantEoriNumberWithDuplicateDeclaration(decl.getDeclarantEori))
       .getOrFail
 
   "Check Duplicate Declaration Details Controller" when {
@@ -153,6 +157,32 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         checkIsRedirect(
           performAction(),
           routes.EnterDuplicateMovementReferenceNumberController.show
+        )
+      }
+
+      "redirect if duplicate declaration not verified" in {
+        val journey =
+          (for {
+            j1   <- buildJourneyGen(answersUpToBasisForClaimGen())
+                      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+            mrn  <- genMRN
+            eori <- genEori
+            decl  = buildDisplayDeclaration(
+                      id = mrn.value,
+                      declarantEORI = eori
+                    )
+          } yield j1
+            .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
+            .getOrFail).sample.get
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterImporterEoriNumberOfDuplicateDeclaration.show
         )
       }
     }

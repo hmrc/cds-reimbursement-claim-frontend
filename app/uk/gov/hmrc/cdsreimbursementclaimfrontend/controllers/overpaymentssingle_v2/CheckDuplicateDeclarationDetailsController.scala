@@ -49,7 +49,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
       hasMRNAndDisplayDeclaration &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified &
         needsDuplicateMrnAndDeclaration &
-        hasDuplicateMRNAndDisplayDeclaration
+        hasDuplicateDeclarationVerifiedIfRequired
     )
 
   final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
