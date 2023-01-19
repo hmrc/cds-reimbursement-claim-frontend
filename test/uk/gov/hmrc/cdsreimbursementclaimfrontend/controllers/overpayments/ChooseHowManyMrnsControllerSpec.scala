@@ -30,6 +30,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -38,17 +39,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.{routes => overpaymentsSingleRoutes}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.{routes => overpaymentsMultipleRoutes}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.{routes => overpaymentsScheduledRoutes}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
 //import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -56,6 +55,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 import collection.JavaConverters._
 
 class ChooseHowManyMrnsControllerSpec
@@ -145,19 +145,19 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show)
       }
 
-      // "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {
+      "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {
 
-      //   val updatedSession = SessionData(OverpaymentsMultipleJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(OverpaymentsMultipleJourney.empty(eoriExample, Nonce.Any))
 
-      //   inSequence {
-      //     mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-      //     mockGetSession(SessionData.empty)
-      //     mockStoreSession(updatedSession)(Right(()))
-      //   }
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetSession(SessionData.empty)
+          mockStoreSession(updatedSession)(Right(()))
+        }
 
-      //   val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Multiple.toString))
-      //   checkIsRedirect(result, overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst)
-      // }
+        val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Multiple.toString))
+        checkIsRedirect(result, overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst)
+      }
 
       // "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
       //   val updatedSession = SessionData(OverpaymentsScheduledJourney.empty(eoriExample, Nonce.Any))
@@ -169,6 +169,7 @@ class ChooseHowManyMrnsControllerSpec
       //   }
 
       //   val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Scheduled.toString))
+
       //   checkIsRedirect(result, overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show)
       // }
 

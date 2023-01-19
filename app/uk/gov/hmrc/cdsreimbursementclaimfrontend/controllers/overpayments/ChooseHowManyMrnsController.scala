@@ -31,12 +31,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.{routes => overpaymentsSingleRoutes}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
@@ -100,12 +98,11 @@ class ChooseHowManyMrnsController @Inject() (
                     .map(_ => Redirect(overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
-                  Future.successful(NotImplemented)
-                //   (if (request.sessionData.overpaymentsMultipleJourney.isEmpty)
-                //      updateSession(sessionStore, request)(_ => SessionData(OverpaymentsMultipleJourney.empty(eori)))
-                //    else
-                //      Future.successful(Right(())))
-                //     .map(_ => Redirect(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst()))
+                  (if (request.sessionData.overpaymentsMultipleJourney.isEmpty)
+                     updateSession(sessionStore, request)(_ => SessionData(OverpaymentsMultipleJourney.empty(eori)))
+                   else
+                     Future.successful(Right(())))
+                    .map(_ => Redirect(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst))
 
                 case Scheduled =>
                   Future.successful(NotImplemented)
