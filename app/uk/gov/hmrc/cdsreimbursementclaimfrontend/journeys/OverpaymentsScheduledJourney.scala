@@ -55,9 +55,9 @@ import scala.collection.mutable
   *  - [[OverpaymentsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
   *  - [[OverpaymentsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
   */
-final class OverpaymentsScheduledJourney private (
-  val answers: OverpaymentsScheduledJourney.Answers,
-  val caseNumber: Option[String] = None
+final class OverpaymentsScheduledJourney private(
+                                                  val answers: OverpaymentsScheduledJourney.Answers,
+                                                  val caseNumber: Option[String] = None
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsScheduledJourney]
     with OverpaymentsJourneyProperties
@@ -74,13 +74,14 @@ final class OverpaymentsScheduledJourney private (
   def hasCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims
       .exists(rc =>
-        rc.exists(_._2.nonEmpty) && rc.forall { case (dutyType, claims) =>
-          claims.nonEmpty && claims.forall {
-            case (taxCode, Some(claimAmounts)) =>
-              dutyType.taxCodes.contains(taxCode) &&
-                claimAmounts.isValid
-            case _                             => false
-          }
+        rc.exists(_._2.nonEmpty) && rc.forall {
+          case (dutyType, claims) =>
+            claims.nonEmpty && claims.forall {
+              case (taxCode, Some(claimAmounts)) =>
+                dutyType.taxCodes.contains(taxCode) &&
+                  claimAmounts.isValid
+              case _ => false
+            }
         }
       )
 
@@ -123,6 +124,7 @@ final class OverpaymentsScheduledJourney private (
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
 
+
   private def nextAfter[A](item: A)(seq: Seq[A]): Option[A] = {
     val i = seq.indexOf(item)
     if (i === -1) None
@@ -152,7 +154,7 @@ final class OverpaymentsScheduledJourney private (
     answers.reimbursementClaims
       .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
-  val isDutyTypeSelected: Boolean                                   = answers.reimbursementClaims.exists(_.nonEmpty)
+  val isDutyTypeSelected: Boolean = answers.reimbursementClaims.exists(_.nonEmpty)
 
   def isAllSelectedDutiesAreCMAEligible: Boolean =
     answers.reimbursementClaims
@@ -166,9 +168,9 @@ final class OverpaymentsScheduledJourney private (
       .getOrElse(SortedMap.empty)
 
   def getReimbursementFor(
-    dutyType: DutyType,
-    taxCode: TaxCode
-  ): Option[AmountPaidWithCorrect] =
+                           dutyType: DutyType,
+                           taxCode: TaxCode
+                         ): Option[AmountPaidWithCorrect] =
     getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
 
   def getReimbursementClaimsFor(dutyType: DutyType): Option[SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
@@ -315,9 +317,9 @@ final class OverpaymentsScheduledJourney private (
       .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
   def submitAmountForReimbursement(
-    taxCode: TaxCode,
-    reimbursementAmount: BigDecimal
-  ): Either[String, OverpaymentsScheduledJourney]                   =
+                                    taxCode: TaxCode,
+                                    reimbursementAmount: BigDecimal
+                                  ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       getLeadDisplayDeclaration match {
         case None =>
@@ -449,13 +451,13 @@ final class OverpaymentsScheduledJourney private (
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
-    requestNonce: Nonce,
-    uploadedFile: UploadedFile
-  ): Either[String, OverpaymentsScheduledJourney] =
+                                requestNonce: Nonce,
+                                uploadedFile: UploadedFile
+                              ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         Right(
-          new OverpaymentsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
+          new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
       } else Left("receiveScheduledDocument.invalidNonce")
     }
@@ -518,40 +520,40 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
   type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
   final case class Answers(
-    nonce: Nonce = Nonce.random,
-    userEoriNumber: Eori,
-    movementReferenceNumber: Option[MRN] = None,
-    scheduledDocument: Option[UploadedFile] = None,
-    displayDeclaration: Option[DisplayDeclaration] = None,
-    consigneeEoriNumber: Option[Eori] = None,
-    declarantEoriNumber: Option[Eori] = None,
-    contactDetails: Option[MrnContactDetails] = None,
-    contactAddress: Option[ContactAddress] = None,
-    basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
-    whetherNorthernIreland: Option[Boolean] = None,
-    additionalDetails: Option[String] = None,
-    reimbursementClaims: Option[ReimbursementClaims] = None,
-    bankAccountDetails: Option[BankAccountDetails] = None,
-    bankAccountType: Option[BankAccountType] = None,
-    reimbursementMethod: Option[ReimbursementMethod] = None,
-    selectedDocumentType: Option[UploadDocumentType] = None,
-    supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false
-  ) extends OverpaymentsAnswers
+                            nonce: Nonce = Nonce.random,
+                            userEoriNumber: Eori,
+                            movementReferenceNumber: Option[MRN] = None,
+                            scheduledDocument: Option[UploadedFile] = None,
+                            displayDeclaration: Option[DisplayDeclaration] = None,
+                            consigneeEoriNumber: Option[Eori] = None,
+                            declarantEoriNumber: Option[Eori] = None,
+                            contactDetails: Option[MrnContactDetails] = None,
+                            contactAddress: Option[ContactAddress] = None,
+                            basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
+                            whetherNorthernIreland: Option[Boolean] = None,
+                            additionalDetails: Option[String] = None,
+                            reimbursementClaims: Option[ReimbursementClaims] = None,
+                            bankAccountDetails: Option[BankAccountDetails] = None,
+                            bankAccountType: Option[BankAccountType] = None,
+                            reimbursementMethod: Option[ReimbursementMethod] = None,
+                            selectedDocumentType: Option[UploadDocumentType] = None,
+                            supportingEvidences: Seq[UploadedFile] = Seq.empty,
+                            checkYourAnswersChangeMode: Boolean = false
+                          ) extends OverpaymentsAnswers
 
   final case class Output(
-    movementReferenceNumber: MRN,
-    scheduledDocument: EvidenceDocument,
-    claimantType: ClaimantType,
-    claimantInformation: ClaimantInformation,
-    basisOfClaim: BasisOfOverpaymentClaim,
-    whetherNorthernIreland: Boolean,
-    additionalDetails: String,
-    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
-    reimbursementMethod: ReimbursementMethod,
-    bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument]
-  )
+                           movementReferenceNumber: MRN,
+                           scheduledDocument: EvidenceDocument,
+                           claimantType: ClaimantType,
+                           claimantInformation: ClaimantInformation,
+                           basisOfClaim: BasisOfOverpaymentClaim,
+                           whetherNorthernIreland: Boolean,
+                           additionalDetails: String,
+                           reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
+                           reimbursementMethod: ReimbursementMethod,
+                           bankAccountDetails: Option[BankAccountDetails],
+                           supportingEvidences: Seq[EvidenceDocument]
+                         )
 
   import JourneyValidationErrors._
   import com.github.arturopala.validator.Validator._
