@@ -36,6 +36,6 @@ class SignOutController @Inject() (
     with Logging {
 
   def showSignOutPage(): Action[AnyContent] = Action { implicit request =>
-    Ok(signOut())
+    Ok(signOut()).withNewSession
   }
 }
