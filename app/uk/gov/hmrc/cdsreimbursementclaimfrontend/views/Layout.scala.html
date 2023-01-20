@@ -82,7 +82,7 @@
 }
 
 @signOutUrl = @{
-    if(suppressSignOutLink) {
+    if(suppressSignOutLink || request.session.get("authToken").isEmpty) {
         None
     } else {
         Some(viewConfig.ggSignOut)
