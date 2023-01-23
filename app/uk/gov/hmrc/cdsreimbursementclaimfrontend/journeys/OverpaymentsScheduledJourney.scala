@@ -43,9 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import scala.collection.immutable.SortedMap
-import scala.collection.immutable.SortedSet
-import scala.collection.immutable.TreeMap
-import scala.collection.mutable
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -55,9 +52,9 @@ import scala.collection.mutable
   *  - [[OverpaymentsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
   *  - [[OverpaymentsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
   */
-final class OverpaymentsScheduledJourney private(
-                                                  val answers: OverpaymentsScheduledJourney.Answers,
-                                                  val caseNumber: Option[String] = None
+final class OverpaymentsScheduledJourney private (
+  val answers: OverpaymentsScheduledJourney.Answers,
+  val caseNumber: Option[String] = None
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsScheduledJourney]
     with OverpaymentsJourneyProperties
@@ -74,14 +71,13 @@ final class OverpaymentsScheduledJourney private(
   def hasCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims
       .exists(rc =>
-        rc.exists(_._2.nonEmpty) && rc.forall {
-          case (dutyType, claims) =>
-            claims.nonEmpty && claims.forall {
-              case (taxCode, Some(claimAmounts)) =>
-                dutyType.taxCodes.contains(taxCode) &&
-                  claimAmounts.isValid
-              case _ => false
-            }
+        rc.exists(_._2.nonEmpty) && rc.forall { case (dutyType, claims) =>
+          claims.nonEmpty && claims.forall {
+            case (taxCode, Some(claimAmounts)) =>
+              dutyType.taxCodes.contains(taxCode) &&
+                claimAmounts.isValid
+            case _                             => false
+          }
         }
       )
 
@@ -124,7 +120,6 @@ final class OverpaymentsScheduledJourney private(
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
 
-
   private def nextAfter[A](item: A)(seq: Seq[A]): Option[A] = {
     val i = seq.indexOf(item)
     if (i === -1) None
@@ -150,16 +145,15 @@ final class OverpaymentsScheduledJourney private(
   def findNextDutyToSelectTaxCodes: Option[DutyType] =
     answers.reimbursementClaims.flatMap(_.find(_._2.isEmpty).map(_._1))
 
-  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
-    answers.reimbursementClaims
-      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
-
   val isDutyTypeSelected: Boolean = answers.reimbursementClaims.exists(_.nonEmpty)
 
   def isAllSelectedDutiesAreCMAEligible: Boolean =
     answers.reimbursementClaims
-      .map(_.values.flatMap(_.keySet.map(getNdrcDetailsFor))
-      .collect { case Some(d) => d })
+      .map(
+        _.values
+          .flatMap(_.keySet.map(getNdrcDetailsFor))
+          .collect { case Some(d) => d }
+      )
       .exists(_.forall(_.isCmaEligible))
 
   def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]] =
@@ -168,9 +162,9 @@ final class OverpaymentsScheduledJourney private(
       .getOrElse(SortedMap.empty)
 
   def getReimbursementFor(
-                           dutyType: DutyType,
-                           taxCode: TaxCode
-                         ): Option[AmountPaidWithCorrect] =
+    dutyType: DutyType,
+    taxCode: TaxCode
+  ): Option[AmountPaidWithCorrect] =
     getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
 
   def getReimbursementClaimsFor(dutyType: DutyType): Option[SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
@@ -266,6 +260,11 @@ final class OverpaymentsScheduledJourney private(
       )
     }
 
+  def submitBasisOfClaim(basisOfClaim: BasisOfOverpaymentClaim): OverpaymentsScheduledJourney =
+    whileClaimIsAmendable {
+      new OverpaymentsScheduledJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+    }
+
   def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
       new OverpaymentsScheduledJourney(
@@ -275,37 +274,57 @@ final class OverpaymentsScheduledJourney private(
 
   def submitAdditionalDetails(
     additionalDetails: String
-  ): OverpaymentsScheduledJourney =
+  ): OverpaymentsScheduledJourney                 =
     whileClaimIsAmendable {
       new OverpaymentsScheduledJourney(
         answers.copy(additionalDetails = Some(additionalDetails))
       )
     }
-
-  def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, OverpaymentsScheduledJourney] =
+  def selectAndReplaceDutyTypeSetForReimbursement(
+    dutyTypes: Seq[DutyType]
+  ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      getLeadDisplayDeclaration match {
-        case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+      if (dutyTypes.isEmpty)
+        Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
+      else {
+        val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
+          SortedMap(
+            dutyTypes
+              .map(dutyType =>
+                (dutyType -> getReimbursementClaimsFor(dutyType)
+                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]]))
+              ): _*
+          )
+        Right(new OverpaymentsScheduledJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+      }
+    }
 
-        case Some(_) =>
-          if (taxCodes.isEmpty)
-            Left("selectTaxCodeSetForReimbursement.emptySelection")
-          else {
-            val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
-            if (allTaxCodesExistInACC14) {
-              val newReimbursementClaims = answers.reimbursementClaims match {
-                case None                      =>
-                  SortedMap(DutyType, SortedMap(taxCodes.map(taxCode => taxCode -> None): _*))
-
-                case Some(reimbursementClaims) =>
-                  Map(taxCodes.map { taxCode =>
-                    taxCode -> reimbursementClaims.flatMap(_._2).get(taxCode)
-                  }: _*)
+  def selectAndReplaceTaxCodeSetForReimbursement(
+    dutyType: DutyType,
+    taxCodes: Seq[TaxCode]
+  ): Either[String, OverpaymentsScheduledJourney] =
+    whileClaimIsAmendable {
+      if (!getSelectedDutyTypes.exists(_.contains(dutyType)))
+        Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
+      else if (taxCodes.isEmpty)
+        Left("selectTaxCodeSetForReimbursement.emptySelection")
+      else {
+        val allTaxCodesMatchDutyType = taxCodes.forall(tc => dutyType.taxCodes.contains(tc))
+        if (allTaxCodesMatchDutyType) {
+          val newReimbursementClaims =
+            answers.reimbursementClaims
+              .map { rc =>
+                SortedMap(rc.toSeq.map {
+                  case (dt, reimbursementClaims) if dt.repr === dutyType.repr =>
+                    dt -> SortedMap(taxCodes.map { tc =>
+                      tc -> reimbursementClaims.get(tc).flatten
+                    }: _*)
+                  case other                                                  => other
+                }: _*)
               }
-              Right(new OverpaymentsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
-            } else
-              Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
-          }
+          Right(new OverpaymentsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
+        } else
+          Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
     }
 
@@ -317,35 +336,35 @@ final class OverpaymentsScheduledJourney private(
       .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
   def submitAmountForReimbursement(
-                                    taxCode: TaxCode,
-                                    reimbursementAmount: BigDecimal
-                                  ): Either[String, OverpaymentsSingleJourney] =
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    correctAmount: BigDecimal
+  ): Either[String, OverpaymentsScheduledJourney]                   =
     whileClaimIsAmendable {
-      getLeadDisplayDeclaration match {
-        case None =>
-          Left("submitAmountForReimbursement.missingDisplayDeclaration")
-
-        case Some(_) =>
-          getNdrcDetailsFor(taxCode) match {
-            case None =>
-              Left("submitAmountForReimbursement.taxCodeNotInACC14")
-
-            case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
-              if (getSelectedTaxCodes.exists(_.contains(taxCode))) {
-                val newReimbursementClaims = answers.reimbursementClaims match {
-                  case None                      => Map(taxCode -> Some(reimbursementAmount))
-                  case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
-                }
-                Right(
-                  new OverpaymentsScheduledJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims)))
+      if (dutyType.taxCodes.contains(taxCode)) {
+        if (isDutySelected(dutyType, taxCode)) {
+          if (AmountPaidWithCorrect(paidAmount, correctAmount).isValid) {
+            val newReimbursementClaims =
+              answers.reimbursementClaims
+                .map(rc =>
+                  SortedMap(rc.toSeq.map {
+                    case (dt, reimbursementClaims) if dt === dutyType =>
+                      dt -> SortedMap(reimbursementClaims.toSeq.map {
+                        case (tc, _) if tc === taxCode =>
+                          tc -> Some(AmountPaidWithCorrect(paidAmount, correctAmount))
+                        case other                     => other
+                      }: _*)
+                    case other                                        => other
+                  }: _*)
                 )
-              } else
-                Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
-
-            case _ =>
-              Left("submitAmountForReimbursement.invalidReimbursementAmount")
-          }
-      }
+            Right(new OverpaymentsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
+          } else
+            Left("submitAmountForReimbursement.invalidReimbursementAmount")
+        } else
+          Left("submitAmountForReimbursement.taxCodeNotSelected")
+      } else
+        Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsScheduledJourney] =
@@ -451,13 +470,13 @@ final class OverpaymentsScheduledJourney private(
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
-                                requestNonce: Nonce,
-                                uploadedFile: UploadedFile
-                              ): Either[String, RejectedGoodsScheduledJourney] =
+    requestNonce: Nonce,
+    uploadedFile: UploadedFile
+  ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         Right(
-          new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
+          new OverpaymentsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
       } else Left("receiveScheduledDocument.invalidNonce")
     }
@@ -488,8 +507,7 @@ final class OverpaymentsScheduledJourney private(
           mrn                    <- getLeadMovementReferenceNumber
           basisOfClaim           <- answers.basisOfClaim
           additionalDetails      <- answers.additionalDetails
-          supportingEvidences     = answers.supportingEvidences
-          scheduledDocument       = answers.scheduledDocument
+          scheduledDocument      <- answers.scheduledDocument
           claimantInformation    <- getClaimantInformation
           whetherNorthernIreland <- answers.whetherNorthernIreland
         } yield OverpaymentsScheduledJourney.Output(
@@ -501,7 +519,7 @@ final class OverpaymentsScheduledJourney private(
           whetherNorthernIreland = whetherNorthernIreland,
           additionalDetails = additionalDetails,
           reimbursementClaims = getReimbursementClaims,
-          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
+          supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
           reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
           bankAccountDetails = answers.bankAccountDetails
         )).toRight(
@@ -520,40 +538,40 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
   type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
   final case class Answers(
-                            nonce: Nonce = Nonce.random,
-                            userEoriNumber: Eori,
-                            movementReferenceNumber: Option[MRN] = None,
-                            scheduledDocument: Option[UploadedFile] = None,
-                            displayDeclaration: Option[DisplayDeclaration] = None,
-                            consigneeEoriNumber: Option[Eori] = None,
-                            declarantEoriNumber: Option[Eori] = None,
-                            contactDetails: Option[MrnContactDetails] = None,
-                            contactAddress: Option[ContactAddress] = None,
-                            basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
-                            whetherNorthernIreland: Option[Boolean] = None,
-                            additionalDetails: Option[String] = None,
-                            reimbursementClaims: Option[ReimbursementClaims] = None,
-                            bankAccountDetails: Option[BankAccountDetails] = None,
-                            bankAccountType: Option[BankAccountType] = None,
-                            reimbursementMethod: Option[ReimbursementMethod] = None,
-                            selectedDocumentType: Option[UploadDocumentType] = None,
-                            supportingEvidences: Seq[UploadedFile] = Seq.empty,
-                            checkYourAnswersChangeMode: Boolean = false
-                          ) extends OverpaymentsAnswers
+    nonce: Nonce = Nonce.random,
+    userEoriNumber: Eori,
+    movementReferenceNumber: Option[MRN] = None,
+    scheduledDocument: Option[UploadedFile] = None,
+    displayDeclaration: Option[DisplayDeclaration] = None,
+    consigneeEoriNumber: Option[Eori] = None,
+    declarantEoriNumber: Option[Eori] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
+    whetherNorthernIreland: Option[Boolean] = None,
+    additionalDetails: Option[String] = None,
+    reimbursementClaims: Option[ReimbursementClaims] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None,
+    reimbursementMethod: Option[ReimbursementMethod] = None,
+    selectedDocumentType: Option[UploadDocumentType] = None,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    checkYourAnswersChangeMode: Boolean = false
+  ) extends OverpaymentsAnswers
 
   final case class Output(
-                           movementReferenceNumber: MRN,
-                           scheduledDocument: EvidenceDocument,
-                           claimantType: ClaimantType,
-                           claimantInformation: ClaimantInformation,
-                           basisOfClaim: BasisOfOverpaymentClaim,
-                           whetherNorthernIreland: Boolean,
-                           additionalDetails: String,
-                           reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
-                           reimbursementMethod: ReimbursementMethod,
-                           bankAccountDetails: Option[BankAccountDetails],
-                           supportingEvidences: Seq[EvidenceDocument]
-                         )
+    movementReferenceNumber: MRN,
+    scheduledDocument: EvidenceDocument,
+    claimantType: ClaimantType,
+    claimantInformation: ClaimantInformation,
+    basisOfClaim: BasisOfOverpaymentClaim,
+    whetherNorthernIreland: Boolean,
+    additionalDetails: String,
+    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
+    reimbursementMethod: ReimbursementMethod,
+    bankAccountDetails: Option[BankAccountDetails],
+    supportingEvidences: Seq[EvidenceDocument]
+  )
 
   import JourneyValidationErrors._
   import com.github.arturopala.validator.Validator._
@@ -625,14 +643,21 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
+      .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
       .mapWhenDefined(answers.whetherNorthernIreland)(_.submitWhetherNorthernIreland)
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
-        _.selectAndReplaceTaxCodeSetForReimbursement
+        _.selectAndReplaceDutyTypeSetForReimbursement
       )
-      .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .flatMapEachWhenDefined(answers.reimbursementClaims)(j => { case (dutyType, reimbursements) =>
+        j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, reimbursements.keySet.toSeq)
+          .flatMapEachWhenMappingDefined(reimbursements)(j => {
+            case (taxCode, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
+              j.submitAmountForReimbursement(dutyType, taxCode, paidAmount, correctAmount)
+          })
+      })
       .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)

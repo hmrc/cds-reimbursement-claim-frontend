@@ -482,7 +482,6 @@ final class RejectedGoodsScheduledJourney private (
           detailsOfRejectedGoods <- answers.detailsOfRejectedGoods
           inspectionDate         <- answers.inspectionDate
           inspectionAddress      <- answers.inspectionAddress
-          supportingEvidences     = answers.supportingEvidences
           scheduledDocument      <- answers.scheduledDocument
           claimantInformation    <- getClaimantInformation
         } yield RejectedGoodsScheduledJourney.Output(
@@ -496,7 +495,7 @@ final class RejectedGoodsScheduledJourney private (
           inspectionAddress = inspectionAddress,
           reimbursementClaims = getReimbursementClaims,
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
-          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
+          supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = answers.bankAccountDetails
