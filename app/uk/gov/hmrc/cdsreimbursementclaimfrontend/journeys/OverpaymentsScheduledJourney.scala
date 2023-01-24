@@ -88,8 +88,7 @@ final class OverpaymentsScheduledJourney private (
     answers.displayDeclaration
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
+    true
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
@@ -113,20 +112,6 @@ final class OverpaymentsScheduledJourney private (
 
   def getSelectedTaxCodes: Option[Seq[TaxCode]] =
     answers.reimbursementClaims.map(_.flatMap(_._2).keys.toSeq)
-
-  private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
-    getReimbursementClaims.flatMap(_._2).foldLeft[Option[BigDecimal]](None) { case (a, (taxCode, amount)) =>
-      if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
-      else a
-    }
-  def getUKDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)
-
-  def getEUDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.euTaxCodeSet)
-
-  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
 
   def getSelectedDutyTypes: Option[Seq[DutyType]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
@@ -195,6 +180,9 @@ final class OverpaymentsScheduledJourney private (
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.flatMap(_._2).values.map(_.refundAmount).sum
+
+  def getTotalPaidAmount: BigDecimal =
+    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
@@ -342,9 +330,6 @@ final class OverpaymentsScheduledJourney private (
       }
     }
 
-  def isValidReimbursementAmount(reimbursementAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    reimbursementAmount > 0 && reimbursementAmount <= BigDecimal(ndrcDetails.amount)
-
   def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
     answers.reimbursementClaims
       .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
@@ -358,7 +343,8 @@ final class OverpaymentsScheduledJourney private (
     whileClaimIsAmendable {
       if (dutyType.taxCodes.contains(taxCode)) {
         if (isDutySelected(dutyType, taxCode)) {
-          if (AmountPaidWithCorrect(paidAmount, correctAmount).isValid) {
+          val amounts = AmountPaidWithCorrect(paidAmount, correctAmount)
+          if (amounts.isValid) {
             val newReimbursementClaims =
               answers.reimbursementClaims
                 .map(rc =>
@@ -366,7 +352,7 @@ final class OverpaymentsScheduledJourney private (
                     case (dt, reimbursementClaims) if dt === dutyType =>
                       dt -> SortedMap(reimbursementClaims.toSeq.map {
                         case (tc, _) if tc === taxCode =>
-                          tc -> Some(AmountPaidWithCorrect(paidAmount, correctAmount))
+                          tc -> Some(amounts)
                         case other                     => other
                       }: _*)
                     case other                                        => other
@@ -401,44 +387,6 @@ final class OverpaymentsScheduledJourney private (
           )
         )
       else Left("submitBankAccountType.unexpected")
-    }
-
-  def submitReimbursementMethod(
-    reimbursementMethod: ReimbursementMethod
-  ): Either[String, OverpaymentsScheduledJourney] =
-    whileClaimIsAmendable {
-      if (isAllSelectedDutiesAreCMAEligible) {
-        if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment)
-          Right(
-            new OverpaymentsScheduledJourney(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethod),
-                bankAccountDetails = None
-              )
-            )
-          )
-        else
-          Right(
-            new OverpaymentsScheduledJourney(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethod),
-                bankAccountDetails = computeBankAccountDetails
-              )
-            )
-          )
-      } else
-        Left("submitReimbursementMethod.notCMAEligible")
-    }
-
-  def resetReimbursementMethod(): OverpaymentsScheduledJourney =
-    whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(
-        answers.copy(
-          reimbursementMethod = None,
-          bankAccountType = None,
-          bankAccountDetails = None
-        )
-      )
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): OverpaymentsScheduledJourney =
@@ -537,7 +485,7 @@ final class OverpaymentsScheduledJourney private (
           additionalDetails = additionalDetails,
           reimbursementClaims = getReimbursementClaims,
           supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
-          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
+          reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
@@ -570,7 +518,6 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     reimbursementClaims: Option[ReimbursementClaims] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
-    reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     dutiesChangeMode: Boolean = false,
@@ -594,26 +541,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
   import JourneyValidationErrors._
   import com.github.arturopala.validator.Validator._
 
-  object Checks extends OverpaymentsJourneyChecks[OverpaymentsScheduledJourney] {
-
-    val reimbursementMethodHasBeenProvidedIfNeeded: Validate[OverpaymentsScheduledJourney] =
-      all(
-        whenTrue(
-          _.isAllSelectedDutiesAreCMAEligible,
-          checkIsDefined(
-            _.answers.reimbursementMethod,
-            REIMBURSEMENT_METHOD_MUST_BE_DEFINED
-          )
-        ),
-        whenFalse(
-          _.isAllSelectedDutiesAreCMAEligible,
-          checkIsEmpty(
-            _.answers.reimbursementMethod,
-            REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
-          )
-        )
-      )
-  }
+  object Checks extends OverpaymentsJourneyChecks[OverpaymentsScheduledJourney] {}
 
   import Checks._
 
@@ -625,11 +553,12 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       basisOfClaimHasBeenProvided,
       additionalDetailsHasBeenProvided,
       reimbursementClaimsHasBeenProvided,
-      reimbursementMethodHasBeenProvidedIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided
     )
+
+  import JourneyFormats._
 
   object Answers {
     implicit val format: Format[Answers] =
@@ -676,7 +605,6 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
               j.submitAmountForReimbursement(dutyType, taxCode, paidAmount, correctAmount)
           })
       })
-      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(

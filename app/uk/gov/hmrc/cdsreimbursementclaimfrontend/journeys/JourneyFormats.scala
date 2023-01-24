@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
@@ -26,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import scala.collection.immutable.SortedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 
 object JourneyFormats {
@@ -36,43 +34,31 @@ object JourneyFormats {
 
   implicit lazy val dutyFormat = DutyType.simpleDutyTypeFormat
 
-  implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
-    MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
+  implicit def mapFormat1[K : Format, V : Format]: Format[Map[K, V]] =
+    MapFormat.format[K, V]
 
-  implicit lazy val mapFormat2: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
+  implicit def mapFormat2[K : Format, V : Format]: Format[Map[K, Option[V]]] =
+    MapFormat.formatWithOptionalValue[K, V]
+
+  implicit def mapFormat3[K : Format : Ordering, V : Format]: Format[SortedMap[K, V]] =
+    MapFormat.formatSorted[K, V]
+
+  implicit def mapFormat4[K : Format : Ordering, V : Format]: Format[SortedMap[K, Option[V]]] =
+    MapFormat.formatSortedWithOptionalValue[K, V]
+
+  implicit def mapFormat5[K : Format : Ordering, V : Format]: Format[SortedMap[DutyType, SortedMap[K, V]]] =
+    MapFormat.formatSorted[DutyType, SortedMap[K, V]]
+
+  implicit def mapFormat6[K : Format : Ordering, V : Format]: Format[SortedMap[DutyType, SortedMap[K, Option[V]]]] =
+    MapFormat.formatSorted[DutyType, SortedMap[K, Option[V]]]
+
+  implicit def mapFormat7[K : Format, V : Format]: Format[OrderedMap[MRN, Map[K, V]]] =
+    MapFormat.formatOrdered[MRN, Map[K, V]]
+
+  implicit def mapFormat8[K : Format, V : Format]: Format[OrderedMap[MRN, Map[K, Option[V]]]] =
+    MapFormat.formatOrdered[MRN, Map[K, Option[V]]]
+
+  implicit lazy val mapFormat9: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
     MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
-
-  implicit lazy val mapFormat3: Format[OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]]] =
-    MapFormat.formatOrdered[MRN, Map[TaxCode, Option[BigDecimal]]]
-
-  implicit lazy val mapFormat4: Format[SortedMap[TaxCode, Option[AmountPaidWithRefund]]] =
-    MapFormat.formatSortedWithOptionalValue[TaxCode, AmountPaidWithRefund]
-
-  implicit lazy val mapFormat5: Format[SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]] =
-    MapFormat.formatSorted[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]
-
-  implicit lazy val mapFormat6: Format[SortedMap[TaxCode, AmountPaidWithRefund]] =
-    MapFormat.formatSorted[TaxCode, AmountPaidWithRefund]
-
-  implicit lazy val mapFormat7: Format[SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]]] =
-    MapFormat.formatSorted[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]]
-
-  implicit lazy val mapFormat8: Format[Map[TaxCode, BigDecimal]] =
-    MapFormat.format[TaxCode, BigDecimal]
-
-  implicit lazy val mapFormat9: Format[SortedMap[TaxCode, Option[BigDecimal]]] =
-    MapFormat.formatSortedWithOptionalValue[TaxCode, BigDecimal]
-
-  implicit lazy val mapFormat10: Format[SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]]] =
-    MapFormat.formatSorted[String, SortedMap[TaxCode, Option[BigDecimal]]]
-
-  implicit lazy val mapFormat11: Format[SortedMap[TaxCode, BigDecimal]] =
-    MapFormat.formatSorted[TaxCode, BigDecimal]
-
-  implicit lazy val mapFormat12: Format[SortedMap[String, SortedMap[TaxCode, BigDecimal]]] =
-    MapFormat.formatSorted[String, SortedMap[TaxCode, BigDecimal]]
-
-  implicit lazy val mapFormat13: Format[OrderedMap[MRN, Map[TaxCode, BigDecimal]]] =
-    MapFormat.formatOrdered[MRN, Map[TaxCode, BigDecimal]]
 
 }
