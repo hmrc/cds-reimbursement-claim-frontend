@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import scala.collection.immutable.SortedMap
 
-/** An encapsulated C&E1179 single MRN journey logic.
+/** An encapsulated C285 scheduled MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
   *
   * The journey uses two nested case classes:
@@ -113,6 +113,20 @@ final class OverpaymentsScheduledJourney private (
 
   def getSelectedTaxCodes: Option[Seq[TaxCode]] =
     answers.reimbursementClaims.map(_.flatMap(_._2).keys.toSeq)
+
+  private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
+    getReimbursementClaims.flatMap(_._2).foldLeft[Option[BigDecimal]](None) { case (a, (taxCode, amount)) =>
+      if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
+      else a
+    }
+  def getUKDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)
+
+  def getEUDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.euTaxCodeSet)
+
+  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
 
   def getSelectedDutyTypes: Option[Seq[DutyType]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
@@ -183,7 +197,7 @@ final class OverpaymentsScheduledJourney private (
     getReimbursementClaims.flatMap(_._2).values.map(_.refundAmount).sum
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
-    Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
+    Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
 
   override def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
     BasisOfOverpaymentClaimsList()
@@ -468,6 +482,9 @@ final class OverpaymentsScheduledJourney private (
         )
     }
 
+  def withDutiesChangeMode(enabled: Boolean): OverpaymentsScheduledJourney =
+    new OverpaymentsScheduledJourney(answers.copy(dutiesChangeMode = enabled))
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
     requestNonce: Nonce,
@@ -556,6 +573,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    dutiesChangeMode: Boolean = false,
     checkYourAnswersChangeMode: Boolean = false
   ) extends OverpaymentsAnswers
 
