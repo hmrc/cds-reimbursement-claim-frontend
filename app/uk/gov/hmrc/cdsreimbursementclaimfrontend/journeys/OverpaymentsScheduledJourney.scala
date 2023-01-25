@@ -179,7 +179,7 @@ final class OverpaymentsScheduledJourney private (
       )
 
   def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.flatMap(_._2).values.map(_.refundAmount).sum
+    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.refundAmount)).sum
 
   def getTotalPaidAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
