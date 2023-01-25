@@ -21,18 +21,18 @@ import play.api.data.FormError
 
 object DateInputHelper {
 
-  def withError(classs: String, error: Option[FormError], filter: String): String = {
-    println(error)
+  def withError(classs: String, error: Option[FormError], filter: String): String =
     error.fold(classs)(err =>
       if (
         err.messages.exists(message =>
           message
             .toLowerCase(java.util.Locale.ENGLISH)
-            .contains(filter) || message === "error.required" || message === "error.invalid"
+            .contains(
+              filter
+            ) || message === "error.required" || message === "error.invalid" || (filter === "year" && message === "error.before1900")
         )
       )
         s"$classs govuk-input--error"
       else classs
     )
-  }
 }
