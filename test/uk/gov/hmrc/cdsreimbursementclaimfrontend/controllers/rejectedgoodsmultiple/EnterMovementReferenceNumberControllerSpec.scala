@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -186,7 +185,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> "")(),
+          performAction("enter-movement-reference-number" -> "")(),
           messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
@@ -202,7 +201,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> invalidMRN.value)(),
+          performAction("enter-movement-reference-number" -> invalidMRN.value)(),
           messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => {
             getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
@@ -226,7 +225,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction(enterMovementReferenceNumberKey -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.CheckDeclarationDetailsController.show()
         )
       }
@@ -251,7 +250,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction(enterMovementReferenceNumberKey -> secondMrn.value)(2),
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
           routes.CheckMovementReferenceNumbersController.show()
         )
       }
@@ -290,7 +289,7 @@ class EnterMovementReferenceNumberControllerSpec
           }
 
           checkIsRedirect(
-            performAction(enterMovementReferenceNumberKey -> correctedDD.getMRN.value)(mrnToChange),
+            performAction("enter-movement-reference-number" -> correctedDD.getMRN.value)(mrnToChange),
             routes.SelectTaxCodesController.show(mrnToChange)
           )
         }

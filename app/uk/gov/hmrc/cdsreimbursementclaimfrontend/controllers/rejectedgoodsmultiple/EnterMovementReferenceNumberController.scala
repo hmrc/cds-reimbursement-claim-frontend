@@ -19,9 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmulti
 import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
@@ -29,12 +26,12 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes.subKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
 
 import scala.concurrent.ExecutionContext
 
@@ -42,13 +39,13 @@ import scala.concurrent.ExecutionContext
 class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
-  enterMovementReferenceNumberPage: pages.enter_movement_reference_number
+  enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  def showFirst(): Action[AnyContent] = show(1)
+  final val showFirst: Action[AnyContent] = show(1)
 
-  def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     (if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
        Redirect(routes.CheckMovementReferenceNumbersController.show())
      else {
@@ -65,7 +62,7 @@ class EnterMovementReferenceNumberController @Inject() (
      }).asFuture
   }
 
-  def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  final def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
       (
         journey,
@@ -125,7 +122,7 @@ class EnterMovementReferenceNumberController @Inject() (
     enterMovementReferenceNumberPage(
       movementReferenceNumberForm
         .fill(mrn)
-        .withError(enterMovementReferenceNumberKey, errorSuffix),
+        .withError("enter-movement-reference-number", errorSuffix),
       subKey,
       pageIndex,
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
@@ -146,23 +143,5 @@ class EnterMovementReferenceNumberController @Inject() (
           routes.SelectTaxCodesController.show(pageIndex)
         else routes.CheckMovementReferenceNumbersController.show()
       }
-    )
-}
-
-object EnterMovementReferenceNumberController {
-
-  val enterMovementReferenceNumberKey: String = "enter-movement-reference-number.rejected-goods"
-
-  val movementReferenceNumberForm: Form[MRN] =
-    Form(
-      mapping(
-        enterMovementReferenceNumberKey ->
-          nonEmptyText
-            .verifying(
-              "invalid.number",
-              str => str.isEmpty || MRN(str).isValid
-            )
-            .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
     )
 }
