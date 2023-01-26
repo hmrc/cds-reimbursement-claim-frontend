@@ -45,7 +45,8 @@ class EnterMovementReferenceNumberController @Inject() (
     extends OverpaymentsSingleJourneyBaseController
     with EnterMovementReferenceNumberMixin {
 
-  override def form(journey: Journey): Form[MRN] = Forms.movementReferenceNumberForm
+  override def form(journey: Journey): Form[MRN] =
+    Forms.movementReferenceNumberForm
 
   override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
     journey.getLeadMovementReferenceNumber

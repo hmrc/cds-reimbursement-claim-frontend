@@ -19,20 +19,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_movement_reference_number
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 import scala.concurrent.ExecutionContext
 
@@ -45,17 +44,8 @@ class EnterMovementReferenceNumberController @Inject() (
     extends RejectedGoodsScheduledJourneyBaseController
     with EnterMovementReferenceNumberMixin {
 
-  override def form(journey: Journey): Form[MRN] = Form(
-    mapping(
-      "enter-movement-reference-number.rejected-goods" ->
-        nonEmptyText
-          .verifying(
-            "invalid.number",
-            str => str.isEmpty || MRN(str).isValid
-          )
-          .transform[MRN](MRN(_), _.value)
-    )(identity)(Some(_))
-  )
+  override def form(journey: Journey): Form[MRN] =
+    Forms.movementReferenceNumberRejectedGoodsForm
 
   override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
     journey.getLeadMovementReferenceNumber

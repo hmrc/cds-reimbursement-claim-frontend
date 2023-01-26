@@ -45,7 +45,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_your_answers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -63,9 +65,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
   val sessionStore: SessionCache,
   val controllerComponents: MessagesControllerComponents,
   claimService: ClaimService,
-  checkYourAnswersPage: pages.check_your_answers,
-  confirmationOfSubmissionPage: pages.confirmation_of_submission,
-  submitClaimFailedPage: pages.submit_claim_error
+  checkYourAnswersPage: check_your_answers,
+  confirmationOfSubmissionPage: confirmation_of_submission,
+  submitClaimFailedPage: submit_claim_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction

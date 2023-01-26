@@ -50,7 +50,6 @@ import scala.concurrent.Future
 
 class EnterInspectionDateControllerSpec
     extends ControllerSpec
-    with AddAcc14
     with AdjustDisplayDeclaration
     with ReplaceEstablishmentAddresses
     with AuthSupport
@@ -85,6 +84,16 @@ class EnterInspectionDateControllerSpec
   val session: SessionData = SessionData.empty.copy(
     rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
   )
+
+  def addAcc14(
+    journey: RejectedGoodsMultipleJourney,
+    acc14Declaration: DisplayDeclaration
+  ): Either[String, RejectedGoodsMultipleJourney] = {
+    val nextIndex           = journey.getMovementReferenceNumbers.map(_.size).getOrElse(0)
+    val adjustedDeclaration = adjustWithDeclarantEori(acc14Declaration, journey)
+    journey
+      .submitMovementReferenceNumberAndDeclaration(nextIndex, adjustedDeclaration.getMRN, adjustedDeclaration)
+  }
 
   "Enter Inspection Date Controller" must {
 

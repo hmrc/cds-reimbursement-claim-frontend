@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_reimbursement_method
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_reimbursement_method
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future

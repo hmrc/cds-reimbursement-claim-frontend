@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_movement_reference_number
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberRejectedGoodsForm
 
 import scala.concurrent.ExecutionContext
 
@@ -53,7 +53,8 @@ class EnterMovementReferenceNumberController @Inject() (
 
        Ok(
          enterMovementReferenceNumberPage(
-           movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
+           movementReferenceNumberRejectedGoodsForm
+             .withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
            subKey,
            pageIndex,
            routes.EnterMovementReferenceNumberController.submit(pageIndex)
@@ -70,7 +71,7 @@ class EnterMovementReferenceNumberController @Inject() (
       ).asFuture
     else {
       val mrnIndex: Int = pageIndex - 1
-      movementReferenceNumberForm
+      movementReferenceNumberRejectedGoodsForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
@@ -120,7 +121,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String)(implicit request: Request[_]) =
     enterMovementReferenceNumberPage(
-      movementReferenceNumberForm
+      movementReferenceNumberRejectedGoodsForm
         .fill(mrn)
         .withError("enter-movement-reference-number", errorSuffix),
       subKey,

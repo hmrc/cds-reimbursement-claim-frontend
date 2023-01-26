@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_duplicate_movement_reference_number
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
@@ -56,7 +56,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   claimService: ClaimService,
-  enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number
+  enterDuplicateMovementReferenceNumberPage: enter_duplicate_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction

@@ -42,77 +42,80 @@ class CheckMovementReferenceNumbersController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers.rejected-goods"
-  val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
-  val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit()
+  private val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers.rejected-goods"
+  private val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
+  private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit()
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getMovementReferenceNumbers
-      .map { mrns =>
-        if (journey.hasCompleteMovementReferenceNumbers)
-          Ok(
-            checkMovementReferenceNumbers(
-              mrns,
-              checkMovementReferenceNumbersForm,
-              postAction,
-              routes.EnterMovementReferenceNumberController.show,
-              routes.CheckMovementReferenceNumbersController.delete
-            )
-          )
-        else
-          Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
-      }
-      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
-      .asFuture
-  }
-
-  def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getMovementReferenceNumbers
-      .map { mrns =>
-        checkMovementReferenceNumbersForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              BadRequest(
-                checkMovementReferenceNumbers(
-                  mrns,
-                  formWithErrors,
-                  postAction,
-                  routes.EnterMovementReferenceNumberController.show,
-                  routes.CheckMovementReferenceNumbersController.delete
-                )
-              ),
-            answer =>
-              Redirect(
-                answer match {
-                  case Yes =>
-                    routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
-                  case No  =>
-                    if (shouldForwardToCYA(journey)) checkYourAnswers
-                    else routes.CheckClaimantDetailsController.show()
-                }
+  final val show: Action[AnyContent] =
+    actionReadJourney { implicit request => journey =>
+      journey.getMovementReferenceNumbers
+        .map { mrns =>
+          if (journey.hasCompleteMovementReferenceNumbers)
+            Ok(
+              checkMovementReferenceNumbers(
+                mrns,
+                checkMovementReferenceNumbersForm,
+                postAction,
+                routes.EnterMovementReferenceNumberController.show,
+                routes.CheckMovementReferenceNumbersController.delete
               )
-          )
-      }
-      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
-      .asFuture
-  }
+            )
+          else
+            Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
+        }
+        .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
+        .asFuture
+    }
 
-  def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney(
-    _ =>
-      journey =>
-        journey
-          .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
-          .fold(
-            error => {
-              logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-              (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-            },
-            updatedJourney => (nextPageOnDelete(updatedJourney))
-          )
-          .asFuture,
-    fastForwardToCYAEnabled = false
-  )
+  final val submit: Action[AnyContent] =
+    actionReadJourney { implicit request => journey =>
+      journey.getMovementReferenceNumbers
+        .map { mrns =>
+          checkMovementReferenceNumbersForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                BadRequest(
+                  checkMovementReferenceNumbers(
+                    mrns,
+                    formWithErrors,
+                    postAction,
+                    routes.EnterMovementReferenceNumberController.show,
+                    routes.CheckMovementReferenceNumbersController.delete
+                  )
+                ),
+              answer =>
+                Redirect(
+                  answer match {
+                    case Yes =>
+                      routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
+                    case No  =>
+                      if (shouldForwardToCYA(journey)) checkYourAnswers
+                      else routes.CheckClaimantDetailsController.show()
+                  }
+                )
+            )
+        }
+        .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
+        .asFuture
+    }
+
+  final def delete(mrn: MRN): Action[AnyContent] =
+    actionReadWriteJourney(
+      _ =>
+        journey =>
+          journey
+            .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+            .fold(
+              error => {
+                logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
+                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+              },
+              updatedJourney => (nextPageOnDelete(updatedJourney))
+            )
+            .asFuture,
+      fastForwardToCYAEnabled = false
+    )
 
   private def nextPageOnDelete(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) = (
     journey,

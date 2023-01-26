@@ -55,7 +55,6 @@ class OverpaymentsMultipleJourneySpec
       emptyJourney.answers.displayDeclarations        shouldBe None
       emptyJourney.answers.consigneeEoriNumber        shouldBe None
       emptyJourney.answers.reimbursementClaims        shouldBe None
-      emptyJourney.answers.reimbursementMethod        shouldBe None
       emptyJourney.answers.selectedDocumentType       shouldBe None
       emptyJourney.answers.supportingEvidences        shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode shouldBe false
@@ -83,8 +82,7 @@ class OverpaymentsMultipleJourneySpec
         output.claimantType             shouldBe journey.getClaimantType
         output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
         output.additionalDetails        shouldBe journey.answers.additionalDetails.get
-        output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
-          .getOrElse(ReimbursementMethod.BankAccountTransfer)
+        output.reimbursementMethod      shouldBe ReimbursementMethod.BankAccountTransfer
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
@@ -565,18 +563,6 @@ class OverpaymentsMultipleJourneySpec
       }
     }
 
-    "change basis of claim" in {
-      forAll(
-        completeJourneyGenWithoutDuplicateEntry,
-        Gen.oneOf(BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry)
-      ) { (journey, basisOfClaim) =>
-        val modifiedJourney = journey.submitBasisOfClaim(basisOfClaim)
-
-        modifiedJourney.hasCompleteAnswers           shouldBe true
-        modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Right(basisOfClaim)
-      }
-    }
-
     "submit additional details" in {
       val journey = OverpaymentsMultipleJourney
         .empty(exampleEori)
@@ -769,122 +755,12 @@ class OverpaymentsMultipleJourneySpec
       }
     }
 
-    "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
-
-      journeyEither.isRight shouldBe true
-    }
-
-    "fail submitting CurrentMonthAdjustment as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val journeyEither                    =
-        OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
-
-      journeyEither shouldBe Left("submitReimbursementMethod.notCMAEligible")
-    }
-
-    "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
-
-      journeyEither.isRight shouldBe true
-    }
-
-    "fail submitting BankAccountTransfer as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val journeyEither                    =
-        OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
-
-      journeyEither shouldBe Left("submitReimbursementMethod.notCMAEligible")
-    }
-
-    "submit bankAccountDetails and bankAccountType if reimbursement method is BankAccountTransfer" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
-          .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-          .flatMap(_.submitBankAccountType(BankAccountType.Business))
-
-      journeyEither.isRight shouldBe true
-    }
-
-    "fail submitting bankAccountDetails if not needed" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
-          .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-          .flatMap(_.submitBankAccountType(BankAccountType.Business))
-
-      journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
-    }
-
-    "change reimbursementMethod to CMA in a complete journey with all duties CMA eligible" in {
-      forAll(completeJourneyCMAEligibleGen) { journey =>
-        whenever(journey.needsBanksAccountDetailsSubmission) {
-          val modifiedJourney =
-            journey
-              .submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment)
-              .getOrFail
-
-          modifiedJourney.hasCompleteAnswers shouldBe true
-        }
-      }
-    }
-
-    "change bankAccountDetails in a complete journey with all duties CMA eligible" in {
-      forAll(completeJourneyCMAEligibleGen) { journey =>
+    "change bankAccountDetails in a complete journey" in {
+      forAll(completeJourneyGen) { journey =>
         val journeyEither =
           journey.submitBankAccountDetails(exampleBankAccountDetails)
 
         journeyEither.isRight shouldBe journey.needsBanksAccountDetailsSubmission
-      }
-    }
-
-    "change bankAccountDetails in a complete journey not eligible for CMA" in {
-      forAll(completeJourneyNotCMAEligibleGen) { journey =>
-        val journeyEither =
-          journey.submitBankAccountDetails(exampleBankAccountDetails)
-
-        journeyEither.isRight shouldBe true
       }
     }
 

@@ -68,6 +68,9 @@ final class OverpaymentsMultipleJourney private (
   def hasCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims.exists(claims => claims.values.forall(rc => rc.nonEmpty && rc.forall(_._2.isDefined)))
 
+  def getMovementReferenceNumbers: Option[Seq[MRN]] =
+    answers.movementReferenceNumbers
+
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumbers.flatMap(_.headOption)
 
@@ -95,12 +98,14 @@ final class OverpaymentsMultipleJourney private (
   def countOfMovementReferenceNumbers: Int =
     answers.movementReferenceNumbers.map(_.size).getOrElse(0)
 
-  def hasMinimumMovementReferenceNumbers: Boolean =
+  def hasCompleteMovementReferenceNumbers: Boolean =
     countOfMovementReferenceNumbers >= 2
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
+    true
+
+  def needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex: Int): Boolean =
+    if (pageIndex === 1) needsDeclarantAndConsigneeEoriSubmission else false
 
   def needsDuplicateMrnAndDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
@@ -262,6 +267,29 @@ final class OverpaymentsMultipleJourney private (
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
   ) = submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
+
+  def removeMovementReferenceNumberAndDisplayDeclaration(mrn: MRN): Either[String, OverpaymentsMultipleJourney] =
+    whileClaimIsAmendable {
+      getIndexOfMovementReferenceNumber(mrn) match {
+        case None                                             => Left("removeMovementReferenceNumberAndDisplayDeclaration.notFound")
+        case Some(0)                                          => Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveFirstMRN")
+        case Some(1) if countOfMovementReferenceNumbers === 2 =>
+          Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveSecondMRN")
+        case Some(index)                                      =>
+          Right(
+            new OverpaymentsMultipleJourney(
+              answers.copy(
+                movementReferenceNumbers = answers.movementReferenceNumbers
+                  .map(mrns => mrns.take(index) ++ mrns.drop(index + 1)),
+                displayDeclarations = answers.displayDeclarations.map(
+                  _.filterNot(_.displayResponseDetail.declarationId === mrn.value)
+                ),
+                reimbursementClaims = answers.reimbursementClaims.map(_ - mrn)
+              )
+            )
+          )
+      }
+    }
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
@@ -437,44 +465,6 @@ final class OverpaymentsMultipleJourney private (
       else Left("submitBankAccountType.unexpected")
     }
 
-  def submitReimbursementMethod(
-    reimbursementMethod: ReimbursementMethod
-  ): Either[String, OverpaymentsMultipleJourney] =
-    whileClaimIsAmendable {
-      if (isAllSelectedDutiesAreCMAEligible) {
-        if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment)
-          Right(
-            new OverpaymentsMultipleJourney(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethod),
-                bankAccountDetails = None
-              )
-            )
-          )
-        else
-          Right(
-            new OverpaymentsMultipleJourney(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethod),
-                bankAccountDetails = computeBankAccountDetails
-              )
-            )
-          )
-      } else
-        Left("submitReimbursementMethod.notCMAEligible")
-    }
-
-  def resetReimbursementMethod(): OverpaymentsMultipleJourney =
-    whileClaimIsAmendable {
-      new OverpaymentsMultipleJourney(
-        answers.copy(
-          reimbursementMethod = None,
-          bankAccountType = None,
-          bankAccountDetails = None
-        )
-      )
-    }
-
   def submitDocumentTypeSelection(documentType: UploadDocumentType): OverpaymentsMultipleJourney =
     whileClaimIsAmendable {
       new OverpaymentsMultipleJourney(answers.copy(selectedDocumentType = Some(documentType)))
@@ -548,7 +538,7 @@ final class OverpaymentsMultipleJourney private (
           additionalDetails = additionalDetails,
           reimbursementClaims = OrderedMap(getAllReimbursementClaims),
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
-          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
+          reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
@@ -583,7 +573,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
-    reimbursementMethod: Option[ReimbursementMethod] = None,
     checkYourAnswersChangeMode: Boolean = false
   ) extends OverpaymentsAnswers
 
@@ -606,24 +595,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
 
   object Checks extends OverpaymentsJourneyChecks[OverpaymentsMultipleJourney] {
 
-    val reimbursementMethodHasBeenProvidedIfNeeded: Validate[OverpaymentsMultipleJourney] =
-      all(
-        whenTrue(
-          _.isAllSelectedDutiesAreCMAEligible,
-          checkIsDefined(
-            _.answers.reimbursementMethod,
-            REIMBURSEMENT_METHOD_MUST_BE_DEFINED
-          )
-        ),
-        whenFalse(
-          _.isAllSelectedDutiesAreCMAEligible,
-          checkIsEmpty(
-            _.answers.reimbursementMethod,
-            REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
-          )
-        )
-      )
-
     val hasMultipleMovementReferenceNumbers: Validate[OverpaymentsMultipleJourney] =
       checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
 
@@ -639,7 +610,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       basisOfClaimHasBeenProvided,
       additionalDetailsHasBeenProvided,
       reimbursementClaimsHasBeenProvided,
-      reimbursementMethodHasBeenProvidedIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
@@ -688,7 +658,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
               (taxCode, amount) => j.submitAmountForReimbursement(mrn, taxCode, amount)
             )
       })
-      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(

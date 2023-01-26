@@ -16,17 +16,52 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import play.api.data.Form
+import play.api.mvc.Call
+import play.api.mvc.Request
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
+  val jcc: JourneyControllerComponents,
+  checkDeclarationDetailsPage: check_declaration_details
+)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
     extends OverpaymentsMultipleJourneyBaseController
-    with WorkInProgressMixin {}
+    with CheckDeclarationDetailsMixin {
+
+  final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
+    journey.getLeadDisplayDeclaration
+
+  final override def continueRoute(journey: Journey): Call = {
+    val numOfMRNs = journey.countOfMovementReferenceNumbers
+    if (numOfMRNs > 1)
+      routes.CheckMovementReferenceNumbersController.show
+    else
+      routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
+  }
+
+  final override val enterMovementReferenceNumberRoute: Call =
+    routes.EnterMovementReferenceNumberController.showFirst
+
+  private val postAction: Call =
+    routes.CheckDeclarationDetailsController.submit
+
+  override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
+    case (decl, form) =>
+      implicit request =>
+        checkDeclarationDetailsPage(decl, form, false, postAction, MRNMultipleRoutes.subKey)
+  }
+
+}
