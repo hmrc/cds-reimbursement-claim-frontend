@@ -96,25 +96,11 @@ final class OverpaymentsScheduledJourney private (
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
-  def getAvailableDuties: Seq[(TaxCode, Boolean)] =
-    getNdrcDetails
-      .flatMap { ndrcs =>
-        val taxCodes = ndrcs
-          .map(ndrc =>
-            TaxCodes
-              .find(ndrc.taxType)
-              .map(taxCode => (taxCode, ndrc.isCmaEligible))
-          )
-          .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes)
-      }
-      .getOrElse(Seq.empty)
-
-  def getSelectedTaxCodes: Option[Seq[TaxCode]] =
-    answers.reimbursementClaims.map(_.flatMap(_._2).keys.toSeq)
-
   def getSelectedDutyTypes: Option[Seq[DutyType]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
+
+  def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
+    answers.reimbursementClaims.map(_.mapValues(_.keys.toSeq)).getOrElse(SortedMap.empty)
 
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
@@ -145,15 +131,6 @@ final class OverpaymentsScheduledJourney private (
     answers.reimbursementClaims.flatMap(_.find(_._2.isEmpty).map(_._1))
 
   val isDutyTypeSelected: Boolean = answers.reimbursementClaims.exists(_.nonEmpty)
-
-  def isAllSelectedDutiesAreCMAEligible: Boolean =
-    answers.reimbursementClaims
-      .map(
-        _.values
-          .flatMap(_.keySet.map(getNdrcDetailsFor))
-          .collect { case Some(d) => d }
-      )
-      .exists(_.forall(_.isCmaEligible))
 
   def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]] =
     answers.reimbursementClaims

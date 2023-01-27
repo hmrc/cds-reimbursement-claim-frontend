@@ -60,7 +60,6 @@ class OverpaymentsScheduledJourneySpec
       emptyJourney.answers.dutiesChangeMode           shouldBe false
       emptyJourney.getNdrcDetails                     shouldBe None
       emptyJourney.getSelectedDutyTypes               shouldBe None
-      emptyJourney.isAllSelectedDutiesAreCMAEligible  shouldBe false
       emptyJourney.hasCompleteReimbursementClaims     shouldBe false
       emptyJourney.hasCompleteSupportingEvidences     shouldBe true
       emptyJourney.hasCompleteAnswers                 shouldBe false
@@ -807,6 +806,29 @@ class OverpaymentsScheduledJourneySpec
         result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
       }
     }
+
+//    "getNextNdrcDetailsToClaim" when {
+//      "return the next Ndrc Details to claim" in {
+//        forAll(displayDeclarationGen, dutyTypesWithTaxCodesGen, Acc14Gen.genListNdrcDetails()) {
+//          (displayDeclaration: DisplayDeclaration, dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] ,ndrcDetails: List[NdrcDetails]) =>
+//            whenever(ndrcDetails.size > 1 && ndrcDetails.map(_.taxType).toSet.size == ndrcDetails.size) {
+//              val dutyTypes = dutyTypesWithTaxCodes.map(_._1)
+//              val taxCodes = ndrcDetails.map(details => TaxCode(details.taxType))
+//              val drd = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+//              val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
+//              val journey = OverpaymentsScheduledJourney
+//                .empty(exampleEori)
+//                .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
+//                .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyTypes, taxCodes))
+//                .getOrFail
+//              val claimedReimbursement = journey.answers.correctedAmounts.get
+//              val nextDetails = journey.getNextNdrcDetailsToClaim.get
+//              claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
+//              // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it
+//            }
+//        }
+//      }
+//    }
 
     "reject submit invalid amount for valid selected tax code" in {
       forAll(dutyTypesWithTaxCodesWithClaimAmountsGen) { data =>
