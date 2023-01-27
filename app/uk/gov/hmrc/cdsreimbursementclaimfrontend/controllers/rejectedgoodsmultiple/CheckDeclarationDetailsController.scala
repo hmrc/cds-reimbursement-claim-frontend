@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_declaration_details
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkDeclarationDetailsPage: pages.check_declaration_details
+  checkDeclarationDetailsPage: check_declaration_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController
     with CheckDeclarationDetailsMixin {

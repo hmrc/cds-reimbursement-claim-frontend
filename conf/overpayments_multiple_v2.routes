@@ -2,6 +2,9 @@ GET         /overpayments/v2/multiple/enter-movement-reference-number           
 GET         /overpayments/v2/multiple/enter-movement-reference-number/:index                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.EnterMovementReferenceNumberController.show(index: Int)
 POST        /overpayments/v2/multiple/enter-movement-reference-number/:index                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.EnterMovementReferenceNumberController.submit(index: Int)
 
+GET         /overpayments/v2/multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckDeclarationDetailsController.show
+POST        /overpayments/v2/multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckDeclarationDetailsController.submit
+
 GET         /overpayments/v2/multiple/check-movement-reference-numbers                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckMovementReferenceNumbersController.show
 POST        /overpayments/v2/multiple/check-movement-reference-numbers                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckMovementReferenceNumbersController.submit
 GET         /overpayments/v2/multiple/delete-movement-reference-numbers/:mrn                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckMovementReferenceNumbersController.delete(mrn: MRN)
@@ -11,9 +14,6 @@ POST        /overpayments/v2/multiple/enter-importer-eori                       
 
 GET         /overpayments/v2/multiple/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.EnterDeclarantEoriNumberController.show
 POST        /overpayments/v2/multiple/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.EnterDeclarantEoriNumberController.submit
-
-GET         /overpayments/v2/multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckDeclarationDetailsController.show
-POST        /overpayments/v2/multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckDeclarationDetailsController.submit
 
 GET         /overpayments/v2/multiple/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckClaimantDetailsController.show
 POST        /overpayments/v2/multiple/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.CheckClaimantDetailsController.submit

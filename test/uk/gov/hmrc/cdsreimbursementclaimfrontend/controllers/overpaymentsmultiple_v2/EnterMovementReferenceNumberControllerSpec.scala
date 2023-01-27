@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
 import cats.data.EitherT
 import org.scalacheck.Gen
@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -80,7 +80,7 @@ class EnterMovementReferenceNumberControllerSpec
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
+    featureSwitch.enable(Feature.Overpayments_v2)
 
   val session: SessionData = SessionData(emptyJourney)
 
@@ -90,7 +90,7 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
-  val messageKey: String = "enter-movement-reference-number.rejected-goods"
+  val messageKey: String = "enter-movement-reference-number"
 
   "MRN Controller" when {
     "Enter MRN page" must {
@@ -98,7 +98,7 @@ class EnterMovementReferenceNumberControllerSpec
       def performAction(): Future[Result] = controller.showFirst()(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
       }
@@ -116,7 +116,7 @@ class EnterMovementReferenceNumberControllerSpec
             doc
               .getElementById(s"$messageKey-hint")
               .text()                           shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
             doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController
@@ -130,7 +130,7 @@ class EnterMovementReferenceNumberControllerSpec
         buildCompleteJourneyGen()
       ) { journey =>
         val mrn            = journey.getLeadMovementReferenceNumber.get
-        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -144,7 +144,7 @@ class EnterMovementReferenceNumberControllerSpec
             doc
               .getElementById(s"$messageKey-hint")
               .text()                              shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.getElementById(messageKey).`val`() shouldBe mrn.value
           }
@@ -160,7 +160,7 @@ class EnterMovementReferenceNumberControllerSpec
       val leadMrn            = sample[MRN]
       val secondMrn          = sample[MRN]
       val displayDeclaration = sample[DisplayDeclaration]
-      val journey            = session.rejectedGoodsMultipleJourney.get
+      val journey            = session.overpaymentsMultipleJourney.get
 
       def getDisplayDeclarationForMrn(mrn: MRN, declarantEori: Option[Eori] = None) =
         displayDeclaration
@@ -174,7 +174,7 @@ class EnterMovementReferenceNumberControllerSpec
           )
 
       "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()()) shouldBe NOT_FOUND
       }
 
@@ -185,7 +185,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> "")(),
+          performAction("enter-movement-reference-number" -> "")(),
           messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
@@ -201,7 +201,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> invalidMRN.value)(),
+          performAction("enter-movement-reference-number" -> invalidMRN.value)(),
           messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => {
             getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
@@ -215,7 +215,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         val updatedJourney =
           journey.submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn)).getOrFail
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -225,8 +225,8 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
-          routes.CheckDeclarationDetailsController.show()
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
+          routes.CheckDeclarationDetailsController.show
         )
       }
 
@@ -239,8 +239,8 @@ class EnterMovementReferenceNumberControllerSpec
           .submitMovementReferenceNumberAndDeclaration(1, secondMrn, getDisplayDeclarationForMrn(secondMrn))
           .getOrFail
 
-        val updatedSessionWithLeadMrn   = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourneyWithLeadMrn))
-        val updatedSessionWithSecondMrn = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourneyWithSecondMrn))
+        val updatedSessionWithLeadMrn   = session.copy(overpaymentsMultipleJourney = Some(updatedJourneyWithLeadMrn))
+        val updatedSessionWithSecondMrn = session.copy(overpaymentsMultipleJourney = Some(updatedJourneyWithSecondMrn))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -250,8 +250,8 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> secondMrn.value)(2),
-          routes.CheckMovementReferenceNumbersController.show()
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
+          routes.CheckMovementReferenceNumbersController.show
         )
       }
 
@@ -279,18 +279,18 @@ class EnterMovementReferenceNumberControllerSpec
             journey
               .submitMovementReferenceNumberAndDeclaration(mrnToChange - 1, correctedDD.getMRN, correctedDD)
               .getOrFail
-          val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+          val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(session.copy(overpaymentsMultipleJourney = Some(journey)))
             mockGetDisplayDeclaration(correctedDD.getMRN, Right(Some(correctedDD)))
             mockStoreSession(updatedSession)(Right(()))
           }
 
           checkIsRedirect(
-            performAction("enter-movement-reference-number.rejected-goods" -> correctedDD.getMRN.value)(mrnToChange),
-            routes.SelectTaxCodesController.show(mrnToChange)
+            performAction("enter-movement-reference-number" -> correctedDD.getMRN.value)(mrnToChange),
+            routes.SelectDutiesController.show(mrnToChange)
           )
         }
       }

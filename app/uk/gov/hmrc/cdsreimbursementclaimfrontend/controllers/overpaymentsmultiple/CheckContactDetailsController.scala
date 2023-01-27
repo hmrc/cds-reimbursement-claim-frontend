@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claimant_details
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import java.util.UUID
@@ -54,7 +54,7 @@ class CheckContactDetailsController @Inject() (
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
   val controllerComponents: MessagesControllerComponents,
-  claimantDetailsPage: pages.check_claimant_details
+  claimantDetailsPage: check_claimant_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction

@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claimant_details
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 import javax.inject.Inject

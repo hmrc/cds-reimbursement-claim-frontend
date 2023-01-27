@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
 import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Element
@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -71,22 +71,22 @@ class CheckMovementReferenceNumbersControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  val formKey: String = "check-movement-reference-numbers.rejected-goods"
+  val formKey: String = "check-movement-reference-numbers"
 
   def areMrnsUnique(acc14Declarations: List[DisplayDeclaration]): Boolean =
     acc14Declarations.map(_.getMRN).toSet.size == acc14Declarations.size
 
   override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
+    featureSwitch.enable(Feature.Overpayments_v2)
 
   private val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
+    overpaymentsMultipleJourney = Some(OverpaymentsMultipleJourney.empty(exampleEori))
   )
 
   def addAcc14(
-    journey: RejectedGoodsMultipleJourney,
+    journey: OverpaymentsMultipleJourney,
     acc14Declaration: DisplayDeclaration
-  ): Either[String, RejectedGoodsMultipleJourney] = {
+  ): Either[String, OverpaymentsMultipleJourney] = {
     val nextIndex           = journey.getMovementReferenceNumbers.map(_.size).getOrElse(0)
     val adjustedDeclaration = adjustWithDeclarantEori(acc14Declaration, journey)
     journey
@@ -117,7 +117,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
       }
@@ -137,7 +137,7 @@ class CheckMovementReferenceNumbersControllerSpec
       "redirect to enter second mrn page if only one MRN in the journey" in forAll { (firstMrn: DisplayDeclaration) =>
         val session =
           SessionData(
-            RejectedGoodsMultipleJourney
+            OverpaymentsMultipleJourney
               .empty(exampleEori)
               .submitMovementReferenceNumberAndDeclaration(firstMrn.getMRN, firstMrn)
               .getOrFail
@@ -157,13 +157,13 @@ class CheckMovementReferenceNumbersControllerSpec
       "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
           val journey = (for {
-            j1 <- addAcc14(session.rejectedGoodsMultipleJourney.get, firstMrn)
+            j1 <- addAcc14(session.overpaymentsMultipleJourney.get, firstMrn)
             j2 <- addAcc14(j1, secondMrn)
           } yield j2).getOrFail
           journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
           val mrns    = List(firstMrn.getMRN, secondMrn.getMRN)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -175,7 +175,7 @@ class CheckMovementReferenceNumbersControllerSpec
             messageFromMessageKey(s"$formKey.title"),
             doc => {
               getErrorSummary(doc) shouldBe ""
-              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit().url
+              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit.url
               val lines = doc.select("dl > div").asScala
               lines.size                                                  shouldBe 2
               validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
@@ -187,14 +187,14 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "show page with more than 2 MRNs" in forAll { acc14Declarations: List[DisplayDeclaration] =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
+          val journey = acc14Declarations.foldLeft(session.overpaymentsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
           val mrns = acc14Declarations.map(_.getMRN)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -206,7 +206,7 @@ class CheckMovementReferenceNumbersControllerSpec
             messageFromMessageKey(s"$formKey.title"),
             doc => {
               getErrorSummary(doc) shouldBe ""
-              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit().url
+              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit.url
               val lines = doc.select("dl > div").asScala
               lines.size                                                  shouldBe acc14Declarations.size
               validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
@@ -225,20 +225,20 @@ class CheckMovementReferenceNumbersControllerSpec
         )
 
       "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
       }
 
       "reject an empty Yes/No answer" in forAll { acc14Declarations: List[DisplayDeclaration] =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
+          val journey = acc14Declarations.foldLeft(session.overpaymentsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -256,13 +256,13 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "submit when user selects Yes" in forAll { acc14Declarations: List[DisplayDeclaration] =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
+          val journey = acc14Declarations.foldLeft(session.overpaymentsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -278,13 +278,13 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "submit when user selects No" in forAll { acc14Declarations: List[DisplayDeclaration] =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
+          val journey = acc14Declarations.foldLeft(session.overpaymentsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
           }
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -293,7 +293,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performAction(formKey -> "false"),
-            routes.CheckClaimantDetailsController.show()
+            routes.CheckClaimantDetailsController.show
           )
         }
       }
@@ -319,7 +319,7 @@ class CheckMovementReferenceNumbersControllerSpec
         )
 
       "do not find the page if rejected goods feature is disabled" in forAll(genMRN) { mrn: MRN =>
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction(mrn)) shouldBe NOT_FOUND
       }
@@ -327,18 +327,18 @@ class CheckMovementReferenceNumbersControllerSpec
       "redirect back to the check movement reference numbers page if remove worked" in forAll {
         acc14Declarations: List[DisplayDeclaration] =>
           whenever(acc14Declarations.size > 3 && areMrnsUnique(acc14Declarations)) {
-            val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
+            val journey = acc14Declarations.foldLeft(session.overpaymentsMultipleJourney.get) {
               case (journey, declaration) => addAcc14(journey, declaration).getOrFail
             }
 
             journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-            val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+            val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
             val mrn = Gen.oneOf(journey.getMovementReferenceNumbers.get.tail).sample.get
 
             val updatedJourney = journey.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
-            val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+            val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -348,7 +348,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
             checkIsRedirect(
               performAction(mrn),
-              routes.CheckMovementReferenceNumbersController.show()
+              routes.CheckMovementReferenceNumbersController.show
             )
           }
       }

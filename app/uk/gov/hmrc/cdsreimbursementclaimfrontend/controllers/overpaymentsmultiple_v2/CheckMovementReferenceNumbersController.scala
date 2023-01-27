@@ -16,25 +16,107 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import javax.inject.Inject
+import javax.inject.Singleton
+import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_movement_reference_numbers
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckMovementReferenceNumbersController @Inject() (
-  val jcc: JourneyControllerComponents
+  val jcc: JourneyControllerComponents,
+  checkMovementReferenceNumbers: check_movement_reference_numbers
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends OverpaymentsMultipleJourneyBaseController
-    with WorkInProgressMixin {
+    extends OverpaymentsMultipleJourneyBaseController {
 
-  @annotation.nowarn
-  final def delete(mrn: MRN): Action[AnyContent] = show
+  private val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers"
+  private val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
+  private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
+  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey.getMovementReferenceNumbers
+      .map { mrns =>
+        if (journey.hasCompleteMovementReferenceNumbers)
+          Ok(
+            checkMovementReferenceNumbers(
+              mrns,
+              checkMovementReferenceNumbersForm,
+              postAction,
+              routes.EnterMovementReferenceNumberController.show,
+              routes.CheckMovementReferenceNumbersController.delete
+            )
+          )
+        else
+          Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
+      }
+      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
+      .asFuture
+  }
+
+  final val submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey.getMovementReferenceNumbers
+      .map { mrns =>
+        checkMovementReferenceNumbersForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              BadRequest(
+                checkMovementReferenceNumbers(
+                  mrns,
+                  formWithErrors,
+                  postAction,
+                  routes.EnterMovementReferenceNumberController.show,
+                  routes.CheckMovementReferenceNumbersController.delete
+                )
+              ),
+            answer =>
+              Redirect(
+                answer match {
+                  case Yes =>
+                    routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
+                  case No  =>
+                    if (shouldForwardToCYA(journey)) checkYourAnswers
+                    else routes.CheckClaimantDetailsController.show
+                }
+              )
+          )
+      }
+      .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
+      .asFuture
+  }
+
+  final def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney(
+    _ =>
+      journey =>
+        journey
+          .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+          .fold(
+            error => {
+              logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
+              (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+            },
+            updatedJourney => (nextPageOnDelete(updatedJourney))
+          )
+          .asFuture,
+    fastForwardToCYAEnabled = false
+  )
+
+  private def nextPageOnDelete(journey: OverpaymentsMultipleJourney): (OverpaymentsMultipleJourney, Result) = (
+    journey,
+    if (journey.hasCompleteAnswers) Redirect(routes.CheckClaimDetailsController.show)
+    else Redirect(routes.CheckMovementReferenceNumbersController.show)
+  )
 }

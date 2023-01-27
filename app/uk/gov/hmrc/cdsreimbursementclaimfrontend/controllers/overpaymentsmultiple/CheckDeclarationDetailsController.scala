@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.Future
@@ -49,7 +49,7 @@ class CheckDeclarationDetailsController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val controllerComponents: MessagesControllerComponents,
-  checkDeclarationDetailsPage: pages.check_declaration_details
+  checkDeclarationDetailsPage: check_declaration_details
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction

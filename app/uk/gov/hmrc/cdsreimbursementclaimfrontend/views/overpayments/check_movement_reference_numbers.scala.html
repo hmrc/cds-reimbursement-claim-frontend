@@ -1,0 +1,114 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+@import play.api.mvc.Call
+@import play.twirl.api.TwirlFeatureImports.defining
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+
+@this(
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
+)
+
+@(references: Seq[MRN], form: Form[YesNo], postAction: Call, changeUrl: Int => Call, removeUrl: MRN => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"check-movement-reference-numbers"}
+@title = @{messages(s"$key.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @errorSummary(form.errors)
+
+        @heading(Html(title))
+
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+
+        <dl class="govuk-summary-list cds-multi-action">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.multiple.label"))</dt>
+                <dd class="govuk-summary-list__value">@references.head.value</dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href=@changeUrl(1).url>
+                        @{messages(s"cya.change")}
+                        <span class="govuk-visually-hidden">@Html(messages(s"check-your-answers.reference-number.multiple.label"))</span>
+                    </a>
+                </dd>
+                <dd class="govuk-summary-list__actions"></dd>
+            </div>
+            @references.zipWithIndex.drop(1).map { case (mrn, index) =>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.associated-mrn-label", OrdinalNumeral((index + 1)).capitalize))</dt>
+                    <dd class="govuk-summary-list__value">@mrn.value</dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href=@changeUrl(index + 1).url>
+                            @{messages(s"cya.change")}
+                            <span class="govuk-visually-hidden">@Html(messages(s"check-your-answers.reference-number.associated-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                        </a>
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                    @if(references.size > 2) {
+                        <a class="govuk-link" href=@removeUrl(mrn).url>
+                            @{messages(s"cya.remove")}
+                            <span class="govuk-visually-hidden">@Html(messages(s"check-your-answers.reference-number.associated-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                        </a>
+                    }
+                    </dd>
+                </div>
+            }
+        </dl>
+
+        @radios(
+            form = form,
+            name = key,
+            legend = messages(s"$key.add-another-mrn-question"),
+            hintKey = None,
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    value = Some("true"),
+                    content = Text(messages("generic.yes")),
+                    checked = false
+                ),
+                RadioItem(
+                    value = Some("false"),
+                    content = Text(messages("generic.no")),
+                    checked = false
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+    }
+}

@@ -29,8 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 
 import scala.concurrent.ExecutionContext
 
@@ -39,9 +40,9 @@ class CheckYourAnswersController @Inject() (
   val jcc: JourneyControllerComponents,
   rejectedGoodsSingleClaimConnector: RejectedGoodsSingleClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
-  checkYourAnswersPage: pages.check_your_answers_single,
-  confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
-  submitClaimFailedPage: claimPages.submit_claim_error
+  checkYourAnswersPage: check_your_answers_single,
+  confirmationOfSubmissionPage: confirmation_of_submission,
+  submitClaimFailedPage: submit_claim_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController
     with Logging {

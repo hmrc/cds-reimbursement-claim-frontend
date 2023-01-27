@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_duplicate_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_duplicate_movement_reference_number
 
 import javax.inject.Inject
 import javax.inject.Singleton

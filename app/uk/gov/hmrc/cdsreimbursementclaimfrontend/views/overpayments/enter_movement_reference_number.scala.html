@@ -1,0 +1,96 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import cats.implicits.catsSyntaxEq
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+    inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+)
+
+@(form: Form[MRN], subKey: Option[String], pageOrdinalValue: Int, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@isFirst = @{pageOrdinalValue === 1}
+
+@key = @{if(isFirst) "enter-movement-reference-number" else "enter-associated-mrn"}
+
+@ordinalValueStr = @{OrdinalNumeral(pageOrdinalValue)}
+
+@title = @{if(isFirst) messages(combine(key, subKey, "title")) else messages(s"$key.title", ordinalValueStr)}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @errorSummary(form.errors)
+
+        @heading(Html(title))
+
+        @if(isFirst) {
+            @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
+
+            @dropdownDetails(summary = s"$key.details.heading",
+            html(
+                paragraph(Html(messages(s"$key.details.paragraph")))
+            ))
+
+           @inputText(
+                form = form,
+                id = key,
+                name = "enter-movement-reference-number",
+                label = combine(key, subKey, "enter-mrn.label").head,
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
+                hint = Some(s"$key.help")
+            )
+        } else {
+            @paragraph(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+
+            @dropdownDetails(summary = s"$key.details.heading", paragraph(Html(messages(s"$key.details.para"))))
+        
+            @inputText(
+                form = form,
+                id = key,
+                name = "enter-movement-reference-number",
+                label = s"$key.enter-mrn.label",
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
+                hint = Some(s"$key.help"),
+                headingMessageArgs = ordinalValueStr :: Nil
+            )
+        }
+
+        @submitButton("button.continue")
+    }
+}

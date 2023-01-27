@@ -23,7 +23,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_address
 import scala.concurrent.ExecutionContext
 
 @Singleton

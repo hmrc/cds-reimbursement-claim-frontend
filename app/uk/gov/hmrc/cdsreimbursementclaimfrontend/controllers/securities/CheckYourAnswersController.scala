@@ -26,8 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SecuritiesClaimConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 
 import scala.concurrent.ExecutionContext
 
@@ -36,9 +37,9 @@ class CheckYourAnswersController @Inject() (
   val jcc: JourneyControllerComponents,
   securitiesClaimConnector: SecuritiesClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
-  checkYourAnswersPage: pages.check_your_answers,
-  confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
-  submitClaimFailedPage: claimPages.submit_claim_error
+  checkYourAnswersPage: check_your_answers,
+  confirmationOfSubmissionPage: confirmation_of_submission,
+  submitClaimFailedPage: submit_claim_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
     with Logging {

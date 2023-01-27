@@ -23,7 +23,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterAdditionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_additional_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_additional_details
 
 import scala.concurrent.Future
 

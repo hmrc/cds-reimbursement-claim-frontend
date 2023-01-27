@@ -30,8 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => claimPages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 
 import scala.concurrent.ExecutionContext
 
@@ -40,9 +41,9 @@ class CheckYourAnswersController @Inject() (
   val jcc: JourneyControllerComponents,
   rejectedGoodsScheduledClaimConnector: RejectedGoodsScheduledClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
-  checkYourAnswersPage: pages.check_your_answers_scheduled,
-  confirmationOfSubmissionPage: claimPages.confirmation_of_submission,
-  submitClaimFailedPage: claimPages.submit_claim_error
+  checkYourAnswersPage: check_your_answers_scheduled,
+  confirmationOfSubmissionPage: confirmation_of_submission,
+  submitClaimFailedPage: submit_claim_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with Logging {

@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ContactAddre
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claimant_details
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 import javax.inject.Inject

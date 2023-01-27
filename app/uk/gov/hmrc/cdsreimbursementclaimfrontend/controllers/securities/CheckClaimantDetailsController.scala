@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ContactAddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_claimant_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claimant_details
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 import javax.inject.Inject

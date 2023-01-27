@@ -25,13 +25,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseBankAc
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type_page
 
 import scala.concurrent.ExecutionContext
 
 class ChooseBankAccountTypeController @Inject() (
   val jcc: JourneyControllerComponents,
-  val chooseBankAccountTypePage: pages.choose_bank_account_type_page
+  val chooseBankAccountTypePage: choose_bank_account_type_page
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController
     with ChooseBankAccountTypeMixin {

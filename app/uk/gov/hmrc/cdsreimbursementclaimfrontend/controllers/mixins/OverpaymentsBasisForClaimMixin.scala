@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseControll
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_basis_for_claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim
 
 import scala.concurrent.Future
 
