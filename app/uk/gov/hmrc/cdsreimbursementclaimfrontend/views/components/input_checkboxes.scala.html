@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Empty
 
 @this(govukCheckboxes: GovukCheckboxes)
 
@@ -36,7 +37,9 @@
     legendAsHeading: Boolean = true,
     legendClasses: Option[String] = None,
     hint: Option[Html] = None,
-    singleton: Boolean = false
+    singleton: Boolean = false,
+    idPrefix: String = null,
+    emptyErrorMessage: Boolean = false
 )(implicit messages: Messages)
 
 @fieldset = @{if (singleton) {
@@ -52,13 +55,13 @@
 }}
 
 @govukCheckboxes(Checkboxes(
-    idPrefix = Some(field.id),
+    idPrefix = Option(idPrefix).orElse(Some(field.id)),
     name = field.name,
     fieldset = fieldset,
     hint = hint.map(hintHtml => Hint(
         content = HtmlContent(hintHtml)
     )),
     items = items,
-    errorMessage = field.errors.headOption.map(err => ErrorMessage(content = Text(messages(s"${field.name}.${err.message}", err.args:_*))))
+    errorMessage = field.errors.headOption.map(err => if(emptyErrorMessage) ErrorMessage(content = Empty, visuallyHiddenText = None) else ErrorMessage(content = Text(messages(s"${field.name}.${err.message}", err.args:_*))))
     )
 )
