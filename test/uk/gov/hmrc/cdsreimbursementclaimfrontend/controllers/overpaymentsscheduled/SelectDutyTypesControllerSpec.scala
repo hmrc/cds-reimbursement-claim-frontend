@@ -83,7 +83,14 @@ class SelectDutyTypesControllerSpec
 
       checkPageIsDisplayed(
         performAction(),
-        messageFromMessageKey("select-duty-types.title")
+        messageFromMessageKey("select-duty-types.title"),
+        doc => {
+          selectedCheckBox(doc)                                    shouldBe empty
+          doc.getElementById("select-duty-types").`val`()          shouldBe "uk-duty"
+          doc.getElementById("select-duty-types-2").`val`()        shouldBe "eu-duty"
+          doc.getElementById("select-duty-types-excise").`val`()   shouldBe "beer"
+          doc.getElementById("select-duty-types-excise-2").`val`() shouldBe "wine"
+        }
       )
     }
 

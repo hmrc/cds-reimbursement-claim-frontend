@@ -86,7 +86,9 @@
             field = form(s"$key"),
             legend = HtmlContent(messages(s"$key.checkbox-legend.2")),
             legendAsHeading = false,
-            items = exciseOptions
+            items = exciseOptions,
+            idPrefix = s"$key-excise",
+            emptyErrorMessage = true
         )
 
         @submitButton("button.continue")
