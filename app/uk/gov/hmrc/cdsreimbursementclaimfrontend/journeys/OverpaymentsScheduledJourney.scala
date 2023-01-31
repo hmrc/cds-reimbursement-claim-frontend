@@ -90,6 +90,9 @@ final class OverpaymentsScheduledJourney private (
   def needsBanksAccountDetailsSubmission: Boolean =
     true
 
+  def getSelectedDocumentType: Option[UploadDocumentType] =
+    answers.selectedDocumentType
+
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
 

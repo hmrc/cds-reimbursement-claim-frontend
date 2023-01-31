@@ -30,6 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+
 import scala.collection.immutable.SortedMap
 
 class OverpaymentsScheduledJourneySpec
@@ -657,6 +659,30 @@ class OverpaymentsScheduledJourneySpec
       }
     }
 
+    "return left if empty duty types selection" in {
+      val dutyTypes: Seq[DutyType] = Seq.empty
+      val result                   = OverpaymentsScheduledJourney
+        .empty(exampleEori)
+        .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+
+      result shouldBe Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
+    }
+
+    "return left if empty tax type selection" in {
+      forAll(dutyTypesGen) { (dutyTypes: Seq[DutyType]) =>
+        val taxTypes: Seq[TaxCode] = List.empty
+        val result                 = OverpaymentsScheduledJourney
+          .empty(exampleEori)
+          .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+          .flatMapEach(
+            dutyTypes,
+            journey => (dt: DutyType) => journey.selectAndReplaceTaxCodeSetForReimbursement(dt, taxTypes)
+          )
+
+        result shouldBe Left("selectTaxCodeSetForReimbursement.emptySelection")
+      }
+    }
+
     "change duty types for reimbursement with the same set" in {
       forAll(completeJourneyGen) { journey =>
         val result = journey
@@ -808,28 +834,40 @@ class OverpaymentsScheduledJourneySpec
       }
     }
 
-//    "getNextNdrcDetailsToClaim" when {
-//      "return the next Ndrc Details to claim" in {
-//        forAll(displayDeclarationGen, dutyTypesWithTaxCodesGen, Acc14Gen.genListNdrcDetails()) {
-//          (displayDeclaration: DisplayDeclaration, dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] ,ndrcDetails: List[NdrcDetails]) =>
-//            whenever(ndrcDetails.size > 1 && ndrcDetails.map(_.taxType).toSet.size == ndrcDetails.size) {
-//              val dutyTypes = dutyTypesWithTaxCodes.map(_._1)
-//              val taxCodes = ndrcDetails.map(details => TaxCode(details.taxType))
-//              val drd = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-//              val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
-//              val journey = OverpaymentsScheduledJourney
-//                .empty(exampleEori)
-//                .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
-//                .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyTypes, taxCodes))
-//                .getOrFail
-//              val claimedReimbursement = journey.answers.correctedAmounts.get
-//              val nextDetails = journey.getNextNdrcDetailsToClaim.get
-//              claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
-//              // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it
-//            }
-//        }
-//      }
-//    }
+    "get available document types and claim types" in {
+      val displayDeclaration     = exampleDisplayDeclaration
+      val availableDocumentTypes = UploadDocumentType.overpaymentsScheduledDocumentTypes
+
+      val availableClaimTypesNotNi      =
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(false, Some(displayDeclaration))
+      val availableClaimTypesIncludesNi =
+        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(true, Some(displayDeclaration))
+
+      val journey = OverpaymentsScheduledJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .getOrFail
+
+      journey.getDocumentTypesIfRequired shouldBe Some(availableDocumentTypes)
+
+      journey.getAvailableClaimTypes shouldBe availableClaimTypesNotNi
+
+      val journeyNotNi = journey
+        .submitWhetherNorthernIreland(false)
+
+      val journeyNi = journey
+        .submitWhetherNorthernIreland(true)
+
+      journeyNotNi.getAvailableClaimTypes shouldBe availableClaimTypesNotNi
+
+      journeyNi.getAvailableClaimTypes shouldBe availableClaimTypesIncludesNi
+
+      for (document <- availableDocumentTypes) {
+        val result = journey.submitDocumentTypeSelection(document)
+
+        result.getSelectedDocumentType shouldBe Some(document)
+      }
+    }
 
     "reject submit invalid amount for valid selected tax code" in {
       forAll(dutyTypesWithTaxCodesWithClaimAmountsGen) { data =>
@@ -1021,7 +1059,7 @@ class OverpaymentsScheduledJourneySpec
       }
     }
 
-    "getNextNdrcDetailsToClaim" in {
+    "get ndrc details and amounts for a claim" in {
       val nextDetailsList: List[NdrcDetails] =
         exampleDisplayDeclaration.getNdrcDetailsList.get
 
@@ -1072,9 +1110,13 @@ class OverpaymentsScheduledJourneySpec
 
           journey.getNextNdrcDetailsToClaim shouldBe Some(ndrcDetails)
 
+          journey.getReimbursementFor(dutyType, taxCode) shouldBe None
+
           journey = journey
             .submitAmountForReimbursement(dutyType, taxCode, amount, ZERO)
             .getOrFail
+
+          journey.getReimbursementFor(dutyType, taxCode) shouldBe Some(AmountPaidWithCorrect(amount, ZERO))
 
           previousTaxCode.foreach { ptc =>
             journey.findNextSelectedTaxCodeAfter(dutyType, ptc) shouldBe Some((dutyType, taxCode))
@@ -1094,6 +1136,40 @@ class OverpaymentsScheduledJourneySpec
 
         previousTaxCode.foreach { ptc =>
           journey.findNextSelectedTaxCodeAfter(pdt, ptc) shouldBe None
+        }
+      }
+    }
+
+    "get and update selected duties" in {
+      forAll(dutyTypesWithTaxCodesGen) { dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] =>
+        whenever(dutyTypesWithTaxCodes.nonEmpty && dutyTypesWithTaxCodes.forall(_._2.nonEmpty)) {
+
+          val dutyTypes: Seq[DutyType] = dutyTypesWithTaxCodes.map(_._1)
+
+          val journey = OverpaymentsScheduledJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .getOrFail
+
+          journey.getSelectedDuties shouldBe Map.empty
+
+          val modifiedJourney = journey
+            .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+            .flatMapEach(
+              dutyTypesWithTaxCodes,
+              j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+            )
+            .getOrFail
+
+          val selectedDuties = dutyTypesWithTaxCodes.toMap
+
+          modifiedJourney.getSelectedDuties shouldBe selectedDuties
+
+          val updateDuties = modifiedJourney
+            .withDutiesChangeMode(true)
+
+          updateDuties.answers.dutiesChangeMode shouldBe true
+
         }
       }
     }
