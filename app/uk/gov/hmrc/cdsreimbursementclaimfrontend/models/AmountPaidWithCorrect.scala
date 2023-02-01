@@ -28,6 +28,9 @@ final case class AmountPaidWithCorrect(paidAmount: BigDecimal, correctAmount: Bi
   def isUnclaimed: Boolean = paidAmount === 0 && correctAmount === 0
 
   def isValid: Boolean = correctAmount >= 0 && correctAmount < paidAmount
+
+  override def toString(): String =
+    s"AmountPaidWithCorrect(paid=$paidAmount, correct=$correctAmount, refund=$refundAmount)"
 }
 
 object AmountPaidWithCorrect {
