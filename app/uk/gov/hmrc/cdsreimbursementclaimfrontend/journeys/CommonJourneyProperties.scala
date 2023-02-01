@@ -180,4 +180,11 @@ trait CommonJourneyProperties {
     case _                                                                                               => None
   }
 
+  protected def nextAfter[A](item: A)(seq: Seq[A]): Option[A] = {
+    val i = seq.indexOf(item)
+    if (i === -1) None
+    else if (i === seq.size - 1) None
+    else Some(seq(i + 1))
+  }
+
 }

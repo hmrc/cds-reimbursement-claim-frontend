@@ -78,6 +78,7 @@ class OverpaymentsScheduledJourneySpec
         journey.hasCompleteSupportingEvidences                shouldBe true
         journey.hasCompleteAnswers                            shouldBe true
         journey.isFinalized                                   shouldBe false
+        journey.getNdrcDetails                                shouldBe defined
 
         val output = journey.toOutput.fold(e => fail(e.mkString("\n")), identity)
 
@@ -90,6 +91,15 @@ class OverpaymentsScheduledJourneySpec
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
+      }
+    }
+
+    "fail produce an output if journey is incomplete" in {
+      forAll(buildJourneyGen(submitContactDetails = false).map(_.getOrFail)) { journey =>
+        journey.hasCompleteAnswers shouldBe false
+        journey.isFinalized        shouldBe false
+        val result = journey.toOutput
+        result.isLeft shouldBe true
       }
     }
 
@@ -106,6 +116,15 @@ class OverpaymentsScheduledJourneySpec
         modifiedJourney.hasCompleteSupportingEvidences shouldBe true
         modifiedJourney.hasCompleteAnswers             shouldBe true
         modifiedJourney.finalizeJourneyWith("bar")     shouldBe Left(JOURNEY_ALREADY_FINALIZED)
+      }
+    }
+
+    "fail finalizing journey when incomplete" in {
+      forAll(buildJourneyGen(submitContactDetails = false).map(_.getOrFail)) { journey =>
+        journey.hasCompleteAnswers shouldBe false
+        journey.isFinalized        shouldBe false
+        val result = journey.finalizeJourneyWith("foo-123-abc")
+        result.isLeft shouldBe true
       }
     }
 
@@ -1172,6 +1191,30 @@ class OverpaymentsScheduledJourneySpec
 
         }
       }
+    }
+
+    "receiveUploadedFiles fails when nonce is not matching the journey nonce" in {
+      val journey = OverpaymentsScheduledJourney.empty(exampleEori)
+      val result  = journey.receiveUploadedFiles(UploadDocumentType.ProofOfAuthority, Nonce.random, Seq.empty)
+      result shouldBe Left("receiveUploadedFiles.invalidNonce")
+    }
+
+    "receiveUploadedFiles fills in missing documentType" in {
+      val journey      = OverpaymentsScheduledJourney.empty(exampleEori)
+      val uploadedFile = buildUploadDocument("foo").copy(cargo = None)
+      val result       =
+        journey
+          .receiveUploadedFiles(UploadDocumentType.ProofOfAuthority, journey.answers.nonce, Seq(uploadedFile))
+          .getOrFail
+      result.answers.supportingEvidences.head shouldBe uploadedFile.copy(cargo =
+        Some(UploadDocumentType.ProofOfAuthority)
+      )
+    }
+
+    "receiveScheduledDocument fails when nonce is not matching the journey nonce" in {
+      val journey = OverpaymentsScheduledJourney.empty(exampleEori)
+      val result  = journey.receiveScheduledDocument(Nonce.random, buildUploadDocument("foo"))
+      result shouldBe Left("receiveScheduledDocument.invalidNonce")
     }
   }
 }
