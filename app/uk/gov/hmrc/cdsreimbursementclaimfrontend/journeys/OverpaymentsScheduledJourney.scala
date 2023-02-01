@@ -108,13 +108,6 @@ final class OverpaymentsScheduledJourney private (
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
 
-  private def nextAfter[A](item: A)(seq: Seq[A]): Option[A] = {
-    val i = seq.indexOf(item)
-    if (i === -1) None
-    else if (i === seq.size - 1) None
-    else Some(seq(i + 1))
-  }
-
   def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
     getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
 
@@ -349,24 +342,20 @@ final class OverpaymentsScheduledJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          new OverpaymentsScheduledJourney(
-            answers.copy(bankAccountDetails = Some(bankAccountDetails))
-          )
+      Right(
+        new OverpaymentsScheduledJourney(
+          answers.copy(bankAccountDetails = Some(bankAccountDetails))
         )
-      else Left("submitBankAccountDetails.unexpected")
+      )
     }
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          new OverpaymentsScheduledJourney(
-            answers.copy(bankAccountType = Some(bankAccountType))
-          )
+      Right(
+        new OverpaymentsScheduledJourney(
+          answers.copy(bankAccountType = Some(bankAccountType))
         )
-      else Left("submitBankAccountType.unexpected")
+      )
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): OverpaymentsScheduledJourney =
