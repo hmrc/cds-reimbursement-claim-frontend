@@ -26,13 +26,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-
-import scala.collection.immutable.SortedMap
 
 class OverpaymentsScheduledJourneySpec
     extends AnyWordSpec
@@ -1211,10 +1208,62 @@ class OverpaymentsScheduledJourneySpec
       )
     }
 
+//    "tryBuildFrom should return upload type other" in {
+//      val specialJourneyGen: Gen[OverpaymentsScheduledJourney] = buildJourneyGenWithoutSupportingEvidence()
+//      forAll(specialJourneyGen) { journey: OverpaymentsScheduledJourney =>
+//        journey.answers.supportingEvidences.foreach(uploadedFile =>
+//          uploadedFile.cargo.getOrElse(
+//            throw new Exception("Cannot possibly be empty")
+//          ) shouldBe UploadDocumentType.Other
+//        )
+//      }
+//    }
+
     "receiveScheduledDocument fails when nonce is not matching the journey nonce" in {
       val journey = OverpaymentsScheduledJourney.empty(exampleEori)
       val result  = journey.receiveScheduledDocument(Nonce.random, buildUploadDocument("foo"))
       result shouldBe Left("receiveScheduledDocument.invalidNonce")
+    }
+
+    "removeScheduledDocument" in {
+      val journey         = OverpaymentsScheduledJourney.empty(exampleEori)
+      val nonce           = journey.answers.nonce
+      val uploadedFile    = buildUploadDocument("foo").copy(cargo = None)
+      val modifiedJourney = journey.receiveScheduledDocument(nonce, uploadedFile)
+
+      modifiedJourney.getOrFail.answers.scheduledDocument shouldBe Some(uploadedFile)
+      val result =
+        journey.removeScheduledDocument
+      result.answers.scheduledDocument shouldBe None
+    }
+
+    "check if journey instance is equal to itself" in {
+      val journey    = OverpaymentsScheduledJourney
+        .empty(exampleEori)
+      val trueResult = journey
+      journey.equals(trueResult) shouldBe true
+
+      val falseResult = OverpaymentsSingleJourney
+        .empty(exampleEori)
+      journey.equals(falseResult) shouldBe false
+
+    }
+    "return journey hash code" in {
+      val journey = OverpaymentsScheduledJourney
+        .empty(exampleEori)
+
+      journey.answers.hashCode() shouldBe journey.hashCode()
+
+    }
+    "return journey as string" in {
+
+      val eori          = exampleEori
+      val journey       = OverpaymentsScheduledJourney
+        .empty(eori)
+      val journeyString =
+        s"OverpaymentsScheduledJourney(Answers(${journey.answers.nonce},$eori,None,None,None,None,None,None,None,None,None,None,None,None,None,None,List(),false,false),None)"
+
+      journey.toString() shouldBe journeyString
     }
   }
 }
