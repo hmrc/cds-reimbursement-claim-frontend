@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -32,7 +31,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
@@ -56,13 +54,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.InspectionAddressUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.StringOps
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 
 class ChooseInspectionAddressTypeControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks
     with InspectionAddressUtils {
 
   override val overrideBindings: List[GuiceableModule] =
@@ -120,6 +118,9 @@ class ChooseInspectionAddressTypeControllerSpec
             performAction(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
+              doc.getElementById("inspection-address.type").`val`()             shouldBe "Declarant"
+              doc.getElementById("inspection-address.type-radio-Other").`val`() shouldBe "Other"
+
               doc.select("input[value=Other]").isEmpty     shouldBe false
               doc.select("input[value=Declarant]").isEmpty shouldBe false
               doc.select("input[value=Importer]").isEmpty  shouldBe true
@@ -152,9 +153,11 @@ class ChooseInspectionAddressTypeControllerSpec
             performAction(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
-              doc.select("input[value=Other]").isEmpty     shouldBe false
-              doc.select("input[value=Declarant]").isEmpty shouldBe true
-              doc.select("input[value=Importer]").isEmpty  shouldBe false
+              doc.getElementById("inspection-address.type").`val`()             shouldBe "Importer"
+              doc.getElementById("inspection-address.type-radio-Other").`val`() shouldBe "Other"
+              doc.select("input[value=Other]").isEmpty                          shouldBe false
+              doc.select("input[value=Declarant]").isEmpty                      shouldBe true
+              doc.select("input[value=Importer]").isEmpty                       shouldBe false
             }
           )
       }
