@@ -31,7 +31,9 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph)
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    divider: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio_divider
+)
 
 @(form: Form[Option[UploadDocumentType]], availableFileTypes: Seq[UploadDocumentType], hasExistingUploads: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -72,7 +74,7 @@
                 items = radioItems
             )
 
-            <div class="govuk-radios__divider govuk-!-margin-bottom-5">@messages(s"$key.or")</div>
+            @divider(messages(s"$key.or"))
 
             @radios(
                 form = form,
