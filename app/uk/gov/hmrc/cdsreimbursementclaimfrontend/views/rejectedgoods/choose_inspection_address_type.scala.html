@@ -31,6 +31,7 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    divider: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio_divider
 )
 
 @(addresses: Seq[(InspectionAddressType, String)], form: Form[InspectionAddressType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -78,7 +79,7 @@
             items = acc14AddressRadioItems
         )
 
-        <div class="govuk-radios__divider govuk-!-margin-bottom-5">@messages(s"$key.or")</div>
+        @divider(messages(s"$key.or"))
 
         @radios(
             form = form,
