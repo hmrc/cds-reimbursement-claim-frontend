@@ -71,7 +71,7 @@ final class OverpaymentsScheduledJourney private (
   def hasCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims
       .exists(rc =>
-        rc.exists(_._2.nonEmpty) && rc.forall { case (dutyType, claims) =>
+        rc.forall { case (dutyType, claims) =>
           claims.nonEmpty && claims.forall {
             case (taxCode, Some(claimAmounts)) =>
               dutyType.taxCodes.contains(taxCode) &&
