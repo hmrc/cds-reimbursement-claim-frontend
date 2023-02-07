@@ -113,13 +113,9 @@ class EnterClaimControllerSpec
             mockGetSession(SessionData(initialJourney))
           }
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.showFirst()(FakeRequest()),
-            messageFromMessageKey(
-              messageKey = s"$enterClaimKey.title",
-              messages(s"duty-type.${dutyType.repr}"),
-              taxCode.value
-            )
+            routes.EnterClaimController.show(dutyType, taxCode)
           )
 
       }
