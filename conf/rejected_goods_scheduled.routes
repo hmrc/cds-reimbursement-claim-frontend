@@ -37,9 +37,9 @@ POST         /rejected-goods/scheduled/select-duties/select-duty-types          
 GET          /rejected-goods/scheduled/select-duties/:dutyType                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectTaxCodesController.show(dutyType: DutyType)
 POST         /rejected-goods/scheduled/select-duties/:dutyType                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectTaxCodesController.submit(dutyType: DutyType)
 
-GET          /rejected-goods/scheduled/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.showFirst()
-GET          /rejected-goods/scheduled/select-duties/:dutyType/:taxCode              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.show(dutyType: DutyType, taxCode: TaxCode)
-POST         /rejected-goods/scheduled/select-duties/:dutyType/:taxCode              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.submit(dutyType: DutyType, taxCode: TaxCode)
+GET          /rejected-goods/scheduled/enter-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.showFirst()
+GET          /rejected-goods/scheduled/enter-claim/:dutyType/:taxCode                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.show(dutyType: DutyType, taxCode: TaxCode)
+POST         /rejected-goods/scheduled/enter-claim/:dutyType/:taxCode                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterClaimController.submit(dutyType: DutyType, taxCode: TaxCode)
 
 GET          /rejected-goods/scheduled/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController.show()
 POST         /rejected-goods/scheduled/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController.submit()

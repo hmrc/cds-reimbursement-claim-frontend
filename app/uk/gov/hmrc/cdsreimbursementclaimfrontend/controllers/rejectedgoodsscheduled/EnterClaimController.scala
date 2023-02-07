@@ -54,13 +54,10 @@ class EnterClaimController @Inject() (
         (journey.getSelectedDuties.headOption
           .flatMap { case (dt, tcs) => tcs.headOption.map(tc => (dt, tc)) } match {
           case Some((dutyType, taxCode)) =>
-            val postAction: Call                                 = routes.EnterClaimController.submit(dutyType, taxCode)
-            val maybeReimbursement: Option[AmountPaidWithRefund] = journey.getReimbursementFor(dutyType, taxCode)
-            val form                                             = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
+            Redirect(routes.EnterClaimController.show(dutyType, taxCode))
 
-            Ok(enterClaimPage(dutyType, taxCode, form, postAction))
-
-          case None => Redirect(routes.SelectDutyTypesController.show())
+          case None =>
+            Redirect(routes.SelectDutyTypesController.show())
         }).asFuture
 
       case Some(emptyDuty) =>
