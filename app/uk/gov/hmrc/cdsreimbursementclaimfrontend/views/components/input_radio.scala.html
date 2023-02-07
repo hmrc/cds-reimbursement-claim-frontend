@@ -26,7 +26,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
-@this(govukRadios: GovukRadios)
+@this(govukRadios: GovukRadios, divider: input_radio_divider)
 
 @(
     form: Form[_],
@@ -39,10 +39,22 @@
     paddingClasses: String = "govuk-!-margin-top-6",
     inline: Boolean = false,
     hideError: Boolean = false,
-    id: String = null
+    id: String = null,
+    splitBefore: String = null,
+    dividerMessage: String = null
 )(implicit messages: Messages)
 
 @legendClasses = @{classes + " " + paddingClasses}
+
+@itemsSplitted = @{
+    val i = Option(splitBefore)
+        .map(v => items.indexWhere(_.value.contains(v)))
+        .getOrElse(-1)
+    if (i > 0) items.splitAt(i) else (items, Seq.empty)
+}
+
+@itemsFirst = @{itemsSplitted._1}
+@itemsSecond = @{itemsSplitted._2}
 
 @govukRadios(Radios(
     classes = if(inline) "govuk-radios--inline" else "",
@@ -58,6 +70,27 @@
     hint = hintKey.map { hint => Hint(
         content = HtmlContent(messages(hint))
     )},
-    items = items.headOption.map(item => item.copy(id = Some(name), attributes = item.attributes + (("data-id",item.id.getOrElse(""))))).fold(Seq.empty[RadioItem])(_ +: items.tail.map(item => item.copy(attributes = item.attributes + (("data-id",item.id.getOrElse("")))))),
+    items = if(hideError) itemsFirst else itemsFirst.headOption.map(item => item.copy(id = Some(name), attributes = item.attributes + (("data-id",item.id.getOrElse(""))))).fold(Seq.empty[RadioItem])(_ +: itemsFirst.tail.map(item => item.copy(attributes = item.attributes + (("data-id",item.id.getOrElse("")))))),
     errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else HtmlContent(messages(s"${name}.${err.message}", err.args:_*)))))
 ))
+
+@if(itemsSecond.nonEmpty){
+
+    @divider(Option(dividerMessage).getOrElse(messages("radio.divider")))
+
+    @govukRadios(Radios(
+        classes = if(inline) "govuk-radios--inline" else "",
+        name = name,
+        fieldset = Some(Fieldset(
+            legend = Some(Legend(
+                content = HtmlContent(legend),
+                isPageHeading = false,
+                classes = legendClasses
+            )),
+            attributes = Map("id" -> Option(id).fold(s"$name-radios-2")(identity))
+        )),
+        hint = None,
+        items = itemsSecond,
+        errorMessage = form(name).error.map(err => ErrorMessage(content = Empty))
+    ))
+}

@@ -122,9 +122,11 @@ class ChooseInspectionAddressTypeControllerSpec
             showPage(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
-              doc.select("input[value=Other]").isEmpty     shouldBe false
-              doc.select("input[value=Declarant]").isEmpty shouldBe false
-              doc.select("input[value=Importer]").isEmpty  shouldBe true
+              doc.getElementById("inspection-address.type").`val`()             shouldBe "Declarant"
+              doc.getElementById("inspection-address.type-radio-Other").`val`() shouldBe "Other"
+              doc.select("input[value=Other]").isEmpty                          shouldBe false
+              doc.select("input[value=Declarant]").isEmpty                      shouldBe false
+              doc.select("input[value=Importer]").isEmpty                       shouldBe true
             }
           )
       }
@@ -153,9 +155,11 @@ class ChooseInspectionAddressTypeControllerSpec
             showPage(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
-              doc.select("input[value=Other]").isEmpty     shouldBe false
-              doc.select("input[value=Declarant]").isEmpty shouldBe true
-              doc.select("input[value=Importer]").isEmpty  shouldBe false
+              doc.getElementById("inspection-address.type").`val`()             shouldBe "Importer"
+              doc.getElementById("inspection-address.type-radio-Other").`val`() shouldBe "Other"
+              doc.select("input[value=Other]").isEmpty                          shouldBe false
+              doc.select("input[value=Declarant]").isEmpty                      shouldBe true
+              doc.select("input[value=Importer]").isEmpty                       shouldBe false
             }
           )
       }

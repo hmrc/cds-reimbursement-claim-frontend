@@ -135,7 +135,21 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkPageIsDisplayed(
             showPage(),
-            messageFromMessageKey("inspection-address.type.title")
+            messageFromMessageKey("inspection-address.type.title"),
+            doc => {
+              val hasDeclarant = displayDeclaration.getDeclarantDetails.contactDetails.isDefined
+              val hasImporter  = displayDeclaration.getConsigneeDetails
+                .flatMap(_.contactDetails)
+                .isDefined
+
+              doc.getElementById("inspection-address.type").`val`()             shouldBe (if (hasImporter) "Importer"
+                                                                              else "Declarant")
+              if (hasImporter && hasDeclarant) {
+                doc.getElementById("inspection-address.type-radio-Declarant").`val` shouldBe "Declarant"
+              }
+              doc.getElementById("inspection-address.type-radio-Other").`val`() shouldBe "Other"
+              doc.select("input[value=Other]").isEmpty                          shouldBe false
+            }
           )
         }
       }

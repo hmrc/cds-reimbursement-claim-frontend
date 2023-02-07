@@ -938,27 +938,6 @@ class OverpaymentsScheduledJourneySpec
       }
     }
 
-//    "reject empty amounts when given tax codes" in {
-//      forAll(dutyTypesWithTaxCodesGen) { data =>
-//        val dutyTypes: Seq[DutyType] = data.map(_._1)
-//        val taxCodesWithEmptyAmounts: Seq[(TaxCode, Option[AmountPaidWithCorrect])] = data.flatMap(_._2.map(tc => (tc, None)))
-//        val result = OverpaymentsScheduledJourney
-//          .empty(exampleEori)
-//          .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
-//          .flatMapEach(
-//            data,
-//            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
-//          )
-//          .flatMapEach(
-//            taxCodesWithEmptyAmounts,
-//            j =>
-//              (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) =>
-//                j.submitAmountForReimbursement(d._1, d._2, d._4, d._3) // swapped amounts
-//          )
-//        result.getOrFail.hasCompleteReimbursementClaims shouldBe false
-//      }
-//    }
-
     "change to valid amount for valid selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         val totalReimbursementAmount = journey.getTotalReimbursementAmount
@@ -1255,7 +1234,6 @@ class OverpaymentsScheduledJourneySpec
         Some(UploadDocumentType.ProofOfAuthority)
       )
     }
-
     "tryBuildFrom should return upload type other" in {
       val specialJourneyGen: Gen[OverpaymentsScheduledJourney] = buildJourneyGenWithoutSupportingEvidence()
       forAll(specialJourneyGen) { journey: OverpaymentsScheduledJourney =>
@@ -1264,13 +1242,11 @@ class OverpaymentsScheduledJourneySpec
         )
       }
     }
-
     "receiveScheduledDocument fails when nonce is not matching the journey nonce" in {
       val journey = OverpaymentsScheduledJourney.empty(exampleEori)
       val result  = journey.receiveScheduledDocument(Nonce.random, buildUploadDocument("foo"))
       result shouldBe Left("receiveScheduledDocument.invalidNonce")
     }
-
     "removeScheduledDocument" in {
       val journey         = OverpaymentsScheduledJourney.empty(exampleEori)
       val nonce           = journey.answers.nonce

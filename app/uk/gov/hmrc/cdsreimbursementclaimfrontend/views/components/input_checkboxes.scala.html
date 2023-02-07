@@ -39,7 +39,7 @@
     hint: Option[Html] = None,
     singleton: Boolean = false,
     idPrefix: String = null,
-    emptyErrorMessage: Boolean = false
+    hideError: Boolean = false
 )(implicit messages: Messages)
 
 @fieldset = @{if (singleton) {
@@ -62,6 +62,6 @@
         content = HtmlContent(hintHtml)
     )),
     items = items,
-    errorMessage = field.errors.headOption.map(err => if(emptyErrorMessage) ErrorMessage(content = Empty, visuallyHiddenText = None) else ErrorMessage(content = Text(messages(s"${field.name}.${err.message}", err.args:_*))))
+    errorMessage = field.errors.headOption.map(err => if(hideError) ErrorMessage(content = Empty, visuallyHiddenText = None) else ErrorMessage(content = Text(messages(s"${field.name}.${err.message}", err.args:_*))))
     )
 )
