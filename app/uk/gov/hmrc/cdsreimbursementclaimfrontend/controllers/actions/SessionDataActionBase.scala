@@ -37,6 +37,8 @@ trait SessionDataActionBase[R[_] <: Request[_], P[_] <: Request[_]] extends Acti
 
   val errorHandler: ErrorHandler
 
+  val headersFromRequestOnly: Boolean
+
   implicit val executionContext: ExecutionContext
 
   def sessionDataAction[A](
@@ -47,8 +49,12 @@ trait SessionDataActionBase[R[_] <: Request[_], P[_] <: Request[_]] extends Acti
   override protected def refine[A](request: R[A]): Future[Either[Result, P[A]]] = {
 
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter
-        .fromRequestAndSession(request, request.session)
+      if (headersFromRequestOnly)
+        HeaderCarrierConverter
+          .fromRequest(request)
+      else
+        HeaderCarrierConverter
+          .fromRequestAndSession(request, request.session)
 
     sessionStore
       .get()

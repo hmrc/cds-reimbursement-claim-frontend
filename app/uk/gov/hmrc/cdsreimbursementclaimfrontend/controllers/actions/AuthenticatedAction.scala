@@ -45,13 +45,18 @@ class AuthenticatedAction @Inject() (
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequest] {
 
+  val headersFromRequestOnly: Boolean = false
+
   override def authorisedFunction[A](
     auth: AuthorisedFunctions,
     request: MessagesRequest[A]
   ): Future[Either[Result, AuthenticatedRequest[A]]] = {
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter
-        .fromRequestAndSession(request, request.session)
+      if (headersFromRequestOnly)
+        HeaderCarrierConverter.fromRequest(request)
+      else
+        HeaderCarrierConverter
+          .fromRequestAndSession(request, request.session)
 
     if (featureSwitchService.isDisabled(Feature.LimitedAccess))
       auth
@@ -69,8 +74,10 @@ class AuthenticatedAction @Inject() (
         }
   }
 
-  final def readHeadersFromRequestOnly(onlyRequest: Boolean): AuthenticatedAction =
-    if (onlyRequest)
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  final def readHeadersFromRequestOnly(b: Boolean): AuthenticatedAction =
+    if (b == headersFromRequestOnly) this
+    else
       new AuthenticatedAction(
         authConnector,
         config,
@@ -78,29 +85,8 @@ class AuthenticatedAction @Inject() (
         sessionStore,
         featureSwitchService
       ) {
-        override def authorisedFunction[A](
-          auth: AuthorisedFunctions,
-          request: MessagesRequest[A]
-        ): Future[Either[Result, AuthenticatedRequest[A]]] = {
-          implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-          if (featureSwitchService.isDisabled(Feature.LimitedAccess))
-            auth
-              .authorised()(Future.successful(Right(AuthenticatedRequest(request))))
-          else
-            auth
-              .authorised()
-              .retrieve(
-                Retrievals.allEnrolments
-              ) { case enrolments =>
-                if (checkUserHasAccess(enrolments))
-                  Future.successful(Right(AuthenticatedRequest(request)))
-                else
-                  Future.successful(Left(Results.Redirect(limitedAccessErrorPageUrl)))
-              }
-        }
+        override val headersFromRequestOnly: Boolean = b
       }
-    else
-      this
 
 }
 

@@ -85,6 +85,8 @@ class SessionDataActionWithRetrievedData @Inject() (
       RequestWithSessionDataAndRetrievedData
     ] {
 
+  override val headersFromRequestOnly: Boolean = false
+
   def sessionDataAction[A](
     sessionData: Option[SessionData],
     request: AuthenticatedRequestWithRetrievedData[A]
