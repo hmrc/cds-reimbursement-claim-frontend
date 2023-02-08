@@ -157,6 +157,42 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
         identity
       )
     )
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def buildJourneyGenWithoutSupportingEvidence(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all
+  ): Gen[OverpaymentsScheduledJourney] =
+    buildAnswersGen(
+      acc14DeclarantMatchesUserEori,
+      acc14ConsigneeMatchesUserEori,
+      hasConsigneeDetailsInACC14,
+      submitDeclarantDetails,
+      submitConsigneeDetails,
+      submitContactDetails,
+      submitContactAddress,
+      submitBankAccountDetails,
+      submitBankAccountType,
+      submitEvidence = true,
+      taxCodes = taxCodes,
+      emptyDocumentType = true
+    ).map(OverpaymentsScheduledJourney.tryBuildFrom(_))
+      .map(
+        _.fold(
+          error =>
+            throw new Exception(
+              s"Cannot build complete OverpaymentsScheduledJourney because of $error, fix the test data generator."
+            ),
+          identity
+        )
+      )
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -197,7 +233,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     submitEvidence: Boolean = true,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = true
+    checkYourAnswersChangeMode: Boolean = true,
+    emptyDocumentType: Boolean = false
   ): Gen[OverpaymentsScheduledJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -255,7 +292,10 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
 
       val supportingEvidencesExpanded: Seq[UploadedFile] =
         supportingEvidences.flatMap { case (documentType, size) =>
-          (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
+          if (!emptyDocumentType)
+            (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
+          else
+            (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = None))
         }.toSeq
 
       val scheduledDocument: UploadedFile =
