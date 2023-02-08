@@ -99,7 +99,7 @@ class CheckClaimantDetailsControllerSpec
 
       "display the page" in {
         forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
-          val sessionToAmend = session.copy(overpaymentsSingleJourney = Some(journey))
+          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
 
           inSequence {
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
@@ -159,7 +159,7 @@ class CheckClaimantDetailsControllerSpec
               .getOrFail
 
             val session = SessionData.empty.copy(
-              overpaymentsSingleJourney = Some(journey)
+              overpaymentsMultipleJourney = Some(journey)
             )
 
             inSequence {
@@ -197,14 +197,14 @@ class CheckClaimantDetailsControllerSpec
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .getOrFail
             val session            = SessionData.empty.copy(
-              overpaymentsSingleJourney = Some(journey)
+              overpaymentsMultipleJourney = Some(journey)
             )
 
             val expectedContactDetails = journey.computeContactDetails(individual)
             val expectedAddress        = journey.computeAddressDetails.get
             val expectedJourney        =
               journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
-            val updatedSession         = session.copy(overpaymentsSingleJourney = Some(expectedJourney))
+            val updatedSession         = session.copy(overpaymentsMultipleJourney = Some(expectedJourney))
 
             inSequence {
               mockAuthWithAllRetrievals(
@@ -236,7 +236,7 @@ class CheckClaimantDetailsControllerSpec
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .getOrFail
             val session = SessionData.empty.copy(
-              overpaymentsSingleJourney = Some(journey)
+              overpaymentsMultipleJourney = Some(journey)
             )
 
             inSequence {
@@ -255,7 +255,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.EnterMovementReferenceNumberController.show
+              routes.EnterMovementReferenceNumberController.showFirst
             )
           }
         }
