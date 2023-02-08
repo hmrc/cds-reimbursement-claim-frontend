@@ -65,12 +65,12 @@ class JourneyControllerComponents @Inject() (
         actionBuilder
           .andThen(new FeatureSwitchProtectedAction(feature, featureSwitchService, errorHandler))
           .andThen(authenticatedAction.readHeadersFromRequestOnly(isCallback))
-          .andThen(sessionDataAction)
+          .andThen(sessionDataAction.readHeadersFromRequestOnly(isCallback))
 
       case None =>
         actionBuilder
           .andThen(authenticatedAction.readHeadersFromRequestOnly(isCallback))
-          .andThen(sessionDataAction)
+          .andThen(sessionDataAction.readHeadersFromRequestOnly(isCallback))
     }
 
   final def authenticatedActionWithRetrievedDataAndSessionData(

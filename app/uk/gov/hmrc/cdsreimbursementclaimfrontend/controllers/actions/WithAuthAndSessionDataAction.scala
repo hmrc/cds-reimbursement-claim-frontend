@@ -34,6 +34,6 @@ trait WithAuthAndSessionDataAction { this: FrontendBaseController =>
   val authenticatedCallbackWithSessionData: ActionBuilder[RequestWithSessionData, AnyContent] =
     Action
       .andThen(authenticatedAction.readHeadersFromRequestOnly(true))
-      .andThen(sessionDataAction)
+      .andThen(sessionDataAction.readHeadersFromRequestOnly(true))
 
 }

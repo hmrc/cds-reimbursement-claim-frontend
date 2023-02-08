@@ -78,11 +78,21 @@ class SessionDataAction @Inject() (
       RequestWithSessionData
     ] {
 
+  override val headersFromRequestOnly: Boolean = false
+
   def sessionDataAction[A](
     sessionData: Option[SessionData],
     request: AuthenticatedRequest[A]
   ): RequestWithSessionData[A] =
     RequestWithSessionData(sessionData, request)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def readHeadersFromRequestOnly(b: Boolean): SessionDataAction =
+    if (b == this.headersFromRequestOnly) this
+    else
+      new SessionDataAction(sessionStore, errorHandler) {
+        override val headersFromRequestOnly: Boolean = b
+      }
 
 }
 

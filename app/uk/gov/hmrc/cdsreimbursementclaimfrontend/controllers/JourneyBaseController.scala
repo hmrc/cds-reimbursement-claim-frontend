@@ -39,6 +39,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -223,6 +224,11 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
     jcc
       .authenticatedActionWithSessionData(requiredFeature, isCallback)
       .async { implicit request =>
+        implicit val hc: HeaderCarrier =
+          if (isCallback)
+            HeaderCarrierConverter.fromRequest(request)
+          else
+            HeaderCarrierConverter.fromRequestAndSession(request, request.session)
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)

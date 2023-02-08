@@ -51,6 +51,8 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 @Singleton
 class UploadMrnListController @Inject() (
@@ -112,6 +114,9 @@ class UploadMrnListController @Inject() (
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   final val callback: Action[AnyContent] =
     authenticatedCallbackWithSessionData.async { implicit request =>
+      implicit val hc: HeaderCarrier =
+        HeaderCarrierConverter.fromRequest(request)
+
       request.using { case fillingOutClaim: FillingOutClaim =>
         request.body.asJson
           .flatMap(_.asOpt[UploadMrnListCallback]) match {
