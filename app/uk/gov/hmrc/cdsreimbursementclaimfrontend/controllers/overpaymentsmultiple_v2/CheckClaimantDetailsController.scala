@@ -16,17 +16,67 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ContactAddressLookupMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claimant_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import play.twirl.api.HtmlFormat
 
 @Singleton
 class CheckClaimantDetailsController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
+  val jcc: JourneyControllerComponents,
+  val addressLookupService: AddressLookupService,
+  claimantDetailsPage: check_claimant_details
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends OverpaymentsMultipleJourneyBaseController
-    with WorkInProgressMixin {}
+    with ContactAddressLookupMixin {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
+  val startAddressLookup: Call =
+    routes.CheckClaimantDetailsController.redirectToALF
+
+  val changeCd: Call =
+    routes.EnterContactDetailsController.show
+
+  val postAction: Call =
+    routes.CheckClaimantDetailsController.submit
+
+  override def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable =
+    cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, Some(startAddressLookup), postAction)
+
+  override val redirectWhenNoAddressDetailsFound: Call =
+    routes.EnterMovementReferenceNumberController.showFirst
+
+  override val nextPageInTheJourney: Call =
+    routes.NorthernIrelandController.show
+
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
+
+  override val retrieveLookupAddress: Call =
+    routes.CheckClaimantDetailsController.retrieveAddressFromALF()
+
+  override def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey =
+    journey.submitContactDetails(Some(contactDetails))
+
+  override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
+    journey.submitContactAddress(contactAddress)
+
+  override def redirectToTheNextPage(journey: OverpaymentsMultipleJourney): (OverpaymentsMultipleJourney, Result) =
+    (journey, Redirect(routes.CheckClaimantDetailsController.show))
+}
