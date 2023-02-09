@@ -45,7 +45,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     routes.EnterDeclarantEoriNumberController.submit
 
   final override val continueAction: Call =
-    routes.EnterDeclarantEoriNumberController.show
+    routes.CheckDeclarationDetailsController.show
 
   final override val whenEoriInputNotRequiredAction: Call =
     routes.BasisForClaimController.show
