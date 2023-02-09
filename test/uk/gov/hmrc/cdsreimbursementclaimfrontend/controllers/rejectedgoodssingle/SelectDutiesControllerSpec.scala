@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
-class SelectTaxCodesControllerSpec
+class SelectDutiesControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -55,7 +55,7 @@ class SelectTaxCodesControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: SelectTaxCodesController = instanceOf[SelectTaxCodesController]
+  val controller: SelectDutiesController = instanceOf[SelectDutiesController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)

@@ -47,7 +47,7 @@ class CheckClaimDetailsController @Inject() (
   val form: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.key)
 
   val submitAction: Call                       = routes.CheckClaimDetailsController.submit()
-  val selectDutiesAction: Call                 = routes.SelectTaxCodesController.showFirst
+  val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst
   val enterMrnAction: Call                     = routes.EnterMovementReferenceNumberController.showFirst()
   val enterClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.show
   val nextAction: Call                         = routes.EnterInspectionDateController.show()

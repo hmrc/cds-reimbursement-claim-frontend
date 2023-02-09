@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class SelectTaxCodesController @Inject() (
+class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
   selectDutyCodesPage: pages.select_duty_codes
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
@@ -49,7 +49,7 @@ class SelectTaxCodesController @Inject() (
 
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     if (journey.isDutyTypeSelected) {
-      val postAction: Call                     = routes.SelectTaxCodesController.submit(dutyType)
+      val postAction: Call                     = routes.SelectDutiesController.submit(dutyType)
       val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
       val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
 
@@ -61,7 +61,7 @@ class SelectTaxCodesController @Inject() (
   }
 
   def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.SelectTaxCodesController.submit(currentDuty)
+    val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
     if (journey.isDutyTypeSelected) {
       Future.successful(
         selectDutyCodesForm
@@ -80,7 +80,7 @@ class SelectTaxCodesController @Inject() (
                     (
                       updatedJourney,
                       updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
-                        case Some(nextDuty) => Redirect(routes.SelectTaxCodesController.show(nextDuty))
+                        case Some(nextDuty) => Redirect(routes.SelectDutiesController.show(nextDuty))
                         case None           => Redirect(routes.EnterClaimController.showFirst())
                       }
                     )

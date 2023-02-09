@@ -96,7 +96,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
         checkIsRedirect(
           controller.submit()(FakeRequest().withFormUrlEncodedBody(formKey -> exampleRejectedGoodsDetails)),
-          routes.SelectTaxCodesController.showFirst
+          routes.SelectDutiesController.showFirst
         )
       }
     }

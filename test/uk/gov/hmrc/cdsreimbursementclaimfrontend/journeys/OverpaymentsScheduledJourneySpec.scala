@@ -1138,7 +1138,7 @@ class OverpaymentsScheduledJourneySpec
 //      var previousTaxCode: Option[TaxCode] = None
 //
 //      for ((dutyType, taxCodes) <- taxCodesWithTypes.toSeq.sortBy(_._1)) {
-//        journey.findNextDutyToSelectTaxCodes shouldBe Some(dutyType)
+//        journey.findNextDutyToSelectDuties shouldBe Some(dutyType)
 //
 //        previousDuty.foreach { pdt =>
 //          journey.findNextSelectedDutyAfter(pdt) shouldBe Some(dutyType)
@@ -1176,7 +1176,7 @@ class OverpaymentsScheduledJourneySpec
 //        previousDuty = Some(dutyType)
 //      }
 //
-//      journey.findNextDutyToSelectTaxCodes shouldBe None
+//      journey.findNextDutyToSelectDuties shouldBe None
 //      journey.getNextNdrcDetailsToClaim    shouldBe None
 //
 //      previousDuty.foreach { pdt =>

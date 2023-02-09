@@ -72,7 +72,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
           rejectedGoodsDetails =>
             (
               journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
-              Redirect(routes.SelectTaxCodesController.show())
+              Redirect(routes.SelectDutiesController.show())
             )
         )
     )

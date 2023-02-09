@@ -49,7 +49,7 @@ class EnterClaimController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.findNextDutyToSelectTaxCodes match {
+    journey.findNextDutyToSelectDuties match {
       case None =>
         (journey.getSelectedDuties.headOption
           .flatMap { case (dt, tcs) => tcs.headOption.map(tc => (dt, tc)) } match {
@@ -61,13 +61,13 @@ class EnterClaimController @Inject() (
         }).asFuture
 
       case Some(emptyDuty) =>
-        Redirect(routes.SelectTaxCodesController.show(emptyDuty)).asFuture
+        Redirect(routes.SelectDutiesController.show(emptyDuty)).asFuture
     }
   }
 
   final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
     implicit request => journey =>
-      journey.findNextDutyToSelectTaxCodes match {
+      journey.findNextDutyToSelectDuties match {
         case None =>
           val postAction: Call                                 = routes.EnterClaimController.submit(dutyType, taxCode)
           val maybeReimbursement: Option[AmountPaidWithRefund] = journey.getReimbursementFor(dutyType, taxCode)
@@ -76,14 +76,14 @@ class EnterClaimController @Inject() (
           Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
 
         case Some(emptyDuty) =>
-          Redirect(routes.SelectTaxCodesController.show(emptyDuty)).asFuture
+          Redirect(routes.SelectDutiesController.show(emptyDuty)).asFuture
       }
 
   }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      journey.findNextDutyToSelectTaxCodes match {
+      journey.findNextDutyToSelectDuties match {
         case None =>
           val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
 
@@ -143,7 +143,7 @@ class EnterClaimController @Inject() (
           )
 
         case Some(emptyDuty) =>
-          (journey, Redirect(routes.SelectTaxCodesController.show(emptyDuty))).asFuture
+          (journey, Redirect(routes.SelectDutiesController.show(emptyDuty))).asFuture
       }
     },
     fastForwardToCYAEnabled = false

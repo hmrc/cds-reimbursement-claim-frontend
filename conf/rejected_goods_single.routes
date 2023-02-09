@@ -31,8 +31,8 @@ POST         /rejected-goods/single/choose-disposal-method                      
 GET          /rejected-goods/single/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterRejectedGoodsDetailsController.show()
 POST         /rejected-goods/single/enter-rejected-goods-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterRejectedGoodsDetailsController.submit()
 
-GET          /rejected-goods/single/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectTaxCodesController.show()
-POST         /rejected-goods/single/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectTaxCodesController.submit()
+GET          /rejected-goods/single/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectDutiesController.show()
+POST         /rejected-goods/single/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.SelectDutiesController.submit()
 
 GET          /rejected-goods/single/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.show()
 POST         /rejected-goods/single/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.submit()
