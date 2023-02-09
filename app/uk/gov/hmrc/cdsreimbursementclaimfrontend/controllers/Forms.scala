@@ -241,7 +241,7 @@ object Forms {
         (t: TaxCode) => t.value
       )
 
-  def selectTaxCodesForm(availableTaxCodes: Seq[TaxCode]): Form[Seq[TaxCode]] = {
+  def selectDutiesForm(availableTaxCodes: Seq[TaxCode]): Form[Seq[TaxCode]] = {
     val taxCode = taxCodeMapping(availableTaxCodes)
     Form(
       mapping(

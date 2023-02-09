@@ -147,7 +147,7 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-claim.rejected-goods" -> "false"),
-          routes.SelectTaxCodesController.show()
+          routes.SelectDutiesController.show()
         )
       }
     }

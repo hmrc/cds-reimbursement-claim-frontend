@@ -122,7 +122,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
         checkIsRedirect(
           performAction(formKey -> exampleRejectedGoodsDetails),
-          routes.SelectTaxCodesController.show()
+          routes.SelectDutiesController.show()
         )
       }
 

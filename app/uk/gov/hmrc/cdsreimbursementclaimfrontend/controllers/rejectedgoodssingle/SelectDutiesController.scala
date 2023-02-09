@@ -21,14 +21,14 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectTaxCodesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_tax_codes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_duties
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,13 +36,13 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class SelectTaxCodesController @Inject() (
+class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectTaxCodesPage: select_tax_codes
+  selectDutiesPage: select_duties
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val postAction: Call = routes.SelectTaxCodesController.submit()
+  val postAction: Call = routes.SelectDutiesController.submit()
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
@@ -55,8 +55,8 @@ class SelectTaxCodesController @Inject() (
       logger.warn("No available duties")
       Redirect(baseRoutes.IneligibleController.ineligible())
     } else {
-      val form = selectTaxCodesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
-      Ok(selectTaxCodesPage(form, availableDuties, None, true, None, postAction))
+      val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
+      Ok(selectDutiesPage(form, availableDuties, None, true, None, postAction))
     }
   }
 
@@ -67,14 +67,14 @@ class SelectTaxCodesController @Inject() (
         logger.warn("No available duties")
         (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
       } else {
-        val form = selectTaxCodesForm(availableDuties.map(_._1))
+        val form = selectDutiesForm(availableDuties.map(_._1))
         form
           .bindFromRequest()
           .fold(
             formWithErrors =>
               (
                 journey,
-                BadRequest(selectTaxCodesPage(formWithErrors, availableDuties, None, true, None, postAction))
+                BadRequest(selectDutiesPage(formWithErrors, availableDuties, None, true, None, postAction))
               ),
             taxCodesSelected =>
               (
@@ -90,6 +90,6 @@ class SelectTaxCodesController @Inject() (
   )
 }
 
-object SelectTaxCodesController {
-  val selectTaxCodesKey: String = "select-duties"
+object SelectDutiesController {
+  val selectDutiesKey: String = "select-duties"
 }

@@ -196,7 +196,7 @@ class EnterClaimControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.SelectTaxCodesController.show()
+            routes.SelectDutiesController.show()
           )
       }
     }
@@ -323,7 +323,7 @@ class EnterClaimControllerSpec
                 ndrcDetails1.taxType,
                 "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
               ),
-              routes.SelectTaxCodesController.show()
+              routes.SelectDutiesController.show()
             )
           }
       }

@@ -30,7 +30,7 @@ import play.api.mvc.Result
 import shapeless.syntax.std.tuple.productTupleOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectTaxCodesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
@@ -77,7 +77,7 @@ class SelectDutiesController @Inject() (
       },
       dutiesAvailable =>
         {
-          val emptyForm: Form[Seq[TaxCode]] = selectTaxCodesForm(dutiesAvailable.map(_.taxCode))
+          val emptyForm: Form[Seq[TaxCode]] = selectDutiesForm(dutiesAvailable.map(_.taxCode))
 
           val filledForm =
             emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
@@ -100,7 +100,7 @@ class SelectDutiesController @Inject() (
           (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
         },
         dutiesAvailable => {
-          val form      = selectTaxCodesForm(dutiesAvailable.map(_.taxCode))
+          val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
           val boundForm = form.bindFromRequest()
           boundForm
             .fold(

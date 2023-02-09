@@ -60,7 +60,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
         rejectedGoodsDetails =>
           (
             journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
-            Redirect(routes.SelectTaxCodesController.showFirst)
+            Redirect(routes.SelectDutiesController.showFirst)
           )
       )
       .asFuture

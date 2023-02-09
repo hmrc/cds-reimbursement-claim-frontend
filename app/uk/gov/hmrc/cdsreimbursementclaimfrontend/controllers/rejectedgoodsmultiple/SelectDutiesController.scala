@@ -20,7 +20,7 @@ import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectTaxCodesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -28,16 +28,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_tax_codes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_duties
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class SelectTaxCodesController @Inject() (
+class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectTaxCodesPage: select_tax_codes,
+  selectDutiesPage: select_duties,
   mrnDoesNotExistPage: mrn_does_not_exist
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
@@ -57,15 +57,15 @@ class SelectTaxCodesController @Inject() (
           logger.warn("No available duties")
           Redirect(baseRoutes.IneligibleController.ineligible())
         } else {
-          val form = selectTaxCodesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties(mrn))
+          val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties(mrn))
           Ok(
-            selectTaxCodesPage(
+            selectDutiesPage(
               form,
               availableDuties,
               Some((pageIndex, mrn)),
               false,
               MRNMultipleRoutes.subKey,
-              routes.SelectTaxCodesController.submit(pageIndex)
+              routes.SelectDutiesController.submit(pageIndex)
             )
           )
         }
@@ -83,7 +83,7 @@ class SelectTaxCodesController @Inject() (
             logger.warn("No available duties")
             (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
           } else {
-            val form = selectTaxCodesForm(availableDuties.map(_._1))
+            val form = selectDutiesForm(availableDuties.map(_._1))
             form
               .bindFromRequest()
               .fold(
@@ -91,13 +91,13 @@ class SelectTaxCodesController @Inject() (
                   (
                     journey,
                     BadRequest(
-                      selectTaxCodesPage(
+                      selectDutiesPage(
                         formWithErrors,
                         availableDuties,
                         Some((pageIndex, mrn)),
                         false,
                         MRNMultipleRoutes.subKey,
-                        routes.SelectTaxCodesController.submit(pageIndex)
+                        routes.SelectDutiesController.submit(pageIndex)
                       )
                     )
                   ),
@@ -109,7 +109,7 @@ class SelectTaxCodesController @Inject() (
                     Redirect(
                       taxCodesSelected.headOption match {
                         case Some(taxCode) => routes.EnterClaimController.show(pageIndex, taxCode)
-                        case None          => routes.SelectTaxCodesController.show(pageIndex)
+                        case None          => routes.SelectDutiesController.show(pageIndex)
                       }
                     )
                   )
@@ -122,6 +122,6 @@ class SelectTaxCodesController @Inject() (
   )
 }
 
-object SelectTaxCodesController {
-  val selectTaxCodesKey: String = "select-duties"
+object SelectDutiesController {
+  val selectDutiesKey: String = "select-duties"
 }

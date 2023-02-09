@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 import org.scalacheck.Gen
 
-class SelectTaxCodesControllerSpec
+class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -54,19 +54,19 @@ class SelectTaxCodesControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: SelectTaxCodesController = instanceOf[SelectTaxCodesController]
+  val controller: SelectDutiesController = instanceOf[SelectDutiesController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = SelectTaxCodesController.selectTaxCodesKey
+  private val messagesKey: String = SelectDutiesController.selectDutiesKey
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  def validateSelectTaxCodesPage(
+  def validateSelectDutiesPage(
     doc: Document,
     pageIndex: Int,
     mrn: MRN,
@@ -86,7 +86,7 @@ class SelectTaxCodesControllerSpec
     )                        shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/select-duties/$pageIndex"
   }
 
-  "SelectTaxCodesController" when {
+  "SelectDutiesController" when {
 
     "Show duties selection for the first MRN" must {
 
@@ -110,7 +110,7 @@ class SelectTaxCodesControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(1)),
-            doc => validateSelectTaxCodesPage(doc, 1, mrns.head, displayedTaxCodes, Seq.empty)
+            doc => validateSelectDutiesPage(doc, 1, mrns.head, displayedTaxCodes, Seq.empty)
           )
         }
       }
@@ -133,7 +133,7 @@ class SelectTaxCodesControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(1)),
-            doc => validateSelectTaxCodesPage(doc, 1, mrn, displayedTaxCodes, selectedTaxCodes)
+            doc => validateSelectDutiesPage(doc, 1, mrn, displayedTaxCodes, selectedTaxCodes)
           )
         }
       }
@@ -156,7 +156,7 @@ class SelectTaxCodesControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(1)),
-            doc => validateSelectTaxCodesPage(doc, 1, mrn, displayedTaxCodes, selectedTaxCodes)
+            doc => validateSelectDutiesPage(doc, 1, mrn, displayedTaxCodes, selectedTaxCodes)
           )
         }
       }
@@ -188,7 +188,7 @@ class SelectTaxCodesControllerSpec
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
               messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
-              doc => validateSelectTaxCodesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, Seq.empty)
+              doc => validateSelectDutiesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, Seq.empty)
             )
           }
         }
@@ -211,7 +211,7 @@ class SelectTaxCodesControllerSpec
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
               messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
-              doc => validateSelectTaxCodesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
+              doc => validateSelectDutiesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
             )
           }
         }
@@ -234,7 +234,7 @@ class SelectTaxCodesControllerSpec
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
               messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
-              doc => validateSelectTaxCodesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
+              doc => validateSelectDutiesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
             )
           }
         }

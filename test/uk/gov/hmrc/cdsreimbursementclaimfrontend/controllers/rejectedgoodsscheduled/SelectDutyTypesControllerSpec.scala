@@ -150,7 +150,7 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(Seq(s"$messagesKey[]" -> dutyType.repr)),
-          routes.SelectTaxCodesController.show(dutyType)
+          routes.SelectDutiesController.show(dutyType)
         )
       }
 

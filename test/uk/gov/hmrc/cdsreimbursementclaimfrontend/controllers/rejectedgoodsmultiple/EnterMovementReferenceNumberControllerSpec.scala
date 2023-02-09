@@ -290,7 +290,7 @@ class EnterMovementReferenceNumberControllerSpec
 
           checkIsRedirect(
             performAction("enter-movement-reference-number.rejected-goods" -> correctedDD.getMRN.value)(mrnToChange),
-            routes.SelectTaxCodesController.show(mrnToChange)
+            routes.SelectDutiesController.show(mrnToChange)
           )
         }
       }

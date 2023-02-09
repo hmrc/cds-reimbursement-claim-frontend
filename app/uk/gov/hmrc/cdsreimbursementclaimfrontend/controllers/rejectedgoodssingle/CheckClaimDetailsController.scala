@@ -108,7 +108,7 @@ class CheckClaimDetailsController @Inject() (
                 case No  =>
                   (
                     journey.withDutiesChangeMode(true),
-                    Redirect(routes.SelectTaxCodesController.show())
+                    Redirect(routes.SelectDutiesController.show())
                   ).asFuture
               }
             )

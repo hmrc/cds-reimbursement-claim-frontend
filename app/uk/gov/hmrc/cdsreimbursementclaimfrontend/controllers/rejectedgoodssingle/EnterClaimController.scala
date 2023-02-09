@@ -52,7 +52,7 @@ class EnterClaimController @Inject() (
     simpleActionReadJourney(journey =>
       journey.getSelectedDuties.flatMap(_.headOption) match {
         case None =>
-          Redirect(routes.SelectTaxCodesController.show())
+          Redirect(routes.SelectDutiesController.show())
 
         case Some(taxCode) =>
           Redirect(routes.EnterClaimController.show(taxCode))
@@ -63,7 +63,7 @@ class EnterClaimController @Inject() (
     actionReadJourney { implicit request => journey =>
       journey.getSelectedDuties match {
         case None =>
-          Redirect(routes.SelectTaxCodesController.show()).asFuture
+          Redirect(routes.SelectDutiesController.show()).asFuture
 
         case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
           journey.getNdrcDetailsFor(taxCode) match {
@@ -90,7 +90,7 @@ class EnterClaimController @Inject() (
       { implicit request => journey =>
         journey.getSelectedDuties match {
           case None =>
-            (journey, Redirect(routes.SelectTaxCodesController.show())).asFuture
+            (journey, Redirect(routes.SelectDutiesController.show())).asFuture
 
           case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
             journey.getNdrcDetailsFor(taxCode) match {
@@ -146,7 +146,7 @@ class EnterClaimController @Inject() (
       if (journey.hasCompleteReimbursementClaims)
         routes.CheckClaimDetailsController.show()
       else
-        routes.SelectTaxCodesController.show()
+        routes.SelectDutiesController.show()
     }
 
   private def redirectToNextPage(journey: Journey, taxCode: TaxCode): Result =
@@ -157,7 +157,7 @@ class EnterClaimController @Inject() (
         val selectedTaxCodes = journey.getSelectedDuties.getOrElse(Seq.empty)
         selectedTaxCodes.indexOf(taxCode) match {
           case -1 => // invalid tax code
-            routes.SelectTaxCodesController.show()
+            routes.SelectDutiesController.show()
 
           case n if n < selectedTaxCodes.size - 1 =>
             routes.EnterClaimController.show(selectedTaxCodes(n + 1))

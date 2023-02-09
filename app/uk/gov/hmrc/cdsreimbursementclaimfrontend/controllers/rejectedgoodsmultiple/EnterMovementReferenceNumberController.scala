@@ -141,7 +141,7 @@ class EnterMovementReferenceNumberController @Inject() (
       } else {
         if (pageIndex === 1) routes.CheckDeclarationDetailsController.show()
         else if (journey.userHasSeenCYAPage && journey.getReimbursementClaimsFor(mrn).isEmpty)
-          routes.SelectTaxCodesController.show(pageIndex)
+          routes.SelectDutiesController.show(pageIndex)
         else routes.CheckMovementReferenceNumbersController.show()
       }
     )

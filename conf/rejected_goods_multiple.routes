@@ -36,9 +36,9 @@ GET          /rejected-goods/multiple/check-movement-reference-numbers          
 POST         /rejected-goods/multiple/check-movement-reference-numbers              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckMovementReferenceNumbersController.submit()
 GET          /rejected-goods/multiple/delete-movement-reference-numbers/:mrn        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckMovementReferenceNumbersController.delete(mrn: MRN)
 
-GET          /rejected-goods/multiple/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectTaxCodesController.showFirst
-GET          /rejected-goods/multiple/select-duties/:index                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectTaxCodesController.show(index: Int)
-POST         /rejected-goods/multiple/select-duties/:index                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectTaxCodesController.submit(index: Int)
+GET          /rejected-goods/multiple/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectDutiesController.showFirst
+GET          /rejected-goods/multiple/select-duties/:index                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectDutiesController.show(index: Int)
+POST         /rejected-goods/multiple/select-duties/:index                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.SelectDutiesController.submit(index: Int)
 
 GET          /rejected-goods/multiple/enter-claim/:index/:taxCode                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterClaimController.show(index: Int, taxCode: TaxCode)
 POST         /rejected-goods/multiple/enter-claim/:index/:taxCode                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterClaimController.submit(index: Int, taxCode: TaxCode)

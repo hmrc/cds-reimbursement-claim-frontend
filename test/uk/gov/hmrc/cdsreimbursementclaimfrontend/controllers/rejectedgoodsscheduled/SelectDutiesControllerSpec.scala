@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectTaxCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutiesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-class SelectTaxCodesControllerSpec
+class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -58,8 +58,8 @@ class SelectTaxCodesControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: SelectTaxCodesController = instanceOf[SelectTaxCodesController]
-  val selectDutyCodesKey: String           = "select-duty-codes"
+  val controller: SelectDutiesController = instanceOf[SelectDutiesController]
+  val selectDutyCodesKey: String         = "select-duty-codes"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -101,7 +101,7 @@ class SelectTaxCodesControllerSpec
           ),
           doc => {
             selectedCheckBox(doc) shouldBe empty
-            formAction(doc)       shouldBe routes.SelectTaxCodesController.submit(dutyType).url
+            formAction(doc)       shouldBe routes.SelectDutiesController.submit(dutyType).url
           }
         )
       }
@@ -207,7 +207,7 @@ class SelectTaxCodesControllerSpec
           controller.submit(customDuty)(
             FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> customDuty.taxCodes(0).value)
           ),
-          routes.SelectTaxCodesController.show(exciseDuty)
+          routes.SelectDutiesController.show(exciseDuty)
         )
       }
     }
@@ -244,7 +244,7 @@ class SelectTaxCodesControllerSpec
   }
 }
 
-object SelectTaxCodesControllerSpec {
+object SelectDutiesControllerSpec {
 
   lazy val genDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for {
     duty    <- genDuty
