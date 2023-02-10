@@ -325,5 +325,58 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       (journey.flatMapEach(data, submitData).getOrFail, mrns)
     }
   }
+  
+  def answersUpToBasisForClaimGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+  ): Gen[OverpaymentsMultipleJourney.Answers] =
+    for {
+      userEoriNumber   <- IdGen.genEori
+      mrns             <- Gen.listOfN(3, IdGen.genMRN)
+      declarantEORI    <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI    <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      numberOfTaxCodes <- Gen.choose(1, 5)
+      taxCodes         <- Gen.pick(numberOfTaxCodes, taxCodes).map(_ ++ forcedTaxCodes)
+      paidAmounts      <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      consigneeContact <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact <- Gen.option(Acc14Gen.genContactDetails)
+    } yield {
+
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+
+      val displayDeclarations: Seq[DisplayDeclaration]    = mrns.map { mrn =>
+        buildDisplayDeclaration(
+          mrn.value,
+          declarantEORI,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          paidDuties,
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
+        )
+      }
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      OverpaymentsMultipleJourney.Answers(
+        nonce = Nonce.random,
+        userEoriNumber = userEoriNumber,
+        movementReferenceNumbers = Some(mrns),
+        displayDeclarations = Some(displayDeclarations),
+        consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
+        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+        checkYourAnswersChangeMode = false
+      )
+    }
 
 }
