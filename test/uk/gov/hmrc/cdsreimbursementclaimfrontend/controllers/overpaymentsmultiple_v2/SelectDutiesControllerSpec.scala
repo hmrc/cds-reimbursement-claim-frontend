@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -64,7 +64,7 @@ class SelectDutiesControllerSpec
   private val messagesKey: String = "select-duties"
 
   override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
+    featureSwitch.enable(Feature.Overpayments_v2)
 
   def validateSelectDutiesPage(
     doc: Document,
@@ -81,9 +81,8 @@ class SelectDutiesControllerSpec
     mrnElement.text()        shouldBe mrn.value
     mrnElement.attr("class") shouldBe "govuk-!-font-weight-bold"
     hasContinueButton(doc)
-    formAction(
-      doc
-    )                        shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/select-duties/$pageIndex"
+
+    formAction(doc) shouldBe s"/claim-back-import-duty-vat/overpayments/v2/multiple/select-duties/$pageIndex"
   }
 
   "SelectDutiesController" when {
@@ -93,7 +92,7 @@ class SelectDutiesControllerSpec
       def performAction(): Future[Result] = controller.showFirst()(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction()) shouldBe NOT_FOUND
       }
 
@@ -168,7 +167,7 @@ class SelectDutiesControllerSpec
         controller.show(pageIndex)(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
         forAll(Gen.choose(1, 1000)) { (pageIndex: Int) =>
           status(performAction(pageIndex)) shouldBe NOT_FOUND
         }
@@ -250,7 +249,7 @@ class SelectDutiesControllerSpec
         )
 
       "fail if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
+        featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction(1, Seq.empty)) shouldBe NOT_FOUND
       }
 
@@ -277,7 +276,7 @@ class SelectDutiesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/overpayments/v2/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -295,7 +294,7 @@ class SelectDutiesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/overpayments/v2/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -321,7 +320,7 @@ class SelectDutiesControllerSpec
 
               checkIsRedirect(
                 performAction(mrnIndex + 1, newSelectedTaxCodes),
-                s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
+                s"/claim-back-import-duty-vat/overpayments/v2/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
               )
             }
           }

@@ -121,7 +121,3 @@ class SelectDutiesController @Inject() (
     fastForwardToCYAEnabled = false
   )
 }
-
-object SelectDutiesController {
-  val selectDutiesKey: String = "select-duties"
-}
