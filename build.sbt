@@ -5,6 +5,8 @@ import wartremover.Wart
 
 val appName = "cds-reimbursement-claim-frontend"
 
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
 addCommandAlias("fix", "all compile:scalafix test:scalafix")
@@ -58,8 +60,6 @@ lazy val microservice = Project(appName, file("."))
     SbtDistributablesPlugin
   )
   .disablePlugins(JUnitXmlReportPlugin)
-  .settings(addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"))
-  .settings(addCompilerPlugin(scalafixSemanticdb))
   .settings(scalafmtOnCompile := true)
   .settings(scalaVersion := "2.12.14")
   .settings(TwirlKeys.templateImports := Seq.empty)
@@ -84,7 +84,6 @@ lazy val microservice = Project(appName, file("."))
     dependencyOverrides += "org.jsoup" % "jsoup" % AppDependencies.jsoupVersion
   )
   .settings(Test / resourceDirectories += baseDirectory.value / "conf" / "resources")
-  .settings(publishingSettings: _*)
   .settings(Assets / pipelineStages := Seq(uglify))
   .settings(uglifyCompressOptions := Seq("unused=false", "dead_code=false"))
   .configs(IntegrationTest)

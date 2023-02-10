@@ -106,7 +106,7 @@ class DefaultSessionCache @Inject() (
     try super
       .get[SessionData](hc)(sessionDataKey)
       .map(Right(_))
-      .recover { case e ⇒ Left(Error(e)) } catch {
+      .recover { case e => Left(Error(e)) } catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 
@@ -116,7 +116,7 @@ class DefaultSessionCache @Inject() (
     try super
       .put(hc)(sessionDataKey, sessionData)
       .map(_ => Right(()))
-      .recover { case e ⇒ Left(Error(e)) } catch {
+      .recover { case e => Left(Error(e)) } catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 

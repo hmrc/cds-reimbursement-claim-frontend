@@ -89,7 +89,7 @@ class DefaultFeaturesCache @Inject() (
     try super
       .get[FeatureSet](hc)(featureSetKey)
       .map(opt => Right(opt.getOrElse(FeatureSet.empty)))
-      .recover { case e ⇒ Left(Error(e)) } catch {
+      .recover { case e => Left(Error(e)) } catch {
       case HeaderCarrierCacheId.NoSessionException => Future.successful(Right(FeatureSet.empty))
       case e: Exception                            => Future.successful(Left(Error(e)))
     }
@@ -100,7 +100,7 @@ class DefaultFeaturesCache @Inject() (
     try super
       .put(hc)(featureSetKey, featureSet)
       .map(_ => Right(()))
-      .recover { case e ⇒ Left(Error(e)) } catch {
+      .recover { case e => Left(Error(e)) } catch {
       case HeaderCarrierCacheId.NoSessionException => Future.successful(Right(()))
       case e: Exception                            => Future.successful(Left(Error(e)))
     }

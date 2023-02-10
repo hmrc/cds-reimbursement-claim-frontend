@@ -20,31 +20,31 @@ import JourneyValidationErrors._
 import com.github.arturopala.validator.Validator._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 
-trait RejectedGoodsJourneyChecks[Journey <: RejectedGoodsJourneyProperties]
+trait RejectedGoodsJourneyChecks[J <: RejectedGoodsJourneyProperties]
     extends CommonJourneyChecks[RejectedGoodsJourneyProperties] {
 
-  final val basisOfClaimHasBeenProvided: Validate[Journey] =
+  final val basisOfClaimHasBeenProvided: Validate[J] =
     checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM)
 
-  final val detailsOfRejectedGoodsHasBeenProvided: Validate[Journey] =
+  final val detailsOfRejectedGoodsHasBeenProvided: Validate[J] =
     checkIsDefined(_.answers.detailsOfRejectedGoods, MISSING_DETAILS_OF_REJECTED_GOODS)
 
-  final val inspectionDateHasBeenProvided: Validate[Journey] =
+  final val inspectionDateHasBeenProvided: Validate[J] =
     checkIsDefined(_.answers.inspectionDate, MISSING_INSPECTION_DATE)
 
-  final val inspectionAddressHasBeenProvided: Validate[Journey] =
+  final val inspectionAddressHasBeenProvided: Validate[J] =
     checkIsDefined(_.answers.inspectionAddress, MISSING_INSPECTION_ADDRESS)
 
-  final val methodOfDisposalHasBeenProvided: Validate[Journey] =
+  final val methodOfDisposalHasBeenProvided: Validate[J] =
     checkIsDefined(_.answers.methodOfDisposal, MISSING_METHOD_OF_DISPOSAL)
 
-  final val reimbursementClaimsHasBeenProvided: Validate[Journey] =
+  final val reimbursementClaimsHasBeenProvided: Validate[J] =
     all(
       checkIsTrue(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
       checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO)
     )
 
-  final val basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded: Validate[Journey] =
+  final val basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded: Validate[J] =
     all(
       whenTrue(
         _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances),

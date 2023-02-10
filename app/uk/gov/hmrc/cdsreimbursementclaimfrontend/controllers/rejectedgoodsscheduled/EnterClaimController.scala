@@ -48,7 +48,7 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final def showFirst(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.findNextDutyToSelectDuties match {
       case None =>
         (journey.getSelectedDuties.headOption
