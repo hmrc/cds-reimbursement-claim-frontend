@@ -121,12 +121,14 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
     taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
     paidAmounts              <- Gen.listOfN(numberOfTaxCodes, amountNumberGen)
-    reimbursementAmounts     <-
+    correctedAmounts         <-
       Gen
         .sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts.take(numberOfSelectedTaxCodes).map(a => Gen.choose(BigDecimal.exact("0.01"), a))
+          paidAmounts
+            .take(numberOfSelectedTaxCodes)
+            .map(a => Gen.choose(BigDecimal("0.00"), a - BigDecimal.exact("0.01")))
         )
-  } yield (taxCodes, taxCodes.take(numberOfSelectedTaxCodes), paidAmounts, reimbursementAmounts)
+  } yield (taxCodes, taxCodes.take(numberOfSelectedTaxCodes), paidAmounts, correctedAmounts)
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -184,7 +186,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       numberOfSupportingEvidences <- Gen.choose(0, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
       documentTypes               <-
-        Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.overpaymentsSingleDocumentTypes))
+        Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.overpaymentsMultipleDocumentTypes))
       supportingEvidences         <-
         Gen
           .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](
@@ -201,16 +203,16 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, Random.nextBoolean) })
         }
 
-      val reimbursementClaims: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
+      val correctedAmounts: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
         OrderedMap(
           mrns
             .zip(taxCodesWithAmounts)
-            .map { case (mrn, (_, selectedTaxCodes, _, reimbursementAmounts)) =>
+            .map { case (mrn, (_, selectedTaxCodes, _, correctedAmounts)) =>
               (
                 mrn,
                 selectedTaxCodes
-                  .zip(reimbursementAmounts)
-                  .map { case (taxCode, amount) => (taxCode, Option(amount)) }
+                  .zip(correctedAmounts)
+                  .map { case (taxCode, correctAmount) => (taxCode, Option(correctAmount)) }
                   .toMap
               )
             }
@@ -248,7 +250,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           basisOfClaim = Some(basisOfClaim),
           whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
-          reimbursementClaims = Some(OrderedMap(reimbursementClaims)),
+          correctedAmounts = Some(OrderedMap(correctedAmounts)),
           selectedDocumentType = None,
           supportingEvidences = supportingEvidencesExpanded,
           bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
@@ -265,5 +267,63 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
         .tryBuildFrom(_)
         .fold(e => throw new Exception(e), identity)
     )
+
+  def incompleteJourneyWithMrnsGen(n: Int): Gen[(OverpaymentsMultipleJourney, Seq[MRN])] = {
+    def submitData(journey: OverpaymentsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) =
+      journey.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
+
+    listOfExactlyN(n, mrnWithDisplayDeclarationGen).map { data =>
+      val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
+      (
+        emptyJourney
+          .flatMapEach(dataWithIndex, submitData)
+          .getOrFail,
+        data.map(_._1)
+      )
+    }
+  }
+
+  private def mrnWithSelectedTaxCodesGen(journey: OverpaymentsMultipleJourney): Seq[Gen[(MRN, Seq[TaxCode])]] =
+    journey.answers.movementReferenceNumbers.get.map { mrn =>
+      val availableTaxCodes = journey.getAvailableDuties(mrn).map(_._1)
+      Gen
+        .choose(1, availableTaxCodes.size)
+        .map(availableTaxCodes.take)
+        .map(seq => (mrn, seq))
+    }
+
+  def incompleteJourneyWithSelectedDutiesGen(n: Int): Gen[(OverpaymentsMultipleJourney, Seq[MRN])] = {
+    def submitData(journey: OverpaymentsMultipleJourney)(data: (MRN, Seq[TaxCode])) =
+      journey.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
+
+    incompleteJourneyWithMrnsGen(n).flatMap { case (journey, _) =>
+      val gen = mrnWithSelectedTaxCodesGen(journey)
+      Gen
+        .sequence[Seq[(MRN, Seq[TaxCode])], (MRN, Seq[TaxCode])](gen)
+        .map { mrnsWithTaxCodesSelection =>
+          val modifiedJourney = journey
+            .flatMapEach(mrnsWithTaxCodesSelection, submitData)
+            .getOrFail
+          (
+            modifiedJourney,
+            modifiedJourney.answers.movementReferenceNumbers.get
+          )
+        }
+    }
+  }
+
+  def incompleteJourneyWithCompleteClaimsGen(n: Int): Gen[(OverpaymentsMultipleJourney, Seq[MRN])] = {
+    def submitData(journey: OverpaymentsMultipleJourney)(data: (MRN, TaxCode, BigDecimal)) =
+      journey.submitCorrectAmount(data._1, data._2, data._3)
+
+    incompleteJourneyWithSelectedDutiesGen(n).map { case (journey, mrns) =>
+      val data: Seq[(MRN, TaxCode, BigDecimal)] = mrns.flatMap { mrn =>
+        journey.getSelectedDuties(mrn).get.map { taxCode =>
+          (mrn, taxCode, BigDecimal(formatAmount(journey.getAmountPaidFor(mrn, taxCode).get / 2)))
+        }
+      }
+      (journey.flatMapEach(data, submitData).getOrFail, mrns)
+    }
+  }
 
 }

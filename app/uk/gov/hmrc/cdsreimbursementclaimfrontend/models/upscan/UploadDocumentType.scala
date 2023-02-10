@@ -116,6 +116,9 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       Other
     )
 
+  val overpaymentsMultipleDocumentTypes: Seq[UploadDocumentType] =
+    overpaymentsSingleDocumentTypes
+
   val overpaymentsScheduledDocumentTypes: Seq[UploadDocumentType] =
     overpaymentsSingleDocumentTypes
 
