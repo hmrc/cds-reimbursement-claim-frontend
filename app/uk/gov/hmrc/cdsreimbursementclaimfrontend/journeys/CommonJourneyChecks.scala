@@ -19,25 +19,25 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import JourneyValidationErrors._
 import com.github.arturopala.validator.Validator._
 
-trait CommonJourneyChecks[Journey <: CommonJourneyProperties] {
+trait CommonJourneyChecks[J <: CommonJourneyProperties] {
 
-  final val hasMovementReferenceNumber: Validate[Journey] =
+  final val hasMovementReferenceNumber: Validate[J] =
     checkIsTrue(
       journey => journey.getLeadMovementReferenceNumber.isDefined,
       MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER
     )
 
-  final val hasDisplayDeclaration: Validate[Journey] =
+  final val hasDisplayDeclaration: Validate[J] =
     checkIsTrue(
       journey => journey.getLeadDisplayDeclaration.isDefined,
       MISSING_DISPLAY_DECLARATION
     )
 
-  final val hasMRNAndDisplayDeclaration: Validate[Journey] =
+  final val hasMRNAndDisplayDeclaration: Validate[J] =
     hasMovementReferenceNumber & hasDisplayDeclaration
 
-  final val declarantOrImporterEoriMatchesUserOrHasBeenVerified: Validate[Journey] =
-    conditionally[Journey](
+  final val declarantOrImporterEoriMatchesUserOrHasBeenVerified: Validate[J] =
+    conditionally[J](
       _.needsDeclarantAndConsigneeEoriSubmission,
       all(
         checkIsDefined(
@@ -71,8 +71,8 @@ trait CommonJourneyChecks[Journey <: CommonJourneyProperties] {
       )
     )
 
-  final val paymentMethodHasBeenProvidedIfNeeded: Validate[Journey] =
-    conditionally[Journey](
+  final val paymentMethodHasBeenProvidedIfNeeded: Validate[J] =
+    conditionally[J](
       _.needsBanksAccountDetailsSubmission,
       checkIsDefined(
         _.answers.bankAccountDetails,
@@ -84,11 +84,11 @@ trait CommonJourneyChecks[Journey <: CommonJourneyProperties] {
       )
     )
 
-  final val contactDetailsHasBeenProvided: Validate[Journey] =
-    checkIsDefined[Journey](_.answers.contactDetails, MISSING_CONTACT_DETAILS) &
-      checkIsDefined[Journey](_.answers.contactAddress, MISSING_CONTACT_ADDRESS)
+  final val contactDetailsHasBeenProvided: Validate[J] =
+    checkIsDefined[J](_.answers.contactDetails, MISSING_CONTACT_DETAILS) &
+      checkIsDefined[J](_.answers.contactAddress, MISSING_CONTACT_ADDRESS)
 
-  final val supportingEvidenceHasBeenProvided: Validate[Journey] =
+  final val supportingEvidenceHasBeenProvided: Validate[J] =
     checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
 
 }

@@ -97,22 +97,22 @@ object TimeUtils {
       ): Either[Seq[FormError], LocalDate] = {
         val result = for {
           dateFieldStrings <- dateFieldStringValues(data)
-          day ← toValidInt(dateFieldStrings._1, Some(31), 1, 2)
-          month ← toValidInt(dateFieldStrings._2, Some(12), 1, 2)
-          year ← toValidInt(dateFieldStrings._3, None, 4, 4)
-          date ← Either
-                   .fromTry(Try(LocalDate.of(year, month, day)))
-                   .leftMap(_ => FormError(dateKey, "error.invalid"))
-                   .flatMap(date =>
-                     if (date.isBefore(minimumDate))
-                       Left(FormError(dateKey, "error.before1900"))
-                     else
-                       extraValidation
-                         .map(_(date))
-                         .find(_.isLeft)
-                         .getOrElse(Right(()))
-                         .map(_ => date)
-                   )
+          day              <- toValidInt(dateFieldStrings._1, Some(31), 1, 2)
+          month            <- toValidInt(dateFieldStrings._2, Some(12), 1, 2)
+          year             <- toValidInt(dateFieldStrings._3, None, 4, 4)
+          date             <- Either
+                                .fromTry(Try(LocalDate.of(year, month, day)))
+                                .leftMap(_ => FormError(dateKey, "error.invalid"))
+                                .flatMap(date =>
+                                  if (date.isBefore(minimumDate))
+                                    Left(FormError(dateKey, "error.before1900"))
+                                  else
+                                    extraValidation
+                                      .map(_(date))
+                                      .find(_.isLeft)
+                                      .getOrElse(Right(()))
+                                      .map(_ => date)
+                                )
         } yield date
 
         result.leftMap(Seq(_))

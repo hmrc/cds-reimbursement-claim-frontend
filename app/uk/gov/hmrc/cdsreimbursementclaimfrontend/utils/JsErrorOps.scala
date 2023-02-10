@@ -26,7 +26,7 @@ class JsErrorOps(val error: JsError) extends AnyVal {
 
   def prettyPrint(): String =
     error.errors
-      .map { case (jsPath, validationErrors) ⇒
+      .map { case (jsPath, validationErrors) =>
         jsPath.toString + ": [" + validationErrors
           .map(_.message)
           .mkString(",") + "]"
