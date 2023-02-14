@@ -20,6 +20,7 @@ import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.OverpaymentsNorthernIrelandMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.claim_northern_ireland

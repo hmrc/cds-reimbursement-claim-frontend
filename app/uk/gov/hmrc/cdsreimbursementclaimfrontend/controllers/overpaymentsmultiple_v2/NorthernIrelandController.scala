@@ -19,6 +19,7 @@ import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.OverpaymentsNorthernIrelandMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.claim_northern_ireland
@@ -29,10 +30,10 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class NorthernIrelandController @Inject() (
-                                            val jcc: JourneyControllerComponents,
-                                            val northernIrelandAnswerPage: claim_northern_ireland
-                                          )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-  extends OverpaymentsMultipleJourneyBaseController
+  val jcc: JourneyControllerComponents,
+  val northernIrelandAnswerPage: claim_northern_ireland
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
+    extends OverpaymentsMultipleJourneyBaseController
     with OverpaymentsNorthernIrelandMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
