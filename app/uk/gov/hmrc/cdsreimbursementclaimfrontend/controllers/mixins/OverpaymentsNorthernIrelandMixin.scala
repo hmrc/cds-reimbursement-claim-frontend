@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
 import play.api.mvc.Action

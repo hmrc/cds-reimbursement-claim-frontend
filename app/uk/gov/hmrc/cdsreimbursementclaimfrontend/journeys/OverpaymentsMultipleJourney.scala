@@ -385,7 +385,17 @@ final class OverpaymentsMultipleJourney private (
   def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsMultipleJourney =
     whileClaimIsAmendable {
       new OverpaymentsMultipleJourney(
-        answers.copy(whetherNorthernIreland = Some(whetherNorthernIreland))
+        answers.copy(
+          whetherNorthernIreland = Some(whetherNorthernIreland),
+          basisOfClaim =
+            if (whetherNorthernIreland) answers.basisOfClaim
+            else
+              // review basis of claim if nothern ireland claims should not be allowed
+              answers.basisOfClaim.flatMap { case basisOfClaim =>
+                if (BasisOfOverpaymentClaimsList.northernIreland.contains(basisOfClaim)) None
+                else Some(basisOfClaim)
+              }
+        )
       )
     }
 
