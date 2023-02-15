@@ -16,17 +16,43 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.OverpaymentsBasisForClaimMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class BasisForClaimController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
+  val jcc: JourneyControllerComponents,
+  override val basisForClaimPage: select_basis_for_claim
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsMultipleJourneyBaseController
-    with WorkInProgressMixin {}
+    with OverpaymentsBasisForClaimMixin {
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
+  final override val postAction: Call =
+    routes.BasisForClaimController.submit
+
+  final override def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call =
+    routes.EnterAdditionalDetailsController.show
+
+  final override def modifyJourney(
+    journey: Journey,
+    basisOfClaim: BasisOfOverpaymentClaim
+  ): Journey =
+    journey.submitBasisOfClaim(basisOfClaim)
+
+}
