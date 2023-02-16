@@ -43,7 +43,7 @@ class NorthernIrelandController @Inject() (
   final override def modifyJourney(journey: Journey, whetherNorthernIreland: Boolean): Journey =
     journey.submitWhetherNorthernIreland(whetherNorthernIreland)
 
-  final val postAction: Call    = routes.NorthernIrelandController.submit
-  final val continueRoute: Call = routes.BasisForClaimController.show
-
+  final val postAction: Call       = routes.NorthernIrelandController.submit
+  final val continueRoute: Call    = routes.BasisForClaimController.show
+  final val subkey: Option[String] = Some("multiple")
 }
