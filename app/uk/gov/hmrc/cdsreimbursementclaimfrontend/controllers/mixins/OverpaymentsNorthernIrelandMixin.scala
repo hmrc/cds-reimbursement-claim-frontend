@@ -37,12 +37,13 @@ trait OverpaymentsNorthernIrelandMixin extends JourneyBaseController {
   val northernIrelandAnswerPage: claim_northern_ireland
   val postAction: Call
   val continueRoute: Call
+  val subkey: Option[String]
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       val form: Form[YesNo] =
         northernIrelandForm.withDefault(journey.answers.whetherNorthernIreland.map(YesNo.of))
-      Ok(northernIrelandAnswerPage(form, None, postAction)).asFuture
+      Ok(northernIrelandAnswerPage(form, subkey, postAction)).asFuture
     }
 
   final val submit: Action[AnyContent] =
