@@ -77,7 +77,7 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                             =
                 Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
-              Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), None, amountPaid, postAction(taxCode))).asFuture
+              Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction(taxCode))).asFuture
           }
 
         case _ =>
@@ -107,7 +107,6 @@ class EnterClaimController @Inject() (
                             enterClaim(
                               formWithErrors,
                               TaxCode(ndrcDetails.taxType),
-                              None,
                               BigDecimal(ndrcDetails.amount),
                               postAction(taxCode)
                             )

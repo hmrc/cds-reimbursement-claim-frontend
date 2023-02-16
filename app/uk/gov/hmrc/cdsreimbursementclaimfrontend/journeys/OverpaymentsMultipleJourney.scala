@@ -137,6 +137,13 @@ final class OverpaymentsMultipleJourney private (
         else None
       )
 
+  def getCorrectedAmountFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    for {
+      all           <- answers.correctedAmounts
+      thisMrn       <- all.get(mrn)
+      correctAmount <- thisMrn.get(taxCode).flatten
+    } yield correctAmount
+
   def getAvailableDuties(mrn: MRN): Seq[(TaxCode, Boolean)] =
     getNdrcDetailsFor(mrn)
       .flatMap { ndrcs =>
@@ -222,7 +229,10 @@ final class OverpaymentsMultipleJourney private (
     getReimbursementClaimsFor(declarationId).toSeq.map(_._2).sum
 
   def getTotalReimbursementAmount: BigDecimal =
-    answers.correctedAmounts.map(_.keys.map(getReimbursementAmountForDeclaration).sum).getOrElse(0.0)
+    answers.correctedAmounts.map(_.keys.map(getReimbursementAmountForDeclaration).sum).getOrElse(ZERO)
+
+  def withDutiesChangeMode(enabled: Boolean): OverpaymentsMultipleJourney =
+    new OverpaymentsMultipleJourney(answers.copy(dutiesChangeMode = enabled))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
@@ -636,7 +646,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
-    checkYourAnswersChangeMode: Boolean = false
+    checkYourAnswersChangeMode: Boolean = false,
+    dutiesChangeMode: Boolean = false
   ) extends OverpaymentsAnswers
 
   // Final minimal output of the journey we want to pass to the backend.

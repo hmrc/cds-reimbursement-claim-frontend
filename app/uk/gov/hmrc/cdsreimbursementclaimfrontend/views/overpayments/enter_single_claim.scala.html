@@ -37,7 +37,7 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim"}
 @title = @{messages(s"$key.title", taxCode.value, messages(s"select-duties.duty.$taxCode"))}

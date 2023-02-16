@@ -43,6 +43,10 @@ class EnterClaimController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
   val subKey: Option[String] = MRNMultipleRoutes.subKey
 
   val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show()
@@ -50,9 +54,7 @@ class EnterClaimController @Inject() (
   val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show
   val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit
 
-  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+  val formKey: String = "enter-claim.rejected-goods"
 
   final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
@@ -66,7 +68,7 @@ class EnterClaimController @Inject() (
 
             case Some(paidAmount) =>
               val claimedAmountOpt = journey.getReimbursementClaimFor(mrn, taxCode)
-              val form             = Forms.claimAmountForm(EnterClaimController.key, paidAmount).withDefault(claimedAmountOpt)
+              val form             = Forms.claimAmountForm(formKey, paidAmount).withDefault(claimedAmountOpt)
               Ok(
                 enterClaim(
                   form,
@@ -95,7 +97,7 @@ class EnterClaimController @Inject() (
 
               case Some(paidAmount) =>
                 Forms
-                  .claimAmountForm(EnterClaimController.key, paidAmount)
+                  .claimAmountForm(formKey, paidAmount)
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
@@ -151,8 +153,4 @@ class EnterClaimController @Inject() (
           }
       }
     }
-}
-
-object EnterClaimController {
-  val key: String = "enter-claim.rejected-goods"
 }
