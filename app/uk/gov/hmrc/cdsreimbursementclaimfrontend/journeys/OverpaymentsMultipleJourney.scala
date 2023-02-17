@@ -238,7 +238,8 @@ final class OverpaymentsMultipleJourney private (
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
   def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
-    BasisOfOverpaymentClaimsList()
+    BasisOfOverpaymentClaimsList
+      .withoutDuplicateEntry()
       .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), getLeadDisplayDeclaration)
 
   /** Resets the journey with the new MRN
