@@ -16,17 +16,37 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import com.google.inject.{Inject, Singleton}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
+  val jcc: JourneyControllerComponents,
+  val bankAccountReputationService: BankAccountReputationService,
+  val enterBankAccountDetailsPage: enter_bank_account_details
+)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
     extends OverpaymentsMultipleJourneyBaseController
-    with WorkInProgressMixin {}
+    with EnterBankAccountDetailsMixin {
+
+  override val routesPack: RoutesPack = RoutesPack(
+    errorPath = commonRoutes.BankAccountVerificationUnavailable.show(),
+    retryPath = routes.EnterBankAccountDetailsController.show,
+    successPath = routes.CheckBankDetailsController.show,
+    submitPath = routes.EnterBankAccountDetailsController.submit,
+    getBankAccountTypePath = routes.ChooseBankAccountTypeController.show
+  )
+
+  final override def modifyJourney(
+    journey: Journey,
+    bankAccountDetails: BankAccountDetails
+  ): Either[String, Journey] =
+    journey.submitBankAccountDetails(bankAccountDetails)
+}
