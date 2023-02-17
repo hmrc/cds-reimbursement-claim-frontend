@@ -197,7 +197,7 @@ final class OverpaymentsMultipleJourney private (
       .getOrElse(Map.empty)
   }
 
-  def getAllReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
+  def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
     answers.correctedAmounts
       .map(_.map { case (mrn, correctedAmountsPerMrn) =>
         val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
@@ -610,7 +610,7 @@ final class OverpaymentsMultipleJourney private (
           basisOfClaim = basisOfClaim,
           whetherNorthernIreland = whetherNorthernIreland,
           additionalDetails = additionalDetails,
-          reimbursementClaims = OrderedMap(getAllReimbursementClaims),
+          reimbursementClaims = OrderedMap(getReimbursementClaims),
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = answers.bankAccountDetails

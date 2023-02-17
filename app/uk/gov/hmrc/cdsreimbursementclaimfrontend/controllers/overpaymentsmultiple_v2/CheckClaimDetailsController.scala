@@ -16,17 +16,101 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.github.arturopala.validator.Validator.Validate
+import play.api.data.Form
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_claim_details_multiple
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends OverpaymentsMultipleJourneyBaseController
-    with WorkInProgressMixin {}
+  val jcc: JourneyControllerComponents,
+  checkClaimDetails: check_claim_details_multiple
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
+    extends OverpaymentsMultipleJourneyBaseController {
+
+  val form: Form[YesNo] = YesOrNoQuestionForm("multiple-check-claim-summary")
+
+  val submitAction: Call                       = routes.CheckClaimDetailsController.submit
+  val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst
+  val enterMrnAction: Call                     = routes.EnterMovementReferenceNumberController.showFirst
+  val enterClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.show
+  val nextAction: Call                         = routes.CheckBankDetailsController.show
+
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
+  final val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    (
+      journey.withDutiesChangeMode(false),
+      if (!journey.hasCompleteMovementReferenceNumbers) Redirect(enterMrnAction)
+      else if (!journey.hasCompleteReimbursementClaims) Redirect(selectDutiesAction)
+      else {
+        Ok(
+          checkClaimDetails(
+            form,
+            getClaimsForDisplay(journey),
+            enterClaimAction,
+            submitAction
+          )
+        )
+      }
+    ).asFuture
+  }
+
+  final val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      (if (!journey.hasCompleteMovementReferenceNumbers) (journey, Redirect(enterMrnAction))
+       else if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction))
+       else {
+         form
+           .bindFromRequest()
+           .fold(
+             formWithErrors =>
+               (
+                 journey,
+                 Ok(
+                   checkClaimDetails(
+                     formWithErrors,
+                     getClaimsForDisplay(journey),
+                     enterClaimAction,
+                     submitAction
+                   )
+                 )
+               ),
+             {
+               case Yes =>
+                 (
+                   journey,
+                   if (shouldForwardToCYA(journey)) Redirect(checkYourAnswers)
+                   else Redirect(nextAction)
+                 )
+               case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
+             }
+           )
+       }).asFuture
+    },
+    fastForwardToCYAEnabled = false
+  )
+
+  private def getClaimsForDisplay(journey: OverpaymentsMultipleJourney): Seq[(MRN, Int, Map[TaxCode, BigDecimal])] =
+    journey.getReimbursementClaims.toSeq.zipWithIndex
+      .map { case ((mrn, claims), index) => (mrn, index + 1, claims) }
+
+}

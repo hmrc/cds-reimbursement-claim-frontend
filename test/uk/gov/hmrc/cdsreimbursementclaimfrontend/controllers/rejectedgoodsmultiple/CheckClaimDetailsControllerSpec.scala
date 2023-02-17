@@ -60,7 +60,7 @@ class CheckClaimDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = CheckClaimDetailsController.key
+  private val messagesKey: String = "check-claim.rejected-goods"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)

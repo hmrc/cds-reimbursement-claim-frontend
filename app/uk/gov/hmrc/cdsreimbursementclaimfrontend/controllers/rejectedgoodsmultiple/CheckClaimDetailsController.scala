@@ -44,7 +44,7 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val form: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.key)
+  val form: Form[YesNo] = YesOrNoQuestionForm("check-claim.rejected-goods")
 
   val submitAction: Call                       = routes.CheckClaimDetailsController.submit()
   val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst
@@ -56,7 +56,7 @@ class CheckClaimDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     (
       journey.withDutiesChangeMode(false),
       if (!journey.hasCompleteMovementReferenceNumbers) Redirect(enterMrnAction)
@@ -74,7 +74,7 @@ class CheckClaimDetailsController @Inject() (
     ).asFuture
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
+  final val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       (if (!journey.hasCompleteMovementReferenceNumbers) (journey, Redirect(enterMrnAction))
        else if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction))
@@ -109,11 +109,7 @@ class CheckClaimDetailsController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  def getClaimsForDisplay(journey: RejectedGoodsMultipleJourney): Seq[(MRN, Int, Map[TaxCode, BigDecimal])] =
+  private def getClaimsForDisplay(journey: RejectedGoodsMultipleJourney): Seq[(MRN, Int, Map[TaxCode, BigDecimal])] =
     journey.getReimbursementClaims.toSeq.zipWithIndex
       .map { case ((mrn, claims), index) => (mrn, index + 1, claims) }
-}
-
-object CheckClaimDetailsController {
-  val key: String = "check-claim.rejected-goods"
 }
