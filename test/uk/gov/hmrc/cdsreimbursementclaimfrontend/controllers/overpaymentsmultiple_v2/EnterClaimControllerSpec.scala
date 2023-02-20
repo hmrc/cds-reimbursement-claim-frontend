@@ -96,13 +96,13 @@ class EnterClaimControllerSpec
       def performAction(pageIndex: Int, taxCode: TaxCode): Future[Result] =
         controller.show(pageIndex, taxCode)(FakeRequest())
 
-      "not find the page if rejected goods feature is disabled" in {
+      "not find the page if overpayments_v2 feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
         status(performAction(1, TaxCode.A00)) shouldBe NOT_FOUND
       }
 
       "display the page" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
               journey
@@ -132,7 +132,38 @@ class EnterClaimControllerSpec
         }
       }
 
-      "display the page back when in change mode" in {
+      "display the page in the change mode" in {
+        forAll(incompleteJourneyWithCompleteClaimsGen(5)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
+            selectedTaxCodes.foreach { taxCode =>
+              inSequence {
+                mockAuthWithNoRetrievals()
+                mockGetSession(SessionData(journey))
+              }
+
+              val pageIndex = mrnIndex + 1
+
+              checkPageIsDisplayed(
+                performAction(pageIndex, taxCode),
+                messageFromMessageKey(
+                  s"$messagesKey.title",
+                  taxCode,
+                  messages(s"select-duties.duty.$taxCode"),
+                  OrdinalNumeral(pageIndex)
+                ),
+                doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, journey.getCorrectedAmountFor(mrn, taxCode))
+              )
+            }
+          }
+        }
+      }
+
+      "display the page back when in the change mode from CYA" in {
         forAll(completeJourneyGen) { journey =>
           journey.getMovementReferenceNumbers.get.zipWithIndex
             .foreach { case (mrn, mrnIndex) =>

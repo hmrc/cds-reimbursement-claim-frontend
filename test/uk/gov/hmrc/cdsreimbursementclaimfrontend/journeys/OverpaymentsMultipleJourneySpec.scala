@@ -86,7 +86,7 @@ class OverpaymentsMultipleJourneySpec
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
-        output.reimbursementClaims      shouldBe journey.getAllReimbursementClaims
+        output.reimbursementClaims      shouldBe journey.getReimbursementClaims
         output.reimbursementClaims.size shouldBe journey.countOfMovementReferenceNumbers
       }
     }
