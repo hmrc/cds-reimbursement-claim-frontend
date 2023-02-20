@@ -73,3 +73,14 @@ abbr[title] {
         }
     }
 }
+
+
+// Fix for non-JS back link
+
+.govuk-back-link {
+    display:none;
+}
+
+.js-enabled .govuk-back-link {
+    display:inline-block;
+}
