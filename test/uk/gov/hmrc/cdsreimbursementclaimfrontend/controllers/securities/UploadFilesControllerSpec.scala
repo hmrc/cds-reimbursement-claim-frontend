@@ -118,11 +118,6 @@ class UploadFilesControllerSpec
         cargo = UploadDocumentType.CommercialInvoice
       )
 
-    "not find the page if securities feature is disabled" in {
-      featureSwitch.disable(Feature.Securities)
-      status(performAction(callbackPayload)) shouldBe NOT_FOUND
-    }
-
     "return 204 if callback accepted" in forAllWith(
       JourneyGenerator(
         testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,

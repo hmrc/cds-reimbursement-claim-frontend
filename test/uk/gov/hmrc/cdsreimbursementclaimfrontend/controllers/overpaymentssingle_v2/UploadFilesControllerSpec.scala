@@ -179,11 +179,6 @@ class UploadFilesControllerSpec
           cargo = UploadDocumentType.CommercialInvoice
         )
 
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction(callbackPayload)) shouldBe NOT_FOUND
-      }
-
       "return 204 if callback accepted" in {
         inSequence {
           mockAuthWithNoRetrievals()

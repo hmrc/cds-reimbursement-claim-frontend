@@ -139,11 +139,6 @@ class UploadMrnListControllerSpec
           uploadedFiles = Seq(uploadDocument)
         )
 
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction(callbackPayload)) shouldBe NOT_FOUND
-      }
-
       "return 204 if callback accepted" in {
         val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
         inSequence {
