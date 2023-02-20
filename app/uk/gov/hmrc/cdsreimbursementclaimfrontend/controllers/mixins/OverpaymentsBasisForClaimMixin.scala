@@ -41,8 +41,7 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
 
   val formKey: String = "select-basis-for-claim"
 
-  private val basisOfClaimsHints: DropdownHints =
-    DropdownHints.range(elementIndex = 0, maxHints = 14)
+  val basisOfClaimsHints: DropdownHints
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
