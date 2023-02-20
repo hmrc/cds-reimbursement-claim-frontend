@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
@@ -32,9 +34,15 @@ class EnterBankAccountDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
   val bankAccountReputationService: BankAccountReputationService,
   val enterBankAccountDetailsPage: enter_bank_account_details
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends OverpaymentsMultipleJourneyBaseController
     with EnterBankAccountDetailsMixin {
+
+  final override def modifyJourney(
+    journey: Journey,
+    bankAccountDetails: BankAccountDetails
+  ): Either[String, Journey] =
+    journey.submitBankAccountDetails(bankAccountDetails)
 
   override val routesPack: RoutesPack = RoutesPack(
     errorPath = commonRoutes.BankAccountVerificationUnavailable.show(),
@@ -43,10 +51,4 @@ class EnterBankAccountDetailsController @Inject() (
     submitPath = routes.EnterBankAccountDetailsController.submit,
     getBankAccountTypePath = routes.ChooseBankAccountTypeController.show
   )
-
-  final override def modifyJourney(
-    journey: Journey,
-    bankAccountDetails: BankAccountDetails
-  ): Either[String, Journey] =
-    journey.submitBankAccountDetails(bankAccountDetails)
 }
