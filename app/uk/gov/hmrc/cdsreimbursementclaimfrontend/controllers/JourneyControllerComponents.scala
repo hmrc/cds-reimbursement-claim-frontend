@@ -61,13 +61,13 @@ class JourneyControllerComponents @Inject() (
     isCallback: Boolean = false
   ): ActionBuilder[RequestWithSessionData, AnyContent] =
     featureOpt match {
-      case Some(feature) =>
+      case Some(feature) if !isCallback =>
         actionBuilder
           .andThen(new FeatureSwitchProtectedAction(feature, featureSwitchService, errorHandler))
           .andThen(authenticatedAction.readHeadersFromRequestOnly(isCallback))
           .andThen(sessionDataAction.readHeadersFromRequestOnly(isCallback))
 
-      case None =>
+      case _ =>
         actionBuilder
           .andThen(authenticatedAction.readHeadersFromRequestOnly(isCallback))
           .andThen(sessionDataAction.readHeadersFromRequestOnly(isCallback))
