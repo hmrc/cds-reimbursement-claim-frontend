@@ -175,7 +175,7 @@ class UploadMrnListController @Inject() (
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("schedule-of-mrn"),
       allowedContentTypes = "application/pdf,image/jpeg,image/png",
-      allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
+      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg",
       cargo = Some(UploadDocumentType.ScheduleOfMRNs),
       newFileDescription =
         Some(messages(s"$pageKey.file-type.${UploadDocumentType.keyOf(UploadDocumentType.ScheduleOfMRNs)}")),

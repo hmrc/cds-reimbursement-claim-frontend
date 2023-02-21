@@ -188,7 +188,7 @@ trait UploadFilesMixin extends JourneyBaseController {
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
       allowedContentTypes = "application/pdf,image/jpeg,image/png",
-      allowedFileExtensions = "*.pdf,*.png,*.jpg,*.jpeg",
+      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg",
       cargo = Some(documentType),
       newFileDescription = Some(documentTypeDescription(documentType)),
       content = uploadDocumentsContent(documentType),
