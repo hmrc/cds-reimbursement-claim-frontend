@@ -544,6 +544,14 @@ final class OverpaymentsMultipleJourney private (
       new OverpaymentsMultipleJourney(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
+  def resetBankTypeAndDetails(): OverpaymentsMultipleJourney =
+    new OverpaymentsMultipleJourney(
+      answers.copy(
+        bankAccountType = None,
+        bankAccountDetails = None
+      )
+    )
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: UploadDocumentType,
