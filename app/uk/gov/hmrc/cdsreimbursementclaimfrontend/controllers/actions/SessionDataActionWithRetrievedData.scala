@@ -43,7 +43,7 @@ final case class RequestWithSessionDataAndRetrievedData[A](
     authenticatedRequest.request.messagesApi
 
   val signedInUserDetails: Option[SignedInUserDetails] = sessionData match {
-    case SessionData(journeyStatus @ Some(_), _, None, None, None, None, None, None) =>
+    case SessionData(journeyStatus @ Some(_), _, None, None, None, None, None, None, None) =>
       journeyStatus.collect {
         case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => signedInUserDetails
         case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => signedInUserDetails

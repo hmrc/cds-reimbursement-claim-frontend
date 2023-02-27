@@ -33,8 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.{routes => overpaymentsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
@@ -105,13 +107,11 @@ class ChooseHowManyMrnsController @Inject() (
                     .map(_ => Redirect(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst))
 
                 case Scheduled =>
-                  Future.successful(NotImplemented)
-                //   (if (request.sessionData.overpaymentsScheduledJourney.isEmpty)
-                //      updateSession(sessionStore, request)(_ => SessionData(OverpaymentsScheduledJourney.empty(eori)))
-                //    else
-                //      Future.successful(Right(())))
-                //     .map(_ => Redirect(overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show()))
-
+                  (if (request.sessionData.overpaymentsScheduledJourney.isEmpty)
+                     updateSession(sessionStore, request)(_ => SessionData(OverpaymentsScheduledJourney.empty(eori)))
+                   else
+                     Future.successful(Right(())))
+                    .map(_ => Redirect(overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show))
               }
             )
         }
