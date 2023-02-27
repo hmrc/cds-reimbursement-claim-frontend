@@ -161,7 +161,8 @@ final class OverpaymentsScheduledJourney private (
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
 
   override def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
-    BasisOfOverpaymentClaimsList()
+    BasisOfOverpaymentClaimsList
+      .withoutDuplicateEntry()
       .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
 
   /** Resets the journey with the new MRN

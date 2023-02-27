@@ -1,0 +1,90 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AmountPaidWithCorrect, DutyType, TaxCode}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.{DutyAndTaxCodeReimbursementRejectedGoodsSummary, TaxCodeReimbursementRejectedGoodsSummary}
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+
+@import scala.collection.SortedMap
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+)
+
+@(answer: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+
+@key = @{"check-claim-summary"}
+@title = @{messages(s"$key.scheduled.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @heading(Html(title))
+
+    @paragraph(Html(messages(s"$key.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
+    // FIXME
+    @answer.map { claims =>
+        @subHeading(Html(messages(s"duty-type.${claims._1.repr}")), classes = "govuk-heading-m")
+        // FIXME
+        <br/>
+    }
+
+    @subHeading(Html(messages(s"$key.total.header")), classes = "govuk-heading-m")
+   
+    <br/>
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @radios(
+            form = form,
+            name = key,
+            legend = messages(s"$key.are-duties-correct"),
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    value = Some("true"),
+                    content = Text(messages(s"$key.yes")),
+                    checked = false
+                ),
+                RadioItem(
+                    value = Some("false"),
+                    content = Text(messages(s"$key.no")),
+                    checked = false
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+    }
+}

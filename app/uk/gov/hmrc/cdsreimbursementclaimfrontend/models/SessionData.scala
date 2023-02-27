@@ -27,11 +27,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 
 final case class SessionData(
   journeyStatus: Option[JourneyStatus] = None,
   overpaymentsSingleJourney: Option[OverpaymentsSingleJourney] = None,
   overpaymentsMultipleJourney: Option[OverpaymentsMultipleJourney] = None,
+  overpaymentsScheduledJourney: Option[OverpaymentsScheduledJourney] = None,
   rejectedGoodsSingleJourney: Option[RejectedGoodsSingleJourney] = None,
   rejectedGoodsMultipleJourney: Option[RejectedGoodsMultipleJourney] = None,
   rejectedGoodsScheduledJourney: Option[RejectedGoodsScheduledJourney] = None,
@@ -60,6 +62,9 @@ object SessionData {
   def apply(overpaymentsMultipleJourney: OverpaymentsMultipleJourney): SessionData =
     SessionData(overpaymentsMultipleJourney = Some(overpaymentsMultipleJourney))
 
+  def apply(overpaymentsScheduledJourney: OverpaymentsScheduledJourney): SessionData =
+    SessionData(overpaymentsScheduledJourney = Some(overpaymentsScheduledJourney))
+
   def apply(rejectedGoodsSingleJourney: RejectedGoodsSingleJourney): SessionData =
     SessionData(rejectedGoodsSingleJourney = Some(rejectedGoodsSingleJourney))
 
@@ -86,6 +91,7 @@ object SessionData {
       session.overpaymentsSingleJourney
         .map(_.getClaimantEori)
         .orElse(session.overpaymentsMultipleJourney.map(_.getClaimantEori))
+        .orElse(session.overpaymentsScheduledJourney.map(_.getClaimantEori))
         .orElse(session.rejectedGoodsSingleJourney.map(_.getClaimantEori))
         .orElse(session.rejectedGoodsScheduledJourney.map(_.getClaimantEori))
         .orElse(session.rejectedGoodsMultipleJourney.map(_.getClaimantEori))

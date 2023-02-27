@@ -1,0 +1,87 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+)
+
+@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+
+@key = @{"check-your-answers"}
+@title = @{messages(s"$key.title")}
+
+@layout(pageTitle = Some(s"$title")) {
+
+    @heading(Html(title))
+
+    @subHeading(Html(messages(combine(s"$key.reference-number", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
+
+    @displayDeclarationOpt.map { displayDeclaration =>
+        @subHeading(Html(messages(s"$key.declaration-details.h2")))
+        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
+    } 
+
+    @subHeading(Html(messages(s"$key.contact-information.h2")))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.CheckClaimantDetailsController.show, Some(routes.CheckClaimantDetailsController.show)))
+    
+    @subHeading(Html(messages(s"$key.northern-ireland-claim.h2")))
+    @summary(NorthernIrelandAnswerSummary(YesNo.of(claim.whetherNorthernIreland), s"$key.northern-ireland-claim", Some(routes.NorthernIrelandController.show)))
+    
+    @subHeading(Html(messages(s"$key.basis.h2")))
+    @summary(BasisOfClaimSummary(claim.basisOfClaim,s"$key.basis", Some(routes.BasisForClaimController.show)))
+    
+    @subHeading(Html(messages(s"$key.additional-details.h2")))
+    @summary(AdditionalDetailsSummary(claim.additionalDetails, s"$key.additional-details", Some(routes.EnterAdditionalDetailsController.show)))
+    
+    // FIXME
+
+    @claim.bankAccountDetails.map { bankAccountDetails =>
+        @subHeading(Html(messages(s"$key.bank-details.h2")))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show)))
+    }
+
+    @subHeading(Html(messages(s"$key.attached-documents.h2")))
+    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", Some(routes.UploadFilesController.summary)))
+    
+    @subHeading(Html(messages(s"$key.confirmation-statement.h2")))
+    @paragraph(Html(messages(s"$key.confirmation-statement")))
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @submitButton("button.accept-and-send")
+    }
+}
+

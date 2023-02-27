@@ -41,14 +41,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.{routes => overpaymentsSingleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.{routes => overpaymentsScheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_how_many_mrns
@@ -159,19 +161,19 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst)
       }
 
-      // "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
-      //   val updatedSession = SessionData(OverpaymentsScheduledJourney.empty(eoriExample, Nonce.Any))
+      "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
+        val updatedSession = SessionData(OverpaymentsScheduledJourney.empty(eoriExample, Nonce.Any))
 
-      //   inSequence {
-      //     mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-      //     mockGetSession(SessionData.empty)
-      //     mockStoreSession(updatedSession)(Right(()))
-      //   }
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetSession(SessionData.empty)
+          mockStoreSession(updatedSession)(Right(()))
+        }
 
-      //   val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Scheduled.toString))
+        val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Scheduled.toString))
 
-      //   checkIsRedirect(result, overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show)
-      // }
+        checkIsRedirect(result, overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show)
+      }
 
       "Show error message when no data selected" in {
         inSequence {
