@@ -16,17 +16,42 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import play.api.data.Form
+import play.api.mvc.Call
+import play.api.mvc.Request
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.WorkInProgressMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_file_type
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseFileTypeController @Inject() (
-  val jcc: JourneyControllerComponents
-)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
+  val jcc: JourneyControllerComponents,
+  chooseFileTypePage: choose_file_type
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends OverpaymentsMultipleJourneyBaseController
-    with WorkInProgressMixin {}
+    with ChooseFileTypeMixin {
+
+  final override val uploadFilesRoute: Call =
+    routes.UploadFilesController.show
+
+  final override def viewTemplate
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[_] => HtmlFormat.Appendable =
+    (form, documentTypes, hasExistingUploads) =>
+      implicit request =>
+        chooseFileTypePage(form, documentTypes, hasExistingUploads, routes.ChooseFileTypeController.submit)
+
+  final override def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey] =
+    Right(
+      journey
+        .submitDocumentTypeSelection(documentType)
+    )
+
+}
