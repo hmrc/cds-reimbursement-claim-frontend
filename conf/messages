@@ -253,9 +253,9 @@ rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple MRNs
 rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
-rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
+rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
+rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
 rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 
 #  OVERPAYMENTS - CHOOSE HOW MANY MRNS PAGE
@@ -267,9 +267,9 @@ overpayments.choose-how-many-mrns.inset.title=Entering Multiple MRNs
 overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
 overpayments.choose-how-many-mrns.individual.title=Enter one MRN
 overpayments.choose-how-many-mrns.multiple.title=Enter multiple MRNs
-overpayments.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN
+overpayments.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
 overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-overpayments.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs
+overpayments.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
 overpayments.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 
 #===================================================
@@ -282,9 +282,9 @@ select-number-of-claims.inset.title=Entering Multiple MRNs
 select-number-of-claims.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
 select-number-of-claims.individual.title=Enter one MRN
 select-number-of-claims.multiple.title=Enter multiple MRNs
-select-number-of-claims.multiple.hint=Manually enter details for each MRN
+select-number-of-claims.multiple.hint=Manually enter details for each MRN.
 select-number-of-claims.scheduled.title=Upload multiple MRNs
-select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all MRNs
+select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all MRNs.
 select-number-of-claims.error.required=Select how many MRNs you want to submit in this claim
 select-number-of-claims.invalid=Select how many MRNs you want to submit in this claim
 
@@ -294,7 +294,7 @@ select-number-of-claims.invalid=Select how many MRNs you want to submit in this 
 enter-movement-reference-number.title=Enter the MRN
 enter-movement-reference-number.details.heading=Finding your MRN
 enter-movement-reference-number.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001
+enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number (MRN)
@@ -319,7 +319,7 @@ enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement 
 enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
 enter-movement-reference-number.rejected-goods.multiple.help-text3=The first MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} MRN
-enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001
+enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} MRN
@@ -327,12 +327,12 @@ enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement
 enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
 enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} MRN
-enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001
+enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001.
 
 enter-movement-reference-number.securities.title=Enter the import MRN
 enter-movement-reference-number.securities.details.heading=Finding your MRN
 enter-movement-reference-number.securities.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
+enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.securities.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.securities.enter-mrn.label=Enter MRN
 enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
@@ -345,7 +345,7 @@ enter-movement-reference-number.securities.error.required=Enter a movement refer
 enter-export-movement-reference-number.securities.title=Enter the export MRN in the declaration
 enter-export-movement-reference-number.securities.details.heading=Finding your export MRN number
 enter-export-movement-reference-number.securities.details.paragraph=You can find your MRN number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001
+enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.securities.enter-mrn.label=Enter export MRN
 enter-export-movement-reference-number.securities.invalid.number=Export movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
@@ -359,7 +359,7 @@ enter-export-movement-reference-number-multiple.securities.title=Enter the first
 enter-export-movement-reference-number-multiple.inset-text=You will be able to add any additional export MRN later.
 enter-export-movement-reference-number-multiple.securities.details.heading=Finding your export MRN number
 enter-export-movement-reference-number-multiple.securities.details.paragraph=You can find your MRN number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-export-movement-reference-number-multiple.securities.help=Must be 18 characters, for example 19GB03I52858027001
+enter-export-movement-reference-number-multiple.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number-multiple.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number-multiple.securities.enter-mrn.label=Enter the first export MRN
 enter-export-movement-reference-number-multiple.securities.invalid.number=Export movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
@@ -374,7 +374,7 @@ enter-associated-mrn.help-text=The Movement Reference Number (MRN) is issued whe
 enter-associated-mrn.details.heading=Finding your MRN number
 enter-associated-mrn.details.para=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-associated-mrn.enter-mrn.label=Enter {0} MRN
-enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001
+enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-associated-mrn.error.required=Enter a movement reference number (MRN)
 enter-associated-mrn.invalid.number=Enter a movement reference number (MRN)
 enter-associated-mrn.error.exists=This movement reference number (MRN) has already been used. Enter a different MRN
@@ -702,59 +702,59 @@ select-basis-for-claim.help-text=This will help us to understand why you are mak
 select-basis-for-claim.details.heading=Examples of basis of claim
 
 select-basis-for-claim.details.bullet.0=Duplicate MRN:
-select-basis-for-claim.details.hint.0=A shipment was declared more than once by error and duties were overpaid
+select-basis-for-claim.details.hint.0=A shipment was declared more than once by error and duties were overpaid.
 
 select-basis-for-claim.details.bullet.1=Duty suspension:
-select-basis-for-claim.details.hint.1=Claim temporary duty suspensions and tariff quotas for goods imported into the UK
+select-basis-for-claim.details.hint.1=Claim temporary duty suspensions and tariff quotas for goods imported into the UK.
 
 select-basis-for-claim.details.bullet.2=End use relief:
-select-basis-for-claim.details.hint.2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries
+select-basis-for-claim.details.hint.2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries.
 
 select-basis-for-claim.details.bullet.3=Incorrect additional information code (excluding NIAID):
-select-basis-for-claim.details.hint.3=Goods were declared as ’at risk’ in error and the tariff was paid by the importer
+select-basis-for-claim.details.hint.3=Goods were declared as ’at risk’ in error and the tariff was paid by the importer.
 
 select-basis-for-claim.details.bullet.4=Incorrect commodity code:
-select-basis-for-claim.details.hint.4=An incorrect commodity code was entered and duties were overpaid
+select-basis-for-claim.details.hint.4=An incorrect commodity code was entered and duties were overpaid.
 
 select-basis-for-claim.details.bullet.5=Incorrect customs procedure code (CPC):
-select-basis-for-claim.details.hint.5=An incorrect CPC was entered and and duties were overpaid
+select-basis-for-claim.details.hint.5=An incorrect CPC was entered and and duties were overpaid.
 
 select-basis-for-claim.details.bullet.6=Incorrect excise value:
-select-basis-for-claim.details.hint.6=An error was made calculating excise duty. For goods imported into Northern Ireland, claims can only be made under excise tax codes
+select-basis-for-claim.details.hint.6=An error was made calculating excise duty. For goods imported into Northern Ireland, claims can only be made under excise tax codes.
 
 select-basis-for-claim.details.bullet.7=Incorrect value:
-select-basis-for-claim.details.hint.7=Total customs value was entered incorrectly and duties were overpaid
+select-basis-for-claim.details.hint.7=Total customs value was entered incorrectly and duties were overpaid.
 
 select-basis-for-claim.details.bullet.8=Inward processing relief from Customs Duty:
-select-basis-for-claim.details.hint.8=Delay or reduce import duties or VAT on goods that were processed or repaired
+select-basis-for-claim.details.hint.8=Delay or reduce import duties or VAT on goods that were processed or repaired.
 
 select-basis-for-claim.details.bullet.9=Outward processing relief:
-select-basis-for-claim.details.hint.9=A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported
+select-basis-for-claim.details.hint.9=A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported.
 
 select-basis-for-claim.details.bullet.10=Personal effects
 select-basis-for-claim.details.hint.10=
 
 select-basis-for-claim.details.bullet.11=Preferential rate of duty:
-select-basis-for-claim.details.hint.11=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates
+select-basis-for-claim.details.hint.11=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates.
 
 select-basis-for-claim.details.bullet.12=Proof of return or refund given:
-select-basis-for-claim.details.hint.12=Proof of return or refund provided and duties were overpaid
+select-basis-for-claim.details.hint.12=Proof of return or refund provided and duties were overpaid.
 
 select-basis-for-claim.details.bullet.13=Returned goods relief (RGR)
 select-basis-for-claim.details.hint.13=
 
 select-basis-for-claim.details.bullet.14=Other reason:
-select-basis-for-claim.details.hint.14=For any other reason not listed
+select-basis-for-claim.details.hint.14=For any other reason not listed.
 
 select-basis-for-claim.reason.d0=Duplicate MRN
 select-basis-for-claim.reason.d1=Duty suspension
 select-basis-for-claim.reason.d2=End use relief
 select-basis-for-claim.reason.d3=Incorrect additional information code (excluding NIAID)
-select-basis-for-claim.reason.hint.d3=Applicable only to goods moved through Northern Ireland
+select-basis-for-claim.reason.hint.d3=Applicable only to goods moved through Northern Ireland.
 select-basis-for-claim.reason.d4=Incorrect commodity code
 select-basis-for-claim.reason.d5=Incorrect customs procedure code (CPC)
 select-basis-for-claim.reason.d6=Incorrect excise value
-select-basis-for-claim.reason.hint.d6=Applicable only to goods moved through Northern Ireland
+select-basis-for-claim.reason.hint.d6=Applicable only to goods moved through Northern Ireland.
 select-basis-for-claim.reason.d7=Incorrect value
 select-basis-for-claim.reason.d8=Inward processing relief from Customs Duty
 select-basis-for-claim.reason.d9=Outward processing relief
@@ -841,7 +841,7 @@ enter-additional-details.p1=If it is relevant to your case, you should also incl
 enter-additional-details.label=Provide additional details about this claim
 enter-additional-details.error.required=Enter additional details
 enter-additional-details.error.maxLength=Additional details must be 500 characters or less
-enter-additional-details.hint=Provide brief details about this claim
+enter-additional-details.hint=Provide brief details about this claim.
 
 
 #===================================================
@@ -852,7 +852,7 @@ enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} 
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount
+enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
@@ -865,7 +865,7 @@ enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.securities.title=Claim details for {0} - {1}
 enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount
+enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
 enter-claim.securities.title.caption=Security ID: {0}
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
@@ -1054,7 +1054,7 @@ select-duties.caption=Security ID: {0}
 select-duties.title=Select the duties you want to claim for
 select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
 select-duties.multiple.help-text.1=These are the duties that have been paid under MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
-select-duties.duty.hint=This duty is not eligible for CMA repayment
+select-duties.duty.hint=This duty is not eligible for CMA repayment.
 select-duties.duty.caption=How much was paid: %s
 select-duties.error.required=Choose the duties you want to include in your claim
 select-duties.duty.A00=Customs Duty
@@ -1144,7 +1144,7 @@ enter-claim.help-text=This is to calculate your repayment as part of your claim.
 enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=How much was paid: {0}
 enter-claim.actual-amount=How much should have been paid, in pounds?
-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
+enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
 
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
@@ -1160,7 +1160,7 @@ enter-scheduled-claim.p1=This is to calculate your repayment as part of your cla
 enter-scheduled-claim.inset-text=HMRC does not refund agents’ fees.
 enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
-enter-scheduled-claim.actual-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
+enter-scheduled-claim.actual-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40.
 enter-scheduled-claim.paid-amount.error.required=Enter the amount that was paid, in pounds
 enter-scheduled-claim.paid-amount.error.invalid=The amount paid must be a number, like 30 or 60.55
 enter-scheduled-claim.paid-amount.error.zero=The amount paid must be more than zero
@@ -1177,7 +1177,7 @@ enter-claim-scheduled.rejected-goods.help-text=Provide your claim details for {0
 enter-claim-scheduled.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim-scheduled.rejected-goods.paid-amount=How much was paid, in pounds?
 enter-claim-scheduled.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
-enter-claim-scheduled.rejected-goods.claim-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40
+enter-claim-scheduled.rejected-goods.claim-amount.hint=The amount must be lower than or equal to the paid amount. For example £160.40.
 enter-claim-scheduled.rejected-goods.paid-amount.error.required=Enter the amount that was paid, in pounds
 enter-claim-scheduled.rejected-goods.paid-amount.error.invalid=The amount paid must be a number, like 30 or 60.55
 enter-claim-scheduled.rejected-goods.paid-amount.error.zero=The amount paid must be more than zero
@@ -1196,7 +1196,7 @@ multiple-enter-claim.help-text=This is to calculate your repayment as part of yo
 multiple-enter-claim.inset-text=HMRC does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
-multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid
+multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
 multiple-enter-claim.actual-amount.error.invalid=The claim amount must be equal to or less than the amount paid
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
 multiple-enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
@@ -1308,11 +1308,11 @@ enter-bank-account-details.account-name.error.required=Enter the name on the acc
 enter-bank-account-details.account-name.error.maxLength=Enter a valid account name
 enter-bank-account-details.account-name.invalid=Enter a valid account name
 enter-bank-account-details.sort-code.label=Sort code
-enter-bank-account-details.sort-code.help-text=Must be 6 digits long
+enter-bank-account-details.sort-code.help-text=Must be 6 digits long.
 enter-bank-account-details.sort-code.error.required=Enter a sort code
 enter-bank-account-details.sort-code.invalid=Enter a valid sort code like 309430
 enter-bank-account-details.account-number.label=Account number
-enter-bank-account-details.account-number.help-text=Must be between 6 and 8 digits long
+enter-bank-account-details.account-number.help-text=Must be between 6 and 8 digits long.
 enter-bank-account-details.account-number.error.required=Enter an account number
 enter-bank-account-details.account-number.error.length=Account number must be between 6 and 8 digits
 enter-bank-account-details.account-number.error.invalid=Enter a valid account number like 00733445
@@ -1370,49 +1370,49 @@ supporting-evidence.choose-document-type.error.required=Select the type of docum
 supporting-evidence.choose-document-type.help-text=You can repeat this step to add more types of documents to your claim
 supporting-evidence.choose-document-type.document-type.AirWayBill=Air waybill
 supporting-evidence.upload.details.bullet.AirWayBill=Air waybill:
-supporting-evidence.upload.details.hint.AirWayBill=Transport document that accompanies the commodities (goods) and provides information about them
+supporting-evidence.upload.details.hint.AirWayBill=Transport document that accompanies the commodities (goods) and provides information about them.
 supporting-evidence.choose-document-type.document-type.BillOfLading=Bill of lading
 supporting-evidence.upload.details.bullet.BillOfLading=Bill of lading:
-supporting-evidence.upload.details.hint.BillOfLading=Transport document that accompanies the commodities (goods) and provides information about them
+supporting-evidence.upload.details.hint.BillOfLading=Transport document that accompanies the commodities (goods) and provides information about them.
 supporting-evidence.choose-document-type.document-type.CommercialInvoice=Commercial invoice
 supporting-evidence.upload.details.bullet.CommercialInvoice=Commercial invoice:
-supporting-evidence.upload.details.hint.CommercialInvoice=Proof of sale and describes the commodities being sold; their price, description and quantity
+supporting-evidence.upload.details.hint.CommercialInvoice=Proof of sale and describes the commodities being sold; their price, description and quantity.
 supporting-evidence.choose-document-type.document-type.CorrespondenceTrader=Correspondence between trader and agent
 supporting-evidence.upload.details.bullet.CorrespondenceTrader=Correspondence between trader and agent:
-supporting-evidence.upload.details.hint.CorrespondenceTrader=An email chain or letters between you and the trader
+supporting-evidence.upload.details.hint.CorrespondenceTrader=An email chain or letters between you and the trader.
 supporting-evidence.choose-document-type.document-type.ImportAndExportDeclaration=Import and export declaration
 supporting-evidence.upload.details.bullet.ImportAndExportDeclaration=Import and export declaration:
-supporting-evidence.upload.details.hint.ImportAndExportDeclaration=Proof of the import or export being declared
+supporting-evidence.upload.details.hint.ImportAndExportDeclaration=Proof of the import or export being declared.
 supporting-evidence.choose-document-type.document-type.PackingList=Packing list
 supporting-evidence.upload.details.bullet.PackingList=Packing list:
-supporting-evidence.upload.details.hint.PackingList=A document that lists product type in each package
+supporting-evidence.upload.details.hint.PackingList=A document that lists product type in each package.
 supporting-evidence.choose-document-type.document-type.ProofOfAuthority=Proof of authority
 supporting-evidence.upload.details.bullet.ProofOfAuthority=Proof of authority:
-supporting-evidence.upload.details.hint.ProofOfAuthority=In case you change your bank account details
+supporting-evidence.upload.details.hint.ProofOfAuthority=In case you change your bank account details.
 supporting-evidence.choose-document-type.document-type.SubstituteEntry=Substitute entry
 supporting-evidence.upload.details.bullet.SubstituteEntry=Substitute entry:
-supporting-evidence.upload.details.hint.SubstituteEntry=A copy of the original customs declaration amended to show the correct details
+supporting-evidence.upload.details.hint.SubstituteEntry=A copy of the original customs declaration amended to show the correct details.
 supporting-evidence.choose-document-type.document-type.Other=Other documents
 supporting-evidence.upload.details.bullet.Other=Other documents:
-supporting-evidence.upload.details.hint.Other=If you have alternative supporting documents
+supporting-evidence.upload.details.hint.Other=If you have alternative supporting documents.
 supporting-evidence.choose-document-type.document-type.ScheduleOfMRNs=Scheduled document
 supporting-evidence.upload.details.bullet.ScheduleOfMRNs=Scheduled document
-supporting-evidence.upload.details.hint.ScheduleOfMRNs=Scheduled document
+supporting-evidence.upload.details.hint.ScheduleOfMRNs=Scheduled document.
 supporting-evidence.choose-document-type.document-type.AdditionalSupportingDocuments=Additional supporting documents
 supporting-evidence.upload.details.bullet.AdditionalSupportingDocuments=Additional supporting documents:
-supporting-evidence.upload.details.hint.AdditionalSupportingDocuments=Additional supporting documents
+supporting-evidence.upload.details.hint.AdditionalSupportingDocuments=Additional supporting documents.
 supporting-evidence.choose-document-type.document-type.LetterOfAuthority=Letter of authority
 supporting-evidence.upload.details.bullet.LetterOfAuthority=Letter of authority:
-supporting-evidence.upload.details.hint.LetterOfAuthority=Letter of authority
+supporting-evidence.upload.details.hint.LetterOfAuthority=Letter of authority.
 supporting-evidence.choose-document-type.document-type.ProofOfExportOrDestruction=Proof of export or destruction
 supporting-evidence.upload.details.bullet.ProofOfExportOrDestruction=Proof of export or destruction:
-supporting-evidence.upload.details.hint.ProofOfExportOrDestruction=Proof of export or destruction
+supporting-evidence.upload.details.hint.ProofOfExportOrDestruction=Proof of export or destruction.
 supporting-evidence.choose-document-type.document-type.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered
 supporting-evidence.upload.details.bullet.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof:
-supporting-evidence.upload.details.hint.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered
+supporting-evidence.upload.details.hint.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered.
 supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calculation worksheet
 supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
-supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet
+supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet.
 
 supporting-evidence.choose-document-type.error.invalid-document-type=The selected file must be a JPG, PNG or PDF
 
@@ -1676,8 +1676,8 @@ check-your-answers.export-declaration-details.mrn=Export MRN
 # INSPECTION ADDRESS TYPE
 #===================================================
 inspection-address.type.Other=Other address
-inspection-address.type.Importer=Importer address
-inspection-address.type.Declarant=Declarant address
+inspection-address.type.Importer=Importer address.
+inspection-address.type.Declarant=Declarant address.
 inspection-address.type.title=Choose an address for the inspection
 inspection-address.type.or=or
 inspection-address.type.error.required=Choose the address where the goods can be inspected
@@ -1719,13 +1719,13 @@ problem-with-address.button.tryAgain=Try again
 #===================================================
 choose-claim-type.title=Choose type of claim
 choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
-choose-claim-type.c285.hint=For goods you imported or received from abroad
+choose-claim-type.c285.hint=For goods you imported or received from abroad.
 choose-claim-type.ce1179.title=Claim back customs charges paid on rejected goods
-choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance
+choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance.
 choose-claim-type.view.title=View claims or upload documents
-choose-claim-type.view.hint=Upload documents or view the details of claims you have submitted
+choose-claim-type.view.hint=Upload documents or view the details of claims you have submitted.
 choose-claim-type.securities.title=Claim back a security deposit
-choose-claim-type.securities.hint=If HMRC required a security deposit or guarantee for goods you imported
+choose-claim-type.securities.hint=If HMRC required a security deposit or guarantee for goods you imported.
 choose-claim-type.error.required=Select the reason for making this claim
 choose-claim-type.error.unknown=Select the reason for making this claim
 
@@ -1778,19 +1778,19 @@ choose-file-type.file-type.ProofOfEligibility=Proof of eligibility
 choose-file-type.file-type.ImportPackingList=Import packing list
 choose-file-type.file-type.ExportPackingList=Export packing list
 choose-file-type.file-type.ProofOfOrigin=Proof of origin
-choose-file-type.file-type.ProofOfOrigin.hint=Proof of origin documentation is required for this claim
+choose-file-type.file-type.ProofOfOrigin.hint=Proof of origin documentation is required for this claim.
 choose-file-type.file-type.ProofOfAuthority=Letter of authority
-choose-file-type.file-type.ProofOfAuthority.hint=Required when bank account details have been updated
+choose-file-type.file-type.ProofOfAuthority.hint=Required when bank account details have been updated.
 choose-file-type.file-type.CalculationWorksheetOrFinalSalesFigures=Calculation Worksheet or Final Sales Figures
 choose-file-type.file-type.BillOfDischarge3=Bill of discharge 3
-choose-file-type.file-type.BillOfDischarge3.hint=A completed BOD3 form is required for this claim
+choose-file-type.file-type.BillOfDischarge3.hint=A completed BOD3 form is required for this claim.
 choose-file-type.file-type.BillOfDischarge4=Bill of discharge 4
-choose-file-type.file-type.BillOfDischarge4.hint=A completed BOD4 form is required for this claim
+choose-file-type.file-type.BillOfDischarge4.hint=A completed BOD4 form is required for this claim.
 choose-file-type.file-type.QuotaLicense=Quota License
-choose-file-type.file-type.QuotaLicense.hint=A valid quota licence is required for this claim
+choose-file-type.file-type.QuotaLicense.hint=A valid quota licence is required for this claim.
 choose-file-type.file-type.SubstituteOrDiversionEntry=Substitute or diversion entry
 choose-file-type.file-type.ClaimWorksheet=Claim worksheet
-choose-file-type.file-type.ClaimWorksheet.hint=Claim information should include details of the goods type, quantity, disposal methods and any export MRNs
+choose-file-type.file-type.ClaimWorksheet.hint=Claim information should include details of the goods type, quantity, disposal methods and any export MRNs.
 
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.file-type.none=I have no documents to upload
