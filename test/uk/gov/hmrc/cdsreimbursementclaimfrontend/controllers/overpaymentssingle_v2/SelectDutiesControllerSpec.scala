@@ -249,7 +249,7 @@ class SelectDutiesControllerSpec
         }
 
         val hintText =
-          Some("This duty is not eligible for CMA repayment")
+          Some("This duty is not eligible for CMA repayment.")
 
         checkPageIsDisplayed(
           performAction(),
