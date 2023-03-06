@@ -48,7 +48,7 @@
             id = Some(s"$key-radio-$addressType"),
             value = Some(addressType.toString),
             content = Text(address),
-            hint = Some(Hint(content = Text(messages(s"$key.$addressType")))),
+            hint = Some(Hint(content = Text(messages(s"$key.$addressType.hint")))),
             checked = form.data.exists(_._2 == s"$addressType")
         )
     }
