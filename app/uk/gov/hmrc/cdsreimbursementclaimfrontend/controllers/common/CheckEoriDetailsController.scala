@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
@@ -95,15 +94,9 @@ class CheckEoriDetailsController @Inject() (
             formWithErrors => Future.successful(BadRequest(getPage(user, formWithErrors))),
             {
               case Yes =>
-                Future.successful(
-                  Redirect(
-                    if (featureSwitch.isEnabled(Feature.RejectedGoods))
-                      commonRoutes.ChooseClaimTypeController.show()
-                    else
-                      commonRoutes.SelectTypeOfClaimController.show()
-                  )
-                )
-              case No  => Future.successful(Redirect(viewConfig.ggSignOut))
+                Future.successful(Redirect(commonRoutes.ChooseClaimTypeController.show()))
+              case No  =>
+                Future.successful(Redirect(viewConfig.ggSignOut))
             }
           )
       }

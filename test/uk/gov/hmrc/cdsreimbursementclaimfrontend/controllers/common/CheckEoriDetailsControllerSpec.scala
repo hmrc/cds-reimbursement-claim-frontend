@@ -186,7 +186,7 @@ class CheckEoriDetailsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.RejectedGoods is disabled" in {
+      "Redirect to ChooseClaimTypeController if user says details are correct and FeatureSwitch.RejectedGoods is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
@@ -199,7 +199,7 @@ class CheckEoriDetailsControllerSpec
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "true"))
-        checkIsRedirect(result, commonRoutes.SelectTypeOfClaimController.show())
+        checkIsRedirect(result, commonRoutes.ChooseClaimTypeController.show())
       }
 
       "Redirect to ChooseClaimTypeController if user says details are correct and FeatureSwitch.RejectedGoods is enabled" in {
