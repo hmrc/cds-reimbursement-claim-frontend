@@ -29,7 +29,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CustomsDataStoreConnectorSpec
+class VerifiedEmailAddressConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
@@ -58,7 +58,7 @@ class CustomsDataStoreConnectorSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val connector = new DefaultCustomsDataStoreConnector(mockHttp, new ServicesConfig(configuration))
+  val connector = new DefaultVerifiedEmailAddressConnector(mockHttp, new ServicesConfig(configuration))
 
   "Custom Data Store Connector" must {
 
@@ -68,7 +68,7 @@ class CustomsDataStoreConnectorSpec
     "handling requests to submit claim" must {
       behave like connectorBehaviour(
         mockGet(url)(_),
-        () => connector.getCustomsEmail(eori)
+        () => connector.getVerifiedEmailAddress(eori)
       )
     }
 

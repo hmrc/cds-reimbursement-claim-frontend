@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
-import play.api.Configuration
 import play.api.Environment
 import play.api.data.Form
 import play.api.data.Forms.mapping
@@ -30,7 +29,6 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import shapeless.lens
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnvironmentOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
@@ -49,7 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -67,7 +65,7 @@ class SelectTypeOfClaimController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
-  val customsDataStoreService: CustomsDataStoreService,
+  val verifiedEmailAddressService: VerifiedEmailAddressService,
   val servicesConfig: ServicesConfig,
   val env: Environment,
   selectNumberOfClaimsPage: select_number_of_claims
@@ -75,8 +73,7 @@ class SelectTypeOfClaimController @Inject() (
   viewConfig: ViewConfig,
   ec: ExecutionContext,
   errorHandler: ErrorHandler,
-  val controllerComponents: MessagesControllerComponents,
-  config: Configuration
+  val controllerComponents: MessagesControllerComponents
 ) extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
@@ -86,15 +83,6 @@ class SelectTypeOfClaimController @Inject() (
   implicit val dataExtractor: DraftClaim => Option[TypeOfClaimAnswer] = _.typeOfClaim
 
   private val emailLens = lens[FillingOutClaim].signedInUserDetails.verifiedEmail
-
-  private val customsEmailFrontendUrl: String = {
-    val customsEmailFrontend = "customs-email-frontend"
-    val startPage            = servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
-
-    if (env.isLocal)
-      s"${servicesConfig.baseUrl(customsEmailFrontend)}$startPage"
-    else s"${servicesConfig.getString("self.url")}$startPage"
-  }
 
   def show(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[TypeOfClaimAnswer] { (_, answers) =>
@@ -129,10 +117,11 @@ class SelectTypeOfClaimController @Inject() (
                 }
 
                 val eitherErrorOrNextPage: EitherT[Future, Result, Result] = for {
-                  maybeVerifiedEmail <- customsDataStoreService
-                                          .getEmailByEori(user.eori)
+                  maybeVerifiedEmail <- verifiedEmailAddressService
+                                          .getVerifiedEmailAddress(user.eori)
                                           .leftMap(logVerifiedEmailError.andThen(returnErrorPage))
-                  verifiedEmail      <- EitherT.fromOption[Future](maybeVerifiedEmail, Redirect(customsEmailFrontendUrl))
+                  verifiedEmail      <-
+                    EitherT.fromOption[Future](maybeVerifiedEmail, Redirect(viewConfig.customsEmailFrontendUrl))
                   _                  <- EitherT(updateSession(sessionStore, request)(saveSession(verifiedEmail)))
                                           .leftMap(logSelectClaimsError.andThen(returnErrorPage))
                   result             <- EitherT.rightT[Future, Result](

@@ -28,12 +28,11 @@ import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -41,13 +40,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_eori_details
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+
 import javax.inject.Singleton
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
@@ -58,11 +59,11 @@ class CheckEoriDetailsController @Inject() (
   val errorHandler: ErrorHandler,
   val featureSwitch: FeatureSwitchService,
   val controllerComponents: MessagesControllerComponents,
-  val customsDataStoreService: CustomsDataStoreService,
+  val verifiedEmailAddressService: VerifiedEmailAddressService,
   val servicesConfig: ServicesConfig,
   val env: Environment,
   checkEoriDetailsPage: check_eori_details
-)(implicit viewConfig: ViewConfig)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendBaseController
     with WithAuthRetrievalsAndSessionDataAction
     with SessionUpdates
@@ -94,7 +95,18 @@ class CheckEoriDetailsController @Inject() (
             formWithErrors => Future.successful(BadRequest(getPage(user, formWithErrors))),
             {
               case Yes =>
-                Future.successful(Redirect(commonRoutes.ChooseClaimTypeController.show()))
+                verifiedEmailAddressService
+                  .getVerifiedEmailAddress(user.eori)
+                  .value
+                  .map {
+                    case Left(error)    =>
+                      logger.warn(s"Error submitting a verified email", error.toException)
+                      errorHandler.errorResult()
+                    case Right(None)    =>
+                      Redirect(viewConfig.customsEmailFrontendUrl)
+                    case Right(Some(_)) =>
+                      Redirect(commonRoutes.ChooseClaimTypeController.show())
+                  }
               case No  =>
                 Future.successful(Redirect(viewConfig.ggSignOut))
             }

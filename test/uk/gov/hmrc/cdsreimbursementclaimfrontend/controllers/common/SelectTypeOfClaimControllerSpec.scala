@@ -50,7 +50,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -64,13 +64,13 @@ class SelectTypeOfClaimControllerSpec
     with BeforeAndAfterEach
     with ScalaCheckDrivenPropertyChecks {
 
-  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
+  val mockVerifiedEmailAddressService = mock[VerifiedEmailAddressService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
+      bind[VerifiedEmailAddressService].toInstance(mockVerifiedEmailAddressService)
     )
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
@@ -117,8 +117,8 @@ class SelectTypeOfClaimControllerSpec
     document.select("a.govuk-back-link").attr("href")
 
   def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
-    (mockCustomsDataStoreService
-      .getEmailByEori(_: Eori)(_: HeaderCarrier))
+    (mockVerifiedEmailAddressService
+      .getVerifiedEmailAddress(_: Eori)(_: HeaderCarrier))
       .expects(*, *)
       .returning(EitherT.fromEither[Future](response))
       .once()

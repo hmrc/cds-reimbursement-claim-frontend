@@ -23,7 +23,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.mvc.Http.Status.NOT_FOUND
 import play.mvc.Http.Status.OK
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CustomsDataStoreConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.VerifiedEmailAddressConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
@@ -34,22 +34,22 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-@ImplementedBy(classOf[DefaultCustomsDataStoreService])
-trait CustomsDataStoreService {
-  def getEmailByEori(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]]
+@ImplementedBy(classOf[DefaultVerifiedEmailAddressService])
+trait VerifiedEmailAddressService {
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]]
 }
 
 @Singleton
-class DefaultCustomsDataStoreService @Inject() (
-  customsDataStoreConnector: CustomsDataStoreConnector
+class DefaultVerifiedEmailAddressService @Inject() (
+  verifiedEmailAddressConnector: VerifiedEmailAddressConnector
 )(implicit
   ec: ExecutionContext
-) extends CustomsDataStoreService
+) extends VerifiedEmailAddressService
     with Logging {
 
-  def getEmailByEori(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]] =
-    customsDataStoreConnector
-      .getCustomsEmail(eori)
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]] =
+    verifiedEmailAddressConnector
+      .getVerifiedEmailAddress(eori)
       .subflatMap { response =>
         response.status match {
           case OK        =>
