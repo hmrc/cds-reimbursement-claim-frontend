@@ -117,7 +117,7 @@ class CheckYourAnswersControllerSpec
         "Contact information for this claim".expectedAlways,
         "Bank details".expectedWhen(claim.bankAccountDetails),
         "Documents".expectedAlways,
-        "Now send your application".expectedAlways
+        "Now send your claim".expectedAlways
       ) ++
         claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways)): _*
     )
