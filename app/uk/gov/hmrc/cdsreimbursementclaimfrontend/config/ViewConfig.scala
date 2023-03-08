@@ -142,4 +142,12 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   def routeToSwitchLanguage: String => Call = (lang: String) =>
     baseRoutes.LanguageSwitchController.switchToLanguage(lang)
+
+  lazy val customsEmailFrontendUrl: String = {
+    val customsEmailFrontend = "customs-email-frontend"
+    val startPage            =
+      servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
+
+    s"${servicesConfig.baseUrl(customsEmailFrontend)}$startPage"
+  }
 }
