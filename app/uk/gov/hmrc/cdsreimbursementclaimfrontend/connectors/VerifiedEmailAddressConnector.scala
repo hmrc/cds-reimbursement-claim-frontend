@@ -32,15 +32,15 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-@ImplementedBy(classOf[DefaultCustomsDataStoreConnector])
-trait CustomsDataStoreConnector {
-  def getCustomsEmail(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+@ImplementedBy(classOf[DefaultVerifiedEmailAddressConnector])
+trait VerifiedEmailAddressConnector {
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 }
 
 @Singleton
-class DefaultCustomsDataStoreConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
+class DefaultVerifiedEmailAddressConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
   ec: ExecutionContext
-) extends CustomsDataStoreConnector
+) extends VerifiedEmailAddressConnector
     with Logging {
 
   val serviceName: String = "customs-data-store"
@@ -52,7 +52,7 @@ class DefaultCustomsDataStoreConnector @Inject() (http: HttpClient, servicesConf
     url.replaceAll("/:eori/", s"/${eori.value}/")
   }
 
-  def getCustomsEmail(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](
       http
         .GET[HttpResponse](getUri(eori))

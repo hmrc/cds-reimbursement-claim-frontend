@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CustomsDataStoreConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.VerifiedEmailAddressConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.VerifiedEmailGen._
@@ -38,17 +38,17 @@ import uk.gov.hmrc.http.HttpResponse
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CustomsDataStoreServiceSpec extends AnyWordSpec with Matchers with MockFactory {
+class VerifiedEmailAddressServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
   implicit val hc: HeaderCarrier   = HeaderCarrier()
   implicit val request: Request[_] = FakeRequest()
 
-  private val dataStoreConnector = mock[CustomsDataStoreConnector]
-  private val dataStoreService   = new DefaultCustomsDataStoreService(dataStoreConnector)
+  private val dataStoreConnector = mock[VerifiedEmailAddressConnector]
+  private val dataStoreService   = new DefaultVerifiedEmailAddressService(dataStoreConnector)
 
   def mockDataStoreConnector(data: Eori)(response: Either[Error, HttpResponse]) =
     (dataStoreConnector
-      .getCustomsEmail(_: Eori)(_: HeaderCarrier))
+      .getVerifiedEmailAddress(_: Eori)(_: HeaderCarrier))
       .expects(data, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()
@@ -60,7 +60,7 @@ class CustomsDataStoreServiceSpec extends AnyWordSpec with Matchers with MockFac
       val verifiedEmail = sample[VerifiedEmail]
       val httpResponse  = HttpResponse(200, Json.toJson(verifiedEmail).toString())
       mockDataStoreConnector(eori)(Right(httpResponse))
-      val response      = await(dataStoreService.getEmailByEori(eori).value)
+      val response      = await(dataStoreService.getVerifiedEmailAddress(eori).value)
       response shouldBe Right(Some(verifiedEmail))
     }
 
@@ -69,7 +69,7 @@ class CustomsDataStoreServiceSpec extends AnyWordSpec with Matchers with MockFac
       val verifiedEmail = """{"address": "ups"}"""
       val httpResponse  = HttpResponse(200, verifiedEmail)
       mockDataStoreConnector(eori)(Right(httpResponse))
-      val response      = await(dataStoreService.getEmailByEori(eori).value)
+      val response      = await(dataStoreService.getVerifiedEmailAddress(eori).value)
       response shouldBe Left(Error("""could not parse http response JSON: /timestamp: [error.path.missing]"""))
     }
 
@@ -77,7 +77,7 @@ class CustomsDataStoreServiceSpec extends AnyWordSpec with Matchers with MockFac
       val eori         = sample[Eori]
       val httpResponse = HttpResponse(404, "")
       mockDataStoreConnector(eori)(Right(httpResponse))
-      val response     = await(dataStoreService.getEmailByEori(eori).value)
+      val response     = await(dataStoreService.getVerifiedEmailAddress(eori).value)
       response shouldBe Right(None)
     }
 
@@ -85,7 +85,7 @@ class CustomsDataStoreServiceSpec extends AnyWordSpec with Matchers with MockFac
       val eori         = sample[Eori]
       val httpResponse = HttpResponse(500, "")
       mockDataStoreConnector(eori)(Right(httpResponse))
-      val response     = await(dataStoreService.getEmailByEori(eori).value)
+      val response     = await(dataStoreService.getVerifiedEmailAddress(eori).value)
       response shouldBe Left(Error("Customs Data Store status: 500, body: "))
     }
 

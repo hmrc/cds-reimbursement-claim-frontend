@@ -53,11 +53,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import play.api.mvc.Call
 
 class CheckEoriDetailsControllerSpec
     extends ControllerSpec
@@ -67,13 +68,13 @@ class CheckEoriDetailsControllerSpec
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
+  val mockVerifiedEmailAddressService = mock[VerifiedEmailAddressService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
+      bind[VerifiedEmailAddressService].toInstance(mockVerifiedEmailAddressService)
     )
 
   lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
@@ -89,7 +90,8 @@ class CheckEoriDetailsControllerSpec
     val eori                = sample[Eori]
     val signedInUserDetails =
       SignedInUserDetails(Some(email), eori, Email("amina@email.com"), ContactName("Fred Bread"))
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    val journey             =
+      FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
       SessionData.empty.copy(journeyStatus = Some(journey)),
       journey,
@@ -101,8 +103,8 @@ class CheckEoriDetailsControllerSpec
     document.select("a.govuk-back-link").attr("href")
 
   def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
-    (mockCustomsDataStoreService
-      .getEmailByEori(_: Eori)(_: HeaderCarrier))
+    (mockVerifiedEmailAddressService
+      .getVerifiedEmailAddress(_: Eori)(_: HeaderCarrier))
       .expects(*, *)
       .returning(EitherT.fromEither[Future](response))
       .once()
@@ -186,7 +188,9 @@ class CheckEoriDetailsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.RejectedGoods is disabled" in {
+      val verifiedEmail = "foo@bar.com"
+
+      "Redirect to ChooseClaimTypeController if user says details are correct and email address is verified" in {
         featureSwitch.disable(Feature.RejectedGoods)
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
@@ -196,14 +200,15 @@ class CheckEoriDetailsControllerSpec
             fillingOutClaim.signedInUserDetails.contactName
           )
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "true"))
-        checkIsRedirect(result, commonRoutes.SelectTypeOfClaimController.show())
+        checkIsRedirect(result, commonRoutes.ChooseClaimTypeController.show())
       }
 
-      "Redirect to ChooseClaimTypeController if user says details are correct and FeatureSwitch.RejectedGoods is enabled" in {
-        featureSwitch.enable(Feature.RejectedGoods)
+      "Redirect to the email frontend if user says details are correct but email address not verified" in {
+        featureSwitch.disable(Feature.RejectedGoods)
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
@@ -212,10 +217,28 @@ class CheckEoriDetailsControllerSpec
             fillingOutClaim.signedInUserDetails.contactName
           )
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetEmail(Right(None))
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "true"))
-        checkIsRedirect(result, commonRoutes.ChooseClaimTypeController.show())
+        checkIsRedirect(result, Call("GET", "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim"))
+      }
+
+      "Display an error page if user says details are correct but email address verification fails" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+        val (session, fillingOutClaim, _) = sessionWithClaimState()
+
+        inSequence {
+          mockC285AuthRequiredRetrievals(
+            fillingOutClaim.signedInUserDetails.eori,
+            fillingOutClaim.signedInUserDetails.contactName
+          )
+          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetEmail(Left(Error("Cannot verify email address")))
+        }
+
+        val result = performAction(Seq(checkEoriDetailsKey -> "true"))
+        checkIsTechnicalErrorPage(result)
       }
 
       "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {

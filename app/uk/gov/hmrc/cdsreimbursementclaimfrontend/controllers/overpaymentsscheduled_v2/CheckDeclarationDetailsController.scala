@@ -62,7 +62,7 @@ class CheckDeclarationDetailsController @Inject() (
   override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
     case (decl, form) =>
       implicit request =>
-        checkDeclarationDetailsPage(decl, form, false, postAction, None)
+        checkDeclarationDetailsPage(decl, form, false, postAction, Some("scheduled"))
   }
 
 }
