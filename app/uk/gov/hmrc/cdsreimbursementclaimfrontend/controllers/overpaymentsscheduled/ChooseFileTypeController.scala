@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.choose_document_type
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_file_type
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
@@ -46,7 +46,7 @@ class ChooseFileTypeController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   sessionStore: SessionCache,
-  chooseDocumentTypePage: choose_document_type
+  chooseDocumentTypePage: choose_file_type
 )(implicit
   viewConfig: ViewConfig,
   ec: ExecutionContext,
@@ -58,13 +58,16 @@ class ChooseFileTypeController @Inject() (
     with SessionUpdates
     with SessionDataExtractor {
 
-  val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285DocumentTypes
+  private val evidenceTypes: Seq[UploadDocumentType] =
+    UploadDocumentType.c285DocumentTypes
+
+  private val evidenceTypeSet = evidenceTypes.toSet
 
   val show: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       Ok(
         chooseDocumentTypePage(
-          Forms.chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
+          Forms.chooseFileTypeForm(evidenceTypeSet),
           DropdownHints.enumeration(evidenceTypes),
           evidenceTypes,
           routes.ChooseFileTypeController.submit
@@ -76,7 +79,7 @@ class ChooseFileTypeController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         Forms
-          .chooseSupportEvidenceDocumentTypeForm(evidenceTypes)
+          .chooseFileTypeForm(evidenceTypeSet)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -93,7 +96,7 @@ class ChooseFileTypeController @Inject() (
                 updateSession(sessionStore, request)(
                   _.copy(
                     journeyStatus =
-                      FillingOutClaim.from(fillingOutClaim)(_.copy(documentTypeAnswer = documentType.some)).some
+                      FillingOutClaim.from(fillingOutClaim)(_.copy(documentTypeAnswer = documentType)).some
                   )
                 )
               )

@@ -353,19 +353,6 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  def chooseSupportEvidenceDocumentTypeForm(
-    documentTypeList: Seq[UploadDocumentType]
-  ): Form[UploadDocumentType] =
-    Form(
-      mapping(
-        "supporting-evidence.choose-document-type" -> nonEmptyText
-          .verifying(
-            "error.invalid-document-type",
-            key => UploadDocumentType.parse(key).exists(v => documentTypeList.contains(v))
-          )
-      )(UploadDocumentType.tryParse)(dt => Some(UploadDocumentType.keyOf(dt)))
-    )
-
   val movementReferenceNumberForm: Form[MRN] =
     Form(
       mapping(
