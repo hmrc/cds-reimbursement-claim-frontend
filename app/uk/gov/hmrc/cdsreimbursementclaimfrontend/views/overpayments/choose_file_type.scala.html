@@ -17,9 +17,9 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
+@import play.api.mvc.Request
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -36,7 +36,7 @@
     dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[_], supportingEvidenceHints: DropdownHints,  typesOfEvidences: Seq[UploadDocumentType], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[_], supportingEvidenceHints: DropdownHints,  typesOfEvidences: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"supporting-evidence.choose-document-type"}
     @title = @{messages(s"$key.title")}
@@ -69,7 +69,7 @@
 
             @radios(
                 form = form,
-                name = key,
+                name = "choose-file-type",
                 legend = title,
                 hintKey = None,
                 classes = "govuk-visually-hidden",
