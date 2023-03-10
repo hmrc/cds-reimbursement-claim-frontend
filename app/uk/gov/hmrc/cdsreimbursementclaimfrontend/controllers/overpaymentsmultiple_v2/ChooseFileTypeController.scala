@@ -25,7 +25,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_file_type
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_file_type
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,9 +45,14 @@ class ChooseFileTypeController @Inject() (
 
   final override def viewTemplate
     : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[_] => HtmlFormat.Appendable =
-    (form, documentTypes, hasExistingUploads) =>
+    (form, documentTypes, _) =>
       implicit request =>
-        chooseFileTypePage(form, documentTypes, hasExistingUploads, routes.ChooseFileTypeController.submit)
+        chooseFileTypePage(
+          form,
+          DropdownHints.enumeration(documentTypes),
+          documentTypes,
+          routes.ChooseFileTypeController.submit
+        )
 
   final override def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey] =
     Right(
