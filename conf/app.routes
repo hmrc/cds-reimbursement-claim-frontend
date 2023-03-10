@@ -8,7 +8,6 @@ GET        /start                                           uk.gov.hmrc.cdsreimb
 GET        /start-new-return                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.startNewClaim()
 GET        /sign-out-and-register-for-gg                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndRegisterForGG()
 GET        /sign-out-and-log-in                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndSignIn()
-GET        /sign-out                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SignOutController.showSignOutPage()
 GET        /exit/we-signed-you-out                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()
 GET        /keep-alive                                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
 
