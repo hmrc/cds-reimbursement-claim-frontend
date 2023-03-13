@@ -104,7 +104,7 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers should contain allOf ("Movement Reference Numbers (MRNs)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Supporting documents", "Now send your application")
+    headers should contain allOf ("Movement Reference Numbers (MRNs)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Supporting documents", "Now send your claim")
 
     val mrnKeys: Seq[String] =
       (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber.label(i).capitalize} MRN")

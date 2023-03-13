@@ -234,11 +234,11 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 check-eori-details.title=Check these EORI details are correct
 check-eori-details.paragraph=These are the EORI details associated with your Government Gateway Account.
 check-eori-details.eori-number.label=EORI number
-check-eori-details.name.label=Government Gateway Name
+check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
-check-eori-details.eori-incorrect=No, sign in again
+check-eori-details.eori-incorrect=No
 check-eori-details.error.required=Are these details correct?
 check-eori-details.error.invalid=Are these details correct?
 
@@ -247,10 +247,10 @@ check-eori-details.error.invalid=Are these details correct?
 #  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
 rejected-goods.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
-rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
+rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple MRNs
-rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
+rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with both GB and XI EORI numbers.
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
@@ -293,7 +293,7 @@ select-number-of-claims.invalid=Select how many MRNs you want to submit in this 
 #===================================================
 enter-movement-reference-number.title=Enter the MRN
 enter-movement-reference-number.details.heading=Finding your MRN
-enter-movement-reference-number.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-movement-reference-number.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter MRN
@@ -694,7 +694,7 @@ claim-northern-ireland.multiple.help-text=If you select Yes, then all the MRNs i
 #===================================================
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================
-select-basis-for-claim.title=Choose the basis for claim
+select-basis-for-claim.title=Choose the reason for making this claim
 select-basis-for-claim.error.number=Select the reason for making this claim
 select-basis-for-claim.error.required=Select the reason for making this claim
 select-basis-for-claim.select-label=Choose which basis for claim
@@ -769,8 +769,7 @@ select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in 
 #===================================================
 #  SELECT BASIS OF REJECTED GOODS PAGE
 #===================================================
-select-basis-for-claim.rejected-goods.title=Choose the basis for claim
-select-basis-for-claim.rejected-goods.help-text=This will help us to understand why you are making the claim so we can review and validate it.
+select-basis-for-claim.rejected-goods.title=Choose the reason for making this claim
 select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Damaged before clearance
 select-basis-for-claim.rejected-goods.reason.Defective=Defective
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Not in accordance with contract
@@ -789,13 +788,13 @@ enter-special-circumstances.rejected-goods.error.maxLength=Special circumstances
 #===================================================
 #  SELECT METHOD OF DISPOSAL PAGE
 #===================================================
-select-method-of-disposal.rejected-goods.title=Choose what you intend to do with the goods
-select-method-of-disposal.rejected-goods.method.Export=Export
-select-method-of-disposal.rejected-goods.method.PostalExport=Postal export
-select-method-of-disposal.rejected-goods.method.DonationToCharity=Donation to charity
-select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Placed in customs warehouse
-select-method-of-disposal.rejected-goods.method.ExportInBaggage=Export in baggage
-select-method-of-disposal.rejected-goods.method.Destruction=Destruction
+select-method-of-disposal.rejected-goods.title=Choose how you will dispose of the goods
+select-method-of-disposal.rejected-goods.method.Export=Return the goods by road, rail, air or ship
+select-method-of-disposal.rejected-goods.method.PostalExport=Return the goods by post
+select-method-of-disposal.rejected-goods.method.DonationToCharity=Donate the goods to charity
+select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Place the goods in a customs warehouse
+select-method-of-disposal.rejected-goods.method.ExportInBaggage=Return the goods in person or by hand
+select-method-of-disposal.rejected-goods.method.Destruction=Destroy the goods
 select-method-of-disposal.rejected-goods.error.required=Select the method of disposal
 
 #===================================================
@@ -875,10 +874,10 @@ enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
 #===================================================
 #  CHECK CLAIM REJECTED GOODS - SINGLE
 #===================================================
-check-claim.rejected-goods.single.title=Check the claim total for the MRN
+check-claim.rejected-goods.single.title=Choose the reason for making this claim
 check-claim.rejected-goods.multiple.title=Check the repayment claim totals for all MRNs
 check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
-check-claim.rejected-goods.description=These are the calculations based on the information you gave us.
+check-claim.rejected-goods.description=Your repayment calculations are shown below. This is based on the information you provided to us.
 check-claim.rejected-goods.single.label=MRN: {0}
 check-claim.rejected-goods.single.total=Repayment for this MRN
 check-claim.rejected-goods.error.required=Select yes if these duties are correct
@@ -1214,7 +1213,7 @@ check-claim.securities.claim-for-security.h2=Security ID: {0}
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the claim total for the MRN
+check-claim-summary.title=Check the repayment claim total for the MRN
 check-claim-summary.scheduled.title=Check the repayment claim totals for all MRNs
 check-claim-summary.help-text=Your repayment or remissions calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
@@ -1256,7 +1255,7 @@ check-claim-timed-out.button=Sign in
 #===================================================
 #  ENTER INSPECTION DATE PAGE
 #===================================================
-enter-inspection-date.rejected-goods.title=Tell us when the goods will be available until for inspection
+enter-inspection-date.rejected-goods.title=Tell us when the goods will be available for inspection
 enter-inspection-date.rejected-goods.help-text=HMRC may want to inspect your goods to process your claim. You must allow at least 2 full working days between submitting this claim and returning or disposing of your goods.
 enter-inspection-date.rejected-goods.label=Enter inspection date
 enter-inspection-date.rejected-goods.hint=Tell us the date your goods will be made available for inspection until. For example, 26 6 2020.
@@ -1600,7 +1599,7 @@ check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.claimant-details.h2=Contact information for this claim
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
-check-your-answers.confirmation-statement.h2=Now send your application
+check-your-answers.confirmation-statement.h2=Now send your claim
 check-your-answers.scheduled.confirmation-statement.h2=Now send your claim
 check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.
 check-your-answers.reimbursement-method.h2=Repayment method

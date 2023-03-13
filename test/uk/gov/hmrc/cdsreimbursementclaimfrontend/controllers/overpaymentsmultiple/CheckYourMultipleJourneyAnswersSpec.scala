@@ -97,7 +97,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
               "Supporting documents".expectedAlways,
               "Were your goods imported into Northern Ireland?".expectedWhen(claim.whetherNorthernIrelandAnswer),
               "Repayment method".expectedWhen(claim.reimbursementMethodAnswer),
-              "Now send your application".expectedAlways
+              "Now send your claim".expectedAlways
             )
 
             summaries should containOnlyDefinedPairsOf(

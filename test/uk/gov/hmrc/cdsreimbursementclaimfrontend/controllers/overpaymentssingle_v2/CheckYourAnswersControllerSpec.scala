@@ -120,7 +120,7 @@ class CheckYourAnswersControllerSpec
       "Repayment method".expectedWhen(journey.isAllSelectedDutiesAreCMAEligible),
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
-      "Now send your application".expectedAlways
+      "Now send your claim".expectedAlways
     )
 
     val declaration: Option[DisplayDeclaration]           = journey.answers.displayDeclaration

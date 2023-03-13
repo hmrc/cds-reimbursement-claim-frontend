@@ -97,7 +97,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
               "Were your goods imported into Northern Ireland?".expectedWhen(claim.whetherNorthernIrelandAnswer),
               "Repayment method".expectedWhen(claim.reimbursementMethodAnswer),
               "Scheduled document".expectedAlways,
-              "Now send your application".expectedAlways
+              "Now send your claim".expectedAlways
             )
 
             summaries should containOnlyDefinedPairsOf(
