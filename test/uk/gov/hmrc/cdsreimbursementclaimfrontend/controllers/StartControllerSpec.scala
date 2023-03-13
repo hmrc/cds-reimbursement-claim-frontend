@@ -70,7 +70,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
-              RetrievedUserType.NonGovernmentGatewayRetrievedUser("some auth provider"),
+              AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser("some auth provider"),
               Some(UserType.NonGovernmentGatewayUser),
               messagesRequest
             )
@@ -98,7 +98,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         "must return an error if the session cannot be updated" in {
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
-              RetrievedUserType.NonGovernmentGatewayRetrievedUser("some auth provider"),
+              AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser("some auth provider"),
               Some(UserType.NonGovernmentGatewayUser),
               messagesRequest
             )
@@ -131,7 +131,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
-              RetrievedUserType.Individual(
+              AuthenticatedUser.Individual(
                 GGCredId("gg-cred-id"),
                 None,
                 Eori("AB12345678901234Z"),
@@ -176,7 +176,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
-              RetrievedUserType.Individual(
+              AuthenticatedUser.Individual(
                 GGCredId("gg-cred-id"),
                 None,
                 Eori("AB12345678901234Z"),
@@ -225,7 +225,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
-              RetrievedUserType.Organisation(
+              AuthenticatedUser.Organisation(
                 GGCredId("gg-cred-id"),
                 Some(Email("email")),
                 Eori("AB12345678901234Z"),

@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.VerifiedEmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 
@@ -61,7 +61,7 @@ class VerifiedEmailAddressServiceSpec extends AnyWordSpec with Matchers with Moc
 
     "use cached VerifiedEmail if available" in {
       val eori          = sample[Eori]
-      val verifiedEmail = sample[VerifiedEmail]
+      val verifiedEmail = sample[CdsVerifiedEmail]
       mockGetSession(SessionData(verifiedEmail = Some(verifiedEmail)))
       val response      = await(dataStoreService.getVerifiedEmailAddress(eori))
       response shouldBe Right(Some(verifiedEmail))
@@ -69,7 +69,7 @@ class VerifiedEmailAddressServiceSpec extends AnyWordSpec with Matchers with Moc
 
     "retrieve and parse VerifiedEmail successfuly" in {
       val eori          = sample[Eori]
-      val verifiedEmail = sample[VerifiedEmail]
+      val verifiedEmail = sample[CdsVerifiedEmail]
       val httpResponse  = HttpResponse(200, Json.toJson(verifiedEmail).toString())
       mockGetSession(SessionData.empty)
       mockDataStoreConnector(eori)(Right(httpResponse))

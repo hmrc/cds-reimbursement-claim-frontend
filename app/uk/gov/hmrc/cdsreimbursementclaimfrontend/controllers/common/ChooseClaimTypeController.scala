@@ -98,7 +98,10 @@ class ChooseClaimTypeController @Inject() (
               request.authenticatedRequest.journeyUserType.eoriOpt
                 .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
                   sessionStore
-                    .store(SessionData(SecuritiesJourney.empty(eori, Nonce.random)))
+                    .store(
+                      SessionData(SecuritiesJourney.empty(eori, Nonce.random))
+                        .withExistingUserData(request.sessionData)
+                    )
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
                 }
             case ViewUpload =>

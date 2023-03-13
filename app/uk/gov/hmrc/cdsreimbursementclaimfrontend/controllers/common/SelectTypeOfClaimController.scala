@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -109,7 +109,7 @@ class SelectTypeOfClaimController @Inject() (
                   error => logger.warn(s"Could not capture select number of claims", error)
                 val returnErrorPage: Unit => Result      = _ => errorHandler.errorResult()
 
-                def saveSession(verifiedEmail: VerifiedEmail): SessionData => SessionData = {
+                def saveSession(verifiedEmail: CdsVerifiedEmail): SessionData => SessionData = {
                   val updatedFillingOutClaim =
                     fillingOutClaim
                       .copy(draftClaim = fillingOutClaim.draftClaim.copy(typeOfClaim = Some(typeOfClaimAnswer)))

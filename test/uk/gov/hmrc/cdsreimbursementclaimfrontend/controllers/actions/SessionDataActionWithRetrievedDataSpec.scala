@@ -53,7 +53,7 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
 
     lazy val authenticatedRequest =
       AuthenticatedRequestWithRetrievedData(
-        RetrievedUserType.Individual(
+        AuthenticatedUser.Individual(
           GGCredId("id"),
           Some(Email("email")),
           Eori("Some eori"),

@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -113,7 +113,7 @@ class SelectTypeOfClaimControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
-  def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
+  def mockGetEmail(response: Either[Error, Option[CdsVerifiedEmail]]) =
     (mockVerifiedEmailAddressService
       .getVerifiedEmailAddress(_: Eori)(_: HeaderCarrier))
       .expects(*, *)
@@ -243,7 +243,7 @@ class SelectTypeOfClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockGetEmail(Right(Some(CdsVerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -261,7 +261,7 @@ class SelectTypeOfClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockGetEmail(Right(Some(CdsVerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -279,7 +279,7 @@ class SelectTypeOfClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockGetEmail(Right(Some(CdsVerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -297,7 +297,7 @@ class SelectTypeOfClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockGetEmail(Right(Some(CdsVerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(updatedSession)(Right(()))
         }
 

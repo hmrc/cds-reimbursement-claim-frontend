@@ -94,21 +94,27 @@ class ChooseHowManyMrnsController @Inject() (
               {
                 case Individual =>
                   (if (request.sessionData.overpaymentsSingleJourney.isEmpty)
-                     updateSession(sessionStore, request)(_ => SessionData(OverpaymentsSingleJourney.empty(eori)))
+                     updateSession(sessionStore, request)(
+                       SessionData(OverpaymentsSingleJourney.empty(eori)).withExistingUserData
+                     )
                    else
                      Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
                   (if (request.sessionData.overpaymentsMultipleJourney.isEmpty)
-                     updateSession(sessionStore, request)(_ => SessionData(OverpaymentsMultipleJourney.empty(eori)))
+                     updateSession(sessionStore, request)(
+                       SessionData(OverpaymentsMultipleJourney.empty(eori)).withExistingUserData
+                     )
                    else
                      Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst))
 
                 case Scheduled =>
                   (if (request.sessionData.overpaymentsScheduledJourney.isEmpty)
-                     updateSession(sessionStore, request)(_ => SessionData(OverpaymentsScheduledJourney.empty(eori)))
+                     updateSession(sessionStore, request)(
+                       SessionData(OverpaymentsScheduledJourney.empty(eori)).withExistingUserData
+                     )
                    else
                      Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show))

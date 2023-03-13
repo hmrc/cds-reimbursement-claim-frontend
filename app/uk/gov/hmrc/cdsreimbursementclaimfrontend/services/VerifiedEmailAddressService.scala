@@ -25,7 +25,7 @@ import play.mvc.Http.Status.OK
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.VerifiedEmailAddressConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 
 @ImplementedBy(classOf[DefaultVerifiedEmailAddressService])
 trait VerifiedEmailAddressService {
-  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[VerifiedEmail]]]
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[CdsVerifiedEmail]]]
 }
 
 @Singleton
@@ -48,7 +48,7 @@ class DefaultVerifiedEmailAddressService @Inject() (
 ) extends VerifiedEmailAddressService
     with Logging {
 
-  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[VerifiedEmail]]] =
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[CdsVerifiedEmail]]] =
     sessionStore
       .updateF { sessionData =>
         if (sessionData.verifiedEmail.isDefined)
@@ -60,7 +60,7 @@ class DefaultVerifiedEmailAddressService @Inject() (
               response.status match {
                 case OK        =>
                   response
-                    .parseJSON[VerifiedEmail]()
+                    .parseJSON[CdsVerifiedEmail]()
                     .map(verifiedEmail => sessionData.copy(verifiedEmail = Some(verifiedEmail)))
                     .leftMap { error =>
                       logger.warn(s"Error Parsing customs data store response: $error")

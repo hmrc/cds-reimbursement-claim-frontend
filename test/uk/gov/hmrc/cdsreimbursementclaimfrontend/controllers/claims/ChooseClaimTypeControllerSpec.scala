@@ -198,7 +198,14 @@ class ChooseClaimTypeControllerSpec
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
           mockGetSession(SessionData.empty)
-          mockStoreSession(SessionData(SecuritiesJourney.empty(exampleEori, Nonce.Any)))(Right(()))
+          mockStoreSession(
+            SessionData(
+              verifiedEmail = None,
+              securitiesJourney = Some(SecuritiesJourney.empty(exampleEori, Nonce.Any))
+            )
+          )(
+            Right(())
+          )
         }
 
         val result = performAction(Seq(dataKey -> Securities.toString))

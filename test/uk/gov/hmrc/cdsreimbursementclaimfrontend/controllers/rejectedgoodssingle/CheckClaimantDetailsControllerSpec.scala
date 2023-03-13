@@ -52,7 +52,7 @@ import java.util.UUID
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
@@ -201,7 +201,7 @@ class CheckClaimantDetailsControllerSpec
               rejectedGoodsSingleJourney = Some(journey)
             )
 
-            val expectedContactDetails = journey.computeContactDetails(individual)
+            val expectedContactDetails = journey.computeContactDetails(individual, individual.asVerifiedEmail)
             val expectedAddress        = journey.computeAddressDetails.get
             val expectedJourney        =
               journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)

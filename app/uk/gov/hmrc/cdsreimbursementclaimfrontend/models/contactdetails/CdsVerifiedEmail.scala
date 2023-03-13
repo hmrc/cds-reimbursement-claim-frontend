@@ -19,11 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
-final case class VerifiedEmail(address: String, timestamp: String) {
+final case class CdsVerifiedEmail(address: String, timestamp: String) {
   def toEmail: Email = Email(address)
 }
 
-object VerifiedEmail {
-  implicit val verifiedEmailFormat: OFormat[VerifiedEmail] = Json.format[VerifiedEmail]
+object CdsVerifiedEmail {
+  implicit val verifiedEmailFormat: OFormat[CdsVerifiedEmail] = Json.format[CdsVerifiedEmail]
 
 }

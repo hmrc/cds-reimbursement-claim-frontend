@@ -28,10 +28,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 
 final case class SessionData(
-  verifiedEmail: Option[VerifiedEmail] = None,
+  verifiedEmail: Option[CdsVerifiedEmail] = None,
   journeyStatus: Option[JourneyStatus] = None,
   overpaymentsSingleJourney: Option[OverpaymentsSingleJourney] = None,
   overpaymentsMultipleJourney: Option[OverpaymentsMultipleJourney] = None,
@@ -50,6 +50,9 @@ final case class SessionData(
 
       case other => other
     })
+
+  def withExistingUserData(sessionData: SessionData): SessionData =
+    copy(verifiedEmail = sessionData.verifiedEmail)
 
 }
 

@@ -36,11 +36,11 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
   def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey
 
   final val show: Action[AnyContent] =
-    actionReadJourneyAndUser { implicit request => journey => userType =>
+    actionReadJourneyAndUser { implicit request => journey => userType => verifiedEmailOpt =>
       Future.successful(
         Ok(
           enterOrChangeContactDetailsPage(
-            Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType)),
+            Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
             postAction
           )
         )

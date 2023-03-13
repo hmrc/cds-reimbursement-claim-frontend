@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
@@ -48,7 +48,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 final case class AuthenticatedRequestWithRetrievedData[A](
-  journeyUserType: RetrievedUserType,
+  journeyUserType: AuthenticatedUser,
   userType: Option[UserType],
   request: MessagesRequest[A]
 ) extends WrappedRequest[A](request)
@@ -170,7 +170,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     def authenticatedRequest(userType: UserType): AuthenticatedRequestWithRetrievedData[A] =
       if (userType === UserType.Individual) {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType.Individual(
+          AuthenticatedUser.Individual(
             ggCredId,
             maybeEmail.map(Email(_)),
             eori,
@@ -182,7 +182,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
       } else {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType
+          AuthenticatedUser
             .Organisation(ggCredId, maybeEmail.map(Email(_)), eori, models.contactdetails.Name.fromGGName(name)),
           Some(userType),
           request
@@ -219,7 +219,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
           if (featureSwitchService.isDisabled(models.Feature.LimitedAccess))
             Right(
               AuthenticatedRequestWithRetrievedData(
-                RetrievedUserType.NonGovernmentGatewayRetrievedUser(
+                AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(
                   otherProvider
                 ),
                 Some(NonGovernmentGatewayUser),
