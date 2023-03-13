@@ -117,8 +117,10 @@ class SelectTypeOfClaimController @Inject() (
                 }
 
                 val eitherErrorOrNextPage: EitherT[Future, Result, Result] = for {
-                  maybeVerifiedEmail <- verifiedEmailAddressService
-                                          .getVerifiedEmailAddress(user.eori)
+                  maybeVerifiedEmail <- EitherT(
+                                          verifiedEmailAddressService
+                                            .getVerifiedEmailAddress(user.eori)
+                                        )
                                           .leftMap(logVerifiedEmailError.andThen(returnErrorPage))
                   verifiedEmail      <-
                     EitherT.fromOption[Future](maybeVerifiedEmail, Redirect(viewConfig.customsEmailFrontendUrl))

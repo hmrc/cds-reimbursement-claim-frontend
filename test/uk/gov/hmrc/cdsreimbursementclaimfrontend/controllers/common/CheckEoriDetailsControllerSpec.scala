@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
-import cats.data.EitherT
 import org.jsoup.nodes.Document
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.Lang
@@ -56,7 +55,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import play.api.mvc.Call
 
@@ -106,7 +104,7 @@ class CheckEoriDetailsControllerSpec
     (mockVerifiedEmailAddressService
       .getVerifiedEmailAddress(_: Eori)(_: HeaderCarrier))
       .expects(*, *)
-      .returning(EitherT.fromEither[Future](response))
+      .returning(Future.successful(response))
       .once()
 
   def mockAuthRequiredRetrievals(eori: Eori, name: contactdetails.Name) =

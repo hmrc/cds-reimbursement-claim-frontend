@@ -97,7 +97,6 @@ class CheckEoriDetailsController @Inject() (
               case Yes =>
                 verifiedEmailAddressService
                   .getVerifiedEmailAddress(user.eori)
-                  .value
                   .map {
                     case Left(error)    =>
                       logger.warn(s"Error submitting a verified email", error.toException)

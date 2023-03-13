@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
-import cats.data.EitherT
-import cats.implicits.catsStdInstancesForFuture
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -54,7 +52,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressSe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SelectTypeOfClaimControllerSpec
@@ -120,7 +117,7 @@ class SelectTypeOfClaimControllerSpec
     (mockVerifiedEmailAddressService
       .getVerifiedEmailAddress(_: Eori)(_: HeaderCarrier))
       .expects(*, *)
-      .returning(EitherT.fromEither[Future](response))
+      .returning(Future.successful(response))
       .once()
 
   "SelectTypeOfClaimController" must {

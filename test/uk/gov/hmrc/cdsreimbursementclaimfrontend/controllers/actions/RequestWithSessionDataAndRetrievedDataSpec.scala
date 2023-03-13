@@ -85,7 +85,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
             DraftClaim.blank
           )
         val request                        = RequestWithSessionDataAndRetrievedData(
-          SessionData(Some(fillingOutClaim)),
+          SessionData(journeyStatus = Some(fillingOutClaim)),
           authenticatedRequest(randomIndividual)
         )
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
@@ -104,7 +104,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
 
         val request =
           RequestWithSessionDataAndRetrievedData(
-            SessionData(Some(justSubmittedClaim)),
+            SessionData(journeyStatus = Some(justSubmittedClaim)),
             authenticatedRequest(randomIndividual)
           )
 
@@ -118,7 +118,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
             signedInUser(randomIndividual)
           )
         val request              = RequestWithSessionDataAndRetrievedData(
-          SessionData(Some(claim)),
+          SessionData(journeyStatus = Some(claim)),
           authenticatedRequest(randomIndividual)
         )
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
