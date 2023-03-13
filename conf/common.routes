@@ -11,3 +11,5 @@ GET         /single/change-number-of-claims        uk.gov.hmrc.cdsreimbursementc
 POST        /single/change-number-of-claims        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController.submit()
 
 GET         /bank-account-verification-unavailable uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.BankAccountVerificationUnavailable.show()
+
+GET         /sign-out                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SignOutController.showSignOutPage()
