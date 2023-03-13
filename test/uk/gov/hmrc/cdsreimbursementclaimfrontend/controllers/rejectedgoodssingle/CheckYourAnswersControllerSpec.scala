@@ -120,7 +120,7 @@ class CheckYourAnswersControllerSpec
       "Claim total",
       "Details of inspection",
       "Supporting documents",
-      "Now send your application"
+      "Now send your claim"
     ) ++ (if (whetherShowRepaymentMethod) Seq("Repayment method") else Nil)
 
     summaryKeys should contain allElementsOf Seq(

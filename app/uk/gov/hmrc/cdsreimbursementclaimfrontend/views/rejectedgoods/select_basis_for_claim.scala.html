@@ -58,8 +58,6 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
@@ -67,8 +65,7 @@
             name = key,
             legend = title,
             classes = "govuk-visually-hidden",
-            items = radioItems,
-            splitBefore = "SpecialCircumstances"
+            items = radioItems
         )
 
         @submitButton("button.continue")

@@ -122,7 +122,7 @@ class CheckYourAnswersControllerSpec
       "Claim total".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
-      "Now send your application".expectedAlways
+      "Now send your claim".expectedAlways
     )
 
     val mrnKeys: Seq[(String, Option[String])]            =

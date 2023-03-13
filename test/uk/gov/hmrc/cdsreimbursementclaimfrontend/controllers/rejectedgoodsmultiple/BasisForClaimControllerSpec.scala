@@ -91,12 +91,7 @@ class BasisForClaimControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey("select-basis-for-claim.rejected-goods.title"),
-          doc => {
-            doc
-              .select("main p")
-              .text()               shouldBe messageFromMessageKey("select-basis-for-claim.rejected-goods.help-text")
-            selectedRadioValue(doc) shouldBe None
-          }
+          doc => selectedRadioValue(doc) shouldBe None
         )
       }
 
@@ -113,12 +108,7 @@ class BasisForClaimControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("select-basis-for-claim.rejected-goods.title"),
-            doc => {
-              doc
-                .select("main p")
-                .text()               shouldBe messageFromMessageKey("select-basis-for-claim.rejected-goods.help-text")
-              selectedRadioValue(doc) shouldBe basisOfClaims
-            }
+            doc => selectedRadioValue(doc) shouldBe basisOfClaims
           )
         }
       }
