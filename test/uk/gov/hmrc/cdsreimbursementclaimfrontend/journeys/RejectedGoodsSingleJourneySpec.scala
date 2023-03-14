@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.authenticatedUserGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 
 import RejectedGoodsSingleJourneyGenerators._
@@ -308,7 +308,7 @@ class RejectedGoodsSingleJourneySpec
       "return the specified details if they have been entered" in {
         forAll(completeJourneyGen, authenticatedUserGen) { (journey, signedInUser) =>
           whenever(journey.answers.contactDetails.isDefined) {
-            val result = journey.computeContactDetails(signedInUser)
+            val result = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail)
             result shouldBe journey.answers.contactDetails
           }
         }
@@ -329,7 +329,7 @@ class RejectedGoodsSingleJourneySpec
             val expectedContact   = journey.answers.displayDeclaration
               .flatMap(_.getConsigneeDetails.flatMap(_.contactDetails))
               .getOrElse(fail("Failed to get contact details"))
-            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
             calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
               signedInUser.email.get.value
@@ -353,7 +353,7 @@ class RejectedGoodsSingleJourneySpec
             journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined &&
               journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isEmpty
           ) {
-            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName           shouldBe signedInUser.name
               .map(_.toFullName)
               .getOrElse(fail("No signed in user name present"))
@@ -381,7 +381,7 @@ class RejectedGoodsSingleJourneySpec
             val expectedContact   = journey.answers.displayDeclaration
               .flatMap(_.getDeclarantDetails.contactDetails)
               .getOrElse(fail("Failed to get contact details"))
-            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
             calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
               signedInUser.email.get.value
@@ -407,7 +407,7 @@ class RejectedGoodsSingleJourneySpec
             val expectedContact   = journey.answers.displayDeclaration
               .flatMap(_.getDeclarantDetails.contactDetails)
               .getOrElse(fail("Failed to get contact details"))
-            val calculatedContact = journey.computeContactDetails(signedInUser).get
+            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
             calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
               signedInUser.email.get.value

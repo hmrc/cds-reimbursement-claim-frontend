@@ -23,7 +23,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -83,7 +83,7 @@ abstract class ModelBaseController[Model](implicit ec: ExecutionContext, fmt: Fo
 
   /** Async GET action to show page based on the user data and model state. */
   final def actionReadModelAndUser(
-    body: Request[_] => Model => RetrievedUserType => Future[Result]
+    body: Request[_] => Model => AuthenticatedUser => Future[Result]
   ): Action[AnyContent] =
     ccc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -95,7 +95,7 @@ abstract class ModelBaseController[Model](implicit ec: ExecutionContext, fmt: Fo
 
   /** Simple GET action to show page based on the user data and model state. */
   final def simpleActionReadModelAndUser(
-    body: Model => RetrievedUserType => Result
+    body: Model => AuthenticatedUser => Result
   ): Action[AnyContent] =
     ccc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -145,7 +145,7 @@ abstract class ModelBaseController[Model](implicit ec: ExecutionContext, fmt: Fo
 
   /** Simple POST to submit form and update model, can use current user data. */
   final def simpleActionReadWriteModelAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Model => RetrievedUserType => (Model, Result)
+    body: RequestWithSessionDataAndRetrievedData[_] => Model => AuthenticatedUser => (Model, Result)
   ): Action[AnyContent] =
     ccc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -217,7 +217,7 @@ abstract class ModelBaseController[Model](implicit ec: ExecutionContext, fmt: Fo
 
   /** Async POST action to submit form and update model, can use current user data. */
   final def actionReadWriteModelAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Model => RetrievedUserType => Future[(Model, Result)]
+    body: RequestWithSessionDataAndRetrievedData[_] => Model => AuthenticatedUser => Future[(Model, Result)]
   ): Action[AnyContent] =
     ccc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)

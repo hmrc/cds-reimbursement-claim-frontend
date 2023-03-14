@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -187,7 +187,7 @@ class CheckClaimantDetailsControllerSpec
               rejectedGoodsScheduledJourney = Some(journey)
             )
 
-            val expectedContactDetails = journey.computeContactDetails(individual)
+            val expectedContactDetails = journey.computeContactDetails(individual, individual.asVerifiedEmail)
             val expectedAddress        = journey.computeAddressDetails.get
             val expectedJourney        =
               journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)

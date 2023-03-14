@@ -21,21 +21,25 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 
-sealed trait RetrievedUserType {
+sealed trait AuthenticatedUser {
   def name: Option[Name]
   def email: Option[Email]
   def eoriOpt: Option[Eori] = None
+
+  final def asVerifiedEmail: Option[CdsVerifiedEmail] =
+    email.map(e => CdsVerifiedEmail(e.value, ""))
 }
 
-object RetrievedUserType {
+object AuthenticatedUser {
 
   final case class Individual(
     ggCredId: GGCredId,
     email: Option[Email],
     eori: Eori,
     name: Option[Name]
-  ) extends RetrievedUserType {
+  ) extends AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
   }
 
@@ -44,17 +48,18 @@ object RetrievedUserType {
     email: Option[Email],
     eori: Eori,
     name: Option[Name]
-  ) extends RetrievedUserType {
+  ) extends AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
   }
 
-  final case class NonGovernmentGatewayRetrievedUser(authProvider: String) extends RetrievedUserType {
+  final case class NonGovernmentGatewayAuthenticatedUser(authProvider: String) extends AuthenticatedUser {
     override val name: Option[Name]   = None
     override val email: Option[Email] = None
   }
 
-  object NonGovernmentGatewayRetrievedUser {
-    implicit val format: OFormat[NonGovernmentGatewayRetrievedUser] = Json.format[NonGovernmentGatewayRetrievedUser]
+  object NonGovernmentGatewayAuthenticatedUser {
+    implicit val format: OFormat[NonGovernmentGatewayAuthenticatedUser] =
+      Json.format[NonGovernmentGatewayAuthenticatedUser]
   }
 
 }

@@ -44,7 +44,6 @@ trait SessionUpdates {
       Future.successful(Right(()))
     else
       sessionCache.store(updatedSession)
-
   }
 
 }
@@ -52,9 +51,7 @@ trait SessionUpdates {
 object SessionUpdates {
 
   trait SessionProvider[A] {
-
     def toSession(a: A): SessionData
-
   }
 
   object SessionProvider {

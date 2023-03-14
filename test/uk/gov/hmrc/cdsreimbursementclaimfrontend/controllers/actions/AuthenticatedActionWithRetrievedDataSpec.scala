@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.RetrievalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -56,7 +56,7 @@ class AuthenticatedActionWithRetrievedDataSpec
     with SessionSupport
     with AuthActionSpec {
 
-  implicit val format: OFormat[RetrievedUserType] = derived.oformat[RetrievedUserType]()
+  implicit val format: OFormat[AuthenticatedUser] = derived.oformat[AuthenticatedUser]()
 
   val retrievals: Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials] ~ Option[Name]] =
     Retrievals.affinityGroup and
@@ -142,8 +142,8 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[RetrievedUserType](
-            RetrievedUserType.NonGovernmentGatewayRetrievedUser(providerType)
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+            AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(providerType)
           )
         }
 
@@ -166,8 +166,8 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[RetrievedUserType](
-            RetrievedUserType
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+            AuthenticatedUser
               .Individual(
                 GGCredId("id"),
                 Some(Email("email")),
@@ -190,8 +190,8 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[RetrievedUserType](
-            RetrievedUserType
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+            AuthenticatedUser
               .Organisation(
                 GGCredId("id"),
                 Some(Email("email")),
@@ -350,8 +350,8 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[RetrievedUserType](
-            RetrievedUserType
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+            AuthenticatedUser
               .Individual(
                 GGCredId("id"),
                 Some(Email("email")),
@@ -374,8 +374,8 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[RetrievedUserType](
-            RetrievedUserType
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+            AuthenticatedUser
               .Organisation(
                 GGCredId("id"),
                 Some(Email("email")),

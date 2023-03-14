@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.NonGovernmentGatewayRetrievedUser
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -63,8 +63,8 @@ class StartController @Inject() (
         request.authenticatedRequest.journeyUserType,
         request.sessionData.journeyStatus
       ) match {
-        case (retrievedUserType, _) =>
-          handleRetrievedUserType(retrievedUserType)
+        case (authenticatedUser, _) =>
+          handleAuthenticatedUser(authenticatedUser)
       }
     }
 
@@ -113,24 +113,24 @@ class StartController @Inject() (
   val timedOut: Action[AnyContent] =
     Action(implicit request => Ok(timedOutPage()))
 
-  private def handleRetrievedUserType(
-    retrievedUserType: RetrievedUserType
+  private def handleAuthenticatedUser(
+    authenticatedUser: AuthenticatedUser
   )(implicit
     request: RequestWithSessionDataAndRetrievedData[AnyContent]
   ): Future[Result] =
-    retrievedUserType match {
-      case RetrievedUserType.Individual(ggCredId, _, eori, _) =>
+    authenticatedUser match {
+      case AuthenticatedUser.Individual(ggCredId, _, eori, _) =>
         handleSignedInUser(ggCredId, eori)
 
-      case RetrievedUserType.Organisation(ggCredId, _, eori, _) =>
+      case AuthenticatedUser.Organisation(ggCredId, _, eori, _) =>
         handleSignedInUser(ggCredId, eori)
 
-      case u: RetrievedUserType.NonGovernmentGatewayRetrievedUser =>
+      case u: AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser =>
         handleNonGovernmentGatewayUser(u)
     }
 
   private def handleNonGovernmentGatewayUser(
-    nonGovernmentGatewayUser: NonGovernmentGatewayRetrievedUser
+    nonGovernmentGatewayUser: NonGovernmentGatewayAuthenticatedUser
   )(implicit
     request: RequestWithSessionDataAndRetrievedData[_]
   ): Future[Result] = {

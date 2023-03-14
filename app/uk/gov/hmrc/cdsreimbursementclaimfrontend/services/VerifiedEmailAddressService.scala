@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import cats.data.EitherT
 import cats.implicits.toBifunctorOps
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
@@ -26,46 +25,57 @@ import play.mvc.Http.Status.OK
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.VerifiedEmailAddressConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 
 @ImplementedBy(classOf[DefaultVerifiedEmailAddressService])
 trait VerifiedEmailAddressService {
-  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]]
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[CdsVerifiedEmail]]]
 }
 
 @Singleton
 class DefaultVerifiedEmailAddressService @Inject() (
-  verifiedEmailAddressConnector: VerifiedEmailAddressConnector
+  verifiedEmailAddressConnector: VerifiedEmailAddressConnector,
+  sessionStore: SessionCache
 )(implicit
   ec: ExecutionContext
 ) extends VerifiedEmailAddressService
     with Logging {
 
-  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]] =
-    verifiedEmailAddressConnector
-      .getVerifiedEmailAddress(eori)
-      .subflatMap { response =>
-        response.status match {
-          case OK        =>
-            response
-              .parseJSON[VerifiedEmail]()
-              .map(Some(_))
-              .leftMap { error =>
-                logger.warn(s"Error Parsing customs data store response: $error")
-                Error(error)
+  def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[CdsVerifiedEmail]]] =
+    sessionStore
+      .updateF { sessionData =>
+        if (sessionData.verifiedEmail.isDefined)
+          Future.successful(Right(sessionData))
+        else
+          verifiedEmailAddressConnector
+            .getVerifiedEmailAddress(eori)
+            .subflatMap { response =>
+              response.status match {
+                case OK        =>
+                  response
+                    .parseJSON[CdsVerifiedEmail]()
+                    .map(verifiedEmail => sessionData.copy(verifiedEmail = Some(verifiedEmail)))
+                    .leftMap { error =>
+                      logger.warn(s"Error Parsing customs data store response: $error")
+                      Error(error)
+                    }
+                case NOT_FOUND =>
+                  Right(sessionData)
+                case s: Int    =>
+                  val errorMessage = s"Customs Data Store status: $s, body: ${response.body}"
+                  logger.warn(errorMessage)
+                  Left(Error(errorMessage))
               }
-          case NOT_FOUND =>
-            Right(None)
-          case s: Int    =>
-            val errorMessage = s"Customs Data Store status: $s, body: ${response.body}"
-            logger.warn(errorMessage)
-            Left(Error(errorMessage))
-        }
+            }
+            .value
       }
+      .map(_.map(_.verifiedEmail))
+
 }

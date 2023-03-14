@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRespons
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactNa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.C285ClaimGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.arbitraryIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.arbitraryIndividual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
 class RequestWithSessionDataAndRetrievedDataSpec
@@ -53,14 +53,14 @@ class RequestWithSessionDataAndRetrievedDataSpec
   private lazy val messagesRequest =
     new MessagesRequest(FakeRequest(), messagesApi)
 
-  def authenticatedRequest(user: RetrievedUserType.Individual): AuthenticatedRequestWithRetrievedData[_] =
+  def authenticatedRequest(user: AuthenticatedUser.Individual): AuthenticatedRequestWithRetrievedData[_] =
     AuthenticatedRequestWithRetrievedData(
       user,
       Some(UserType.Individual),
       messagesRequest
     )
 
-  def signedInUser(user: RetrievedUserType.Individual): SignedInUserDetails = SignedInUserDetails(
+  def signedInUser(user: AuthenticatedUser.Individual): SignedInUserDetails = SignedInUserDetails(
     user.email,
     user.eori,
     Email(""),
@@ -69,7 +69,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
 
   "Request with session data and retrieved data" should {
     "determine the signed in user details" when {
-      "No claims journey has started" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "No claims journey has started" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val request = RequestWithSessionDataAndRetrievedData(
           SessionData.empty,
           authenticatedRequest(randomIndividual)
@@ -77,7 +77,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
         request.signedInUserDetails shouldBe None
       }
 
-      "We have a C285 Filling Out Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "We have a C285 Filling Out Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val fillingOutClaim: JourneyStatus =
           JourneyStatus.FillingOutClaim(
             randomIndividual.ggCredId,
@@ -85,13 +85,13 @@ class RequestWithSessionDataAndRetrievedDataSpec
             DraftClaim.blank
           )
         val request                        = RequestWithSessionDataAndRetrievedData(
-          SessionData(Some(fillingOutClaim)),
+          SessionData(journeyStatus = Some(fillingOutClaim)),
           authenticatedRequest(randomIndividual)
         )
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
       }
 
-      "We have a C285 Just Submitted Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "We have a C285 Just Submitted Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val claim: C285Claim = sample[C285Claim]
 
         val justSubmittedClaim: JourneyStatus =
@@ -104,27 +104,27 @@ class RequestWithSessionDataAndRetrievedDataSpec
 
         val request =
           RequestWithSessionDataAndRetrievedData(
-            SessionData(Some(justSubmittedClaim)),
+            SessionData(journeyStatus = Some(justSubmittedClaim)),
             authenticatedRequest(randomIndividual)
           )
 
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
       }
 
-      "We have a C285 Failed Submitted Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "We have a C285 Failed Submitted Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val claim: JourneyStatus =
           JourneyStatus.SubmitClaimFailed(
             randomIndividual.ggCredId,
             signedInUser(randomIndividual)
           )
         val request              = RequestWithSessionDataAndRetrievedData(
-          SessionData(Some(claim)),
+          SessionData(journeyStatus = Some(claim)),
           authenticatedRequest(randomIndividual)
         )
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
       }
 
-      "We have a C&E1179 Single Journey Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "We have a C&E1179 Single Journey Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val singleJourney = RejectedGoodsSingleJourney.empty(randomIndividual.eori)
         val request       = RequestWithSessionDataAndRetrievedData(
           SessionData(singleJourney),
@@ -133,7 +133,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
       }
 
-      "We have a C&E1179 Multiple Journey Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "We have a C&E1179 Multiple Journey Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val multipleJourney = RejectedGoodsMultipleJourney.empty(randomIndividual.eori)
         val request         = RequestWithSessionDataAndRetrievedData(
           SessionData(multipleJourney),
@@ -142,7 +142,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
       }
 
-      "We have a C&E1179 Scheduled Journey Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "We have a C&E1179 Scheduled Journey Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val scheduledJourney = RejectedGoodsScheduledJourney.empty(randomIndividual.eori)
         val request          = RequestWithSessionDataAndRetrievedData(
           SessionData(scheduledJourney),
@@ -151,7 +151,7 @@ class RequestWithSessionDataAndRetrievedDataSpec
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
       }
 
-      "We have a Securities Journey Claim" in forAll { randomIndividual: RetrievedUserType.Individual =>
+      "We have a Securities Journey Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
         val securitiesJourney = SecuritiesJourney.empty(randomIndividual.eori)
         val request           = RequestWithSessionDataAndRetrievedData(
           SessionData(securitiesJourney),
