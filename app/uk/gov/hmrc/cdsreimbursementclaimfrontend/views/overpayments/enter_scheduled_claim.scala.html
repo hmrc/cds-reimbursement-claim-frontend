@@ -51,6 +51,8 @@
 
     @paragraph(Html(messages(s"$key.help-text", messages(s"tax-code.${dutyCode.value}"))))
 
+    @paragraph(Html(messages(s"$key.p1")))
+
     @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
