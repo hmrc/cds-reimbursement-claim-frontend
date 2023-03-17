@@ -50,6 +50,8 @@
 
     @heading(Html(title))
 
+    @paragraph(Html(messages(s"$key.paragraph")))
+
     @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
