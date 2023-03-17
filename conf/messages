@@ -247,10 +247,10 @@ check-eori-details.error.invalid=Are these details correct?
 #  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
 rejected-goods.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
-rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
+rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple MRNs
-rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with both GB and XI EORI numbers.
+rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
@@ -603,7 +603,7 @@ enter-contact-details.contact-email.label=Email address
 enter-contact-details.contact-email.error.required=Enter an email address in the correct format, like name@example.com
 enter-contact-details.contact-email.invalid=Enter an email address in the correct format, like name@example.com
 enter-contact-details.contact-email.error.maxLength=Email address must be 241 characters or less
-enter-contact-details.contact-phone-number.label=Telephone (optional)
+enter-contact-details.contact-phone-number.label=Telephone
 enter-contact-details.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 enter-contact-details.contact-phone-number.error.maxLength=Phone number must be 30 characters or less
 enter-contact-details.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
@@ -633,7 +633,7 @@ check-declaration-details.details.h1=Importer
 check-declaration-details.details.p1=The importer is the person or company that purchased the goods brought into the UK.
 check-declaration-details.details.h2=Declarant
 check-declaration-details.details.p2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
-check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contacting the Customs Declaration Service (CDS) team (opens in new tab)</a>.
+check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contacting HMRC (opens in new tab)</a>.
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
@@ -769,9 +769,9 @@ select-basis-for-claim.reason.d14=Other reason
 #  SELECT BASIS OF REJECTED GOODS PAGE
 #===================================================
 select-basis-for-claim.rejected-goods.title=Choose the reason for making this claim
-select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Damaged before clearance
-select-basis-for-claim.rejected-goods.reason.Defective=Defective
-select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Not in accordance with contract
+select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Goods were damaged before customs clearance
+select-basis-for-claim.rejected-goods.reason.Defective=Goods are defective
+select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Goods are not in accordance with contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
 select-basis-for-claim.rejected-goods.error.required=Select the reason for making this claim
 
@@ -847,6 +847,7 @@ enter-additional-details.hint=Provide brief details about this claim.
 #===================================================
 enter-claim.rejected-goods.single.title=Claim details for {0} - {1}
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
+enter-claim.rejected-goods.paragraph=This is to calculate your repayment as part of your claim.
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
@@ -873,7 +874,7 @@ enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
 #===================================================
 #  CHECK CLAIM REJECTED GOODS - SINGLE
 #===================================================
-check-claim.rejected-goods.single.title=Choose the reason for making this claim
+check-claim.rejected-goods.single.title=Check the repayment claim total for the MRN
 check-claim.rejected-goods.multiple.title=Check the repayment claim totals for all MRNs
 check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim.rejected-goods.description=Your repayment calculations are shown below. This is based on the information you provided to us.
@@ -1698,7 +1699,8 @@ confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.claim-reference=Your claim reference number
 confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your spam folder or contact HMRC.
 confirmation-of-submission.whatNext=What happens next?
-confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will aim to email or write a letter to you to tell you the outcome within 30 working days. We will contact you to either:
+confirmation-of-submission.what-next.p1=Your claim will be reviewed by HMRC and we will email or write to you within 30 working days with the outcome.
+confirmation-of-submission.what-next.p2=We will contact you to either:
 confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
@@ -1755,8 +1757,8 @@ declaration-not-found.submit=Enter a different MRN
 #===================================================
 #  CHOOSE FILE TYPE - PAGE
 #===================================================
-choose-file-type.title=Choose the type of supporting documents you are uploading
-choose-file-type.help-text=You can upload multiple documents of the same type on the next page. This will help us to process your claim more efficiently.
+choose-file-type.title=Add supporting documents to your claim
+choose-file-type.help-text=You can repeat this step to add more types of documents to your claim.
 
 choose-file-type.file-type.AirWayBill=Air waybill
 choose-file-type.file-type.BillOfLading=Bill of lading
