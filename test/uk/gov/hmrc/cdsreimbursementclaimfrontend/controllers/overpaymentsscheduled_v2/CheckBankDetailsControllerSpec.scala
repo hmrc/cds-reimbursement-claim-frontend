@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import org.scalatest.BeforeAndAfterEach
 
 class CheckBankDetailsControllerSpec
-  extends PropertyBasedControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with MockFactory
@@ -81,9 +81,9 @@ class CheckBankDetailsControllerSpec
   }
 
   private def sessionWithBankDetailsStored(
-                                            session: SessionData,
-                                            bankAccountDetails: BankAccountDetails
-                                          ): SessionData =
+    session: SessionData,
+    bankAccountDetails: BankAccountDetails
+  ): SessionData =
     session.copy(overpaymentsScheduledJourney =
       session.overpaymentsScheduledJourney
         .flatMap(_.submitBankAccountDetails(bankAccountDetails).toOption)

@@ -51,8 +51,7 @@ class EnterClaimController @Inject() (
   final def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.findNextDutyToSelectDuties match {
       case None =>
-        (journey.getSelectedDuties.headOption
-          .flatMap { case (dt, tcs) => tcs.headOption.map(tc => (dt, tc)) } match {
+        (journey.getFirstDutyToClaim match {
           case Some((dutyType, taxCode)) =>
             Redirect(routes.EnterClaimController.show(dutyType, taxCode))
 
@@ -69,9 +68,13 @@ class EnterClaimController @Inject() (
     implicit request => journey =>
       journey.findNextDutyToSelectDuties match {
         case None =>
-          val postAction: Call                                  = routes.EnterClaimController.submit(dutyType, taxCode)
-          val maybeReimbursement: Option[AmountPaidWithCorrect] = journey.getReimbursementFor(dutyType, taxCode)
-          val form                                              = enterScheduledClaimForm.withDefault(maybeReimbursement)
+          val postAction: Call =
+            routes.EnterClaimController.submit(dutyType, taxCode)
+
+          val maybeReimbursement: Option[AmountPaidWithCorrect] =
+            journey.getReimbursementFor(dutyType, taxCode)
+
+          val form = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
           Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
 
@@ -105,11 +108,11 @@ class EnterClaimController @Inject() (
                   ),
                 reimbursement =>
                   journey
-                    .submitAmountForReimbursement(
+                    .submitCorrectAmount(
                       currentDuty,
                       currentTaxCode,
-                      reimbursement.refundAmount,
-                      reimbursement.paidAmount
+                      reimbursement.paidAmount,
+                      reimbursement.correctAmount
                     )
                     .fold(
                       errors => {
@@ -154,8 +157,9 @@ class EnterClaimController @Inject() (
   ): Form[AmountPaidWithCorrect] = {
     val errors: Seq[FormError] = formWithErrors.errors.map {
       case formError if formError.messages.contains("invalid.claim") =>
-        formError.copy(key = s"${formError.key}.claim-amount")
-      case formError                                                 => formError
+        formError.copy(key = s"${formError.key}.actual-amount")
+
+      case formError => formError
     }
     formWithErrors.copy(errors = errors)
   }

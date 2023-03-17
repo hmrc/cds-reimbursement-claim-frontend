@@ -105,6 +105,12 @@ final class RejectedGoodsScheduledJourney private (
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
 
+  def getFirstDutyToClaim: Option[(DutyType, TaxCode)] =
+    getSelectedDuties.headOption
+      .flatMap { case (dt, tcs) =>
+        tcs.headOption.map(tc => (dt, tc))
+      }
+
   def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
     getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
 
