@@ -698,7 +698,7 @@ select-basis-for-claim.title=Choose the reason for making this claim
 select-basis-for-claim.error.number=Select the reason for making this claim
 select-basis-for-claim.error.required=Select the reason for making this claim
 select-basis-for-claim.select-label=Choose which basis for claim
-select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
+select-basis-for-claim.help-text=Select one option from list.
 select-basis-for-claim.details.heading=Examples of basis of claim
 
 select-basis-for-claim.details.bullet.0=Duplicate MRN:
@@ -764,7 +764,6 @@ select-basis-for-claim.reason.d12=Proof of return or refund given
 select-basis-for-claim.reason.d13=Returned goods relief (RGR)
 select-basis-for-claim.reason.d14=Other reason
 
-select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
 
 #===================================================
 #  SELECT BASIS OF REJECTED GOODS PAGE
