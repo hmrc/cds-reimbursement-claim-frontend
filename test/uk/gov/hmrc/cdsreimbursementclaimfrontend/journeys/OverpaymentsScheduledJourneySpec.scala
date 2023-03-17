@@ -21,7 +21,6 @@ import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.i18n.Lang.logger
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
@@ -29,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
@@ -56,7 +54,7 @@ class OverpaymentsScheduledJourneySpec
       emptyJourney.answers.additionalDetails          shouldBe None
       emptyJourney.answers.displayDeclaration         shouldBe None
       emptyJourney.answers.consigneeEoriNumber        shouldBe None
-      emptyJourney.answers.reimbursementClaims        shouldBe None
+      emptyJourney.answers.correctedAmounts           shouldBe None
       emptyJourney.answers.selectedDocumentType       shouldBe None
       emptyJourney.answers.supportingEvidences        shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode shouldBe false
@@ -206,7 +204,7 @@ class OverpaymentsScheduledJourneySpec
             .getOrFail
         modifiedJourney.answers.movementReferenceNumber shouldBe Some(exampleMrn)
         modifiedJourney.answers.displayDeclaration      shouldBe Some(exampleDisplayDeclaration)
-        modifiedJourney.answers.reimbursementClaims     shouldBe None
+        modifiedJourney.answers.correctedAmounts        shouldBe None
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
         modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
@@ -774,8 +772,7 @@ class OverpaymentsScheduledJourneySpec
           )
           .flatMapEach(
             taxCodesWithAmounts,
-            j =>
-              (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitAmountForReimbursement(d._1, d._2, d._3, d._4)
+            j => (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitCorrectAmount(d._1, d._2, d._3, d._4)
           )
           .getOrFail
 
@@ -807,8 +804,7 @@ class OverpaymentsScheduledJourneySpec
           )
           .flatMapEach(
             taxCodesWithAmounts.dropRight(1),
-            j =>
-              (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitAmountForReimbursement(d._1, d._2, d._3, d._4)
+            j => (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitCorrectAmount(d._1, d._2, d._3, d._4)
           )
           .getOrFail
 
@@ -838,7 +834,7 @@ class OverpaymentsScheduledJourneySpec
             taxCodesWithAmounts,
             j =>
               (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) =>
-                j.submitAmountForReimbursement(d._1, taxCodeNotMatchingDutyType(d._1), d._3, d._4)
+                j.submitCorrectAmount(d._1, taxCodeNotMatchingDutyType(d._1), d._3, d._4)
           )
 
         result shouldBe Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
@@ -872,7 +868,7 @@ class OverpaymentsScheduledJourneySpec
             taxCodesWithAmounts,
             j =>
               (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) =>
-                j.submitAmountForReimbursement(d._1, taxCodeNotSelected(d._1), d._3, d._4)
+                j.submitCorrectAmount(d._1, taxCodeNotSelected(d._1), d._3, d._4)
           )
 
         result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
@@ -935,7 +931,7 @@ class OverpaymentsScheduledJourneySpec
             taxCodesWithAmounts,
             j =>
               (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) =>
-                j.submitAmountForReimbursement(d._1, d._2, d._4, d._3) // swaped amounts
+                j.submitCorrectAmount(d._1, d._2, d._4, d._3) // swaped amounts
           )
         result shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
       }
@@ -949,7 +945,7 @@ class OverpaymentsScheduledJourneySpec
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
           tca.foreach { case (taxCode, AmountPaidWithCorrect(pa, ca)) =>
             val modifiedJourney =
-              journey.submitAmountForReimbursement(dutyType, taxCode, pa * 0.8, ca * 0.8).getOrFail
+              journey.submitCorrectAmount(dutyType, taxCode, pa * 0.8, ca * 0.8).getOrFail
 
             modifiedJourney.getTotalReimbursementAmount shouldBe totalReimbursementAmount - ((pa - ca) * 0.2)
             modifiedJourney.getTotalPaidAmount          shouldBe totalPaidAmount - pa * 0.2
@@ -970,7 +966,7 @@ class OverpaymentsScheduledJourneySpec
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
           tca.foreach { case (_, AmountPaidWithCorrect(pa, ca)) =>
             val result =
-              journey.submitAmountForReimbursement(dutyType, taxCodeNotSelected(dutyType), pa, ca)
+              journey.submitCorrectAmount(dutyType, taxCodeNotSelected(dutyType), pa, ca)
             result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
           }
         }
@@ -982,15 +978,15 @@ class OverpaymentsScheduledJourneySpec
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
           tca.foreach { case (taxCode, AmountPaidWithCorrect(pa, _)) =>
             val result1 =
-              journey.submitAmountForReimbursement(dutyType, taxCode, pa, pa)
+              journey.submitCorrectAmount(dutyType, taxCode, pa, pa)
             result1 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
 
             val result2 =
-              journey.submitAmountForReimbursement(dutyType, taxCode, pa, BigDecimal("-0.01"))
+              journey.submitCorrectAmount(dutyType, taxCode, pa, BigDecimal("-0.01"))
             result2 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
 
             val result3 =
-              journey.submitAmountForReimbursement(dutyType, taxCode, pa, pa + BigDecimal("0.01"))
+              journey.submitCorrectAmount(dutyType, taxCode, pa, pa + BigDecimal("0.01"))
             result3 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
           }
         }
@@ -1006,7 +1002,7 @@ class OverpaymentsScheduledJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
+          .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
@@ -1312,9 +1308,7 @@ class OverpaymentsScheduledJourneySpec
         val invalidJourney: OverpaymentsScheduledJourney = data.removeScheduledDocument
 
         invalidJourney.toOutput shouldBe Left(
-          List(
-            "Unfortunately could not produce the output, please check if all answers are complete."
-          )
+          List("missingScheduledDocument")
         )
       }
     }

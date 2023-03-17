@@ -38,9 +38,9 @@
 
 @(dutyType: DutyType, dutyCode: TaxCode, form : Form[AmountPaidWithCorrect], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-claim-scheduled"}
+@key = @{"enter-scheduled-claim"}
 @title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
-@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
+@hintText = @{Html(messages(s"$key.actual-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
@@ -67,12 +67,11 @@
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
-
         @inputText(
             form = form,
-            id = s"$key.claim-amount",
-            name = s"$key.claim-amount",
-            label = s"$key.claim-amount",
+            id = s"$key.actual-amount",
+            name = s"$key.actual-amount",
+            label = s"$key.actual-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,

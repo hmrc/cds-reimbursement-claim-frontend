@@ -51,8 +51,7 @@ class EnterClaimController @Inject() (
   final def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.findNextDutyToSelectDuties match {
       case None =>
-        (journey.getSelectedDuties.headOption
-          .flatMap { case (dt, tcs) => tcs.headOption.map(tc => (dt, tc)) } match {
+        (journey.getFirstDutyToClaim match {
           case Some((dutyType, taxCode)) =>
             Redirect(routes.EnterClaimController.show(dutyType, taxCode))
 
