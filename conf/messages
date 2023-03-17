@@ -1166,6 +1166,7 @@ enter-scheduled-claim.actual-amount.error.required=Enter the amount that should 
 enter-scheduled-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-scheduled-claim.actual-amount.invalid.claim=The amount that should have been paid must be less than the amount paid
 enter-scheduled-claim.invalid.claim=The amount paid must be a number, like 30 or 60.55
+enter-scheduled-claim.claim-amount.error.zero=The claim amount must be more than zero
 
 #===================================================
 #  ENTER CLAIM SCHEDULED PAGE C&E1179
