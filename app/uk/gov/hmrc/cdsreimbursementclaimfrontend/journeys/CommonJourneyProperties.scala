@@ -172,7 +172,14 @@ trait CommonJourneyProperties {
             declarantContactDetails.telephone.map(PhoneNumber(_))
           )
         )
-      case _                                                                                                      => None
+      case _                                                                                                      =>
+        Some(
+          MrnContactDetails(
+            authenticatedUser.name.map(_.toFullName).getOrElse(""),
+            currentUserEmail,
+            None
+          )
+        )
     }
   }
 

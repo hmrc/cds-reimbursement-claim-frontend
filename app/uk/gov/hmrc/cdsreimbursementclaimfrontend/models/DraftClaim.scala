@@ -211,14 +211,14 @@ final case class DraftClaim(
           )
         )
 
-      case (a, b, c) =>
-        Logger(getClass).warn(
-          s"Cannot compute contact details for MRN ${displayDeclaration
-            .map(_.displayResponseDetail.declarationId)
-            .getOrElse("<none>")} because of: hasPreviousAnswer=${a.isDefined}, hasConsigneeContactDetails=${b.isDefined}, hasDeclarantContactDetails=${c.isDefined}, userEoriMatchesConsigneeEori=${getConsigneeEoriFromACC14
-            .contains(user.eori)}"
+      case _ =>
+        Some(
+          MrnContactDetails(
+            user.contactName.value,
+            user.verifiedEmail,
+            None
+          )
         )
-        None
     }
 
   def computeAddressDetails(user: SignedInUserDetails): Option[ContactAddress] = (

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
-import cats.implicits.catsSyntaxEq
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -42,12 +41,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -124,7 +123,7 @@ class CheckClaimantDetailsControllerSpec
               Some(Credentials("id", "GovernmentGateway")),
               Some(Name(name.name, name.lastName))
             )
-            mockGetSession(session)
+            mockGetSession(SessionData(OverpaymentsSingleJourney.empty(eori)))
           }
 
           checkIsRedirect(
@@ -225,39 +224,36 @@ class CheckClaimantDetailsControllerSpec
         }
       }
 
-      "redirect to the enter MRN page if no contact details present" in {
-        forAll(displayDeclarationGen, genEmail, genName) { (displayDeclaration, email, name) =>
-          whenever(
-            displayDeclaration.getConsigneeDetails.get.consigneeEORI =!= exampleEori.value &&
-              displayDeclaration.getDeclarantDetails.declarantEORI =!= exampleEori.value
-          ) {
-            val journey = OverpaymentsSingleJourney
-              .empty(displayDeclaration.getDeclarantEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-              .getOrFail
-            val session = SessionData.empty.copy(
-              overpaymentsSingleJourney = Some(journey)
-            )
+      "redirect to the basis for claims page and update the contact/address details if third party user" in {
+        forAll(displayDeclarationGen, genEmail, genName, genEori) { (displayDeclaration, email, name, userEori) =>
+          val journey = OverpaymentsSingleJourney
+            .empty(userEori)
+            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+            .flatMap(_.submitConsigneeEoriNumber(displayDeclaration.getConsigneeEori.get))
+            .flatMap(_.submitDeclarantEoriNumber(displayDeclaration.getDeclarantEori))
+            .getOrFail
 
-            inSequence {
-              mockAuthWithAllRetrievals(
-                Some(AffinityGroup.Individual),
-                Some(email.value),
-                Set(
-                  Enrolment(EoriEnrolment.key)
-                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-                ),
-                Some(Credentials("id", "GovernmentGateway")),
-                Some(Name(name.name, name.lastName))
-              )
-              mockGetSession(session)
-            }
+          val session = SessionData(journey)
 
-            checkIsRedirect(
-              performAction(),
-              routes.EnterMovementReferenceNumberController.show
+          inSequence {
+            mockAuthWithAllRetrievals(
+              Some(AffinityGroup.Individual),
+              Some(email.value),
+              Set(
+                Enrolment(EoriEnrolment.key)
+                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, userEori.value)
+              ),
+              Some(Credentials("id", "GovernmentGateway")),
+              Some(Name(name.name, name.lastName))
             )
+            mockGetSession(session)
+            mockStoreSession(Right(()))
           }
+
+          checkIsRedirect(
+            performAction(),
+            routes.NorthernIrelandController.show
+          )
         }
       }
     }

@@ -78,10 +78,11 @@ class EnterImporterEoriNumberControllerSpec
     buildSecuritiesDisplayDeclaration(
       exampleMrnAsString,
       ReasonForSecurity.AccountSales.acc14Code,
-      declarantEORI = anotherExampleEori
+      declarantEORI = anotherExampleEori,
+      consigneeEORI = Some(yetAnotherExampleEori)
     )
 
-  lazy val initialSession = SessionData(
+  val initialSession = SessionData(
     SecuritiesJourney
       .empty(exampleEori)
       .submitMovementReferenceNumber(exampleMrn)
@@ -118,6 +119,35 @@ class EnterImporterEoriNumberControllerSpec
             doc.select("#enter-importer-eori-number").`val`() shouldBe ""
             doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
           }
+        )
+      }
+
+      "redirect to the declarant eori check if consignee details are missing on declaration" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.AccountSales.acc14Code,
+            declarantEORI = anotherExampleEori,
+            consigneeEORI = None
+          )
+
+        val initialSession = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(initialSession)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterDeclarantEoriNumberController.show
         )
       }
 
