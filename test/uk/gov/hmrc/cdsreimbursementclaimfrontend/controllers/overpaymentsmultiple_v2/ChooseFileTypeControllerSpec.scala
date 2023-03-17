@@ -41,12 +41,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
 class ChooseFileTypeControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with SummaryMatchers {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -61,28 +63,24 @@ class ChooseFileTypeControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "choose-file-type"
+  private val messagesKey: String = "supporting-evidence.choose-document-type"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
+  @annotation.nowarn
   def validateChooseFileTypePage(doc: Document, journey: OverpaymentsMultipleJourney) = {
-    radioItems(doc) should contain theSameElementsAs Seq(
-      ("Air waybill", "AirWayBill"),
-      ("Bill of lading", "BillOfLading"),
-      ("Commercial invoice", "CommercialInvoice"),
-      ("Correspondence between trader and agent", "CorrespondenceTrader"),
-      ("Import and export declaration", "ImportAndExportDeclaration"),
-      ("Packing list", "PackingList"),
-      ("Letter of authority", "ProofOfAuthority"),
-      ("Substitute entry", "SubstituteEntry"),
-      ("Other documents", "Other"),
-      (
-        if (journey.answers.supportingEvidences.isEmpty)
-          "I have no documents to upload"
-        else
-          "I have no more documents to upload",
-        "none"
+    radioItems(doc) should containOnlyPairsOf(
+      Seq(
+        ("Air waybill", "AirWayBill"),
+        ("Bill of lading", "BillOfLading"),
+        ("Commercial invoice", "CommercialInvoice"),
+        ("Correspondence between trader and agent", "CorrespondenceTrader"),
+        ("Import and export declaration", "ImportAndExportDeclaration"),
+        ("Packing list", "PackingList"),
+        ("Proof of authority", "ProofOfAuthority"),
+        ("Substitute entry", "SubstituteEntry"),
+        ("Other documents", "Other")
       )
     )
     hasContinueButton(doc)
@@ -178,17 +176,6 @@ class ChooseFileTypeControllerSpec
           messageFromMessageKey(s"$messagesKey.title"),
           doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration),
           expectedStatus = 400
-        )
-      }
-
-      "redirect to CYA when selected 'no documents to upload'" in {
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-        }
-        checkIsRedirect(
-          performAction("choose-file-type" -> "none"),
-          routes.CheckYourAnswersController.show
         )
       }
 

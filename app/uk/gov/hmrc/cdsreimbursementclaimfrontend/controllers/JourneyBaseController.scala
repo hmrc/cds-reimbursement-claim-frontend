@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWith
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
@@ -40,6 +40,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -156,7 +157,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Async GET action to show page based on the current user's auth data and journey state. */
   final def actionReadJourneyAndUser(
-    body: Request[_] => Journey => RetrievedUserType => Future[Result]
+    body: Request[_] => Journey => AuthenticatedUser => Option[CdsVerifiedEmail] => Future[Result]
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -166,7 +167,10 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
             if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
-                case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
+                case None         =>
+                  body(request)(journey)(request.authenticatedRequest.journeyUserType)(
+                    request.sessionData.verifiedEmail
+                  )
                 case Some(errors) => Future.successful(Redirect(routeForValidationErrors(errors)))
               }
           )
@@ -175,7 +179,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Simple GET action to show page based on the current user's auth data and journey state. */
   final def simpleActionReadJourneyAndUser(
-    body: Journey => RetrievedUserType => Result
+    body: Journey => AuthenticatedUser => Option[CdsVerifiedEmail] => Result
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -185,7 +189,10 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
             if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
             else
               checkIfMaybeActionPreconditionFails(journey) match {
-                case None         => body(journey)(request.authenticatedRequest.journeyUserType)
+                case None         =>
+                  body(journey)(request.authenticatedRequest.journeyUserType)(
+                    request.sessionData.verifiedEmail
+                  )
                 case Some(errors) => Redirect(routeForValidationErrors(errors))
               }
           )
@@ -257,7 +264,12 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Simple POST to submit form and update the current journey, can use current user's auth data. */
   final def simpleActionReadWriteJourneyAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => (Journey, Result),
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => AuthenticatedUser => Option[
+      CdsVerifiedEmail
+    ] => (
+      Journey,
+      Result
+    ),
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
@@ -268,7 +280,10 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
             if (journey.isFinalized) (journey, Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
-                case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
+                case None         =>
+                  body(request)(journey)(request.authenticatedRequest.journeyUserType)(
+                    request.sessionData.verifiedEmail
+                  )
                 case Some(errors) => (journey, Redirect(routeForValidationErrors(errors)))
               }
           )
@@ -357,7 +372,11 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Async POST action to submit form and update the journey, can use the current user's auth data. */
   final def actionReadWriteJourneyAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => Future[(Journey, Result)],
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => AuthenticatedUser => Option[
+      CdsVerifiedEmail
+    ] => Future[
+      (Journey, Result)
+    ],
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
@@ -368,7 +387,10 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
             if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
             else
               (checkIfMaybeActionPreconditionFails(journey) match {
-                case None         => body(request)(journey)(request.authenticatedRequest.journeyUserType)
+                case None         =>
+                  body(request)(journey)(request.authenticatedRequest.journeyUserType)(
+                    request.sessionData.verifiedEmail
+                  )
                 case Some(errors) => Future.successful((journey, Redirect(routeForValidationErrors(errors))))
               }).flatMap { case (modifiedJourney, result) =>
                 storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))

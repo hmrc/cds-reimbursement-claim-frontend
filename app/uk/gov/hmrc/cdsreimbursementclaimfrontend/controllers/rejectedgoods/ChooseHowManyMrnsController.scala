@@ -95,21 +95,27 @@ class ChooseHowManyMrnsController @Inject() (
               {
                 case Individual =>
                   (if (request.sessionData.rejectedGoodsSingleJourney.isEmpty)
-                     updateSession(sessionStore, request)(_ => SessionData(RejectedGoodsSingleJourney.empty(eori)))
+                     updateSession(sessionStore, request)(
+                       SessionData(RejectedGoodsSingleJourney.empty(eori)).withExistingUserData
+                     )
                    else
                      Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show()))
 
                 case Multiple =>
                   (if (request.sessionData.rejectedGoodsMultipleJourney.isEmpty)
-                     updateSession(sessionStore, request)(_ => SessionData(RejectedGoodsMultipleJourney.empty(eori)))
+                     updateSession(sessionStore, request)(
+                       SessionData(RejectedGoodsMultipleJourney.empty(eori)).withExistingUserData
+                     )
                    else
                      Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst()))
 
                 case Scheduled =>
                   (if (request.sessionData.rejectedGoodsScheduledJourney.isEmpty)
-                     updateSession(sessionStore, request)(_ => SessionData(RejectedGoodsScheduledJourney.empty(eori)))
+                     updateSession(sessionStore, request)(
+                       SessionData(RejectedGoodsScheduledJourney.empty(eori)).withExistingUserData
+                     )
                    else
                      Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show()))

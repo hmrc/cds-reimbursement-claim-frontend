@@ -140,7 +140,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$pageKey.error.required"
+              s"choose-file-type.error.required"
             ),
           BAD_REQUEST
         )
@@ -158,14 +158,14 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
         checkPageIsDisplayed(
           performAction(
-            Seq("supporting-evidence.choose-document-type" -> "FOO")
+            Seq("choose-file-type" -> "FOO")
           ),
           messageFromMessageKey(s"$pageKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$pageKey.error.invalid-document-type"
+              s"choose-file-type.choose-file-type.error.invalid-file-type"
             ),
           BAD_REQUEST
         )
@@ -187,7 +187,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
         checkIsTechnicalErrorPage(
           performAction(
-            Seq("supporting-evidence.choose-document-type" -> UploadDocumentType.keyOf(answer))
+            Seq("choose-file-type" -> UploadDocumentType.keyOf(answer))
           )
         )
       }
@@ -211,7 +211,7 @@ class ChooseFileTypeControllerSpec extends ControllerSpec with AuthSupport with 
 
         checkIsRedirect(
           performAction(
-            Seq("supporting-evidence.choose-document-type" -> UploadDocumentType.keyOf(answer))
+            Seq("choose-file-type" -> UploadDocumentType.keyOf(answer))
           ),
           routes.UploadFilesController.show
         )

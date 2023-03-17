@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2
 
-import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -32,23 +31,22 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
-class ChooseFileTypeControllerSpec
+class SelectDutyTypesControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with SummaryMatchers {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -56,48 +54,31 @@ class ChooseFileTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: ChooseFileTypeController = instanceOf[ChooseFileTypeController]
+  val controller: SelectDutyTypesController = instanceOf[SelectDutyTypesController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "supporting-evidence.choose-document-type"
+  private val messagesKey: String = "select-duty-types"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  @annotation.nowarn
-  def validateChooseFileTypePage(doc: Document, journey: OverpaymentsSingleJourney) = {
-    radioItems(doc) should containOnlyPairsOf(
-      Seq(
-        ("Air waybill", "AirWayBill"),
-        ("Bill of lading", "BillOfLading"),
-        ("Commercial invoice", "CommercialInvoice"),
-        ("Correspondence between trader and agent", "CorrespondenceTrader"),
-        ("Import and export declaration", "ImportAndExportDeclaration"),
-        ("Packing list", "PackingList"),
-        ("Proof of authority", "ProofOfAuthority"),
-        ("Substitute entry", "SubstituteEntry"),
-        ("Other documents", "Other")
-      )
-    )
-    hasContinueButton(doc)
-  }
+  "Select Duty Types Controller" when {
 
-  "ChooseFileTypeController" when {
-
-    "Show page" must {
+    "Show select duty types page" must {
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "not find the page if overpayments feature is disabled" in {
+      "not find the page if overpayments v2 feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
+
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page" in {
+      "display the page for the first time" in {
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
@@ -106,81 +87,75 @@ class ChooseFileTypeControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration)
+          doc => {
+            selectedCheckBox(doc)                                    shouldBe empty
+            doc.getElementById("select-duty-types").`val`()          shouldBe "uk-duty"
+            doc.getElementById("select-duty-types-2").`val`()        shouldBe "eu-duty"
+            doc.getElementById("select-duty-types-excise").`val`()   shouldBe "beer"
+            doc.getElementById("select-duty-types-excise-2").`val`() shouldBe "wine"
+          }
         )
-
       }
 
-      "display the page when in change mode" in {
-        forAll(completeJourneyGen) { journey =>
+      "display the page when a duty has already been selected before" in {
+        forAll(completeJourneyGen, genDuty) { (journey, dutyType: DutyType) =>
+          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateChooseFileTypePage(doc, journey)
+            doc => isCheckboxChecked(doc, dutyType.repr)
           )
         }
       }
     }
 
-    "submitted the document type" must {
-
-      def performAction(data: (String, String)*): Future[Result] =
+    "Submit Select Duty Types page" must {
+      def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "not succeed if overpayments feature is disabled" in {
+      "not find the page if Overpayments v2 feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction(("choose-file-type", "SubstituteEntry"))) shouldBe NOT_FOUND
+
+        status(performAction()) shouldBe NOT_FOUND
       }
 
-      "redirect to choose files when valid document type selection" in {
+      "reject an empty duty type selection" in {
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-          mockStoreSession(
-            SessionData(
-              journeyWithMrnAndDeclaration.submitDocumentTypeSelection(UploadDocumentType.SubstituteEntry)
-            )
-          )(Right(()))
         }
+
+        checkPageIsDisplayed(
+          performAction(Seq(messagesKey -> "")),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "select valid duty types when none have been selected before" in forAll { dutyType: DutyType =>
+        val updatedJourney =
+          journeyWithMrnAndDeclaration.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+          mockStoreSession(SessionData(updatedJourney))(Right(()))
+        }
+
         checkIsRedirect(
-          performAction("choose-file-type" -> "SubstituteEntry"),
-          routes.UploadFilesController.show
-        )
-      }
-
-      "re-display the page when invalid document type selection" in {
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-        }
-        checkPageIsDisplayed(
-          performAction("choose-file-type" -> "Foo"),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration),
-          expectedStatus = 400
-        )
-      }
-
-      "re-display the page when nothing has been selected" in {
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-        }
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration),
-          expectedStatus = 400
+          performAction(Seq(s"$messagesKey[]" -> dutyType.repr)),
+          routes.SelectDutiesController.show(dutyType)
         )
       }
 
     }
 
   }
-
 }

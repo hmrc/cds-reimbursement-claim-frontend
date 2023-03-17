@@ -46,5 +46,5 @@ class NorthernIrelandController @Inject() (
 
   final val postAction: Call       = routes.NorthernIrelandController.submit
   final val continueRoute: Call    = routes.BasisForClaimController.show
-  final val subkey: Option[String] = None
+  final val subkey: Option[String] = Some("scheduled")
 }

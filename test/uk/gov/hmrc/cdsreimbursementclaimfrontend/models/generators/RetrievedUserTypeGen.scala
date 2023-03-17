@@ -18,19 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 
-object RetrievedUserTypeGen {
+object AuthenticatedUserGen {
 
   lazy val individualGen: Gen[Individual] = for {
     ggCredId <- genGGCredId
     email    <- genEmail
     eori     <- genEori
     name     <- genName
-  } yield RetrievedUserType.Individual(ggCredId, Some(email), eori, Some(name))
+  } yield AuthenticatedUser.Individual(ggCredId, Some(email), eori, Some(name))
 
   implicit lazy val arbitraryIndividual: Arbitrary[Individual] = Arbitrary(individualGen)
 
@@ -39,8 +39,8 @@ object RetrievedUserTypeGen {
     email    <- genEmail
     eori     <- genEori
     name     <- genName
-  } yield RetrievedUserType.Organisation(ggCredId, Some(email), eori, Some(name))
+  } yield AuthenticatedUser.Organisation(ggCredId, Some(email), eori, Some(name))
 
-  lazy val authenticatedUserGen: Gen[RetrievedUserType] =
-    Gen.oneOf[RetrievedUserType](individualGen, organisationGen)
+  lazy val authenticatedUserGen: Gen[AuthenticatedUser] =
+    Gen.oneOf[AuthenticatedUser](individualGen, organisationGen)
 }

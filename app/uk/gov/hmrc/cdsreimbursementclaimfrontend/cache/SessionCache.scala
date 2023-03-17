@@ -68,6 +68,37 @@ trait SessionCache {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 
+  final def updateF[R](
+    update: SessionData => Future[Either[Error, SessionData]]
+  )(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[Error, SessionData]] =
+    try get().flatMap {
+      case Right(Some(sessionData)) =>
+        update(sessionData).flatMap {
+          case Right(updatedSessionData) =>
+            if (sessionData === updatedSessionData)
+              Future.successful(Right(sessionData))
+            else
+              store(updatedSessionData)
+                .map(_.map(_ => updatedSessionData))
+
+          case Left(error) =>
+            Future.successful(Left(error))
+        }
+
+      case Right(None) =>
+        Future.successful(
+          Left(Error("no session found in mongo"))
+        )
+
+      case Left(error) =>
+        Future.successful(Left(error))
+    } catch {
+      case e: Exception => Future.successful(Left(Error(e)))
+    }
+
 }
 
 object HeaderCarrierCacheId extends CacheIdType[HeaderCarrier] {
