@@ -39,6 +39,13 @@ object DutyTypes {
 
   val all: Seq[DutyType] = custom ++ excise
 
+  def categoryOf(dutyType: DutyType): String =
+    dutyType match {
+      case DutyType.UkDuty => "uk-duty"
+      case DutyType.EuDuty => "eu-duty"
+      case _               => "excise-duty"
+    }
+
   private val dutyTypesStringMap           =
     all.map(dutyType => dutyType.repr -> dutyType).toMap
 

@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 
 object ReimbursementsClaimsSummary {
 
@@ -184,17 +185,26 @@ object ReimbursementsClaimsSummary {
     messages: Messages
   ): SummaryList = {
 
-    val amountsPerDutyType: Seq[(DutyType, BigDecimal)] =
-      reimbursementClaims.mapValues(_.values.map(_.correctAmount).sum).toSeq
+    @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
+    val amountsPerDutyCategory: Seq[(String, BigDecimal)] = {
+      val m = scala.collection.mutable.Map.empty[String, BigDecimal]
+      reimbursementClaims.iterator
+        .foreach { case (dutyType, reimbursements) =>
+          val category = DutyTypes.categoryOf(dutyType)
+          val amount   = reimbursements.map(_._2.refundAmount).sum
+          m.update(category, m.getOrElse(category, BigDecimal("0.00")) + amount)
+        }
+      m.toSeq
+    }
 
     val totalAmount: BigDecimal =
-      reimbursementClaims.flatMap(_._2.values.map(_.correctAmount)).sum
+      amountsPerDutyCategory.map(_._2).sum
 
     SummaryList(rows =
-      amountsPerDutyType
-        .map { case (dutyType, amount) =>
+      amountsPerDutyCategory
+        .map { case (category, amount) =>
           SummaryListRow(
-            key = Key(HtmlContent(messages(s"duty-type.${dutyType.repr}"))),
+            key = Key(HtmlContent(messages(s"$key.$category.label"))),
             value = Value(Text(amount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -202,7 +212,7 @@ object ReimbursementsClaimsSummary {
                   ActionItem(
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"duty-type.${dutyType.repr}"))
+                    visuallyHiddenText = Some(messages(s"$key.$category.label"))
                   )
                 )
               )
@@ -212,7 +222,7 @@ object ReimbursementsClaimsSummary {
         } ++
         Seq(
           SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.scheduled.total"))),
+            key = Key(HtmlContent(messages(s"$key.total"))),
             value = Value(Text(totalAmount.toPoundSterlingString)),
             actions = changeCallOpt.map(changeCall =>
               Actions(
@@ -220,7 +230,7 @@ object ReimbursementsClaimsSummary {
                   ActionItem(
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.scheduled.total"))
+                    visuallyHiddenText = Some(messages(s"$key.total"))
                   )
                 )
               )
