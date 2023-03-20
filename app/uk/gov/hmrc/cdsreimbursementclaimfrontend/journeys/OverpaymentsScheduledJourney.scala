@@ -147,6 +147,22 @@ final class OverpaymentsScheduledJourney private (
   def getReimbursementClaimsFor(dutyType: DutyType): Option[SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
     answers.correctedAmounts.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
+  def getUKDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(_ === DutyType.UkDuty)
+
+  def getEUDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(_ === DutyType.EuDuty)
+
+  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(dt => dt =!= DutyType.UkDuty && dt =!= DutyType.EuDuty)
+
+  private def getReimbursementTotalBy(include: DutyType => Boolean): Option[BigDecimal] = {
+    val total = getReimbursementClaims.iterator.map { case (dutyType, reimbursements) =>
+      if (include(dutyType)) reimbursements.map(_._2.refundAmount).sum else ZERO
+    }.sum
+    if (total === ZERO) None else Some(total)
+  }
+
   def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
     answers.correctedAmounts
       .flatMap(
