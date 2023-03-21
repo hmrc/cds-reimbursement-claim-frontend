@@ -191,6 +191,5 @@ class CheckClaimDetailsControllerSpec
         )
       }
     }
-
   }
 }

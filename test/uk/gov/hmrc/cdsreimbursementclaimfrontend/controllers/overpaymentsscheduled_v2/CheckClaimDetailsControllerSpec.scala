@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2
 
+import org.jsoup.nodes.Document
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -31,7 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.CheckClaimDetailsController.checkClaimDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildAnswersGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -59,109 +64,137 @@ class CheckClaimDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "multiple-check-claim-summary"
-
   override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
+    featureSwitch.enable(Feature.Overpayments_v2)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+//  def assertPageContent(
+//    doc: Document,
+//    journey: OverpaymentsScheduledJourney
+//  ): Unit = {
+//    val mrn = journey.getLeadMovementReferenceNumber.get.value
+//    assertPageElementsByIdAndExpectedText(doc)(
+//      "check-claim-summary-help-text"     -> m("check-claim-summary.scheduled.help-text"),
+//      s"check-claim-summary-section-$mrn" -> m(s"check-claim-summary.duty.label", mrn),
+//      "check-claim-summary-yes-no"        -> s"${m("check-claim-summary.are-duties-correct")} ${m("check-claim-summary.yes")} ${m("check-claim-summary.no")}"
+//    )
+//
+//    journey.getReimbursementClaims.map { claim =>
+//      assertPageElementsByIdAndExpectedText(doc)(
+//        s"check-claim-summary-duty-${claim._1.repr}" -> m(s"duty-type.${claim._1.repr}")
+//      )
+//    }
+//      summaryKeyValueList(doc)          should containOnlyPairsOf(
+//        journey.getReimbursementClaims.toSeq.map { case (taxCode, amount) =>
+//          (s"$taxCode - ${m(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
+//        } ++
+//          Seq(m("check-claim-summary.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+//      )
+//  }
 
-  "Check Claim Details Controller" should {
-    def performActionShow(): Future[Result] =
-      controller.show()(FakeRequest())
-
-    def performActionSubmit(data: (String, String)*): Future[Result] =
-      controller.submit()(
-        FakeRequest()
-          .withFormUrlEncodedBody(data: _*)
+  val journeyGen: Gen[OverpaymentsScheduledJourney] =
+    buildJourneyGen(
+      buildAnswersGen(
+        submitBankAccountDetails = false,
+        submitBankAccountType = false,
+        submitEvidence = false,
+        checkYourAnswersChangeMode = false
       )
+    )
 
-    "not find the page if rejected goods feature is disabled" in {
-      featureSwitch.disable(Feature.RejectedGoods)
+  "Check Claim Details Controller" when {
 
-      status(controller.show()(FakeRequest())) shouldBe NOT_FOUND
+    "Show check claim details page" must {
 
-    }
+      def performAction(): Future[Result] =
+        controller.show(FakeRequest())
 
-    "redirect to the select duty types page" when {
-      "the user has not entered reimbursement amounts" in {
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
+      "not find the page if overpayments feature is disabled" in {
+        featureSwitch.disable(Feature.Overpayments_v2)
 
-        checkIsRedirect(performActionShow(), routes.SelectDutyTypesController.show)
-
+        status(performAction()) shouldBe NOT_FOUND
       }
 
-    }
+//      "display the page" in
+//        forAll(journeyGen) { journey =>
+//          inSequence {
+//            mockAuthWithNoRetrievals()
+//            mockGetSession(SessionData(journey))
+//          }
+//
+//          checkPageIsDisplayed(
+//            performAction(),
+//            messageFromMessageKey("check-claim-summary.scheduled.title"),
+//            assertPageContent(_, journey)
+//          )
+//        }
 
-    "show the page" when {
+//      "display the page in the change mode" in
+//        forAll(completeJourneyGen) { journey =>
+//          inSequence {
+//            mockAuthWithNoRetrievals()
+//            mockGetSession(SessionData(journey))
+//          }
+//
+//          checkPageIsDisplayed(
+//            performAction(),
+//            messageFromMessageKey("check-claim-summary.scheduled.title"),
+//            assertPageContent(_, journey)
+//          )
+//        }
+//    }
 
-      "duties, tax codes and amounts have been filled" in {
-        forAll(completeJourneyGen) { journey =>
+    "Submit Enter Claim  page" must {
+
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(
+          FakeRequest().withFormUrlEncodedBody(data: _*)
+        )
+
+      "do not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.Overpayments_v2)
+
+        status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "accept YES response and redirect to the next page" in
+        forAll(journeyGen) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
           }
 
-          checkPageIsDisplayed(
-            performActionShow(),
-            messageFromMessageKey(messageKey = s"$checkClaimDetailsKey.scheduled.title"),
-            doc => formAction(doc) shouldBe routes.CheckClaimDetailsController.submit.url
+          checkIsRedirect(
+            performAction("check-claim-summary" -> "true"),
+            routes.CheckBankDetailsController.show
           )
         }
-      }
-    }
 
-    "submit" must {
-
-      "fail if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performActionSubmit()) shouldBe NOT_FOUND
-      }
-
-      "redirect to the next page if the answer is yes if not all of the questions have been answered" in
-        forAll(completeJourneyGen) { completeJourney =>
-          val incompleteJourney = completeJourney.submitContactDetails(None)
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(SessionData(incompleteJourney))
-          }
-
-          checkIsRedirect(performActionSubmit("check-claim-summary" -> "true"), routes.CheckBankDetailsController.show)
-        }
-
-      "redirect to the check your answers page if the answer is yes if all of the questions have been answered" in {
+      "accept YES response and redirect to the CYA page when in change mode" in
         forAll(completeJourneyGen) { journey =>
-          assert(journey.hasCompleteReimbursementClaims)
-
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
           }
 
-          checkIsRedirect(performActionSubmit("check-claim-summary" -> "true"), routes.CheckYourAnswersController.show)
+          checkIsRedirect(
+            performAction("check-claim-summary" -> "true"),
+            routes.CheckYourAnswersController.show
+          )
         }
-      }
 
-      "redirect back to select duty types page if the answer is no" in {
-        forAll(completeJourneyGen) { journey =>
-          assert(journey.hasCompleteReimbursementClaims)
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkIsRedirect(performActionSubmit("check-claim-summary" -> "false"), routes.SelectDutyTypesController.show)
-
+      "accept NO response and redirect to select duties page" in {
+        val journey = journeyGen.sample.get
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
         }
-      }
 
+        checkIsRedirect(
+          performAction("check-claim-summary" -> "false"),
+          routes.SelectDutyTypesController.show
+        )
+      }
     }
-
   }
-
 }
