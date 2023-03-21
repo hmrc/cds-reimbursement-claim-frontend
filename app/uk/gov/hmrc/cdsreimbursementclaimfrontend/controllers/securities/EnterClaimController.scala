@@ -99,45 +99,47 @@ class EnterClaimController @Inject() (
             result => (journey, result),
             { case (_, totalAmount) =>
               val form = Forms.claimAmountForm(key, totalAmount)
-              form.bindFromRequest.fold(
-                formWithErrors =>
-                  (
-                    journey,
-                    BadRequest(
-                      enterClaimPage(
-                        formWithErrors,
-                        securityDepositId,
-                        taxCode,
-                        totalAmount,
-                        routes.EnterClaimController.submit(securityDepositId, taxCode)
+              form
+                .bindFromRequest()
+                .fold(
+                  formWithErrors =>
+                    (
+                      journey,
+                      BadRequest(
+                        enterClaimPage(
+                          formWithErrors,
+                          securityDepositId,
+                          taxCode,
+                          totalAmount,
+                          routes.EnterClaimController.submit(securityDepositId, taxCode)
+                        )
                       )
-                    )
-                  ),
-                reclaimAmount => {
-                  val amountHasChanged: Boolean =
-                    !journey
-                      .getReclaimAmountFor(securityDepositId, taxCode)
-                      .exists(_ === reclaimAmount)
-                  if (amountHasChanged)
-                    journey
-                      .submitAmountForReclaim(securityDepositId, taxCode, reclaimAmount)
-                      .fold(
-                        error =>
-                          (
-                            journey,
-                            Redirect(routeForValidationError(error))
-                          ),
-                        updatedJourney =>
-                          (
-                            updatedJourney,
-                            Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
-                          )
-                      )
-                  else
-                    (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
+                    ),
+                  reclaimAmount => {
+                    val amountHasChanged: Boolean =
+                      !journey
+                        .getReclaimAmountFor(securityDepositId, taxCode)
+                        .exists(_ === reclaimAmount)
+                    if (amountHasChanged)
+                      journey
+                        .submitAmountForReclaim(securityDepositId, taxCode, reclaimAmount)
+                        .fold(
+                          error =>
+                            (
+                              journey,
+                              Redirect(routeForValidationError(error))
+                            ),
+                          updatedJourney =>
+                            (
+                              updatedJourney,
+                              Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
+                            )
+                        )
+                    else
+                      (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
 
-                }
-              )
+                  }
+                )
             }
           )
         )

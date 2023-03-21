@@ -199,7 +199,6 @@ class ChooseHowManyMrnsControllerSpec
   private def radioButtons(doc: Document): Elements =
     doc.select(s"div.govuk-radios div.govuk-radios__item")
 
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   private def extractButton(buttons: Elements, requiredValue: String): Element =
     buttons.asScala.filterNot(button => button.select(s"""input[value="$requiredValue"]""").isEmpty).head
 

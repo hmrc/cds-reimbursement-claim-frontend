@@ -64,7 +64,8 @@ class CheckTotalImportDischargedController @Inject() (
   }
 
   def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    form.bindFromRequest
+    form
+      .bindFromRequest()
       .fold(
         formWithErrors =>
           BadRequest(

@@ -22,7 +22,6 @@ import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-@SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
 object TaxCodeGen {
 
   lazy val genTaxCode: Gen[TaxCode] =

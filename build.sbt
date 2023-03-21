@@ -20,7 +20,8 @@ lazy val wartremoverSettings =
       Wart.Nothing,
       Wart.Overloading,
       Wart.ToString,
-      Wart.PublicInference
+      Wart.PublicInference,
+      Wart.SizeIs
     ),
     WartRemover.autoImport.wartremoverExcluded += target.value,
     Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
@@ -35,8 +36,8 @@ lazy val wartremoverSettings =
       Wart.Equals,
       Wart.GlobalExecutionContext,
       Wart.OptionPartial,
-      Wart.TraversableOps,
-      Wart.Throw
+      Wart.Throw,
+      Wart.IterableOps
     )
   )
 
