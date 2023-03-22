@@ -84,7 +84,8 @@ class ConfirmFullRepaymentController @Inject() (
 
   def submit(id: String): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      form.bindFromRequest
+      form
+        .bindFromRequest()
         .fold(
           formWithErrors =>
             (

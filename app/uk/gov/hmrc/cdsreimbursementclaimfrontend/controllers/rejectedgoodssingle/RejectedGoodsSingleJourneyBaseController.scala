@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseControll
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+
 import play.api.libs.json.Format
 
 trait RejectedGoodsSingleJourneyBaseController extends JourneyBaseController with RejectedGoodsSingleJourneyRouter {

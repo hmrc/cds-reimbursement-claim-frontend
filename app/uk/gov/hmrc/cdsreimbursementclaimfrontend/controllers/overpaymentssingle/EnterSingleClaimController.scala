@@ -50,7 +50,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -281,7 +281,7 @@ object EnterSingleClaimController {
               .flatMap(ndrc => ClaimedReimbursement.fromNdrc(ndrc))
               .getOrElse(ClaimedReimbursement.fromDuty(duty))
         }
-      }.toList)
+      })
   }
 
   val checkClaimSummaryKey: String = "check-claim-summary"

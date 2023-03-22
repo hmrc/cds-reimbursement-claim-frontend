@@ -65,7 +65,6 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
                 .map { uploadDocument =>
                   s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"supporting-evidence.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
                 }
-                .toList
                 .mkString(" ")
 
             val scheduledDocument = claim.scheduledDocumentAnswer.map { document =>

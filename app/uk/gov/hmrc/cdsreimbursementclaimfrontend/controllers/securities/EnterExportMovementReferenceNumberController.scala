@@ -87,7 +87,8 @@ class EnterExportMovementReferenceNumberController @Inject() (
   def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
       val form = getForm(journey)
-      form.bindFromRequest
+      form
+        .bindFromRequest()
         .fold(
           (formWithErrors: Form[MRN]) => (journey, getResultPage(journey, formWithErrors, BadRequest)).asFuture,
           mrn =>

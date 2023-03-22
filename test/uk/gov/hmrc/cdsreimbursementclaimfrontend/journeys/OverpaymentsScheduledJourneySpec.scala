@@ -855,7 +855,7 @@ class OverpaymentsScheduledJourneySpec
             .flatMap { case (dt, tcs) =>
               dt.taxCodes.find(tc => !tcs.contains(tc))
             }
-            .getOrElse(???)
+            .getOrElse(fail())
 
         val result = OverpaymentsScheduledJourney
           .empty(exampleEori)
@@ -961,7 +961,7 @@ class OverpaymentsScheduledJourneySpec
           journey
             .getSelectedDutiesFor(dutyType)
             .map(tcs => dutyType.taxCodes.filterNot(tcs.contains).iterator.next())
-            .getOrElse(???)
+            .getOrElse(fail())
 
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
           tca.foreach { case (_, AmountPaidWithCorrect(pa, ca)) =>
