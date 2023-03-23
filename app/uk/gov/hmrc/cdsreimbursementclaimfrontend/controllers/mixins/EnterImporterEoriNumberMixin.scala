@@ -48,9 +48,7 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
     Future.successful {
       if (!needsEoriSubmission(journey))
         Redirect(whenEoriInputNotRequiredAction)
-      else if (journey.getConsigneeEoriFromACC14.isEmpty) {
-        Redirect(continueAction)
-      } else
+      else
         Ok(
           enterImporterEoriNumber(
             eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(journey)),

@@ -122,7 +122,7 @@ class EnterImporterEoriNumberControllerSpec
         )
       }
 
-      "redirect to the declarant eori check if consignee details are missing on declaration" in {
+      "display the page on a new journey if consignee details are missing on declaration" in {
         val declaration: DisplayDeclaration =
           buildSecuritiesDisplayDeclaration(
             exampleMrnAsString,
@@ -145,9 +145,16 @@ class EnterImporterEoriNumberControllerSpec
           mockGetSession(initialSession)
         }
 
-        checkIsRedirect(
+        checkPageIsDisplayed(
           performAction(),
-          routes.EnterDeclarantEoriNumberController.show
+          messageFromMessageKey("enter-importer-eori-number.title"),
+          doc => {
+            doc
+              .select("form div#enter-importer-eori-number-hint")
+              .text()                                         shouldBe messageFromMessageKey("enter-importer-eori-number.help-text")
+            doc.select("#enter-importer-eori-number").`val`() shouldBe ""
+            doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
+          }
         )
       }
 
