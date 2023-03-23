@@ -81,7 +81,8 @@
                     content = Text(messages(s"$key.no")),
                     checked = false
                 )
-            )
+            ),
+            id = s"$key-yes-no"
         )
 
         @submitButton("button.continue")

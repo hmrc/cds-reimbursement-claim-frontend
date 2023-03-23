@@ -156,6 +156,11 @@ final class OverpaymentsScheduledJourney private (
           .flatMap(getNdrcDetailsFor)
       )
 
+  def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =
+    taxCodes.values.foldLeft(BigDecimal(0)) { (total, claim) =>
+      total + claim.refundAmount
+    }
+
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.refundAmount)).sum
 
