@@ -571,7 +571,12 @@ final class SecuritiesJourney private (
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
+        if (
+          getConsigneeEoriFromACC14 match {
+            case Some(eori) => eori === consigneeEoriNumber
+            case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
+          }
+        )
           Right(
             new SecuritiesJourney(
               answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
