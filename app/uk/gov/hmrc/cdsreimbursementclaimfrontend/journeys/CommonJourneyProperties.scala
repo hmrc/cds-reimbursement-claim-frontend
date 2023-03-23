@@ -133,55 +133,40 @@ trait CommonJourneyProperties {
   final def computeContactDetails(
     authenticatedUser: AuthenticatedUser,
     verifiedEmailOpt: Option[CdsVerifiedEmail]
-  ): Option[MrnContactDetails] = {
-    def currentUserEmail = verifiedEmailOpt
-      .map(_.toEmail)
-      .orElse(authenticatedUser.email)
-      .getOrElse(Email(""))
-    (
-      answers.contactDetails,
-      getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
-      getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
-      authenticatedUser
-    ) match {
-      case (details @ Some(_), _, _, _)                                                                           =>
-        details
-      case (_, Some(consigneeContactDetails), _, _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
-        Some(
+  ): Option[MrnContactDetails] =
+    Some(answers.contactDetails.getOrElse {
+      def currentUserEmail = verifiedEmailOpt
+        .map(_.toEmail)
+        .orElse(authenticatedUser.email)
+        .getOrElse(Email(""))
+      (
+        getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
+        getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
+      ) match {
+        case (Some(consigneeContactDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
           MrnContactDetails(
             consigneeContactDetails.contactName.getOrElse(""),
             consigneeContactDetails.emailAddress
               .fold(currentUserEmail)(address => Email(address)),
             consigneeContactDetails.telephone.map(PhoneNumber(_))
           )
-        )
-      case (_, None, _, user) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)                       =>
-        Some(
-          MrnContactDetails(
-            user.name.map(_.toFullName).getOrElse(""),
-            currentUserEmail,
-            None
-          )
-        )
-      case (_, _, Some(declarantContactDetails), _)                                                               =>
-        Some(
+
+        case (_, Some(declarantContactDetails)) if getDeclarantEoriFromACC14.contains(answers.userEoriNumber) =>
           MrnContactDetails(
             declarantContactDetails.contactName.getOrElse(""),
             declarantContactDetails.emailAddress
               .fold(currentUserEmail)(address => Email(address)),
             declarantContactDetails.telephone.map(PhoneNumber(_))
           )
-        )
-      case _                                                                                                      =>
-        Some(
+
+        case _ =>
           MrnContactDetails(
             authenticatedUser.name.map(_.toFullName).getOrElse(""),
             currentUserEmail,
             None
           )
-        )
-    }
-  }
+      }
+    })
 
   final def computeAddressDetails: Option[ContactAddress] = (
     answers.contactAddress,

@@ -413,7 +413,7 @@ class OverpaymentsMultipleJourneySpec
         }
       }
 
-      "return the declarant details if no specific details entered and the signed in user is neither the consignee or declarant" in {
+      "return the signed in user details if no specific details entered and the signed in user is neither the consignee or declarant" in {
         forAll(
           buildCompleteJourneyGen(
             acc14ConsigneeMatchesUserEori = false,
@@ -429,16 +429,10 @@ class OverpaymentsMultipleJourneySpec
               .flatMap(_.getDeclarantDetails.contactDetails)
               .isDefined
           ) {
-            val expectedContact   = journey.answers.displayDeclarations
-              .flatMap(_.headOption)
-              .flatMap(_.getDeclarantDetails.contactDetails)
-              .getOrElse(fail("Failed to get contact details"))
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
-            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
-              signedInUser.email.get.value
-            )
-            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+            calculatedContact.fullName                 shouldBe signedInUser.name.map(_.toFullName).getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe signedInUser.email.map(_.value).getOrElse("")
+            calculatedContact.phoneNumber.map(_.value) shouldBe None
           }
         }
       }
