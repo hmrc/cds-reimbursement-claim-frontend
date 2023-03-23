@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -235,7 +235,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
         .sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.take(numberOfSelectedTaxCodes).map(a => Gen.choose(BigDecimal.exact("0.01"), a))
         )
-  } yield (taxCodes, taxCodes.take(numberOfSelectedTaxCodes), paidAmounts, reimbursementAmounts)
+  } yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, reimbursementAmounts)
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -283,7 +283,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
         }
 
       val reimbursementClaims: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
-        OrderedMap(
+        OrderedMap.from(
           mrns
             .zip(taxCodesWithAmounts)
             .map { case (mrn, (_, selectedTaxCodes, _, reimbursementAmounts)) =>

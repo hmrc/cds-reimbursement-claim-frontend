@@ -41,7 +41,7 @@ import scala.concurrent.Future
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import play.api.i18n.MessagesApi
@@ -97,7 +97,7 @@ class CheckDeclarationDetailsControllerSpec
 
     val securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] = journey.getSecuritiesReclaims
 
-    summaries should containOnlyDefinedPairsOf(
+    summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
         "Import MRN"                   -> journey.getLeadMovementReferenceNumber.map(_.value),
         "Importer name"                -> journey.answers.displayDeclaration.flatMap(_.consigneeName),

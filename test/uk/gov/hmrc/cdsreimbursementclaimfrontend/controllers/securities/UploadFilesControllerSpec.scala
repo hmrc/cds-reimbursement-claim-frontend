@@ -56,7 +56,7 @@ class UploadFilesControllerSpec
   def mockInitializeCall(existingFiles: Seq[UploadedFile] = Seq.empty) =
     (mockUploadDocumentsConnector
       .initialize(_: UploadDocumentsConnector.Request)(_: HeaderCarrier))
-      .expects(where { case (request, _) =>
+      .expects(where[UploadDocumentsConnector.Request, HeaderCarrier] { case (request, _) =>
         request.existingFiles.map(_.upscanReference) == existingFiles.map(_.upscanReference)
       })
       .returning(Future.successful(Some(expectedUploadDocumentsLocation)))

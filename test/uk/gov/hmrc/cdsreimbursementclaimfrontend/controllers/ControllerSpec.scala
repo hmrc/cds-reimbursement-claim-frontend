@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.Metrics
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.MockMetrics
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import java.net.URLEncoder
 import scala.concurrent.Future
 import scala.reflect.ClassTag
@@ -54,9 +54,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.SessionId
-import java.util.concurrent.ConcurrentHashMap
 import org.scalacheck.ShrinkLowPriority
 
 import uk.gov.hmrc.http.HeaderCarrier
@@ -289,14 +286,14 @@ trait ControllerSpec
   final def radioItems(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-radios label").eachText()
     val values = doc.select("div.govuk-radios input").eachAttr("value")
-    labels.asScala.zip(values.asScala)
+    labels.asScala.zip(values.asScala).toSeq
   }
 
   /** Returns sequence of pairs (message, value) */
   final def checkboxes(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-checkboxes label").eachText()
     val values = doc.select("div.govuk-checkboxes input").eachAttr("value")
-    labels.asScala.zip(values.asScala)
+    labels.asScala.zip(values.asScala).toSeq
   }
 
   final def checkboxesWithHints(doc: Document): Seq[(String, String)] = {
@@ -335,13 +332,13 @@ trait ControllerSpec
   final def summaryKeyValue(doc: Document): (Seq[String], Seq[String]) = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-    (summaryKeys.asScala, summaryValues.asScala)
+    (summaryKeys.asScala.toSeq, summaryValues.asScala.toSeq)
   }
 
   final def summaryKeyValueList(doc: Document): Seq[(String, String)] = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-    summaryKeys.asScala.zip(summaryValues.asScala)
+    summaryKeys.asScala.zip(summaryValues.asScala).toSeq
   }
 
   final def summaryKeyValueMap(doc: Document): Map[String, String] = {

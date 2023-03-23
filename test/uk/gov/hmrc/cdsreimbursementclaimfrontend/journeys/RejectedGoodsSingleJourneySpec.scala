@@ -668,7 +668,7 @@ class RejectedGoodsSingleJourneySpec
 
     "change tax code for reimbursement with a new invalid set" in {
       forAll(completeJourneyGen) { journey =>
-        val invalidTaxCodeSet     = TaxCodes.all.take(6).toSeq
+        val invalidTaxCodeSet     = TaxCodes.all.take(6)
         val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(invalidTaxCodeSet)
         modifiedJourneyEither shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
       }

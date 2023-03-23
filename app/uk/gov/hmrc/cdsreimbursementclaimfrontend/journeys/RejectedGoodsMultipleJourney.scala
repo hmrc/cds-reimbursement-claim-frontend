@@ -119,8 +119,11 @@ final class RejectedGoodsMultipleJourney private (
 
   def getReimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]] =
     answers.reimbursementClaims
-      .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
-      .map(OrderedMap(_))
+      .map(
+        _.view
+          .mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
+          .to(OrderedMap)
+      )
       .getOrElse(OrderedMap.empty)
 
   def needsBanksAccountDetailsSubmission: Boolean =
@@ -267,7 +270,8 @@ final class RejectedGoodsMultipleJourney private (
                     displayDeclarations = answers.displayDeclarations.map(
                       _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
                     ),
-                    reimbursementClaims = answers.reimbursementClaims.map(_ - existingMrn + (mrn -> Map.empty))
+                    reimbursementClaims =
+                      answers.reimbursementClaims.map(_.removed(existingMrn).updated(mrn, Map.empty))
                   )
                 )
               )
@@ -309,7 +313,7 @@ final class RejectedGoodsMultipleJourney private (
                 displayDeclarations = answers.displayDeclarations.map(
                   _.filterNot(_.displayResponseDetail.declarationId === mrn.value)
                 ),
-                reimbursementClaims = answers.reimbursementClaims.map(_ - mrn)
+                reimbursementClaims = answers.reimbursementClaims.map(_.removed(mrn))
               )
             )
           )
@@ -715,7 +719,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
 
   override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] =
     empty(answers.userEoriNumber, answers.nonce)
-      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zip(answers.displayDeclarations).zipWithIndex)(j => {
+      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.displayDeclarations).zipWithIndex)(j => {
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })

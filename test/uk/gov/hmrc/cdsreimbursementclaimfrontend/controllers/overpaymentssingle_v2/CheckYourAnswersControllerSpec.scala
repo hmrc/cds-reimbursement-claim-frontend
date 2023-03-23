@@ -48,7 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec
@@ -109,7 +109,7 @@ class CheckYourAnswersControllerSpec
     summaryKeys   should not be empty
     summaryValues should not be empty
 
-    headers should containOnlyDefinedElementsOf(
+    headers.toSeq should containOnlyDefinedElementsOf(
       "Movement Reference Number (MRN)".expectedAlways,
       "Declaration details".expectedAlways,
       "Contact information for this claim".expectedAlways,
@@ -133,7 +133,7 @@ class CheckYourAnswersControllerSpec
         )}"
       }
 
-    summaries should containOnlyDefinedPairsOf(
+    summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
         "MRN"                                             -> Some(claim.movementReferenceNumber.value),
         "Import date"                                     -> declarationDetails.map(_.acceptanceDate),

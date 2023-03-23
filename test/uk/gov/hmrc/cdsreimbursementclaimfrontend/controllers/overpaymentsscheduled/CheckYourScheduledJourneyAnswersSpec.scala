@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyTypeSummary
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec
 
 class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec with SummaryMatchers {
@@ -84,7 +84,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
             val total: String =
               claims.map(_.total).sum.toPoundSterlingString
 
-            headers should containOnlyDefinedElementsOf(
+            headers.toSeq should containOnlyDefinedElementsOf(
               "First Movement Reference Number (MRN)".expectedAlways,
               "Declaration details".expectedWhen(claim.displayDeclaration),
               "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
@@ -99,7 +99,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
               "Now send your claim".expectedAlways
             )
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "First MRN"                                       -> claim.movementReferenceNumber.map(_.value),
                 "Import date"                                     -> declarationDetails.map(_.acceptanceDate),

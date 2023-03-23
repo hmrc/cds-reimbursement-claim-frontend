@@ -38,7 +38,7 @@
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@updatedSummaryErrors = @{form.errors.groupBy(_.key).map(_._2.head).toSeq}
+@updatedSummaryErrors = @{form.errors.groupBy(_.key).map(_._2.head).toSeq.reverse}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 

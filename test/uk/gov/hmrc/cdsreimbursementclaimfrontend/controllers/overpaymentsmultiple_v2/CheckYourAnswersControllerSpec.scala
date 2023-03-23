@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -99,10 +99,10 @@ class CheckYourAnswersControllerSpec
     journey: OverpaymentsMultipleJourney,
     claim: OverpaymentsMultipleJourney.Output
   ) = {
-    val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
+    val headers       = doc.select("h2.govuk-heading-m").eachText().asScala.toSeq
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-    val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+    val summaries     = summaryKeys.asScala.zip(summaryValues.asScala).toSeq
 
     headers              should not be empty
     summaryKeys          should not be empty

@@ -50,7 +50,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerato
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

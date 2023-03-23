@@ -102,7 +102,9 @@ final class OverpaymentsScheduledJourney private (
     answers.correctedAmounts.map(_.keys.toSeq)
 
   def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
-    answers.correctedAmounts.map(_.mapValues(_.keys.toSeq)).getOrElse(SortedMap.empty)
+    answers.correctedAmounts
+      .map(_.view.mapValues(_.keys.toSeq).to(SortedMap))
+      .getOrElse(SortedMap.empty)
 
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.correctedAmounts.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
@@ -135,7 +137,7 @@ final class OverpaymentsScheduledJourney private (
 
   def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]] =
     answers.correctedAmounts
-      .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
+      .map(_.view.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }).to(SortedMap))
       .getOrElse(SortedMap.empty)
 
   def getReimbursementFor(

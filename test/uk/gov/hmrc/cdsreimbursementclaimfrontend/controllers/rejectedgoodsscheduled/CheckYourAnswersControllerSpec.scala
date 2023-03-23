@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 
@@ -149,7 +149,7 @@ class CheckYourAnswersControllerSpec
     )
     summary("Inspection address")                          shouldBe summaryAddress(claim.inspectionAddress, " ")
 
-    claim.reimbursementClaims.foreach { case (dutyType, claims) =>
+    claim.reimbursementClaims.foreachEntry { case (dutyType, claims) =>
       summary(messages(s"duty-type.${dutyType.repr}")) shouldBe claims.values
         .map(_.refundAmount)
         .sum

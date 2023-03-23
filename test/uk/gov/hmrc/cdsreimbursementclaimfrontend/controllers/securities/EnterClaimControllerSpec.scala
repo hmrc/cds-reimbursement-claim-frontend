@@ -516,8 +516,8 @@ class EnterClaimControllerSpec
       }
 
       "redirect back to the CYA page when amount has not changed" in forAll(completeJourneyGen) { initialJourney =>
-        initialJourney.getSecuritiesReclaims.foreach { case (depositId, reclaims) =>
-          reclaims.foreach { case (taxCode, claimAmount) =>
+        initialJourney.getSecuritiesReclaims.foreachEntry { case (depositId, reclaims) =>
+          reclaims.foreachEntry { case (taxCode, claimAmount) =>
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(initialJourney))
@@ -536,8 +536,8 @@ class EnterClaimControllerSpec
       }
 
       "redirect back to the check claim page when amount has changed" in forAll(completeJourneyGen) { initialJourney =>
-        initialJourney.getSecuritiesReclaims.foreach { case (depositId, reclaims) =>
-          reclaims.foreach { case (taxCode, claimAmount) =>
+        initialJourney.getSecuritiesReclaims.foreachEntry { case (depositId, reclaims) =>
+          reclaims.foreachEntry { case (taxCode, claimAmount) =>
             whenever(claimAmount > BigDecimal("0.01")) {
               inSequence {
                 mockAuthWithNoRetrievals()

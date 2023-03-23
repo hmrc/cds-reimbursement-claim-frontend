@@ -105,7 +105,7 @@ class DefaultAddressLookupService @Inject() (
   }
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress] = {
-    def formatErrors(errors: Seq[(JsPath, Seq[JsonValidationError])]): Error =
+    def formatErrors(errors: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]): Error =
       Error(
         errors
           .map(_.bimap(_.toString(), _.flatMap(_.messages).mkString(", ")))

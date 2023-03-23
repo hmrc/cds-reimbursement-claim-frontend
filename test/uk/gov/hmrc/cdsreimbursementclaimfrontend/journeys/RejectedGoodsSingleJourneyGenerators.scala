@@ -204,7 +204,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
         taxCodes

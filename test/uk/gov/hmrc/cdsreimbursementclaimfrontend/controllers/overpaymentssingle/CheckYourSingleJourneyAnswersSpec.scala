@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayRespo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyTypeSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec
@@ -85,7 +85,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
             val total: String =
               claims.map(_.total).sum.toPoundSterlingString
 
-            headers should containOnlyDefinedElementsOf(
+            headers.toSeq should containOnlyDefinedElementsOf(
               "Movement Reference Number (MRN)".expectedAlways,
               "Declaration details".expectedWhen(claim.displayDeclaration),
               "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
@@ -99,7 +99,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
               "Now send your claim".expectedAlways
             )
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 ("MRN"                                             -> claim.movementReferenceNumber.map(_.value)),
                 ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),

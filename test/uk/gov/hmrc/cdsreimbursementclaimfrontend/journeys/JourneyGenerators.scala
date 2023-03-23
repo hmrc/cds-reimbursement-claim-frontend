@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
 
@@ -90,7 +90,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
           numberOfTaxCodes,
           amountNumberGen
         )
-    } yield taxCodes.zip(amounts)
+    } yield taxCodes.zip(amounts).toSeq
 
   final def taxCodesWithAmountsGen(taxCodes: Seq[TaxCode]): Gen[Seq[(TaxCode, BigDecimal)]] =
     for {
@@ -101,7 +101,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
           numberOfTaxCodes,
           amountNumberGen
         )
-    } yield taxCodes.zip(amounts)
+    } yield taxCodes.zip(amounts).toSeq
 
   final def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
     for {

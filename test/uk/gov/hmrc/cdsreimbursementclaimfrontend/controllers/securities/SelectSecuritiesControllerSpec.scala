@@ -48,7 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 
 class SelectSecuritiesControllerSpec
@@ -94,7 +94,7 @@ class SelectSecuritiesControllerSpec
     summaryValues should not be empty
 
     journey.getSecurityDetailsFor(securityDepositId).foreach { securityDetails =>
-      summaries should containOnlyDefinedPairsOf(
+      summaries.toSeq should containOnlyDefinedPairsOf(
         Seq(
           ("Import MRN"                   -> journey.getLeadMovementReferenceNumber
             .map(_.value)),

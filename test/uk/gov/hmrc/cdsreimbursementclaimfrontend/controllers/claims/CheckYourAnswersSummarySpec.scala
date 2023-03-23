@@ -82,7 +82,7 @@ abstract class CheckYourAnswersSummarySpec
 }
 
 object CheckYourAnswersSummarySpec extends HtmlParseSupport {
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   implicit class DOMDocOps(val document: nodes.Document) extends AnyVal {
 

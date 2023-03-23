@@ -362,7 +362,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val newDepositIds      = journey.getSecurityDepositIds
           .takeExcept(existingDepositIds)
 
-        whenever(newDepositIds.nonEmpty && !newDepositIds.sameElements(existingDepositIds)) {
+        whenever(newDepositIds.nonEmpty && !newDepositIds.iterator.sameElements(existingDepositIds)) {
           val modifiedJourney = journey
             .selectSecurityDepositIds(newDepositIds)
             .getOrFail

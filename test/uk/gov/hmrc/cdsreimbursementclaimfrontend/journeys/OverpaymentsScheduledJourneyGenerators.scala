@@ -32,7 +32,7 @@ import scala.collection.immutable.SortedMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import scala.util.Random
 
@@ -89,13 +89,13 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     for {
       n   <- Gen.choose(1, DutyTypes.all.size - 1)
       dts <- Gen.pick(n, DutyTypes.all)
-    } yield dts.sorted
+    } yield dts.sorted.toSeq
 
   def taxCodesGen(dutyType: DutyType): Gen[Seq[TaxCode]] =
     for {
       n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
       tcs <- Gen.pick(n, dutyType.taxCodes)
-    } yield tcs.sorted
+    } yield tcs.sorted.toSeq
 
   val dutyTypesWithTaxCodesGen: Gen[Seq[(DutyType, Seq[TaxCode])]] = dutyTypesGen.flatMap(dutyTypes =>
     Gen.sequence[Seq[(DutyType, Seq[TaxCode])], (DutyType, Seq[TaxCode])](
@@ -103,7 +103,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
         for {
           n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
           tcs <- Gen.pick(n, dutyType.taxCodes)
-        } yield (dutyType, tcs.sorted)
+        } yield (dutyType, tcs.sorted.toSeq)
       )
     )
   )
@@ -130,7 +130,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       dutyTypes <- dutyTypesGen
       result    <-
         Gen.sequence(dutyTypes.map(dutyType => taxCodesWithClaimAmountsGen(dutyType).map(tcs => dutyType -> tcs)))
-    } yield result.asScala
+    } yield result.asScala.toSeq
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
@@ -274,15 +274,17 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }.toSeq
 
       val correctedAmounts                                =
-        SortedMap(reimbursements: _*)
+        SortedMap
+          .from(reimbursements)
           .mapValues(s =>
             SortedMap(s.map { case (taxCode, paid, correct) =>
               (taxCode, Option(AmountPaidWithCorrect(paid, correct)))
             }: _*)
           )
+          .to(SortedMap)
 
       val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
@@ -372,7 +374,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val displayDeclaration: DisplayDeclaration          =
         buildDisplayDeclaration(
@@ -431,7 +433,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }.toSeq
 
       val correctedAmounts                                =
         SortedMap(reimbursements: _*)
@@ -440,6 +442,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
               (taxCode, None)
             }: _*)
           )
+          .to(SortedMap)
 
       val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(

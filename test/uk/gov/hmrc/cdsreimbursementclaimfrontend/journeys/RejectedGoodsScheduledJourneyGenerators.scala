@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable.SortedMap
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
@@ -55,13 +55,13 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     for {
       n   <- Gen.choose(1, DutyTypes.all.size - 1)
       dts <- Gen.pick(n, DutyTypes.all)
-    } yield dts.sorted
+    } yield dts.sorted.toSeq
 
   def taxCodesGen(dutyType: DutyType): Gen[Seq[TaxCode]] =
     for {
       n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
       tcs <- Gen.pick(n, dutyType.taxCodes)
-    } yield tcs.sorted
+    } yield tcs.sorted.toSeq
 
   val dutyTypesWithTaxCodesGen: Gen[Seq[(DutyType, Seq[TaxCode])]] = dutyTypesGen.flatMap(dutyTypes =>
     Gen.sequence[Seq[(DutyType, Seq[TaxCode])], (DutyType, Seq[TaxCode])](
@@ -69,7 +69,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
         for {
           n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
           tcs <- Gen.pick(n, dutyType.taxCodes)
-        } yield (dutyType, tcs.sorted)
+        } yield (dutyType, tcs.sorted.toSeq)
       )
     )
   )
@@ -96,7 +96,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
       dutyTypes <- dutyTypesGen
       result    <-
         Gen.sequence(dutyTypes.map(dutyType => taxCodesWithClaimAmountsGen(dutyType).map(tcs => dutyType -> tcs)))
-    } yield result.asScala
+    } yield result.asScala.toSeq
 
   val completeJourneyWithMatchingUserEoriGen: Gen[RejectedGoodsScheduledJourney] =
     Gen.oneOf(
@@ -222,6 +222,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
               (taxCode, Option(AmountPaidWithRefund(a1, a2)))
             }: _*)
           )
+          .to(SortedMap)
 
       val scheduledDocument: UploadedFile =
         buildUploadDocument("schedule").copy(cargo = Some(UploadDocumentType.ScheduleOfMRNs))

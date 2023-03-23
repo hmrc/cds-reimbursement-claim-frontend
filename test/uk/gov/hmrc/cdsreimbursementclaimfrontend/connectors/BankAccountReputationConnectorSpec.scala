@@ -62,6 +62,7 @@ class BankAccountReputationConnectorSpec
 
   val actorSystem = ActorSystem("test-BankAccountReputationConnector")
 
+  @annotation.nowarn
   override protected def afterAll(): Unit =
     actorSystem.terminate()
 
@@ -129,7 +130,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ConnectorFailure(
-            "could not parse http response JSON: /accountNumberWithSortCodeIsValid: [error.path.missing]; /sortCodeIsPresentOnEISCD: [error.path.missing]"
+            "could not parse http response JSON: /sortCodeIsPresentOnEISCD: [error.path.missing]; /accountNumberWithSortCodeIsValid: [error.path.missing]"
           )
         )
       )
@@ -140,7 +141,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ConnectorFailure(
-            "could not parse http response JSON: /accountNumberWithSortCodeIsValid: [error.path.missing]; /sortCodeIsPresentOnEISCD: [error.path.missing]"
+            "could not parse http response JSON: /sortCodeIsPresentOnEISCD: [error.path.missing]; /accountNumberWithSortCodeIsValid: [error.path.missing]"
           )
         )
       )

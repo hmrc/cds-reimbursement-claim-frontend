@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
-import com.github.arturopala.validator.Validator
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
@@ -178,7 +177,11 @@ final class SecuritiesJourney private (
 
   def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.securitiesReclaims
-      .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
+      .map(
+        _.view
+          .mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
+          .to(SortedMap)
+      )
       .getOrElse(SortedMap.empty)
 
   def hasCompleteSecuritiesReclaims: Boolean =
@@ -388,8 +391,9 @@ final class SecuritiesJourney private (
             answers.copy(
               securitiesReclaims = answers.securitiesReclaims
                 .map(m =>
-                  (emptySecuritiesReclaims ++ m)
+                  (emptySecuritiesReclaims ++ m).view
                     .filterKeys(securityDepositIds.contains(_))
+                    .to(SortedMap)
                 )
                 .orElse(Some(emptySecuritiesReclaims))
             )
@@ -409,7 +413,11 @@ final class SecuritiesJourney private (
           s"selectSecurityDepositIds.invalidSecurityDepositId"
         )
       else {
-        if (answers.securitiesReclaims.getOrElse(SortedMap.empty).contains(securityDepositId))
+        if (
+          answers.securitiesReclaims
+            .getOrElse(SortedMap.empty[String, SecuritiesReclaims])
+            .contains(securityDepositId)
+        )
           Right(this)
         else {
           val emptySecuritiesReclaim =

@@ -47,7 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import scala.concurrent.Future
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec

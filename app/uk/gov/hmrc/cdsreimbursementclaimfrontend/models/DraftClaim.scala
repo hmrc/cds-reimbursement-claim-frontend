@@ -81,7 +81,7 @@ final case class DraftClaim(
     basisOfClaimAnswer.exists(BasisOfOverpaymentClaimsList.northernIreland.contains(_))
 
   def findNonEmptyBankAccountDetails: Option[BankAccountDetails] =
-    Stream(
+    LazyList(
       bankAccountDetailsAnswer,
       displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
       displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
@@ -131,7 +131,7 @@ final case class DraftClaim(
 
   def isComplete: Boolean = {
 
-    def findBankAccountDetails = Stream(
+    def findBankAccountDetails = LazyList(
       bankAccountDetailsAnswer,
       displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
       displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))

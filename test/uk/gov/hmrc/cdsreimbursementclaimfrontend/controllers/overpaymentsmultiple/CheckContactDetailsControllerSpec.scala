@@ -67,7 +67,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformati
 
 import java.net.URL
 import java.util.UUID
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -160,7 +160,7 @@ class CheckContactDetailsControllerSpec
           doc => {
             val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala).toSeq
 
             summaries should containOnlyDefinedPairsOf(
               Seq(
@@ -198,7 +198,7 @@ class CheckContactDetailsControllerSpec
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
             val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
@@ -235,7 +235,7 @@ class CheckContactDetailsControllerSpec
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
             val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)

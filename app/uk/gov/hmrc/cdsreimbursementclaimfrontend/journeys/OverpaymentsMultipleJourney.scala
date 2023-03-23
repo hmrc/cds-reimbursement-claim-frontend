@@ -301,7 +301,7 @@ final class OverpaymentsMultipleJourney private (
                     displayDeclarations = answers.displayDeclarations.map(
                       _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
                     ),
-                    correctedAmounts = answers.correctedAmounts.map(_ - existingMrn + (mrn -> Map.empty))
+                    correctedAmounts = answers.correctedAmounts.map(_.removed(existingMrn).updated(mrn, Map.empty))
                   )
                 )
               )
@@ -348,7 +348,7 @@ final class OverpaymentsMultipleJourney private (
                 displayDeclarations = answers.displayDeclarations.map(
                   _.filterNot(_.displayResponseDetail.declarationId === mrn.value)
                 ),
-                correctedAmounts = answers.correctedAmounts.map(_ - mrn)
+                correctedAmounts = answers.correctedAmounts.map(_.removed(mrn))
               )
             )
           )
@@ -728,7 +728,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   /** Try to build journey from the pre-existing answers. */
   override def tryBuildFrom(answers: Answers): Either[String, OverpaymentsMultipleJourney] =
     empty(answers.userEoriNumber, answers.nonce)
-      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zip(answers.displayDeclarations).zipWithIndex)(j => {
+      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.displayDeclarations).zipWithIndex)(j => {
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })

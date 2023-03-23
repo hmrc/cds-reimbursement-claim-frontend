@@ -100,7 +100,9 @@ final class RejectedGoodsScheduledJourney private (
     answers.reimbursementClaims.map(_.keys.toSeq)
 
   def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
-    answers.reimbursementClaims.map(_.mapValues(_.keys.toSeq)).getOrElse(SortedMap.empty)
+    answers.reimbursementClaims
+      .map(_.view.mapValues(_.keys.toSeq).to(SortedMap))
+      .getOrElse(SortedMap.empty)
 
   def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
     answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
@@ -148,7 +150,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]] =
     answers.reimbursementClaims
-      .map(_.mapValues(_.collect { case (tc, Some(r)) => (tc, r) }))
+      .map(_.view.mapValues(_.collect { case (tc, Some(r)) => (tc, r) }).to(SortedMap))
       .getOrElse(SortedMap.empty)
 
   def getTotalReimbursementAmount: BigDecimal =

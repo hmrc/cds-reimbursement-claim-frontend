@@ -155,7 +155,7 @@ class InternalUploadDocumentsConnector @Inject() (
   override def initialize(request: Request)(implicit
     hc: HeaderCarrier
   ): Future[Response] =
-    EitherT(sessionCache.get)
+    EitherT(sessionCache.get())
       .flatMap {
         case Some(session) =>
           EitherT(
@@ -192,7 +192,7 @@ class InternalUploadDocumentsConnector @Inject() (
       )
 
   override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
-    EitherT(sessionCache.get)
+    EitherT(sessionCache.get())
       .flatMap {
         case Some(session) =>
           EitherT(

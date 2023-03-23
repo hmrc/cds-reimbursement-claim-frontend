@@ -41,7 +41,7 @@ class EnterMovementReferenceNumberController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   final val start: Action[AnyContent] =
-    Action(Redirect(routes.EnterMovementReferenceNumberController.show))
+    Action(Redirect(routes.EnterMovementReferenceNumberController.show()))
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>

@@ -62,9 +62,7 @@ final case class SelectedDutyTaxCodesReimbursementAnswer(
       ): _*
     )
 
-    SelectedDutyTaxCodesReimbursementAnswer(
-      value - dutyType + (dutyType -> updatedTaxCodesSelection)
-    )
+    SelectedDutyTaxCodesReimbursementAnswer(SortedMap.from(value - dutyType + (dutyType -> updatedTaxCodesSelection)))
   }
 
   /** Updates claim for given duty and tax code */
@@ -76,7 +74,7 @@ final case class SelectedDutyTaxCodesReimbursementAnswer(
     for {
       current <- value.get(duty)
       updated <- current.get(taxCode) *> Some(current - taxCode + (taxCode -> claim))
-    } yield SelectedDutyTaxCodesReimbursementAnswer(value - duty + (duty -> updated))
+    } yield SelectedDutyTaxCodesReimbursementAnswer(SortedMap.from(value - duty + (duty -> SortedMap.from(updated))))
 
   /** Summarising same tax code reimbursements together */
   def combine: Option[Map[TaxCode, AmountPaidWithCorrect]] =

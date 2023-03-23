@@ -51,7 +51,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import java.text.NumberFormat
 import java.util.Locale
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 
 class ConfirmFullRepaymentControllerSpec
@@ -186,7 +186,12 @@ class ConfirmFullRepaymentControllerSpec
           ) {
             val depositIds: Seq[String]                                                = reclaims.map(_._1).take(1)
             val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-              reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).take(1).toSeq
+              reclaims
+                .groupBy(_._1)
+                .view
+                .filterKeys(depositIds.contains)
+                .mapValues(_.map { case (_, tc, amount) => (tc, amount) })
+                .toSeq
             val journey: SecuritiesJourney                                             =
               emptyJourney
                 .submitMovementReferenceNumber(mrn)

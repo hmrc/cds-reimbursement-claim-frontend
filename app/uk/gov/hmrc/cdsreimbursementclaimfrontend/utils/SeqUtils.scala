@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.data.NonEmptyList
+import collection.immutable.Seq
 
 trait SeqUtils {
   implicit class SeqOps[A, S[A] <: Seq[A]](val seq: S[A]) {
@@ -50,6 +51,11 @@ trait SeqUtils {
         case None    => seq
         case Some(a) => seq :+ a
       }
+
+    final def zipOpt[B](optionOfSeq: Option[Seq[B]]): Option[Seq[(A, B)]] =
+      for {
+        as <- optionOfSeq
+      } yield seq.zip(as)
   }
 
   implicit class OptionsOps[A](val option: Option[A]) {
@@ -79,7 +85,7 @@ trait SeqUtils {
           }
       }
 
-    final def zip[B](otherOptionOfSeq: Option[Seq[B]]): Option[Seq[(A, B)]] =
+    final def zipOpt[B](otherOptionOfSeq: Option[Seq[B]]): Option[Seq[(A, B)]] =
       for {
         as <- optionOfSeq
         bs <- otherOptionOfSeq
@@ -89,7 +95,7 @@ trait SeqUtils {
       optionOfSeq.map(_.zip(Stream.iterate(0)(_ + 1)))
 
     final def containsSameElements(other: Seq[A]): Boolean =
-      optionOfSeq.exists(_.toSet.sameElements(other.toSet))
+      optionOfSeq.exists(_.toSet.iterator.sameElements(other.toSet))
   }
 
   implicit class OptionOfMapOps[K, V, M[K, V] <: Map[K, V]](val optionOfMap: Option[M[K, V]]) {

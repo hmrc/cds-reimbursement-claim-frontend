@@ -937,8 +937,8 @@ class OverpaymentsScheduledJourneySpec
         val totalReimbursementAmount = journey.getTotalReimbursementAmount
         val totalPaidAmount          = journey.getTotalPaidAmount
 
-        journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, AmountPaidWithCorrect(pa, ca)) =>
+        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
+          tca.foreachEntry { case (taxCode, AmountPaidWithCorrect(pa, ca)) =>
             val modifiedJourney =
               journey.submitCorrectAmount(dutyType, taxCode, pa * 0.8, ca * 0.8).getOrFail
 
@@ -958,8 +958,8 @@ class OverpaymentsScheduledJourneySpec
             .map(tcs => dutyType.taxCodes.filterNot(tcs.contains).iterator.next())
             .getOrElse(fail())
 
-        journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (_, AmountPaidWithCorrect(pa, ca)) =>
+        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
+          tca.foreachEntry { case (_, AmountPaidWithCorrect(pa, ca)) =>
             val result =
               journey.submitCorrectAmount(dutyType, taxCodeNotSelected(dutyType), pa, ca)
             result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
@@ -970,8 +970,8 @@ class OverpaymentsScheduledJourneySpec
 
     "reject change to invalid amount for valid selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, AmountPaidWithCorrect(pa, _)) =>
+        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
+          tca.foreachEntry { case (taxCode, AmountPaidWithCorrect(pa, _)) =>
             val result1 =
               journey.submitCorrectAmount(dutyType, taxCode, pa, pa)
             result1 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")

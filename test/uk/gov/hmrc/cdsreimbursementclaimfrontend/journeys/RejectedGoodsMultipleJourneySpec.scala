@@ -872,7 +872,7 @@ class RejectedGoodsMultipleJourneySpec
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
           val taxCodes                    = journey.getAvailableDuties(mrn).map(_._1)
-          val newTaxCodeSet: Seq[TaxCode] = taxCodes.take(2).toSeq
+          val newTaxCodeSet: Seq[TaxCode] = taxCodes.take(2)
 
           val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, newTaxCodeSet)
 
@@ -886,7 +886,7 @@ class RejectedGoodsMultipleJourneySpec
       forAll(incompleteJourneyWithMrnsGen(MRNS_SIZE)) { case (journey, mrns) =>
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
-          val invalidTaxCodeSet     = TaxCodes.all.takeRight(6).toSeq
+          val invalidTaxCodeSet     = TaxCodes.all.takeRight(6)
           val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, invalidTaxCodeSet)
           modifiedJourneyEither shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
         }

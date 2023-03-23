@@ -56,7 +56,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
   def mockInitializeCall(existingFile: Option[UploadedFile] = None) =
     (mockUploadDocumentsConnector
       .initialize(_: UploadDocumentsConnector.Request)(_: HeaderCarrier))
-      .expects(where { case (request, _) =>
+      .expects(where[UploadDocumentsConnector.Request, HeaderCarrier] { case (request, _) =>
         request.existingFiles.map(_.upscanReference) == existingFile.map(_.upscanReference).toList
       })
       .returning(Future.successful(Some(expectedUploadDocumentsLocation)))
