@@ -120,7 +120,7 @@ class CheckYourAnswersControllerSpec
       "Were your goods imported into Northern Ireland?".expectedAlways,
       "Basis for claim".expectedAlways,
       "Reason for claim".expectedAlways,
-      "Claim total".expectedAlways,
+      "Total repayment claim for all MRNs".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
       "Now send your claim".expectedAlways
