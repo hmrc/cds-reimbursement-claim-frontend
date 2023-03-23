@@ -23,7 +23,7 @@ import play.api.libs.json.JsResult
 import play.api.libs.json.Reads
 import play.api.libs.json.Writes
 
-import scala.collection.SortedMap
+import scala.collection.immutable.SortedMap
 import scala.collection.immutable.TreeMap
 import scala.util.Try
 
@@ -37,7 +37,7 @@ object SortedMapFormat {
 
     def keyValueReads: Reads[SortedMap[K, V]] =
       mapReads[K, V](s => JsResult.fromTry(Try(fromString(s)))).map { entries =>
-        TreeMap(entries.toArray: _*)
+        TreeMap.from(entries)
       }
 
     def keyValueWrites: Writes[SortedMap[K, V]] =

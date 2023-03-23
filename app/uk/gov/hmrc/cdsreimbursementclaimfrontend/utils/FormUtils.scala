@@ -95,7 +95,7 @@ object FormUtils {
     bigDecimalFormat(precision = 13, scale = 2, errorMsg)
 
   def moneyMapping(
-    errorMsg: String = s"error.invalid-text",
+    errorMsg: String = "error.invalid-text",
     allowZero: Boolean = false,
     zeroErrorMsg: Option[String] = None
   ): Mapping[BigDecimal] =
@@ -116,7 +116,7 @@ object FormUtils {
       override val format: Option[(String, Nil.type)] = Some(("format.real", Nil))
 
       def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
-        Formats.stringFormat.bind(key, data).right.flatMap { userInput =>
+        Formats.stringFormat.bind(key, data).flatMap { userInput =>
           if (userInput.isEmpty)
             Left(Seq(FormError(key, "error.required")))
           else
@@ -125,9 +125,9 @@ object FormUtils {
               .either(
                 BigDecimal(
                   userInput
-                    .replaceAllLiterally("£", "")
-                    .replaceAllLiterally(" ", "")
-                    .replaceAllLiterally(",", "")
+                    .replace("£", "")
+                    .replace(" ", "")
+                    .replace(",", "")
                 )
               )
               .flatMap { bd =>

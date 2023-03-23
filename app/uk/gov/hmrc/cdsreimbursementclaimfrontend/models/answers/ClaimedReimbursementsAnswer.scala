@@ -21,8 +21,8 @@ import cats.data.NonEmptyList
 import cats.implicits.catsSyntaxOption
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 object ClaimedReimbursementsAnswer {
@@ -50,7 +50,7 @@ object ClaimedReimbursementsAnswer {
   val validator: Validator[Id, ClaimedReimbursementsAnswer] = maybeClaimedReimbursements =>
     maybeClaimedReimbursements.toValidNel(MissingAnswerError("Claimed reimbursements"))
 
-  implicit class ClaimedReimbursementsOps(val claims: NonEmptyList[ClaimedReimbursement]) extends AnyVal {
+  implicit class ClaimedReimbursementsOps(private val claims: NonEmptyList[ClaimedReimbursement]) extends AnyVal {
     def total: BigDecimal = claims.map(_.claimAmount).toList.sum
   }
 }

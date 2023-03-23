@@ -25,12 +25,12 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 
 class OverpaymentsScheduledJourneySpec
     extends AnyWordSpec
@@ -875,10 +875,12 @@ class OverpaymentsScheduledJourneySpec
       val availableDocumentTypes = UploadDocumentType.overpaymentsScheduledDocumentTypes
 
       val availableClaimTypesNotNi      =
-        BasisOfOverpaymentClaimsList.withoutDuplicateEntry
+        BasisOfOverpaymentClaimsList
+          .withoutDuplicateEntry()
           .excludeNorthernIrelandClaims(false, Some(displayDeclaration))
       val availableClaimTypesIncludesNi =
-        BasisOfOverpaymentClaimsList.withoutDuplicateEntry
+        BasisOfOverpaymentClaimsList
+          .withoutDuplicateEntry()
           .excludeNorthernIrelandClaims(true, Some(displayDeclaration))
 
       val journey = OverpaymentsScheduledJourney
@@ -1111,7 +1113,7 @@ class OverpaymentsScheduledJourneySpec
 //            (taxCode, dutyType )
 //          }
 //          .groupBy(_._2)
-//          .mapValues(_.map(_._1))
+//          .view.mapValues(_.map(_._1))
 //
 //      val dutyTypes: List[DutyType] =
 //        taxCodesWithTypes.keys.toList

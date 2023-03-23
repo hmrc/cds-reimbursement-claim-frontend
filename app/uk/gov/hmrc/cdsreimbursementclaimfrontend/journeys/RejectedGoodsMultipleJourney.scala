@@ -18,21 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
 import cats.syntax.eq._
+import com.github.arturopala.validator.Validator
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -41,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
-import com.github.arturopala.validator.Validator
 
 import java.time.LocalDate
 
@@ -120,7 +107,7 @@ final class RejectedGoodsMultipleJourney private (
   def getReimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]] =
     answers.reimbursementClaims
       .map(
-        _.view
+        _.view.view
           .mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
           .to(OrderedMap)
       )
@@ -226,14 +213,14 @@ final class RejectedGoodsMultipleJourney private (
         Left("submitMovementReferenceNumber.invalidIndex")
       else if (mrn =!= displayDeclaration.getMRN)
         Left(
-          s"submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+          "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
       else if (
         index > 0 &&
         !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs)
       )
         Left(
-          s"submitMovementReferenceNumber.wrongDisplayDeclarationEori"
+          "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
         )
       else
         getNthMovementReferenceNumber(index) match {
@@ -336,7 +323,7 @@ final class RejectedGoodsMultipleJourney private (
           )
         else
           Left(
-            s"submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14"
+            "submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14"
           )
       else Left("submitConsigneeEoriNumber.unexpected")
     }
@@ -418,7 +405,7 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       getDisplayDeclarationFor(mrn) match {
         case None =>
-          Left(s"selectAndReplaceTaxCodeSetForReimbursement.missingDisplayDeclaration")
+          Left("selectAndReplaceTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
           if (taxCodes.isEmpty)
@@ -462,7 +449,7 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       getDisplayDeclarationFor(mrn) match {
         case None =>
-          Left(s"submitAmountForReimbursement.missingDisplayDeclaration")
+          Left("submitAmountForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(mrn, taxCode) match {

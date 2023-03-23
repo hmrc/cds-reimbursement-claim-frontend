@@ -34,10 +34,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -199,7 +199,7 @@ class EnterClaimControllerSpec
                 performAction(mrnIndex + 1, taxCode, claimAmount.toString()),
                 if (taxCode === selectedTaxCodes.last) {
                   if (mrnIndex === mrns.size - 1)
-                    s"/claim-back-import-duty-vat/rejected-goods/multiple/check-claim"
+                    "/claim-back-import-duty-vat/rejected-goods/multiple/check-claim"
                   else
                     s"/claim-back-import-duty-vat/rejected-goods/multiple/select-duties/${mrnIndex + 2}"
                 } else

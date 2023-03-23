@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import play.api.i18n.Messages
 import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.util.function.Predicate
-import play.api.i18n.Messages
 
 final case class AccountNumber(value: String) extends AnyVal {
 

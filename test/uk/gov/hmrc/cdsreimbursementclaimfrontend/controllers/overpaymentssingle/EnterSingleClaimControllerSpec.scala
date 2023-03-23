@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import cats.Functor
 import cats.Id
+import org.scalacheck.Gen
+import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -31,8 +33,10 @@ import play.api.test.Helpers.BAD_REQUEST
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -42,9 +46,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genListNdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genNdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.moneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -57,15 +63,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 
 import java.util.UUID
-import org.scalacheck.Gen
-import org.scalatest.OptionValues
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genListNdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genNdrcDetails
-
 import scala.concurrent.Future
 import scala.util.Random
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
 class EnterSingleClaimControllerSpec
     extends ControllerSpec
@@ -388,7 +387,7 @@ class EnterSingleClaimControllerSpec
           doc
             .select(".govuk-error-summary__list > li:nth-child(1) > a")
             .text() shouldBe messageFromMessageKey(
-            s"enter-claim.error.required"
+            "enter-claim.error.required"
           ),
         BAD_REQUEST
       )
@@ -573,7 +572,7 @@ class EnterSingleClaimControllerSpec
       val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
       EnterSingleClaimController
         .generateReimbursementsFromDuties(draftC285Claim)
-        .getOrElse(fail)
+        .getOrElse(fail())
         .size shouldBe numberOfDuties
     }
   }

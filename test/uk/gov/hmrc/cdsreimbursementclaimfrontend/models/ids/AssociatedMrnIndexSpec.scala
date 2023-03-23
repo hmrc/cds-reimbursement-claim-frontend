@@ -103,12 +103,12 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
 object AssociatedMrnIndexSpec {
 
-  implicit class IntegerOps(val n: Int) extends AnyVal {
+  implicit class IntegerOps(private val n: Int) extends AnyVal {
     def truncateToEndWithPrecision(x: Int): Int =
       (n / 10) * 10 + (if (n >= 0) x else -x)
   }
 
-  implicit class StringOps(val s: String) extends AnyVal {
+  implicit class StringOps(private val s: String) extends AnyVal {
     def lastTwo: String = s.substring(s.length - 2)
   }
 }

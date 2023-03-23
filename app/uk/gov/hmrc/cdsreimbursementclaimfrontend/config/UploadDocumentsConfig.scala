@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
+import play.api.Configuration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.Retries
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import javax.inject.Inject
 import javax.inject.Singleton
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.duration.FiniteDuration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.Retries
-import play.api.Configuration
 
 @Singleton
 class UploadDocumentsConfig @Inject() (servicesConfig: ServicesConfig, configuration: Configuration) {

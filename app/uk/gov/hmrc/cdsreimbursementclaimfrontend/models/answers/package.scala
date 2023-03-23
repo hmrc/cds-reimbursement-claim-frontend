@@ -37,7 +37,7 @@ package object answers {
   type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
   type AssociatedMRNsClaimsAnswer         = NonEmptyList[ClaimedReimbursementsAnswer]
 
-  implicit final class NonEmptyListOps[A](val list: NonEmptyList[A]) extends AnyVal {
+  implicit final class NonEmptyListOps[A](private val list: NonEmptyList[A]) extends AnyVal {
 
     def replaceOrAppend(cond: A => Boolean, item: A): NonEmptyList[A] =
       list.find(cond) match {
@@ -62,7 +62,7 @@ package object answers {
 
   }
 
-  implicit final class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
+  implicit final class AnswersOps[A](private val answer: Option[NonEmptyList[A]]) extends AnyVal {
 
     def get(i: AssociatedMrnIndex): Option[A] =
       get(i.toListIndex)

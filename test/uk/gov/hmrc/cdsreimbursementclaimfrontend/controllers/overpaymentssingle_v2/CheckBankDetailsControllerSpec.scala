@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
 
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
 import play.api.i18n.Lang
 import play.api.i18n.MessagesImpl
@@ -30,15 +31,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import org.scalatest.BeforeAndAfterEach
 
 class CheckBankDetailsControllerSpec
     extends PropertyBasedControllerSpec
@@ -168,7 +168,7 @@ class CheckBankDetailsControllerSpec
 
           checkPageIsDisplayed(
             result,
-            messageFromMessageKey(s"bank-details.title"),
+            messageFromMessageKey("bank-details.title"),
             doc =>
               summaryKeyValueMap(doc) shouldBe Map(
                 "Name on the account" -> consigneeBankDetails.accountName.value,
@@ -193,7 +193,7 @@ class CheckBankDetailsControllerSpec
 
           checkPageIsDisplayed(
             result,
-            messageFromMessageKey(s"bank-details.title"),
+            messageFromMessageKey("bank-details.title"),
             doc =>
               summaryKeyValueMap(doc) shouldBe Map(
                 "Name on the account" -> declarantBankDetails.accountName.value,
@@ -217,7 +217,7 @@ class CheckBankDetailsControllerSpec
 
         checkPageIsDisplayed(
           result,
-          messageFromMessageKey(s"bank-details.title"),
+          messageFromMessageKey("bank-details.title"),
           doc =>
             summaryKeyValueMap(doc) shouldBe Map(
               "Name on the account" -> bankAccountDetails.accountName.value,

@@ -133,7 +133,7 @@ class DefaultUpscanConnector @Inject() (
   override def saveUpscanUpload(
     upscanUpload: UpscanUpload
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
-    val url = baseUrl + s"/cds-reimbursement-claim/upscan"
+    val url = baseUrl + "/cds-reimbursement-claim/upscan"
 
     EitherT[Future, Error, HttpResponse](
       http

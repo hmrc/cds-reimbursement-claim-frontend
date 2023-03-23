@@ -29,15 +29,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswerList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -100,7 +100,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
   "UploadFilesController in single" when {
 
-    s"Show choose files page" must {
+    "Show choose files page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
@@ -180,7 +180,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
     }
 
-    s"Redirect to the file upload summary page" must {
+    "Redirect to the file upload summary page" must {
 
       def performAction(): Future[Result] = controller.summary(FakeRequest())
 
@@ -298,7 +298,7 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
 
     }
 
-    s"'Choose Files' page submitted the callback" must {
+    "'Choose Files' page submitted the callback" must {
 
       def performAction(callback: UploadDocumentsCallback): Future[Result] =
         controller.callback(FakeRequest().withJsonBody(Json.toJson(callback)))

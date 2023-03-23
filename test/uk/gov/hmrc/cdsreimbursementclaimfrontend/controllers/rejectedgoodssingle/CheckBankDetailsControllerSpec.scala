@@ -30,11 +30,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 
 class CheckBankDetailsControllerSpec
@@ -160,7 +160,7 @@ class CheckBankDetailsControllerSpec
 
           checkPageIsDisplayed(
             result,
-            messageFromMessageKey(s"bank-details.title"),
+            messageFromMessageKey("bank-details.title"),
             doc =>
               summaryKeyValueMap(doc) shouldBe Map(
                 "Name on the account" -> consigneeBankDetails.accountName.value,
@@ -185,7 +185,7 @@ class CheckBankDetailsControllerSpec
 
           checkPageIsDisplayed(
             result,
-            messageFromMessageKey(s"bank-details.title"),
+            messageFromMessageKey("bank-details.title"),
             doc =>
               summaryKeyValueMap(doc) shouldBe Map(
                 "Name on the account" -> declarantBankDetails.accountName.value,
@@ -209,7 +209,7 @@ class CheckBankDetailsControllerSpec
 
         checkPageIsDisplayed(
           result,
-          messageFromMessageKey(s"bank-details.title"),
+          messageFromMessageKey("bank-details.title"),
           doc =>
             summaryKeyValueMap(doc) shouldBe Map(
               "Name on the account" -> bankAccountDetails.accountName.value,

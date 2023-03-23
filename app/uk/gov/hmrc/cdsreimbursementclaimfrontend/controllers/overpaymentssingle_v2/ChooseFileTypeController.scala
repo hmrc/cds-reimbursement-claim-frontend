@@ -25,8 +25,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_file_type
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_file_type
 
 import javax.inject.Inject
 import javax.inject.Singleton

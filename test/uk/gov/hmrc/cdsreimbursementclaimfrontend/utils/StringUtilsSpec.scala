@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
+import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
-import org.scalacheck.Gen
 
 class StringUtilsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 

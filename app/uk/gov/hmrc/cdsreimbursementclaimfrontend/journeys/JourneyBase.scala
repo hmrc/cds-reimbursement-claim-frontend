@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import com.github.arturopala.validator.Validator.Validate
 import com.github.arturopala.validator.Validator.ValidationResultOps
-import play.api.libs.json.Json
 import play.api.libs.json.Format
+import play.api.libs.json.Json
 
 trait Journey {
 

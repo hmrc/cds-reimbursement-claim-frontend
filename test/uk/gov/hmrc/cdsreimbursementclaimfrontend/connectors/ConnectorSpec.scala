@@ -21,8 +21,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.JsString
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future
 

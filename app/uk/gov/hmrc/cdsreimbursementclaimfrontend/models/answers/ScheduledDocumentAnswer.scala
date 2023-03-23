@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 import cats.data.Validated
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 final case class ScheduledDocumentAnswer(uploadDocument: UploadedFile) extends AnyVal
 

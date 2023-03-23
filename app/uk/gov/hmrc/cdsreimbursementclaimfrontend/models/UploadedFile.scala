@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import java.time.ZonedDateTime
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack
+
 import java.time.ZoneOffset
-import cats.implicits.catsSyntaxOptionId
+import java.time.ZonedDateTime
 
 /** DTO between upload-documents-frontend and this microservice.
   * Do NOT rename fields!

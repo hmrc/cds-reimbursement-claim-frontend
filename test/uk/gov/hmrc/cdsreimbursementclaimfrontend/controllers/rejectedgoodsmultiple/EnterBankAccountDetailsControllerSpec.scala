@@ -32,19 +32,15 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDD
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.arbitraryBankAccountReputation
@@ -53,6 +49,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddres
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.genBankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.BadRequestException
@@ -758,9 +758,9 @@ class EnterBankAccountDetailsControllerSpec
 
         checkIsRedirect(
           performAction(
-            s"enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
-            s"enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
-            s"enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
+            "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+            "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+            "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
           routes.CheckBankDetailsController.show()
         )
@@ -777,9 +777,9 @@ class EnterBankAccountDetailsControllerSpec
 
         checkIsRedirect(
           performAction(
-            s"enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
-            s"enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
-            s"enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
+            "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+            "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+            "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
           routes.ChooseBankAccountTypeController.show()
         )
@@ -804,9 +804,9 @@ class EnterBankAccountDetailsControllerSpec
 
         checkIsRedirect(
           performAction(
-            s"enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
-            s"enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
-            s"enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
+            "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+            "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+            "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
           commonRoutes.BankAccountVerificationUnavailable.show()
         )
@@ -886,20 +886,20 @@ class EnterBankAccountDetailsControllerSpec
       "Accept shortest possible (6 digits) accountNumber and pad it" in {
         val genAccountNumber = numStringGen(6)
         val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
-        bandkAccountForm.errors                                           shouldBe Nil
-        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe "00" + genAccountNumber
+        bandkAccountForm.errors                                             shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail()) shouldBe "00" + genAccountNumber
       }
       "Accept 7 digits accountNumber and pad it" in {
         val genAccountNumber = numStringGen(7)
         val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
-        bandkAccountForm.errors                                           shouldBe Nil
-        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe "0" + genAccountNumber
+        bandkAccountForm.errors                                             shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail()) shouldBe "0" + genAccountNumber
       }
       "Accept longest possible (8 digits) accountNumber" in {
         val genAccountNumber = numStringGen(8)
         val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
-        bandkAccountForm.errors                                           shouldBe Nil
-        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe genAccountNumber
+        bandkAccountForm.errors                                             shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail()) shouldBe genAccountNumber
       }
       "Reject an empty field" in {
         val errors = form.bind(goodData.updated(accountNumber, " ")).errors

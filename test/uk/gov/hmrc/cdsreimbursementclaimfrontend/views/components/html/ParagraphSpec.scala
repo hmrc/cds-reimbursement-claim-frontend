@@ -17,12 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
 import org.scalacheck.Gen
+import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import scala.jdk.CollectionConverters._
-import org.scalacheck.ShrinkLowPriority
 import play.twirl.api.HtmlFormat
+
+import scala.jdk.CollectionConverters._
 
 class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with Matchers with ShrinkLowPriority {
 

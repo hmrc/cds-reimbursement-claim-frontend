@@ -37,15 +37,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyCMAEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genStringWithMaxSizeOfN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genStringWithMaxSizeOfN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -206,7 +206,7 @@ class ChooseRepaymentMethodControllerSpec
           whenever(ndrcDetails.isCmaEligible) {
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
             val updatedJourney =
-              session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(CurrentMonthAdjustment).right.get
+              session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(CurrentMonthAdjustment).getOrFail
             val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
             inSequence {
@@ -228,7 +228,7 @@ class ChooseRepaymentMethodControllerSpec
           whenever(ndrcDetails.isCmaEligible) {
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
             val updatedJourney =
-              session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(BankAccountTransfer).right.get
+              session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(BankAccountTransfer).getOrFail
             val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
             inSequence {

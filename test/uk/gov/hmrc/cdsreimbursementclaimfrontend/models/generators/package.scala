@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import org.scalacheck.magnolia.Typeclass
 
 import java.net.URL
 import java.time.Instant

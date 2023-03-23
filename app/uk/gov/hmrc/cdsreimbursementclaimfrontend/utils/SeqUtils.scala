@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.data.NonEmptyList
-import collection.immutable.Seq
+
+import scala.collection.immutable.Seq
 
 trait SeqUtils {
   implicit class SeqOps[A, S[A] <: Seq[A]](val seq: S[A]) {
@@ -92,7 +93,7 @@ trait SeqUtils {
       } yield as.zip(bs)
 
     final def zipWithIndex: Option[Seq[(A, Int)]] =
-      optionOfSeq.map(_.zip(Stream.iterate(0)(_ + 1)))
+      optionOfSeq.map(_.zip(LazyList.iterate(0)(_ + 1)))
 
     final def containsSameElements(other: Seq[A]): Boolean =
       optionOfSeq.exists(_.toSet.iterator.sameElements(other.toSet))

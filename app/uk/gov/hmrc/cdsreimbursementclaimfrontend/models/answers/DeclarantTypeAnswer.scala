@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
+import cats.implicits.catsSyntaxOption
 import cats.Eq
 import cats.Id
-import cats.implicits.catsSyntaxOption
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError

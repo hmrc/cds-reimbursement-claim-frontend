@@ -20,10 +20,10 @@ import cats.implicits.catsSyntaxEq
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.FormError
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
+import play.api.data.Form
+import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -149,7 +149,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
         (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
       case (Some(rfs), None) if temporaryAdmissions.contains(rfs)                             =>
         (journey, Redirect(routes.ChooseExportMethodController.show())).asFuture
-      case (Some(rfs), _) if !temporaryAdmissions.contains(rfs)                               =>
+      case (Some(_), _)                                                                       =>
         (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
     }
 

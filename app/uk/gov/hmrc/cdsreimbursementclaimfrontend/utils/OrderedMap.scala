@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import scala.collection.mutable.LinkedHashMap
-import scala.collection.mutable.Builder
-import scala.collection.immutable.Map
 import scala.collection.MapFactory
+import scala.collection.immutable.Map
+import scala.collection.mutable.Builder
+import scala.collection.mutable.LinkedHashMap
 
 /** A map keeping items in the order they were first appended, like mutable LinkedHashMap. */
 @SuppressWarnings(Array("org.wartremover.warts.Any", "org.wartremover.warts.AsInstanceOf"))

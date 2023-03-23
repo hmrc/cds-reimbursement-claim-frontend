@@ -106,7 +106,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
         availableDepositIds.filterNot(depositIdsWithSomeDutiesSelected.contains).halfNonEmpty
 
       val taxCodesPerDepositId: Seq[(String, Seq[TaxCode])] =
-        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => tc }).toSeq
+        reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _) => tc }).toSeq
 
       buildSecuritiesJourneyReadyForSelectingSecurities((mrn, rfs, decl))
         .flatMapEach(
@@ -129,7 +129,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
     case (mrn, rfs, decl, reclaims) =>
       val depositIds: Seq[String]                           = reclaims.map(_._1).distinct
       val taxCodesPerDepositId: Seq[(String, Seq[TaxCode])] =
-        reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, _) => tc }).toSeq
+        reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _) => tc }).toSeq
 
       buildSecuritiesJourneyReadyForSelectingSecurities((mrn, rfs, decl))
         .flatMapEach(
@@ -158,7 +158,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
           (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
         )
         .flatMapEach(
-          reclaims.groupBy(_._1).mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
           (journey: SecuritiesJourney) =>
             (args: (String, Seq[(TaxCode, BigDecimal)])) =>
               journey

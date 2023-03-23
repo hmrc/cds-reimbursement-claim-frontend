@@ -28,8 +28,8 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
 import play.api.test.Helpers.status
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -82,7 +82,7 @@ class EnterClaimControllerSpec
     amount: BigDecimal
   ) = {
     doc.select("span.govuk-caption-xl").text()                              shouldBe messages(
-      s"enter-claim.securities.title.caption",
+      "enter-claim.securities.title.caption",
       securityDepositId
     )
     doc.select("h1").text()                                                 shouldBe messages(

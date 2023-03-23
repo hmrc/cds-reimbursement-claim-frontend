@@ -24,13 +24,13 @@ import play.api.libs.json.JsValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.dutyTypesRankMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.taxCodesOrdering
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SortedMapFormat
 
-import scala.collection.SortedMap
+import scala.collection.immutable.SortedMap
 import scala.collection.immutable.ListMap
 
 final case class SelectedDutyTaxCodesReimbursementAnswer(
@@ -121,7 +121,8 @@ object SelectedDutyTaxCodesReimbursementAnswer {
 
   // Extensions
 
-  implicit class SelectedTaxCodesReimbursementOps(val value: SortedMap[TaxCode, AmountPaidWithCorrect]) extends AnyVal {
+  implicit class SelectedTaxCodesReimbursementOps(private val value: SortedMap[TaxCode, AmountPaidWithCorrect])
+      extends AnyVal {
 
     /** Calculates claimed amount total against given tax code */
     def subtotal: BigDecimal =

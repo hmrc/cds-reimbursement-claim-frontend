@@ -39,16 +39,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import scala.jdk.CollectionConverters._
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -94,6 +94,7 @@ class CheckYourAnswersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
+  @annotation.nowarn
   def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsScheduledJourney.Output): Unit = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -109,28 +110,34 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers     should contain allOf ("First Movement Reference Number (MRN)",
-    "Declaration details",
-    "Contact information for this claim",
-    "Basis for claim",
-    "Disposal method",
-    "Details of rejected goods",
-    "Claim total",
-    "Details of inspection",
-    "Supporting documents",
-    "Now send your claim")
+    headers     should contain allOf (
+      "First Movement Reference Number (MRN)",
+      "Declaration details",
+      "Contact information for this claim",
+      "Basis for claim",
+      "Disposal method",
+      "Details of rejected goods",
+      "Claim total",
+      "Details of inspection",
+      "Supporting documents",
+      "Now send your claim"
+    )
 
-    summaryKeys should contain allOf ("Contact details", "Contact address", Seq(
-      "First MRN",
-      "Scheduled document",
-      "This is the basis behind the claim",
-      "This is how the goods will be disposed of",
-      "These are the details of the rejected goods",
-      "Total",
-      "Inspection date",
-      "Inspection address type",
-      "Inspection address"
-    ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded")): _*)
+    summaryKeys should contain allOf (
+      "Contact details",
+      "Contact address",
+      Seq(
+        "First MRN",
+        "Scheduled document",
+        "This is the basis behind the claim",
+        "This is how the goods will be disposed of",
+        "These are the details of the rejected goods",
+        "Total",
+        "Inspection date",
+        "Inspection address type",
+        "Inspection address"
+      ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded")): _*
+    )
 
     summary("First MRN")                                   shouldBe claim.movementReferenceNumber.value
     summary("Scheduled document")                          shouldBe claim.scheduledDocument.fileName
@@ -201,7 +208,7 @@ class CheckYourAnswersControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey(s"check-your-answers.rejectedgoods.scheduled.title"),
+            messageFromMessageKey("check-your-answers.rejectedgoods.scheduled.title"),
             doc => validateCheckYourAnswersPage(doc, claim)
           )
         }

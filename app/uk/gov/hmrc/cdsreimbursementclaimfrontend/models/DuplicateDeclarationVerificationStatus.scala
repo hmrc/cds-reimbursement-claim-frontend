@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 final case class DuplicateDeclarationVerificationStatus private (flags: Flags) {
 

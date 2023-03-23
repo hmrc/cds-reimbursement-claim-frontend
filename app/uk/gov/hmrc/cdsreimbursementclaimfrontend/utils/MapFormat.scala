@@ -22,8 +22,8 @@ import play.api.libs.json.Reads
 import play.api.libs.json.Writes
 import play.api.libs.json._
 
-import scala.util.Try
 import scala.collection.immutable.SortedMap
+import scala.util.Try
 
 /** Creates instances of [[play.api.libs.json.Format]] for the different [[Map]] variants. */
 object MapFormat {

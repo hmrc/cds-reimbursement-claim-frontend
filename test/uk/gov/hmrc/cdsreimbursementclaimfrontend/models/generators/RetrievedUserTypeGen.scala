@@ -20,8 +20,8 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 
 object AuthenticatedUserGen {
 

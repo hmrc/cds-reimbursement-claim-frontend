@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
-import org.scalatest.matchers.Matcher
-import org.scalatest.matchers.MatchResult
 import cats.Eq
 import cats.syntax.eq._
+import org.scalatest.matchers.MatchResult
+import org.scalatest.matchers.Matcher
 
 trait SummaryMatchers {
 
@@ -29,7 +29,7 @@ trait SummaryMatchers {
       override def apply(obtained: Seq[A]): MatchResult = {
         val missing: Seq[A]    = expected.filterNot(item => obtained.exists(_ === item))
         val unexpected: Seq[A] = obtained.filterNot(item => expected.exists(_ === item)).distinct
-        if (missing.isEmpty) MatchResult(true, "", s"")
+        if (missing.isEmpty) MatchResult(true, "", "")
         else {
           MatchResult(
             false,
@@ -37,7 +37,7 @@ trait SummaryMatchers {
               .mkString("\n- ")}${if (unexpected.nonEmpty)
               s"\nThere are unexpected elements:\n- ${unexpected.mkString("\n- ")}"
             else ""}",
-            s""
+            ""
           )
         }
       }
@@ -50,7 +50,7 @@ trait SummaryMatchers {
       override def apply(obtained: Seq[A]): MatchResult = {
         val missing: Seq[A]    = expected.filterNot(item => obtained.exists(_ === item))
         val unexpected: Seq[A] = obtained.filterNot(item => expected.exists(_ === item)).distinct
-        if (missing.isEmpty && unexpected.isEmpty) MatchResult(true, "", s"")
+        if (missing.isEmpty && unexpected.isEmpty) MatchResult(true, "", "")
         else {
           MatchResult(
             false,
@@ -59,7 +59,7 @@ trait SummaryMatchers {
             else ""}${if (unexpected.nonEmpty)
               s"\nSome elements are unexpected:\n- ${unexpected.mkString("\n- ")}"
             else ""}",
-            s""
+            ""
           )
         }
       }
@@ -96,7 +96,7 @@ trait SummaryMatchers {
                 }
             )
 
-        if (missingKeys.isEmpty && invalidMappings.isEmpty) MatchResult(true, "", s"")
+        if (missingKeys.isEmpty && invalidMappings.isEmpty) MatchResult(true, "", "")
         else {
           val missingKeysMessage   =
             if (missingKeys.nonEmpty) s"\nSome expected keys are missing:\n- ${missingKeys
@@ -115,7 +115,7 @@ trait SummaryMatchers {
           MatchResult(
             false,
             missingKeysMessage + invalidValuesMessage,
-            s""
+            ""
           )
         }
       }
@@ -141,7 +141,7 @@ trait SummaryMatchers {
                 }
             )
 
-        if (missingKeys.isEmpty && unexpectedKeys.isEmpty && invalidMappings.isEmpty) MatchResult(true, "", s"")
+        if (missingKeys.isEmpty && unexpectedKeys.isEmpty && invalidMappings.isEmpty) MatchResult(true, "", "")
         else {
           val keysMessage          =
             s"${if (missingKeys.nonEmpty) s"\nSome expected keys are missing:\n- ${missingKeys
@@ -160,7 +160,7 @@ trait SummaryMatchers {
           MatchResult(
             false,
             keysMessage + invalidValuesMessage,
-            s""
+            ""
           )
         }
       }

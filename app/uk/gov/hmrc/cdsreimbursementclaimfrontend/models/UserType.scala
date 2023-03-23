@@ -24,9 +24,9 @@ sealed trait UserType extends Product with Serializable
 
 object UserType {
 
-  final case object Individual extends UserType
-  final case object Organisation extends UserType
-  final case object NonGovernmentGatewayUser extends UserType
+  case object Individual extends UserType
+  case object Organisation extends UserType
+  case object NonGovernmentGatewayUser extends UserType
 
   implicit val eq: Eq[UserType] = Eq.fromUniversalEquals
 

@@ -82,7 +82,7 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
                              .map[Either[Error, HttpResponse]] { response =>
                                if (response.status =!= Status.OK) {
                                  logger.warn(
-                                   s"could not initiate upscan: received http " +
+                                   "could not initiate upscan: received http " +
                                      s"status ${response.status} and body ${response.body}"
                                  )
                                  Left(Error("could not initiate upscan"))
@@ -103,7 +103,7 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
                                case Status.OK                                         => Right(response)
                                case Status.BAD_REQUEST | Status.INTERNAL_SERVER_ERROR =>
                                  logger.warn("could not save upscan upload")
-                                 Left(Error(s"failed to save upscan upload"))
+                                 Left(Error("failed to save upscan upload"))
                              }
                            }
     } yield upscanUpload
@@ -118,7 +118,7 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
           .leftMap(Error(_))
       else {
         logger.warn(
-          s"could not get upscan upload: received http " +
+          "could not get upscan upload: received http " +
             s"status ${response.status} and body ${response.body}"
         )
         Left(Error(s"call to get upscan upload failed ${response.status}"))

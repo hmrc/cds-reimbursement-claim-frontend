@@ -271,7 +271,7 @@ class NorthernIrelandControllerSpec
         checkPageIsDisplayed(
           controller.submit(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
-          getErrorSummary(_) shouldBe messageFromMessageKey(s"claim-northern-ireland.error.required"),
+          getErrorSummary(_) shouldBe messageFromMessageKey("claim-northern-ireland.error.required"),
           BAD_REQUEST
         )
       }
@@ -287,7 +287,7 @@ class NorthernIrelandControllerSpec
         checkPageIsDisplayed(
           controller.submit(FakeRequest()),
           messageFromMessageKey("claim-northern-ireland.title"),
-          getErrorSummary(_) shouldBe messageFromMessageKey(s"claim-northern-ireland.error.invalid"),
+          getErrorSummary(_) shouldBe messageFromMessageKey("claim-northern-ireland.error.invalid"),
           BAD_REQUEST
         )
       }

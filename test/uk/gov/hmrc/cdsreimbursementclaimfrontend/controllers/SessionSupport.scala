@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import org.scalamock.handlers.CallHandler1
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future

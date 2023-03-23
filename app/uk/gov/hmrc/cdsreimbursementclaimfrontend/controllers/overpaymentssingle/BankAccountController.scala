@@ -32,14 +32,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.extractRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.OverpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
@@ -174,11 +174,11 @@ class BankAccountController @Inject() (
     } else if (bankAccountReputation.accountExists === Some(ReputationResponse.Error)) {
       val form = enterBankDetailsForm
         .fill(bankAccountDetails)
-        .withError("enter-bank-account-details", s"error.account-exists-error")
+        .withError("enter-bank-account-details", "error.account-exists-error")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else if (bankAccountReputation.accountExists =!= Some(ReputationResponse.Yes)) {
       val form = enterBankDetailsForm
-        .withError("enter-bank-account-details", s"error.account-does-not-exist")
+        .withError("enter-bank-account-details", "error.account-does-not-exist")
       BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
     } else {
       Redirect(OverpaymentsRoutes.BankAccountController.checkBankAccountDetails(journey))

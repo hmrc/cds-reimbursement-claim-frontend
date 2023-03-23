@@ -17,33 +17,22 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
+import com.github.arturopala.validator.Validator
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 import scala.collection.immutable.SortedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
-
-import com.github.arturopala.validator.Validator
 
 /** An encapsulated Securities journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -178,7 +167,7 @@ final class SecuritiesJourney private (
   def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.securitiesReclaims
       .map(
-        _.view
+        _.view.view
           .mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
           .to(SortedMap)
       )
@@ -406,11 +395,11 @@ final class SecuritiesJourney private (
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       if (securityDepositId.isEmpty)
         Left(
-          s"selectSecurityDepositIds.emptySecurityDepositId"
+          "selectSecurityDepositIds.emptySecurityDepositId"
         )
       else if (!isValidSecurityDepositId(securityDepositId))
         Left(
-          s"selectSecurityDepositIds.invalidSecurityDepositId"
+          "selectSecurityDepositIds.invalidSecurityDepositId"
         )
       else {
         if (

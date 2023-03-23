@@ -18,12 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalamock.handlers.CallHandler
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
 import play.api.libs.json.Json
@@ -62,7 +62,6 @@ class BankAccountReputationConnectorSpec
 
   val actorSystem = ActorSystem("test-BankAccountReputationConnector")
 
-  @annotation.nowarn
   override protected def afterAll(): Unit =
     actorSystem.terminate()
 
@@ -180,7 +179,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           TechnicalServiceError(
-            s"Request to POST http://localhost:7502/business/v2/assess failed because of HttpResponse status=404 not found"
+            "Request to POST http://localhost:7502/business/v2/assess failed because of HttpResponse status=404 not found"
           )
         )
       )
@@ -191,7 +190,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getPersonalReputation(personalRequest).value) shouldBe (
         Left(
           TechnicalServiceError(
-            s"Request to POST http://localhost:7502/personal/v3/assess failed because of HttpResponse status=404 not found"
+            "Request to POST http://localhost:7502/personal/v3/assess failed because of HttpResponse status=404 not found"
           )
         )
       )

@@ -20,8 +20,8 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.data.Forms.mapping
-import play.api.data.Forms.text
 import play.api.data.Forms.nonEmptyText
+import play.api.data.Forms.text
 import play.api.data.validation.Constraints
 import play.api.mvc.Action
 import play.api.mvc.AnyContent

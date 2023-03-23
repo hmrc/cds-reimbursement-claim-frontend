@@ -20,12 +20,12 @@ import cats.Eq
 import cats.data.Validated.Valid
 import cats.data.Validated.invalidNel
 import cats.syntax.all._
+import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.IncorrectAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
-import play.api.i18n.Messages
 
 final case class BankAccountDetails(
   accountName: AccountName,

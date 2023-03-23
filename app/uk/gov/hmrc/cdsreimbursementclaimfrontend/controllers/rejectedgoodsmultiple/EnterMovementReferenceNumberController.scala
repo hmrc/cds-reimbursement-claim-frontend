@@ -24,14 +24,14 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberRejectedGoodsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes.subKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_movement_reference_number
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberRejectedGoodsForm
 
 import scala.concurrent.ExecutionContext
 
@@ -111,7 +111,7 @@ class EnterMovementReferenceNumberController @Inject() (
                         updatedJourney => (updatedJourney, redirectLocation(journey, updatedJourney, mrn, pageIndex))
                       )
                   case None        =>
-                    logger.error(s"Display Declaration details not found")
+                    logger.error("Display Declaration details not found")
                     (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
                 }
               )
