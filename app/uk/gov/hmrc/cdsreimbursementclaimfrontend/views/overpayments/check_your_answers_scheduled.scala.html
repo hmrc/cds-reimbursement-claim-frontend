@@ -70,7 +70,7 @@
     @subHeading(Html(messages(s"$key.additional-details.h2")))
     @summary(AdditionalDetailsSummary(claim.additionalDetails, s"$key.additional-details", Some(routes.EnterAdditionalDetailsController.show)))
     
-    @subHeading(Html(messages(s"$key.claim-total.h2")))
+    @subHeading(Html(messages(s"$key.claim-calculation.scheduled.h2")))
     @summary(ReimbursementsClaimsSummary.scheduledForCYA(claim.reimbursementClaims, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
