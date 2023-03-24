@@ -24,6 +24,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -35,78 +36,95 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkClaimDetailsPage: check_claim_details_scheduled
+  checkClaimDetails: check_claim_details_scheduled
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController {
 
-  val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.checkClaimDetailsKey)
+  final val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm("check-claim-summary")
 
   implicit val subKey: Option[String] = MRNScheduledRoutes.subKey
 
-  private val postAction: Call         = routes.CheckClaimDetailsController.submit
-  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show
+  final val selectDutiesAction: Call                      = routes.SelectDutyTypesController.show
+  final val enterMrnAction: Call                          = routes.EnterMovementReferenceNumberController.show
+  final val enterClaimAction: (DutyType, TaxCode) => Call = routes.EnterClaimController.show
+  final val nextAction: Call                              = routes.CheckBankDetailsController.show
+  final val postAction: Call                              = routes.CheckClaimDetailsController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val answers            = journey.getReimbursementClaims
-    val reimbursementTotal = journey.getTotalReimbursementAmount
-
-    if (journey.hasCompleteReimbursementClaims)
-      Ok(checkClaimDetailsPage(answers, reimbursementTotal, checkClaimDetailsForm, postAction)).asFuture
-    else Redirect(selectDutiesAction).asFuture
-  }
+  final val show: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      val answers                        = journey.getReimbursementClaims
+      val reimbursementTotal: BigDecimal = journey.getTotalReimbursementAmount
+      (
+        journey.withDutiesChangeMode(false),
+        journey.answers.movementReferenceNumber match {
+          case None                                              =>
+            Redirect(routes.EnterMovementReferenceNumberController.show)
+          case Some(_) if journey.hasCompleteReimbursementClaims =>
+            Ok {
+              checkClaimDetails(
+                answers,
+                reimbursementTotal,
+                checkClaimDetailsForm,
+                postAction
+              )
+            }
+          case _                                                 =>
+            Redirect(selectDutiesAction)
+        }
+      ).asFuture
+    }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       val answers            = journey.getReimbursementClaims
       val reimbursementTotal = journey.getTotalReimbursementAmount
 
-      if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction)).asFuture
-      else {
-        checkClaimDetailsForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                journey,
-                BadRequest(
-                  checkClaimDetailsPage(
-                    answers,
-                    reimbursementTotal,
-                    formWithErrors,
-                    postAction
-                  )
-                )
-              ),
-            {
-              case Yes =>
+      journey.answers.movementReferenceNumber match {
+        case Some(_) =>
+          checkClaimDetailsForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
                 (
                   journey,
-                  Redirect(
-                    if (journey.hasCompleteAnswers)
-                      checkYourAnswers
-                    else
-                      routes.CheckBankDetailsController.show
+                  BadRequest(
+                    checkClaimDetails(
+                      answers,
+                      reimbursementTotal,
+                      formWithErrors,
+                      postAction
+                    )
                   )
-                )
-              case No  => (journey, Redirect(selectDutiesAction))
-            }
-          )
-          .asFuture
+                ),
+              {
+                case Yes =>
+                  (
+                    journey.withDutiesChangeMode(false),
+                    Redirect(
+                      if (journey.hasCompleteAnswers)
+                        checkYourAnswers
+                      else
+                        routes.CheckBankDetailsController.show
+                    )
+                  )
+                case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
+              }
+            )
+            .asFuture
+        case None    =>
+          (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
       }
     },
     fastForwardToCYAEnabled = false
   )
-
-}
-
-object CheckClaimDetailsController {
-  val checkClaimDetailsKey: String = "check-claim-summary"
 }

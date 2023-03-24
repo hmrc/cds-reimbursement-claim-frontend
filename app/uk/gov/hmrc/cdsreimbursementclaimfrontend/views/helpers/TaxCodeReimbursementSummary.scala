@@ -45,8 +45,8 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
   )(implicit
     messages: Messages
   ): SummaryList = {
-    val duty                      = answer._1
-    val claimsMadeAgainstTaxCodes = answer._2
+    val duty                                                                 = answer._1
+    val claimsMadeAgainstTaxCodes: SortedMap[TaxCode, AmountPaidWithCorrect] = answer._2
 
     SummaryList(
       claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect) =>

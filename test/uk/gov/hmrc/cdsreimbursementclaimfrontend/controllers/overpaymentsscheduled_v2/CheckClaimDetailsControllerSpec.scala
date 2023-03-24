@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2
 
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
@@ -33,13 +33,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildAnswersGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
+import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 
 class CheckClaimDetailsControllerSpec
@@ -66,28 +72,51 @@ class CheckClaimDetailsControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: OverpaymentsSingleJourney
+    journey: OverpaymentsScheduledJourney
   ): Unit = {
-    val mrn = journey.getLeadMovementReferenceNumber.get.value
+    val key    = "check-claim-summary"
+    val claims = journey.getReimbursementClaims
+
     assertPageElementsByIdAndExpectedText(doc)(
-      "check-claim-summary-help-text"     -> m("check-claim-summary.help-text"),
-      s"check-claim-summary-section-$mrn" -> m(s"check-claim-summary.duty.label", mrn),
-      "check-claim-summary-yes-no"        -> s"${m("check-claim-summary.are-duties-correct")} ${m("check-claim-summary.yes")} ${m("check-claim-summary.no")}"
+      s"$key-help-text" -> m(s"$key.scheduled.help-text"),
+      s"$key-yes-no"    -> s"${m(s"$key.are-duties-correct")} ${m(s"$key.yes")} ${m(s"$key.no")}"
     )
-    summaryKeyValueList(doc)          should containOnlyPairsOf(
-      journey.getReimbursementClaims.toSeq.map { case (taxCode, amount) =>
-        (s"$taxCode - ${m(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
-      } ++
-        Seq(m("check-claim-summary.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+
+    claims.map { claim =>
+      assertPageElementsByIdAndExpectedText(doc)(
+        s"$key-duty-${claim._1.repr}" -> m(s"duty-type.${claim._1.repr}")
+      )
+    }
+
+    summaryKeyValueList(doc) should containOnlyPairsOf(
+      claims.toSeq
+        .map(_._2)
+        .flatMap(
+          _.map { case (taxCode, amount: AmountPaidWithCorrect) =>
+            (m(s"$key.duty-code.row.key", m(s"tax-code.$taxCode")), amount.refundAmount.toPoundSterlingString)
+          }
+        ) ++
+        claims
+          .filter(claim => claim._2.size > 1)
+          .map { (claim: (DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])) =>
+            (
+              s"${m(s"$key.duty-code.total.key", m(s"duty-type.${claim._1.repr}"))}",
+              journey
+                .getTaxCodesSubtotal(claim._2)
+                .toPoundSterlingString
+            )
+          }
+          .toSeq ++ Seq(
+          (m(s"$key.total"), journey.getTotalReimbursementAmount.toPoundSterlingString)
+        )
     )
   }
 
-  val journeyGen: Gen[OverpaymentsSingleJourney] =
+  val journeyGen: Gen[OverpaymentsScheduledJourney] =
     buildJourneyGen(
       buildAnswersGen(
         submitBankAccountDetails = false,
         submitBankAccountType = false,
-        reimbursementMethod = None,
         submitEvidence = false,
         checkYourAnswersChangeMode = false
       )
@@ -115,7 +144,7 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim-summary.title"),
+            messageFromMessageKey("check-claim-summary.scheduled.title"),
             assertPageContent(_, journey)
           )
         }
@@ -129,7 +158,7 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim-summary.title"),
+            messageFromMessageKey("check-claim-summary.scheduled.title"),
             assertPageContent(_, journey)
           )
         }
@@ -157,10 +186,7 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("check-claim-summary" -> "true"),
-            if (journey.isAllSelectedDutiesAreCMAEligible)
-              routes.ReimbursementMethodController.show
-            else
-              routes.CheckBankDetailsController.show
+            routes.CheckBankDetailsController.show
           )
         }
 
@@ -187,7 +213,7 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-claim-summary" -> "false"),
-          routes.SelectDutiesController.show
+          routes.SelectDutyTypesController.show
         )
       }
     }
