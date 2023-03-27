@@ -647,11 +647,6 @@ check-declaration-details.banner.empty-securities-selection=You must choose at l
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
 #===================================================
-check-declaration-details.single.details.heading=Who is the importer and the declarant?
-check-declaration-details.single.details.paragraph.heading.1=Importer
-check-declaration-details.single.details.paragraph.text.1=The importer is the person or company that purchased the goods brought into the UK.
-check-declaration-details.single.details.paragraph.heading.2=Declarant
-check-declaration-details.single.details.paragraph.text.2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
 check-declaration-details.single.is-information-correct=Continue with this MRN?
 check-declaration-details.multiple.is-information-correct=Continue with this MRN?
 check-declaration-details.scheduled.is-information-correct=Continue with this MRN?
