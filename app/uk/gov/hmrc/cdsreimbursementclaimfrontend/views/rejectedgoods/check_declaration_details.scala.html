@@ -56,16 +56,14 @@
 
     @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
-    @if(subKey.contains("single")) {
-        @dropdownDetails(summary = s"$key$subKeyDetail.details.heading",
-            html(
-                subHeading(Html(messages(s"$key$subKeyDetail.details.paragraph.heading.1")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"$key$subKeyDetail.details.paragraph.text.1"))),
-                subHeading(Html(messages(s"$key$subKeyDetail.details.paragraph.heading.2")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"$key$subKeyDetail.details.paragraph.text.2")))
-            )
+    @dropdownDetails(summary = s"$key.details.title",
+        html(
+            subHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"$key.details.p1"))),
+            subHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"$key.details.p2")))
         )
-    }
+    )
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

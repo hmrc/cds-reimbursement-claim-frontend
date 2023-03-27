@@ -67,6 +67,8 @@
 
         @errorSummary(form.errors)
 
+        @heading(Html(title))
+
         @indexAndMrnOpt.map{ case(_, mrn) =>
             @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))
         }.getOrElse("")
@@ -75,7 +77,8 @@
 
             @checkboxes(
                 field = form(s"$key"),
-                legendAsHeading = true,
+                legendAsHeading = false,
+                legendClasses = Some("govuk-visually-hidden"),
                 legend = HtmlContent(title),    
                 items = options.toList,
                 hint = None

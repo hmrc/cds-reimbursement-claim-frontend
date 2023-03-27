@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 @import cats.implicits.catsSyntaxEq
 
@@ -32,7 +33,8 @@
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
 @(form: Form[MRN], subKey: Option[String], pageOrdinalValue: Int, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -53,11 +55,12 @@
 
         @paragraph(Html(messages(combine(key, subKey, "help-text1"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @paragraph(Html(messages(combine(key, subKey, "help-text2"), viewConfig.mrnGuideUrl)))
-
-        @if(pageOrdinalValue === 1) {
-            @paragraph(Html(messages(combine(key, subKey, "help-text3"))), Some("govuk-body govuk-!-margin-bottom-6"))
-        }
+        @dropdownDetails(
+            summary = s"$key.details.heading",
+            html(
+                paragraph(Html(messages(s"$key.details.paragraph")))
+            )
+        )
 
         @inputText(
             form = form,
