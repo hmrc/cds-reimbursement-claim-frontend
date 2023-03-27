@@ -78,10 +78,11 @@ class EnterImporterEoriNumberControllerSpec
     buildSecuritiesDisplayDeclaration(
       exampleMrnAsString,
       ReasonForSecurity.AccountSales.acc14Code,
-      declarantEORI = anotherExampleEori
+      declarantEORI = anotherExampleEori,
+      consigneeEORI = Some(yetAnotherExampleEori)
     )
 
-  lazy val initialSession = SessionData(
+  val initialSession = SessionData(
     SecuritiesJourney
       .empty(exampleEori)
       .submitMovementReferenceNumber(exampleMrn)
@@ -103,6 +104,42 @@ class EnterImporterEoriNumberControllerSpec
       }
 
       "display the page on a new journey" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(initialSession)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("enter-importer-eori-number.title"),
+          doc => {
+            doc
+              .select("form div#enter-importer-eori-number-hint")
+              .text()                                         shouldBe messageFromMessageKey("enter-importer-eori-number.help-text")
+            doc.select("#enter-importer-eori-number").`val`() shouldBe ""
+            doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
+          }
+        )
+      }
+
+      "display the page on a new journey if consignee details are missing on declaration" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.AccountSales.acc14Code,
+            declarantEORI = anotherExampleEori,
+            consigneeEORI = None
+          )
+
+        val initialSession = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(initialSession)

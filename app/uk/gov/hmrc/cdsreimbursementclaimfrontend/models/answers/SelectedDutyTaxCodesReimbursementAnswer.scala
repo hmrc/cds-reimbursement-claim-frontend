@@ -87,13 +87,12 @@ final case class SelectedDutyTaxCodesReimbursementAnswer(
     value.values.foldLeft(BigDecimal(0))((amount, reimbursements) => amount + reimbursements.subtotal)
 }
 
-@SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
 object SelectedDutyTaxCodesReimbursementAnswer {
 
   // Ordering
 
   private lazy val dutyTypesRankMap = ListMap(DutyTypes.all.zipWithIndex: _*)
-  private lazy val taxCodesRankMap  = ListMap(DutyTypes.all.map(_.taxCodes).reduce(_ ++ _).zipWithIndex: _*)
+  private lazy val taxCodesRankMap  = ListMap(DutyTypes.all.map(_.taxCodes).fold(Seq.empty)(_ ++ _).zipWithIndex: _*)
 
   implicit val dutyTypesOrdering: Ordering[DutyType] = (a: DutyType, b: DutyType) =>
     dutyTypesRankMap(a) compare dutyTypesRankMap(b)

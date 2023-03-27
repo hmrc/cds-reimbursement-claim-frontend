@@ -38,7 +38,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
@@ -47,12 +47,15 @@
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"$key.reference-number", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
+    @subHeading(Html(messages(combine(s"$key.reference-number", Some("scheduled"), "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", Some("scheduled"), Some(routes.EnterMovementReferenceNumberController.show)))
+
+    @subHeading(Html(messages(s"$key.scheduled-document.h2")))
+    @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"$key.scheduled-document",Some(routes.UploadMrnListController.show)))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
+        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", Some("scheduled")).rows.drop(2)))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
@@ -67,7 +70,8 @@
     @subHeading(Html(messages(s"$key.additional-details.h2")))
     @summary(AdditionalDetailsSummary(claim.additionalDetails, s"$key.additional-details", Some(routes.EnterAdditionalDetailsController.show)))
     
-    // FIXME
+    @subHeading(Html(messages(s"$key.claim-calculation.scheduled.h2")))
+    @summary(ReimbursementsClaimsSummary.scheduledForCYA(claim.reimbursementClaims, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))

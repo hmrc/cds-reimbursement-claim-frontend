@@ -466,8 +466,7 @@ class TestFeaturesCache extends FeaturesCache {
       case Some(SessionId(sessionId)) =>
         Right(
           sessions
-            .get(sessionId)
-            .getOrElse(FeatureSet.empty)
+            .getOrElse(sessionId, FeatureSet.empty)
         )
       case None                       =>
         Right(FeatureSet.empty)

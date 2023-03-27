@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.Overpayments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details

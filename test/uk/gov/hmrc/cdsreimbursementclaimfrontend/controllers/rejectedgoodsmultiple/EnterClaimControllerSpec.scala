@@ -166,7 +166,7 @@ class EnterClaimControllerSpec
       def performAction(pageIndex: Int, taxCode: TaxCode, claimAmount: String): Future[Result] =
         controller.submit(pageIndex, taxCode)(
           FakeRequest()
-            .withFormUrlEncodedBody("enter-claim.rejected-goods.claim-amount" -> claimAmount.toString())
+            .withFormUrlEncodedBody("enter-claim.rejected-goods.claim-amount" -> claimAmount)
         )
 
       "fail if rejected goods feature is disabled" in {

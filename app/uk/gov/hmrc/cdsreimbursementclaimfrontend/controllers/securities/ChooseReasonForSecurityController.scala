@@ -83,7 +83,8 @@ class ChooseReasonForSecurityController @Inject() (
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form.bindFromRequest
+    form
+      .bindFromRequest()
       .fold(
         formWithErrors =>
           (

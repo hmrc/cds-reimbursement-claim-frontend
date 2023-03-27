@@ -74,25 +74,29 @@
                 items = radioItems
             )
 
-            @divider(messages(s"$key.or"))
+            @if(hasExistingUploads) {
 
-            @radios(
-                form = form,
-                name = key,
-                legend = title,
-                hintKey = None,
-                classes = "govuk-visually-hidden",
-                inline = false,
-                items = Seq(
-                    RadioItem(
-                        id = Some(s"$key.file-type.none"),
-                        value = Some("none"),
-                        content = Text(messages(if(hasExistingUploads) s"$key.file-type.none.more" else s"$key.file-type.none")),
-                        checked = form(s"$key").value.exists(_.contains("none"))
-                    )
-                ),
-                hideError = true
-            )
+                @divider(messages(s"$key.or"))
+
+                @radios(
+                    form = form,
+                    name = key,
+                    legend = title,
+                    hintKey = None,
+                    classes = "govuk-visually-hidden",
+                    inline = false,
+                    items = Seq(
+                        RadioItem(
+                            id = Some(s"$key.file-type.none"),
+                            value = Some("none"),
+                            content = Text(messages(if(hasExistingUploads) s"$key.file-type.none.more" else s"$key.file-type.none")),
+                            checked = form(s"$key").value.exists(_.contains("none"))
+                        )
+                    ),
+                    hideError = true
+                )
+
+            }
 
             @submitButton("button.continue")
 

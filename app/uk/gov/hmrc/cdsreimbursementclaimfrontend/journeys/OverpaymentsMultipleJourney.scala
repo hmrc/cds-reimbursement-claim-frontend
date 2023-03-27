@@ -358,7 +358,12 @@ final class OverpaymentsMultipleJourney private (
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
+        if (
+          getConsigneeEoriFromACC14 match {
+            case Some(eori) => eori === consigneeEoriNumber
+            case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
+          }
+        )
           Right(
             new OverpaymentsMultipleJourney(
               answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))

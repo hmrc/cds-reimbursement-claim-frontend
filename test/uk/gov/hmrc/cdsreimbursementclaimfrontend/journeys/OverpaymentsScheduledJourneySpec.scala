@@ -401,7 +401,7 @@ class OverpaymentsScheduledJourneySpec
         }
       }
 
-      "return the declarant details if no specific details entered and the signed in user is neither the consignee or declarant" in {
+      "return the signed in user details if no specific details entered and the signed in user is neither the consignee or declarant" in {
         forAll(
           buildCompleteJourneyGen(
             acc14ConsigneeMatchesUserEori = false,
@@ -414,15 +414,10 @@ class OverpaymentsScheduledJourneySpec
           whenever(
             journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
           ) {
-            val expectedContact   = journey.answers.displayDeclaration
-              .flatMap(_.getDeclarantDetails.contactDetails)
-              .getOrElse(fail("Failed to get contact details"))
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
-            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
-              signedInUser.email.get.value
-            )
-            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+            calculatedContact.fullName                 shouldBe signedInUser.name.map(_.toFullName).getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe signedInUser.email.map(_.value).getOrElse("")
+            calculatedContact.phoneNumber.map(_.value) shouldBe None
           }
         }
       }
@@ -855,7 +850,7 @@ class OverpaymentsScheduledJourneySpec
             .flatMap { case (dt, tcs) =>
               dt.taxCodes.find(tc => !tcs.contains(tc))
             }
-            .getOrElse(???)
+            .getOrElse(fail())
 
         val result = OverpaymentsScheduledJourney
           .empty(exampleEori)
@@ -961,7 +956,7 @@ class OverpaymentsScheduledJourneySpec
           journey
             .getSelectedDutiesFor(dutyType)
             .map(tcs => dutyType.taxCodes.filterNot(tcs.contains).iterator.next())
-            .getOrElse(???)
+            .getOrElse(fail())
 
         journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
           tca.foreach { case (_, AmountPaidWithCorrect(pa, ca)) =>

@@ -49,14 +49,19 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
           _.answers.declarantEoriNumber,
           DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
         ),
-        checkIsDefined(
-          _.answers.consigneeEoriNumber,
-          CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED
-        ),
-        checkEquals(
-          _.getConsigneeEoriFromACC14,
-          _.answers.consigneeEoriNumber,
-          CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
+        whenTrue(
+          _.getConsigneeEoriFromACC14.isDefined,
+          all(
+            checkIsDefined(
+              _.answers.consigneeEoriNumber,
+              CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED
+            ),
+            checkEquals(
+              _.getConsigneeEoriFromACC14,
+              _.answers.consigneeEoriNumber,
+              CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
+            )
+          )
         )
       ),
       all(

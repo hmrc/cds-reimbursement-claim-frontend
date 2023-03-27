@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AmountPaidWithCorrect, DutyType, TaxCode}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.{DutyAndTaxCodeReimbursementRejectedGoodsSummary, TaxCodeReimbursementRejectedGoodsSummary}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.{ScheduledReimbursementSummary, TaxCodeReimbursementSummary}
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
@@ -39,7 +39,7 @@
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(answer: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+@(answers: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
 @key = @{"check-claim-summary"}
 @title = @{messages(s"$key.scheduled.title")}
@@ -52,16 +52,15 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
-    // FIXME
-    @answer.map { claims =>
-        @subHeading(Html(messages(s"duty-type.${claims._1.repr}")), classes = "govuk-heading-m")
-        // FIXME
-        <br/>
+    @paragraph(Html(messages(s"$key.scheduled.help-text")), classes = Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"), id = s"$key-help-text")
+    @answers.map { claim =>
+        @subHeading(Html(messages(s"duty-type.${claim._1.repr}")), classes = "govuk-heading-m", id = s"$key-duty-${claim._1.repr}")
+        @summary(TaxCodeReimbursementSummary((claim._1, claim._2),key, subKey))
+    <br/>
     }
 
     @subHeading(Html(messages(s"$key.total.header")), classes = "govuk-heading-m")
-   
+    @summary(ScheduledReimbursementSummary(reimbursementTotal, key))
     <br/>
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
@@ -82,7 +81,8 @@
                     content = Text(messages(s"$key.no")),
                     checked = false
                 )
-            )
+            ),
+            id = s"$key-yes-no"
         )
 
         @submitButton("button.continue")

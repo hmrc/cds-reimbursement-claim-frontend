@@ -169,7 +169,12 @@ final class RejectedGoodsSingleJourney private (
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
+        if (
+          getConsigneeEoriFromACC14 match {
+            case Some(eori) => eori === consigneeEoriNumber
+            case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
+          }
+        )
           Right(
             new RejectedGoodsSingleJourney(
               answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))

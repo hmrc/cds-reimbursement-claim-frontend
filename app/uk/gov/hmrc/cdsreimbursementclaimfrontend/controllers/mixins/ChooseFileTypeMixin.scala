@@ -67,7 +67,8 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
           val form: Form[Option[UploadDocumentType]] =
             Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
 
-          form.bindFromRequest
+          form
+            .bindFromRequest()
             .fold(
               formWithErrors =>
                 (

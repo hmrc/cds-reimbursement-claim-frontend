@@ -65,7 +65,6 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
                 .map { uploadDocument =>
                   s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"supporting-evidence.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
                 }
-                .toList
                 .mkString(" ")
 
             val associatedMrnSummaries: Seq[(String, Some[String])] = claim.associatedMRNsAnswer

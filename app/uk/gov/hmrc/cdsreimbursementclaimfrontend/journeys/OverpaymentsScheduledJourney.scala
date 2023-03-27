@@ -147,6 +147,22 @@ final class OverpaymentsScheduledJourney private (
   def getReimbursementClaimsFor(dutyType: DutyType): Option[SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
     answers.correctedAmounts.flatMap(_.find(_._1 === dutyType)).map(_._2)
 
+  def getUKDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(_ === DutyType.UkDuty)
+
+  def getEUDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(_ === DutyType.EuDuty)
+
+  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(dt => dt =!= DutyType.UkDuty && dt =!= DutyType.EuDuty)
+
+  private def getReimbursementTotalBy(include: DutyType => Boolean): Option[BigDecimal] = {
+    val total = getReimbursementClaims.iterator.map { case (dutyType, reimbursements) =>
+      if (include(dutyType)) reimbursements.map(_._2.refundAmount).sum else ZERO
+    }.sum
+    if (total === ZERO) None else Some(total)
+  }
+
   def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
     answers.correctedAmounts
       .flatMap(
@@ -155,6 +171,11 @@ final class OverpaymentsScheduledJourney private (
           .collectFirst { case (taxCode: TaxCode, None) => taxCode }
           .flatMap(getNdrcDetailsFor)
       )
+
+  def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =
+    taxCodes.values.foldLeft(BigDecimal(0)) { (total, claim) =>
+      total + claim.refundAmount
+    }
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.refundAmount)).sum
@@ -206,7 +227,12 @@ final class OverpaymentsScheduledJourney private (
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
+        if (
+          getConsigneeEoriFromACC14 match {
+            case Some(eori) => eori === consigneeEoriNumber
+            case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
+          }
+        )
           Right(
             new OverpaymentsScheduledJourney(
               answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))

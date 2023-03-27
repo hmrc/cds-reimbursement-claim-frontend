@@ -249,10 +249,10 @@ class CheckContactDetailsControllerSpec
         )
       }
 
-      "not consignee nor declarant contact and address data from ACC14 is available, page redirects" in {
+      "not consignee nor declarant contact and address data from ACC14 is available" in {
         val acc14 = genAcc14WithoutConsigneeAndDeclarantDetails
 
-        val (session, _) = getSessionWithPreviousAnswer(
+        val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(toTypeOfClaim(journey)),
           None,
@@ -264,9 +264,25 @@ class CheckContactDetailsControllerSpec
           mockGetSession(session)
         }
 
-        checkIsRedirect(
+        checkPageIsDisplayed(
           controller.show()(FakeRequest()),
-          OverpaymentsRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
+          messageFromMessageKey("claimant-details.title"),
+          doc => {
+            val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
+            val summaryValues = doc.select(".govuk-summary-list__value").eachText()
+            val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+
+            summaries should containOnlyDefinedPairsOf(
+              Seq(
+                "Contact details" -> fillingOutClaim.draftClaim
+                  .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
+                  .map(ClaimantInformationSummary.getContactDataString),
+                "Contact address" -> fillingOutClaim.draftClaim
+                  .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
+                  .map(ClaimantInformationSummary.getAddressDataString)
+              )
+            )
+          }
         )
       }
     }

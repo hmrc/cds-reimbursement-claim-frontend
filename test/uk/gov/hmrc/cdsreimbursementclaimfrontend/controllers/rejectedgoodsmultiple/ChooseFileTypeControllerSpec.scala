@@ -75,14 +75,12 @@ class ChooseFileTypeControllerSpec
       ("Documentary proof that the goods are faulty or not what you ordered", "DocumentaryProofFaultyOrNotWhatOrdered"),
       ("Import and export declaration", "ImportAndExportDeclaration"),
       ("Letter of authority", "LetterOfAuthority"),
-      ("Proof of export or destruction", "ProofOfExportOrDestruction"),
-      (
-        if (journey.answers.supportingEvidences.isEmpty)
-          "I have no documents to upload"
-        else
-          "I have no more documents to upload",
-        "none"
-      )
+      ("Proof of export or destruction", "ProofOfExportOrDestruction")
+    ) ++ (
+      if (journey.answers.supportingEvidences.nonEmpty)
+        List(("I have no more documents to upload", "none"))
+      else
+        Nil
     )
     hasContinueButton(doc)
   }

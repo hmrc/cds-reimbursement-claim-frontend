@@ -69,40 +69,43 @@ class ChooseExportMethodController @Inject() (
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmission(journey) {
-      form.bindFromRequest.fold(
-        formWithErrors =>
-          (
-            journey,
-            BadRequest(
-              chooseExportMethodPage(
-                formWithErrors,
-                routes.ChooseExportMethodController.submit()
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(
+                chooseExportMethodPage(
+                  formWithErrors,
+                  routes.ChooseExportMethodController.submit()
+                )
               )
-            )
-          ),
-        {
-          case None                   =>
-            logger.warn("no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors")
-            (journey, errorHandler.errorResult())
-          case Some(methodOfDisposal) =>
-            journey
-              .submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal)
-              .fold(
-                error => {
-                  logger.warn(error)
-                  (journey, errorHandler.errorResult())
-                },
-                updatedJourney =>
-                  methodOfDisposal match {
-                    case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
-                        TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments =>
-                      (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show()))
-                    case _ =>
-                      (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
-                  }
-              )
-        }
-      )
+            ),
+          {
+            case None                   =>
+              logger
+                .warn("no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors")
+              (journey, errorHandler.errorResult())
+            case Some(methodOfDisposal) =>
+              journey
+                .submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal)
+                .fold(
+                  error => {
+                    logger.warn(error)
+                    (journey, errorHandler.errorResult())
+                  },
+                  updatedJourney =>
+                    methodOfDisposal match {
+                      case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
+                          TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments =>
+                        (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show()))
+                      case _ =>
+                        (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
+                    }
+                )
+          }
+        )
     }
   }
 
@@ -112,7 +115,7 @@ class ChooseExportMethodController @Inject() (
     journey.getReasonForSecurity
       .fold((journey, errorHandler.errorResult())) {
         case rfs if ReasonForSecurity.temporaryAdmissions.contains(rfs) => body
-        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show))
+        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show()))
       }
       .asFuture
 }

@@ -105,7 +105,7 @@ class EnterSpecialCircumstancesControllerSpec
 
       "display the page on a pre-existing journey" in forAll(completeJourneyGenWithSpecialCircumstances) { journey =>
         whenever(journey.answers.basisOfClaimSpecialCircumstances.isDefined) {
-          val basisOFClaimSpecialCircumstances = journey.answers.basisOfClaimSpecialCircumstances.map(_.toString)
+          val basisOFClaimSpecialCircumstances = journey.answers.basisOfClaimSpecialCircumstances
           val updatedSession                   = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
           inSequence {

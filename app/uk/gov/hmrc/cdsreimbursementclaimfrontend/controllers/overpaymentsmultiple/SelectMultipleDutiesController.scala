@@ -45,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -247,7 +247,7 @@ object SelectMultipleDutiesController {
       EnterMultipleClaimsController.prepareClaims(mrnIndex - 1, selectedDuties.toList, existingClaims.toList, journey)
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
     mapping(
       "select-duties" -> list(
