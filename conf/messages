@@ -316,22 +316,21 @@ enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This move
 enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} MRN
 enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.multiple.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
-enter-movement-reference-number.rejected-goods.multiple.help-text3=The first MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} MRN
 enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.scheduled.help-text2=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about MRNs (PDF, 581KB, opens in a new tab)</a>.
-enter-movement-reference-number.rejected-goods.scheduled.help-text3=The first MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001.
 
+enter-movement-reference-number.rejected-goods.details.heading=Finding your MRN
+enter-movement-reference-number.rejected-goods.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+
 enter-movement-reference-number.securities.title=Enter the import MRN
 enter-movement-reference-number.securities.details.heading=Finding your MRN
-enter-movement-reference-number.securities.details.paragraph=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-movement-reference-number.securities.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.securities.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.securities.enter-mrn.label=Enter MRN
@@ -648,11 +647,6 @@ check-declaration-details.banner.empty-securities-selection=You must choose at l
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
 #===================================================
-check-declaration-details.single.details.heading=Who is the importer and the declarant?
-check-declaration-details.single.details.paragraph.heading.1=Importer
-check-declaration-details.single.details.paragraph.text.1=The importer is the person or company that purchased the goods brought into the UK.
-check-declaration-details.single.details.paragraph.heading.2=Declarant
-check-declaration-details.single.details.paragraph.text.2=The declarant is the person, company or agency responsible for the import. They must ensure the goods are legitimate, correctly valued and declared on import.
 check-declaration-details.single.is-information-correct=Continue with this MRN?
 check-declaration-details.multiple.is-information-correct=Continue with this MRN?
 check-declaration-details.scheduled.is-information-correct=Continue with this MRN?
@@ -1256,7 +1250,7 @@ check-claim-timed-out.button=Sign in
 #===================================================
 #  ENTER INSPECTION DATE PAGE
 #===================================================
-enter-inspection-date.rejected-goods.title=Tell us when the goods will be available for inspection
+enter-inspection-date.rejected-goods.title=Tell us when the goods will be available until for inspection
 enter-inspection-date.rejected-goods.help-text=HMRC may want to inspect your goods to process your claim. You must allow at least 2 full working days between submitting this claim and returning or disposing of your goods.
 enter-inspection-date.rejected-goods.label=Enter inspection date
 enter-inspection-date.rejected-goods.hint=Tell us the date your goods will be made available for inspection until. For example, 26 6 2020.
@@ -1720,7 +1714,7 @@ problem-with-address.button.tryAgain=Try again
 #===================================================
 #  CHOOSE CLAIM TYPE - PAGE
 #===================================================
-choose-claim-type.title=Choose type of claim
+choose-claim-type.title=Start a new claim
 choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
 choose-claim-type.c285.hint=For goods you imported or received from abroad.
 choose-claim-type.ce1179.title=Claim back customs charges paid on rejected goods
