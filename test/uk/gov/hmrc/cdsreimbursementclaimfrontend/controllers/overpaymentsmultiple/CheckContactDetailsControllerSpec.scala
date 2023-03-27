@@ -272,7 +272,7 @@ class CheckContactDetailsControllerSpec
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
             val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)

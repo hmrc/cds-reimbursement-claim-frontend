@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SortedMapFormat
 
-import scala.collection.immutable.SortedMap
 import scala.collection.immutable.ListMap
+import scala.collection.immutable.SortedMap
 
 final case class SelectedDutyTaxCodesReimbursementAnswer(
   value: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]]

@@ -18,9 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import cats.data.NonEmptyList
 import org.scalacheck.Gen
+import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BigDecimalGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -28,8 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyClaimSummarySpec.genReimbursements
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyClaimSummarySpec.totalOf
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyTypeSummary._
-import org.scalacheck.ShrinkLowPriority
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BigDecimalGen
 
 @annotation.nowarn
 class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
