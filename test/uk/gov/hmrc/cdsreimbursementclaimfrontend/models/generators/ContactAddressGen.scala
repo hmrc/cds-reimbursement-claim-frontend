@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 
 import java.util.Locale
+import scala.collection.immutable.ArraySeq
 
 object ContactAddressGen {
 
@@ -55,7 +56,7 @@ object ContactAddressGen {
     )
 
   lazy val genCountry: Gen[Country] = Gen
-    .oneOf(Locale.getISOCountries)
+    .oneOf(ArraySeq.unsafeWrapArray(Locale.getISOCountries))
     .map(Country(_))
 
   implicit lazy val arbitraryContactAddress: Typeclass[ContactAddress] =

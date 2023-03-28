@@ -20,6 +20,7 @@ import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimGen._
@@ -27,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
@@ -101,7 +101,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "filter DuplicateEntry basis of claim" in {
-    BasisOfOverpaymentClaimsList.withoutDuplicateEntry.claims should be(
+    BasisOfOverpaymentClaimsList.withoutDuplicateEntry().claims should be(
       List(
         DutySuspension,
         EndUseRelief,

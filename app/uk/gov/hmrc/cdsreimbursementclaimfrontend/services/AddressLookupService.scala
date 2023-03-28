@@ -27,20 +27,20 @@ import play.api.http.HeaderNames.LOCATION
 import play.api.http.Status.ACCEPTED
 import play.api.http.Status.OK
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.Reads.minLength
 import play.api.libs.json.JsPath
 import play.api.libs.json.Json
 import play.api.libs.json.JsonValidationError
 import play.api.libs.json.Reads
-import play.api.libs.json.Reads.minLength
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -105,7 +105,7 @@ class DefaultAddressLookupService @Inject() (
   }
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress] = {
-    def formatErrors(errors: Seq[(JsPath, Seq[JsonValidationError])]): Error =
+    def formatErrors(errors: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]): Error =
       Error(
         errors
           .map(_.bimap(_.toString(), _.flatMap(_.messages).mkString(", ")))
@@ -144,6 +144,8 @@ object DefaultAddressLookupService {
         ContactAddress(line1, line2.some, None, town, postcode, country)
       case Array(line1, town)               =>
         ContactAddress(line1, None, None, town, postcode, country)
+      case _                                =>
+        ContactAddress("", None, None, "", postcode, country)
     }
   )
 }

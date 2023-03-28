@@ -20,26 +20,26 @@ import cats.syntax.eq._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
+import play.api.mvc.Results.Redirect
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
 import play.api.mvc.WrappedRequest
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -148,7 +148,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
           case Some(eori) =>
             Future.successful(Right(Some(Eori(eori.value))))
           case None       =>
-            logger.warn(s"EORI is missing from the enrolment")
+            logger.warn("EORI is missing from the enrolment")
             Future.successful(Left(errorHandler.errorResult()(request)))
         }
       case None       =>

@@ -491,7 +491,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         controller.weOnlySupportGG()(FakeRequest())
 
       behave like redirectToStartWhenInvalidJourney(
-        performAction,
+        performAction _,
         {
           case NonGovernmentGatewayJourney => true
           case _                           => false

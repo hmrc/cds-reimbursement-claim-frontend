@@ -23,10 +23,13 @@ import com.typesafe.config.ConfigFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import org.scalacheck.ShrinkLowPriority
+import org.scalactic.source.Position
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api._
 import play.api.http.HttpConfiguration
 import play.api.i18n._
@@ -36,33 +39,26 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.Metrics
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.MockMetrics
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-
-import scala.collection.JavaConverters._
-import java.net.URLEncoder
-import scala.concurrent.Future
-import scala.reflect.ClassTag
-import org.scalactic.source.Position
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
-import uk.gov.hmrc.mongo.play.PlayMongoModule
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.SessionId
-import java.util.concurrent.ConcurrentHashMap
-import org.scalacheck.ShrinkLowPriority
-
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FeatureSet
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.mongo.play.PlayMongoModule
+
+import java.net.URLEncoder
 import java.util.concurrent.ConcurrentHashMap
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
 
 @Singleton
 class TestMessagesApi(
@@ -289,14 +285,14 @@ trait ControllerSpec
   final def radioItems(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-radios label").eachText()
     val values = doc.select("div.govuk-radios input").eachAttr("value")
-    labels.asScala.zip(values.asScala)
+    labels.asScala.zip(values.asScala).toSeq
   }
 
   /** Returns sequence of pairs (message, value) */
   final def checkboxes(doc: Document): Seq[(String, String)] = {
     val labels = doc.select("div.govuk-checkboxes label").eachText()
     val values = doc.select("div.govuk-checkboxes input").eachAttr("value")
-    labels.asScala.zip(values.asScala)
+    labels.asScala.zip(values.asScala).toSeq
   }
 
   final def checkboxesWithHints(doc: Document): Seq[(String, String)] = {
@@ -328,20 +324,20 @@ trait ControllerSpec
   }
 
   final def selectedInput(doc: Document): Option[String] = {
-    val input = doc.select(s"input.govuk-input[checked]")
+    val input = doc.select("input.govuk-input[checked]")
     if (input.size() =!= 0) Some(input.`val`()) else None
   }
 
   final def summaryKeyValue(doc: Document): (Seq[String], Seq[String]) = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-    (summaryKeys.asScala, summaryValues.asScala)
+    (summaryKeys.asScala.toSeq, summaryValues.asScala.toSeq)
   }
 
   final def summaryKeyValueList(doc: Document): Seq[(String, String)] = {
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-    summaryKeys.asScala.zip(summaryValues.asScala)
+    summaryKeys.asScala.zip(summaryValues.asScala).toSeq
   }
 
   final def summaryKeyValueMap(doc: Document): Map[String, String] = {
@@ -351,7 +347,7 @@ trait ControllerSpec
   }
 
   final def hasContinueButton(doc: Document) =
-    doc.select(s"button.govuk-button").text() shouldBe "Continue"
+    doc.select("button.govuk-button").text() shouldBe "Continue"
 
   final def formAction(doc: Document) =
     doc.select("form").attr("action")
@@ -404,7 +400,7 @@ trait ControllerSpec
     val inputError   =
       Option(doc.select("p.govuk-error-message").first()).map(_.ownText())
 
-    withClue(s"when asserting errors on page") {
+    withClue("when asserting errors on page") {
       summaryError shouldBe defined
       inputError   shouldBe defined
       errorMessage.foreach { m =>
@@ -424,10 +420,8 @@ trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckProperty
 @Singleton
 class TestSessionCache extends SessionCache {
 
-  import scala.collection.JavaConverters.mapAsScalaConcurrentMap
-
   val sessions: scala.collection.concurrent.Map[String, SessionData] =
-    mapAsScalaConcurrentMap(new ConcurrentHashMap[String, SessionData]())
+    (new ConcurrentHashMap[String, SessionData]()).asScala
 
   override def get()(implicit
     hc: HeaderCarrier
@@ -454,10 +448,8 @@ class TestSessionCache extends SessionCache {
 @Singleton
 class TestFeaturesCache extends FeaturesCache {
 
-  import scala.collection.JavaConverters.mapAsScalaConcurrentMap
-
   val sessions: scala.collection.concurrent.Map[String, FeatureSet] =
-    mapAsScalaConcurrentMap(new ConcurrentHashMap[String, FeatureSet]())
+    (new ConcurrentHashMap[String, FeatureSet]()).asScala
 
   override def get()(implicit
     hc: HeaderCarrier

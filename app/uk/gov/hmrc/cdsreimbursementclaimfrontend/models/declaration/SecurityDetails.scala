@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
+import cats.syntax.eq._
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import cats.syntax.eq._
 
 final case class SecurityDetails(
   securityDepositId: String,

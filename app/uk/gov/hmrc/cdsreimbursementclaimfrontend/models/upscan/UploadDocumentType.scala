@@ -18,12 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
 import cats.Id
 import cats.implicits.catsSyntaxOption
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 sealed trait UploadDocumentType
 

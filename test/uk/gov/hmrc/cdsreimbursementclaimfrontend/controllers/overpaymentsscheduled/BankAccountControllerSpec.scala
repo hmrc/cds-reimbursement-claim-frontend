@@ -430,7 +430,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, commonRoutes.BankAccountVerificationUnavailable.show)
+        checkIsRedirect(result, commonRoutes.BankAccountVerificationUnavailable.show())
       }
     }
 
@@ -644,7 +644,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, commonRoutes.BankAccountVerificationUnavailable.show)
+        checkIsRedirect(result, commonRoutes.BankAccountVerificationUnavailable.show())
       }
 
     }
@@ -711,20 +711,20 @@ class BankAccountControllerSpec
       "Accept shortest possible (6 digits) accountNumber and pad it" in {
         val genAccountNumber = numStringGen(6)
         val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
-        bandkAccountForm.errors                                           shouldBe Nil
-        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe "00" + genAccountNumber
+        bandkAccountForm.errors                                             shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail()) shouldBe "00" + genAccountNumber
       }
       "Accept 7 digits accountNumber and pad it" in {
         val genAccountNumber = numStringGen(7)
         val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
-        bandkAccountForm.errors                                           shouldBe Nil
-        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe "0" + genAccountNumber
+        bandkAccountForm.errors                                             shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail()) shouldBe "0" + genAccountNumber
       }
       "Accept longest possible (8 digits) accountNumber" in {
         val genAccountNumber = numStringGen(8)
         val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
-        bandkAccountForm.errors                                           shouldBe Nil
-        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe genAccountNumber
+        bandkAccountForm.errors                                             shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail()) shouldBe genAccountNumber
       }
       "Reject accountNumber too short" in {
         val errors = form.bind(goodData.updated(accountNumber, numStringGen(5))).errors

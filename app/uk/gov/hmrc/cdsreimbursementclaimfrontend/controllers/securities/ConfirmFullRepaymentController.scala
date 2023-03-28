@@ -58,7 +58,7 @@ class ConfirmFullRepaymentController @Inject() (
   def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.getSelectedDepositIds.headOption
       .fold(
-        Redirect(routes.CheckDeclarationDetailsController.show).asFuture
+        Redirect(routes.CheckDeclarationDetailsController.show()).asFuture
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
 

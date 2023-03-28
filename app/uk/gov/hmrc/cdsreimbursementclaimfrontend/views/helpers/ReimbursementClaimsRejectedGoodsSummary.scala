@@ -18,14 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 
 object ReimbursementClaimsRejectedGoodsSummary {
   def singleFull(
@@ -181,7 +181,7 @@ object ReimbursementClaimsRejectedGoodsSummary {
   ): SummaryList = {
 
     val amountsPerDutyType: Seq[(DutyType, BigDecimal)] =
-      reimbursementClaims.mapValues(_.values.map(_.refundAmount).sum).toSeq
+      reimbursementClaims.view.mapValues(_.values.map(_.refundAmount).sum).toSeq
 
     val totalAmount: BigDecimal =
       reimbursementClaims.flatMap(_._2.values.map(_.refundAmount)).sum

@@ -36,15 +36,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -90,6 +91,7 @@ class CheckYourAnswersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
+  @annotation.nowarn
   def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsMultipleJourney.Output) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -104,20 +106,35 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers should contain allOf ("Movement Reference Numbers (MRNs)", "Declaration details", "Contact information for this claim", "Basis for claim", "Disposal method", "Details of rejected goods", "Claim total", "Details of inspection", "Supporting documents", "Now send your claim")
+    headers.asScala.toSeq should contain allOf (
+      "Movement Reference Numbers (MRNs)",
+      "Declaration details",
+      "Contact information for this claim",
+      "Basis for claim",
+      "Disposal method",
+      "Details of rejected goods",
+      "Claim total",
+      "Details of inspection",
+      "Supporting documents",
+      "Now send your claim"
+    )
 
     val mrnKeys: Seq[String] =
       (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber.label(i).capitalize} MRN")
 
-    summaryKeys should contain allOf ("Contact details", "Contact address", (mrnKeys ++ Seq(
-      "This is the basis behind the claim",
-      "This is how the goods will be disposed of",
-      "These are the details of the rejected goods",
-      "Total",
-      "Inspection date",
-      "Inspection address type",
-      "Inspection address"
-    ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded"))): _*)
+    summaryKeys should contain allOf (
+      "Contact details",
+      "Contact address",
+      (mrnKeys ++ Seq(
+        "This is the basis behind the claim",
+        "This is how the goods will be disposed of",
+        "These are the details of the rejected goods",
+        "Total",
+        "Inspection date",
+        "Inspection address type",
+        "Inspection address"
+      ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded"))): _*
+    )
 
     mrnKeys.zip(claim.movementReferenceNumbers).foreach { case (key, mrn) =>
       summary(key) shouldBe mrn.value
@@ -138,7 +155,7 @@ class CheckYourAnswersControllerSpec
     )
     summary("Inspection address")                          shouldBe summaryAddress(claim.inspectionAddress, " ")
 
-    claim.reimbursementClaims.foreach { case (mrn, claims) =>
+    claim.reimbursementClaims.foreachEntry { case (mrn, claims) =>
       summary(mrn.value) shouldBe claims.values.sum.toPoundSterlingString
     }
 

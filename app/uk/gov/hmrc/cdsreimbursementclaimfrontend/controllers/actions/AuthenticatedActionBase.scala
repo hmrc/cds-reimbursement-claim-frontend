@@ -17,10 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
 import play.api.Configuration
+import play.api.mvc.Results.Redirect
 import play.api.mvc.ActionRefiner
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.AuthorisedFunctions
 import uk.gov.hmrc.auth.core.Enrolments
@@ -31,11 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.UnauthorisedController.unauthorised
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 import java.util.Locale
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import java.util.Base64
-import java.nio.charset.StandardCharsets
 
 trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] with Logging { self =>
 
@@ -45,8 +45,8 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
   val sessionStore: SessionCache
   implicit val executionContext: ExecutionContext
 
-  final val limitedAccessErrorPageUrl: String = unauthorised.url
-  final val unauthorizedErrorPageUrl: String  = unauthorised.url
+  final val limitedAccessErrorPageUrl: String = unauthorised().url
+  final val unauthorizedErrorPageUrl: String  = unauthorised().url
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
   private val limitedAccessEoriSet: Set[String] =

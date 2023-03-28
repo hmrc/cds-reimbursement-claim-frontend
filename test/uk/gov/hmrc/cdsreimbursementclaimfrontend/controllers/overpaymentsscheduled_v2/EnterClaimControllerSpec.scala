@@ -154,7 +154,7 @@ class EnterClaimControllerSpec
       "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
         forAll(journeyGen, amountPaidWithCorrectGen) {
           case (initialJourney, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
-            initialJourney.getSelectedDuties.foreach { case (dutyType, taxCodes) =>
+            initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
               taxCodes.foreach { taxCode =>
                 val updatedJourney = initialJourney
                   .submitCorrectAmount(
@@ -198,7 +198,7 @@ class EnterClaimControllerSpec
       "save user defined amounts and redirect to the check claim details page" in {
         forAll(completeJourneyGen, amountPaidWithCorrectGen) {
           case (initialJourney, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
-            initialJourney.getSelectedDuties.foreach { case (dutyType, taxCodes) =>
+            initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
               taxCodes.foreach { taxCode =>
                 val updatedJourney = initialJourney
                   .submitCorrectAmount(
@@ -236,7 +236,7 @@ class EnterClaimControllerSpec
 
       "show an error summary" when {
         "duty amounts are missing or invalid" in forAll(journeyGen) { journey =>
-          journey.getSelectedDuties.foreach { case (dutyType, taxCodes) =>
+          journey.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
             taxCodes.foreach { taxCode =>
               inSequence {
                 mockAuthWithNoRetrievals()

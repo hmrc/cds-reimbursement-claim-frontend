@@ -22,13 +22,13 @@ import org.scalacheck.Gen
 object Generators {
 
   def alphaNumGenerator(n: Int): Gen[String] = Gen.listOfN(n, Gen.alphaNumChar).map(_.mkString)
-  def alphaNumGen(n: Int): String            = alphaNumGenerator(n).sample.getOrElse(sys.error(s"Could not generate instance"))
+  def alphaNumGen(n: Int): String            = alphaNumGenerator(n).sample.getOrElse(sys.error("Could not generate instance"))
 
   def alphaCharGen(n: Int): String =
-    Gen.listOfN(n, Gen.alphaChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
+    Gen.listOfN(n, Gen.alphaChar).map(_.mkString).sample.getOrElse(sys.error("Could not generate instance"))
 
   def numStringGen(n: Int): String =
-    Gen.listOfN(n, Gen.numChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
+    Gen.listOfN(n, Gen.numChar).map(_.mkString).sample.getOrElse(sys.error("Could not generate instance"))
 
   def moneyGen(integralPart: Int, fractionalPart: Int): String = {
     val finalIntegral   = integralPart match {
@@ -51,5 +51,5 @@ object Generators {
     gen.sample.getOrElse(sys.error(s"Could not generate instance with $gen"))
 
   def genOtherThan[T](t: T)(implicit gen: Arbitrary[T]): T =
-    gen.arbitrary.suchThat(_ != t).sample.getOrElse(sys.error(s"Could not generate instance"))
+    gen.arbitrary.suchThat(_ != t).sample.getOrElse(sys.error("Could not generate instance"))
 }

@@ -18,18 +18,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultip
 
 import org.jsoup.nodes
 import play.api.test.FakeRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 
-import scala.collection.JavaConverters._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersSummarySpec
+import scala.jdk.CollectionConverters._
 
 class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with SummaryMatchers {
 
@@ -85,7 +85,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
             val total: String =
               claims.map(_._2.map(_.claimAmount).toList.sum).sum.toPoundSterlingString
 
-            headers should containOnlyDefinedElementsOf(
+            headers.toSeq should containOnlyDefinedElementsOf(
               "Movement Reference Numbers (MRNs)".expectedAlways,
               "Declaration details".expectedWhen(claim.displayDeclaration),
               "Contact information for this claim".expectedWhen(claim.getClaimantInformation(user.eori)),
@@ -99,7 +99,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
               "Now send your claim".expectedAlways
             )
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 ("First MRN"                                       -> claim.movementReferenceNumber.map(_.value)),
                 ("Import date"                                     -> declarationDetails.map(_.acceptanceDate)),

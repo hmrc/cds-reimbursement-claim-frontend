@@ -31,10 +31,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -53,7 +53,7 @@ class UploadFilesControllerSpec
   def mockInitializeCall(existingFiles: Seq[UploadedFile] = Seq.empty) =
     (mockUploadDocumentsConnector
       .initialize(_: UploadDocumentsConnector.Request)(_: HeaderCarrier))
-      .expects(where { case (request, _) =>
+      .expects(where[UploadDocumentsConnector.Request, HeaderCarrier] { case (request, _) =>
         request.existingFiles.map(_.upscanReference) == existingFiles.map(_.upscanReference)
       })
       .returning(Future.successful(Some(expectedUploadDocumentsLocation)))

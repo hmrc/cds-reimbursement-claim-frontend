@@ -18,6 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -25,9 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -251,7 +251,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
@@ -357,7 +357,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val displayDeclaration: DisplayDeclaration          =
         buildDisplayDeclaration(
@@ -419,7 +419,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
@@ -505,7 +505,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes

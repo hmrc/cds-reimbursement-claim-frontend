@@ -21,7 +21,6 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
 import play.api.mvc._
-import play.api.mvc._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig

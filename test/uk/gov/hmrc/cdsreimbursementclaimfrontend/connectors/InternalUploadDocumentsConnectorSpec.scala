@@ -23,12 +23,13 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionModel
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -36,7 +37,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 
 class InternalUploadDocumentsConnectorSpec extends AnyWordSpec with Matchers with MockFactory with SessionSupport {
 

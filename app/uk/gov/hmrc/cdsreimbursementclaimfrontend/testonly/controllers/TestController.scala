@@ -16,17 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SecuritiesJourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+
+import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 // This controller will be deleted at the end of CDSR-1781
 

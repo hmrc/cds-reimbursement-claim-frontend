@@ -26,9 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SecuritiesClaimConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
 
 import scala.concurrent.ExecutionContext
 

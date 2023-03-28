@@ -35,10 +35,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
@@ -86,7 +86,7 @@ class CheckClaimDetailsControllerSpec
             (s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
           }
         ) ++ claims.values
-        .map(r => (messages(s"multiple-check-claim-summary.total"), r.values.sum.toPoundSterlingString)) ++
+        .map(r => (messages("multiple-check-claim-summary.total"), r.values.sum.toPoundSterlingString)) ++
         Seq(
           (
             messages("multiple-check-claim-summary.overall-total.label"),

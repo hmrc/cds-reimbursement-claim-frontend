@@ -17,21 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-
-import RejectedGoodsMultipleJourneyGenerators._
-import JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import org.scalacheck.ShrinkLowPriority
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 
 class RejectedGoodsMultipleJourneySpec
     extends AnyWordSpec
@@ -872,7 +871,7 @@ class RejectedGoodsMultipleJourneySpec
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
           val taxCodes                    = journey.getAvailableDuties(mrn).map(_._1)
-          val newTaxCodeSet: Seq[TaxCode] = taxCodes.take(2).toSeq
+          val newTaxCodeSet: Seq[TaxCode] = taxCodes.take(2)
 
           val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, newTaxCodeSet)
 
@@ -886,7 +885,7 @@ class RejectedGoodsMultipleJourneySpec
       forAll(incompleteJourneyWithMrnsGen(MRNS_SIZE)) { case (journey, mrns) =>
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
-          val invalidTaxCodeSet     = TaxCodes.all.takeRight(6).toSeq
+          val invalidTaxCodeSet     = TaxCodes.all.takeRight(6)
           val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, invalidTaxCodeSet)
           modifiedJourneyEither shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
         }

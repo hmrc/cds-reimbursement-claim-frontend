@@ -18,9 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
 import cats.syntax.eq._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 import play.api.libs.json.Format
 import play.api.libs.json.Json
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait Feature {
   def name: String

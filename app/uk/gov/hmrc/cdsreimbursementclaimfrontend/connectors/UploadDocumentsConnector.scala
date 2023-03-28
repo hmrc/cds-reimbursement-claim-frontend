@@ -22,22 +22,23 @@ import cats.syntax.eq._
 import com.google.inject.Inject
 import com.google.inject.ProvidedBy
 import com.google.inject.Provider
-import play.api.Configuration
-import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Format
 import play.api.libs.json.Json
+import play.api.Configuration
+import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionModel
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.AppName
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -45,8 +46,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
-import UploadDocumentsConnector._
 
 @ProvidedBy(classOf[UploadDocumentsConnectorProvider])
 trait UploadDocumentsConnector {
@@ -155,7 +154,7 @@ class InternalUploadDocumentsConnector @Inject() (
   override def initialize(request: Request)(implicit
     hc: HeaderCarrier
   ): Future[Response] =
-    EitherT(sessionCache.get)
+    EitherT(sessionCache.get())
       .flatMap {
         case Some(session) =>
           EitherT(
@@ -192,7 +191,7 @@ class InternalUploadDocumentsConnector @Inject() (
       )
 
   override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
-    EitherT(sessionCache.get)
+    EitherT(sessionCache.get())
       .flatMap {
         case Some(session) =>
           EitherT(

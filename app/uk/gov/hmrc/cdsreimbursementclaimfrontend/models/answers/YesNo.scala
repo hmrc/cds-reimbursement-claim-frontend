@@ -28,10 +28,10 @@ object YesNo {
 
   def of(flag: Boolean): YesNo = if (flag) Yes else No
 
-  final case object No extends YesNo {
+  case object No extends YesNo {
     override final val asBoolean: Boolean = false
   }
-  final case object Yes extends YesNo {
+  case object Yes extends YesNo {
     override final val asBoolean: Boolean = true
   }
 

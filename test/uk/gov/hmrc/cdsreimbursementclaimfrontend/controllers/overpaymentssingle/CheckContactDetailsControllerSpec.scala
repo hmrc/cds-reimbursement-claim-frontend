@@ -67,9 +67,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformati
 
 import java.net.URL
 import java.util.UUID
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 class CheckContactDetailsControllerSpec
     extends ControllerSpec
@@ -162,7 +162,7 @@ class CheckContactDetailsControllerSpec
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
             val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "Contact details" -> fillingOutClaim.draftClaim
                   .getClaimantInformation(fillingOutClaim.signedInUserDetails.eori)
@@ -198,7 +198,7 @@ class CheckContactDetailsControllerSpec
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
             val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
@@ -235,7 +235,7 @@ class CheckContactDetailsControllerSpec
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
             val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
@@ -272,7 +272,7 @@ class CheckContactDetailsControllerSpec
             val summaryValues = doc.select(".govuk-summary-list__value").eachText()
             val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-            summaries should containOnlyDefinedPairsOf(
+            summaries.toSeq should containOnlyDefinedPairsOf(
               Seq(
                 "Contact details" -> fillingOutClaim.draftClaim
                   .computeClaimantInformation(fillingOutClaim.signedInUserDetails)
@@ -443,7 +443,7 @@ class CheckContactDetailsControllerSpec
 
     "return false if we have no session data, and no contact name in Acc14 data" in {
       val fullAcc14        = genAcc14WithAddresses
-      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
+      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail()))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(contactName = None)))
       )
       val acc14            = Functor[Id].map(fullAcc14)(dd =>
@@ -461,7 +461,7 @@ class CheckContactDetailsControllerSpec
 
     "return false if we have no session data, and no contact address line1 in Acc14 data" in {
       val fullAcc14        = genAcc14WithAddresses
-      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
+      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail()))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(addressLine1 = None)))
       )
       val acc14            = Functor[Id].map(fullAcc14)(dd =>
@@ -480,7 +480,7 @@ class CheckContactDetailsControllerSpec
 
     "return false if we have no session data, and no contact address postcode in Acc14 data" in {
       val fullAcc14        = genAcc14WithAddresses
-      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
+      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail()))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(postalCode = None)))
       )
       val acc14            = Functor[Id].map(fullAcc14)(dd =>

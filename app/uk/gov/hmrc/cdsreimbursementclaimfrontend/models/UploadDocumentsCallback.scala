@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import play.api.libs.json.Json
 import play.api.libs.json.Format
+import play.api.libs.json.Json
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 final case class UploadDocumentsCallback(
   nonce: Nonce,

@@ -17,9 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 
 /** Common answers of the rejected-goods single, multiple and scheduled journeys. */
 trait RejectedGoodsAnswers extends CommonAnswers {

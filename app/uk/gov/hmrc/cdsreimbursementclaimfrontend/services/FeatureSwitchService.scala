@@ -20,13 +20,13 @@ import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.util.concurrent.ConcurrentHashMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 @ImplementedBy(classOf[ConfiguredFeatureSwitchService])

@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import cats.data.EitherT
-import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits.catsStdInstancesForFuture
 import org.scalacheck.magnolia.gen
 import org.scalatest.prop.TableDrivenPropertyChecks
@@ -32,8 +31,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -54,8 +51,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnterImporterEoriNumberControllerSpec
@@ -269,7 +269,7 @@ class EnterImporterEoriNumberControllerSpec
             doc
               .select(".govuk-error-summary__list > li > a")
               .html() shouldBe messageFromMessageKey(
-              s"enter-importer-eori-number.error.required"
+              "enter-importer-eori-number.error.required"
             ),
           BAD_REQUEST
         )
@@ -305,7 +305,7 @@ class EnterImporterEoriNumberControllerSpec
             doc
               .select(".govuk-error-summary__list > li > a")
               .html() shouldBe messageFromMessageKey(
-              s"enter-importer-eori-number.error.required"
+              "enter-importer-eori-number.error.required"
             ),
           BAD_REQUEST
         )

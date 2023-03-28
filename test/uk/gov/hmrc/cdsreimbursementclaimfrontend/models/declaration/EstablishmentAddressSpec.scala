@@ -27,11 +27,11 @@ class EstablishmentAddressSpec extends ControllerSpec with ScalaCheckPropertyChe
       forAll(genContactAddress) { address =>
         whenever(address.line2.isDefined && address.line3.isDefined) {
           EstablishmentAddress.fromContactAddress(address) should have(
-            'addressLine1 (address.line1),
-            'addressLine2 (Some(s"${address.line2.get}, ${address.line3.get}")),
-            'addressLine3 (Some(address.line4)),
-            'postalCode (Some(address.postcode)),
-            'countryCode (address.country.code)
+            Symbol("addressLine1")(address.line1),
+            Symbol("addressLine2")(Some(s"${address.line2.get}, ${address.line3.get}")),
+            Symbol("addressLine3")(Some(address.line4)),
+            Symbol("postalCode")(Some(address.postcode)),
+            Symbol("countryCode")(address.country.code)
           )
         }
       }
@@ -41,11 +41,11 @@ class EstablishmentAddressSpec extends ControllerSpec with ScalaCheckPropertyChe
       forAll(genContactAddress) { address =>
         val adjustedAddress = address.copy(line2 = None, line3 = None)
         EstablishmentAddress.fromContactAddress(adjustedAddress) should have(
-          'addressLine1 (address.line1),
-          'addressLine2 (None),
-          'addressLine3 (Some(address.line4)),
-          'postalCode (Some(address.postcode)),
-          'countryCode (address.country.code)
+          Symbol("addressLine1")(address.line1),
+          Symbol("addressLine2")(None),
+          Symbol("addressLine3")(Some(address.line4)),
+          Symbol("postalCode")(Some(address.postcode)),
+          Symbol("countryCode")(address.country.code)
         )
       }
     }

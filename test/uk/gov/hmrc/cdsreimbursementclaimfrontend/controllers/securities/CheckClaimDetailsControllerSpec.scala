@@ -44,8 +44,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 import scala.List
-import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
@@ -120,7 +120,7 @@ class CheckClaimDetailsControllerSpec
           }
       )
 
-    summaries should containOnlyDefinedPairsOf(expectedSummaries)
+    summaries.toSeq should containOnlyDefinedPairsOf(expectedSummaries)
 
   }
 

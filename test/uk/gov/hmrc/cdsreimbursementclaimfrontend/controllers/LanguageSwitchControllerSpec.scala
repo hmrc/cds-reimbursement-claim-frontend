@@ -44,7 +44,7 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
         running(application) {
           val request = FakeRequest(GET, routes.LanguageSwitchController.switchToLanguage(English).url)
 
-          val result = route(application, request).getOrElse(fail)
+          val result = route(application, request).getOrElse(fail())
           status(result)                               shouldBe SEE_OTHER
           cookies(result).get("PLAY_LANG").value.value shouldBe English
         }
@@ -62,7 +62,7 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
         running(application) {
           val request = FakeRequest(GET, routes.LanguageSwitchController.switchToLanguage(Welsh).url)
 
-          val result = route(application, request).getOrElse(fail)
+          val result = route(application, request).getOrElse(fail())
           status(result)                               shouldBe SEE_OTHER
           cookies(result).get("PLAY_LANG").value.value shouldBe English
         }
@@ -83,7 +83,7 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
         running(application) {
           val request = FakeRequest(GET, routes.LanguageSwitchController.switchToLanguage(English).url)
 
-          val result = route(application, request).getOrElse(fail)
+          val result = route(application, request).getOrElse(fail())
           status(result)                               shouldBe SEE_OTHER
           cookies(result).get("PLAY_LANG").value.value shouldBe English
         }
@@ -101,7 +101,7 @@ class LanguageSwitchControllerSpec extends AnyWordSpec with Matchers with Option
         running(application) {
           val request = FakeRequest(GET, routes.LanguageSwitchController.switchToLanguage(Welsh).url)
 
-          val result = route(application, request).getOrElse(fail)
+          val result = route(application, request).getOrElse(fail())
           status(result)                               shouldBe SEE_OTHER
           cookies(result).get("PLAY_LANG").value.value shouldBe Welsh
         }

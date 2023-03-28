@@ -24,8 +24,6 @@ import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.Configuration
-import play.api.Environment
 import play.api.http.Status.ACCEPTED
 import play.api.libs.json.JsError
 import play.api.libs.json.JsPath
@@ -34,6 +32,8 @@ import play.api.libs.json.JsonValidationError
 import play.api.mvc.Call
 import play.api.test.Helpers.LOCATION
 import play.api.test.Helpers._
+import play.api.Configuration
+import play.api.Environment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
@@ -147,15 +147,17 @@ class AddressLookupServiceSpec
     "retrieving address" should {
 
       "succeed having valid address ID" in forAll { (id: UUID, address: ContactAddress) =>
+        val addressLines = Seq(
+          address.line1.some.toList,
+          address.line2.toList,
+          address.line3.toList,
+          address.line4.some.toList
+        ).flatten
+
         val json = Json.obj(
           "id"      -> id,
           "address" -> Json.obj(
-            "lines"    -> Seq(
-              address.line1.some.toList,
-              address.line2.toList,
-              address.line3.toList,
-              address.line4.some.toList
-            ).flatten.seq,
+            "lines"    -> addressLines,
             "postcode" -> address.postcode,
             "country"  -> Json.obj(
               "code" -> address.country.code

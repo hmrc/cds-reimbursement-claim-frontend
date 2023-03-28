@@ -32,31 +32,31 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimSuccess
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_your_answers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResult.SubmitClaimSuccess
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 @Singleton
 class CheckYourAnswersAndSubmitController @Inject() (
@@ -133,7 +133,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
           logAndDisplayError("Error while trying to update session"),
           {
             case SubmitClaimError(e) =>
-              logger.warn(s"Could not submit return}", e)
+              logger.warn("Could not submit return}", e)
               Redirect(
                 routes.CheckYourAnswersAndSubmitController.submissionError
               )

@@ -24,14 +24,14 @@ import play.api.Configuration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FeatureSet
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.cache.DataKey
+import uk.gov.hmrc.mongo.cache.MongoCacheRepository
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.TimestampSupport
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.TimestampSupport
-import uk.gov.hmrc.mongo.cache.MongoCacheRepository
-import uk.gov.hmrc.mongo.cache.DataKey
 
 @ImplementedBy(classOf[DefaultFeaturesCache])
 trait FeaturesCache {

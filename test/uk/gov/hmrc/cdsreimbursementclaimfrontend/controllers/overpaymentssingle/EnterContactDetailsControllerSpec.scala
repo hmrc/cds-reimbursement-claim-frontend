@@ -82,7 +82,7 @@ class EnterContactDetailsControllerSpec
   val goodData = Map(
     "enter-contact-details.contact-name"         -> "Mr Pip",
     "enter-contact-details.contact-email"        -> emailData.value,
-    "enter-contact-details.contact-phone-number" -> phoneData.getOrElse(fail).value
+    "enter-contact-details.contact-phone-number" -> phoneData.getOrElse(fail()).value
   )
 
   private def getSessionWithPreviousAnswer(
@@ -203,7 +203,7 @@ class EnterContactDetailsControllerSpec
               .`val`() shouldBe contactDetails.emailAddress.value
             doc
               .getElementById("enter-contact-details.contact-phone-number")
-              .`val`() shouldBe contactDetails.phoneNumber.map(_.value).getOrElse(fail)
+              .`val`() shouldBe contactDetails.phoneNumber.map(_.value).getOrElse(fail())
           }
         )
       }
@@ -248,12 +248,12 @@ class EnterContactDetailsControllerSpec
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
               .text() shouldBe messageFromMessageKey(
-              s"enter-contact-details.contact-name.error.required"
+              "enter-contact-details.contact-name.error.required"
             )
             doc
               .select(".govuk-error-summary__list > li:nth-child(2) > a")
               .text() shouldBe messageFromMessageKey(
-              s"enter-contact-details.contact-email.error.required"
+              "enter-contact-details.contact-email.error.required"
             )
           },
           BAD_REQUEST

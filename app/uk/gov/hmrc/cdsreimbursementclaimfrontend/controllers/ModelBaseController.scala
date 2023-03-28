@@ -19,11 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import cats.syntax.eq._
 import play.api.data.Form
 import play.api.i18n.Messages
+import play.api.libs.json.Format
+import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -31,8 +33,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import play.api.libs.json.Format
-import play.api.libs.json.Json
 
 /** Base model controller providing common action behaviours:
   *  - feature switch check

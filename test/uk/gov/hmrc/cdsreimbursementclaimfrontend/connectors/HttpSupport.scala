@@ -113,7 +113,7 @@ trait HttpSupport { this: MockFactory with Matchers =>
         _: HeaderCarrier,
         _: ExecutionContext
       ))
-      .expects(url, body, headers.toSeq, *, *, *, *)
+      .expects(url, body, headers, *, *, *, *)
       .returning(
         result.fold[Future[HttpResponse]](
           Future.failed(new Exception("Test exception message"))

@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 
 trait HaveInspectionDetails {
   self: Journey with RejectedGoodsJourneyProperties =>

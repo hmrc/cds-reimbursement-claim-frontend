@@ -25,7 +25,7 @@ trait JsonFormatTest {
   this: Matchers =>
 
   def validateJsonFormat[A](json: String, entity: A)(implicit format: Format[A]): Assertion = {
-    val expectedJson = json.replaceAllLiterally("\n", "").replaceAllLiterally(" ", "")
+    val expectedJson = json.replace("\n", "").replace(" ", "")
     val actualJson   = Json.stringify(Json.toJson(entity))
     actualJson             shouldBe expectedJson
     Json.parse(json).as[A] shouldBe entity
@@ -35,7 +35,7 @@ trait JsonFormatTest {
     Json.parse(json).as[A] shouldBe entity
 
   def validateJsonWrites[A](json: String, entity: A)(implicit format: Format[A]): Assertion = {
-    val expectedJson = json.replaceAllLiterally("\n", "").replaceAllLiterally(" ", "")
+    val expectedJson = json.replace("\n", "").replace(" ", "")
     val actualJson   = Json.stringify(Json.toJson(entity))
     actualJson shouldBe expectedJson
   }

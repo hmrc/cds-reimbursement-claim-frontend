@@ -35,14 +35,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectExciseValue
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.PersonalEffects
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A80
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A85
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A90
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A95
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectExciseValue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.PersonalEffects
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
@@ -53,6 +52,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -153,7 +153,7 @@ class SelectDutiesControllerSpec
 
       "the user has answered this question before with a choice, but that choice is no longer available (e.g. Northern Ireland answer change)" in {
         val previousTaxCodes = Random.shuffle(TaxCodes.UK).take(3).toList
-        val previousAnswer   = DutiesSelectedAnswer(previousTaxCodes.map(Duty(_))).getOrElse(fail)
+        val previousAnswer   = DutiesSelectedAnswer(previousTaxCodes.map(Duty(_))).getOrElse(fail())
         val newTaxCodes      = Random.shuffle(TaxCodes.excise).take(3)
         val ndrcs            = newTaxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value)).toList
         val acc14            = Functor[Id].map(sample[DisplayDeclaration])(dd =>

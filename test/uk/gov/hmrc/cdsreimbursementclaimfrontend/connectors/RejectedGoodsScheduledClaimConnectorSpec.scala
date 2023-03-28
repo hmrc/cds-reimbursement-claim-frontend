@@ -19,25 +19,24 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import org.scalacheck.Gen
+import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
+import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.FiniteDuration
-import scala.util.Try
-import scala.util.Failure
-import org.scalamock.handlers.CallHandler
-
 import scala.concurrent.Future
+import scala.concurrent.duration.FiniteDuration
+import scala.util.Failure
+import scala.util.Try
 
 class RejectedGoodsScheduledClaimConnectorSpec
     extends AnyWordSpec

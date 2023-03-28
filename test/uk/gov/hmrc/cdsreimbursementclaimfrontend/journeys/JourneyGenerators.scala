@@ -17,14 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
 
@@ -90,7 +90,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
           numberOfTaxCodes,
           amountNumberGen
         )
-    } yield taxCodes.zip(amounts)
+    } yield taxCodes.zip(amounts).toSeq
 
   final def taxCodesWithAmountsGen(taxCodes: Seq[TaxCode]): Gen[Seq[(TaxCode, BigDecimal)]] =
     for {
@@ -101,7 +101,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
           numberOfTaxCodes,
           amountNumberGen
         )
-    } yield taxCodes.zip(amounts)
+    } yield taxCodes.zip(amounts).toSeq
 
   final def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
     for {
@@ -115,7 +115,9 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
     )
 
   final lazy val depositIdGen: Gen[String] =
-    listOfExactlyN(6, Gen.oneOf("ABCDEFGHIJKLMNOPRSTUWXYZ0123456789".toCharArray())).map(l => String.valueOf(l.toArray))
+    listOfExactlyN(6, Gen.oneOf("ABCDEFGHIJKLMNOPRSTUWXYZ0123456789".toCharArray().toIndexedSeq)).map(l =>
+      String.valueOf(l.toArray)
+    )
 
   final def buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
     for {

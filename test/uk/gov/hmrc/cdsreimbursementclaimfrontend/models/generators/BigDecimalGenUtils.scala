@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
 import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 
 trait BigDecimalGen {
 

@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import JourneyValidationErrors._
 import com.github.arturopala.validator.Validator._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 
 trait RejectedGoodsJourneyChecks[J <: RejectedGoodsJourneyProperties]

@@ -17,6 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
@@ -26,12 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
-import scala.collection.JavaConverters._
 import scala.collection.immutable.SortedMap
+import scala.jdk.CollectionConverters._
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
 object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -55,13 +55,13 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     for {
       n   <- Gen.choose(1, DutyTypes.all.size - 1)
       dts <- Gen.pick(n, DutyTypes.all)
-    } yield dts.sorted
+    } yield dts.sorted.toSeq
 
   def taxCodesGen(dutyType: DutyType): Gen[Seq[TaxCode]] =
     for {
       n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
       tcs <- Gen.pick(n, dutyType.taxCodes)
-    } yield tcs.sorted
+    } yield tcs.sorted.toSeq
 
   val dutyTypesWithTaxCodesGen: Gen[Seq[(DutyType, Seq[TaxCode])]] = dutyTypesGen.flatMap(dutyTypes =>
     Gen.sequence[Seq[(DutyType, Seq[TaxCode])], (DutyType, Seq[TaxCode])](
@@ -69,7 +69,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
         for {
           n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
           tcs <- Gen.pick(n, dutyType.taxCodes)
-        } yield (dutyType, tcs.sorted)
+        } yield (dutyType, tcs.sorted.toSeq)
       )
     )
   )
@@ -96,7 +96,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
       dutyTypes <- dutyTypesGen
       result    <-
         Gen.sequence(dutyTypes.map(dutyType => taxCodesWithClaimAmountsGen(dutyType).map(tcs => dutyType -> tcs)))
-    } yield result.asScala
+    } yield result.asScala.toSeq
 
   val completeJourneyWithMatchingUserEoriGen: Gen[RejectedGoodsScheduledJourney] =
     Gen.oneOf(
@@ -216,12 +216,13 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
       val reimbursementClaims =
-        SortedMap(reimbursements: _*)
+        SortedMap(reimbursements: _*).view
           .mapValues(s =>
             SortedMap(s.map { case (taxCode, a1, a2) =>
               (taxCode, Option(AmountPaidWithRefund(a1, a2)))
             }: _*)
           )
+          .to(SortedMap)
 
       val scheduledDocument: UploadedFile =
         buildUploadDocument("schedule").copy(cargo = Some(UploadDocumentType.ScheduleOfMRNs))

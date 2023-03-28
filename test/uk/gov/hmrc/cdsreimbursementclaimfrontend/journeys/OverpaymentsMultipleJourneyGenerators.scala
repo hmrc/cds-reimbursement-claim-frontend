@@ -17,19 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Random
 
 /** A collection of generators supporting the tests of OverpaymentsMultipleJourney. */
@@ -128,7 +128,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
             .take(numberOfSelectedTaxCodes)
             .map(a => Gen.choose(BigDecimal("0.00"), a - BigDecimal.exact("0.01")))
         )
-  } yield (taxCodes, taxCodes.take(numberOfSelectedTaxCodes), paidAmounts, correctedAmounts)
+  } yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, correctedAmounts)
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -200,11 +200,11 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
 
       val paidDuties: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])] =
         mrns.zip(taxCodesWithAmounts).map { case (mrn, (taxCodes, _, paidAmounts, _)) =>
-          (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, Random.nextBoolean) })
+          (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, Random.nextBoolean()) })
         }
 
       val correctedAmounts: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
-        OrderedMap(
+        OrderedMap.from(
           mrns
             .zip(taxCodesWithAmounts)
             .map { case (mrn, (_, selectedTaxCodes, _, correctedAmounts)) =>
@@ -351,7 +351,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val displayDeclarations: Seq[DisplayDeclaration]    = mrns.map { mrn =>
         buildDisplayDeclaration(

@@ -25,12 +25,12 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 
 class OverpaymentsScheduledJourneySpec
     extends AnyWordSpec
@@ -875,10 +875,12 @@ class OverpaymentsScheduledJourneySpec
       val availableDocumentTypes = UploadDocumentType.overpaymentsScheduledDocumentTypes
 
       val availableClaimTypesNotNi      =
-        BasisOfOverpaymentClaimsList.withoutDuplicateEntry
+        BasisOfOverpaymentClaimsList
+          .withoutDuplicateEntry()
           .excludeNorthernIrelandClaims(false, Some(displayDeclaration))
       val availableClaimTypesIncludesNi =
-        BasisOfOverpaymentClaimsList.withoutDuplicateEntry
+        BasisOfOverpaymentClaimsList
+          .withoutDuplicateEntry()
           .excludeNorthernIrelandClaims(true, Some(displayDeclaration))
 
       val journey = OverpaymentsScheduledJourney
@@ -937,8 +939,8 @@ class OverpaymentsScheduledJourneySpec
         val totalReimbursementAmount = journey.getTotalReimbursementAmount
         val totalPaidAmount          = journey.getTotalPaidAmount
 
-        journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, AmountPaidWithCorrect(pa, ca)) =>
+        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
+          tca.foreachEntry { case (taxCode, AmountPaidWithCorrect(pa, ca)) =>
             val modifiedJourney =
               journey.submitCorrectAmount(dutyType, taxCode, pa * 0.8, ca * 0.8).getOrFail
 
@@ -958,8 +960,8 @@ class OverpaymentsScheduledJourneySpec
             .map(tcs => dutyType.taxCodes.filterNot(tcs.contains).iterator.next())
             .getOrElse(fail())
 
-        journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (_, AmountPaidWithCorrect(pa, ca)) =>
+        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
+          tca.foreachEntry { case (_, AmountPaidWithCorrect(pa, ca)) =>
             val result =
               journey.submitCorrectAmount(dutyType, taxCodeNotSelected(dutyType), pa, ca)
             result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
@@ -970,8 +972,8 @@ class OverpaymentsScheduledJourneySpec
 
     "reject change to invalid amount for valid selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        journey.getReimbursementClaims.foreach { case (dutyType, tca) =>
-          tca.foreach { case (taxCode, AmountPaidWithCorrect(pa, _)) =>
+        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
+          tca.foreachEntry { case (taxCode, AmountPaidWithCorrect(pa, _)) =>
             val result1 =
               journey.submitCorrectAmount(dutyType, taxCode, pa, pa)
             result1 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
@@ -1111,7 +1113,7 @@ class OverpaymentsScheduledJourneySpec
 //            (taxCode, dutyType )
 //          }
 //          .groupBy(_._2)
-//          .mapValues(_.map(_._1))
+//          .view.mapValues(_.map(_._1))
 //
 //      val dutyTypes: List[DutyType] =
 //        taxCodesWithTypes.keys.toList

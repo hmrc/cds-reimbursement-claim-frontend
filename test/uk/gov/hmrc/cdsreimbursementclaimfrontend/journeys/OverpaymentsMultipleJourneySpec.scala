@@ -17,20 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-
-import OverpaymentsMultipleJourneyGenerators._
-import JourneyValidationErrors._
-import org.scalacheck.ShrinkLowPriority
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 
 class OverpaymentsMultipleJourneySpec
     extends AnyWordSpec
@@ -651,7 +650,7 @@ class OverpaymentsMultipleJourneySpec
 
     "change tax code for reimbursement with a new invalid set" in {
       forAll(completeJourneyGen) { journey =>
-        val invalidTaxCodeSet     = TaxCodes.all.take(6).toSeq
+        val invalidTaxCodeSet     = TaxCodes.all.take(6)
         val mrn                   = journey.answers.movementReferenceNumbers.get.head
         val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, invalidTaxCodeSet)
         modifiedJourneyEither shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")

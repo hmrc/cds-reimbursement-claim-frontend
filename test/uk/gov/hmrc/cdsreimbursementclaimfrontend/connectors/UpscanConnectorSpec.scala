@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.mvc.Call
 import play.api.Configuration
 import play.api.Environment
-import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample

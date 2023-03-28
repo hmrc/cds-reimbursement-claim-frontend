@@ -21,6 +21,7 @@ import org.scalacheck.magnolia._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswerList
@@ -28,10 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.Up
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
-import java.time.ZonedDateTime
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 object UpscanGen extends OptionValues {
 

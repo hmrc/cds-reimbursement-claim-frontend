@@ -202,7 +202,7 @@ class ChooseReasonForSecurityController @Inject() (
           (
             journeyWithUpdatedStatus,
             if (similarClaimExistAlreadyInCDFPay) {
-              logger.info(s"Claim ineligible because already exists.")
+              logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
             } else if (journeyWithUpdatedStatus.requiresBillOfDischargeForm) {
               Redirect(routes.CheckTotalImportDischargedController.show())

@@ -29,7 +29,7 @@ trait WorkInProgressMixin {
 
   val show: Action[AnyContent] =
     simpleActionReadJourney { _ =>
-      Ok(s"Work in progress ...")
+      Ok("Work in progress ...")
     }
 
   def show(a: Any): Action[AnyContent]         = show

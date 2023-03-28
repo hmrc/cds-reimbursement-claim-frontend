@@ -22,8 +22,8 @@ import play.api.libs.json.Reads
 import play.api.libs.json.Writes
 import play.api.libs.json._
 
-import scala.util.Try
 import scala.collection.immutable.SortedMap
+import scala.util.Try
 
 /** Creates instances of [[play.api.libs.json.Format]] for the different [[Map]] variants. */
 object MapFormat {
@@ -38,14 +38,14 @@ object MapFormat {
       Reads {
         case o: JsObject =>
           Try(
-            Map(
+            Map.from(
               o.fields.map {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
                 case (k, valueJson)                                 =>
                   JsString(k).as[K] -> valueJson.as[V]
-              }: _*
+              }
             )
           ).fold[JsResult[Map[K, V]]](
             error => JsError(error.toString()),
@@ -78,14 +78,14 @@ object MapFormat {
       Reads {
         case o: JsObject =>
           Try(
-            Map(
+            Map.from(
               o.fields.map {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").asOpt[V]
 
                 case (k, valueJson)                                 =>
                   JsString(k).as[K] -> valueJson.asOpt[V]
-              }: _*
+              }
             )
           ).fold[JsResult[Map[K, Option[V]]]](
             error => JsError(error.toString()),
@@ -128,14 +128,14 @@ object MapFormat {
       Reads {
         case o: JsObject =>
           Try(
-            SortedMap(
+            SortedMap.from(
               o.fields.map {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
                 case (k, valueJson)                                 =>
                   JsString(k).as[K] -> valueJson.as[V]
-              }: _*
+              }
             )
           ).fold[JsResult[SortedMap[K, V]]](
             error => JsError(error.toString()),
@@ -168,14 +168,14 @@ object MapFormat {
       Reads {
         case o: JsObject =>
           Try(
-            SortedMap(
+            SortedMap.from(
               o.fields.map {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").asOpt[V]
 
                 case (k, valueJson)                                 =>
                   JsString(k).as[K] -> valueJson.asOpt[V]
-              }: _*
+              }
             )
           ).fold[JsResult[SortedMap[K, Option[V]]]](
             error => JsError(error.toString()),
@@ -218,14 +218,14 @@ object MapFormat {
       Reads {
         case o: JsObject =>
           Try(
-            OrderedMap(
+            OrderedMap.from(
               o.fields.map {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
                 case (k, valueJson)                                 =>
                   JsString(k).as[K] -> valueJson.as[V]
-              }: _*
+              }
             )
           ).fold[JsResult[OrderedMap[K, V]]](
             error => JsError(error.toString()),

@@ -24,14 +24,14 @@ import play.api.libs.json.JsValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.dutyTypesRankMap
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.taxCodesOrdering
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SortedMapFormat
 
-import scala.collection.SortedMap
 import scala.collection.immutable.ListMap
+import scala.collection.immutable.SortedMap
 
 final case class SelectedDutyTaxCodesReimbursementAnswer(
   value: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]]
@@ -62,9 +62,7 @@ final case class SelectedDutyTaxCodesReimbursementAnswer(
       ): _*
     )
 
-    SelectedDutyTaxCodesReimbursementAnswer(
-      value - dutyType + (dutyType -> updatedTaxCodesSelection)
-    )
+    SelectedDutyTaxCodesReimbursementAnswer(SortedMap.from(value - dutyType + (dutyType -> updatedTaxCodesSelection)))
   }
 
   /** Updates claim for given duty and tax code */
@@ -76,7 +74,7 @@ final case class SelectedDutyTaxCodesReimbursementAnswer(
     for {
       current <- value.get(duty)
       updated <- current.get(taxCode) *> Some(current - taxCode + (taxCode -> claim))
-    } yield SelectedDutyTaxCodesReimbursementAnswer(value - duty + (duty -> updated))
+    } yield SelectedDutyTaxCodesReimbursementAnswer(SortedMap.from(value - duty + (duty -> SortedMap.from(updated))))
 
   /** Summarising same tax code reimbursements together */
   def combine: Option[Map[TaxCode, AmountPaidWithCorrect]] =
@@ -123,7 +121,8 @@ object SelectedDutyTaxCodesReimbursementAnswer {
 
   // Extensions
 
-  implicit class SelectedTaxCodesReimbursementOps(val value: SortedMap[TaxCode, AmountPaidWithCorrect]) extends AnyVal {
+  implicit class SelectedTaxCodesReimbursementOps(private val value: SortedMap[TaxCode, AmountPaidWithCorrect])
+      extends AnyVal {
 
     /** Calculates claimed amount total against given tax code */
     def subtotal: BigDecimal =

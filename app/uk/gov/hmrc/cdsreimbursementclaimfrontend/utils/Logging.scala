@@ -33,12 +33,12 @@ trait Logging {
   )(implicit errorHandler: ErrorHandler, request: Request[_]): Error => Result = {
     import errorHandler._
     error => {
-      logger warn (description, error)
+      logger.warn(description, error)
       errorResult()
     }
   }
 
-  def logAndDisplayError[T : CdsError](
+  def logAndDisplayError[T](
     description: String,
     error: T
   )(implicit errorHandler: ErrorHandler, request: Request[_], cdsError: CdsError[T]): Result = {
@@ -74,6 +74,7 @@ object PrettyPrint {
     * @return
     */
   @SuppressWarnings(Array("org.wartremover.warts.All"))
+  @annotation.nowarn
   def apply(a: Any, indentSize: Int = 2, maxElementWidth: Int = 30, depth: Int = 0): String = {
     val indent      = " " * depth * indentSize
     val fieldIndent = indent + (" " * indentSize)

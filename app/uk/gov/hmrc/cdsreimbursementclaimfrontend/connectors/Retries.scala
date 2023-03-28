@@ -23,13 +23,13 @@ import play.api.Logger
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.http.logging.Mdc
 
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.util.control.NonFatal
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-import scala.util.control.NonFatal
 
 trait Retries {
 

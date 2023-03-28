@@ -48,7 +48,7 @@ package object models {
 
   private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
 
-  implicit class BigDecimalOps(val amount: BigDecimal) extends AnyVal {
+  implicit class BigDecimalOps(private val amount: BigDecimal) extends AnyVal {
     def toPoundSterlingString: String =
       currencyFormatter.format(amount)
   }

@@ -130,7 +130,7 @@ class EnterClaimController @Inject() (
                   )
 
               case None =>
-                logger.error(s"Attempting to claim a reimbursement before selecting an MRN")
+                logger.error("Attempting to claim a reimbursement before selecting an MRN")
                 Future.successful((journey, Redirect(routes.EnterMovementReferenceNumberController.show())))
             }
 

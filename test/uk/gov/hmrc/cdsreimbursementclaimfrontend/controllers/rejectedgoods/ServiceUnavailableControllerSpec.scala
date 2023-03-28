@@ -23,9 +23,9 @@ import play.api.i18n.MessagesImpl
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.BankAccountVerificationUnavailable
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.BankAccountVerificationUnavailable
 
 class ServiceUnavailableControllerSpec extends ControllerSpec {
 

@@ -17,18 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import akka.actor.ActorSystem
-import cats.implicits._
 import cats.data.EitherT
+import cats.implicits._
 import com.google.inject.Inject
-import javax.inject.Singleton
-import play.api.libs.json.Writes
 import play.api.Configuration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.libs.json.Writes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ConnectorFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.TechnicalServiceError
@@ -38,10 +31,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.BusinessCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.HttpResponseOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import javax.inject.Singleton
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.concurrent.duration.FiniteDuration
 
 @Singleton
 class BankAccountReputationConnector @Inject() (

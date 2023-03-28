@@ -26,18 +26,18 @@ class OrdinalNumberSpec extends AnyWordSpec with Matchers {
 
   "OrdinalNumber" should {
     "render just number if no label nor suffix defined" in {
-      implicit val m: Messages = parseMessages(s"")
+      implicit val m: Messages = parseMessages("")
       OrdinalNumber.label(1)  shouldBe "1"
       OrdinalNumber.label(13) shouldBe "13"
     }
     "render label if defined" in {
-      implicit val m: Messages = parseMessages(s"ordinal.label.13=thirteen")
+      implicit val m: Messages = parseMessages("ordinal.label.13=thirteen")
       OrdinalNumber.label(1)  shouldBe "1"
       OrdinalNumber.label(13) shouldBe "thirteen"
     }
     "render number with suffix if defined" in {
       implicit val m: Messages = parseMessages(
-        s"""|ordinal.suffix.1=st
+        """|ordinal.suffix.1=st
             |ordinal.suffix.3=rd
             |ordinal.suffix.5=th
             |ordinal.suffix.1x=th""".stripMargin
@@ -69,7 +69,7 @@ class OrdinalNumberSpec extends AnyWordSpec with Matchers {
     }
     "prefer label over suffix" in {
       implicit val m: Messages = parseMessages(
-        s"""|ordinal.suffix.1=st
+        """|ordinal.suffix.1=st
             |ordinal.label.1=first
             |ordinal.suffix.1x=th
             |ordinal.label.13=thirteen""".stripMargin

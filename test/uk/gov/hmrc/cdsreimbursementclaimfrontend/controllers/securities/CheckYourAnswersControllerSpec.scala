@@ -36,10 +36,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
@@ -47,8 +47,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -110,7 +110,7 @@ class CheckYourAnswersControllerSpec
     summaryKeys   should not be empty
     summaryValues should not be empty
 
-    headers should containOnlyDefinedElementsOf(
+    headers.toSeq should containOnlyDefinedElementsOf(
       (Seq(
         "Declaration details".expectedAlways,
         "Export movement reference number (MRN)".expectedWhen(journey.needsExportMRNSubmission),
@@ -122,7 +122,7 @@ class CheckYourAnswersControllerSpec
         claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways)): _*
     )
 
-    summaries should containOnlyDefinedPairsOf(
+    summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
         ("Import MRN"                   -> Some(claim.movementReferenceNumber.value)),
         ("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.value)),

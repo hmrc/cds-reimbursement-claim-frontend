@@ -18,42 +18,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Forms._
-import play.api.data.Form
-import play.api.data.Mapping
 import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
+import play.api.data.Form
+import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.dataKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
@@ -268,7 +244,7 @@ object Forms {
   val enterScheduledClaimForm: Form[AmountPaidWithCorrect] = Form(
     "enter-scheduled-claim" ->
       mapping(
-        "paid-amount"   -> moneyMapping("error.invalid", zeroErrorMsg = Some(s"error.zero")),
+        "paid-amount"   -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero")),
         "actual-amount" -> moneyMapping("error.invalid", allowZero = true)
       )(AmountPaidWithCorrect.apply)(AmountPaidWithCorrect.unapply)
         .verifying(
@@ -280,8 +256,8 @@ object Forms {
   val enterScheduledClaimRejectedGoodsForm: Form[AmountPaidWithRefund] = Form(
     "enter-claim-scheduled.rejected-goods" ->
       mapping(
-        "paid-amount"  -> moneyMapping("error.invalid", zeroErrorMsg = Some(s"error.zero")),
-        "claim-amount" -> moneyMapping("error.invalid", zeroErrorMsg = Some(s"error.zero"))
+        "paid-amount"  -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero")),
+        "claim-amount" -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero"))
       )(AmountPaidWithRefund.apply)(AmountPaidWithRefund.unapply)
         .verifying(
           "invalid.claim",
@@ -301,8 +277,8 @@ object Forms {
     Form(
       mapping(
         s"$key.claim-amount" -> moneyMapping(
-          errorMsg = s"error.invalid-text",
-          zeroErrorMsg = Some(s"error.zero")
+          errorMsg = "error.invalid-text",
+          zeroErrorMsg = Some("error.zero")
         ).verifying("error.invalid-amount", _ <= paidAmount)
       )(identity)(Some.apply)
     )

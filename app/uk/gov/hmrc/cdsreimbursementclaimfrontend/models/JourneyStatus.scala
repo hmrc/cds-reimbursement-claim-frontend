@@ -55,7 +55,7 @@ object JourneyStatus {
     signedInUserDetails: SignedInUserDetails
   ) extends JourneyStatus
 
-  final case object NonGovernmentGatewayJourney extends JourneyStatus
+  case object NonGovernmentGatewayJourney extends JourneyStatus
 
   object FillingOutClaim {
     def from(fillingOutClaim: FillingOutClaim)(f: DraftClaim => DraftClaim): FillingOutClaim =

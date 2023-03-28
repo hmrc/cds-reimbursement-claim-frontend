@@ -18,10 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import play.api.libs.json.Format
 import play.api.libs.json.JsError
+import play.api.libs.json.JsNumber
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.Reads
 import play.api.libs.json.Writes
-import play.api.libs.json.JsNumber
 
 object SimpleDecimalFormat {
 

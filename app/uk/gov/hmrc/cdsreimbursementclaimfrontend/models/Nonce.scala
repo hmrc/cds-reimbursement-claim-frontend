@@ -17,11 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.Format
-import java.util.Base64
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleDecimalFormat
+
 import java.nio.charset.StandardCharsets
+import java.util.Base64
 import scala.util.Random
 import scala.util.Try
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleDecimalFormat
 
 /** Random integer value container. */
 sealed trait Nonce {

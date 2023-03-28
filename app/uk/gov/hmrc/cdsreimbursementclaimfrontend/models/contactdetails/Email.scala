@@ -41,7 +41,7 @@ object Email {
 
   val mappingMaxLength: Mapping[Email] =
     nonEmptyText(maxLength = 241)
-      .transform[Email](s => Email(s.replaceAllLiterally(" ", "")), _.value)
+      .transform[Email](s => Email(s.replace(" ", "")), _.value)
       .verifying("invalid", e => emailRegex.test(e.value))
 
 }

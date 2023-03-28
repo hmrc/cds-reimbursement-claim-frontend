@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
+import scala.Iterable
+
 /** Fluent syntax helper methods. */
 trait FluentSyntax[Journey] {
 
@@ -23,7 +25,7 @@ trait FluentSyntax[Journey] {
 
   /** Modify journey with function applied for each element of the collection. */
   final def mapEach[A](
-    collection: Traversable[A],
+    collection: Iterable[A],
     modifyFx: Journey => A => Journey
   ): Either[String, Journey] =
     collection.foldLeft(journeyEither) { (result, item) =>
@@ -32,14 +34,14 @@ trait FluentSyntax[Journey] {
 
   /** Try to modify journey with function applied for each element of the collection. */
   final def flatMapEach[A](
-    collection: Traversable[A],
+    collection: Iterable[A],
     modifyFx: Journey => A => Either[String, Journey]
   ): Either[String, Journey] =
     collection.foldLeft(journeyEither) { (result, item) =>
       result.flatMap(journey => modifyFx(journey)(item))
     }
 
-  final def flatMapEachWhenDefined[A](option: Option[Traversable[A]])(
+  final def flatMapEachWhenDefined[A](option: Option[Iterable[A]])(
     modifyFx: Journey => A => Either[String, Journey]
   ): Either[String, Journey] =
     option match {

@@ -18,21 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
 import cats.syntax.eq._
+import com.github.arturopala.validator.Validator
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -41,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
-import com.github.arturopala.validator.Validator
 
 import java.time.LocalDate
 
@@ -119,8 +106,11 @@ final class RejectedGoodsMultipleJourney private (
 
   def getReimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]] =
     answers.reimbursementClaims
-      .map(_.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }))
-      .map(OrderedMap(_))
+      .map(
+        _.view.view
+          .mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
+          .to(OrderedMap)
+      )
       .getOrElse(OrderedMap.empty)
 
   def needsBanksAccountDetailsSubmission: Boolean =
@@ -223,14 +213,14 @@ final class RejectedGoodsMultipleJourney private (
         Left("submitMovementReferenceNumber.invalidIndex")
       else if (mrn =!= displayDeclaration.getMRN)
         Left(
-          s"submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+          "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
       else if (
         index > 0 &&
         !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs)
       )
         Left(
-          s"submitMovementReferenceNumber.wrongDisplayDeclarationEori"
+          "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
         )
       else
         getNthMovementReferenceNumber(index) match {
@@ -267,7 +257,8 @@ final class RejectedGoodsMultipleJourney private (
                     displayDeclarations = answers.displayDeclarations.map(
                       _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
                     ),
-                    reimbursementClaims = answers.reimbursementClaims.map(_ - existingMrn + (mrn -> Map.empty))
+                    reimbursementClaims =
+                      answers.reimbursementClaims.map(_.removed(existingMrn).updated(mrn, Map.empty))
                   )
                 )
               )
@@ -309,7 +300,7 @@ final class RejectedGoodsMultipleJourney private (
                 displayDeclarations = answers.displayDeclarations.map(
                   _.filterNot(_.displayResponseDetail.declarationId === mrn.value)
                 ),
-                reimbursementClaims = answers.reimbursementClaims.map(_ - mrn)
+                reimbursementClaims = answers.reimbursementClaims.map(_.removed(mrn))
               )
             )
           )
@@ -332,7 +323,7 @@ final class RejectedGoodsMultipleJourney private (
           )
         else
           Left(
-            s"submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14"
+            "submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14"
           )
       else Left("submitConsigneeEoriNumber.unexpected")
     }
@@ -414,7 +405,7 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       getDisplayDeclarationFor(mrn) match {
         case None =>
-          Left(s"selectAndReplaceTaxCodeSetForReimbursement.missingDisplayDeclaration")
+          Left("selectAndReplaceTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
           if (taxCodes.isEmpty)
@@ -458,7 +449,7 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       getDisplayDeclarationFor(mrn) match {
         case None =>
-          Left(s"submitAmountForReimbursement.missingDisplayDeclaration")
+          Left("submitAmountForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(mrn, taxCode) match {
@@ -715,7 +706,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
 
   override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] =
     empty(answers.userEoriNumber, answers.nonce)
-      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zip(answers.displayDeclarations).zipWithIndex)(j => {
+      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.displayDeclarations).zipWithIndex)(j => {
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })

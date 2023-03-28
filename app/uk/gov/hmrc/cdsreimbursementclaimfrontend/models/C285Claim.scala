@@ -22,6 +22,9 @@ import cats.syntax.all._
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Consignee
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Declarant
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.User
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.Multiple
@@ -30,14 +33,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantEoriNum
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 import java.util.UUID
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Consignee
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.Declarant
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType.User
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 final case class C285Claim(
   id: UUID,
