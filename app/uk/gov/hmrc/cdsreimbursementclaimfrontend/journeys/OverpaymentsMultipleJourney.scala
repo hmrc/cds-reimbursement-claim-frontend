@@ -148,7 +148,7 @@ final class OverpaymentsMultipleJourney private (
       .getOrElse(Seq.empty)
 
   def getSelectedDuties(declarationId: MRN): Option[Seq[TaxCode]] =
-    answers.correctedAmounts.flatMap(_.get(declarationId)).map(_.keys.toSeq)
+    answers.correctedAmounts.flatMap(_.get(declarationId)).map(_.keys.toSeq.sorted)
 
   def isAllSelectedDutiesAreCMAEligible(declarationId: MRN): Boolean =
     answers.correctedAmounts

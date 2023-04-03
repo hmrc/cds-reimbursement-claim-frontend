@@ -604,7 +604,7 @@ class OverpaymentsMultipleJourneySpec
         journeyEither.flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A90, TaxCode.A20)))
 
       journeyEither2.getOrFail.getSelectedDuties(exampleMrn) shouldBe Some(
-        Seq(TaxCode.A90, TaxCode.A20)
+        Seq(TaxCode.A20, TaxCode.A90)
       )
 
     }
@@ -644,7 +644,7 @@ class OverpaymentsMultipleJourneySpec
         val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, newTaxCodeSet)
 
         val result = modifiedJourneyEither.getOrFail
-        result.getSelectedDuties(mrn).get shouldBe newTaxCodeSet
+        result.getSelectedDuties(mrn).get shouldBe newTaxCodeSet.sorted
       }
     }
 
