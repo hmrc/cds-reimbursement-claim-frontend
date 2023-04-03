@@ -158,7 +158,7 @@ final class RejectedGoodsMultipleJourney private (
       .getOrElse(Seq.empty)
 
   def getSelectedDuties(mrn: MRN): Option[Seq[TaxCode]] =
-    getReimbursementClaimsFor(mrn).map(_.keys.toSeq)
+    getReimbursementClaimsFor(mrn).map(_.keys.toSeq.sorted)
 
   def getAllSelectedDuties: Seq[(MRN, Seq[TaxCode])] =
     answers.movementReferenceNumbers
