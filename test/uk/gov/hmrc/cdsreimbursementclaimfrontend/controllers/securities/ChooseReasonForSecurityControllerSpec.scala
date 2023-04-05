@@ -34,7 +34,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -65,15 +65,15 @@ class ChooseReasonForSecurityControllerSpec
     with TestWithJourneyGenerator[SecuritiesJourney]
     with BeforeAndAfterEach {
 
-  val mockClaimsService: ClaimService                                    = mock[ClaimService]
-  val mockCDSReimbursementClaimConnector: CDSReimbursementClaimConnector = mock[CDSReimbursementClaimConnector]
+  val mockClaimsService: ClaimService                = mock[ClaimService]
+  val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(mockClaimsService),
-      bind[CDSReimbursementClaimConnector].toInstance(mockCDSReimbursementClaimConnector)
+      bind[DeclarationConnector].toInstance(mockDeclarationConnector)
     )
 
   val controller: ChooseReasonForSecurityController = instanceOf[ChooseReasonForSecurityController]
@@ -98,7 +98,7 @@ class ChooseReasonForSecurityControllerSpec
       .returning(EitherT.fromEither[Future](response))
 
   private def mockGetIsDuplicateClaim(response: Either[Error, ExistingClaim]) =
-    (mockCDSReimbursementClaimConnector
+    (mockDeclarationConnector
       .getIsDuplicate(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
       .expects(*, *, *)
       .returning(EitherT.fromEither[Future](response))

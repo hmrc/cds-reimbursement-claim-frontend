@@ -30,7 +30,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
@@ -55,12 +55,12 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
   implicit val hc: HeaderCarrier   = HeaderCarrier()
   implicit val request: Request[_] = FakeRequest()
 
-  val mockClaimConnector: ClaimConnector                                 = mock[ClaimConnector]
-  val mockCDSReimbursementClaimConnector: CDSReimbursementClaimConnector = mock[CDSReimbursementClaimConnector]
+  val mockClaimConnector: ClaimConnector             = mock[ClaimConnector]
+  val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
 
   val language: Lang = Lang("en")
 
-  val claimService = new DefaultClaimService(mockClaimConnector, mockCDSReimbursementClaimConnector)
+  val claimService = new DefaultClaimService(mockClaimConnector, mockDeclarationConnector)
 
   val okSubmitClaimResponse: JsValue = Json.parse(
     """
@@ -128,7 +128,7 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
   def mockGetDisplayDeclaration(mrn: MRN)(
     response: Either[Error, HttpResponse]
   ): CallHandler2[MRN, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
-    (mockCDSReimbursementClaimConnector
+    (mockDeclarationConnector
       .getDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(mrn, *)
       .returning(EitherT.fromEither[Future](response))
@@ -136,7 +136,7 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
   def mockGetDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(
     response: Either[Error, HttpResponse]
   ): CallHandler3[MRN, ReasonForSecurity, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
-    (mockCDSReimbursementClaimConnector
+    (mockDeclarationConnector
       .getDeclaration(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
       .expects(mrn, reasonForSecurity, *)
       .returning(EitherT.fromEither[Future](response))

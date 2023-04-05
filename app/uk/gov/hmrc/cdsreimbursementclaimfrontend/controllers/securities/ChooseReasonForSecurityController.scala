@@ -28,7 +28,7 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
@@ -47,7 +47,7 @@ import scala.concurrent.Future
 class ChooseReasonForSecurityController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
-  cdsReimbursementClaimConnector: CDSReimbursementClaimConnector,
+  DeclarationConnector: DeclarationConnector,
   chooseReasonForSecurityPage: choose_reason_for_security
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
@@ -177,7 +177,7 @@ class ChooseReasonForSecurityController @Inject() (
     hc: HeaderCarrier,
     r: Request[_]
   ): EitherT[Future, Result, Boolean] =
-    cdsReimbursementClaimConnector
+    DeclarationConnector
       .getIsDuplicate(mrn, reasonForSecurity)
       .leftMap(error => logAndDisplayError("Could not check if isDuplicate claim", error))
       .map(_.claimFound)

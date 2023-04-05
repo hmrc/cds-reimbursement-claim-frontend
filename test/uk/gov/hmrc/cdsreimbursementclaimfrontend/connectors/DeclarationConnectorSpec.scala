@@ -37,7 +37,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CDSReimbursementClaimConnectorSpec
+class DeclarationConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
@@ -66,7 +66,7 @@ class CDSReimbursementClaimConnectorSpec
   implicit val hc: HeaderCarrier = HeaderCarrier()
   implicit val timeout: Timeout  = Timeout(5, TimeUnit.SECONDS)
 
-  val connector = new DefaultCDSReimbursementClaimConnector(mockHttp, new ServicesConfig(config))
+  val connector = new DefaultDeclarationConnector(mockHttp, new ServicesConfig(config))
 
   "CDS Reimbursement Connector" when {
 
