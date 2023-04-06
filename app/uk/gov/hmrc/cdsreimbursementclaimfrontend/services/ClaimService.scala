@@ -24,7 +24,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.http.Status._
 import play.api.i18n.Lang
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
@@ -61,7 +61,7 @@ trait ClaimService {
 @Singleton
 class DefaultClaimService @Inject() (
   claimConnector: ClaimConnector,
-  cdsReimbursementClaimConnector: CDSReimbursementClaimConnector
+  DeclarationConnector: DeclarationConnector
 )(implicit
   ec: ExecutionContext
 ) extends ClaimService
@@ -85,7 +85,7 @@ class DefaultClaimService @Inject() (
     }
 
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
-    cdsReimbursementClaimConnector
+    DeclarationConnector
       .getDeclaration(mrn)
       .subflatMap { response =>
         if (response.status === OK) {
@@ -102,7 +102,7 @@ class DefaultClaimService @Inject() (
   def getDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, Option[DisplayDeclaration]] =
-    cdsReimbursementClaimConnector
+    DeclarationConnector
       .getDeclaration(mrn, reasonForSecurity)
       .subflatMap { response =>
         if (response.status === OK) {
@@ -119,7 +119,7 @@ class DefaultClaimService @Inject() (
   def getDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, GetDeclarationError, DisplayDeclaration] =
-    cdsReimbursementClaimConnector
+    DeclarationConnector
       .getDeclaration(mrn, reasonForSecurity)
       .leftMap(_ => GetDeclarationError.unexpectedError)
       .subflatMap { response =>

@@ -34,12 +34,15 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-@ImplementedBy(classOf[DefaultCDSReimbursementClaimConnector])
-trait CDSReimbursementClaimConnector {
+@ImplementedBy(classOf[DefaultDeclarationConnector])
+trait DeclarationConnector {
+
   def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+
   def getDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
+
   def getIsDuplicate(
     mrn: MRN,
     reason: ReasonForSecurity
@@ -47,9 +50,9 @@ trait CDSReimbursementClaimConnector {
 }
 
 @Singleton
-class DefaultCDSReimbursementClaimConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
+class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
   ec: ExecutionContext
-) extends CDSReimbursementClaimConnector
+) extends DeclarationConnector
     with Logging {
 
   private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")

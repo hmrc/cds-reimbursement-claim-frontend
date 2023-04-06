@@ -27,7 +27,7 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -45,7 +45,7 @@ import scala.language.postfixOps
 @Singleton
 class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
-  cdsReimbursementClaimConnector: CDSReimbursementClaimConnector,
+  DeclarationConnector: DeclarationConnector,
   enterDeclarantEoriNumberPage: pages.enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
@@ -134,7 +134,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     hc: HeaderCarrier,
     r: Request[_]
   ): EitherT[Future, Result, Boolean] =
-    cdsReimbursementClaimConnector
+    DeclarationConnector
       .getIsDuplicate(mrn, reasonForSecurity)
       .leftMap(error => logAndDisplayError("Could not check if isDuplicate claim", error))
       .map(_.claimFound)
