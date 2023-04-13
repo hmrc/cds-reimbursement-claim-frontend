@@ -30,7 +30,8 @@ final case class AddressLookupOptions(
   phaseFeedbackLink: Option[String] = None,
   deskProServiceName: Option[String] = None,
   showPhaseBanner: Option[Boolean] = None,
-  ukMode: Option[Boolean] = None
+  ukMode: Option[Boolean] = None,
+  labels: Labels = Labels()
 )
 
 object AddressLookupOptions {
@@ -49,8 +50,18 @@ object AddressLookupOptions {
     timeoutKeepAliveUrl: Option[String] = None
   )
 
+  final case class Labels(
+    lookupPageLabels: Option[PageLabels] = None,
+    confirmPageLabels: Option[PageLabels] = None,
+    selectPageLabels: Option[PageLabels] = None,
+    editPageLabels: Option[PageLabels] = None
+  )
+  final case class PageLabels(title: String)
+
   implicit val selectPageConfigFormat: OFormat[SelectPageConfig]         = Json.format[SelectPageConfig]
   implicit val confirmPageConfigFormat: OFormat[ConfirmPageConfig]       = Json.format[ConfirmPageConfig]
   implicit val timeoutConfigFormat: OFormat[TimeoutConfig]               = Json.format[TimeoutConfig]
   implicit val addressLookupOptionsFormat: OFormat[AddressLookupOptions] = Json.format[AddressLookupOptions]
+  implicit val labelsConfig: OFormat[Labels]                             = Json.format[Labels]
+  implicit val pageLabels: OFormat[PageLabels]                           = Json.format[PageLabels]
 }

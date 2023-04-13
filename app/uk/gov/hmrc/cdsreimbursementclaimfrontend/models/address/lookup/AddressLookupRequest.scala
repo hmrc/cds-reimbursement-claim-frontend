@@ -19,6 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.Labels
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.PageLabels
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.SelectPageConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 
@@ -71,6 +73,18 @@ object AddressLookupRequest {
 
     def whetherShowConfirmChangeText(value: Boolean): Builder =
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showConfirmChangeText = value.some)))
+
+    def withLookupPageTitle(title: String): Builder =
+      copy(options.copy(labels = options.labels.copy(lookupPageLabels = PageLabels(title).some)))
+
+    def withConfirmPageTitle(title: String): Builder =
+      copy(options.copy(labels = options.labels.copy(confirmPageLabels = PageLabels(title).some)))
+
+    def withSelectPageTitle(title: String): Builder =
+      copy(options.copy(labels = options.labels.copy(selectPageLabels = PageLabels(title).some)))
+
+    def withEditPageTitle(title: String): Builder =
+      copy(options.copy(labels = options.labels.copy(editPageLabels = PageLabels(title).some)))
   }
 
   implicit def builderToAddressLookupRequest(builder: Builder): AddressLookupRequest =

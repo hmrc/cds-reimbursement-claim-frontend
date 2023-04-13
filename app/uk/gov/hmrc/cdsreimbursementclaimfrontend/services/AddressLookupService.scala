@@ -26,6 +26,7 @@ import com.google.inject.Inject
 import play.api.http.HeaderNames.LOCATION
 import play.api.http.Status.ACCEPTED
 import play.api.http.Status.OK
+import play.api.i18n.Messages
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.Reads.minLength
 import play.api.libs.json.JsPath
@@ -63,7 +64,8 @@ class DefaultAddressLookupService @Inject() (
   addressLookupConfiguration: AddressLookupConfig
 )(implicit
   ec: ExecutionContext,
-  viewConfig: ViewConfig
+  viewConfig: ViewConfig,
+  messages: Messages
 ) extends AddressLookupService
     with Logging {
 
@@ -74,12 +76,24 @@ class DefaultAddressLookupService @Inject() (
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
-  def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
+  def startLookupRedirectingBackTo(
+    addressUpdateUrl: Call
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
     val request: AddressLookupRequest =
       AddressLookupRequest
         .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateUrl.url}")
         .signOutUserVia(viewConfig.signOutUrl)
         .nameConsumerServiceAs("cds-reimbursement-claim")
+        .withLookupPageTitle(
+          viewConfig.pageTitleWithServiceName("Find your UK address", messages("service.title"), hasErrors = false)
+        )
+        .withSelectPageTitle(
+          viewConfig.pageTitleWithServiceName("Choose your address", messages("service.title"), hasErrors = false)
+        )
+        .withConfirmPageTitle(
+          viewConfig.pageTitleWithServiceName("Review and confirm", messages("service.title"), hasErrors = false)
+        )
+        .withEditPageTitle(viewConfig.pageTitleWithServiceName("Enter your address", messages("service.title"), hasErrors = false))
         .showMax(addressLookupConfiguration.addressesShowLimit)
         .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
         .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
