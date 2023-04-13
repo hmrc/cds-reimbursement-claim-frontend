@@ -186,7 +186,7 @@ final case class DraftClaim(
         Some(
           MrnContactDetails(
             consigneeContactDetails.contactName.getOrElse(""),
-            consigneeContactDetails.emailAddress
+            consigneeContactDetails.maybeEmailAddress
               .fold(user.email.getOrElse(Email("")))(address => Email(address)),
             consigneeContactDetails.telephone.map(PhoneNumber(_))
           )
@@ -205,7 +205,7 @@ final case class DraftClaim(
         Some(
           MrnContactDetails(
             declarantContactDetails.contactName.getOrElse(""),
-            declarantContactDetails.emailAddress
+            declarantContactDetails.maybeEmailAddress
               .fold(user.email.getOrElse(Email("")))(address => Email(address)),
             declarantContactDetails.telephone.map(PhoneNumber(_))
           )

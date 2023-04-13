@@ -146,7 +146,7 @@ trait CommonJourneyProperties {
         case (Some(consigneeContactDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
           MrnContactDetails(
             consigneeContactDetails.contactName.getOrElse(""),
-            consigneeContactDetails.emailAddress
+            consigneeContactDetails.maybeEmailAddress
               .fold(currentUserEmail)(address => Email(address)),
             consigneeContactDetails.telephone.map(PhoneNumber(_))
           )
@@ -154,7 +154,7 @@ trait CommonJourneyProperties {
         case (_, Some(declarantContactDetails)) if getDeclarantEoriFromACC14.contains(answers.userEoriNumber) =>
           MrnContactDetails(
             declarantContactDetails.contactName.getOrElse(""),
-            declarantContactDetails.emailAddress
+            declarantContactDetails.maybeEmailAddress
               .fold(currentUserEmail)(address => Email(address)),
             declarantContactDetails.telephone.map(PhoneNumber(_))
           )

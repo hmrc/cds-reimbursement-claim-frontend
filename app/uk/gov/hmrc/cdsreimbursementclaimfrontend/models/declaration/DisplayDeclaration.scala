@@ -240,7 +240,7 @@ object DisplayDeclaration {
 
     def consigneeEmail: Option[String] =
       displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(details =>
-        details.contactDetails.flatMap(f => f.emailAddress)
+        details.contactDetails.flatMap(f => f.maybeEmailAddress)
       )
 
     def consigneeTelephone: Option[String] =
@@ -256,7 +256,9 @@ object DisplayDeclaration {
     def declarantName: String = displayDeclaration.displayResponseDetail.declarantDetails.legalName
 
     def declarantEmailAddress: Option[String] =
-      displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.emailAddress)
+      displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details =>
+        details.maybeEmailAddress
+      )
 
     def declarantTelephoneNumber: Option[String] =
       displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.telephone)
