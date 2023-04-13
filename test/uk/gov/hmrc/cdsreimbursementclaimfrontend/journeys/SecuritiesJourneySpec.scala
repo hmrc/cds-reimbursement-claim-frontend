@@ -1192,7 +1192,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
               .getOrElse(fail("Failed to get contact details"))
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
+            calculatedContact.emailAddress.value       shouldBe expectedContact.maybeEmailAddress.getOrElse(
               signedInUser.email.get.value
             )
             calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
@@ -1239,7 +1239,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
               .getOrElse(fail("Failed to get contact details"))
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse(
+            calculatedContact.emailAddress.value       shouldBe expectedContact.maybeEmailAddress.getOrElse(
               signedInUser.email.get.value
             )
             calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
