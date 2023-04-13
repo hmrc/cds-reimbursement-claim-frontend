@@ -42,33 +42,32 @@ class OverpaymentsSingleJourneySpec
 
   "OverpaymentsSingleJourney" should {
     "have an empty instance" in {
-      emptyJourney.answers.userEoriNumber                   shouldBe exampleEori
-      emptyJourney.answers.bankAccountDetails               shouldBe None
-      emptyJourney.answers.bankAccountType                  shouldBe None
-      emptyJourney.answers.basisOfClaim                     shouldBe None
-      emptyJourney.answers.duplicateMovementReferenceNumber shouldBe None
-      emptyJourney.answers.duplicateDisplayDeclaration      shouldBe None
-      emptyJourney.answers.contactAddress                   shouldBe None
-      emptyJourney.answers.contactDetails                   shouldBe None
-      emptyJourney.answers.contactAddress                   shouldBe None
-      emptyJourney.answers.declarantEoriNumber              shouldBe None
-      emptyJourney.answers.additionalDetails                shouldBe None
-      emptyJourney.answers.displayDeclaration               shouldBe None
-      emptyJourney.answers.consigneeEoriNumber              shouldBe None
-      emptyJourney.answers.correctedAmounts                 shouldBe None
-      emptyJourney.answers.reimbursementMethod              shouldBe None
-      emptyJourney.answers.selectedDocumentType             shouldBe None
-      emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
-      emptyJourney.answers.checkYourAnswersChangeMode       shouldBe false
-      emptyJourney.answers.dutiesChangeMode                 shouldBe false
-      emptyJourney.getNdrcDetails                           shouldBe None
-      emptyJourney.getSelectedDuties                        shouldBe None
-      emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
-      emptyJourney.hasCompleteReimbursementClaims           shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences           shouldBe true
-      emptyJourney.hasCompleteAnswers                       shouldBe false
-      emptyJourney.toOutput.isLeft                          shouldBe true
-      emptyJourney.isFinalized                              shouldBe false
+      emptyJourney.answers.userEoriNumber             shouldBe exampleEori
+      emptyJourney.answers.bankAccountDetails         shouldBe None
+      emptyJourney.answers.bankAccountType            shouldBe None
+      emptyJourney.answers.basisOfClaim               shouldBe None
+      emptyJourney.answers.duplicateDeclaration       shouldBe None
+      emptyJourney.answers.contactAddress             shouldBe None
+      emptyJourney.answers.contactDetails             shouldBe None
+      emptyJourney.answers.contactAddress             shouldBe None
+      emptyJourney.answers.declarantEoriNumber        shouldBe None
+      emptyJourney.answers.additionalDetails          shouldBe None
+      emptyJourney.answers.displayDeclaration         shouldBe None
+      emptyJourney.answers.consigneeEoriNumber        shouldBe None
+      emptyJourney.answers.correctedAmounts           shouldBe None
+      emptyJourney.answers.reimbursementMethod        shouldBe None
+      emptyJourney.answers.selectedDocumentType       shouldBe None
+      emptyJourney.answers.supportingEvidences        shouldBe Seq.empty
+      emptyJourney.answers.checkYourAnswersChangeMode shouldBe false
+      emptyJourney.answers.dutiesChangeMode           shouldBe false
+      emptyJourney.getNdrcDetails                     shouldBe None
+      emptyJourney.getSelectedDuties                  shouldBe None
+      emptyJourney.isAllSelectedDutiesAreCMAEligible  shouldBe false
+      emptyJourney.hasCompleteReimbursementClaims     shouldBe false
+      emptyJourney.hasCompleteSupportingEvidences     shouldBe true
+      emptyJourney.hasCompleteAnswers                 shouldBe false
+      emptyJourney.toOutput.isLeft                    shouldBe true
+      emptyJourney.isFinalized                        shouldBe false
     }
 
     "check completeness and produce the correct output" in {

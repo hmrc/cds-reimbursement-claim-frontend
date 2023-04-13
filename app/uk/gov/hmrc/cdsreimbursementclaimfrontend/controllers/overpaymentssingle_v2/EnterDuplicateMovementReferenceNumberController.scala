@@ -59,7 +59,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
       .fold(Forms.enterDuplicateMrnWithNoCheck)(Forms.enterDuplicateMrnCheckingAgainst)
 
   override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
-    journey.answers.duplicateMovementReferenceNumber
+    journey.answers.duplicateDeclaration.map(_.movementReferenceNumber)
 
   override def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable =
     form =>

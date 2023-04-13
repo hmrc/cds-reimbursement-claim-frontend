@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclaration
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -272,9 +273,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           declarantContact = declarantContact
         )
 
-      val duplicateDisplayDeclaration: Option[DisplayDeclaration] =
-        duplicateMrn.map(mrn => displayDeclaration.withDeclarationId(mrn.value))
-
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
       val supportingEvidencesExpanded: Seq[UploadedFile] =
@@ -293,8 +291,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
-          duplicateMovementReferenceNumber = duplicateMrn,
-          duplicateDisplayDeclaration = duplicateDisplayDeclaration,
+          duplicateDeclaration =
+            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
           whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
@@ -439,9 +437,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           declarantContact = declarantContact
         )
 
-      val duplicateDisplayDeclaration: Option[DisplayDeclaration] =
-        duplicateMrn.map(mrn => displayDeclaration.withDeclarationId(mrn.value))
-
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
       val answers =
@@ -455,8 +450,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
-          duplicateMovementReferenceNumber = duplicateMrn,
-          duplicateDisplayDeclaration = duplicateDisplayDeclaration,
+          duplicateDeclaration =
+            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
           whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
@@ -526,9 +521,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           declarantContact = declarantContact
         )
 
-      val duplicateDisplayDeclaration: Option[DisplayDeclaration] =
-        duplicateMrn.map(mrn => displayDeclaration.withDeclarationId(mrn.value))
-
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
       val answers =
@@ -542,8 +534,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
-          duplicateMovementReferenceNumber = duplicateMrn,
-          duplicateDisplayDeclaration = duplicateDisplayDeclaration,
+          duplicateDeclaration =
+            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
           whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
