@@ -11,12 +11,17 @@ const CDSR = {
     errorsShowing: false,
 
     backLinkAnchor: document.querySelector('.govuk-back-link'),
+    skipLinkAnchor: document.querySelector('.govuk-skip-link'),
 
     Init: function () {
         // Add back link
-
         if (CDSR.backLinkAnchor) {
             CDSR.backLinkAnchor.addEventListener('click', CDSR.NavigateBack);
+        }
+
+        // Fix back link after skip link usage
+        if (CDSR.skipLinkAnchor) {
+            CDSR.skipLinkAnchor.addEventListener('click', CDSR.NavigateSkip);
         }
 
         // Initialise file upload check
@@ -36,6 +41,11 @@ const CDSR = {
     NavigateBack: function (event) {
         event.preventDefault();
         history.back();
+    },
+
+    NavigateSkip: function (event) {
+        event.preventDefault();
+        document.getElementById("main-content").scrollIntoView();
     },
 
     CheckFileInputs: function (event) {
