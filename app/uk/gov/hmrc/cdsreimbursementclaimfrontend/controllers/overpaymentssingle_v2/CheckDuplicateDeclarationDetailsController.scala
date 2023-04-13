@@ -52,7 +52,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
     )
 
   final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
-    journey.answers.duplicateDisplayDeclaration
+    journey.answers.duplicateDeclaration.map(_.displayDeclaration)
 
   final override def continueRoute(journey: Journey): Call =
     routes.EnterAdditionalDetailsController.show
