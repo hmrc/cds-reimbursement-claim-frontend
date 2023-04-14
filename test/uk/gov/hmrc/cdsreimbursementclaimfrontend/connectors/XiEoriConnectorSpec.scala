@@ -25,7 +25,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -83,12 +83,12 @@ class XiEoriConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
 
     "return some EORIs when 200" in {
       givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
-      await(connector.getXiEori) shouldBe Some(XiEoriConnector.Response(Eori("GB0123456789"), Eori("XI0123456789")))
+      await(connector.getXiEori) shouldBe UserXiEori("XI0123456789")
     }
 
     "return empty when 204" in {
       givenServiceReturns(Some(HttpResponse(204, validResponseBody))).once()
-      await(connector.getXiEori) shouldBe None
+      await(connector.getXiEori) shouldBe UserXiEori.NotRegistered
     }
 
     "throw exception when empty response" in {
@@ -132,13 +132,13 @@ class XiEoriConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
     "accept valid response in a second attempt" in {
       givenServiceReturns(Some(HttpResponse(500, ""))).once()
       givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
-      await(connector.getXiEori) shouldBe Some(XiEoriConnector.Response(Eori("GB0123456789"), Eori("XI0123456789")))
+      await(connector.getXiEori) shouldBe UserXiEori("XI0123456789")
     }
 
     "accept valid response in a third attempt" in {
       givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
       givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
-      await(connector.getXiEori) shouldBe Some(XiEoriConnector.Response(Eori("GB0123456789"), Eori("XI0123456789")))
+      await(connector.getXiEori) shouldBe UserXiEori("XI0123456789")
     }
 
   }
