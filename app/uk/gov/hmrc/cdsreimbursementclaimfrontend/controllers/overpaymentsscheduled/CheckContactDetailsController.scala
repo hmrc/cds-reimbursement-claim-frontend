@@ -20,6 +20,7 @@ import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -137,6 +138,7 @@ class CheckContactDetailsController @Inject() (
 
   val redirectToALF: Action[AnyContent] =
     Action.andThen(authenticatedAction).async { implicit request =>
+      implicit val messages: Messages = request.request.messages
       addressLookupService
         .startLookupRedirectingBackTo(OverpaymentsRoutes.CheckContactDetailsController.retrieveAddressFromALF(journey))
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))

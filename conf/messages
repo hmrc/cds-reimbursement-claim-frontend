@@ -583,6 +583,14 @@ check-claimant-details.contact.address=Contact address
 check-claimant-details.change-hint.address=Contact address
 
 #===================================================
+#  ADDRESS LOOKUP
+#===================================================
+address-lookup.lookup.title=Find your UK address
+address-lookup.confirm.title=Review and confirm
+address-lookup.select.title=Choose your address
+address-lookup.edit.title=Enter your address
+
+#===================================================
 #  CLAIMANT TIMEOUT PAGE
 #===================================================
 claimant-details-timed-out.title=For your security, we signed you out

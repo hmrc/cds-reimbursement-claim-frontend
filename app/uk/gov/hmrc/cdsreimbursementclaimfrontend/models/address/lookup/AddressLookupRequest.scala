@@ -19,14 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.Labels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.PageLabels
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.SelectPageConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 
 final case class AddressLookupRequest(
   version: Int,
-  options: AddressLookupOptions
+  options: AddressLookupOptions,
+  labels: AddressLookupLabels
 )
 
 object AddressLookupRequest {
@@ -36,10 +35,11 @@ object AddressLookupRequest {
       AddressLookupOptions(
         continueUrl = continueUrl,
         timeoutConfig = timeoutConfig
-      )
+      ),
+      AddressLookupLabels()
     )
 
-  final case class Builder(options: AddressLookupOptions) {
+  final case class Builder(options: AddressLookupOptions, labels: AddressLookupLabels) {
 
     def signOutUserVia(signOutUrl: String): Builder =
       copy(options.copy(signOutHref = signOutUrl.some))
@@ -74,21 +74,26 @@ object AddressLookupRequest {
     def whetherShowConfirmChangeText(value: Boolean): Builder =
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showConfirmChangeText = value.some)))
 
-    def withLookupPageTitle(title: String): Builder =
-      copy(options.copy(labels = options.labels.copy(lookupPageLabels = PageLabels(title).some)))
-
-    def withConfirmPageTitle(title: String): Builder =
-      copy(options.copy(labels = options.labels.copy(confirmPageLabels = PageLabels(title).some)))
-
-    def withSelectPageTitle(title: String): Builder =
-      copy(options.copy(labels = options.labels.copy(selectPageLabels = PageLabels(title).some)))
-
-    def withEditPageTitle(title: String): Builder =
-      copy(options.copy(labels = options.labels.copy(editPageLabels = PageLabels(title).some)))
+    def withPageTitles(
+      lookupTitle: Option[String],
+      confirmTitle: Option[String],
+      selectTitle: Option[String],
+      editTitle: Option[String]
+    ): Builder =
+      copy(labels =
+        labels.copy(en =
+          LanguageLabels(
+            lookupPageLabels = PageLabels(lookupTitle).some,
+            confirmPageLabels = PageLabels(confirmTitle).some,
+            selectPageLabels = PageLabels(selectTitle).some,
+            editPageLabels = PageLabels(editTitle).some
+          ).some
+        )
+      )
   }
 
   implicit def builderToAddressLookupRequest(builder: Builder): AddressLookupRequest =
-    AddressLookupRequest(version = 2, options = builder.options)
+    AddressLookupRequest(version = 2, options = builder.options, labels = builder.labels)
 
   implicit val format: OFormat[AddressLookupRequest] =
     Json.format[AddressLookupRequest]

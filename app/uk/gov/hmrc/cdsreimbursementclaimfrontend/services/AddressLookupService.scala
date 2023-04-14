@@ -54,7 +54,9 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[DefaultAddressLookupService])
 trait AddressLookupService {
 
-  def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL]
+  def startLookupRedirectingBackTo(
+    addressUpdateUrl: Call
+  )(implicit hc: HeaderCarrier, messages: Messages): EitherT[Future, Error, URL]
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress]
 }
@@ -64,8 +66,7 @@ class DefaultAddressLookupService @Inject() (
   addressLookupConfiguration: AddressLookupConfig
 )(implicit
   ec: ExecutionContext,
-  viewConfig: ViewConfig,
-  messages: Messages
+  viewConfig: ViewConfig
 ) extends AddressLookupService
     with Logging {
 
@@ -76,24 +77,28 @@ class DefaultAddressLookupService @Inject() (
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
+  private def fullPageTitle(titleKey: String)(implicit messages: Messages): String =
+    viewConfig
+      .pageTitleWithServiceName(
+        messages(titleKey),
+        messages("service.title"),
+        hasErrors = false
+      )
+
   def startLookupRedirectingBackTo(
     addressUpdateUrl: Call
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
+  )(implicit hc: HeaderCarrier, messages: Messages): EitherT[Future, Error, URL] = {
     val request: AddressLookupRequest =
       AddressLookupRequest
         .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateUrl.url}")
         .signOutUserVia(viewConfig.signOutUrl)
         .nameConsumerServiceAs("cds-reimbursement-claim")
-        .withLookupPageTitle(
-          viewConfig.pageTitleWithServiceName("Find your UK address", messages("service.title"), hasErrors = false)
+        .withPageTitles(
+          fullPageTitle("address-lookup.lookup.title").some,
+          fullPageTitle("address-lookup.confirm.title").some,
+          fullPageTitle("address-lookup.select.title").some,
+          fullPageTitle("address-lookup.edit.title").some
         )
-        .withSelectPageTitle(
-          viewConfig.pageTitleWithServiceName("Choose your address", messages("service.title"), hasErrors = false)
-        )
-        .withConfirmPageTitle(
-          viewConfig.pageTitleWithServiceName("Review and confirm", messages("service.title"), hasErrors = false)
-        )
-        .withEditPageTitle(viewConfig.pageTitleWithServiceName("Enter your address", messages("service.title"), hasErrors = false))
         .showMax(addressLookupConfiguration.addressesShowLimit)
         .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
         .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
@@ -103,7 +108,7 @@ class DefaultAddressLookupService @Inject() (
         .whetherShowChangeLink(true)
         .whetherShowBanner(true)
 
-    logger.debug(s"Making ALF call sending payload:\n${Json.prettyPrint(Json.toJson(request))}")
+    logger.warn(s"Making ALF call sending payload:\n${Json.prettyPrint(Json.toJson(request))}")
 
     connector
       .initiate(request)
@@ -127,7 +132,7 @@ class DefaultAddressLookupService @Inject() (
           .mkString("Error parsing address lookup response:", "; ", "")
       )
 
-    logger.debug(s"Retrieving ALF user address by ID: ${addressId.toString}")
+    logger.warn(s"Retrieving ALF user address by ID: ${addressId.toString}")
 
     connector
       .retrieveAddress(addressId)

@@ -18,7 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.data.EitherT
 import org.scalamock.handlers.CallHandler2
+import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
+import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -38,10 +40,10 @@ trait AddressLookupSupport { this: MockFactory =>
     eitherErrorOrUrl: Either[Error, URL]
   )(implicit
     ec: ExecutionContext
-  ): CallHandler2[Call, HeaderCarrier, EitherT[Future, Error, URL]] =
+  ): CallHandler3[Call, HeaderCarrier, Messages, EitherT[Future, Error, URL]] =
     (addressLookupServiceMock
-      .startLookupRedirectingBackTo(_: Call)(_: HeaderCarrier))
-      .expects(*, *)
+      .startLookupRedirectingBackTo(_: Call)(_: HeaderCarrier, _: Messages))
+      .expects(*, *, *)
       .returning(EitherT.fromEither[Future](eitherErrorOrUrl))
 
   def mockAddressRetrieve(
