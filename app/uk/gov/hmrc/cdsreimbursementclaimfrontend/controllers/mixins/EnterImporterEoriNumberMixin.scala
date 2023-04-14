@@ -40,7 +40,7 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
     journey.needsDeclarantAndConsigneeEoriSubmission
 
   def getEoriNumberAnswer(journey: Journey): Option[Eori] =
-    journey.answers.consigneeEoriNumber
+    journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber)
 
   val eoriNumberFormKey: String = "enter-importer-eori-number"
 

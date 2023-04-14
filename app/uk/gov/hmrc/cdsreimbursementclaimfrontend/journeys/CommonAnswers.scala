@@ -24,14 +24,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 
 /** Answers common to the all types of the claim journey. */
 trait CommonAnswers {
 
   def nonce: Nonce
   def userEoriNumber: Eori
-  def consigneeEoriNumber: Option[Eori]
-  def declarantEoriNumber: Option[Eori]
+  def eoriNumbersVerification: Option[EoriNumbersVerification]
   def contactDetails: Option[MrnContactDetails]
   def contactAddress: Option[ContactAddress]
   def bankAccountDetails: Option[BankAccountDetails]

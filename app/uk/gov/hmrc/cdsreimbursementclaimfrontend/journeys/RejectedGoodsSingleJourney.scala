@@ -164,7 +164,11 @@ final class RejectedGoodsSingleJourney private (
         )
           Right(
             new RejectedGoodsSingleJourney(
-              answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(consigneeEoriNumber = Some(consigneeEoriNumber)))
+              )
             )
           )
         else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
@@ -176,7 +180,13 @@ final class RejectedGoodsSingleJourney private (
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
-            new RejectedGoodsSingleJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+            new RejectedGoodsSingleJourney(
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+              )
+            )
           )
         else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
       else Left("submitDeclarantEoriNumber.unexpected")
@@ -478,8 +488,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
-    consigneeEoriNumber: Option[Eori] = None,
-    declarantEoriNumber: Option[Eori] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
@@ -588,8 +597,8 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
         j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
       })
-      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)

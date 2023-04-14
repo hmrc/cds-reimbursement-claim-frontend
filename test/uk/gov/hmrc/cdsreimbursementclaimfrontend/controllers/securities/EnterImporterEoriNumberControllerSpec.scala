@@ -166,7 +166,10 @@ class EnterImporterEoriNumberControllerSpec
         ).sample.getOrElse(
           fail("Unable to generate complete journey")
         )
-        val eori           = journey.answers.consigneeEoriNumber.getOrElse(fail("No consignee eori found"))
+        val eori           =
+          journey.answers.eoriNumbersVerification
+            .flatMap(_.consigneeEoriNumber)
+            .getOrElse(fail("No consignee eori found"))
         val sessionToAmend = initialSession.copy(securitiesJourney = Some(journey))
 
         inSequence {

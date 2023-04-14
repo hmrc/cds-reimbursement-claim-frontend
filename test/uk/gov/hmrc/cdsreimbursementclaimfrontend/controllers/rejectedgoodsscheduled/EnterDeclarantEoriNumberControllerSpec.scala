@@ -141,7 +141,7 @@ class EnterDeclarantEoriNumberControllerSpec
           acc14ConsigneeMatchesUserEori = false
         )
       ) { journey =>
-        val eori           = journey.answers.declarantEoriNumber.value
+        val eori           = journey.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber).value
         val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
 
         inSequence {

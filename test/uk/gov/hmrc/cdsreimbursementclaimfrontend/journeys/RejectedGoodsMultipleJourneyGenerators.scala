@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import scala.jdk.CollectionConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -324,14 +325,21 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
           (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
         }.toSeq
 
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
       val answers =
         RejectedGoodsMultipleJourney.Answers(
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumbers = Some(mrns),
           displayDeclarations = Some(displayDeclarations),
-          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),

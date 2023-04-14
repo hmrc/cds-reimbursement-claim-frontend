@@ -45,34 +45,34 @@ class RejectedGoodsMultipleJourneySpec
 
   "RejectedGoodsMultipleJourney" should {
     "have an empty instance" in {
-      emptyJourney.answers.userEoriNumber                   shouldBe exampleEori
-      emptyJourney.answers.bankAccountDetails               shouldBe None
-      emptyJourney.answers.bankAccountType                  shouldBe None
-      emptyJourney.answers.basisOfClaim                     shouldBe None
-      emptyJourney.answers.basisOfClaimSpecialCircumstances shouldBe None
-      emptyJourney.answers.contactAddress                   shouldBe None
-      emptyJourney.answers.contactDetails                   shouldBe None
-      emptyJourney.answers.contactAddress                   shouldBe None
-      emptyJourney.answers.declarantEoriNumber              shouldBe None
-      emptyJourney.answers.detailsOfRejectedGoods           shouldBe None
-      emptyJourney.getLeadDisplayDeclaration                shouldBe None
-      emptyJourney.answers.consigneeEoriNumber              shouldBe None
-      emptyJourney.answers.inspectionAddress                shouldBe None
-      emptyJourney.answers.inspectionDate                   shouldBe None
-      emptyJourney.answers.methodOfDisposal                 shouldBe None
-      emptyJourney.answers.reimbursementClaims              shouldBe None
-      emptyJourney.answers.selectedDocumentType             shouldBe None
-      emptyJourney.answers.supportingEvidences              shouldBe Seq.empty
-      emptyJourney.answers.checkYourAnswersChangeMode       shouldBe false
-      emptyJourney.getNdrcDetailsFor(exampleMrn)            shouldBe None
-      emptyJourney.getSelectedDuties(exampleMrn)            shouldBe None
-      emptyJourney.getTotalReimbursementAmount              shouldBe BigDecimal("0.00")
-      emptyJourney.isAllSelectedDutiesAreCMAEligible        shouldBe false
-      emptyJourney.hasCompleteReimbursementClaims           shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences           shouldBe true
-      emptyJourney.hasCompleteAnswers                       shouldBe false
-      emptyJourney.toOutput.isLeft                          shouldBe true
-      emptyJourney.isFinalized                              shouldBe false
+      emptyJourney.answers.userEoriNumber                                         shouldBe exampleEori
+      emptyJourney.answers.bankAccountDetails                                     shouldBe None
+      emptyJourney.answers.bankAccountType                                        shouldBe None
+      emptyJourney.answers.basisOfClaim                                           shouldBe None
+      emptyJourney.answers.basisOfClaimSpecialCircumstances                       shouldBe None
+      emptyJourney.answers.contactAddress                                         shouldBe None
+      emptyJourney.answers.contactDetails                                         shouldBe None
+      emptyJourney.answers.contactAddress                                         shouldBe None
+      emptyJourney.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber) shouldBe None
+      emptyJourney.answers.detailsOfRejectedGoods                                 shouldBe None
+      emptyJourney.getLeadDisplayDeclaration                                      shouldBe None
+      emptyJourney.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber) shouldBe None
+      emptyJourney.answers.inspectionAddress                                      shouldBe None
+      emptyJourney.answers.inspectionDate                                         shouldBe None
+      emptyJourney.answers.methodOfDisposal                                       shouldBe None
+      emptyJourney.answers.reimbursementClaims                                    shouldBe None
+      emptyJourney.answers.selectedDocumentType                                   shouldBe None
+      emptyJourney.answers.supportingEvidences                                    shouldBe Seq.empty
+      emptyJourney.answers.checkYourAnswersChangeMode                             shouldBe false
+      emptyJourney.getNdrcDetailsFor(exampleMrn)                                  shouldBe None
+      emptyJourney.getSelectedDuties(exampleMrn)                                  shouldBe None
+      emptyJourney.getTotalReimbursementAmount                                    shouldBe BigDecimal("0.00")
+      emptyJourney.isAllSelectedDutiesAreCMAEligible                              shouldBe false
+      emptyJourney.hasCompleteReimbursementClaims                                 shouldBe false
+      emptyJourney.hasCompleteSupportingEvidences                                 shouldBe true
+      emptyJourney.hasCompleteAnswers                                             shouldBe false
+      emptyJourney.toOutput.isLeft                                                shouldBe true
+      emptyJourney.isFinalized                                                    shouldBe false
     }
 
     "check completeness and produce the correct output" in {

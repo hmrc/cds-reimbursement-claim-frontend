@@ -41,24 +41,24 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
       _.needsDeclarantAndConsigneeEoriSubmission,
       all(
         checkIsDefined(
-          _.answers.declarantEoriNumber,
+          _.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber),
           DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED
         ),
         checkEquals(
           _.getDeclarantEoriFromACC14,
-          _.answers.declarantEoriNumber,
+          _.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber),
           DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
         ),
         whenTrue(
           _.getConsigneeEoriFromACC14.isDefined,
           all(
             checkIsDefined(
-              _.answers.consigneeEoriNumber,
+              _.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber),
               CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED
             ),
             checkEquals(
               _.getConsigneeEoriFromACC14,
-              _.answers.consigneeEoriNumber,
+              _.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber),
               CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14
             )
           )
@@ -66,11 +66,11 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
       ),
       all(
         checkIsEmpty(
-          _.answers.declarantEoriNumber,
+          _.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber),
           DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
         ),
         checkIsEmpty(
-          _.answers.consigneeEoriNumber,
+          _.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber),
           CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED
         )
       )
