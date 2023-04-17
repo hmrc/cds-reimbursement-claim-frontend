@@ -32,11 +32,20 @@ import play.api.libs.json.JsonValidationError
 import play.api.mvc.Call
 import play.api.test.Helpers.LOCATION
 import play.api.test.Helpers._
+import play.api.Application
 import play.api.Configuration
 import play.api.Environment
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestDefaultMessagesApiProvider
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestMessagesApi
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
@@ -58,15 +67,15 @@ class AddressLookupServiceSpec
     with ScalaCheckPropertyChecks
     with EitherValues
     with Matchers
-    with MockFactory {
+    with MockFactory
+    with ControllerSpec {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  private val config                  = Configuration.load(Environment.simple())
-  private val servicesConfig          = new ServicesConfig(config)
-  implicit val viewConfig: ViewConfig = new ViewConfig(config, servicesConfig)
-
+  private val config                 = Configuration.load(Environment.simple())
+  private val servicesConfig         = new ServicesConfig(config)
   private val addressLookupConnector = mock[AddressLookupConnector]
+  implicit val messages: Messages    = MessagesImpl(Lang("en"), theMessagesApi)
   private val addressLookupConfig    = new AddressLookupConfig(servicesConfig)
   private val addressLookupService   = new DefaultAddressLookupService(addressLookupConnector, addressLookupConfig)
 
@@ -91,6 +100,12 @@ class AddressLookupServiceSpec
     .whetherShowSearchAgainLink(true)
     .whetherShowChangeLink(true)
     .whetherShowBanner(true)
+    .withPageTitles(
+      Some(s"${messages("address-lookup.lookup.title")} - ${messages("service.title")} - GOV.UK"),
+      Some(s"${messages("address-lookup.confirm.title")} - ${messages("service.title")} - GOV.UK"),
+      Some(s"${messages("address-lookup.select.title")} - ${messages("service.title")} - GOV.UK"),
+      Some(s"${messages("address-lookup.edit.title")} - ${messages("service.title")} - GOV.UK")
+    )
 
   def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(
     response: Either[Error, HttpResponse]

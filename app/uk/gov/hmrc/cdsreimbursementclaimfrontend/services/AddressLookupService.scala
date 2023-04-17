@@ -26,6 +26,7 @@ import com.google.inject.Inject
 import play.api.http.HeaderNames.LOCATION
 import play.api.http.Status.ACCEPTED
 import play.api.http.Status.OK
+import play.api.i18n.Messages
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.Reads.minLength
 import play.api.libs.json.JsPath
@@ -53,7 +54,9 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[DefaultAddressLookupService])
 trait AddressLookupService {
 
-  def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL]
+  def startLookupRedirectingBackTo(
+    addressUpdateUrl: Call
+  )(implicit hc: HeaderCarrier, messages: Messages): EitherT[Future, Error, URL]
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress]
 }
@@ -74,12 +77,28 @@ class DefaultAddressLookupService @Inject() (
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
-  def startLookupRedirectingBackTo(addressUpdateUrl: Call)(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
+  private def fullPageTitle(titleKey: String)(implicit messages: Messages): String =
+    viewConfig
+      .pageTitleWithServiceName(
+        messages(titleKey),
+        messages("service.title"),
+        hasErrors = false
+      )
+
+  def startLookupRedirectingBackTo(
+    addressUpdateUrl: Call
+  )(implicit hc: HeaderCarrier, messages: Messages): EitherT[Future, Error, URL] = {
     val request: AddressLookupRequest =
       AddressLookupRequest
         .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateUrl.url}")
         .signOutUserVia(viewConfig.signOutUrl)
         .nameConsumerServiceAs("cds-reimbursement-claim")
+        .withPageTitles(
+          fullPageTitle("address-lookup.lookup.title").some,
+          fullPageTitle("address-lookup.confirm.title").some,
+          fullPageTitle("address-lookup.select.title").some,
+          fullPageTitle("address-lookup.edit.title").some
+        )
         .showMax(addressLookupConfiguration.addressesShowLimit)
         .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
         .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)

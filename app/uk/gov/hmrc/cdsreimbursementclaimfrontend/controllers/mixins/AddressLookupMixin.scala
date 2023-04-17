@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.data.EitherT
+import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -43,8 +44,9 @@ trait AddressLookupMixin extends JourneyBaseController {
 
   def redirectToTheNextPage(journey: Journey): (Journey, Result)
 
-  def redirectToALF: Action[AnyContent] =
+  val redirectToALF: Action[AnyContent] =
     Action.andThen(jcc.authenticatedAction).async { implicit request =>
+      implicit val messages: Messages = request.request.messages
       addressLookupService
         .startLookupRedirectingBackTo(retrieveLookupAddress)
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
