@@ -355,7 +355,11 @@ final class OverpaymentsMultipleJourney private (
         )
           Right(
             new OverpaymentsMultipleJourney(
-              answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(consigneeEoriNumber = Some(consigneeEoriNumber)))
+              )
             )
           )
         else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
@@ -367,7 +371,13 @@ final class OverpaymentsMultipleJourney private (
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
-            new OverpaymentsMultipleJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+            new OverpaymentsMultipleJourney(
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+              )
+            )
           )
         else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
       else Left("submitDeclarantEoriNumber.unexpected")
@@ -647,8 +657,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     bankAccountDetails: Option[BankAccountDetails] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    consigneeEoriNumber: Option[Eori] = None,
-    declarantEoriNumber: Option[Eori] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     checkYourAnswersChangeMode: Boolean = false,
     dutiesChangeMode: Boolean = false
   ) extends OverpaymentsAnswers
@@ -721,8 +730,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
-      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
       .mapWhenDefined(answers.whetherNorthernIreland)(_.submitWhetherNorthernIreland)

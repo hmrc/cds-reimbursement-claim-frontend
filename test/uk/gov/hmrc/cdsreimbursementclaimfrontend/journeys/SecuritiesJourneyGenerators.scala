@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData with SeqUtils {
@@ -399,6 +400,14 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
         }.toSeq
 
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
       val answers =
         new SecuritiesJourney.Answers(
           nonce = Nonce.random,
@@ -407,8 +416,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           reasonForSecurity = Some(rfs),
           displayDeclaration = Some(acc14),
           similarClaimExistAlreadyInCDFPay = Some(false),
-          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          eoriNumbersVerification = eoriNumbersVerification,
           exportMovementReferenceNumber = exportMrn,
           temporaryAdmissionMethodOfDisposal = methodOfDisposal,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,

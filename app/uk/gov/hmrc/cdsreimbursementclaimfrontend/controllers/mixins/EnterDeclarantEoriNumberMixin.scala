@@ -40,7 +40,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
     journey.needsDeclarantAndConsigneeEoriSubmission
 
   def getEoriNumberAnswer(journey: Journey): Option[Eori] =
-    journey.answers.declarantEoriNumber
+    journey.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber)
 
   val eoriNumberFormKey: String = "enter-declarant-eori-number"
 

@@ -225,7 +225,11 @@ final class OverpaymentsScheduledJourney private (
         )
           Right(
             new OverpaymentsScheduledJourney(
-              answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(consigneeEoriNumber = Some(consigneeEoriNumber)))
+              )
             )
           )
         else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
@@ -237,7 +241,13 @@ final class OverpaymentsScheduledJourney private (
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
-            new OverpaymentsScheduledJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+            new OverpaymentsScheduledJourney(
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+              )
+            )
           )
         else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
       else Left("submitDeclarantEoriNumber.unexpected")
@@ -499,8 +509,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     movementReferenceNumber: Option[MRN] = None,
     scheduledDocument: Option[UploadedFile] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
-    consigneeEoriNumber: Option[Eori] = None,
-    declarantEoriNumber: Option[Eori] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
@@ -583,8 +592,8 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
         j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
       })
-      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)

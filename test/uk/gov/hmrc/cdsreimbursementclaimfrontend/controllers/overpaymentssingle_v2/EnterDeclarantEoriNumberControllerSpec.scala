@@ -159,7 +159,9 @@ class EnterDeclarantEoriNumberControllerSpec
         ).sample.getOrElse(
           fail("Unable to generate complete journey")
         )
-        val eori           = journey.answers.declarantEoriNumber.getOrElse(fail("No consignee eori found"))
+        val eori           = journey.answers.eoriNumbersVerification
+          .flatMap(_.declarantEoriNumber)
+          .getOrElse(fail("No consignee eori found"))
         val sessionToAmend = session.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {

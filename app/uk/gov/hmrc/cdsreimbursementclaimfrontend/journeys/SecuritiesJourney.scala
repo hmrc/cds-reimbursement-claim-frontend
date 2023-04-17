@@ -311,8 +311,7 @@ final class SecuritiesJourney private (
               nonce = answers.nonce,
               reasonForSecurity = Some(reasonForSecurity),
               displayDeclaration = Some(displayDeclaration),
-              consigneeEoriNumber = answers.consigneeEoriNumber,
-              declarantEoriNumber = answers.declarantEoriNumber
+              eoriNumbersVerification = answers.eoriNumbersVerification
             )
           )
         )
@@ -576,7 +575,11 @@ final class SecuritiesJourney private (
         )
           Right(
             new SecuritiesJourney(
-              answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(consigneeEoriNumber = Some(consigneeEoriNumber)))
+              )
             )
           )
         else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
@@ -586,7 +589,15 @@ final class SecuritiesJourney private (
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
-        Right(new SecuritiesJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber))))
+        Right(
+          new SecuritiesJourney(
+            answers.copy(eoriNumbersVerification =
+              answers.eoriNumbersVerification
+                .orElse(Some(EoriNumbersVerification()))
+                .map(_.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+            )
+          )
+        )
       else
         Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     }
@@ -766,8 +777,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     reasonForSecurity: Option[ReasonForSecurity] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
     similarClaimExistAlreadyInCDFPay: Option[Boolean] = None, // TPI04 check flag
-    consigneeEoriNumber: Option[Eori] = None,
-    declarantEoriNumber: Option[Eori] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     exportMovementReferenceNumber: Option[MRN] =
       None, // mandatory for some reasons, see ReasonForSecurity.requiresExportDeclaration,
     temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None,
@@ -892,8 +902,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
       .flatMapWhenDefined(answers.temporaryAdmissionMethodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
       .flatMapWhenDefined(answers.exportMovementReferenceNumber)(_.submitExportMovementReferenceNumber _)
-      .flatMapWhenDefined(answers.consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.declarantEoriNumber)(_.submitDeclarantEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
       .flatMapEachWhenDefined(answers.securitiesReclaims.map(_.keySet.toSeq))(

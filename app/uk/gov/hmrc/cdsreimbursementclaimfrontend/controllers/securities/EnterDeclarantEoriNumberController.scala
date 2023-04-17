@@ -78,14 +78,15 @@ class EnterDeclarantEoriNumberController @Inject() (
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     (
       if (!journey.needsDeclarantAndConsigneeEoriSubmission) nextPage(journey)
-      else if (journey.answers.consigneeEoriNumber.isEmpty) Redirect(routes.EnterImporterEoriNumberController.show())
+      else if (journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty)
+        Redirect(routes.EnterImporterEoriNumberController.show())
       else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
     ).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     if (!journey.needsDeclarantAndConsigneeEoriSubmission) (journey, nextPage(journey)).asFuture
-    else if (journey.answers.consigneeEoriNumber.isEmpty)
+    else if (journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty)
       (journey, Redirect(routes.EnterImporterEoriNumberController.show())).asFuture
     else
       eoriNumberForm(formKey)

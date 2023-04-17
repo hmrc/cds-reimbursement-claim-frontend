@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -280,14 +281,21 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           (0 until size).map(i => buildUploadDocument(s"$i").copy(cargo = Some(documentType)))
         }.toSeq
 
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
       val answers =
         OverpaymentsSingleJourney.Answers(
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
-          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
@@ -369,13 +377,20 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
       OverpaymentsSingleJourney.Answers(
         nonce = Nonce.random,
         userEoriNumber = userEoriNumber,
         movementReferenceNumber = Some(mrn),
         displayDeclaration = Some(displayDeclaration),
-        consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+        eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
         checkYourAnswersChangeMode = false
@@ -439,14 +454,21 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
       val answers =
         OverpaymentsSingleJourney.Answers(
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
-          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
@@ -523,14 +545,21 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
       val answers =
         OverpaymentsSingleJourney.Answers(
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
-          consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
-          declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+          eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),

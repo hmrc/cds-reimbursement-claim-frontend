@@ -23,7 +23,7 @@ import com.google.inject.Inject
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -39,12 +39,12 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[DefaultXiEoriConnector])
 trait XiEoriConnector {
 
-  def getXiEori(implicit hc: HeaderCarrier): Future[Option[XiEoriConnector.Response]]
+  def getXiEori(implicit hc: HeaderCarrier): Future[UserXiEori]
 }
 
 object XiEoriConnector {
 
-  final case class Response(eoriGB: Eori, eoriXI: Eori)
+  final case class Response(eoriGB: String, eoriXI: String)
   final case class Exception(msg: String) extends scala.RuntimeException(msg)
 
   implicit val format: Format[Response] = Json.format[Response]
@@ -72,16 +72,16 @@ class DefaultXiEoriConnector @Inject() (
   lazy val retryIntervals: Seq[FiniteDuration] =
     Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
-  override def getXiEori(implicit hc: HeaderCarrier): Future[Option[XiEoriConnector.Response]] =
+  override def getXiEori(implicit hc: HeaderCarrier): Future[UserXiEori] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
       http.GET[HttpResponse](url)
     ).flatMap {
       case response if response.status === 200 =>
-        Future(Some(response.json.as[XiEoriConnector.Response]))
-          .transform(identity, e => new XiEoriConnector.Exception(e.getMessage))
+        Future(response.json.as[XiEoriConnector.Response])
+          .transform(r => UserXiEori(r.eoriXI), e => new XiEoriConnector.Exception(e.getMessage))
 
       case response if response.status === 204 =>
-        Future.successful(None)
+        Future.successful(UserXiEori.NotRegistered)
 
       case response =>
         Future.failed(
