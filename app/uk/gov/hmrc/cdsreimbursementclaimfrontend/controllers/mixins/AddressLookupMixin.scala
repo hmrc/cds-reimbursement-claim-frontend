@@ -45,13 +45,12 @@ trait AddressLookupMixin extends JourneyBaseController {
   def redirectToTheNextPage(journey: Journey): (Journey, Result)
 
   val redirectToALF: Action[AnyContent] =
-    Action.andThen(jcc.authenticatedAction).async { implicit request =>
-      logger.warn("REDIRECTING TO ALF (redirectToTheNextPage)")
+    Action.andThen(jcc.authenticatedAction).async implicit request =>
       implicit val messages: Messages = request.request.messages
       addressLookupService
         .startLookupRedirectingBackTo(retrieveLookupAddress)
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
-    }
+    
 
   def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
     actionReadWriteJourney(

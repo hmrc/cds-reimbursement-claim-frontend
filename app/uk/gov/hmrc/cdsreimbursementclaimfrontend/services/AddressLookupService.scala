@@ -108,7 +108,7 @@ class DefaultAddressLookupService @Inject() (
         .whetherShowChangeLink(true)
         .whetherShowBanner(true)
 
-    logger.warn(s"Making ALF call sending payload:\n${Json.prettyPrint(Json.toJson(request))}")
+    logger.debug(s"Making ALF call sending payload:\n${Json.prettyPrint(Json.toJson(request))}")
 
     connector
       .initiate(request)
@@ -132,7 +132,7 @@ class DefaultAddressLookupService @Inject() (
           .mkString("Error parsing address lookup response:", "; ", "")
       )
 
-    logger.warn(s"Retrieving ALF user address by ID: ${addressId.toString}")
+    logger.debug(s"Retrieving ALF user address by ID: ${addressId.toString}")
 
     connector
       .retrieveAddress(addressId)
