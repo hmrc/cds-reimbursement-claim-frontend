@@ -307,6 +307,17 @@ final class RejectedGoodsMultipleJourney private (
       }
     }
 
+  def submitUserXiEori(userXiEori: UserXiEori): RejectedGoodsMultipleJourney =
+    whileClaimIsAmendable {
+      new RejectedGoodsMultipleJourney(
+        answers.copy(eoriNumbersVerification =
+          answers.eoriNumbersVerification
+            .orElse(Some(EoriNumbersVerification()))
+            .map(_.copy(userXiEori = Some(userXiEori)))
+        )
+      )
+    }
+
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
@@ -719,6 +730,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import java.util.Locale
 import org.scalacheck.Gen
 import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
@@ -50,6 +51,7 @@ class OverpaymentsSingleJourneySpec
       emptyJourney.answers.contactAddress                                         shouldBe None
       emptyJourney.answers.contactDetails                                         shouldBe None
       emptyJourney.answers.contactAddress                                         shouldBe None
+      emptyJourney.answers.eoriNumbersVerification                                shouldBe None
       emptyJourney.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber) shouldBe None
       emptyJourney.answers.additionalDetails                                      shouldBe None
       emptyJourney.answers.displayDeclaration                                     shouldBe None
@@ -241,6 +243,51 @@ class OverpaymentsSingleJourneySpec
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
       journey.getClaimantType                          shouldBe ClaimantType.Consignee
       journey.getClaimantEori                          shouldBe exampleEori
+    }
+
+    "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is missing" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
+      val journey            =
+        OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(Locale.ENGLISH))))
+          .getOrFail
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Declarant
+      journey.getClaimantEori                          shouldBe exampleXIEori
+    }
+
+    "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is present" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
+      val journey            =
+        OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(Locale.ENGLISH))))
+          .getOrFail
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Declarant
+      journey.getClaimantEori                          shouldBe exampleXIEori
+    }
+
+    "does not need declarant and consignee submission if user's XI eori is matching that of consignee" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val journey            =
+        OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(Locale.ENGLISH))))
+          .getOrFail
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Consignee
+      journey.getClaimantEori                          shouldBe exampleXIEori
     }
 
     "fail building journey if user's eori is not matching those of ACC14 and separate EORIs were not provided by the user" in {

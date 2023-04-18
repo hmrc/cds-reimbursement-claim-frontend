@@ -242,6 +242,51 @@ class RejectedGoodsSingleJourneySpec
       journey.getClaimantEori                          shouldBe exampleEori
     }
 
+    "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is missing" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
+      val journey            =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
+          .getOrFail
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Declarant
+      journey.getClaimantEori                          shouldBe exampleXIEori
+    }
+
+    "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is present" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
+      val journey            =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
+          .getOrFail
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Declarant
+      journey.getClaimantEori                          shouldBe exampleXIEori
+    }
+
+    "does not need declarant and consignee submission if user's XI eori is matching that of consignee" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val journey            =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
+          .getOrFail
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Consignee
+      journey.getClaimantEori                          shouldBe exampleXIEori
+    }
+
     "fail building journey if user's eori is not matching those of ACC14 and separate EORIs were not provided by the user" in {
       val journeyGen = buildJourneyGen(
         acc14DeclarantMatchesUserEori = false,

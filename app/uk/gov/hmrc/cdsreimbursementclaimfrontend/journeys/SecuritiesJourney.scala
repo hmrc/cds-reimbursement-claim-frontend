@@ -564,6 +564,17 @@ final class SecuritiesJourney private (
       }
     }
 
+  def submitUserXiEori(userXiEori: UserXiEori): SecuritiesJourney =
+    whileClaimIsAmendable {
+      new SecuritiesJourney(
+        answers.copy(eoriNumbersVerification =
+          answers.eoriNumbersVerification
+            .orElse(Some(EoriNumbersVerification()))
+            .map(_.copy(userXiEori = Some(userXiEori)))
+        )
+      )
+    }
+
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
@@ -902,6 +913,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
       .flatMapWhenDefined(answers.temporaryAdmissionMethodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
       .flatMapWhenDefined(answers.exportMovementReferenceNumber)(_.submitExportMovementReferenceNumber _)
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))

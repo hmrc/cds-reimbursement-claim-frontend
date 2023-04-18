@@ -344,6 +344,17 @@ final class OverpaymentsMultipleJourney private (
       }
     }
 
+  def submitUserXiEori(userXiEori: UserXiEori): OverpaymentsMultipleJourney =
+    whileClaimIsAmendable {
+      new OverpaymentsMultipleJourney(
+        answers.copy(eoriNumbersVerification =
+          answers.eoriNumbersVerification
+            .orElse(Some(EoriNumbersVerification()))
+            .map(_.copy(userXiEori = Some(userXiEori)))
+        )
+      )
+    }
+
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
@@ -730,6 +741,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
