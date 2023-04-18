@@ -247,10 +247,10 @@ check-eori-details.error.invalid=Are these details correct?
 #  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
 rejected-goods.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
-rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
+rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple MRNs
-rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
+rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with both GB and XI EORI numbers. 
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
@@ -261,10 +261,10 @@ rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want
 #  OVERPAYMENTS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
 overpayments.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
-overpayments.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
+overpayments.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 overpayments.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 overpayments.choose-how-many-mrns.inset.title=Entering Multiple MRNs
-overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
+overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with both GB and XI EORI numbers. 
 overpayments.choose-how-many-mrns.individual.title=Enter one MRN
 overpayments.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 overpayments.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
@@ -276,10 +276,10 @@ overpayments.choose-how-many-mrns.error.required=Select how many MRNs you want t
 #  SELECT NUMBER OF CLAIMS PAGE
 #===================================================
 select-number-of-claims.title=Choose how many MRNs you want to submit in this claim
-select-number-of-claims.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
+select-number-of-claims.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 select-number-of-claims.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 select-number-of-claims.inset.title=Entering Multiple MRNs
-select-number-of-claims.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment.
+select-number-of-claims.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with both GB and XI EORI numbers. 
 select-number-of-claims.individual.title=Enter one MRN
 select-number-of-claims.multiple.title=Enter multiple MRNs
 select-number-of-claims.multiple.hint=Manually enter details for each MRN.
@@ -332,7 +332,7 @@ enter-movement-reference-number.securities.title=Enter the import MRN
 enter-movement-reference-number.securities.details.heading=Finding your MRN
 enter-movement-reference-number.securities.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-movement-reference-number.securities.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.securities.help-text=The Movement Reference Number (MRN) is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 enter-movement-reference-number.securities.enter-mrn.label=Enter MRN
 enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.securities.error.required=Enter a movement reference number (MRN)
@@ -1422,11 +1422,13 @@ supporting-evidence.choose-document-type.error.invalid-document-type=The selecte
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
 schedule-document.upload.title=Add a document which shows all the MRNs in this claim
-schedule-document.upload.help-text=Upload a list of all MRNs in this claim, known as a scheduled document. This document can be up to {0} and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
-schedule-document.upload.things-to-show.p1=The document should show:
-schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each MRN
-schedule-document.upload.things-to-show.l2=the amount that was paid to HMRC for each MRN
-schedule-document.upload.things-to-show.l3=the amount that should have been paid to HMRC for each MRN
+schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with both GB and XI EORI numbers.
+schedule-document.upload.things-to-show.p1=The MRNs in the document must:
+schedule-document.upload.things-to-show.l1=all be from the same importer
+schedule-document.upload.things-to-show.l2=all have the same reason for overpayment
+schedule-document.upload.help-text.para2=Use this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">MRN claim template (opens in new tab)</a> to help you provide the required details in the file you upload.
+schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
+schedule-document.upload.help-text.para4=This document can be up to 9MB and must be a JPG, PNG or PDF.
 schedule-document.upload.input-title=Select a document to upload
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.choose.description=Select a document to upload

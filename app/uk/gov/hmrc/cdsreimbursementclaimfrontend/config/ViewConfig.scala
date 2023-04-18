@@ -102,6 +102,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val eoriNumberHelpUrl: String = getString("external-url.eori-number-help")
 
+  val scheduledUploadTemplateUrl: String = getString("external-url.scheduled-upload-template")
+
   val abilityNetUrl: String = getString("external-url.ability-net")
 
   val webStandardUrl: String = getString("external-url.web-standard")
