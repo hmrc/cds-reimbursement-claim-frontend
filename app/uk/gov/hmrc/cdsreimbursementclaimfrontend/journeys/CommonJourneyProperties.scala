@@ -72,11 +72,21 @@ trait CommonJourneyProperties {
 
   /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
   final def needsDeclarantAndConsigneeEoriSubmission: Boolean =
-    !(getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
-      getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+    !(userHasGBEoriMatchingDeclaration || userHasXIEoriMatchingDeclaration)
+
+  final def userHasGBEoriMatchingDeclaration: Boolean =
+    getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
+      getConsigneeEoriFromACC14.contains(answers.userEoriNumber)
+
+  final def userHasXIEoriMatchingDeclaration: Boolean =
+    answers.eoriNumbersVerification.exists(x =>
+      x.hasSameXiEoriAs(getDeclarantEoriFromACC14) ||
+        x.hasSameXiEoriAs(getConsigneeEoriFromACC14)
+    )
 
   final def needsDeclarantAndConsigneePostCode: Boolean =
-    !isConsigneePostCodeFromAcc14.getOrElse(false) && !isDeclarantPostCodeFromAcc14.getOrElse(false)
+    !isConsigneePostCodeFromAcc14.getOrElse(false) &&
+      !isDeclarantPostCodeFromAcc14.getOrElse(false)
 
   final def getConsigneeBankAccountDetails: Option[BankAccountDetails] =
     getLeadDisplayDeclaration
@@ -102,9 +112,19 @@ trait CommonJourneyProperties {
       .exists(_.hasBankDetails)
 
   final def getClaimantType: ClaimantType =
-    if (getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+    if (
+      getConsigneeEoriFromACC14.exists(eori =>
+        answers.userEoriNumber === eori ||
+          answers.eoriNumbersVerification.exists(_.hasSameXiEoriAs(eori))
+      )
+    )
       ClaimantType.Consignee
-    else if (getDeclarantEoriFromACC14.contains(answers.userEoriNumber))
+    else if (
+      getDeclarantEoriFromACC14.exists(eori =>
+        answers.userEoriNumber === eori ||
+          answers.eoriNumbersVerification.exists(_.hasSameXiEoriAs(eori))
+      )
+    )
       ClaimantType.Declarant
     else
       ClaimantType.User
