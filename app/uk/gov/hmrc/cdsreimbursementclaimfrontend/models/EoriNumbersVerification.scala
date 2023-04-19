@@ -16,14 +16,38 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import java.util.Locale
 
 final case class EoriNumbersVerification(
   consigneeEoriNumber: Option[Eori] = None,
-  declarantEoriNumber: Option[Eori] = None
-)
+  declarantEoriNumber: Option[Eori] = None,
+  userXiEori: Option[UserXiEori] = None
+) {
+
+  def hasSameXiEoriAs(otherEori: Eori): Boolean =
+    userXiEori match {
+      case Some(UserXiEori.Some(eori)) =>
+        otherEori.value.toUpperCase(Locale.ENGLISH) === eori.toUpperCase(Locale.ENGLISH)
+
+      case _ => false
+    }
+
+  def hasSameXiEoriAs(otherEori: Option[Eori]): Boolean =
+    otherEori match {
+      case None              => false
+      case Some(Eori(eori1)) =>
+        userXiEori match {
+          case Some(UserXiEori.Some(eori2)) =>
+            eori1.toUpperCase(Locale.ENGLISH) === eori2.toUpperCase(Locale.ENGLISH)
+
+          case _ => false
+        }
+    }
+}
 
 object EoriNumbersVerification {
   final implicit val format: OFormat[EoriNumbersVerification] =

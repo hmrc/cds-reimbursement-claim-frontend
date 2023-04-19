@@ -181,6 +181,17 @@ final class RejectedGoodsScheduledJourney private (
       }
     }
 
+  def submitUserXiEori(userXiEori: UserXiEori): RejectedGoodsScheduledJourney =
+    whileClaimIsAmendable {
+      new RejectedGoodsScheduledJourney(
+        answers.copy(eoriNumbersVerification =
+          answers.eoriNumbersVerification
+            .orElse(Some(EoriNumbersVerification()))
+            .map(_.copy(userXiEori = Some(userXiEori)))
+        )
+      )
+    }
+
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
@@ -616,6 +627,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
         j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
       })
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
