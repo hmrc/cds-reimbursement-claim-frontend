@@ -29,7 +29,7 @@ final case class ContactDetails(
   postalCode: Option[String],
   countryCode: Option[String],
   telephone: Option[String],
-  private val emailAddress: Option[String]
+  emailAddress: Option[String]
 ) {
 
   def maybeEmailAddress: Option[String] =
