@@ -61,6 +61,7 @@ object DutyType {
           NI540,
           NI541,
           NI542,
+          NI546,
           NI551,
           NI556,
           NI561,
@@ -71,7 +72,7 @@ object DutyType {
         8
       )
 
-  case object Biofuels extends DutyType("biofuels", List(NI589, NI595), 9)
+  case object Biofuels extends DutyType("biofuels", List(NI589, NI595, NI597), 9)
 
   case object MiscellaneousRoadFuels extends DutyType("miscellaneous-road-fuels", List(NI591, NI592), 10)
 
