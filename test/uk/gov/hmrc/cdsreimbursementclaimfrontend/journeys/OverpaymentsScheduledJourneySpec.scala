@@ -31,12 +31,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 class OverpaymentsScheduledJourneySpec
     extends AnyWordSpec
     with ScalaCheckPropertyChecks
     with Matchers
-    with ShrinkLowPriority {
+    with ShrinkLowPriority
+    with Logging {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1000)
@@ -1144,90 +1147,90 @@ class OverpaymentsScheduledJourneySpec
       }
     }
 
-//  FIXME: this test fails. taxCodesWithTypes returns none when passed tax code NI546 because it is not associated with a duty type
+    "get ndrc details and amounts for a claim" in {
+      val nextDetailsList: List[NdrcDetails] =
+        exampleDisplayDeclaration.getNdrcDetailsList.get
 
-//    "get ndrc details and amounts for a claim" in {
-//      val nextDetailsList: List[NdrcDetails] =
-//        exampleDisplayDeclaration.getNdrcDetailsList.get
-//
-//      val taxCodesWithTypes: Map[DutyType, List[TaxCode]] =
-//        nextDetailsList
-//          .map { nextDetails =>
-//            val taxCode = TaxCode(nextDetails.taxType)
-//            val dutyType = DutyTypes.all.find(_.taxCodes.contains(taxCode)).get
-//            logger.warn(s"taxcode value: ${taxCode.value}, dutyType value: ${dutyType.repr}")
-//            (taxCode, dutyType )
-//          }
-//          .groupBy(_._2)
-//          .view.mapValues(_.map(_._1))
-//
-//      val dutyTypes: List[DutyType] =
-//        taxCodesWithTypes.keys.toList
-//
-//      @SuppressWarnings(Array("org.wartremover.warts.Var"))
-//      var journey =
-//        OverpaymentsScheduledJourney
-//          .empty(exampleEori)
-//          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
-//          .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes))
-//          .getOrFail
-//
-//      @SuppressWarnings(Array("org.wartremover.warts.Var"))
-//      var previousDuty: Option[DutyType] = None
-//
-//      @SuppressWarnings(Array("org.wartremover.warts.Var"))
-//      var previousTaxCode: Option[TaxCode] = None
-//
-//      for ((dutyType, taxCodes) <- taxCodesWithTypes.toSeq.sortBy(_._1)) {
-//        journey.findNextDutyToSelectDuties shouldBe Some(dutyType)
-//
-//        previousDuty.foreach { pdt =>
-//          journey.findNextSelectedDutyAfter(pdt) shouldBe Some(dutyType)
-//        }
-//
-//        journey = journey
-//          .selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodes)
-//          .getOrFail
-//
-//        previousTaxCode = None
-//
-//        for (taxCode <- taxCodes.sorted) {
-//          val ndrcDetails = nextDetailsList.find(d => d.taxType === taxCode.value).get
-//          val amount      = BigDecimal(ndrcDetails.amount)
-//
-//          journey.getNdrcDetailsFor(taxCode) shouldBe Some(ndrcDetails)
-//
-//          journey.getNextNdrcDetailsToClaim shouldBe Some(ndrcDetails)
-//
-//          journey.getReimbursementFor(dutyType, taxCode) shouldBe None
-//
-//          journey = journey
-//            .submitAmountForReimbursement(dutyType, taxCode, amount, ZERO)
-//            .getOrFail
-//
-//          journey.getReimbursementFor(dutyType, taxCode) shouldBe Some(AmountPaidWithCorrect(amount, ZERO))
-//
-//          previousTaxCode.foreach { ptc =>
-//            journey.findNextSelectedTaxCodeAfter(dutyType, ptc) shouldBe Some((dutyType, taxCode))
-//          }
-//
-//          previousTaxCode = Some(taxCode)
-//        }
-//
-//        previousDuty = Some(dutyType)
-//      }
-//
-//      journey.findNextDutyToSelectDuties shouldBe None
-//      journey.getNextNdrcDetailsToClaim    shouldBe None
-//
-//      previousDuty.foreach { pdt =>
-//        journey.findNextSelectedDutyAfter(pdt) shouldBe None
-//
-//        previousTaxCode.foreach { ptc =>
-//          journey.findNextSelectedTaxCodeAfter(pdt, ptc) shouldBe None
-//        }
-//      }
-//    }
+      val taxCodesWithTypes: Map[DutyType, List[TaxCode]] =
+        nextDetailsList
+          .map { nextDetails =>
+            val taxCode  = TaxCode(nextDetails.taxType)
+            val dutyType = DutyTypes.all.find(_.taxCodes.contains(taxCode)).get
+            logger.warn(s"taxcode value: ${taxCode.value}, dutyType value: ${dutyType.repr}")
+            (taxCode, dutyType)
+          }
+          .groupBy(_._2)
+          .view
+          .mapValues(_.map(_._1))
+          .toMap
+
+      val dutyTypes: List[DutyType] =
+        taxCodesWithTypes.keys.toList
+
+      @SuppressWarnings(Array("org.wartremover.warts.Var"))
+      var journey =
+        OverpaymentsScheduledJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes))
+          .getOrFail
+
+      @SuppressWarnings(Array("org.wartremover.warts.Var"))
+      var previousDuty: Option[DutyType] = None
+
+      @SuppressWarnings(Array("org.wartremover.warts.Var"))
+      var previousTaxCode: Option[TaxCode] = None
+
+      for ((dutyType, taxCodes) <- taxCodesWithTypes.toSeq.sortBy(_._1)) {
+        journey.findNextDutyToSelectDuties shouldBe Some(dutyType)
+
+        previousDuty.foreach { pdt =>
+          journey.findNextSelectedDutyAfter(pdt) shouldBe Some(dutyType)
+        }
+
+        journey = journey
+          .selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodes)
+          .getOrFail
+
+        previousTaxCode = None
+
+        for (taxCode <- taxCodes.sorted) {
+          val ndrcDetails = nextDetailsList.find(d => d.taxType === taxCode.value).get
+          val amount      = BigDecimal(ndrcDetails.amount)
+
+          journey.getNdrcDetailsFor(taxCode) shouldBe Some(ndrcDetails)
+
+          journey.getNextNdrcDetailsToClaim shouldBe Some(ndrcDetails)
+
+          journey.getReimbursementFor(dutyType, taxCode) shouldBe None
+
+          journey = journey
+            .submitCorrectAmount(dutyType, taxCode, amount, ZERO)
+            .getOrFail
+
+          journey.getReimbursementFor(dutyType, taxCode) shouldBe Some(AmountPaidWithCorrect(amount, ZERO))
+
+          previousTaxCode.foreach { ptc =>
+            journey.findNextSelectedTaxCodeAfter(dutyType, ptc) shouldBe Some((dutyType, taxCode))
+          }
+
+          previousTaxCode = Some(taxCode)
+        }
+
+        previousDuty = Some(dutyType)
+      }
+
+      journey.findNextDutyToSelectDuties shouldBe None
+      journey.getNextNdrcDetailsToClaim  shouldBe None
+
+      previousDuty.foreach { pdt =>
+        journey.findNextSelectedDutyAfter(pdt) shouldBe None
+
+        previousTaxCode.foreach { ptc =>
+          journey.findNextSelectedTaxCodeAfter(pdt, ptc) shouldBe None
+        }
+      }
+    }
 
     "get and update selected duties" in {
       forAll(dutyTypesWithTaxCodesGen) { dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] =>
