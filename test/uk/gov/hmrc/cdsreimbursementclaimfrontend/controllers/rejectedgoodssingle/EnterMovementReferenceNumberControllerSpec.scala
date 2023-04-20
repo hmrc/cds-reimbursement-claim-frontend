@@ -33,6 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -52,6 +53,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -66,7 +68,8 @@ class EnterMovementReferenceNumberControllerSpec
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks {
 
-  val mockClaimService: ClaimService = mock[ClaimService]
+  val mockClaimService: ClaimService       = mock[ClaimService]
+  val mockXiEoriConnector: XiEoriConnector = mock[XiEoriConnector]
 
   val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
 
@@ -74,7 +77,8 @@ class EnterMovementReferenceNumberControllerSpec
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[ClaimService].toInstance(mockClaimService)
+      bind[ClaimService].toInstance(mockClaimService),
+      bind[XiEoriConnector].toInstance(mockXiEoriConnector)
     )
 
   val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
@@ -96,6 +100,12 @@ class EnterMovementReferenceNumberControllerSpec
       .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
+
+  private def mockGetXiEori(response: Future[UserXiEori]) =
+    (mockXiEoriConnector
+      .getXiEori(_: HeaderCarrier))
+      .expects(*)
+      .returning(response)
 
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
@@ -265,6 +275,86 @@ class EnterMovementReferenceNumberControllerSpec
               routes.EnterImporterEoriNumberController.show()
             )
           }
+      }
+
+      "submit a valid MRN and user is not the declarant nor consignee but has matching XI eori" in {
+
+        val mrn             = genMRN.sample.get
+        val declarantXiEori = genXiEori.sample.get
+        val consigneeXiEori = genXiEori.sample.get
+
+        val journey            = session.rejectedGoodsSingleJourney.getOrElse(fail("No overpayments journey"))
+        val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+        val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantXiEori.value)
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
+
+        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+          declarantDetails = declarantDetails,
+          consigneeDetails = Some(consigneeDetails)
+        )
+        val updatedDisplayDeclaration     =
+          displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+
+        val updatedJourney =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+            .map(_.submitUserXiEori(UserXiEori(consigneeXiEori.value)))
+            .getOrFail
+
+        val updatedSession = SessionData(updatedJourney)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+          mockGetXiEori(Future.successful(UserXiEori(consigneeXiEori.value)))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          routes.CheckDeclarationDetailsController.show()
+        )
+      }
+
+      "submit a valid MRN and user is not the declarant nor consignee, and has no XI eori" in {
+
+        val mrn             = genMRN.sample.get
+        val declarantEori   = genEori.sample.get
+        val consigneeXiEori = genXiEori.sample.get
+
+        val journey            = session.rejectedGoodsSingleJourney.getOrElse(fail("No overpayments journey"))
+        val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+        val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantEori.value)
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
+
+        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+          declarantDetails = declarantDetails,
+          consigneeDetails = Some(consigneeDetails)
+        )
+        val updatedDisplayDeclaration     =
+          displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+
+        val updatedJourney =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+            .map(_.submitUserXiEori(UserXiEori.NotRegistered))
+            .getOrFail
+
+        val updatedSession = SessionData(updatedJourney)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+          mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          routes.EnterImporterEoriNumberController.show()
+        )
       }
     }
   }

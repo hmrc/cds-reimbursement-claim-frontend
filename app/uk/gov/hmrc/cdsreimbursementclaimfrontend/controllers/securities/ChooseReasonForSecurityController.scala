@@ -29,14 +29,19 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -48,9 +53,16 @@ class ChooseReasonForSecurityController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   DeclarationConnector: DeclarationConnector,
+  val xiEoriConnector: XiEoriConnector,
+  featureSwitchService: FeatureSwitchService,
   chooseReasonForSecurityPage: choose_reason_for_security
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesJourneyBaseController
+    with GetXiEoriMixin {
+
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place.
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(SecuritiesJourney.Checks.hasMovementReferenceNumber)
 
   private val postAction: Call = routes.ChooseReasonForSecurityController.submit()
 
@@ -70,9 +82,11 @@ class ChooseReasonForSecurityController @Inject() (
 
   private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
 
-  // Allow actions only if the MRN, RfS and ACC14 declaration are in place.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
-    Some(SecuritiesJourney.Checks.hasMovementReferenceNumber)
+  override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
+    featureSwitchService.isEnabled(Feature.XiEori)
+
+  override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
+    journey.submitUserXiEori(userXiEori)
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val reasonForSecurityForm: Form[ReasonForSecurity] =
@@ -105,8 +119,8 @@ class ChooseReasonForSecurityController @Inject() (
               mrn                          <- getMovementReferenceNumber(journey)
               declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
               _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
-              journeyWithRfsAndDeclaration <-
-                submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, declaration)
+              updatedJourney               <- submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, declaration)
+              journeyWithRfsAndDeclaration <- tryGetUserXiEoriIfNeeded(updatedJourney)
               updatedJourneyWithRedirect   <-
                 if (
                   SecuritiesJourney.Checks
@@ -127,6 +141,13 @@ class ChooseReasonForSecurityController @Inject() (
               .merge
       )
   }
+
+  private def tryGetUserXiEoriIfNeeded(journey: SecuritiesJourney)(implicit
+    hc: HeaderCarrier,
+    r: Request[_]
+  ): EitherT[Future, Result, SecuritiesJourney] =
+    getUserXiEoriIfNeeded(journey, true)
+      .leftMap(error => logAndDisplayError("Could not get XI EORI", error))
 
   private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
