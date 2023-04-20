@@ -23,14 +23,19 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_movement_reference_number
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 
@@ -38,10 +43,15 @@ import scala.concurrent.ExecutionContext
 class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   val claimService: ClaimService,
+  val xiEoriConnector: XiEoriConnector,
+  featureSwitchService: FeatureSwitchService,
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController
     with EnterMovementReferenceNumberMixin {
+
+  override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
+    featureSwitchService.isEnabled(Feature.XiEori)
 
   override def form(journey: Journey): Form[MRN] =
     Forms.movementReferenceNumberForm
@@ -60,6 +70,9 @@ class EnterMovementReferenceNumberController @Inject() (
 
   override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
     journey.submitMovementReferenceNumberAndDeclaration(mrn, declaration)
+
+  override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
+    journey.submitUserXiEori(userXiEori)
 
   override def afterSuccessfullSubmit(journey: RejectedGoodsSingleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {

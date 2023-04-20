@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait EnterMovementReferenceNumberMixin extends JourneyBaseController {
+trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXiEoriMixin {
 
   def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey]
 
@@ -70,9 +70,10 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController {
         mrn =>
           {
             for {
-              maybeAcc14     <- getDeclaration(mrn)
-              updatedJourney <- updateJourney(journey, mrn, maybeAcc14)
-            } yield updatedJourney
+              maybeAcc14      <- getDeclaration(mrn)
+              updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
+              updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, true)
+            } yield updatedJourney2
           }.fold(
             errors => {
               logger.error(s"Unable to record $mrn", errors.toException)

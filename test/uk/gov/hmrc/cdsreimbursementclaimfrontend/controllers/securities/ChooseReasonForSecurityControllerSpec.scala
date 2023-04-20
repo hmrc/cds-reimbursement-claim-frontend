@@ -45,11 +45,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.Inward
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
@@ -57,6 +59,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 
 class ChooseReasonForSecurityControllerSpec
     extends PropertyBasedControllerSpec
@@ -67,13 +72,15 @@ class ChooseReasonForSecurityControllerSpec
 
   val mockClaimsService: ClaimService                = mock[ClaimService]
   val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
+  val mockXiEoriConnector: XiEoriConnector           = mock[XiEoriConnector]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(mockClaimsService),
-      bind[DeclarationConnector].toInstance(mockDeclarationConnector)
+      bind[DeclarationConnector].toInstance(mockDeclarationConnector),
+      bind[XiEoriConnector].toInstance(mockXiEoriConnector)
     )
 
   val controller: ChooseReasonForSecurityController = instanceOf[ChooseReasonForSecurityController]
@@ -102,6 +109,12 @@ class ChooseReasonForSecurityControllerSpec
       .getIsDuplicate(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
       .expects(*, *, *)
       .returning(EitherT.fromEither[Future](response))
+
+  private def mockGetXiEori(response: Future[UserXiEori]) =
+    (mockXiEoriConnector
+      .getXiEori(_: HeaderCarrier))
+      .expects(*)
+      .returning(response)
 
   def validateChooseReasonForSecurityPage(doc: Document): Assertion = {
     radioItems(doc) should contain theSameElementsAs Seq(
@@ -207,6 +220,131 @@ class ChooseReasonForSecurityControllerSpec
                 Seq("choose-reason-for-security.securities" -> rfs.toString)
               ),
               routes.SelectSecuritiesController.showFirst()
+            )
+          }
+        }
+      }
+
+      "retrieve the ACC14 declaration having XI eori, make a TPI04 check and redirect to the select first security deposit page" in {
+        forAll(
+          securitiesDisplayDeclarationGen
+            .map(
+              _.withDeclarantEori(exampleXIEori)
+                .withConsigneeEori(anotherExampleXIEori)
+            ),
+          IdGen.genEori
+        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
+
+          whenever(!reasonForSecurityIsDischarge) {
+            val initialJourney =
+              SecuritiesJourney
+                .empty(eori)
+                .submitMovementReferenceNumber(declaration.getMRN)
+
+            val updatedJourney = SessionData(
+              initialJourney
+                .submitReasonForSecurityAndDeclaration(rfs, declaration)
+                .map(_.submitUserXiEori(UserXiEori(anotherExampleXIEori.value)))
+                .flatMap(_.submitClaimDuplicateCheckStatus(false))
+                .getOrFail
+            )
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+              mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
+              mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+              mockStoreSession(updatedJourney)(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(
+                Seq("choose-reason-for-security.securities" -> rfs.toString)
+              ),
+              routes.SelectSecuritiesController.showFirst()
+            )
+          }
+        }
+      }
+
+      "retrieve the ACC14 declaration and redirect to the enter importer eori page" in {
+        forAll(securitiesDisplayDeclarationGen, IdGen.genEori) { case (declaration: DisplayDeclaration, eori: Eori) =>
+          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
+
+          whenever(!reasonForSecurityIsDischarge) {
+            val initialJourney =
+              SecuritiesJourney
+                .empty(eori)
+                .submitMovementReferenceNumber(declaration.getMRN)
+
+            val updatedJourney = SessionData(
+              initialJourney
+                .submitReasonForSecurityAndDeclaration(rfs, declaration)
+                .getOrFail
+            )
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+              mockStoreSession(updatedJourney)(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(
+                Seq("choose-reason-for-security.securities" -> rfs.toString)
+              ),
+              routes.EnterImporterEoriNumberController.show()
+            )
+          }
+        }
+      }
+
+      "retrieve the ACC14 declaration having XI eori and redirect to the enter importer eori page" in {
+        forAll(
+          securitiesDisplayDeclarationGen
+            .map(
+              _.withDeclarantEori(exampleXIEori)
+                .withConsigneeEori(anotherExampleXIEori)
+            ),
+          IdGen.genEori
+        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
+
+          whenever(!reasonForSecurityIsDischarge) {
+            val initialJourney =
+              SecuritiesJourney
+                .empty(eori)
+                .submitMovementReferenceNumber(declaration.getMRN)
+
+            val updatedJourney = SessionData(
+              initialJourney
+                .submitReasonForSecurityAndDeclaration(rfs, declaration)
+                .map(_.submitUserXiEori(UserXiEori.NotRegistered))
+                .getOrFail
+            )
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+              mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
+              mockStoreSession(updatedJourney)(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(
+                Seq("choose-reason-for-security.securities" -> rfs.toString)
+              ),
+              routes.EnterImporterEoriNumberController.show()
             )
           }
         }

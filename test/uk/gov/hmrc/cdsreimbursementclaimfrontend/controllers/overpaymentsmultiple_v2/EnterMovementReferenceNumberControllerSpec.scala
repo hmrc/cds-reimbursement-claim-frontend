@@ -32,6 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -42,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -60,13 +62,15 @@ class EnterMovementReferenceNumberControllerSpec
     with ScalaCheckPropertyChecks
     with OptionValues {
 
-  val mockClaimsService: ClaimService = mock[ClaimService]
+  val mockClaimsService: ClaimService      = mock[ClaimService]
+  val mockXiEoriConnector: XiEoriConnector = mock[XiEoriConnector]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[ClaimService].toInstance(mockClaimsService)
+      bind[ClaimService].toInstance(mockClaimsService),
+      bind[XiEoriConnector].toInstance(mockXiEoriConnector)
     )
 
   val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
@@ -89,6 +93,12 @@ class EnterMovementReferenceNumberControllerSpec
       .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
+
+  private def mockGetXiEori(response: Future[UserXiEori]) =
+    (mockXiEoriConnector
+      .getXiEori(_: HeaderCarrier))
+      .expects(*)
+      .returning(response)
 
   val messageKey: String = "enter-movement-reference-number"
 
@@ -221,6 +231,88 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(leadMrn, Right(Some(getDisplayDeclarationForMrn(leadMrn))))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
+          routes.CheckDeclarationDetailsController.show
+        )
+      }
+
+      "redirect to Enter Importer Eori page when user eori is not matching declaration GB eori's for first MRN" in {
+        val displayDeclaration =
+          getDisplayDeclarationForMrn(leadMrn)
+            .withDeclarantEori(anotherExampleEori)
+            .withConsigneeEori(yetAnotherExampleEori)
+
+        val updatedJourney =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
+            .getOrFail
+
+        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
+          routes.EnterImporterEoriNumberController.show
+        )
+      }
+
+      "redirect to Enter Importer Eori page when user eori is not matching declaration XI eori's for first MRN" in {
+        val displayDeclaration =
+          getDisplayDeclarationForMrn(leadMrn)
+            .withDeclarantEori(anotherExampleXIEori)
+            .withConsigneeEori(yetAnotherExampleXIEori)
+
+        val updatedJourney =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
+            .map(_.submitUserXiEori(UserXiEori.NotRegistered))
+            .getOrFail
+
+        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
+          mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
+          routes.EnterImporterEoriNumberController.show
+        )
+      }
+
+      "redirect to CheckDeclarationDetails page for first MRN if user's XI eori matches declaration eori's" in {
+        val displayDeclaration =
+          getDisplayDeclarationForMrn(leadMrn)
+            .withDeclarantEori(anotherExampleXIEori)
+            .withConsigneeEori(exampleXIEori)
+
+        val updatedJourney =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
+            .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))
+            .getOrFail
+
+        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
+          mockGetXiEori(Future.successful(UserXiEori(exampleXIEori.value)))
           mockStoreSession(updatedSession)(Right(()))
         }
 

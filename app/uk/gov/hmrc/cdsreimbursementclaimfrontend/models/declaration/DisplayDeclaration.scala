@@ -48,6 +48,9 @@ final case class DisplayDeclaration(
   def getDeclarantEori: Eori =
     Eori(getDeclarantDetails.declarantEORI)
 
+  def containsXiEori: Boolean =
+    getDeclarantEori.isXiEori || getConsigneeEori.exists(_.isXiEori)
+
   def getNdrcDetailsList: Option[List[NdrcDetails]] =
     displayResponseDetail.ndrcDetails
 

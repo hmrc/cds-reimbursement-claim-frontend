@@ -71,14 +71,34 @@ final class OverpaymentsSingleJourney private (
 
   def needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry) &&
-      (!(answers.duplicateDeclaration
-        .map(_.displayDeclaration)
-        .map(_.getDeclarantEori)
-        .contains(answers.userEoriNumber) ||
-        answers.duplicateDeclaration
-          .map(_.displayDeclaration)
-          .flatMap(_.getConsigneeEori)
-          .contains(answers.userEoriNumber)))
+      !(userHasGBEoriMatchingDuplicateDeclaration || userHasXIEoriMatchingDuplicateDeclaration)
+
+  def getDuplicateDisplayDeclaration: Option[DisplayDeclaration] =
+    answers.duplicateDeclaration
+      .map(_.displayDeclaration)
+
+  def getDeclarantEoriFromDuplicateACC14: Option[Eori] =
+    getDuplicateDisplayDeclaration
+      .map(_.getDeclarantEori)
+
+  def getConsigneeEoriFromDuplicateACC14: Option[Eori] =
+    getDuplicateDisplayDeclaration
+      .flatMap(_.getConsigneeEori)
+
+  def userHasGBEoriMatchingDuplicateDeclaration: Boolean =
+    getDeclarantEoriFromDuplicateACC14.contains(answers.userEoriNumber) ||
+      getConsigneeEoriFromDuplicateACC14.contains(answers.userEoriNumber)
+
+  def userHasXIEoriMatchingDuplicateDeclaration: Boolean =
+    answers.eoriNumbersVerification.exists(x =>
+      x.hasSameXiEoriAs(getDeclarantEoriFromDuplicateACC14) ||
+        x.hasSameXiEoriAs(getConsigneeEoriFromDuplicateACC14)
+    )
+
+  def needsUserXiEoriSubmissionForDuplicateDeclaration: Boolean =
+    !userHasGBEoriMatchingDuplicateDeclaration &&
+      getDuplicateDisplayDeclaration.exists(_.containsXiEori) &&
+      answers.eoriNumbersVerification.flatMap(_.userXiEori).isEmpty
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)

@@ -217,6 +217,77 @@ class OverpaymentsSingleJourneySpec
       journey.getClaimantEori                          shouldBe exampleEori
     }
 
+    "needs XI eori submission if user's eori not matching those of ACC14 and ACC14 contains XI eori" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val journey            =
+        OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
+
+      exampleXIEori.isXiEori                           shouldBe true
+      anotherExampleEori.isXiEori                      shouldBe false
+      journey.userHasGBEoriMatchingDeclaration         shouldBe false
+      journey.userHasXIEoriMatchingDeclaration         shouldBe false
+      journey.needsUserXiEoriSubmission                shouldBe true
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe true
+
+      val journey2 = journey.submitUserXiEori(UserXiEori(exampleXIEori.value))
+
+      journey2.userHasGBEoriMatchingDeclaration         shouldBe false
+      journey2.userHasXIEoriMatchingDeclaration         shouldBe true
+      journey2.needsUserXiEoriSubmission                shouldBe false
+      journey2.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+    }
+
+    "needs XI eori submission if user's eori not matching those of a duplicate ACC14, and duplicate ACC14 contains XI eori" in {
+      val duplicateDisplayDeclaration =
+        buildDisplayDeclaration(
+          id = anotherExampleMrn.value,
+          declarantEORI = anotherExampleEori,
+          consigneeEORI = Some(exampleXIEori)
+        )
+
+      val journey =
+        OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(
+            exampleMrn,
+            exampleDisplayDeclaration
+              .withDeclarationId(exampleMrn.value)
+              .withDeclarantEori(exampleEori)
+          )
+          .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+          .flatMap(
+            _.submitDuplicateMovementReferenceNumberAndDeclaration(
+              anotherExampleMrn,
+              duplicateDisplayDeclaration
+            )
+          )
+          .getOrFail
+
+      journey.userHasGBEoriMatchingDeclaration         shouldBe true
+      journey.userHasXIEoriMatchingDeclaration         shouldBe false
+      journey.needsUserXiEoriSubmission                shouldBe false
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+
+      journey.userHasGBEoriMatchingDuplicateDeclaration        shouldBe false
+      journey.userHasXIEoriMatchingDuplicateDeclaration        shouldBe false
+      journey.needsUserXiEoriSubmissionForDuplicateDeclaration shouldBe true
+
+      val journey2 = journey.submitUserXiEori(UserXiEori(exampleXIEori.value))
+
+      journey2.userHasGBEoriMatchingDeclaration         shouldBe true
+      journey2.userHasXIEoriMatchingDeclaration         shouldBe false
+      journey2.needsUserXiEoriSubmission                shouldBe false
+      journey2.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+
+      journey2.userHasGBEoriMatchingDuplicateDeclaration        shouldBe false
+      journey2.userHasXIEoriMatchingDuplicateDeclaration        shouldBe true
+      journey2.needsUserXiEoriSubmissionForDuplicateDeclaration shouldBe false
+    }
+
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
       val displayDeclaration =
         buildDisplayDeclaration(declarantEORI = exampleEori, consigneeEORI = None)

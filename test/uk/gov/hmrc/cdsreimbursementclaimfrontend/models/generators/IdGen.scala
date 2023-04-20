@@ -45,9 +45,14 @@ object IdGen {
 
   lazy val genEori: Gen[Eori] =
     for {
-      c <- Gen.listOfN(2, Gen.alphaUpperChar)
       n <- Gen.listOfN(12, Gen.numChar)
-      s <- Gen.const((c ++ n).mkString(""))
+      s <- Gen.const(s"GB${n.mkString}")
+    } yield Eori(s)
+
+  lazy val genXiEori: Gen[Eori] =
+    for {
+      n <- Gen.listOfN(12, Gen.numChar)
+      s <- Gen.const(s"XI${n.mkString}")
     } yield Eori(s)
 
   implicit lazy val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)

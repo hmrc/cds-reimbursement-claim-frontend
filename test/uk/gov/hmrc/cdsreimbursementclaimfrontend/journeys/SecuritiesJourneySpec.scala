@@ -1052,6 +1052,35 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       journey.getClaimantEori                          shouldBe exampleEori
     }
 
+    "needs XI eori submission if user's eori not matching those of ACC14 and ACC14 contains XI eori" in {
+      val displayDeclaration =
+        buildSecuritiesDisplayDeclaration(
+          securityReason = ReasonForSecurity.AccountSales.acc14Code,
+          declarantEORI = anotherExampleEori,
+          consigneeEORI = Some(exampleXIEori)
+        )
+      val journey            =
+        SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, displayDeclaration)
+          .getOrFail
+
+      exampleXIEori.isXiEori                           shouldBe true
+      anotherExampleEori.isXiEori                      shouldBe false
+      journey.userHasGBEoriMatchingDeclaration         shouldBe false
+      journey.userHasXIEoriMatchingDeclaration         shouldBe false
+      journey.needsUserXiEoriSubmission                shouldBe true
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe true
+
+      val journey2 = journey.submitUserXiEori(UserXiEori(exampleXIEori.value))
+
+      journey2.userHasGBEoriMatchingDeclaration         shouldBe false
+      journey2.userHasXIEoriMatchingDeclaration         shouldBe true
+      journey2.needsUserXiEoriSubmission                shouldBe false
+      journey2.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+    }
+
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
