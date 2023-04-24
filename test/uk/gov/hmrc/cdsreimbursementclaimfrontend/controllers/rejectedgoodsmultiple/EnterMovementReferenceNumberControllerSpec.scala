@@ -170,7 +170,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       val leadMrn            = sample[MRN]
       val secondMrn          = sample[MRN]
-      val displayDeclaration = sample[DisplayDeclaration]
+      val displayDeclaration = buildDisplayDeclaration()
       val journey            = session.rejectedGoodsMultipleJourney.get
 
       def getDisplayDeclarationForMrn(mrn: MRN, declarantEori: Option[Eori] = None) =
@@ -298,8 +298,8 @@ class EnterMovementReferenceNumberControllerSpec
       "redirect to CheckDeclarationDetails page for first MRN if user's XI eori matches declaration eori's" in {
         val displayDeclaration =
           getDisplayDeclarationForMrn(leadMrn)
-            .withDeclarantEori(anotherExampleXIEori)
-            .withConsigneeEori(exampleXIEori)
+            .withDeclarantEori(exampleXIEori)
+            .withConsigneeEori(anotherExampleXIEori)
 
         val updatedJourney =
           journey

@@ -98,7 +98,7 @@ final class RejectedGoodsMultipleJourney private (
       declaration  <- declarations.find(_.getMRN === mrn)
     } yield declaration
 
-  def getReimbursementClaimsFor(mrn: MRN): Option[Map[TaxCode, Option[BigDecimal]]] =
+  def getReimbursementClaimsFor(mrn: MRN): Option[OrderedMap[TaxCode, Option[BigDecimal]]] =
     answers.reimbursementClaims.flatMap(_.get(mrn))
 
   def getReimbursementClaimFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
@@ -258,7 +258,7 @@ final class RejectedGoodsMultipleJourney private (
                       _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
                     ),
                     reimbursementClaims =
-                      answers.reimbursementClaims.map(_.removed(existingMrn).updated(mrn, Map.empty))
+                      answers.reimbursementClaims.map(_.removed(existingMrn).updated(mrn, OrderedMap.empty))
                   )
                 )
               )
@@ -276,8 +276,8 @@ final class RejectedGoodsMultipleJourney private (
                     displayDeclarations =
                       answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
                     reimbursementClaims = answers.reimbursementClaims
-                      .map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
-                      .orElse(Some(OrderedMap(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
+                      .map(_ + (mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]]))
+                      .orElse(Some(OrderedMap(mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]])))
                   )
                 )
               )
@@ -434,15 +434,16 @@ final class RejectedGoodsMultipleJourney private (
           else {
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(mrn, _).isDefined)
             if (allTaxCodesExistInACC14) {
-              val newReimbursementClaims = getReimbursementClaimsFor(mrn) match {
-                case None                      =>
-                  taxCodes.map(taxCode => taxCode -> None).toMap
+              val newReimbursementClaims: RejectedGoodsMultipleJourney.ReimbursementClaims =
+                getReimbursementClaimsFor(mrn) match {
+                  case None                      =>
+                    OrderedMap.from(taxCodes.map(taxCode => taxCode -> None))
 
-                case Some(reimbursementClaims) =>
-                  taxCodes.map { taxCode =>
-                    taxCode -> reimbursementClaims.get(taxCode).flatten
-                  }.toMap
-              }
+                  case Some(reimbursementClaims) =>
+                    OrderedMap.from(taxCodes.map { taxCode =>
+                      taxCode -> reimbursementClaims.get(taxCode).flatten
+                    })
+                }
 
               Right(
                 new RejectedGoodsMultipleJourney(
@@ -479,10 +480,11 @@ final class RejectedGoodsMultipleJourney private (
 
             case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
               if (getSelectedDuties(mrn).exists(_.contains(taxCode))) {
-                val newReimbursementClaims = getReimbursementClaimsFor(mrn) match {
-                  case None                      => Map(taxCode -> Some(reimbursementAmount))
-                  case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
-                }
+                val newReimbursementClaims: RejectedGoodsMultipleJourney.ReimbursementClaims =
+                  getReimbursementClaimsFor(mrn) match {
+                    case None                      => OrderedMap(taxCode -> Some(reimbursementAmount))
+                    case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
+                  }
                 Right(
                   new RejectedGoodsMultipleJourney(
                     answers.copy(reimbursementClaims =
@@ -632,7 +634,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
   override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsMultipleJourney =
     new RejectedGoodsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
-  type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
+  type ReimbursementClaims = OrderedMap[TaxCode, Option[BigDecimal]]
 
   // All user answers captured during C&E1179 multiple MRNs journey
   final case class Answers(

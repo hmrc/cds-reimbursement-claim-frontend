@@ -204,17 +204,18 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, Random.nextBoolean()) })
         }
 
-      val correctedAmounts: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
+      val correctedAmounts: OrderedMap[MRN, OrderedMap[TaxCode, Option[BigDecimal]]] =
         OrderedMap.from(
           mrns
             .zip(taxCodesWithAmounts)
             .map { case (mrn, (_, selectedTaxCodes, _, correctedAmounts)) =>
               (
                 mrn,
-                selectedTaxCodes
-                  .zip(correctedAmounts)
-                  .map { case (taxCode, correctAmount) => (taxCode, Option(correctAmount)) }
-                  .toMap
+                OrderedMap.from(
+                  selectedTaxCodes
+                    .zip(correctedAmounts)
+                    .map { case (taxCode, correctAmount) => (taxCode, Option(correctAmount)) }
+                )
               )
             }
         )

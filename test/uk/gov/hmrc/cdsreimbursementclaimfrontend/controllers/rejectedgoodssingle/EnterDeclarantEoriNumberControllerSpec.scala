@@ -39,8 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -230,7 +228,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
         val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+        val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
         val declarantDetails              = sample[DeclarantDetails].copy(declarantEORI = eori.value)
         val updatedDisplayResponseDetails =
           displayDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
@@ -259,7 +257,7 @@ class EnterDeclarantEoriNumberControllerSpec
         (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori) =>
           whenever(enteredDeclarantEori =!= wantedDeclarant) {
             val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-            val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+            val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
             val updatedDeclarantDetails       =
               displayDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
             val updatedDisplayResponseDetails =
