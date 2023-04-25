@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -51,10 +50,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -208,7 +207,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "submit a valid MRN and user is declarant" in forAll { (mrn: MRN) =>
         val journey                       = session.overpaymentsScheduledJourney.getOrElse(fail("No overpayments journey"))
-        val displayDeclaration            = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+        val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
         val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
           declarantEORI = journey.answers.userEoriNumber.value
         )
@@ -238,7 +237,7 @@ class EnterMovementReferenceNumberControllerSpec
         (mrn: MRN, declarant: Eori, consignee: Eori) =>
           whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
             val journey            = session.overpaymentsScheduledJourney.getOrElse(fail("No overpayments journey"))
-            val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+            val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
             val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
             val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
 
@@ -275,7 +274,7 @@ class EnterMovementReferenceNumberControllerSpec
         val consigneeXiEori = genXiEori.sample.get
 
         val journey            = session.overpaymentsScheduledJourney.getOrElse(fail("No overpayments journey"))
-        val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+        val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
         val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantXiEori.value)
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
 
@@ -316,7 +315,7 @@ class EnterMovementReferenceNumberControllerSpec
         val consigneeXiEori = genXiEori.sample.get
 
         val journey            = session.overpaymentsScheduledJourney.getOrElse(fail("No overpayments journey"))
-        val displayDeclaration = sample[DisplayDeclaration].withDeclarationId(mrn.value)
+        val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
         val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantEori.value)
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
 

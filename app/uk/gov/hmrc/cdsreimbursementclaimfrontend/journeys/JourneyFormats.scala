@@ -59,7 +59,17 @@ object JourneyFormats {
   implicit def mapFormat8[K : Format, V : Format]: Format[OrderedMap[MRN, Map[K, Option[V]]]] =
     MapFormat.formatOrdered[MRN, Map[K, Option[V]]]
 
-  implicit lazy val mapFormat9: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
+  implicit def mapFormat9[K : Format, V : Format]: Format[OrderedMap[MRN, OrderedMap[K, V]]] =
+    MapFormat.formatOrdered[MRN, OrderedMap[K, V]](implicitly[Format[MRN]], MapFormat.formatOrdered[K, V])
+
+  implicit def mapFormat10[K : Format, V : Format]: Format[OrderedMap[MRN, OrderedMap[K, Option[V]]]] =
+    MapFormat
+      .formatOrdered[MRN, OrderedMap[K, Option[V]]](
+        implicitly[Format[MRN]],
+        MapFormat.formatOrdered[K, Option[V]](implicitly[Format[K]], Format.optionWithNull[V])
+      )
+
+  implicit lazy val mapFormat11: Format[Map[UploadDocumentType, (Nonce, Seq[UploadedFile])]] =
     MapFormat.format[UploadDocumentType, (Nonce, Seq[UploadedFile])]
 
 }

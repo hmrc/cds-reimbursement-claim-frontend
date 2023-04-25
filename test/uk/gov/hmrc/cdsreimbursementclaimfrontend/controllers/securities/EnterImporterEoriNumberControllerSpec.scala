@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -271,32 +270,31 @@ class EnterImporterEoriNumberControllerSpec
           )
       }
 
-      "submit a valid Eori which is not the consignee" in forAll(
+      "submit a valid Eori which is not the Consignee Eori" in forAll(
         Gen.oneOf(ReasonForSecurity.values),
         genMRN,
         genEori,
         genEori
-      ) { (reasonForSecurity, mrn, enteredConsigneeEori, wantedConsignee) =>
-        whenever(enteredConsigneeEori =!= wantedConsignee) {
+      ) { (reasonForSecurity, mrn, enteredConsigneeEori, declarationEori) =>
+        whenever(enteredConsigneeEori =!= declarationEori) {
 
-          val initialJourney     = initialSession.securitiesJourney.getOrElse(fail("No securities journey"))
           val displayDeclaration =
-            sample[DisplayDeclaration].withDeclarationId(mrn.value).withReasonForSecurity(reasonForSecurity)
+            buildSecuritiesDisplayDeclaration(
+              id = mrn.value,
+              securityReason = reasonForSecurity.acc14Code,
+              declarantEORI = declarationEori,
+              consigneeEORI = Some(declarationEori)
+            )
 
-          val updatedConsigneDetails        =
-            displayDeclaration.getConsigneeDetails.map(_.copy(consigneeEORI = wantedConsignee.value))
-          val updatedDisplayResponseDetails =
-            displayDeclaration.displayResponseDetail.copy(consigneeDetails = updatedConsigneDetails)
-          val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-          val journey                       = initialJourney
+          val journey = SecuritiesJourney
+            .empty(exampleEori)
             .submitMovementReferenceNumber(mrn)
-            .submitReasonForSecurityAndDeclaration(reasonForSecurity, updatedDisplayDeclaration)
+            .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
             .getOrFail
-          val requiredSession               = initialSession.copy(securitiesJourney = Some(journey))
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(requiredSession)
+            mockGetSession(SessionData(journey))
           }
 
           checkIsRedirect(

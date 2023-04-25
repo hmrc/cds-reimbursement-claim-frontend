@@ -283,17 +283,18 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
           (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, allDutiesCmaEligible) })
         }
 
-      val reimbursementClaims: OrderedMap[MRN, Map[TaxCode, Option[BigDecimal]]] =
+      val reimbursementClaims: OrderedMap[MRN, OrderedMap[TaxCode, Option[BigDecimal]]] =
         OrderedMap.from(
           mrns
             .zip(taxCodesWithAmounts)
             .map { case (mrn, (_, selectedTaxCodes, _, reimbursementAmounts)) =>
               (
                 mrn,
-                selectedTaxCodes
-                  .zip(reimbursementAmounts)
-                  .map { case (taxCode, amount) => (taxCode, Option(amount)) }
-                  .toMap
+                OrderedMap.from(
+                  selectedTaxCodes
+                    .zip(reimbursementAmounts)
+                    .map { case (taxCode, amount) => (taxCode, Option(amount)) }
+                )
               )
             }
         )

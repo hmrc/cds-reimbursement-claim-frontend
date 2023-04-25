@@ -167,7 +167,7 @@ final class OverpaymentsMultipleJourney private (
       .flatMap(_.getNdrcDutiesWithAmount)
       .getOrElse(Seq.empty)
 
-  def getReimbursementClaimsFor(declarationId: MRN): Map[TaxCode, BigDecimal] = {
+  def getReimbursementClaimsFor(declarationId: MRN): OrderedMap[TaxCode, BigDecimal] = {
     val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
       getAvailableTaxCodesWithPaidAmountsFor(declarationId).toMap
 
@@ -175,15 +175,17 @@ final class OverpaymentsMultipleJourney private (
       .flatMap(
         _.get(declarationId)
       )
-      .map(
-        _.map { case (taxCode, correctAmountOpt) =>
-          for {
-            correctAmount <- correctAmountOpt
-            paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
-          } yield (taxCode, paidAmount - correctAmount)
-        }.collect { case Some(x) => x }.toMap
+      .map(x =>
+        OrderedMap.from(
+          x.map { case (taxCode, correctAmountOpt) =>
+            for {
+              correctAmount <- correctAmountOpt
+              paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
+            } yield (taxCode, paidAmount - correctAmount)
+          }.collect { case Some(x) => x }
+        )
       )
-      .getOrElse(Map.empty)
+      .getOrElse(OrderedMap.empty)
   }
 
   def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
@@ -290,7 +292,8 @@ final class OverpaymentsMultipleJourney private (
                     displayDeclarations = answers.displayDeclarations.map(
                       _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
                     ),
-                    correctedAmounts = answers.correctedAmounts.map(_.removed(existingMrn).updated(mrn, Map.empty))
+                    correctedAmounts =
+                      answers.correctedAmounts.map(_.removed(existingMrn).updated(mrn, OrderedMap.empty))
                   )
                 )
               )
@@ -308,8 +311,8 @@ final class OverpaymentsMultipleJourney private (
                     displayDeclarations =
                       answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
                     correctedAmounts = answers.correctedAmounts
-                      .map(_ + (mrn -> Map.empty[TaxCode, Option[BigDecimal]]))
-                      .orElse(Some(OrderedMap(mrn -> Map.empty[TaxCode, Option[BigDecimal]])))
+                      .map(_ + (mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]]))
+                      .orElse(Some(OrderedMap(mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]])))
                   )
                 )
               )
@@ -465,10 +468,10 @@ final class OverpaymentsMultipleJourney private (
             if (allTaxCodesExistInACC14) {
               val newDeclarationReimbursementClaims = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
                 case None                      =>
-                  Map(taxCodes.map(taxCode => taxCode -> None): _*)
+                  OrderedMap[TaxCode, Option[BigDecimal]](taxCodes.map(taxCode => taxCode -> None): _*)
 
                 case Some(reimbursementClaims) =>
-                  Map(taxCodes.map { taxCode =>
+                  OrderedMap(taxCodes.map { taxCode =>
                     taxCode -> reimbursementClaims.get(taxCode).flatten
                   }: _*)
               }
@@ -477,9 +480,8 @@ final class OverpaymentsMultipleJourney private (
                 new OverpaymentsMultipleJourney(
                   answers.copy(correctedAmounts =
                     answers.correctedAmounts
-                      .orElse(Some(Map.empty[MRN, Map[TaxCode, Option[BigDecimal]]]))
+                      .orElse(Some(OrderedMap.empty[MRN, OrderedMap[TaxCode, Option[BigDecimal]]]))
                       .map(_.updated(declarationId, newDeclarationReimbursementClaims))
-                      .map(OrderedMap(_))
                   )
                 )
               )
@@ -510,16 +512,15 @@ final class OverpaymentsMultipleJourney private (
             case Some(ndrcDetails) if isValidCorrectAmount(correctAmount, ndrcDetails) =>
               if (getSelectedDuties(declarationId).exists(_.contains(taxCode))) {
                 val newCorrectedAmounts = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
-                  case None                   => Map(taxCode -> Some(correctAmount))
+                  case None                   => OrderedMap[TaxCode, Option[BigDecimal]](taxCode -> Some(correctAmount))
                   case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
                 }
                 Right(
                   new OverpaymentsMultipleJourney(
                     answers.copy(correctedAmounts =
                       answers.correctedAmounts
-                        .orElse(Some(Map.empty[MRN, Map[TaxCode, Option[BigDecimal]]]))
+                        .orElse(Some(OrderedMap.empty[MRN, OrderedMap[TaxCode, Option[BigDecimal]]]))
                         .map(_.updated(declarationId, newCorrectedAmounts))
-                        .map(OrderedMap(_))
                     )
                   )
                 )
@@ -650,7 +651,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): OverpaymentsMultipleJourney =
     new OverpaymentsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
-  type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
+  type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -716,6 +717,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   import JourneyFormats._
 
   object Answers {
+
     implicit val format: Format[Answers] =
       Json.using[Json.WithDefaultValues].format[Answers]
   }

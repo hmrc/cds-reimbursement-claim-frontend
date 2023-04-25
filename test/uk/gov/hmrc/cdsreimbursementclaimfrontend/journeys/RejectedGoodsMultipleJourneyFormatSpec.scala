@@ -50,8 +50,8 @@ class RejectedGoodsMultipleJourneyFormatSpec
           userEoriNumber = exampleEori,
           reimbursementClaims = Some(
             OrderedMap(
-              MRN("19GB03I52858027001") -> Map(TaxCode.A00 -> Some(BigDecimal("12.99"))),
-              MRN("19GB03I52858027002") -> Map(TaxCode.A00 -> None, TaxCode.A20 -> Some(BigDecimal("1.01")))
+              MRN("19GB03I52858027001") -> OrderedMap(TaxCode.A00 -> Some(BigDecimal("12.99"))),
+              MRN("19GB03I52858027002") -> OrderedMap(TaxCode.A00 -> None, TaxCode.A20 -> Some(BigDecimal("1.01")))
             )
           )
         )
@@ -60,7 +60,9 @@ class RejectedGoodsMultipleJourneyFormatSpec
         Answers(
           userEoriNumber = exampleEori,
           reimbursementClaims = Some(
-            OrderedMap(MRN("19GB03I52858027001") -> Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
+            OrderedMap(
+              MRN("19GB03I52858027001") -> OrderedMap(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None)
+            )
           )
         )
       )
