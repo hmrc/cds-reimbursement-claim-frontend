@@ -153,6 +153,21 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "accept change of the MRN when user has XI eori" in {
+      forAll(completeJourneyGen.map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))) { journey =>
+        val rfs             = journey.answers.reasonForSecurity.get
+        val decl            = journey.answers.displayDeclaration.get
+        val modifiedJourney = journey
+          .submitReasonForSecurityAndDeclaration(rfs, decl)
+          .getOrFail
+
+        (modifiedJourney eq journey)                    shouldBe true
+        modifiedJourney.answers.eoriNumbersVerification shouldBe Some(
+          EoriNumbersVerification(userXiEori = Some(UserXiEori(exampleXIEori.value)))
+        )
+      }
+    }
+
     "reject submission of a new RfS and declaration when MRN has not been provided yet" in {
       forAll(rfsWithDisplayDeclarationGen) { case (rfs, decl) =>
         val journeyResult = emptyJourney

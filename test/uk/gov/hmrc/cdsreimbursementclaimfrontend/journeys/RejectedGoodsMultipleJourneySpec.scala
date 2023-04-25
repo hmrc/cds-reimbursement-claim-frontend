@@ -209,6 +209,25 @@ class RejectedGoodsMultipleJourneySpec
       }
     }
 
+    "accept change of the first MRN when user has XI eori" in {
+      forAll(
+        completeJourneyGen.map(_.submitUserXiEori(UserXiEori(exampleXIEori.value))),
+        displayDeclarationGen
+      ) { (journey, decl) =>
+        val decl2           = decl.withDeclarationId(exampleMrnAsString)
+        val modifiedJourney = journey
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
+          .getOrFail
+        modifiedJourney.getLeadDisplayDeclaration       shouldBe Some(decl2)
+        modifiedJourney.hasCompleteAnswers              shouldBe false
+        modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
+        modifiedJourney.answers.eoriNumbersVerification shouldBe Some(
+          EoriNumbersVerification(userXiEori = Some(UserXiEori(exampleXIEori.value)))
+        )
+      }
+    }
+
     "accept change of the second MRN with declarantEori matching" in {
       forAll(completeJourneyGen, mrnWithDisplayDeclarationGen) { case (journey, (mrn, displayDeclaration)) =>
         val displayDeclarationWithDeclarantEoriMatching =
@@ -338,6 +357,7 @@ class RejectedGoodsMultipleJourneySpec
         journeyEither shouldBe Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
       }
     }
+
     "accept submission of the same nth MRN and different declaration" in {
       forAll(completeJourneyGen, displayDeclarationGen) { case (journey, declaration) =>
         val declarationWithMatchingEori = declaration.withDeclarantEori(journey.getDeclarantEoriFromACC14.get)

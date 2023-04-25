@@ -311,7 +311,7 @@ final class SecuritiesJourney private (
               nonce = answers.nonce,
               reasonForSecurity = Some(reasonForSecurity),
               displayDeclaration = Some(displayDeclaration),
-              eoriNumbersVerification = answers.eoriNumbersVerification
+              eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly)
             )
           )
         )
