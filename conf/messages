@@ -145,7 +145,7 @@ landing.details.l3=packing list (document that states packaging details in each 
 landing.details.l4=air waybill (in your cargo documents)
 landing.details.l5=bill of lading (this is a receipt of shipped goods)
 landing.details.l6=substitute entry (a form to declare a substitute when goods have been incorrectly declared)
-landing.details.l7=schedule of MRNs (a list of previous MRN numbers)
+landing.details.l7=schedule of MRNs (a list of previous MRNs)
 landing.details.l8=proof of authority (from importer for duty to be repaid)
 landing.details.l9=correspondence trader or internal (an email chain or letters between you and the trader)
 landing.details.l10=additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
@@ -342,8 +342,8 @@ enter-movement-reference-number.securities.error.required=Enter a movement refer
 #===================================================
 
 enter-export-movement-reference-number.securities.title=Enter the export MRN in the declaration
-enter-export-movement-reference-number.securities.details.heading=Finding your export MRN number
-enter-export-movement-reference-number.securities.details.paragraph=You can find your MRN number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-export-movement-reference-number.securities.details.heading=Finding your export MRN
+enter-export-movement-reference-number.securities.details.paragraph=You can find your MRN in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.securities.enter-mrn.label=Enter export MRN
@@ -356,8 +356,8 @@ enter-export-movement-reference-number.securities.error.import=Enter an export m
 #===================================================
 enter-export-movement-reference-number-multiple.securities.title=Enter the first export MRN in the declaration
 enter-export-movement-reference-number-multiple.inset-text=You will be able to add any additional export MRN later.
-enter-export-movement-reference-number-multiple.securities.details.heading=Finding your export MRN number
-enter-export-movement-reference-number-multiple.securities.details.paragraph=You can find your MRN number in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-export-movement-reference-number-multiple.securities.details.heading=Finding your export MRN
+enter-export-movement-reference-number-multiple.securities.details.paragraph=You can find your MRN in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-export-movement-reference-number-multiple.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number-multiple.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number-multiple.securities.enter-mrn.label=Enter the first export MRN
@@ -370,8 +370,8 @@ enter-export-movement-reference-number-multiple.securities.error.import=Enter an
 #===================================================
 enter-associated-mrn.title=Enter the {0} MRN
 enter-associated-mrn.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-associated-mrn.details.heading=Finding your MRN number
-enter-associated-mrn.details.para=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-associated-mrn.details.heading=Finding your MRN
+enter-associated-mrn.details.para=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-associated-mrn.error.required=Enter a movement reference number (MRN)
@@ -432,8 +432,8 @@ enter-duplicate-movement-reference-number.entry.error.required=Enter an entry nu
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE
 #===================================================
-mrn-not-linked-to-eori.title=The MRN number you entered is not linked to your EORI number
-mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI number. Please enter a valid MRN number.
+mrn-not-linked-to-eori.title=The MRN you entered is not linked to your EORI number
+mrn-not-linked-to-eori.help-text=The MRN must be linked to your EORI number. Please enter a valid MRN.
 
 #===================================================
 #  ENTER IMPORTER EORI NUMBER PAGE
