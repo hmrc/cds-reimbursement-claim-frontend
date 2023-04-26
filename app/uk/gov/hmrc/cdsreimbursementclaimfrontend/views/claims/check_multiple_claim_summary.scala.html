@@ -59,7 +59,7 @@
     }
 
     @subHeading(Html(messages(s"$key.overall-total.header")))
-    @summary(SummaryList(List(MultipleClaimSummaryHelper.makeOverallTotalRow(mrnWithClaimsList)),"govuk-!-margin-bottom-9"))
+    @summary(SummaryList(List(MultipleClaimSummaryHelper.makeOverallTotalRow(mrnWithClaimsList)), classes = "govuk-!-margin-bottom-9"))
 
     @formWithCSRF(submitCall, 'novalidate -> "novalidate") {
         @radios(

@@ -124,7 +124,7 @@ object ReimbursementsClaimsSummary {
         )
       )
     ),
-    "govuk-!-margin-bottom-9"
+    classes = "govuk-!-margin-bottom-9"
   )
 
   def multipleForCYA(
