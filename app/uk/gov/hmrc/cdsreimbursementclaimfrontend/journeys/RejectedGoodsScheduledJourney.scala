@@ -174,6 +174,7 @@ final class RejectedGoodsScheduledJourney private (
                     userEoriNumber = answers.userEoriNumber,
                     movementReferenceNumber = Some(mrn),
                     displayDeclaration = Some(displayDeclaration),
+                    eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                     nonce = answers.nonce
                   )
               )

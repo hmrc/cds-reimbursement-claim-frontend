@@ -207,7 +207,8 @@ final class OverpaymentsScheduledJourney private (
                     nonce = answers.nonce,
                     userEoriNumber = answers.userEoriNumber,
                     movementReferenceNumber = Some(mrn),
-                    displayDeclaration = Some(displayDeclaration)
+                    displayDeclaration = Some(displayDeclaration),
+                    eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly)
                   )
               )
             )

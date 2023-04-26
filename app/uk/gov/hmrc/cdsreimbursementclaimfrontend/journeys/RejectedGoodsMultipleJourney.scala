@@ -243,6 +243,7 @@ final class RejectedGoodsMultipleJourney private (
                       userEoriNumber = answers.userEoriNumber,
                       movementReferenceNumbers = Some(Seq(mrn)),
                       displayDeclarations = Some(Seq(displayDeclaration)),
+                      eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                       nonce = answers.nonce
                     )
                 )

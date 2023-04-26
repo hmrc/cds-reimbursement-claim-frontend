@@ -150,6 +150,25 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
+    "accept change of the MRN when user has XI eori" in {
+      forAll(
+        completeJourneyGen.map(_.submitUserXiEori(UserXiEori(exampleXIEori.value))),
+        displayDeclarationGen
+      ) { (journey, decl) =>
+        val decl2           = decl.withDeclarationId(exampleMrnAsString)
+        val modifiedJourney = journey
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
+          .getOrFail
+        modifiedJourney.answers.displayDeclaration      shouldBe Some(decl2)
+        modifiedJourney.hasCompleteAnswers              shouldBe false
+        modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
+        modifiedJourney.answers.eoriNumbersVerification shouldBe Some(
+          EoriNumbersVerification(userXiEori = Some(UserXiEori(exampleXIEori.value)))
+        )
+      }
+    }
+
     "accept submission of the same MRN" in {
       forAll(completeJourneyGen) { journey =>
         val modifiedJourney = journey

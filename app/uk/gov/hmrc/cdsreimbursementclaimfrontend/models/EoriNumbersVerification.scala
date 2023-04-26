@@ -47,6 +47,9 @@ final case class EoriNumbersVerification(
           case _ => false
         }
     }
+
+  def keepUserXiEoriOnly: EoriNumbersVerification =
+    EoriNumbersVerification(userXiEori = userXiEori)
 }
 
 object EoriNumbersVerification {
