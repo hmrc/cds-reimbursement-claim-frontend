@@ -19,9 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import akka.actor.ActorSystem
 import cats.data.EitherT
 import cats.syntax.eq._
-import com.google.inject.Inject
-import com.google.inject.ProvidedBy
-import com.google.inject.Provider
+import com.google.inject.{ImplementedBy, Inject, ProvidedBy, Provider}
 import play.api.http.HeaderNames
 import play.api.libs.json.Format
 import play.api.libs.json.Json
@@ -47,7 +45,7 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-@ProvidedBy(classOf[UploadDocumentsConnectorProvider])
+@ImplementedBy(classOf[UploadDocumentsConnectorImpl])
 trait UploadDocumentsConnector {
 
   /** Initializes upload-documents-frontend session.
@@ -69,14 +67,14 @@ object UploadDocumentsConnector {
 
   final case class Request(
     config: UploadDocumentsSessionConfig,
-    existingFiles: Seq[UploadedFile]
+    existingFiles: Seq[UploadedFile],
   )
 
   implicit val requestFormat: Format[Request] = Json.format[Request]
 }
 
 @Singleton
-class UploadDocumentsConnectorProvider @Inject() (
+class UploadDocumentsConnectorImpl @Inject() (
   http: HttpClient,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   configuration: Configuration,
@@ -86,6 +84,7 @@ class UploadDocumentsConnectorProvider @Inject() (
 ) extends UploadDocumentsConnector
     with Retries {
 
+  // TODO: unsure if still needed, find out what configuration does
   val serviceId: String = AppName.fromConfiguration(configuration)
 
   override def initialize(request: Request)(implicit
@@ -123,3 +122,4 @@ class UploadDocumentsConnectorProvider @Inject() (
       }
     )
 }
+
