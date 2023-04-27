@@ -69,8 +69,7 @@ object UploadDocumentsConnector {
 
   final case class Request(
     config: UploadDocumentsSessionConfig,
-    existingFiles: Seq[UploadedFile],
-    maybeInternalKey: Option[String]
+    existingFiles: Seq[UploadedFile]
   )
 
   implicit val requestFormat: Format[Request] = Json.format[Request]
@@ -78,21 +77,6 @@ object UploadDocumentsConnector {
 
 @Singleton
 class UploadDocumentsConnectorProvider @Inject() (
-  features: FeatureSwitchService,
-  internal: InternalUploadDocumentsConnector,
-  external: ExternalUploadDocumentsConnector
-) extends Provider[UploadDocumentsConnector] {
-
-  override def get(): UploadDocumentsConnector =
-    if (features.isEnabledForApplication(Feature.InternalUploadDocuments))
-      internal
-    else
-      external
-
-}
-
-@Singleton
-class ExternalUploadDocumentsConnector @Inject() (
   http: HttpClient,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   configuration: Configuration,
@@ -138,74 +122,4 @@ class ExternalUploadDocumentsConnector @Inject() (
         ()
       }
     )
-}
-@Singleton
-class InternalUploadDocumentsConnector @Inject() (
-  sessionCache: SessionCache,
-  servicesConfig: ServicesConfig
-)(implicit ec: ExecutionContext)
-    extends UploadDocumentsConnector {
-
-  val chooseFileUrl: String =
-    servicesConfig.getString(
-      "self.url"
-    ) + cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController.show().url
-
-  override def initialize(request: Request)(implicit
-    hc: HeaderCarrier
-  ): Future[Response] =
-    EitherT(sessionCache.get())
-      .flatMap {
-        case Some(session) =>
-          EitherT(
-            sessionCache.store(
-              session
-                .copy(
-                  uploadDocumentsSessionModel = Some(
-                    UploadDocumentsSessionModel(
-                      request.config,
-                      request.existingFiles,
-                      request.maybeInternalKey.getOrElse("upload-documents")
-                    )
-                  )
-                )
-            )
-          )
-
-        case None =>
-          EitherT.apply[Future, cdsreimbursementclaimfrontend.models.Error, Unit](
-            Future.successful(
-              Left(
-                new cdsreimbursementclaimfrontend.models.Error(
-                  "Could not initialize upload document because no claim exists yet.",
-                  None,
-                  Map.empty
-                )
-              )
-            )
-          )
-      }
-      .fold(
-        _ => None,
-        _ => Some(chooseFileUrl)
-      )
-
-  override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
-    EitherT(sessionCache.get())
-      .flatMap {
-        case Some(session) =>
-          EitherT(
-            sessionCache.store(
-              session
-                .copy(
-                  uploadDocumentsSessionModel = None
-                )
-            )
-          )
-
-        case None =>
-          EitherT.apply[Future, cdsreimbursementclaimfrontend.models.Error, Unit](Future.successful(Right(())))
-      }
-      .fold(_ => (), _ => ())
-
 }
