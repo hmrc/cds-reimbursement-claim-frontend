@@ -19,7 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import akka.actor.ActorSystem
 import cats.data.EitherT
 import cats.syntax.eq._
-import com.google.inject.{ImplementedBy, Inject, ProvidedBy, Provider}
+import com.google.inject.ImplementedBy
+import com.google.inject.Inject
+import com.google.inject.ProvidedBy
+import com.google.inject.Provider
 import play.api.http.HeaderNames
 import play.api.libs.json.Format
 import play.api.libs.json.Json
@@ -67,7 +70,7 @@ object UploadDocumentsConnector {
 
   final case class Request(
     config: UploadDocumentsSessionConfig,
-    existingFiles: Seq[UploadedFile],
+    existingFiles: Seq[UploadedFile]
   )
 
   implicit val requestFormat: Format[Request] = Json.format[Request]
@@ -122,4 +125,3 @@ class UploadDocumentsConnectorImpl @Inject() (
       }
     )
 }
-
