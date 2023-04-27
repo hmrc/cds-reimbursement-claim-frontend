@@ -28,18 +28,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
@@ -59,7 +57,6 @@ class UploadFilesController @Inject() (
   uploadDocumentsConnector: UploadDocumentsConnector,
   uploadDocumentsConfig: UploadDocumentsConfig,
   fileUploadConfig: FileUploadConfig,
-  featureSwitchService: FeatureSwitchService,
   servicesConfig: ServicesConfig,
   supporting_evidence_description: supporting_evidence_description
 )(implicit
@@ -106,9 +103,7 @@ class UploadFilesController @Inject() (
                     fillingOutClaim.draftClaim.supportingEvidencesAnswer
                       .map(_.toList)
                       .getOrElse(List.empty)
-                      .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
-                    featureSwitchService
-                      .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
+                      .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
                   )
               )
               .map {
@@ -192,20 +187,13 @@ class UploadFilesController @Inject() (
                     fillingOutClaim.draftClaim.supportingEvidencesAnswer
                       .map(_.toList)
                       .getOrElse(List.empty)
-                      .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
-                    featureSwitchService
-                      .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
+                      .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
                   )
               )
               .map {
                 case Some(url) =>
                   Redirect(
-                    if (featureSwitchService.isEnabled(Feature.InternalUploadDocuments))
-                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController
-                        .summary()
-                        .url
-                    else
-                      url
+                    url
                   )
 
                 case None =>

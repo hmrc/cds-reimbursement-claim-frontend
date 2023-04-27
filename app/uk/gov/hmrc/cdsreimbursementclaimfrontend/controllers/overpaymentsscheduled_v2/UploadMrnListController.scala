@@ -26,12 +26,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadMrnListCallback
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_mrn_list_description
 
 import javax.inject.Inject
@@ -44,8 +42,7 @@ class UploadMrnListController @Inject() (
   uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
-  val upload_mrn_list_description: upload_mrn_list_description,
-  featureSwitchService: FeatureSwitchService
+  val upload_mrn_list_description: upload_mrn_list_description
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController {
 
@@ -66,9 +63,7 @@ class UploadMrnListController @Inject() (
               journey.answers.nonce,
               continueUrl
             ),
-            journey.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty),
-            featureSwitchService
-              .optionally(Feature.InternalUploadDocuments, "schedule-document")
+            journey.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty)
           )
       )
       .map {
