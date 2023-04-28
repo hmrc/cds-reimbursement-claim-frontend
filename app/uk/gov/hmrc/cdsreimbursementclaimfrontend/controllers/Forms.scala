@@ -23,6 +23,7 @@ import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import play.api.data.Form
 import play.api.data.Mapping
+import play.api.data.validation.Constraints.maxLength
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.dataKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.BankAccountTransfer
@@ -78,7 +79,9 @@ object Forms {
   val bankAccountLetterOfAuthorityForm: Form[YesNo] = YesOrNoQuestionForm("bank_account_letter_of_authority")
 
   val enterSpecialCircumstancesForm: Form[String] = Form(
-    "enter-special-circumstances.rejected-goods" -> nonEmptyText(maxLength = 500)
+    "enter-special-circumstances.rejected-goods" -> nonEmptyText()
+      .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
+      .verifying(maxLength(500))
   )
 
   val mrnContactDetailsForm: Form[MrnContactDetails] = Form(
@@ -146,17 +149,25 @@ object Forms {
   )
 
   val enterRejectedGoodsDetailsForm: Form[String] = Form(
-    "enter-rejected-goods-details.rejected-goods" -> nonEmptyText(maxLength = 500)
+    "enter-rejected-goods-details.rejected-goods" -> nonEmptyText()
+      .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
+      .verifying(maxLength(500))
   )
 
   val additionalDetailsForm: Form[AdditionalDetailsAnswer] = Form(
-    mapping("enter-additional-details" -> nonEmptyText(maxLength = 500))(AdditionalDetailsAnswer.apply)(
+    mapping(
+      "enter-additional-details" -> nonEmptyText()
+        .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
+        .verifying(maxLength(500))
+    )(AdditionalDetailsAnswer.apply)(
       AdditionalDetailsAnswer.unapply
     )
   )
 
   val enterAdditionalDetailsForm: Form[String] = Form(
-    "enter-additional-details" -> nonEmptyText(maxLength = 500)
+    "enter-additional-details" -> nonEmptyText()
+      .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
+      .verifying(maxLength(500))
   )
 
   val confirmFullRepaymentForm: Form[YesNo]                                    = YesOrNoQuestionForm("confirm-full-repayment")
