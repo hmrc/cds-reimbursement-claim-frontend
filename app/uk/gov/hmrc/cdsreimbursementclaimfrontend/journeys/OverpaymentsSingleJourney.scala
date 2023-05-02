@@ -19,6 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.CorrectedAmounts
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
@@ -140,9 +142,13 @@ final class OverpaymentsSingleJourney private (
     answers.correctedAmounts.exists(_.contains(taxCode))
 
   def isAllSelectedDutiesAreCMAEligible: Boolean =
-    answers.correctedAmounts
-      .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
-      .exists(_.forall(_.isCmaEligible))
+    answers.correctedAmounts.exists(isAllSelectedDutiesAreCMAEligible)
+
+  def isAllSelectedDutiesAreCMAEligible(amounts: CorrectedAmounts): Boolean =
+    amounts.keySet
+      .map(getNdrcDetailsFor)
+      .collect { case Some(d) => d }
+      .forall(_.isCmaEligible)
 
   def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
     answers.correctedAmounts
@@ -470,13 +476,21 @@ final class OverpaymentsSingleJourney private (
               val newCorrectedAmounts = answers.correctedAmounts match {
                 case None                      =>
                   Map(taxCodes.map(taxCode => taxCode -> None): _*)
-
                 case Some(reimbursementClaims) =>
                   Map(taxCodes.map { taxCode =>
                     taxCode -> reimbursementClaims.get(taxCode).flatten
                   }: _*)
               }
-              Right(new OverpaymentsSingleJourney(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
+
+              val updatedJourney =
+                if (hasCmaReimbursementMethod && !isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts))
+                  resetReimbursementMethod()
+                else
+                  this
+
+              Right(
+                new OverpaymentsSingleJourney(updatedJourney.answers.copy(correctedAmounts = Some(newCorrectedAmounts)))
+              )
             } else
               Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
           }
@@ -537,6 +551,9 @@ final class OverpaymentsSingleJourney private (
         )
       else Left("submitBankAccountType.unexpected")
     }
+
+  def hasCmaReimbursementMethod =
+    answers.reimbursementMethod.contains(CurrentMonthAdjustment)
 
   def submitReimbursementMethod(
     reimbursementMethod: ReimbursementMethod
