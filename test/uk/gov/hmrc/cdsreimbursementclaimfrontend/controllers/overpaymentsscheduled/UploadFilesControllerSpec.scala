@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Instant
@@ -67,8 +66,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       bind[SessionCache].toInstance(mockSessionCache),
       bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
     )
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   val controller: UploadFilesController = instanceOf[UploadFilesController]
 
@@ -105,7 +102,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "redirect to the 'Choose File Type' page when no document type selected and none file uploaded yet" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = None,
@@ -123,7 +119,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "redirect to the 'Choose File Type' page when no document type selected and some uploads exists" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = None,
@@ -141,7 +136,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "redirect to the 'Choose Files' page when no file uploaded yet" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.AirWayBill),
@@ -160,7 +154,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "redirect to the 'Choose Files' when some file uploaded already" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CommercialInvoice),
@@ -185,7 +178,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       def performAction(): Future[Result] = controller.summary(FakeRequest())
 
       "redirect to the 'Choose File Type' page when no document type selected and none file uploaded yet" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = None,
@@ -203,7 +195,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "redirect to the 'Choose File Type' page when no document type selected and some uploads exists" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = None,
@@ -221,7 +212,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "redirect to the 'Uploaded Files Summary' page when no file uploaded yet" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.AirWayBill),
@@ -240,7 +230,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "redirect to the 'Uploded Files Summary' when some files has been uploaded already" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CommercialInvoice),
@@ -255,44 +244,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
         checkIsRedirect(
           performAction(),
           Call("GET", s"$expectedUploadDocumentsLocation")
-        )
-      }
-
-      "redirect to the internal summary page when no file uploaded yet" in {
-        featureSwitch.enable(Feature.InternalUploadDocuments)
-
-        val (session, _) = sessionWithSupportingEvidenceAnswer(
-          documentTypeAnswer = Some(UploadDocumentType.AirWayBill),
-          supportingEvidencesAnswer = None
-        )
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockInitializeCall()
-        }
-
-        checkIsRedirect(
-          performAction(),
-          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController.summary()
-        )
-      }
-
-      "redirect to the internal summary when some files has been uploaded already" in {
-        featureSwitch.enable(Feature.InternalUploadDocuments)
-
-        val (session, _) = sessionWithSupportingEvidenceAnswer(
-          documentTypeAnswer = Some(UploadDocumentType.CommercialInvoice),
-          supportingEvidencesAnswer = Some(List(uploadDocument))
-        )
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockInitializeCall(Some(uploadDocument))
-        }
-
-        checkIsRedirect(
-          performAction(),
-          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController.summary()
         )
       }
 
@@ -311,7 +262,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
         )
 
       "return 204 if callback accepted when no files uploaded yet" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, nonce) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CorrespondenceTrader),
@@ -334,7 +284,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "return 204 if callback accepted and replace existing files" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, nonce) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.CorrespondenceTrader),
@@ -357,7 +306,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "return 400 if callback rejected because of invalid nonce" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.BillOfLading),
@@ -372,7 +320,6 @@ class UploadFilesControllerSpec extends PropertyBasedControllerSpec with AuthSup
       }
 
       "return 400 if callback rejected because of invalid request" in {
-        featureSwitch.disable(Feature.InternalUploadDocuments)
 
         val (session, _) = sessionWithSupportingEvidenceAnswer(
           documentTypeAnswer = Some(UploadDocumentType.AirWayBill),
