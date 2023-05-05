@@ -72,7 +72,7 @@ class UploadDocumentsConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new ExternalUploadDocumentsConnector(
+    new UploadDocumentsConnectorImpl(
       mockHttp,
       new UploadDocumentsConfig(new ServicesConfig(config), config),
       config,
@@ -132,7 +132,7 @@ class UploadDocumentsConnectorSpec
     )
 
   val initializationRequest: UploadDocumentsConnector.Request =
-    UploadDocumentsConnector.Request(uploadDocumentsParameters, Seq.empty, None)
+    UploadDocumentsConnector.Request(uploadDocumentsParameters, Seq.empty)
 
   val givenInitializationCallReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
     mockPost(
@@ -140,8 +140,7 @@ class UploadDocumentsConnectorSpec
       Seq.empty,
       UploadDocumentsConnector.Request(
         uploadDocumentsParameters,
-        Seq.empty,
-        None
+        Seq.empty
       )
     ) _
 

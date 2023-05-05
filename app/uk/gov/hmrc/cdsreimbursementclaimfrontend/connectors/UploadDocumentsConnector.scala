@@ -17,37 +17,29 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import akka.actor.ActorSystem
-import cats.data.EitherT
 import cats.syntax.eq._
+import com.google.inject.ImplementedBy
 import com.google.inject.Inject
-import com.google.inject.ProvidedBy
-import com.google.inject.Provider
 import play.api.http.HeaderNames
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import play.api.Configuration
 import play.api.Logger
-import uk.gov.hmrc.cdsreimbursementclaimfrontend
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionModel
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.AppName
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-@ProvidedBy(classOf[UploadDocumentsConnectorProvider])
+@ImplementedBy(classOf[UploadDocumentsConnectorImpl])
 trait UploadDocumentsConnector {
 
   /** Initializes upload-documents-frontend session.
@@ -69,30 +61,14 @@ object UploadDocumentsConnector {
 
   final case class Request(
     config: UploadDocumentsSessionConfig,
-    existingFiles: Seq[UploadedFile],
-    maybeInternalKey: Option[String]
+    existingFiles: Seq[UploadedFile]
   )
 
   implicit val requestFormat: Format[Request] = Json.format[Request]
 }
 
 @Singleton
-class UploadDocumentsConnectorProvider @Inject() (
-  features: FeatureSwitchService,
-  internal: InternalUploadDocumentsConnector,
-  external: ExternalUploadDocumentsConnector
-) extends Provider[UploadDocumentsConnector] {
-
-  override def get(): UploadDocumentsConnector =
-    if (features.isEnabledForApplication(Feature.InternalUploadDocuments))
-      internal
-    else
-      external
-
-}
-
-@Singleton
-class ExternalUploadDocumentsConnector @Inject() (
+class UploadDocumentsConnectorImpl @Inject() (
   http: HttpClient,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   configuration: Configuration,
@@ -102,6 +78,7 @@ class ExternalUploadDocumentsConnector @Inject() (
 ) extends UploadDocumentsConnector
     with Retries {
 
+  // TODO: unsure if still needed, find out what configuration does
   val serviceId: String = AppName.fromConfiguration(configuration)
 
   override def initialize(request: Request)(implicit
@@ -138,74 +115,4 @@ class ExternalUploadDocumentsConnector @Inject() (
         ()
       }
     )
-}
-@Singleton
-class InternalUploadDocumentsConnector @Inject() (
-  sessionCache: SessionCache,
-  servicesConfig: ServicesConfig
-)(implicit ec: ExecutionContext)
-    extends UploadDocumentsConnector {
-
-  val chooseFileUrl: String =
-    servicesConfig.getString(
-      "self.url"
-    ) + cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController.show().url
-
-  override def initialize(request: Request)(implicit
-    hc: HeaderCarrier
-  ): Future[Response] =
-    EitherT(sessionCache.get())
-      .flatMap {
-        case Some(session) =>
-          EitherT(
-            sessionCache.store(
-              session
-                .copy(
-                  uploadDocumentsSessionModel = Some(
-                    UploadDocumentsSessionModel(
-                      request.config,
-                      request.existingFiles,
-                      request.maybeInternalKey.getOrElse("upload-documents")
-                    )
-                  )
-                )
-            )
-          )
-
-        case None =>
-          EitherT.apply[Future, cdsreimbursementclaimfrontend.models.Error, Unit](
-            Future.successful(
-              Left(
-                new cdsreimbursementclaimfrontend.models.Error(
-                  "Could not initialize upload document because no claim exists yet.",
-                  None,
-                  Map.empty
-                )
-              )
-            )
-          )
-      }
-      .fold(
-        _ => None,
-        _ => Some(chooseFileUrl)
-      )
-
-  override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
-    EitherT(sessionCache.get())
-      .flatMap {
-        case Some(session) =>
-          EitherT(
-            sessionCache.store(
-              session
-                .copy(
-                  uploadDocumentsSessionModel = None
-                )
-            )
-          )
-
-        case None =>
-          EitherT.apply[Future, cdsreimbursementclaimfrontend.models.Error, Unit](Future.successful(Right(())))
-      }
-      .fold(_ => (), _ => ())
-
 }

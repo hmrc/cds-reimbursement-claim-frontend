@@ -27,12 +27,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import java.util.Locale
 
@@ -43,7 +41,6 @@ trait UploadFilesMixin extends JourneyBaseController {
   val fileUploadConfig: FileUploadConfig
   val selectDocumentTypePageAction: Call
   val callbackAction: Call
-  val featureSwitchService: FeatureSwitchService
 
   def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
 
@@ -79,9 +76,7 @@ trait UploadFilesMixin extends JourneyBaseController {
                   continueAfterNoAnswerUrl
                 ),
                 journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
-                featureSwitchService
-                  .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
               )
           )
           .map {
@@ -147,25 +142,14 @@ trait UploadFilesMixin extends JourneyBaseController {
                   continueAfterNoAnswerUrl
                 ),
                 journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _))),
-                featureSwitchService
-                  .optionally(Feature.InternalUploadDocuments, "supporting-evidence")
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
               )
           )
           .map {
             case Some(url) =>
-              Redirect(
-                if (featureSwitchService.isEnabled(Feature.InternalUploadDocuments))
-                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes.UploadDocumentsController
-                    .summary()
-                    .url
-                else
-                  url
-              )
-
-            case None =>
+              Redirect(url)
+            case None      =>
               Redirect(s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}/summary")
-
           }
     }
   }
@@ -236,5 +220,4 @@ trait UploadFilesMixin extends JourneyBaseController {
 
   def documentTypeDescription(dt: UploadDocumentType)(implicit messages: Messages): String =
     messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
-
 }
