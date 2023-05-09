@@ -1303,7 +1303,7 @@ select-bank-account-type.error.required=Select if this is a business bank accoun
 #===================================================
 enter-bank-account-details.title=Enter your bank account details
 enter-bank-account-details.p1=This is where you would like repayments to be made in the UK.
-enter-bank-account-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
+enter-bank-account-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" targe="_blank">contact HMRC (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
 enter-bank-account-details.account-name.label=Name on the account
 enter-bank-account-details.account-name.label.hidden=bank details
 enter-bank-account-details.account-name.error.required=Enter the name on the account
@@ -1693,7 +1693,7 @@ inspection-address.type.error.required=Choose the address where the goods can be
 #===================================================
 submit-claim-error.title=Claim submission failed
 submit-claim-error.p1=Sorry, your claim submission failed
-submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
+submit-claim-error.p2=You cannot make a claim. If you need help, you can <a class="govuk-link" rel="noreferrer noopener" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" targe="_blank">contact HMRC (opens in new tab)</a> via the imports and exports general enquiries.
 
 #===================================================
 # CONFIRMATION PAGE
@@ -1701,7 +1701,7 @@ submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href
 confirmation-of-submission.title=Claim submitted
 confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.claim-reference=Your claim reference number
-confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your spam folder or contact HMRC.
+confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your spam folder or <a class="govuk-link" rel="noreferrer noopener" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" targe="_blank">contact HMRC (opens in new tab)</a>.
 confirmation-of-submission.whatNext=What happens next?
 confirmation-of-submission.what-next.p1=Your claim will be reviewed by HMRC and we will email or write to you within 30 working days with the outcome.
 confirmation-of-submission.what-next.p2=We will contact you to either:
