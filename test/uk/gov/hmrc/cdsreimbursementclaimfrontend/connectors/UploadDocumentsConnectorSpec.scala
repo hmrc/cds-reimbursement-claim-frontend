@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.http.HeaderCarrier

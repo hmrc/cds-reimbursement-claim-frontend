@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadMrnListCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.upload_mrn_list_description

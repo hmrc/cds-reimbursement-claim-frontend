@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig

@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 final case class UploadDocumentsSessionConfig(
   nonce: Nonce, // unique secret shared by the host and upload microservices

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Id
 import cats.implicits.catsSyntaxOption

@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object IdGen {
 
@@ -76,6 +75,4 @@ object IdGen {
   implicit lazy val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
 
   implicit lazy val arbitraryGGCredIdGen: Typeclass[GGCredId] = gen[GGCredId]
-
-  implicit lazy val arbitraryUploadReference: Typeclass[UploadReference] = gen[UploadReference]
 }
