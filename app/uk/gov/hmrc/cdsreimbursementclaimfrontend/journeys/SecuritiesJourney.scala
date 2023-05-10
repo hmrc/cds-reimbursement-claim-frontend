@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 

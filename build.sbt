@@ -73,7 +73,6 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PathBinders._",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex",
-      "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN",

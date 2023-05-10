@@ -25,10 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswerList
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UploadDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -43,18 +40,6 @@ object UpscanGen extends OptionValues {
 
   lazy val genEvidenceDocumentType: Gen[UploadDocumentType] =
     Gen.oneOf(UploadDocumentType.c285DocumentTypes)
-
-  implicit lazy val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
-
-  implicit lazy val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
-
-  implicit lazy val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
-
-  implicit lazy val arbitraryUpscanFailure: Typeclass[UpscanFailure] = gen[UpscanFailure]
-
-  implicit lazy val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
-
-  implicit lazy val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
   implicit lazy val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] =
     Arbitrary(genEvidenceDocumentType)
@@ -81,19 +66,23 @@ object UpscanGen extends OptionValues {
 
   implicit lazy val arbitraryUploadedFile: Typeclass[UploadedFile] = Arbitrary {
     for {
-      uploadReference <- gen[UploadReference].arbitrary
-      upscanSuccess   <- arbitraryUpscanSuccess.arbitrary
+      uploadReference <- genStringWithMaxSizeOfN(30)
       name            <- genStringWithMaxSizeOfN(6)
+      fileMimeType    <- Gen.oneOf("text/plain", "image/jpeg", "image/png", "application/pdf")
+      size            <- Gen.choose(1L, 1000000L)
+      checksum        <- genStringWithMaxSizeOfN(32)
+      downloadUrl     <- genStringWithMaxSizeOfN(128)
+      uploadTimestamp <- Gen.const(java.time.Instant.parse("2011-12-03T10:15:30Z"))
       extension       <- Gen.oneOf("pdf", "doc", "csv")
       documentType    <- arbitrarySupportingEvidenceDocumentType.arbitrary
     } yield UploadedFile(
-      upscanReference = uploadReference.value,
-      downloadUrl = upscanSuccess.downloadUrl,
-      uploadTimestamp = ZonedDateTime.ofInstant(upscanSuccess.uploadDetails.uploadTimestamp, ZoneOffset.UTC),
-      checksum = upscanSuccess.uploadDetails.checksum,
+      upscanReference = uploadReference,
+      downloadUrl = downloadUrl,
+      uploadTimestamp = ZonedDateTime.ofInstant(uploadTimestamp, ZoneOffset.UTC),
+      checksum = checksum,
       fileName = s"$name.$extension",
-      fileMimeType = upscanSuccess.uploadDetails.fileMimeType,
-      fileSize = Some(upscanSuccess.uploadDetails.size),
+      fileMimeType = fileMimeType,
+      fileSize = Some(size),
       cargo = Some(documentType)
     )
   }
