@@ -98,6 +98,9 @@ final class RejectedGoodsMultipleJourney private (
       declaration  <- declarations.find(_.getMRN === mrn)
     } yield declaration
 
+  override def getDisplayDeclarations: Seq[DisplayDeclaration] =
+    answers.displayDeclarations.getOrElse(Seq.empty)
+
   def getReimbursementClaimsFor(mrn: MRN): Option[OrderedMap[TaxCode, Option[BigDecimal]]] =
     answers.reimbursementClaims.flatMap(_.get(mrn))
 
@@ -704,7 +707,8 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
       reimbursementClaimsHasBeenProvided,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided
+      supportingEvidenceHasBeenProvided,
+      declarationsHasNotSusbsidyPayment
     )
 
   import JourneyFormats._

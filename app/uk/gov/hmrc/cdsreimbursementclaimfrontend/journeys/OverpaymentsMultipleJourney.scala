@@ -75,6 +75,9 @@ final class OverpaymentsMultipleJourney private (
   def getNthDisplayDeclaration(index: Int): Option[DisplayDeclaration] =
     getNthMovementReferenceNumber(index).flatMap(getDisplayDeclarationFor)
 
+  override def getDisplayDeclarations: Seq[DisplayDeclaration] =
+    answers.displayDeclarations.getOrElse(Seq.empty)
+
   def getNthMovementReferenceNumber(index: Int): Option[MRN] =
     answers.movementReferenceNumbers.flatMap { mrns =>
       if (index >= 0 && index < mrns.size) Some(mrns(index))
@@ -712,7 +715,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      hasMultipleMovementReferenceNumbers
+      hasMultipleMovementReferenceNumbers,
+      declarationsHasNotSusbsidyPayment
     )
 
   import JourneyFormats._

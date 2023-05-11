@@ -44,6 +44,8 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
   def afterSuccessfullSubmit(journey: Journey): Result
 
+  private val SUBSIDY_PAYMENT_FOUND_ERROR = "SUBSIDY_PAYMENT_FOUND_ERROR"
+
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       Ok(
@@ -54,34 +56,43 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
   final val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form(journey)
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          Future.successful(
-            (
-              journey,
-              BadRequest(
-                viewTemplate(formWithErrors)(request)
-              )
+    val filledForm = form(journey).bindFromRequest()
+    filledForm.fold(
+      formWithErrors =>
+        Future.successful(
+          (
+            journey,
+            BadRequest(
+              viewTemplate(formWithErrors)(request)
             )
-          ),
-        mrn =>
-          {
-            for {
-              maybeAcc14      <- getDeclaration(mrn)
-              updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
-              updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, true)
-            } yield updatedJourney2
-          }.fold(
-            errors => {
+          )
+        ),
+      mrn =>
+        {
+          for {
+            maybeAcc14      <- getDeclaration(mrn)
+            _               <- validateDeclarationHasSubsidyPayment(maybeAcc14)
+            updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
+            updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, true)
+          } yield updatedJourney2
+        }.fold(
+          errors =>
+            if (errors.contains(SUBSIDY_PAYMENT_FOUND_ERROR)) {
+              (
+                journey,
+                BadRequest(
+                  viewTemplate(filledForm.withError(filledForm.data.head._1, "susbisdy-payment-found"))(request)
+                )
+              )
+            } else {
               logger.error(s"Unable to record $mrn", errors.toException)
               (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
             },
-            updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
-          )
-      )
+          updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
+        )
+    )
   }
 
   private def updateJourney(
@@ -101,5 +112,17 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   private def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     claimService
       .getDisplayDeclaration(mrn)
+
+  private def validateDeclarationHasSubsidyPayment(
+    maybeAcc14: Option[DisplayDeclaration]
+  ): EitherT[Future, Error, Unit] =
+    maybeAcc14 match {
+      case None              => EitherT.rightT(())
+      case Some(declaration) =>
+        if (declaration.hasSubsidyPayment)
+          EitherT.leftT(Error(SUBSIDY_PAYMENT_FOUND_ERROR))
+        else
+          EitherT.rightT(())
+    }
 
 }

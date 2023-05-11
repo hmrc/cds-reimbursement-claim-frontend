@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import com.github.arturopala.validator.Validator._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 trait CommonJourneyChecks[J <: CommonJourneyProperties] {
 
@@ -95,5 +96,11 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
 
   final val supportingEvidenceHasBeenProvided: Validate[J] =
     checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
+
+  final def declarationHasNotSusbsidyPayment: Validate[DisplayDeclaration] =
+    checkIsFalse(_.hasSubsidyPayment, DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
+
+  final val declarationsHasNotSusbsidyPayment: Validate[J] =
+    checkEach(_.getDisplayDeclarations, declarationHasNotSusbsidyPayment)
 
 }

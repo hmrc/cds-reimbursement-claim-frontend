@@ -578,7 +578,8 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       reimbursementMethodHasBeenProvidedIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided
+      supportingEvidenceHasBeenProvided,
+      declarationsHasNotSusbsidyPayment
     )
 
   import JourneyFormats._
