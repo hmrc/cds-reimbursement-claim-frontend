@@ -598,7 +598,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      declarationsHasNotSusbsidyPayment
+      declarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

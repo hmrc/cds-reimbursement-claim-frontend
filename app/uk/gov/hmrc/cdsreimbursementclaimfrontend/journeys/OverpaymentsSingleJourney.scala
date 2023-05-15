@@ -833,7 +833,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      declarationsHasNotSusbsidyPayment
+      declarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

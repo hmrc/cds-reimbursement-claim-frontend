@@ -708,7 +708,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      declarationsHasNotSusbsidyPayment
+      declarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

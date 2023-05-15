@@ -83,7 +83,9 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
               (
                 journey,
                 BadRequest(
-                  viewTemplate(filledForm.withError(filledForm.data.head._1, "susbisdy-payment-found"))(request)
+                  viewTemplate(filledForm.withError("enter-movement-reference-number", "error.subsidy-payment-found"))(
+                    request
+                  )
                 )
               )
             } else {
