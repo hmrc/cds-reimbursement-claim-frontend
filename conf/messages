@@ -299,6 +299,7 @@ enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is
 enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number (MRN)
 enter-movement-reference-number.error.required=Enter a movement reference number (MRN)
+enter-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
 enter-movement-reference-number.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.multiple.error.existingMRN=This movement reference number (MRN) has already been used. Enter a different MRN
 enter-movement-reference-number.multiple.title=Enter the first MRN

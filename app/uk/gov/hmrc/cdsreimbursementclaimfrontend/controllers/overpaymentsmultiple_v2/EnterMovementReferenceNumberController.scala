@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementRefer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes.subKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
@@ -40,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_movement_reference_number
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -85,8 +87,8 @@ class EnterMovementReferenceNumberController @Inject() (
       ).asFuture
     else {
       val mrnIndex: Int = pageIndex - 1
-      movementReferenceNumberForm
-        .bindFromRequest()
+      val filledForm    = movementReferenceNumberForm.bindFromRequest()
+      filledForm
         .fold(
           formWithErrors =>
             (
@@ -104,12 +106,25 @@ class EnterMovementReferenceNumberController @Inject() (
             {
               for {
                 maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
+                _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(maybeAcc14)
                 updatedJourney  <- updateJourney(journey, mrnIndex, mrn, maybeAcc14)
                 updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, mrnIndex === 0)
               } yield updatedJourney2
             }.fold(
               error =>
-                if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
+                if (error.message === EnterMovementReferenceNumberUtil.SUBSIDY_PAYMENT_FOUND_ERROR) {
+                  (
+                    journey,
+                    BadRequest(
+                      enterMovementReferenceNumberPage(
+                        filledForm.withError("enter-movement-reference-number", "error.subsidy-payment-found"),
+                        subKey,
+                        pageIndex,
+                        routes.EnterMovementReferenceNumberController.submit(pageIndex)
+                      )
+                    )
+                  )
+                } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
                 } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
@@ -167,4 +182,5 @@ class EnterMovementReferenceNumberController @Inject() (
 
   override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
     journey.submitUserXiEori(userXiEori)
+
 }

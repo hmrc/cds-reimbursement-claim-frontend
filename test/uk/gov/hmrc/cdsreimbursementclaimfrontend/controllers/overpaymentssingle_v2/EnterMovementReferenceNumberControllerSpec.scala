@@ -22,11 +22,13 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
+import play.api.i18n.Lang.logger
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -42,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -51,6 +54,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -63,6 +68,7 @@ class EnterMovementReferenceNumberControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
+    with DeclarationSupport
     with BeforeAndAfterEach {
 
   val mockClaimService: ClaimService       = mock[ClaimService]
@@ -203,6 +209,31 @@ class EnterMovementReferenceNumberControllerSpec
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> mrn.value),
           baseRoutes.IneligibleController.ineligible()
+        )
+      }
+
+      "reject an MRN with subsidies payment method" in forAll { (mrn: MRN, declarant: Eori, consignee: Eori) =>
+        val displayDeclaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(mrn.value)
+            .withDeclarantEori(declarant)
+            .withConsigneeEori(consignee)
+            .withSubsidiesPaymentMethod()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          messageFromMessageKey("enter-movement-reference-number.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-movement-reference-number.error.subsidy-payment-found"
+            ),
+          expectedStatus = BAD_REQUEST
         )
       }
 

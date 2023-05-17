@@ -23,6 +23,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -31,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXiEoriMixin {
@@ -55,33 +57,43 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form(journey)
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          Future.successful(
-            (
-              journey,
-              BadRequest(
-                viewTemplate(formWithErrors)(request)
-              )
+    val filledForm = form(journey).bindFromRequest()
+    filledForm.fold(
+      formWithErrors =>
+        Future.successful(
+          (
+            journey,
+            BadRequest(
+              viewTemplate(formWithErrors)(request)
             )
-          ),
-        mrn =>
-          {
-            for {
-              maybeAcc14      <- getDeclaration(mrn)
-              updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
-              updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, true)
-            } yield updatedJourney2
-          }.fold(
-            errors => {
+          )
+        ),
+      mrn =>
+        {
+          for {
+            maybeAcc14      <- getDeclaration(mrn)
+            _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(maybeAcc14)
+            updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
+            updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
+          } yield updatedJourney2
+        }.fold(
+          errors =>
+            if (errors.contains(EnterMovementReferenceNumberUtil.SUBSIDY_PAYMENT_FOUND_ERROR)) {
+              (
+                journey,
+                BadRequest(
+                  viewTemplate(filledForm.withError("enter-movement-reference-number", "error.subsidy-payment-found"))(
+                    request
+                  )
+                )
+              )
+            } else {
               logger.error(s"Unable to record $mrn", errors.toException)
               (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
             },
-            updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
-          )
-      )
+          updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
+        )
+    )
   }
 
   private def updateJourney(
@@ -92,7 +104,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
-          modifyJourney(journey, mrn, acc14).left.map(Error.apply(_))
+          modifyJourney(journey, mrn, acc14).left.map(Error.apply)
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))
@@ -101,5 +113,20 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   private def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     claimService
       .getDisplayDeclaration(mrn)
+}
 
+object EnterMovementReferenceNumberUtil {
+  val SUBSIDY_PAYMENT_FOUND_ERROR = "SUBSIDY_PAYMENT_FOUND_ERROR"
+
+  def validateDeclarationHasSubsidyPayment(
+    maybeAcc14: Option[DisplayDeclaration]
+  )(implicit ec: ExecutionContext): EitherT[Future, Error, Unit] =
+    maybeAcc14 match {
+      case None              => EitherT.rightT(())
+      case Some(declaration) =>
+        if (declaration.hasSubsidyPayment)
+          EitherT.leftT(Error(SUBSIDY_PAYMENT_FOUND_ERROR))
+        else
+          EitherT.rightT(())
+    }
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdValue
 
@@ -25,6 +26,9 @@ final case class Error(message: String, throwable: Option[Throwable], identifier
     case Some(t) => new Exception(message, t)
     case None    => new Exception(message)
   }
+
+  def contains(expected: String): Boolean =
+    message === expected
 
 }
 

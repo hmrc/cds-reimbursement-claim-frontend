@@ -80,5 +80,7 @@ object JourneyValidationErrors {
     "duplicateMovementReferenceNumberNotRequired"
   val DUTIES_CHANGE_MODE_ENABLED: String                                        =
     "dutiesChangeModeEnabled"
+  val DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT: String                           =
+    "displayDeclarationHasSubsidyPayment"
 
 }

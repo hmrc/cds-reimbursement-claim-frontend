@@ -45,6 +45,9 @@ trait CommonJourneyProperties {
   def needsBanksAccountDetailsSubmission: Boolean
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]]
 
+  def getDisplayDeclarations: Seq[DisplayDeclaration] =
+    getLeadDisplayDeclaration.fold(Seq.empty[DisplayDeclaration])(Seq.apply(_))
+
   final val ZERO: BigDecimal = BigDecimal("0")
 
   final def hasCompleteSupportingEvidences: Boolean =
