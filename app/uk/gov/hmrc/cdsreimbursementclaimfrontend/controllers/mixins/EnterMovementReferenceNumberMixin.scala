@@ -74,7 +74,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
             maybeAcc14      <- getDeclaration(mrn)
             _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(maybeAcc14)
             updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
-            updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, true)
+            updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
           } yield updatedJourney2
         }.fold(
           errors =>
@@ -104,7 +104,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
-          modifyJourney(journey, mrn, acc14).left.map(Error.apply(_))
+          modifyJourney(journey, mrn, acc14).left.map(Error.apply)
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))
@@ -120,7 +120,7 @@ object EnterMovementReferenceNumberUtil {
 
   def validateDeclarationHasSubsidyPayment(
     maybeAcc14: Option[DisplayDeclaration]
-  )(implicit viewConfig: ViewConfig, ec: ExecutionContext): EitherT[Future, Error, Unit] =
+  )(implicit ec: ExecutionContext): EitherT[Future, Error, Unit] =
     maybeAcc14 match {
       case None              => EitherT.rightT(())
       case Some(declaration) =>
