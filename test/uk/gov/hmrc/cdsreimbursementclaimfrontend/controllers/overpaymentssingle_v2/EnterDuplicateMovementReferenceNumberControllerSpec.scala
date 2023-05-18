@@ -41,15 +41,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -61,6 +64,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
+    with DeclarationSupport
     with BeforeAndAfterEach {
 
   val mockClaimService: ClaimService = mock[ClaimService]
@@ -290,6 +294,29 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
               routes.EnterImporterEoriNumberOfDuplicateDeclaration.show
             )
           }
+      }
+
+      "reject an MRN with subsidies payment method" in forAll(genMRN, journeyGen) { (mrn: MRN, journey) =>
+        val displayDeclaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(mrn.value)
+            .withSubsidiesPaymentMethod()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterDuplicateMovementReferenceNumberKey -> mrn.value),
+          messageFromMessageKey("enter-duplicate-movement-reference-number.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-duplicate-movement-reference-number.error.subsidy-payment-found"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
       }
     }
   }

@@ -53,6 +53,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     extends OverpaymentsSingleJourneyBaseController
     with EnterMovementReferenceNumberMixin {
 
+  override val formKey = "enter-duplicate-movement-reference-number"
+
   override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
     featureSwitchService.isEnabled(Feature.XiEori)
 
@@ -86,7 +88,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
     journey.submitUserXiEori(userXiEori)
 
-  override def needsUserXiEoriSubmission(journey: Journey) =
+  override def needsUserXiEoriSubmission(journey: Journey): Boolean =
     journey.needsUserXiEoriSubmissionForDuplicateDeclaration
 
   override def afterSuccessfullSubmit(journey: OverpaymentsSingleJourney): Result =
