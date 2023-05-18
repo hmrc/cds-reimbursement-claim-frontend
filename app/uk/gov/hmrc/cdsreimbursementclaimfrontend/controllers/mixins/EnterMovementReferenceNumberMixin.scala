@@ -46,6 +46,8 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
   def afterSuccessfullSubmit(journey: Journey): Result
 
+  val formKey = "enter-movement-reference-number"
+
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       Ok(
@@ -82,7 +84,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
               (
                 journey,
                 BadRequest(
-                  viewTemplate(filledForm.withError("enter-movement-reference-number", "error.subsidy-payment-found"))(
+                  viewTemplate(filledForm.withError(formKey, "error.subsidy-payment-found"))(
                     request
                   )
                 )
