@@ -54,6 +54,8 @@ class EnterMovementReferenceNumberController @Inject() (
   override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
     featureSwitchService.isEnabled(Feature.XiEori)
 
+  override val formKey: String = "enter-movement-reference-number.rejected-goods"
+
   override def form(journey: Journey): Form[MRN] =
     Forms.movementReferenceNumberRejectedGoodsForm
 

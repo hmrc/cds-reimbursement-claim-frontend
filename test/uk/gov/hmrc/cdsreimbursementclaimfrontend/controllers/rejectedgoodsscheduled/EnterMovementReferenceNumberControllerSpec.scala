@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -50,6 +51,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -62,6 +64,7 @@ class EnterMovementReferenceNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with DeclarationSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
     with OptionValues {
@@ -365,6 +368,31 @@ class EnterMovementReferenceNumberControllerSpec
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
           routes.EnterImporterEoriNumberController.show()
+        )
+      }
+
+      "reject an MRN with subsidies payment method" in forAll { (mrn: MRN, declarant: Eori, consignee: Eori) =>
+        val displayDeclaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(mrn.value)
+            .withDeclarantEori(declarant)
+            .withConsigneeEori(consignee)
+            .withSubsidiesPaymentMethod()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
+        }
+
+        checkPageIsDisplayed(
+          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
+          messageFromMessageKey("enter-movement-reference-number.scheduled.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-movement-reference-number.error.subsidy-payment-found"
+            ),
+          expectedStatus = BAD_REQUEST
         )
       }
 
