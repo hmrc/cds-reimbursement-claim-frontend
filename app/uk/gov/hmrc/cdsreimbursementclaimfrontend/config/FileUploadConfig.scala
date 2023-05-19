@@ -39,7 +39,7 @@ class FileUploadConfig @Inject() (config: Configuration) {
     getUpscanInitiateConfig[Long](s"$uploadDocumentKey.max-file-size")
 
   def readMaxFileSizeHumanReadable(uploadDocumentKey: String): String =
-    s"${getUpscanInitiateConfig[Long](s"$uploadDocumentKey.max-file-size") / (1024 * 1024)}MB"
+    s"${humanReadableFileSize(getUpscanInitiateConfig[Long](s"$uploadDocumentKey.max-file-size"))}"
 
   def readMaxUploadsValue(uploadDocumentKey: String): Int =
     getUpscanInitiateConfig[Int](s"$uploadDocumentKey.max-uploads")
@@ -48,4 +48,10 @@ class FileUploadConfig @Inject() (config: Configuration) {
     config.underlying
       .get[A](s"microservice.services.upscan-initiate.$key")
       .value
+
+  private def humanReadableFileSize(bytes: Long): String =
+    if (bytes >= 1000000000) s"${(bytes / 1000000000)} GB"
+    else if (bytes >= 1000000) s"${(bytes / 1000000)} MB"
+    else if (bytes >= 1000) s"${(bytes / 1000)} kB"
+    else s"$bytes B"
 }
