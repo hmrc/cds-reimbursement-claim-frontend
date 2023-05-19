@@ -213,6 +213,9 @@ final class OverpaymentsSingleJourney private (
     BasisOfOverpaymentClaimsList()
       .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
 
+  def hasCmaReimbursementMethod =
+    answers.reimbursementMethod.contains(CurrentMonthAdjustment)
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
@@ -482,14 +485,13 @@ final class OverpaymentsSingleJourney private (
                   }: _*)
               }
 
-              val updatedJourney =
-                if (hasCmaReimbursementMethod && !isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts))
-                  resetReimbursementMethod()
-                else
-                  this
-
               Right(
-                new OverpaymentsSingleJourney(updatedJourney.answers.copy(correctedAmounts = Some(newCorrectedAmounts)))
+                new OverpaymentsSingleJourney(
+                  if (!isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts))
+                    answers.copy(correctedAmounts = Some(newCorrectedAmounts), reimbursementMethod = None)
+                  else
+                    answers.copy(correctedAmounts = Some(newCorrectedAmounts))
+                )
               )
             } else
               Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
@@ -551,9 +553,6 @@ final class OverpaymentsSingleJourney private (
         )
       else Left("submitBankAccountType.unexpected")
     }
-
-  def hasCmaReimbursementMethod =
-    answers.reimbursementMethod.contains(CurrentMonthAdjustment)
 
   def submitReimbursementMethod(
     reimbursementMethod: ReimbursementMethod

@@ -806,6 +806,58 @@ class OverpaymentsSingleJourneySpec
 
     }
 
+    "replace valid tax codes for reimbursement with non-CMA duty addition when CurrentMonthAdjustment" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq(
+          (TaxCode.A00, BigDecimal("10.00"), false),
+          (TaxCode.A90, BigDecimal("20.00"), false),
+          (TaxCode.A20, BigDecimal("30.00"), true)
+        )
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20)))
+        .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
+
+      journeyEither.getOrFail.getSelectedDuties           shouldBe Some(Seq(TaxCode.A20))
+      journeyEither.getOrFail.answers.reimbursementMethod shouldBe Some(ReimbursementMethod.CurrentMonthAdjustment)
+
+      val journeyEither2 =
+        journeyEither.flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20, TaxCode.A00)))
+
+      journeyEither2.getOrFail.getSelectedDuties           shouldBe Some(
+        Seq(TaxCode.A20, TaxCode.A00)
+      )
+      journeyEither2.getOrFail.answers.reimbursementMethod shouldBe None
+    }
+
+    "replace valid tax codes for reimbursement with non-CMA duty addition when BankAccountTransfer" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq(
+          (TaxCode.A00, BigDecimal("10.00"), false),
+          (TaxCode.A90, BigDecimal("20.00"), false),
+          (TaxCode.A20, BigDecimal("30.00"), true)
+        )
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20)))
+        .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+
+      journeyEither.getOrFail.getSelectedDuties           shouldBe Some(Seq(TaxCode.A20))
+      journeyEither.getOrFail.answers.reimbursementMethod shouldBe Some(ReimbursementMethod.BankAccountTransfer)
+
+      val journeyEither2 =
+        journeyEither.flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20, TaxCode.A00)))
+
+      journeyEither2.getOrFail.getSelectedDuties           shouldBe Some(
+        Seq(TaxCode.A20, TaxCode.A00)
+      )
+      journeyEither2.getOrFail.answers.reimbursementMethod shouldBe None
+    }
+
     "select invalid tax codes for reimbursement" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))

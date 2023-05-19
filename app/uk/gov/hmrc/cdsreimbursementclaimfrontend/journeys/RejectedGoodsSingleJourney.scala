@@ -20,7 +20,7 @@ import cats.Eq
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDate
@@ -99,6 +100,12 @@ final class RejectedGoodsSingleJourney private (
       .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
       .exists(_.forall(_.isCmaEligible))
 
+  def isAllSelectedDutiesAreCMAEligible(amounts: RejectedGoodsSingleJourney.ReimbursementClaims): Boolean =
+    amounts.keySet
+      .map(getNdrcDetailsFor)
+      .collect { case Some(d) => d }
+      .forall(_.isCmaEligible)
+
   def getReimbursementClaims: Map[TaxCode, BigDecimal] =
     answers.reimbursementClaims
       .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
@@ -113,6 +120,9 @@ final class RejectedGoodsSingleJourney private (
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
+
+  def hasCmaReimbursementMethod =
+    answers.reimbursementMethod.contains(CurrentMonthAdjustment)
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(answers.copy(dutiesChangeMode = enabled))
@@ -283,7 +293,15 @@ final class RejectedGoodsSingleJourney private (
                     taxCode -> reimbursementClaims.get(taxCode).flatten
                   }: _*)
               }
-              Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+
+              Right(
+                new RejectedGoodsSingleJourney(
+                  if (!isAllSelectedDutiesAreCMAEligible(newReimbursementClaims))
+                    answers.copy(reimbursementClaims = Some(newReimbursementClaims), reimbursementMethod = None)
+                  else
+                    answers.copy(reimbursementClaims = Some(newReimbursementClaims))
+                )
+              )
             } else
               Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
           }
