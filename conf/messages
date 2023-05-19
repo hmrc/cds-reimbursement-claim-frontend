@@ -313,6 +313,7 @@ enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
 enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number (MRN)
+enter-movement-reference-number.rejected-goods.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
 enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} MRN
@@ -325,7 +326,6 @@ enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} MRN
 enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001.
-
 enter-movement-reference-number.rejected-goods.details.heading=Finding your MRN
 enter-movement-reference-number.rejected-goods.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 

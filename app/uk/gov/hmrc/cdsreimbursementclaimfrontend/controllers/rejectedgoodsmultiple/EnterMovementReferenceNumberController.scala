@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberRejectedGoodsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes.subKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -87,6 +88,7 @@ class EnterMovementReferenceNumberController @Inject() (
       ).asFuture
     else {
       val mrnIndex: Int = pageIndex - 1
+      val filledForm    = movementReferenceNumberRejectedGoodsForm.bindFromRequest()
       movementReferenceNumberRejectedGoodsForm
         .bindFromRequest()
         .fold(
@@ -106,12 +108,26 @@ class EnterMovementReferenceNumberController @Inject() (
             {
               for {
                 maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
+                _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(maybeAcc14)
                 updatedJourney  <- updateJourney(journey, mrnIndex, mrn, maybeAcc14)
                 updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, mrnIndex === 0)
               } yield updatedJourney2
             }.fold(
               error =>
-                if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
+                if (error.message === EnterMovementReferenceNumberUtil.SUBSIDY_PAYMENT_FOUND_ERROR) {
+                  (
+                    journey,
+                    BadRequest(
+                      enterMovementReferenceNumberPage(
+                        filledForm
+                          .withError("enter-movement-reference-number.rejected-goods", "error.subsidy-payment-found"),
+                        subKey,
+                        pageIndex,
+                        routes.EnterMovementReferenceNumberController.submit(pageIndex)
+                      )
+                    )
+                  )
+                } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
                 } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
@@ -134,7 +150,7 @@ class EnterMovementReferenceNumberController @Inject() (
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
-          journey.submitMovementReferenceNumberAndDeclaration(mrnIndex, mrn, acc14).left.map(Error.apply(_))
+          journey.submitMovementReferenceNumberAndDeclaration(mrnIndex, mrn, acc14).left.map(Error.apply)
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))
