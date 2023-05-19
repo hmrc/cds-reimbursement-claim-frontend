@@ -78,43 +78,46 @@ class CheckClaimDetailsController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      journey.answers.movementReferenceNumber match {
-        case Some(mrn) =>
-          whetherClaimDetailsCorrect
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  journey,
-                  BadRequest(
-                    checkClaimDetails(
-                      formWithErrors,
-                      mrn,
-                      journey.getReimbursementClaims.toSeq,
-                      enterClaimAction,
-                      routes.CheckClaimDetailsController.submit()
-                    )
-                  )
-                ).asFuture,
-              {
-                case Yes =>
+    actionReadWriteJourney(
+      { implicit request => journey =>
+        journey.answers.movementReferenceNumber match {
+          case Some(mrn) =>
+            whetherClaimDetailsCorrect
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
                   (
                     journey,
-                    Redirect(
-                      if (journey.userHasSeenCYAPage) checkYourAnswers
-                      else routes.EnterInspectionDateController.show()
+                    BadRequest(
+                      checkClaimDetails(
+                        formWithErrors,
+                        mrn,
+                        journey.getReimbursementClaims.toSeq,
+                        enterClaimAction,
+                        routes.CheckClaimDetailsController.submit()
+                      )
                     )
-                  ).asFuture
-                case No  =>
-                  (
-                    journey.withDutiesChangeMode(true),
-                    Redirect(routes.SelectDutiesController.show())
-                  ).asFuture
-              }
-            )
-        case None      =>
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
-      }
-    }
+                  ).asFuture,
+                {
+                  case Yes =>
+                    (
+                      journey,
+                      Redirect(
+                        if (journey.userHasSeenCYAPage) checkYourAnswers
+                        else routes.EnterInspectionDateController.show()
+                      )
+                    ).asFuture
+                  case No  =>
+                    (
+                      journey.withDutiesChangeMode(true),
+                      Redirect(routes.SelectDutiesController.show())
+                    ).asFuture
+                }
+              )
+          case None      =>
+            (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+        }
+      },
+      fastForwardToCYAEnabled = false
+    )
 }
