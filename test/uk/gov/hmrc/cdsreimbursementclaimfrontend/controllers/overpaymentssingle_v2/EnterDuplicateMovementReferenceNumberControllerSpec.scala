@@ -297,6 +297,8 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       "reject an MRN with subsidies payment method" in forAll(genMRN, journeyGen) { (mrn: MRN, journey) =>
+        featureSwitch.enable(Feature.BlockSubsidies)
+
         val displayDeclaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)

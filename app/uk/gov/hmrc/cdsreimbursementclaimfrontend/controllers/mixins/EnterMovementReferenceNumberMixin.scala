@@ -27,9 +27,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -40,7 +42,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey]
 
   def claimService: ClaimService
-
+  def featureSwitchService: FeatureSwitchService
   def form(journey: Journey): Form[MRN]
   def getMovementReferenceNumber(journey: Journey): Option[MRN]
   def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
@@ -74,7 +76,10 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
         {
           for {
             maybeAcc14      <- getDeclaration(mrn)
-            _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(maybeAcc14)
+            _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(
+                                 featureSwitchService.isEnabled(Feature.BlockSubsidies),
+                                 maybeAcc14
+                               )
             updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
             updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
           } yield updatedJourney2
@@ -121,11 +126,13 @@ object EnterMovementReferenceNumberUtil {
   val SUBSIDY_PAYMENT_FOUND_ERROR = "SUBSIDY_PAYMENT_FOUND_ERROR"
 
   def validateDeclarationHasSubsidyPayment(
+    blockSubsidies: Boolean,
     maybeAcc14: Option[DisplayDeclaration]
   )(implicit ec: ExecutionContext): EitherT[Future, Error, Unit] =
-    maybeAcc14 match {
-      case None              => EitherT.rightT(())
-      case Some(declaration) =>
+    (blockSubsidies, maybeAcc14) match {
+      case (false, _)             => EitherT.rightT(())
+      case (_, None)              => EitherT.rightT(())
+      case (_, Some(declaration)) =>
         if (declaration.hasSubsidyPayment)
           EitherT.leftT(Error(SUBSIDY_PAYMENT_FOUND_ERROR))
         else

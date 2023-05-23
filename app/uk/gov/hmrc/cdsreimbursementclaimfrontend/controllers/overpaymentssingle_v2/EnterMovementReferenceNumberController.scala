@@ -46,7 +46,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
-  featureSwitchService: FeatureSwitchService,
+  val featureSwitchService: FeatureSwitchService,
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends OverpaymentsSingleJourneyBaseController
