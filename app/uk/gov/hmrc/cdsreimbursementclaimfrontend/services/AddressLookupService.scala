@@ -91,7 +91,7 @@ class DefaultAddressLookupService @Inject() (
     val request: AddressLookupRequest =
       AddressLookupRequest
         .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateUrl.url}")
-        .signOutUserVia(viewConfig.signOutUrl)
+        .signOutUserVia(viewConfig.ggSignOut)
         .nameConsumerServiceAs("cds-reimbursement-claim")
         .withPageTitles(
           fullPageTitle("address-lookup.lookup.title").some,

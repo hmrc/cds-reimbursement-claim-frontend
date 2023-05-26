@@ -84,7 +84,7 @@ class AddressLookupServiceSpec
 
   val addressLookupRequest: AddressLookupRequest = AddressLookupRequest
     .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateCall.url}")
-    .signOutUserVia(viewConfig.signOutUrl)
+    .signOutUserVia(viewConfig.ggSignOut)
     .nameConsumerServiceAs("cds-reimbursement-claim")
     .showMax(addressLookupConfig.addressesShowLimit)
     .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
