@@ -28,17 +28,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
   */
 trait JourneyCompanion[T] extends ImplicitFluentSyntax[T] with SeqUtils {
 
+  type Features
   type Answers
   type Output
 
   /** Create an empty initial instance of the journey. */
-  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): T
+  def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random, features: Option[Features] = None): T
 
   /** Validator of the journey answers consistency and completeness. */
   def validator: Validate[T]
 
   /** Tries to build journey state out of supplied answers. */
-  def tryBuildFrom(answers: Answers): Either[String, T]
+  def tryBuildFrom(answers: Answers, features: Option[Features] = None): Either[String, T]
 
   implicit final lazy val answersEquality: Eq[Answers] =
     Eq.fromUniversalEquals[Answers]

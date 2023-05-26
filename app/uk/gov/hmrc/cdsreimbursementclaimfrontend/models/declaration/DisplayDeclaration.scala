@@ -202,8 +202,10 @@ final case class DisplayDeclaration(
     securityDepositIds
       .exists(sid => getSecurityDetailsFor(sid).exists(_.isBankAccountPayment))
 
-  def hasSubsidyPayment: Boolean =
+  def hasSubsidyPayment: Boolean = {
+    println(this)
     displayResponseDetail.ndrcDetails.exists(_.exists(_.paymentMethod === "006"))
+  }
 
 }
 

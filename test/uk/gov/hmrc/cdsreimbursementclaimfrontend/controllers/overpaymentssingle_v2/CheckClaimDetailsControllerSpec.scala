@@ -83,7 +83,7 @@ class CheckClaimDetailsControllerSpec
   }
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(
+    buildJourneyFromAnswersGen(
       buildAnswersGen(
         submitBankAccountDetails = false,
         submitBankAccountType = false,

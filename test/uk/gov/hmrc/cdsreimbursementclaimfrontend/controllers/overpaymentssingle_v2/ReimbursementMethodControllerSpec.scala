@@ -77,7 +77,7 @@ class ReimbursementMethodControllerSpec
   }
 
   val journeyCMAEligibleGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(
+    buildJourneyFromAnswersGen(
       buildAnswersGen(
         allDutiesCmaEligible = true,
         submitBankAccountDetails = false,
@@ -90,7 +90,7 @@ class ReimbursementMethodControllerSpec
     )
 
   val journeyNotCMAEligibleGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(
+    buildJourneyFromAnswersGen(
       buildAnswersGen(
         allDutiesCmaEligible = false,
         submitBankAccountDetails = false,

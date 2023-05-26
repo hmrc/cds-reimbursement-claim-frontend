@@ -137,7 +137,9 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethod] = None
+    reimbursementMethod: Option[ReimbursementMethod] = None,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[RejectedGoodsSingleJourney.Features] = None
   ): Gen[RejectedGoodsSingleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -149,7 +151,9 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
-      reimbursementMethod = reimbursementMethod
+      reimbursementMethod = reimbursementMethod,
+      allowSubsidyPayments = allowSubsidyPayments,
+      features = features
     ).map(
       _.fold(
         error =>
@@ -171,7 +175,9 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    reimbursementMethod: Option[ReimbursementMethod] = None
+    reimbursementMethod: Option[ReimbursementMethod] = None,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[RejectedGoodsSingleJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -223,7 +229,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
           paidDuties,
           consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
-          declarantContact = declarantContact
+          declarantContact = declarantContact,
+          allowSubsidyPayments = allowSubsidyPayments
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
@@ -279,7 +286,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           checkYourAnswersChangeMode = true
         )
 
-      RejectedGoodsSingleJourney.tryBuildFrom(answers)
+      RejectedGoodsSingleJourney.tryBuildFrom(answers, features)
     }
 
 }

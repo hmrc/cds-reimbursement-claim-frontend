@@ -17,11 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SubsidiesFeatures
 
 /** Common properties of the overpayments single, multiple and scheduled journeys. */
 trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
 
   override def answers: OverpaymentsAnswers
+  def features: Option[SubsidiesFeatures]
 
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal

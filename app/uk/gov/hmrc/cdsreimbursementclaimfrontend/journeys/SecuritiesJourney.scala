@@ -776,10 +776,17 @@ final class SecuritiesJourney private (
 object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
   /** A starting point to build new instance of the journey. */
-  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): SecuritiesJourney =
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): SecuritiesJourney =
     new SecuritiesJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
 
   type SecuritiesReclaims = SortedMap[TaxCode, Option[BigDecimal]]
+
+  // so far empty but required by the JourneyCompanion interface
+  final case class Features()
 
   final case class Answers(
     nonce: Nonce = Nonce.random,
@@ -902,8 +909,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
     )
 
-  override def tryBuildFrom(answers: Answers): Either[String, SecuritiesJourney] =
-    empty(answers.userEoriNumber, answers.nonce)
+  override def tryBuildFrom(answers: Answers, features: Option[Features] = None): Either[String, SecuritiesJourney] =
+    empty(answers.userEoriNumber, answers.nonce, features)
       .mapWhenDefined(answers.movementReferenceNumber)(_.submitMovementReferenceNumber)
       .flatMapWhenDefined(
         answers.reasonForSecurity.zip(answers.displayDeclaration)

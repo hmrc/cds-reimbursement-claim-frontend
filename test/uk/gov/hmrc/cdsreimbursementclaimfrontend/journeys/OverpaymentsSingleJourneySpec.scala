@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import java.util.Locale
+import com.github.arturopala.validator.Validator
 import org.scalacheck.Gen
 import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
@@ -31,6 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Authenticated
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+
+import java.util.Locale
 
 class OverpaymentsSingleJourneySpec
     extends AnyWordSpec
@@ -1181,6 +1183,45 @@ class OverpaymentsSingleJourneySpec
               journey.hasCompleteReimbursementClaims shouldBe false
             }
         }
+      }
+    }
+
+    "validate subsidy payment methods in declaration" when {
+
+      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
+
+      "feature not enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withSubsidiesPaymentMethod()
+
+        val journey = OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe None
+
+        OverpaymentsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Valid
+      }
+
+      "feature enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withSubsidiesPaymentMethod()
+
+        val journey = OverpaymentsSingleJourney
+          .empty(exampleEori, features = Some(OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true)))
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe Some(OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true))
+
+        OverpaymentsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
       }
     }
   }

@@ -42,7 +42,8 @@ import java.time.LocalDate
   */
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
-  val caseNumber: Option[String] = None
+  val caseNumber: Option[String] = None,
+  @annotation.nowarn val features: Option[RejectedGoodsMultipleJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsMultipleJourney]
     with RejectedGoodsJourneyProperties
@@ -56,6 +57,11 @@ final class RejectedGoodsMultipleJourney private (
 
   val validate: Validator.Validate[RejectedGoodsMultipleJourney] =
     RejectedGoodsMultipleJourney.validator
+
+  private def copy(
+    newAnswers: RejectedGoodsMultipleJourney.Answers
+  ): RejectedGoodsMultipleJourney =
+    new RejectedGoodsMultipleJourney(newAnswers, caseNumber, features)
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -193,7 +199,7 @@ final class RejectedGoodsMultipleJourney private (
     getReimbursementClaims.values.flatMap(_.values).sum
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
-    new RejectedGoodsMultipleJourney(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(dutiesChangeMode = enabled))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsMultipleDocumentTypes)
@@ -248,13 +254,14 @@ final class RejectedGoodsMultipleJourney private (
                       displayDeclarations = Some(Seq(displayDeclaration)),
                       eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                       nonce = answers.nonce
-                    )
+                    ),
+                  features = features
                 )
               )
             } else {
               // change of an existing MRN removes related declaration and claims
               Right(
-                new RejectedGoodsMultipleJourney(
+                this.copy(
                   answers.copy(
                     movementReferenceNumbers = answers.movementReferenceNumbers
                       .map(mrns => (mrns.take(index) :+ mrn) ++ mrns.drop(index + 1)),
@@ -274,7 +281,7 @@ final class RejectedGoodsMultipleJourney private (
               Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
             else
               Right(
-                new RejectedGoodsMultipleJourney(
+                this.copy(
                   answers.copy(
                     movementReferenceNumbers = answers.movementReferenceNumbers.map(_ :+ mrn).orElse(Some(Seq(mrn))),
                     displayDeclarations =
@@ -297,7 +304,7 @@ final class RejectedGoodsMultipleJourney private (
           Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveSecondMRN")
         case Some(index)                                      =>
           Right(
-            new RejectedGoodsMultipleJourney(
+            this.copy(
               answers.copy(
                 movementReferenceNumbers = answers.movementReferenceNumbers
                   .map(mrns => mrns.take(index) ++ mrns.drop(index + 1)),
@@ -313,7 +320,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitUserXiEori(userXiEori: UserXiEori): RejectedGoodsMultipleJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(
+      this.copy(
         answers.copy(eoriNumbersVerification =
           answers.eoriNumbersVerification
             .orElse(Some(EoriNumbersVerification()))
@@ -332,7 +339,7 @@ final class RejectedGoodsMultipleJourney private (
           }
         )
           Right(
-            new RejectedGoodsMultipleJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -352,7 +359,7 @@ final class RejectedGoodsMultipleJourney private (
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
-            new RejectedGoodsMultipleJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -366,14 +373,14 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]) =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(
+      this.copy(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress) =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(
+      this.copy(
         answers.copy(contactAddress = Some(contactAddress))
       )
     }
@@ -382,10 +389,10 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       basisOfClaim match {
         case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
-          new RejectedGoodsMultipleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+          this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
 
         case _ =>
-          new RejectedGoodsMultipleJourney(
+          this.copy(
             answers.copy(
               basisOfClaim = Some(basisOfClaim),
               basisOfClaimSpecialCircumstances = None
@@ -401,7 +408,7 @@ final class RejectedGoodsMultipleJourney private (
       answers.basisOfClaim match {
         case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
           Right(
-            new RejectedGoodsMultipleJourney(
+            this.copy(
               answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
             )
           )
@@ -411,14 +418,14 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsMultipleJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(
+      this.copy(
         answers.copy(methodOfDisposal = Some(methodOfDisposal))
       )
     }
 
   def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsMultipleJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(
+      this.copy(
         answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
       )
     }
@@ -450,7 +457,7 @@ final class RejectedGoodsMultipleJourney private (
                 }
 
               Right(
-                new RejectedGoodsMultipleJourney(
+                this.copy(
                   answers.copy(reimbursementClaims =
                     answers.reimbursementClaims
                       .map(_ + (mrn -> newReimbursementClaims))
@@ -490,7 +497,7 @@ final class RejectedGoodsMultipleJourney private (
                     case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
                   }
                 Right(
-                  new RejectedGoodsMultipleJourney(
+                  this.copy(
                     answers.copy(reimbursementClaims =
                       answers.reimbursementClaims
                         .map(_ + (mrn -> newReimbursementClaims))
@@ -511,14 +518,14 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsMultipleJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(
+      this.copy(
         answers.copy(inspectionDate = Some(inspectionDate))
       )
     }
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsMultipleJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(
+      this.copy(
         answers.copy(inspectionAddress = Some(inspectionAddress))
       )
     }
@@ -527,7 +534,7 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new RejectedGoodsMultipleJourney(
+          this.copy(
             answers.copy(bankAccountDetails = Some(bankAccountDetails))
           )
         )
@@ -538,7 +545,7 @@ final class RejectedGoodsMultipleJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new RejectedGoodsMultipleJourney(
+          this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
           )
         )
@@ -547,7 +554,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsMultipleJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsMultipleJourney(answers.copy(selectedDocumentType = Some(documentType)))
+      this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -563,7 +570,7 @@ final class RejectedGoodsMultipleJourney private (
           case uf                            => uf
         }
         Right(
-          new RejectedGoodsMultipleJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+          this.copy(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
         )
       } else Left("receiveUploadedFiles.invalidNonce")
     }
@@ -573,7 +580,7 @@ final class RejectedGoodsMultipleJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => new RejectedGoodsMultipleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
         )
     }
 
@@ -582,7 +589,14 @@ final class RejectedGoodsMultipleJourney private (
       validate(this)
         .fold(
           errors => Left(errors.headMessage),
-          _ => Right(new RejectedGoodsMultipleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
+          _ =>
+            Right(
+              new RejectedGoodsMultipleJourney(
+                answers = this.answers,
+                caseNumber = Some(caseNumber),
+                features = features
+              )
+            )
         )
     }
 
@@ -635,10 +649,18 @@ final class RejectedGoodsMultipleJourney private (
 object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultipleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsMultipleJourney =
-    new RejectedGoodsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): RejectedGoodsMultipleJourney =
+    new RejectedGoodsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
 
   type ReimbursementClaims = OrderedMap[TaxCode, Option[BigDecimal]]
+
+  final case class Features(
+    shouldBlockSubsidies: Boolean
+  ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 multiple MRNs journey
   final case class Answers(
@@ -708,10 +730,15 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments
+      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
     )
 
   import JourneyFormats._
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
 
   object Answers {
     implicit val format: Format[Answers] =
@@ -726,13 +753,20 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
   implicit val format: Format[RejectedGoodsMultipleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "caseNumber").readNullable[String])(new RejectedGoodsMultipleJourney(_, _)),
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsMultipleJourney(_, _, _)),
       ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "features").writeNullable[Features])(journey =>
+        (journey.answers, journey.caseNumber, journey.features)
+      )
     )
 
-  override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsMultipleJourney] =
-    empty(answers.userEoriNumber, answers.nonce)
+  override def tryBuildFrom(
+    answers: Answers,
+    features: Option[Features] = None
+  ): Either[String, RejectedGoodsMultipleJourney] =
+    empty(answers.userEoriNumber, answers.nonce, features)
       .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.displayDeclarations).zipWithIndex)(j => {
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)

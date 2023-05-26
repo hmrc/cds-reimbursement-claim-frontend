@@ -91,7 +91,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     submitBankAccountType: Boolean = true,
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
-    maxSize: Int = 5
+    maxSize: Int = 5,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[OverpaymentsMultipleJourney.Features] = None
   ): Gen[OverpaymentsMultipleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -104,7 +106,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       submitBankAccountDetails = submitBankAccountDetails,
       minNumberOfMRNs = minNumberOfMRNs,
       maxNumberOfMRNs = maxNumberOfMRNs,
-      maxSize = maxSize
+      maxSize = maxSize,
+      allowSubsidyPayments = allowSubsidyPayments,
+      features = features
     ).map(
       _.fold(
         error =>
@@ -143,7 +147,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     submitBankAccountType: Boolean = true,
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
-    maxSize: Int = 5
+    maxSize: Int = 5,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[OverpaymentsMultipleJourney.Features] = None
   ): Gen[Either[String, OverpaymentsMultipleJourney]] =
     buildAnswersGen(
       acc14DeclarantMatchesUserEori,
@@ -157,9 +163,10 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       submitBankAccountType,
       minNumberOfMRNs,
       maxNumberOfMRNs,
-      maxSize
+      maxSize,
+      allowSubsidyPayments = allowSubsidyPayments
     )
-      .map(OverpaymentsMultipleJourney.tryBuildFrom(_))
+      .map(OverpaymentsMultipleJourney.tryBuildFrom(_, features))
 
   def buildAnswersGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -173,7 +180,8 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     submitBankAccountType: Boolean = true,
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
-    maxSize: Int = 5
+    maxSize: Int = 5,
+    allowSubsidyPayments: Boolean = false
   ): Gen[OverpaymentsMultipleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -228,7 +236,8 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
             if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
             paidDutiesPerMrn,
             consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
-            declarantContact = declarantContact
+            declarantContact = declarantContact,
+            allowSubsidyPayments = allowSubsidyPayments
           )
         }
 
@@ -270,7 +279,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       answers
     }
 
-  def buildJourneyGen(answersGen: Gen[OverpaymentsMultipleJourney.Answers]): Gen[OverpaymentsMultipleJourney] =
+  def buildJourneyFromAnswersGen(
+    answersGen: Gen[OverpaymentsMultipleJourney.Answers]
+  ): Gen[OverpaymentsMultipleJourney] =
     answersGen.map(
       OverpaymentsMultipleJourney
         .tryBuildFrom(_)

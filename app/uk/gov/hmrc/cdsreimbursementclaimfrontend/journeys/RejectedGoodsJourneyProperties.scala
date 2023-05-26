@@ -17,11 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SubsidiesFeatures
 
 /** Common properties of the rejected-goods single, multiple and scheduled journeys. */
 trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
 
   def answers: RejectedGoodsAnswers
+  def features: Option[SubsidiesFeatures]
 
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal

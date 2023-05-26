@@ -67,7 +67,7 @@ class BasisForClaimControllerSpec
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
   val journeyGen: Gen[OverpaymentsMultipleJourney] =
-    buildJourneyGen(answersUpToBasisForClaimGen())
+    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
 
   def assertPageContent(
     doc: Document,

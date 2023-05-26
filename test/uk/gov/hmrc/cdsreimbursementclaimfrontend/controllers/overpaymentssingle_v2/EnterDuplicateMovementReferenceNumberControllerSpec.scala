@@ -46,7 +46,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -97,7 +96,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       .returning(EitherT.fromEither[Future](response))
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(answersUpToBasisForClaimGen())
+    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
 
   "Duplicate Movement Reference Number Controller" when {

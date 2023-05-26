@@ -34,4 +34,7 @@ trait OverpaymentsJourneyChecks[T <: OverpaymentsJourneyProperties]
       checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO)
     )
 
+  final def shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments: Validate[T] =
+    whenTrue(_.features.exists(_.shouldBlockSubsidies), declarationsHasNoSubsidyPayments)
+
 }

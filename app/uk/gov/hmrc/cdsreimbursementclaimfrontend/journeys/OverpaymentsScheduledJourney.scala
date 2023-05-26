@@ -41,7 +41,8 @@ import scala.collection.immutable.SortedMap
   */
 final class OverpaymentsScheduledJourney private (
   val answers: OverpaymentsScheduledJourney.Answers,
-  val caseNumber: Option[String] = None
+  val caseNumber: Option[String] = None,
+  @annotation.nowarn val features: Option[OverpaymentsScheduledJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsScheduledJourney]
     with OverpaymentsJourneyProperties
@@ -53,6 +54,11 @@ final class OverpaymentsScheduledJourney private (
 
   val validate: Validator.Validate[OverpaymentsScheduledJourney] =
     OverpaymentsScheduledJourney.validator
+
+  private def copy(
+    newAnswers: OverpaymentsScheduledJourney.Answers
+  ): OverpaymentsScheduledJourney =
+    new OverpaymentsScheduledJourney(newAnswers, caseNumber, features)
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -209,7 +215,8 @@ final class OverpaymentsScheduledJourney private (
                     movementReferenceNumber = Some(mrn),
                     displayDeclaration = Some(displayDeclaration),
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly)
-                  )
+                  ),
+                features = features
               )
             )
       }
@@ -217,7 +224,7 @@ final class OverpaymentsScheduledJourney private (
 
   def submitUserXiEori(userXiEori: UserXiEori): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(
+      this.copy(
         answers.copy(eoriNumbersVerification =
           answers.eoriNumbersVerification
             .orElse(Some(EoriNumbersVerification()))
@@ -236,7 +243,7 @@ final class OverpaymentsScheduledJourney private (
           }
         )
           Right(
-            new OverpaymentsScheduledJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -253,7 +260,7 @@ final class OverpaymentsScheduledJourney private (
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
-            new OverpaymentsScheduledJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -267,26 +274,26 @@ final class OverpaymentsScheduledJourney private (
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(
+      this.copy(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(
+      this.copy(
         answers.copy(contactAddress = Some(contactAddress))
       )
     }
 
   def submitBasisOfClaim(basisOfClaim: BasisOfOverpaymentClaim): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+      this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
     }
 
   def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(
+      this.copy(
         answers.copy(whetherNorthernIreland = Some(whetherNorthernIreland))
       )
     }
@@ -295,7 +302,7 @@ final class OverpaymentsScheduledJourney private (
     additionalDetails: String
   ): OverpaymentsScheduledJourney                 =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(
+      this.copy(
         answers.copy(additionalDetails = Some(additionalDetails))
       )
     }
@@ -314,7 +321,7 @@ final class OverpaymentsScheduledJourney private (
                   .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]]))
               ): _*
           )
-        Right(new OverpaymentsScheduledJourney(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
+        Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
       }
     }
 
@@ -341,7 +348,7 @@ final class OverpaymentsScheduledJourney private (
                   case other                                                  => other
                 }: _*)
               }
-          Right(new OverpaymentsScheduledJourney(answers.copy(correctedAmounts = newReimbursementClaims)))
+          Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
         } else
           Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
@@ -375,7 +382,7 @@ final class OverpaymentsScheduledJourney private (
                     case other                                        => other
                   }: _*)
                 )
-            Right(new OverpaymentsScheduledJourney(answers.copy(correctedAmounts = newReimbursementClaims)))
+            Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
           } else
             Left("submitAmountForReimbursement.invalidReimbursementAmount")
         } else
@@ -387,7 +394,7 @@ final class OverpaymentsScheduledJourney private (
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       Right(
-        new OverpaymentsScheduledJourney(
+        this.copy(
           answers.copy(bankAccountDetails = Some(bankAccountDetails))
         )
       )
@@ -396,7 +403,7 @@ final class OverpaymentsScheduledJourney private (
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       Right(
-        new OverpaymentsScheduledJourney(
+        this.copy(
           answers.copy(bankAccountType = Some(bankAccountType))
         )
       )
@@ -404,7 +411,7 @@ final class OverpaymentsScheduledJourney private (
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(answers.copy(selectedDocumentType = Some(documentType)))
+      this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -420,7 +427,7 @@ final class OverpaymentsScheduledJourney private (
           case uf                            => uf
         }
         Right(
-          new OverpaymentsScheduledJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+          this.copy(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
         )
       } else Left("receiveUploadedFiles.invalidNonce")
     }
@@ -430,7 +437,7 @@ final class OverpaymentsScheduledJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => new OverpaymentsScheduledJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
         )
     }
 
@@ -439,12 +446,19 @@ final class OverpaymentsScheduledJourney private (
       validate(this)
         .fold(
           errors => Left(errors.headMessage),
-          _ => Right(new OverpaymentsScheduledJourney(answers = this.answers, caseNumber = Some(caseNumber)))
+          _ =>
+            Right(
+              new OverpaymentsScheduledJourney(
+                answers = this.answers,
+                caseNumber = Some(caseNumber),
+                features = features
+              )
+            )
         )
     }
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsScheduledJourney =
-    new OverpaymentsScheduledJourney(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(dutiesChangeMode = enabled))
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
@@ -454,7 +468,7 @@ final class OverpaymentsScheduledJourney private (
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         Right(
-          new OverpaymentsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
+          this.copy(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
       } else Left("receiveScheduledDocument.invalidNonce")
     }
@@ -462,7 +476,7 @@ final class OverpaymentsScheduledJourney private (
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def removeScheduledDocument: OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
-      new OverpaymentsScheduledJourney(answers.copy(scheduledDocument = None))
+      this.copy(answers.copy(scheduledDocument = None))
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.All"))
@@ -510,10 +524,18 @@ final class OverpaymentsScheduledJourney private (
 object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsScheduledJourney] {
 
   /** A starting point to build new instance of the journey. */
-  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): OverpaymentsScheduledJourney =
-    new OverpaymentsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): OverpaymentsScheduledJourney =
+    new OverpaymentsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
 
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
+
+  final case class Features(
+    shouldBlockSubsidies: Boolean
+  ) extends SubsidiesFeatures
 
   final case class Answers(
     nonce: Nonce = Nonce.random,
@@ -573,10 +595,15 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments
+      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
     )
 
   import JourneyFormats._
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
 
   object Answers {
     implicit val format: Format[Answers] =
@@ -592,14 +619,21 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
   implicit val format: Format[OverpaymentsScheduledJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "caseNumber").readNullable[String])(new OverpaymentsScheduledJourney(_, _)),
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsScheduledJourney(_, _, _)),
       ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "features").writeNullable[Features])(journey =>
+        (journey.answers, journey.caseNumber, journey.features)
+      )
     )
 
   /** Try to build journey from the pre-existing answers. */
-  override def tryBuildFrom(answers: Answers): Either[String, OverpaymentsScheduledJourney] =
-    empty(answers.userEoriNumber, answers.nonce)
+  override def tryBuildFrom(
+    answers: Answers,
+    features: Option[Features] = None
+  ): Either[String, OverpaymentsScheduledJourney] =
+    empty(answers.userEoriNumber, answers.nonce, features)
       .flatMapWhenDefined(
         answers.movementReferenceNumber.zip(answers.displayDeclaration)
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>

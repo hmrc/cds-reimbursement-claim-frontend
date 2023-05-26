@@ -203,6 +203,25 @@ class CheckYourAnswersControllerSpec
         }
       }
 
+      "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
+        val journey =
+          buildCompleteJourneyGen(
+            allowSubsidyPayments = true,
+            features = Some(OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true))
+          ).sample.getOrElse(fail())
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        val updatedSession = SessionData.empty.copy(overpaymentsMultipleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
+      }
+
       "redirect to the proper page if any answer is missing" in {
         val journey =
           OverpaymentsMultipleJourney

@@ -80,19 +80,21 @@ class ChooseHowManyMrnsControllerSpec
 
   val chooseHowManyMrnsPage: choose_how_many_mrns = instanceOf[choose_how_many_mrns]
 
+  val featureSwitch: FeatureSwitchService = instanceOf[FeatureSwitchService]
+
   val controller: ChooseHowManyMrnsController =
     new ChooseHowManyMrnsController(
       authenticatedActionWithRetrievedData,
       sessionDataActionWithRetrievedData,
       mockSessionCache,
+      featureSwitch,
       chooseHowManyMrnsPage
     )
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val featureSwitch: FeatureSwitchService = instanceOf[FeatureSwitchService]
-  override def beforeEach(): Unit         = featureSwitch.enable(Feature.Overpayments_v2)
+  override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
   private val formKey = "overpayments.choose-how-many-mrns"
 
