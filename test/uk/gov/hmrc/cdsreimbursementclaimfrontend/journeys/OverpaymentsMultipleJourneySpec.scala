@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import com.github.arturopala.validator.Validator
 import org.scalacheck.Gen
 import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
@@ -924,6 +925,45 @@ class OverpaymentsMultipleJourneySpec
               journey.hasCompleteReimbursementClaims shouldBe false
             }
         }
+      }
+    }
+
+    "validate subsidy payment methods in declaration" when {
+
+      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
+
+      "feature not enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withSubsidiesPaymentMethod()
+
+        val journey = RejectedGoodsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe None
+
+        RejectedGoodsMultipleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Valid
+      }
+
+      "feature enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withSubsidiesPaymentMethod()
+
+        val journey = RejectedGoodsMultipleJourney
+          .empty(exampleEori, features = Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = true)))
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = true))
+
+        RejectedGoodsMultipleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
       }
     }
   }

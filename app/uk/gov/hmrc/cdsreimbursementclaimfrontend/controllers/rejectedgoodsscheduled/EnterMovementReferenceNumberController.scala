@@ -45,7 +45,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
-  featureSwitchService: FeatureSwitchService,
+  val featureSwitchService: FeatureSwitchService,
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController

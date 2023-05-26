@@ -42,7 +42,8 @@ import scala.collection.immutable.SortedMap
   */
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
-  val caseNumber: Option[String] = None
+  val caseNumber: Option[String] = None,
+  @annotation.nowarn val features: Option[RejectedGoodsScheduledJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsScheduledJourney]
     with RejectedGoodsJourneyProperties
@@ -56,6 +57,11 @@ final class RejectedGoodsScheduledJourney private (
 
   val validate: Validator.Validate[RejectedGoodsScheduledJourney] =
     RejectedGoodsScheduledJourney.validator
+
+  private def copy(
+    newAnswers: RejectedGoodsScheduledJourney.Answers
+  ): RejectedGoodsScheduledJourney =
+    new RejectedGoodsScheduledJourney(newAnswers, caseNumber, features)
 
   /** Check if all the selected duties have reimbursement and paid amounts provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -176,7 +182,8 @@ final class RejectedGoodsScheduledJourney private (
                     displayDeclaration = Some(displayDeclaration),
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                     nonce = answers.nonce
-                  )
+                  ),
+                features = features
               )
             )
       }
@@ -184,7 +191,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitUserXiEori(userXiEori: UserXiEori): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(
+      this.copy(
         answers.copy(eoriNumbersVerification =
           answers.eoriNumbersVerification
             .orElse(Some(EoriNumbersVerification()))
@@ -203,7 +210,7 @@ final class RejectedGoodsScheduledJourney private (
           }
         )
           Right(
-            new RejectedGoodsScheduledJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -220,7 +227,7 @@ final class RejectedGoodsScheduledJourney private (
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
-            new RejectedGoodsScheduledJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -234,14 +241,14 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]) =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(
+      this.copy(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress) =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(
+      this.copy(
         answers.copy(contactAddress = Some(contactAddress))
       )
     }
@@ -250,10 +257,10 @@ final class RejectedGoodsScheduledJourney private (
     whileClaimIsAmendable {
       basisOfClaim match {
         case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
-          new RejectedGoodsScheduledJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+          this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
 
         case _ =>
-          new RejectedGoodsScheduledJourney(
+          this.copy(
             answers.copy(
               basisOfClaim = Some(basisOfClaim),
               basisOfClaimSpecialCircumstances = None
@@ -269,7 +276,7 @@ final class RejectedGoodsScheduledJourney private (
       answers.basisOfClaim match {
         case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
           Right(
-            new RejectedGoodsScheduledJourney(
+            this.copy(
               answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
             )
           )
@@ -280,14 +287,14 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(
+      this.copy(
         answers.copy(methodOfDisposal = Some(methodOfDisposal))
       )
     }
 
   def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(
+      this.copy(
         answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
       )
     }
@@ -307,7 +314,7 @@ final class RejectedGoodsScheduledJourney private (
                   .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithRefund]]))
               ): _*
           )
-        Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+        Right(this.copy(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
       }
     }
 
@@ -334,7 +341,7 @@ final class RejectedGoodsScheduledJourney private (
                   case other                                                  => other
                 }: _*)
               }
-          Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
+          Right(this.copy(answers.copy(reimbursementClaims = newReimbursementClaims)))
         } else
           Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
@@ -366,7 +373,7 @@ final class RejectedGoodsScheduledJourney private (
                     case other                                        => other
                   }: _*)
                 )
-            Right(new RejectedGoodsScheduledJourney(answers.copy(reimbursementClaims = newReimbursementClaims)))
+            Right(this.copy(answers.copy(reimbursementClaims = newReimbursementClaims)))
           } else
             Left("submitAmountForReimbursement.invalidReimbursementAmount")
         } else
@@ -379,14 +386,14 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(
+      this.copy(
         answers.copy(inspectionDate = Some(inspectionDate))
       )
     }
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(
+      this.copy(
         answers.copy(inspectionAddress = Some(inspectionAddress))
       )
     }
@@ -395,7 +402,7 @@ final class RejectedGoodsScheduledJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new RejectedGoodsScheduledJourney(
+          this.copy(
             answers.copy(bankAccountDetails = Some(bankAccountDetails))
           )
         )
@@ -406,7 +413,7 @@ final class RejectedGoodsScheduledJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new RejectedGoodsScheduledJourney(
+          this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
           )
         )
@@ -421,7 +428,7 @@ final class RejectedGoodsScheduledJourney private (
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         Right(
-          new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = Some(uploadedFile)))
+          this.copy(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
       } else Left("receiveScheduledDocument.invalidNonce")
     }
@@ -429,12 +436,12 @@ final class RejectedGoodsScheduledJourney private (
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def removeScheduledDocument: RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(answers.copy(scheduledDocument = None))
+      this.copy(answers.copy(scheduledDocument = None))
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
-      new RejectedGoodsScheduledJourney(answers.copy(selectedDocumentType = Some(documentType)))
+      this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -450,7 +457,7 @@ final class RejectedGoodsScheduledJourney private (
           case uf                            => uf
         }
         Right(
-          new RejectedGoodsScheduledJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+          this.copy(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
         )
       } else Left("receiveUploadedFiles.invalidNonce")
     }
@@ -460,7 +467,7 @@ final class RejectedGoodsScheduledJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => new RejectedGoodsScheduledJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
         )
     }
 
@@ -469,7 +476,14 @@ final class RejectedGoodsScheduledJourney private (
       validate(this)
         .fold(
           errors => Left(errors.headMessage),
-          _ => Right(new RejectedGoodsScheduledJourney(answers = this.answers, caseNumber = Some(caseNumber)))
+          _ =>
+            Right(
+              new RejectedGoodsScheduledJourney(
+                answers = this.answers,
+                caseNumber = Some(caseNumber),
+                features = features
+              )
+            )
         )
     }
 
@@ -523,10 +537,18 @@ final class RejectedGoodsScheduledJourney private (
 object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsScheduledJourney] {
 
   /** A starting point to build new instance of the journey. */
-  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): RejectedGoodsScheduledJourney =
-    new RejectedGoodsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): RejectedGoodsScheduledJourney =
+    new RejectedGoodsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
 
   type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]
+
+  final case class Features(
+    shouldBlockSubsidies: Boolean
+  ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 scheduled MRN journey
   final case class Answers(
@@ -598,10 +620,15 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments
+      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
     )
 
   import JourneyFormats._
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
 
   object Answers {
     implicit val format: Format[Answers] =
@@ -617,13 +644,20 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
   implicit val format: Format[RejectedGoodsScheduledJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "caseNumber").readNullable[String])(new RejectedGoodsScheduledJourney(_, _)),
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsScheduledJourney(_, _, _)),
       ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "features").writeNullable[Features])(journey =>
+        (journey.answers, journey.caseNumber, journey.features)
+      )
     )
 
-  override def tryBuildFrom(answers: Answers): Either[String, RejectedGoodsScheduledJourney] =
-    empty(answers.userEoriNumber, answers.nonce)
+  override def tryBuildFrom(
+    answers: Answers,
+    features: Option[Features] = None
+  ): Either[String, RejectedGoodsScheduledJourney] =
+    empty(answers.userEoriNumber, answers.nonce, features)
       .flatMapWhenDefined(
         answers.movementReferenceNumber.zip(answers.displayDeclaration)
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>

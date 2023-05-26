@@ -69,7 +69,7 @@ class EnterClaimControllerSpec
     featureSwitch.enable(Feature.Overpayments_v2)
 
   val journeyGen: Gen[OverpaymentsScheduledJourney] =
-    buildJourneyGen(answersWithDutiesSelectedGen())
+    buildJourneyFromAnswersGen(answersWithDutiesSelectedGen())
 
   "Enter Claim Controller" should {
 
@@ -85,7 +85,7 @@ class EnterClaimControllerSpec
 
       "the user has not chosen duty type or tax code" in {
 
-        val journey = buildJourneyGen(answersUpToBasisForClaimGen()).sample.get
+        val journey = buildJourneyFromAnswersGen(answersUpToBasisForClaimGen()).sample.get
         val session = SessionData(journey)
 
         inSequence {

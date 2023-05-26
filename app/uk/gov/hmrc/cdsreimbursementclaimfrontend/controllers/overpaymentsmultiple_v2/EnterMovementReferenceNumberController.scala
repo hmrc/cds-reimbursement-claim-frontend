@@ -106,7 +106,10 @@ class EnterMovementReferenceNumberController @Inject() (
             {
               for {
                 maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
-                _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(maybeAcc14)
+                _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(
+                                     featureSwitchService.isEnabled(Feature.BlockSubsidies),
+                                     maybeAcc14
+                                   )
                 updatedJourney  <- updateJourney(journey, mrnIndex, mrn, maybeAcc14)
                 updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, mrnIndex === 0)
               } yield updatedJourney2

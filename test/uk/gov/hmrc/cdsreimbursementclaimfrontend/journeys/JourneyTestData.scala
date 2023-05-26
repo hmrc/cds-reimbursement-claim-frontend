@@ -151,14 +151,15 @@ trait JourneyTestData {
     consigneeEORI: Option[Eori] = None,
     dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty,
     consigneeContact: Option[ContactDetails] = None,
-    declarantContact: Option[ContactDetails] = None
+    declarantContact: Option[ContactDetails] = None,
+    allowSubsidyPayments: Boolean = false
   ): DisplayDeclaration = {
     val ndrcDetails: List[NdrcDetails] =
       dutyDetails.map { case (taxCode, paidAmount, cmaEligible) =>
         NdrcDetails(
           taxType = taxCode.value,
           amount = paidAmount.toString(),
-          paymentMethod = if (cmaEligible) "002" else "001",
+          paymentMethod = if (allowSubsidyPayments) "006" else if (cmaEligible) "002" else "001",
           paymentReference = s"payment-reference-$id",
           cmaEligible = if (cmaEligible) Some("1") else None
         )

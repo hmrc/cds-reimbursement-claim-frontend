@@ -63,7 +63,7 @@ class NorthernIrelandControllerSpec
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(answersUpToBasisForClaimGen())
+    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
 
   "Northern Ireland Controller" when {
     "Northern Ireland page" must {

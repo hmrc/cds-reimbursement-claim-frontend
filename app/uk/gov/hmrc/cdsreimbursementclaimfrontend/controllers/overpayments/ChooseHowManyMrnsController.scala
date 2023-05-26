@@ -37,11 +37,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_how_many_mrns
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -50,12 +52,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class ChooseHowManyMrnsController @Inject() (
   val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
   val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val sessionStore: SessionCache,
+  featureSwitchService: FeatureSwitchService,
   chooseHowManyMrnsPage: choose_how_many_mrns
 )(implicit
   val ec: ExecutionContext,
@@ -70,6 +74,30 @@ class ChooseHowManyMrnsController @Inject() (
 
   private val form: Form[OverpaymentsJourneyType] = Forms.overpaymentsChooseHowManyMrnsForm
   private val postAction: Call                    = routes.ChooseHowManyMrnsController.submit()
+
+  private def overpaymentsSingleJourneyFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[OverpaymentsSingleJourney.Features] =
+    featureSwitchService.optionally(
+      Feature.BlockSubsidies,
+      OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true)
+    )
+
+  private def overpaymentsMultipleJourneyFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[OverpaymentsMultipleJourney.Features] =
+    featureSwitchService.optionally(
+      Feature.BlockSubsidies,
+      OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true)
+    )
+
+  private def overpaymentsScheduledJourneyFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[OverpaymentsScheduledJourney.Features] =
+    featureSwitchService.optionally(
+      Feature.BlockSubsidies,
+      OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true)
+    )
 
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show()))
@@ -95,7 +123,9 @@ class ChooseHowManyMrnsController @Inject() (
                 case Individual =>
                   (if (request.sessionData.overpaymentsSingleJourney.isEmpty)
                      updateSession(sessionStore, request)(
-                       SessionData(OverpaymentsSingleJourney.empty(eori)).withExistingUserData
+                       SessionData(
+                         OverpaymentsSingleJourney.empty(eori, features = overpaymentsSingleJourneyFeatures)
+                       ).withExistingUserData
                      )
                    else
                      Future.successful(Right(())))
@@ -104,7 +134,9 @@ class ChooseHowManyMrnsController @Inject() (
                 case Multiple =>
                   (if (request.sessionData.overpaymentsMultipleJourney.isEmpty)
                      updateSession(sessionStore, request)(
-                       SessionData(OverpaymentsMultipleJourney.empty(eori)).withExistingUserData
+                       SessionData(
+                         OverpaymentsMultipleJourney.empty(eori, features = overpaymentsMultipleJourneyFeatures)
+                       ).withExistingUserData
                      )
                    else
                      Future.successful(Right(())))
@@ -113,7 +145,9 @@ class ChooseHowManyMrnsController @Inject() (
                 case Scheduled =>
                   (if (request.sessionData.overpaymentsScheduledJourney.isEmpty)
                      updateSession(sessionStore, request)(
-                       SessionData(OverpaymentsScheduledJourney.empty(eori)).withExistingUserData
+                       SessionData(
+                         OverpaymentsScheduledJourney.empty(eori, features = overpaymentsScheduledJourneyFeatures)
+                       ).withExistingUserData
                      )
                    else
                      Future.successful(Right(())))

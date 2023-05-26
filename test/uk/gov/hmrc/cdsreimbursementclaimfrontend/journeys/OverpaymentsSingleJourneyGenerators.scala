@@ -141,7 +141,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
-    taxCodes: Seq[TaxCode] = TaxCodes.all
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[OverpaymentsSingleJourney.Features] = None
   ): Gen[OverpaymentsSingleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -154,7 +156,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
       reimbursementMethod = reimbursementMethod,
-      taxCodes = taxCodes
+      taxCodes = taxCodes,
+      allowSubsidyPayments = allowSubsidyPayments,
+      features = features
     ).map(
       _.fold(
         error =>
@@ -177,7 +181,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
-    taxCodes: Seq[TaxCode] = TaxCodes.all
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[OverpaymentsSingleJourney.Features] = None
   ): Gen[Either[String, OverpaymentsSingleJourney]] =
     buildAnswersGen(
       acc14DeclarantMatchesUserEori,
@@ -193,8 +199,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       true,
       true,
       reimbursementMethod,
-      taxCodes
-    ).map(OverpaymentsSingleJourney.tryBuildFrom(_))
+      taxCodes,
+      allowSubsidyPayments = allowSubsidyPayments
+    ).map(OverpaymentsSingleJourney.tryBuildFrom(_, features))
 
   def buildAnswersGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -212,7 +219,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     reimbursementMethod: Option[ReimbursementMethod] = None,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = true
+    checkYourAnswersChangeMode: Boolean = true,
+    allowSubsidyPayments: Boolean = false
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -271,7 +279,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
           paidDuties,
           consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
-          declarantContact = declarantContact
+          declarantContact = declarantContact,
+          allowSubsidyPayments = allowSubsidyPayments
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
@@ -331,10 +340,13 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       answers
     }
 
-  def buildJourneyGen(answersGen: Gen[OverpaymentsSingleJourney.Answers]): Gen[OverpaymentsSingleJourney] =
+  def buildJourneyFromAnswersGen(
+    answersGen: Gen[OverpaymentsSingleJourney.Answers],
+    features: Option[OverpaymentsSingleJourney.Features] = None
+  ): Gen[OverpaymentsSingleJourney] =
     answersGen.map(
       OverpaymentsSingleJourney
-        .tryBuildFrom(_)
+        .tryBuildFrom(_, features)
         .fold(e => throw new Exception(e), identity)
     )
 

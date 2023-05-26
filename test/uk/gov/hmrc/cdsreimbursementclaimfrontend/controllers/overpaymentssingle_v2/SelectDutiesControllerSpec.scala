@@ -88,7 +88,7 @@ class SelectDutiesControllerSpec
   }
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(answersUpToBasisForClaimGen(forcedTaxCodes = Seq(TaxCode.NI411)))
+    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen(forcedTaxCodes = Seq(TaxCode.NI411)))
       .flatMap(j =>
         Gen
           .oneOf(j.getAvailableClaimTypes)
@@ -96,7 +96,7 @@ class SelectDutiesControllerSpec
       )
 
   val journeyWithNIExciseCodesGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(
+    buildJourneyFromAnswersGen(
       answersUpToBasisForClaimGen(taxCodes = TaxCodes.excise, forcedTaxCodes = Seq(TaxCode.A00, TaxCode.B05))
     )
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectExciseValue))
