@@ -181,12 +181,12 @@ class SelectDutiesControllerSpec
           controller.submit(duty)(
             FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> taxCode.value)
           ),
-          routes.EnterClaimController.showFirst()
+          routes.EnterClaimController.show(duty, taxCode)
         )
       }
     }
 
-    "save user selected tax codes and ask user to select tax codes for the next available duty" in {
+    "save user selected tax codes and ask user to enter reclaim amount (even if there are other duty types)" in {
 
       forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise)) { (customDuty, exciseDuty) =>
         val initialJourney = journeyWithMrnAndDD
@@ -205,9 +205,9 @@ class SelectDutiesControllerSpec
 
         checkIsRedirect(
           controller.submit(customDuty)(
-            FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> customDuty.taxCodes(0).value)
+            FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> customDuty.taxCodes.head.value)
           ),
-          routes.SelectDutiesController.show(exciseDuty)
+          routes.EnterClaimController.show(customDuty, taxCode)
         )
       }
     }

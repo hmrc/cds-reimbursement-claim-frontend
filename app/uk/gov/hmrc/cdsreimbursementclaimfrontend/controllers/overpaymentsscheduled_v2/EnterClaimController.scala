@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2
 
+import cats.implicits.catsSyntaxEq
 import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
 import play.api.data.FormError
@@ -66,21 +67,11 @@ class EnterClaimController @Inject() (
 
   final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
     implicit request => journey =>
-//      journey.findNextDutyToSelectDuties.map{
-//        case None =>
-      val postAction: Call =
-        routes.EnterClaimController.submit(dutyType, taxCode)
-
-      val maybeReimbursement: Option[AmountPaidWithCorrect] =
-        journey.getReimbursementFor(dutyType, taxCode)
-
-      val form = enterScheduledClaimForm.withDefault(maybeReimbursement)
+      val postAction: Call                                  = routes.EnterClaimController.submit(dutyType, taxCode)
+      val maybeReimbursement: Option[AmountPaidWithCorrect] = journey.getReimbursementFor(dutyType, taxCode)
+      val form                                              = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
       Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
-
-//        case Some(emptyDuty) if emptyDuty =!= dutyType =>
-//          Redirect(routes.SelectDutiesController.show(emptyDuty)).asFuture
-
   }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
@@ -130,13 +121,12 @@ class EnterClaimController @Inject() (
                       updatedJourney, {
                         updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
                           case Some((nextDutyType, nextTaxCode)) =>
-                            if (journey.hasCompleteReimbursementClaims) {
+                            if (journey.hasCompleteReimbursementClaims)
                               Redirect(routes.CheckClaimDetailsController.show)
-                            } else if (currentDuty.taxCodes.contains(nextTaxCode)) {
+                            else if (currentDuty.repr === nextDutyType.repr)
                               Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
-                            } else {
+                            else
                               Redirect(routes.SelectDutiesController.show(nextDutyType))
-                            }
                           case None                              =>
                             updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
                               case Some(nextDutyType) =>
