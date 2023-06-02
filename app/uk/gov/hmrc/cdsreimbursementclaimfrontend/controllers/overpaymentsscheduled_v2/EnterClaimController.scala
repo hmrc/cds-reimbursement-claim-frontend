@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2
 
+import cats.implicits.catsSyntaxEq
 import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
 import play.api.data.FormError
@@ -66,88 +67,78 @@ class EnterClaimController @Inject() (
 
   final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
     implicit request => journey =>
-      journey.findNextDutyToSelectDuties match {
-        case None =>
-          val postAction: Call =
-            routes.EnterClaimController.submit(dutyType, taxCode)
+      val postAction: Call                                  = routes.EnterClaimController.submit(dutyType, taxCode)
+      val maybeReimbursement: Option[AmountPaidWithCorrect] = journey.getReimbursementFor(dutyType, taxCode)
+      val form                                              = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
-          val maybeReimbursement: Option[AmountPaidWithCorrect] =
-            journey.getReimbursementFor(dutyType, taxCode)
-
-          val form = enterScheduledClaimForm.withDefault(maybeReimbursement)
-
-          Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
-
-        case Some(emptyDuty) =>
-          Redirect(routes.SelectDutiesController.show(emptyDuty)).asFuture
-      }
-
+      Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
   }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      journey.findNextDutyToSelectDuties match {
-        case None =>
-          val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
-
-          Future.successful(
-            enterScheduledClaimForm
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  (
-                    journey,
-                    BadRequest(
-                      enterClaimPage(
-                        currentDuty,
-                        currentTaxCode,
-                        redirectVerificationMessage(formWithErrors),
-                        postAction
+      val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
+      Future.successful(
+        enterScheduledClaimForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(
+                  enterClaimPage(
+                    currentDuty,
+                    currentTaxCode,
+                    redirectVerificationMessage(formWithErrors),
+                    postAction
+                  )
+                )
+              ),
+            reimbursement =>
+              journey
+                .submitCorrectAmount(
+                  currentDuty,
+                  currentTaxCode,
+                  reimbursement.paidAmount,
+                  reimbursement.correctAmount
+                )
+                .fold(
+                  errors => {
+                    logger.error(s"Error updating reimbursement selection - $errors")
+                    (
+                      journey,
+                      BadRequest(
+                        enterClaimPage(
+                          currentDuty,
+                          currentTaxCode,
+                          enterScheduledClaimForm,
+                          postAction
+                        )
                       )
                     )
-                  ),
-                reimbursement =>
-                  journey
-                    .submitCorrectAmount(
-                      currentDuty,
-                      currentTaxCode,
-                      reimbursement.paidAmount,
-                      reimbursement.correctAmount
-                    )
-                    .fold(
-                      errors => {
-                        logger.error(s"Error updating reimbursement selection - $errors")
-                        (
-                          journey,
-                          BadRequest(
-                            enterClaimPage(
-                              currentDuty,
-                              currentTaxCode,
-                              enterScheduledClaimForm,
-                              postAction
-                            )
-                          )
-                        )
-                      },
-                      updatedJourney =>
-                        (
-                          updatedJourney,
-                          updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
-                            case Some((nextDutyType, nextTaxCode)) =>
-                              if (journey.hasCompleteReimbursementClaims)
-                                Redirect(routes.CheckClaimDetailsController.show)
-                              else Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
-                            case None                              =>
+                  },
+                  updatedJourney =>
+                    (
+                      updatedJourney, {
+                        updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
+                          case Some((nextDutyType, nextTaxCode)) =>
+                            if (journey.hasCompleteReimbursementClaims)
                               Redirect(routes.CheckClaimDetailsController.show)
-                          }
-                        )
+                            else if (currentDuty.repr === nextDutyType.repr)
+                              Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
+                            else
+                              Redirect(routes.SelectDutiesController.show(nextDutyType))
+                          case None                              =>
+                            updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
+                              case Some(nextDutyType) =>
+                                Redirect(routes.SelectDutiesController.show(nextDutyType))
+                              case None               => Redirect(routes.CheckClaimDetailsController.show)
+                            }
+                        }
+                      }
                     )
-              )
+                )
           )
-
-        case Some(emptyDuty) =>
-          (journey, Redirect(routes.SelectDutiesController.show(emptyDuty))).asFuture
-      }
+      )
     },
     fastForwardToCYAEnabled = false
   )

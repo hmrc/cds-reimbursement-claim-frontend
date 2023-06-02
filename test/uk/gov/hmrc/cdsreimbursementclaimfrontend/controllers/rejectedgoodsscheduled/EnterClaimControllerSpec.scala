@@ -184,7 +184,7 @@ class EnterClaimControllerSpec
                   ): _*
                 )
               ),
-              routes.EnterClaimController.show(exciseDuty, exciseDuty.taxCodes(1))
+              routes.SelectDutiesController.show(exciseDuty)
             )
         }
       }
