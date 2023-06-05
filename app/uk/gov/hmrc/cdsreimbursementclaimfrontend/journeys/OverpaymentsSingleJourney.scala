@@ -215,9 +215,9 @@ final class OverpaymentsSingleJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
-  override def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
-    BasisOfOverpaymentClaimsList()
-      .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
+  override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
+    BasisOfOverpaymentClaim
+      .excludeNorthernIrelandClaims(true, answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
 
   def hasCmaReimbursementMethod =
     answers.reimbursementMethod.contains(CurrentMonthAdjustment)
@@ -331,7 +331,7 @@ final class OverpaymentsSingleJourney private (
             else
               // review basis of claim if nothern ireland claims should not be allowed
               answers.basisOfClaim.flatMap { case basisOfClaim =>
-                if (BasisOfOverpaymentClaimsList.northernIreland.contains(basisOfClaim)) None
+                if (BasisOfOverpaymentClaim.northernIreland.contains(basisOfClaim)) None
                 else Some(basisOfClaim)
               }
         )

@@ -23,10 +23,12 @@ import julienrf.json.derived
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed abstract class BasisOfOverpaymentClaim extends Product with Serializable
+sealed trait BasisOfOverpaymentClaim
 
-object BasisOfOverpaymentClaim {
+object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim] {
 
   case object DuplicateEntry extends BasisOfOverpaymentClaim
   case object DutySuspension extends BasisOfOverpaymentClaim
@@ -49,26 +51,74 @@ object BasisOfOverpaymentClaim {
       DuplicateEntry,
       DutySuspension,
       EndUseRelief,
+      IncorrectAdditionalInformationCode,
       IncorrectCommodityCode,
       IncorrectCpc,
+      IncorrectExciseValue,
       IncorrectValue,
       InwardProcessingReliefFromCustomsDuty,
       OutwardProcessingRelief,
       PersonalEffects,
       Preference,
-      RGR,
       ProofOfReturnRefundGiven,
-      IncorrectExciseValue,
-      IncorrectAdditionalInformationCode,
+      RGR,
       Miscellaneous
     )
 
+  val northernIreland: Set[BasisOfOverpaymentClaim] = Set(
+    IncorrectExciseValue,
+    IncorrectAdditionalInformationCode
+  )
+
+  private val ukExciseCodeStrings: Set[String] =
+    TaxCodes.excise.map(_.value).toSet
+
+  def excludeNorthernIrelandClaims(
+    hasDuplicateEntryClaim: Boolean,
+    isNorthernIrelandJourney: Boolean,
+    displayDeclarationOpt: Option[DisplayDeclaration]
+  ): Set[BasisOfOverpaymentClaim] = {
+
+    val receivedExciseCodes: List[String] =
+      displayDeclarationOpt
+        .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
+        .getOrElse(Nil)
+
+    val hasNorthernIrelandExciseCodes =
+      receivedExciseCodes.toSet.intersect(ukExciseCodeStrings).nonEmpty
+
+    val baseClaims =
+      if (hasDuplicateEntryClaim) values
+      else values - DuplicateEntry
+
+    isNorthernIrelandJourney match {
+      case false =>
+        baseClaims.diff(northernIreland)
+      case true  =>
+        if (hasNorthernIrelandExciseCodes) baseClaims
+        else baseClaims - IncorrectExciseValue
+    }
+  }
+
   val validator: Validator[Id, BasisOfOverpaymentClaim] = maybeBasisOfClaim =>
     maybeBasisOfClaim.toValidNel(MissingAnswerError("Basis of claims"))
+
+  private[models] val basisOfOverpaymentsGoodsStringMap: Map[String, BasisOfOverpaymentClaim] =
+    values.map(a => a.toString -> a).toMap
+
+  def has(basisOfOverpaymentsGoods: String): Boolean                                          =
+    basisOfOverpaymentsGoodsStringMap.contains(basisOfOverpaymentsGoods)
+
+  def find(basisOfOverpaymentsGoods: String): Option[BasisOfOverpaymentClaim] =
+    basisOfOverpaymentsGoodsStringMap.get(basisOfOverpaymentsGoods)
+
+  def findUnsafe(basisOfOverpaymentsGoods: String): BasisOfOverpaymentClaim =
+    basisOfOverpaymentsGoodsStringMap(basisOfOverpaymentsGoods)
 
   implicit val basisOfClaimEquality: Eq[BasisOfOverpaymentClaim] =
     Eq.fromUniversalEquals[BasisOfOverpaymentClaim]
 
   implicit val basisOfClaimFormat: OFormat[BasisOfOverpaymentClaim] =
     derived.oformat[BasisOfOverpaymentClaim]()
+
 }

@@ -46,8 +46,9 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           whetherNorthernIrelandAnswer = Some(No)
         )
 
-      val codes: List[BasisOfOverpaymentClaim] =
-        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+      val codes: Set[BasisOfOverpaymentClaim] =
+        BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
+          true,
           draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
           draftC285Claim.displayDeclaration
         )
@@ -78,8 +79,9 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
             displayDeclaration = Some(acc14)
           )
 
-      val codes: List[BasisOfOverpaymentClaim] =
-        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+      val codes: Set[BasisOfOverpaymentClaim] =
+        BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
+          true,
           draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
           draftC285Claim.displayDeclaration
         )
@@ -103,8 +105,9 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
             displayDeclaration = Some(acc14)
           )
 
-      val codes: List[BasisOfOverpaymentClaim] =
-        BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
+      val codes: Set[BasisOfOverpaymentClaim] =
+        BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
+          true,
           draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
           draftC285Claim.displayDeclaration
         )

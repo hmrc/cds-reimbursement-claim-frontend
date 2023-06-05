@@ -78,7 +78,7 @@ final case class DraftClaim(
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
   def hasNorthernIrelandBasisOfClaim: Boolean =
-    basisOfClaimAnswer.exists(BasisOfOverpaymentClaimsList.northernIreland.contains(_))
+    basisOfClaimAnswer.exists(BasisOfOverpaymentClaim.northernIreland.contains(_))
 
   def findNonEmptyBankAccountDetails: Option[BankAccountDetails] =
     LazyList(

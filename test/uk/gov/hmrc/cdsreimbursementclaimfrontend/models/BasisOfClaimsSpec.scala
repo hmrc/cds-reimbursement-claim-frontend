@@ -23,7 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -39,52 +38,18 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         whetherNorthernIrelandAnswer = No.some
       )
 
-      val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
-        draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
-        draftC285Claim.displayDeclaration
-      )
+      val claims: Set[BasisOfOverpaymentClaim] =
+        BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
+          true,
+          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+          draftC285Claim.displayDeclaration
+        )
 
       claims should be(
-        BasisOfOverpaymentClaimsList(items =
-          List(
-            DuplicateEntry,
-            DutySuspension,
-            EndUseRelief,
-            IncorrectCommodityCode,
-            IncorrectCpc,
-            IncorrectValue,
-            InwardProcessingReliefFromCustomsDuty,
-            OutwardProcessingRelief,
-            PersonalEffects,
-            Preference,
-            ProofOfReturnRefundGiven,
-            RGR,
-            Miscellaneous
-          )
-        )
-      )
-    }
-  }
-
-  "contain Northern Ireland claims" in {
-    val draftC285Claim = sample[DraftClaim].copy(
-      movementReferenceNumber = sample[MRN].some,
-      whetherNorthernIrelandAnswer = Yes.some,
-      displayDeclaration = None
-    )
-
-    val claims = BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
-      draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
-      draftC285Claim.displayDeclaration
-    )
-
-    claims should be(
-      BasisOfOverpaymentClaimsList(items =
-        List(
+        Set[BasisOfOverpaymentClaim](
           DuplicateEntry,
           DutySuspension,
           EndUseRelief,
-          IncorrectAdditionalInformationCode,
           IncorrectCommodityCode,
           IncorrectCpc,
           IncorrectValue,
@@ -97,12 +62,46 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           Miscellaneous
         )
       )
+    }
+  }
+
+  "contain Northern Ireland claims" in {
+    val draftC285Claim = sample[DraftClaim].copy(
+      movementReferenceNumber = sample[MRN].some,
+      whetherNorthernIrelandAnswer = Yes.some,
+      displayDeclaration = None
+    )
+
+    val claims: Set[BasisOfOverpaymentClaim] =
+      BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
+        true,
+        draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+        draftC285Claim.displayDeclaration
+      )
+
+    claims should be(
+      Set[BasisOfOverpaymentClaim](
+        DuplicateEntry,
+        DutySuspension,
+        EndUseRelief,
+        IncorrectAdditionalInformationCode,
+        IncorrectCommodityCode,
+        IncorrectCpc,
+        IncorrectValue,
+        InwardProcessingReliefFromCustomsDuty,
+        OutwardProcessingRelief,
+        PersonalEffects,
+        Preference,
+        ProofOfReturnRefundGiven,
+        RGR,
+        Miscellaneous
+      )
     )
   }
 
   "filter DuplicateEntry basis of claim" in {
-    BasisOfOverpaymentClaimsList.withoutDuplicateEntry().claims should be(
-      List(
+    (BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry) should be(
+      Set[BasisOfOverpaymentClaim](
         DutySuspension,
         EndUseRelief,
         IncorrectAdditionalInformationCode,
@@ -122,8 +121,8 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "contain DuplicateEntry basis of claim" in {
-    BasisOfOverpaymentClaimsList.all should be(
-      List(
+    BasisOfOverpaymentClaim.values should be(
+      Set[BasisOfOverpaymentClaim](
         DuplicateEntry,
         DutySuspension,
         EndUseRelief,
@@ -143,11 +142,4 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     )
   }
 
-  "build basis of claims key" in {
-    val basisOfClaim = sample[BasisOfOverpaymentClaim]
-
-    BasisOfOverpaymentClaimsList(List.empty).buildKey(parentKey = "key", basisOfClaim) should be(
-      s"key.reason.d${BasisOfOverpaymentClaimsList.indexOf(basisOfClaim)}"
-    )
-  }
 }

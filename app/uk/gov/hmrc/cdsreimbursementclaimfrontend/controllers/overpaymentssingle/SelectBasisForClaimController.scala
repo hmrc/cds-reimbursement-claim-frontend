@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -64,11 +63,13 @@ class SelectBasisForClaimController @Inject() (
   private val basisOfClaimsHints: DropdownHints =
     DropdownHints.range(elementIndex = 0, maxHints = 14)
 
-  private def getPossibleClaimTypes(draftClaim: DraftClaim): BasisOfOverpaymentClaimsList =
-    BasisOfOverpaymentClaimsList().excludeNorthernIrelandClaims(
-      draftClaim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
-      draftClaim.displayDeclaration
-    )
+  private def getPossibleClaimTypes(draftClaim: DraftClaim): Set[BasisOfOverpaymentClaim] =
+    BasisOfOverpaymentClaim
+      .excludeNorthernIrelandClaims(
+        hasDuplicateEntryClaim = true,
+        draftClaim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+        draftClaim.displayDeclaration
+      )
 
   implicit val dataExtractor: DraftClaim => Option[BasisOfOverpaymentClaim] = _.basisOfClaimAnswer
 

@@ -21,7 +21,6 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -39,26 +38,25 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[BasisOfOverpaymentClaim], claimTypes: BasisOfOverpaymentClaimsList, basisOfClaimsHints: DropdownHints, subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BasisOfOverpaymentClaim], claimTypes: Set[BasisOfOverpaymentClaim], basisOfClaimsHints: DropdownHints, subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-basis-for-claim"}
 @title = @{messages(s"$key.title")}
 
 @radioItems = @{
-    claimTypes.items.map { basisOfClaim => {
-        val index = BasisOfOverpaymentClaimsList.indexOf(basisOfClaim)
-        val hint = if (messages.isDefinedAt(s"$key.reason.hint.d$index"))
-            Some(Hint(content = HtmlContent(messages(s"$key.reason.hint.d$index"))))
+  claimTypes.map { basisOfClaim =>
+     val hint = if (messages.isDefinedAt(s"$key.reason.hint.$basisOfClaim"))
+            Some(Hint(content = HtmlContent(messages(s"$key.reason.hint.$basisOfClaim"))))
         else
             None
-        RadioItem(
-            id = Some(s"$key-radio-$index"),
-            value = Some(index.toString),
-            content = HtmlContent(messages(claimTypes.buildKey(key, basisOfClaim))),
-            hint = hint,
-            checked = form.value.contains(basisOfClaim)
-        )
-    }}
+    RadioItem(
+      id = Some(s"$key-radio-$basisOfClaim"),
+      value = Some(basisOfClaim.toString),
+      content = HtmlContent(messages(s"$key.reason.$basisOfClaim")),
+      hint = hint,
+      checked = form.value.contains(basisOfClaim)
+    )
+  }.toList
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

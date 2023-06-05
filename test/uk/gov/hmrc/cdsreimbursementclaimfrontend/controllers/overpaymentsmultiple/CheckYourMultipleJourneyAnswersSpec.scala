@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -112,7 +112,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
                 ("Declarant name"                                  -> declaration.map(_.declarantName)),
                 ("Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " "))),
                 ("This is the basis behind the claim"              -> claim.basisOfClaimAnswer.map(answer =>
-                  messages(s"select-basis-for-claim.reason.d${BasisOfOverpaymentClaimsList.indexOf(answer)}")
+                  messages(s"select-basis-for-claim.reason.$answer")
                 )),
                 ("This is the reason for the claim"                -> claim.additionalDetailsAnswer.map(_.value)),
                 ("Name on the account"                             -> claim.bankAccountDetailsAnswer.map(_.accountName.value)),

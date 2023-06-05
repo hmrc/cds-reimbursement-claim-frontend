@@ -182,10 +182,9 @@ final class OverpaymentsScheduledJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
 
-  override def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
-    BasisOfOverpaymentClaimsList
-      .withoutDuplicateEntry()
-      .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
+  override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
+    BasisOfOverpaymentClaim
+      .excludeNorthernIrelandClaims(false, answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
