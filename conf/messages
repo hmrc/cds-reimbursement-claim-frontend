@@ -853,6 +853,7 @@ enter-additional-details.hint=Provide brief details about this claim.
 enter-claim.rejected-goods.single.title=Claim details for {0} - {1}
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
 enter-claim.rejected-goods.paragraph=This is to calculate your repayment as part of your claim.
+enter-claim.rejected-goods.for-mrn.paragraph=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
