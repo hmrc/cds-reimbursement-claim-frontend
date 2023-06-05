@@ -149,7 +149,9 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true
+    submitBankAccountType: Boolean = true,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[RejectedGoodsScheduledJourney.Features] = None
   ): Gen[RejectedGoodsScheduledJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -159,7 +161,9 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
       submitContactDetails = submitContactDetails,
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
-      submitBankAccountDetails = submitBankAccountDetails
+      submitBankAccountDetails = submitBankAccountDetails,
+      allowSubsidyPayments = allowSubsidyPayments,
+      features = features
     ).map(
       _.fold(
         error =>
@@ -179,7 +183,9 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true
+    submitBankAccountType: Boolean = true,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[RejectedGoodsScheduledJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsScheduledJourney]] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -211,7 +217,8 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
           reimbursements.flatMap(_._2).map(d => (d._1, d._3, false)),
           if (submitConsigneeDetails) consigneeContact else None,
-          declarantContact
+          declarantContact,
+          allowSubsidyPayments = allowSubsidyPayments
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
@@ -267,7 +274,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
           checkYourAnswersChangeMode = true
         )
 
-      RejectedGoodsScheduledJourney.tryBuildFrom(answers)
+      RejectedGoodsScheduledJourney.tryBuildFrom(answers, features)
     }
 
 }

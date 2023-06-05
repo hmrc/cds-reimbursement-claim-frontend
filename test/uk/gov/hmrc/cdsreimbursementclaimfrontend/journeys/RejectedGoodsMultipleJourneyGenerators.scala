@@ -199,7 +199,9 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     submitBankAccountType: Boolean = true,
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
-    maxSize: Int = 5
+    maxSize: Int = 5,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[RejectedGoodsMultipleJourney.Features] = None
   ): Gen[RejectedGoodsMultipleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -213,7 +215,9 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       submitBankAccountType = submitBankAccountType,
       minNumberOfMRNs = minNumberOfMRNs,
       maxNumberOfMRNs = maxNumberOfMRNs,
-      maxSize = maxSize
+      maxSize = maxSize,
+      allowSubsidyPayments = allowSubsidyPayments,
+      features = features
     ).map(
       _.fold(
         error =>
@@ -251,7 +255,9 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     submitBankAccountType: Boolean = true,
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
-    maxSize: Int = 5
+    maxSize: Int = 5,
+    allowSubsidyPayments: Boolean = false,
+    features: Option[RejectedGoodsMultipleJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsMultipleJourney]] =
     for {
       userEoriNumber      <- IdGen.genEori
@@ -307,19 +313,12 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
             if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
             paidDutiesPerMrn,
             if (submitConsigneeDetails) consigneeContact else None,
-            declarantContact
+            declarantContact,
+            allowSubsidyPayments = allowSubsidyPayments
           )
         }
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
-
-      // val reimbursementClaims =
-      //   OrderedMap(reimbursements: _*)
-      //     .view.mapValues(s =>
-      //       s.map { case (taxCode, a1, a2) =>
-      //         (taxCode, Option(AmountPaidWithRefund(a1, a2)))
-      //       }
-      //     )
 
       val supportingEvidencesExpanded: Seq[UploadedFile] =
         supportingEvidences.flatMap { case (documentType, size) =>
@@ -359,7 +358,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
           checkYourAnswersChangeMode = true
         )
 
-      RejectedGoodsMultipleJourney.tryBuildFrom(answers)
+      RejectedGoodsMultipleJourney.tryBuildFrom(answers, features)
     }
 
 }

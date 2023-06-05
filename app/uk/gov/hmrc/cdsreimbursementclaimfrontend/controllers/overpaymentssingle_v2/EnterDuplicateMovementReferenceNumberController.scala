@@ -47,7 +47,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
-  featureSwitchService: FeatureSwitchService,
+  val featureSwitchService: FeatureSwitchService,
   enterDuplicateMovementReferenceNumberPage: enter_duplicate_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends OverpaymentsSingleJourneyBaseController

@@ -93,7 +93,7 @@ class EnterClaimControllerSpec
   }
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyGen(answersWithDutiesSelectedGen())
+    buildJourneyFromAnswersGen(answersWithDutiesSelectedGen())
 
   "Enter Claim Controller" when {
 
@@ -140,7 +140,7 @@ class EnterClaimControllerSpec
         }
 
       "redirect to select duties page if no claims selected" in
-        forAll(buildJourneyGen(answersUpToBasisForClaimGen())) { journey =>
+        forAll(buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
@@ -223,7 +223,7 @@ class EnterClaimControllerSpec
         }
 
       "when wrong code, redirect to check claims if all amounts provided already" in
-        forAll(buildJourneyGen(answersWithAllAmountsProvidedGen())) { journey =>
+        forAll(buildJourneyFromAnswersGen(answersWithAllAmountsProvidedGen())) { journey =>
           val selected = journey.getSelectedDuties.get
           val stranger = TaxCodes.all.find(tc => !selected.contains(tc)).get
           inSequence {

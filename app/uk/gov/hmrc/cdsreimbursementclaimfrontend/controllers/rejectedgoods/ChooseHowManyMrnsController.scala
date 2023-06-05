@@ -37,11 +37,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -50,12 +52,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class ChooseHowManyMrnsController @Inject() (
   val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
   val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val sessionStore: SessionCache,
+  featureSwitchService: FeatureSwitchService,
   chooseHowManyMrnsPage: pages.choose_how_many_mrns
 )(implicit
   val ec: ExecutionContext,
@@ -71,6 +75,30 @@ class ChooseHowManyMrnsController @Inject() (
   val dataKey: String                      = "rejected-goods.choose-how-many-mrns"
   val form: Form[RejectedGoodsJourneyType] = chooseHowManyMrnsForm
   private val postAction: Call             = routes.ChooseHowManyMrnsController.submit()
+
+  private def rejectedGoodsSingleJourneyFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[RejectedGoodsSingleJourney.Features] =
+    featureSwitchService.optionally(
+      Feature.BlockSubsidies,
+      RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true)
+    )
+
+  private def rejectedGoodsMultipleJourneyFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[RejectedGoodsMultipleJourney.Features] =
+    featureSwitchService.optionally(
+      Feature.BlockSubsidies,
+      RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = true)
+    )
+
+  private def rejectedGoodsScheduledJourneyFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[RejectedGoodsScheduledJourney.Features] =
+    featureSwitchService.optionally(
+      Feature.BlockSubsidies,
+      RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = true)
+    )
 
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show()))
@@ -96,7 +124,9 @@ class ChooseHowManyMrnsController @Inject() (
                 case Individual =>
                   (if (request.sessionData.rejectedGoodsSingleJourney.isEmpty)
                      updateSession(sessionStore, request)(
-                       SessionData(RejectedGoodsSingleJourney.empty(eori)).withExistingUserData
+                       SessionData(
+                         RejectedGoodsSingleJourney.empty(eori, features = rejectedGoodsSingleJourneyFeatures)
+                       ).withExistingUserData
                      )
                    else
                      Future.successful(Right(())))
@@ -105,7 +135,9 @@ class ChooseHowManyMrnsController @Inject() (
                 case Multiple =>
                   (if (request.sessionData.rejectedGoodsMultipleJourney.isEmpty)
                      updateSession(sessionStore, request)(
-                       SessionData(RejectedGoodsMultipleJourney.empty(eori)).withExistingUserData
+                       SessionData(
+                         RejectedGoodsMultipleJourney.empty(eori, features = rejectedGoodsMultipleJourneyFeatures)
+                       ).withExistingUserData
                      )
                    else
                      Future.successful(Right(())))
@@ -114,7 +146,9 @@ class ChooseHowManyMrnsController @Inject() (
                 case Scheduled =>
                   (if (request.sessionData.rejectedGoodsScheduledJourney.isEmpty)
                      updateSession(sessionStore, request)(
-                       SessionData(RejectedGoodsScheduledJourney.empty(eori)).withExistingUserData
+                       SessionData(
+                         RejectedGoodsScheduledJourney.empty(eori, features = rejectedGoodsScheduledJourneyFeatures)
+                       ).withExistingUserData
                      )
                    else
                      Future.successful(Right(())))

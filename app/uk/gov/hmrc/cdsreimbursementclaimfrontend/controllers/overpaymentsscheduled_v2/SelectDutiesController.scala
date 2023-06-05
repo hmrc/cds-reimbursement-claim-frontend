@@ -78,10 +78,9 @@ class SelectDutiesController @Inject() (
                   updatedJourney =>
                     (
                       updatedJourney,
-                      updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
-                        case Some(nextDuty) => Redirect(routes.SelectDutiesController.show(nextDuty))
-                        case None           => Redirect(routes.EnterClaimController.showFirst)
-                      }
+                      selectedTaxCodes.headOption.fold(
+                        BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
+                      )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
                     )
                 )
           )

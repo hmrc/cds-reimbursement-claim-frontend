@@ -69,7 +69,7 @@ class EnterClaimControllerSpec
     featureSwitch.enable(Feature.Overpayments_v2)
 
   val journeyGen: Gen[OverpaymentsScheduledJourney] =
-    buildJourneyGen(answersWithDutiesSelectedGen())
+    buildJourneyFromAnswersGen(answersWithDutiesSelectedGen())
 
   "Enter Claim Controller" should {
 
@@ -85,7 +85,7 @@ class EnterClaimControllerSpec
 
       "the user has not chosen duty type or tax code" in {
 
-        val journey = buildJourneyGen(answersUpToBasisForClaimGen()).sample.get
+        val journey = buildJourneyFromAnswersGen(answersUpToBasisForClaimGen()).sample.get
         val session = SessionData(journey)
 
         inSequence {
@@ -155,7 +155,7 @@ class EnterClaimControllerSpec
         forAll(journeyGen, amountPaidWithCorrectGen) {
           case (initialJourney, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
             initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
-              taxCodes.foreach { taxCode =>
+              taxCodes.take(taxCodes.length - 1).foreach { taxCode =>
                 val updatedJourney = initialJourney
                   .submitCorrectAmount(
                     dutyType,
@@ -176,7 +176,11 @@ class EnterClaimControllerSpec
                     case Some((nextDutyType, nextTaxCode)) =>
                       routes.EnterClaimController.show(nextDutyType, nextTaxCode)
                     case None                              =>
-                      routes.CheckClaimDetailsController.show
+                      updatedJourney.findNextSelectedDutyAfter(dutyType) match {
+                        case Some(nextDutyType) => routes.SelectDutiesController.show(nextDutyType)
+                        case None               => routes.CheckClaimDetailsController.show
+                      }
+
                   }
 
                 checkIsRedirect(

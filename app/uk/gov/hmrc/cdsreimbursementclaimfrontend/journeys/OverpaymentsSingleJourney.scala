@@ -41,7 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
   */
 final class OverpaymentsSingleJourney private (
   val answers: OverpaymentsSingleJourney.Answers,
-  val caseNumber: Option[String] = None
+  val caseNumber: Option[String] = None,
+  @annotation.nowarn val features: Option[OverpaymentsSingleJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsSingleJourney]
     with OverpaymentsJourneyProperties
@@ -53,6 +54,11 @@ final class OverpaymentsSingleJourney private (
 
   val validate: Validator.Validate[OverpaymentsSingleJourney] =
     OverpaymentsSingleJourney.validator
+
+  private def copy(
+    newAnswers: OverpaymentsSingleJourney.Answers
+  ): OverpaymentsSingleJourney =
+    new OverpaymentsSingleJourney(newAnswers, caseNumber, features)
 
   /** Check if all the selected duties have correct amounts provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -204,7 +210,7 @@ final class OverpaymentsSingleJourney private (
     getReimbursementClaims.toSeq.map(_._2).sum
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsSingleJourney =
-    new OverpaymentsSingleJourney(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(dutiesChangeMode = enabled))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
@@ -244,7 +250,8 @@ final class OverpaymentsSingleJourney private (
                     displayDeclaration = Some(displayDeclaration),
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                     nonce = answers.nonce
-                  )
+                  ),
+                features = features
               )
             )
       }
@@ -252,7 +259,7 @@ final class OverpaymentsSingleJourney private (
 
   def submitUserXiEori(userXiEori: UserXiEori): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
-      new OverpaymentsSingleJourney(
+      this.copy(
         answers.copy(eoriNumbersVerification =
           answers.eoriNumbersVerification
             .orElse(Some(EoriNumbersVerification()))
@@ -271,7 +278,7 @@ final class OverpaymentsSingleJourney private (
           }
         )
           Right(
-            new OverpaymentsSingleJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -288,7 +295,7 @@ final class OverpaymentsSingleJourney private (
       if (needsDeclarantAndConsigneeEoriSubmission)
         if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
           Right(
-            new OverpaymentsSingleJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -302,21 +309,21 @@ final class OverpaymentsSingleJourney private (
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
-      new OverpaymentsSingleJourney(
+      this.copy(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
-      new OverpaymentsSingleJourney(
+      this.copy(
         answers.copy(contactAddress = Some(contactAddress))
       )
     }
 
   def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
-      new OverpaymentsSingleJourney(
+      this.copy(
         answers.copy(
           whetherNorthernIreland = Some(whetherNorthernIreland),
           basisOfClaim =
@@ -335,10 +342,10 @@ final class OverpaymentsSingleJourney private (
     whileClaimIsAmendable {
       basisOfClaim match {
         case BasisOfOverpaymentClaim.DuplicateEntry =>
-          new OverpaymentsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+          this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
 
         case BasisOfOverpaymentClaim.IncorrectExciseValue =>
-          new OverpaymentsSingleJourney(
+          this.copy(
             answers.copy(
               basisOfClaim = Some(basisOfClaim),
               duplicateDeclaration = None,
@@ -349,7 +356,7 @@ final class OverpaymentsSingleJourney private (
           )
 
         case _ =>
-          new OverpaymentsSingleJourney(
+          this.copy(
             answers.copy(
               basisOfClaim = Some(basisOfClaim),
               duplicateDeclaration = None
@@ -377,14 +384,14 @@ final class OverpaymentsSingleJourney private (
               "submitDuplicateMovementReferenceNumberAndDeclaration.wrongDisplayDeclarationMrn"
             )
           else {
-            val modifiedJourney = new OverpaymentsSingleJourney(
+            val modifiedJourney = this.copy(
               answers.copy(
                 duplicateDeclaration = Some(DuplicateDeclaration(duplicateMrn, duplicateDisplayDeclaration))
               )
             )
 
             Right(
-              new OverpaymentsSingleJourney(
+              this.copy(
                 modifiedJourney.answers
                   .copy(duplicateDeclaration =
                     modifiedJourney.answers.duplicateDeclaration.map(
@@ -409,7 +416,7 @@ final class OverpaymentsSingleJourney private (
       if (needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration)
         if (answers.duplicateDeclaration.flatMap(_.displayDeclaration.getConsigneeEori).contains(consigneeEoriNumber))
           Right(
-            new OverpaymentsSingleJourney(
+            this.copy(
               answers.copy(duplicateDeclaration =
                 answers.duplicateDeclaration.map(
                   _.copy(verificationStatus =
@@ -436,7 +443,7 @@ final class OverpaymentsSingleJourney private (
       if (needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration)
         if (answers.duplicateDeclaration.map(_.displayDeclaration.getDeclarantEori).contains(declarantEoriNumber))
           Right(
-            new OverpaymentsSingleJourney(
+            this.copy(
               answers.copy(duplicateDeclaration =
                 answers.duplicateDeclaration.map(
                   _.copy(verificationStatus =
@@ -460,7 +467,7 @@ final class OverpaymentsSingleJourney private (
     additionalDetails: String
   ): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
-      new OverpaymentsSingleJourney(
+      this.copy(
         answers.copy(additionalDetails = Some(additionalDetails))
       )
     }
@@ -486,7 +493,7 @@ final class OverpaymentsSingleJourney private (
               }
 
               Right(
-                new OverpaymentsSingleJourney(
+                this.copy(
                   if (!isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts))
                     answers.copy(correctedAmounts = Some(newCorrectedAmounts), reimbursementMethod = None)
                   else
@@ -522,7 +529,7 @@ final class OverpaymentsSingleJourney private (
                   case None                   => Map(taxCode -> Some(correctAmount))
                   case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
                 }
-                Right(new OverpaymentsSingleJourney(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
+                Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else
                 Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
@@ -536,7 +543,7 @@ final class OverpaymentsSingleJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new OverpaymentsSingleJourney(
+          this.copy(
             answers.copy(bankAccountDetails = Some(bankAccountDetails))
           )
         )
@@ -547,7 +554,7 @@ final class OverpaymentsSingleJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new OverpaymentsSingleJourney(
+          this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
           )
         )
@@ -561,7 +568,7 @@ final class OverpaymentsSingleJourney private (
       if (isAllSelectedDutiesAreCMAEligible) {
         if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment)
           Right(
-            new OverpaymentsSingleJourney(
+            this.copy(
               answers.copy(
                 reimbursementMethod = Some(reimbursementMethod),
                 bankAccountDetails = None
@@ -570,7 +577,7 @@ final class OverpaymentsSingleJourney private (
           )
         else
           Right(
-            new OverpaymentsSingleJourney(
+            this.copy(
               answers.copy(
                 reimbursementMethod = Some(reimbursementMethod),
                 bankAccountDetails = computeBankAccountDetails
@@ -583,7 +590,7 @@ final class OverpaymentsSingleJourney private (
 
   def resetReimbursementMethod(): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
-      new OverpaymentsSingleJourney(
+      this.copy(
         answers.copy(
           reimbursementMethod = None,
           bankAccountType = None,
@@ -594,7 +601,7 @@ final class OverpaymentsSingleJourney private (
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
-      new OverpaymentsSingleJourney(answers.copy(selectedDocumentType = Some(documentType)))
+      this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -610,7 +617,7 @@ final class OverpaymentsSingleJourney private (
           case uf                            => uf
         }
         Right(
-          new OverpaymentsSingleJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+          this.copy(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
         )
       } else Left("receiveUploadedFiles.invalidNonce")
     }
@@ -620,7 +627,7 @@ final class OverpaymentsSingleJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => new OverpaymentsSingleJourney(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
         )
     }
 
@@ -629,7 +636,10 @@ final class OverpaymentsSingleJourney private (
       validate(this)
         .fold(
           errors => Left(errors.headMessage),
-          _ => Right(new OverpaymentsSingleJourney(answers = this.answers, caseNumber = Some(caseNumber)))
+          _ =>
+            Right(
+              new OverpaymentsSingleJourney(answers = this.answers, caseNumber = Some(caseNumber), features = features)
+            )
         )
     }
 
@@ -678,10 +688,18 @@ final class OverpaymentsSingleJourney private (
 object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  override def empty(userEoriNumber: Eori, nonce: Nonce = Nonce.random): OverpaymentsSingleJourney =
-    new OverpaymentsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): OverpaymentsSingleJourney =
+    new OverpaymentsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
 
   type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
+
+  final case class Features(
+    shouldBlockSubsidies: Boolean
+  ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -832,10 +850,15 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments
+      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
     )
 
   import JourneyFormats._
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
 
   object Answers {
 
@@ -852,14 +875,21 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   implicit val format: Format[OverpaymentsSingleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "caseNumber").readNullable[String])(new OverpaymentsSingleJourney(_, _)),
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsSingleJourney(_, _, _)),
       ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "features").writeNullable[Features])(journey =>
+        (journey.answers, journey.caseNumber, journey.features)
+      )
     )
 
   /** Try to build journey from the pre-existing answers. */
-  override def tryBuildFrom(answers: Answers): Either[String, OverpaymentsSingleJourney] =
-    empty(answers.userEoriNumber, answers.nonce)
+  override def tryBuildFrom(
+    answers: Answers,
+    features: Option[Features] = None
+  ): Either[String, OverpaymentsSingleJourney] =
+    empty(answers.userEoriNumber, answers.nonce, features)
       .flatMapWhenDefined(
         answers.movementReferenceNumber.zip(answers.displayDeclaration)
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>

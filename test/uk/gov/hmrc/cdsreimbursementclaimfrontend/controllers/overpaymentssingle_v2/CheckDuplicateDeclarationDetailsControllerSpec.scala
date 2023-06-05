@@ -74,7 +74,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
     for {
-      j1            <- buildJourneyGen(answersUpToBasisForClaimGen())
+      j1            <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
                          .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
       mrn           <- genMRN
       consigneeEori <- genEori
@@ -126,7 +126,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
       "redirect if duplicate declaration not expected" in {
         val journey =
-          buildJourneyGen(answersUpToBasisForClaimGen())
+          buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
             .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DutySuspension))
             .sample
             .get
@@ -144,7 +144,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
       "redirect if duplicate declaration expected but not provided" in {
         val journey =
-          buildJourneyGen(answersUpToBasisForClaimGen())
+          buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
             .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
             .sample
             .get
@@ -163,7 +163,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       "redirect if duplicate declaration not verified" in {
         val journey =
           (for {
-            j1   <- buildJourneyGen(answersUpToBasisForClaimGen())
+            j1   <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
                       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
             mrn  <- genMRN
             eori <- genEori

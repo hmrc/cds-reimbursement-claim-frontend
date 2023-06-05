@@ -34,6 +34,7 @@ object Feature extends EnumerationFormat[Feature] {
   case object ViewUpload extends Feature { val name = "view-upload" }
   case object Overpayments_v2 extends Feature { val name = "overpayments_v2" }
   case object XiEori extends Feature { val name = "xi-eori" }
+  case object BlockSubsidies extends Feature { val name = "block-subsidies" }
 
   def of(name: String): Option[Feature] =
     values.find(_.name === name)
@@ -44,7 +45,9 @@ object Feature extends EnumerationFormat[Feature] {
       Securities,
       LimitedAccess,
       ViewUpload,
-      Overpayments_v2
+      Overpayments_v2,
+      XiEori,
+      BlockSubsidies
     )
 }
 

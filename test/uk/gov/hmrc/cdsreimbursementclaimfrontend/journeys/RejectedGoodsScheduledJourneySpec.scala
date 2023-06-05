@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import com.github.arturopala.validator.Validator
 import org.scalacheck.Gen
 import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
@@ -1156,5 +1157,45 @@ class RejectedGoodsScheduledJourneySpec
         }
       }
     }
+
+    "validate subsidy payment methods in declaration" when {
+
+      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
+
+      "feature not enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withSubsidiesPaymentMethod()
+
+        val journey = RejectedGoodsScheduledJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe None
+
+        RejectedGoodsScheduledJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Valid
+      }
+
+      "feature enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withSubsidiesPaymentMethod()
+
+        val journey = RejectedGoodsScheduledJourney
+          .empty(exampleEori, features = Some(RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = true)))
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe Some(RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = true))
+
+        RejectedGoodsScheduledJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
+      }
+    }
+
   }
 }
