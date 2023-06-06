@@ -75,18 +75,25 @@ object AddressLookupRequest {
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showConfirmChangeText = value.some)))
 
     def withPageTitles(
+      appTitle: Option[String] = None,
+      phaseBannerHtml: Option[String] = None,
       lookupTitle: Option[String],
       confirmTitle: Option[String],
       selectTitle: Option[String],
-      editTitle: Option[String]
+      editTitle: Option[String],
+      lookupHeading: Option[String],
+      confirmHeading: Option[String],
+      selectHeading: Option[String],
+      editHeading: Option[String]
     ): Builder =
       copy(labels =
         labels.copy(en =
           LanguageLabels(
-            lookupPageLabels = PageLabels(lookupTitle).some,
-            confirmPageLabels = PageLabels(confirmTitle).some,
-            selectPageLabels = PageLabels(selectTitle).some,
-            editPageLabels = PageLabels(editTitle).some
+            appLevelLabels = AppLabels(appTitle, phaseBannerHtml).some,
+            lookupPageLabels = PageLabels(lookupTitle, lookupHeading).some,
+            confirmPageLabels = PageLabels(confirmTitle, confirmHeading).some,
+            selectPageLabels = PageLabels(selectTitle, selectHeading).some,
+            editPageLabels = PageLabels(editTitle, editHeading).some
           ).some
         )
       )

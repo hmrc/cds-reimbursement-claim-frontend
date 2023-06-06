@@ -77,6 +77,9 @@ class DefaultAddressLookupService @Inject() (
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
+  private def appTitle(implicit messages: Messages): String =
+    messages("service.title")
+
   private def fullPageTitle(titleKey: String)(implicit messages: Messages): String =
     viewConfig
       .pageTitleWithServiceName(
@@ -84,6 +87,9 @@ class DefaultAddressLookupService @Inject() (
         messages("service.title"),
         hasErrors = false
       )
+
+  private def pageHeading(titleKey: String)(implicit messages: Messages): String =
+    messages(titleKey)
 
   def startLookupRedirectingBackTo(
     addressUpdateUrl: Call
@@ -94,10 +100,16 @@ class DefaultAddressLookupService @Inject() (
         .signOutUserVia(viewConfig.ggSignOut)
         .nameConsumerServiceAs("cds-reimbursement-claim")
         .withPageTitles(
+          appTitle.some,
+          None,
           fullPageTitle("address-lookup.lookup.title").some,
           fullPageTitle("address-lookup.confirm.title").some,
           fullPageTitle("address-lookup.select.title").some,
-          fullPageTitle("address-lookup.edit.title").some
+          fullPageTitle("address-lookup.edit.title").some,
+          pageHeading("address-lookup.lookup.title").some,
+          pageHeading("address-lookup.confirm.title").some,
+          pageHeading("address-lookup.select.title").some,
+          pageHeading("address-lookup.edit.title").some
         )
         .showMax(addressLookupConfiguration.addressesShowLimit)
         .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)

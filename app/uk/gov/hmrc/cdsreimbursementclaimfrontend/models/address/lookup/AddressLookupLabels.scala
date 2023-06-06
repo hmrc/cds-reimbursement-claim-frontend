@@ -27,11 +27,15 @@ final case class LanguageLabels(
   lookupPageLabels: Option[PageLabels] = None,
   confirmPageLabels: Option[PageLabels] = None,
   selectPageLabels: Option[PageLabels] = None,
-  editPageLabels: Option[PageLabels] = None
+  editPageLabels: Option[PageLabels] = None,
+  appLevelLabels: Option[AppLabels] = None
 )
-final case class PageLabels(title: Option[String] = None)
+
+final case class AppLabels(navTitle: Option[String] = None, phaseBannerHtml: Option[String] = None)
+final case class PageLabels(title: Option[String] = None, heading: Option[String] = None)
 
 object AddressLookupLabels {
+  implicit val appLabels: OFormat[AppLabels]              = Json.format[AppLabels]
   implicit val pageLabels: OFormat[PageLabels]            = Json.format[PageLabels]
   implicit val languageLabels: OFormat[LanguageLabels]    = Json.format[LanguageLabels]
   implicit val labelsConfig: OFormat[AddressLookupLabels] = Json.format[AddressLookupLabels]
