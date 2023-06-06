@@ -95,10 +95,16 @@ class AddressLookupServiceSpec
     .whetherShowChangeLink(true)
     .whetherShowBanner(true)
     .withPageTitles(
+      Some(s"${messages("service.title")}"),
+      None,
       Some(s"${messages("address-lookup.lookup.title")} - ${messages("service.title")} - GOV.UK"),
       Some(s"${messages("address-lookup.confirm.title")} - ${messages("service.title")} - GOV.UK"),
       Some(s"${messages("address-lookup.select.title")} - ${messages("service.title")} - GOV.UK"),
-      Some(s"${messages("address-lookup.edit.title")} - ${messages("service.title")} - GOV.UK")
+      Some(s"${messages("address-lookup.edit.title")} - ${messages("service.title")} - GOV.UK"),
+      Some(s"${messages("address-lookup.lookup.title")}"),
+      Some(s"${messages("address-lookup.confirm.title")}"),
+      Some(s"${messages("address-lookup.select.title")}"),
+      Some(s"${messages("address-lookup.edit.title")}")
     )
 
   def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(
