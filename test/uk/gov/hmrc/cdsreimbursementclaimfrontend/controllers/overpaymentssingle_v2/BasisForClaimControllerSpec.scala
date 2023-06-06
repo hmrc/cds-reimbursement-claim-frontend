@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -71,7 +71,7 @@ class BasisForClaimControllerSpec
 
   def assertPageContent(
     doc: Document,
-    expectedBasisOfClaims: BasisOfOverpaymentClaimsList,
+    expectedBasisOfClaims: Set[BasisOfOverpaymentClaim],
     selectedBasisOfClaim: Option[BasisOfOverpaymentClaim]
   ): Any =
     doc
@@ -81,7 +81,7 @@ class BasisForClaimControllerSpec
       .map(e =>
         (
           e.siblingElements().first().text(),
-          e.attr("value").toInt,
+          e.attr("value"),
           e.hasAttr("checked")
         )
       )
@@ -89,8 +89,8 @@ class BasisForClaimControllerSpec
       expectedBasisOfClaims
         .map(basisOfClaim =>
           (
-            messages(expectedBasisOfClaims.buildKey("select-basis-for-claim", basisOfClaim)),
-            BasisOfOverpaymentClaimsList.indexOf(basisOfClaim),
+            messages(s"select-basis-for-claim.reason.$basisOfClaim"),
+            BasisOfOverpaymentClaim.keyOf(basisOfClaim),
             selectedBasisOfClaim.contains(basisOfClaim)
           )
         )
@@ -183,11 +183,8 @@ class BasisForClaimControllerSpec
           )(Right(()))
         }
 
-        val number: Int =
-          BasisOfOverpaymentClaimsList.indexOf(basisOfClaim)
-
         checkIsRedirect(
-          performAction("select-basis-for-claim" -> number.toString),
+          performAction("select-basis-for-claim" -> basisOfClaim.toString),
           if (basisOfClaim === BasisOfOverpaymentClaim.DuplicateEntry)
             routes.EnterDuplicateMovementReferenceNumberController.show
           else

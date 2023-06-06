@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -196,7 +196,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
         }
 
         checkIsRedirect(
-          performAction(Seq(selectBasisForClaimKey -> "2")),
+          performAction(Seq(selectBasisForClaimKey -> "EndUseRelief")),
           routes.EnterAdditionalDetailsController.show
         )
       }
@@ -208,7 +208,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
           )
 
         val claim = sample(genValidDraftClaim(TypeOfClaimAnswer.Individual))
-        val idx   = BasisOfOverpaymentClaimsList.indexOf(claim.basisOfClaimAnswer.value)
+        val idx   = BasisOfOverpaymentClaim.keyOf(claim.basisOfClaimAnswer.value)
 
         val session = SessionData.empty.copy(
           journeyStatus = FillingOutClaim(
@@ -224,7 +224,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
         }
 
         checkIsRedirect(
-          performAction(Seq(selectBasisForClaimKey -> idx.toString)),
+          performAction(Seq(selectBasisForClaimKey -> idx)),
           routes.CheckYourAnswersAndSubmitController.checkAllAnswers
         )
       }

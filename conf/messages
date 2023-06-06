@@ -751,23 +751,23 @@ select-basis-for-claim.details.hint.13=
 select-basis-for-claim.details.bullet.14=Other reason:
 select-basis-for-claim.details.hint.14=For any other reason not listed.
 
-select-basis-for-claim.reason.d0=Duplicate Movement Reference Number (MRN)
-select-basis-for-claim.reason.d1=Duty suspension
-select-basis-for-claim.reason.d2=End use relief
-select-basis-for-claim.reason.d3=Incorrect additional information code (excluding NIAID)
+select-basis-for-claim.reason.DuplicateEntry=Duplicate Movement Reference Number (MRN)
+select-basis-for-claim.reason.DutySuspension=Duty suspension
+select-basis-for-claim.reason.EndUseRelief=End use relief
+select-basis-for-claim.reason.IncorrectAdditionalInformationCode=Incorrect additional information code (excluding NIAID)
 select-basis-for-claim.reason.hint.d3=Applicable only to goods moved through Northern Ireland.
-select-basis-for-claim.reason.d4=Incorrect commodity code
-select-basis-for-claim.reason.d5=Incorrect customs procedure code (CPC)
-select-basis-for-claim.reason.d6=Incorrect excise value
-select-basis-for-claim.reason.hint.d6=Applicable only to goods moved through Northern Ireland.
-select-basis-for-claim.reason.d7=Incorrect value
-select-basis-for-claim.reason.d8=Inward processing relief from Customs Duty
-select-basis-for-claim.reason.d9=Outward processing relief
-select-basis-for-claim.reason.d10=Personal effects
-select-basis-for-claim.reason.d11=Preferential rate of duty
-select-basis-for-claim.reason.d12=Proof of return or refund given
-select-basis-for-claim.reason.d13=Returned goods relief (RGR)
-select-basis-for-claim.reason.d14=Other reason
+select-basis-for-claim.reason.IncorrectCommodityCode=Incorrect commodity code
+select-basis-for-claim.reason.IncorrectCpc=Incorrect customs procedure code (CPC)
+select-basis-for-claim.reason.IncorrectExciseValue=Incorrect excise value
+select-basis-for-claim.reason.hint.IncorrectExciseValue=Applicable only to goods moved through Northern Ireland.
+select-basis-for-claim.reason.IncorrectValue=Incorrect value
+select-basis-for-claim.reason.InwardProcessingReliefFromCustomsDuty=Inward processing relief from Customs Duty
+select-basis-for-claim.reason.OutwardProcessingRelief=Outward processing relief
+select-basis-for-claim.reason.PersonalEffects=Personal effects
+select-basis-for-claim.reason.Preference=Preferential rate of duty
+select-basis-for-claim.reason.ProofOfReturnRefundGiven=Proof of return or refund given
+select-basis-for-claim.reason.RGR=Returned goods relief (RGR)
+select-basis-for-claim.reason.Miscellaneous=Other reason
 
 
 #===================================================
@@ -853,6 +853,7 @@ enter-additional-details.hint=Provide brief details about this claim.
 enter-claim.rejected-goods.single.title=Claim details for {0} - {1}
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
 enter-claim.rejected-goods.paragraph=This is to calculate your repayment as part of your claim.
+enter-claim.rejected-goods.for-mrn.paragraph=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?

@@ -388,14 +388,12 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  val basisOfOverpaymentClaimForm: Form[BasisOfOverpaymentClaim] =
-    Form(
-      mapping(
-        "select-basis-for-claim" -> number
-          .verifying("error.number", idx => BasisOfOverpaymentClaimsList.contains(idx))
-          .transform[BasisOfOverpaymentClaim](BasisOfOverpaymentClaimsList.all(_), BasisOfOverpaymentClaimsList.indexOf)
-      )(identity)(Some(_))
-    )
+  val basisOfOverpaymentClaimForm: Form[BasisOfOverpaymentClaim] = Form(
+    mapping(
+      "select-basis-for-claim" -> nonEmptyText
+        .verifying("error.required", basis => basis.isEmpty || BasisOfOverpaymentClaim.has(basis))
+    )(BasisOfOverpaymentClaim.findUnsafe)(borgc => Option(borgc.toString))
+  )
 
   val reasonForSecurityForm: Form[ReasonForSecurity] =
     Form(

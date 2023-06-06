@@ -968,13 +968,11 @@ class OverpaymentsScheduledJourneySpec
       val availableDocumentTypes = UploadDocumentType.overpaymentsScheduledDocumentTypes
 
       val availableClaimTypesNotNi      =
-        BasisOfOverpaymentClaimsList
-          .withoutDuplicateEntry()
-          .excludeNorthernIrelandClaims(false, Some(displayDeclaration))
+        BasisOfOverpaymentClaim
+          .excludeNorthernIrelandClaims(false, false, Some(displayDeclaration))
       val availableClaimTypesIncludesNi =
-        BasisOfOverpaymentClaimsList
-          .withoutDuplicateEntry()
-          .excludeNorthernIrelandClaims(true, Some(displayDeclaration))
+        BasisOfOverpaymentClaim
+          .excludeNorthernIrelandClaims(false, true, Some(displayDeclaration))
 
       val journey = OverpaymentsScheduledJourney
         .empty(exampleEori)
