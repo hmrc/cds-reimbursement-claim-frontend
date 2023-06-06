@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaimsList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SubsidiesFeatures
 
 /** Common properties of the overpayments single, multiple and scheduled journeys. */
@@ -28,5 +28,5 @@ trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal
 
-  def getAvailableClaimTypes: BasisOfOverpaymentClaimsList
+  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 }

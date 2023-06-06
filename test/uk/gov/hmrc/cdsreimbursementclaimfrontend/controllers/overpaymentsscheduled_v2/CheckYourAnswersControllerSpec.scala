@@ -152,7 +152,7 @@ class CheckYourAnswersControllerSpec
         "Contact details"                                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
         "Contact address"                                 -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
         "This is the basis behind the claim"              -> Some(
-          m(s"select-basis-for-claim.reason.d${BasisOfOverpaymentClaimsList.indexOf(claim.basisOfClaim)}")
+          m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
         ),
         "Were your goods imported into Northern Ireland?" -> Some(YesNo.of(claim.whetherNorthernIreland).toString),
         "This is the reason for the claim"                -> Some(claim.additionalDetails),

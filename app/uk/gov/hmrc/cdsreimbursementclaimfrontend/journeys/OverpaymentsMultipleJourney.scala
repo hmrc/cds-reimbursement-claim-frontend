@@ -237,10 +237,13 @@ final class OverpaymentsMultipleJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
-  def getAvailableClaimTypes: BasisOfOverpaymentClaimsList =
-    BasisOfOverpaymentClaimsList
-      .withoutDuplicateEntry()
-      .excludeNorthernIrelandClaims(answers.whetherNorthernIreland.getOrElse(false), getLeadDisplayDeclaration)
+  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
+    BasisOfOverpaymentClaim
+      .excludeNorthernIrelandClaims(
+        hasDuplicateEntryClaim = false,
+        answers.whetherNorthernIreland.getOrElse(false),
+        getLeadDisplayDeclaration
+      )
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -432,7 +435,7 @@ final class OverpaymentsMultipleJourney private (
             else
               // review basis of claim if nothern ireland claims should not be allowed
               answers.basisOfClaim.flatMap { case basisOfClaim =>
-                if (BasisOfOverpaymentClaimsList.northernIreland.contains(basisOfClaim)) None
+                if (BasisOfOverpaymentClaim.northernIreland.contains(basisOfClaim)) None
                 else Some(basisOfClaim)
               }
         )
