@@ -129,7 +129,7 @@ landing.start-button=Start now
 landing.before.heading=Before you start
 landing.before.p1=To use this service, you will need:
 landing.before.l1=Government Gateway credentials
-landing.before.l2=to have your EORI number associated with your CDS enrolment
+landing.before.l2=to have your EORI number associated with your Customs Declaration Service (CDS) enrolment
 landing.before.l3=a MRN or entry number
 landing.before.l4=to know the type of duty you want to claim repayment for
 landing.before.l5=the reason for overpayment
@@ -295,7 +295,7 @@ enter-movement-reference-number.title=Enter the Movement Reference Number (MRN)
 enter-movement-reference-number.details.heading=Finding your MRN
 enter-movement-reference-number.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.help-text=The MRN is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number (MRN)
 enter-movement-reference-number.error.required=Enter a movement reference number (MRN)
@@ -303,28 +303,28 @@ enter-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot 
 enter-movement-reference-number.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.multiple.error.existingMRN=This movement reference number (MRN) has already been used. Enter a different MRN
 enter-movement-reference-number.multiple.title=Enter the first Movement Reference Number (MRN)
-enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.multiple.help-text=The MRN is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter first MRN
 enter-movement-reference-number.scheduled.title=Enter the first Movement Reference Number (MRN)
-enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.scheduled.help-text=The MRN is issued when an import is declared.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter first MRN
 
 enter-movement-reference-number.rejected-goods.single.title=Enter the Movement Reference Number (MRN)
-enter-movement-reference-number.rejected-goods.single.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.single.help-text=The MRN is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number (MRN)
 enter-movement-reference-number.rejected-goods.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
 enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} Movement Reference Number (MRN)
-enter-movement-reference-number.rejected-goods.multiple.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} Movement Reference Number (MRN)
+enter-movement-reference-number.rejected-goods.multiple.help-text1=The MRN is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised
 enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} Movement Reference Number (MRN)
-enter-movement-reference-number.rejected-goods.scheduled.help-text1=The Movement Reference Number (MRN) is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} Movement Reference Number (MRN)
+enter-movement-reference-number.rejected-goods.scheduled.help-text1=The MRN is issued when an import is declared.
+enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.rejected-goods.details.heading=Finding your MRN
 enter-movement-reference-number.rejected-goods.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
@@ -333,7 +333,7 @@ enter-movement-reference-number.securities.title=Enter the import MRN
 enter-movement-reference-number.securities.details.heading=Finding your MRN
 enter-movement-reference-number.securities.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-movement-reference-number.securities.help-text=The Movement Reference Number (MRN) is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
+enter-movement-reference-number.securities.help-text=The MRN is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 enter-movement-reference-number.securities.enter-mrn.label=Enter MRN
 enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.securities.error.required=Enter a movement reference number (MRN)
@@ -370,10 +370,10 @@ enter-export-movement-reference-number-multiple.securities.error.import=Enter an
 #  ENTER ASSOCIATED MRN PAGE
 #===================================================
 enter-associated-mrn.title=Enter the {0} Movement Reference Number (MRN)
-enter-associated-mrn.help-text=The Movement Reference Number (MRN) is issued when an import is declared.
+enter-associated-mrn.help-text=The MRN is issued when an import is declared.
 enter-associated-mrn.details.heading=Finding your MRN
 enter-associated-mrn.details.para=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-associated-mrn.enter-mrn.label=Enter {0} Movement Reference Number (MRN)
+enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-associated-mrn.error.required=Enter a movement reference number (MRN)
 enter-associated-mrn.invalid.number=Enter a movement reference number (MRN)
@@ -694,8 +694,8 @@ claim-northern-ireland.error.required=Select yes if all the MRNs in this claim w
 claim-northern-ireland.error.invalid=Select yes if all the MRNs in this claim were moved through or imported to Northern Ireland
 
 claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
-claim-northern-ireland.scheduled.help-text=If you select Yes, then all the MRNs in this claim must have been imported to or moved through Northern Ireland.
-claim-northern-ireland.multiple.help-text=If you select Yes, then all the MRNs in this claim must have been imported to or moved through Northern Ireland.
+claim-northern-ireland.scheduled.help-text=If you select Yes, then all the Movement Reference Numbers (MRNs) in this claim must have been imported to or moved through Northern Ireland.
+claim-northern-ireland.multiple.help-text=If you select Yes, then all the Movement Reference Numbers (MRNs) in this claim must have been imported to or moved through Northern Ireland.
 #===================================================
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================
@@ -706,7 +706,7 @@ select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=Select one option from list.
 select-basis-for-claim.details.heading=Examples of basis of claim
 
-select-basis-for-claim.details.bullet.0=Duplicate MRN:
+select-basis-for-claim.details.bullet.0=Duplicate Movement Reference Number (MRN):
 select-basis-for-claim.details.hint.0=A shipment was declared more than once by error and duties were overpaid.
 
 select-basis-for-claim.details.bullet.1=Duty suspension:
@@ -751,7 +751,7 @@ select-basis-for-claim.details.hint.13=
 select-basis-for-claim.details.bullet.14=Other reason:
 select-basis-for-claim.details.hint.14=For any other reason not listed.
 
-select-basis-for-claim.reason.DuplicateEntry=Duplicate MRN
+select-basis-for-claim.reason.DuplicateEntry=Duplicate Movement Reference Number (MRN)
 select-basis-for-claim.reason.DutySuspension=Duty suspension
 select-basis-for-claim.reason.EndUseRelief=End use relief
 select-basis-for-claim.reason.IncorrectAdditionalInformationCode=Incorrect additional information code (excluding NIAID)
@@ -1059,7 +1059,7 @@ select-duties.caption=Security ID: {0}
 select-duties.title=Select the duties you want to claim for
 select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
 select-duties.multiple.help-text.1=These are the duties that have been paid under MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
-select-duties.duty.hint=This duty is not eligible for CMA repayment.
+select-duties.duty.hint=This duty is not eligible for Current Month Adjustment (CMA) repayment.
 select-duties.duty.caption=How much was paid: %s
 select-duties.error.required=Choose the duties you want to include in your claim
 select-duties.duty.A00=Customs Duty
