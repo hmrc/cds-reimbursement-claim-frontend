@@ -76,7 +76,8 @@ class EnterClaimController @Inject() (
                   Some(pageIndex),
                   paidAmount,
                   subKey,
-                  submitClaimAction(pageIndex, taxCode)
+                  submitClaimAction(pageIndex, taxCode),
+                  Some(mrn)
                 )
               )
           }
