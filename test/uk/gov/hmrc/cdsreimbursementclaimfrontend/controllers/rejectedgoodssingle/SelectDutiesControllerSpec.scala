@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -46,6 +47,7 @@ class SelectDutiesControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with DeclarationSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks {
 
@@ -114,6 +116,29 @@ class SelectDutiesControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
+          assertPageContent(_, journey, Seq.empty)
+        )
+      }
+
+      "display the page for subsidies MRNs" in {
+        val journey = RejectedGoodsSingleJourney
+          .empty(exampleDisplayDeclaration.withSubsidiesPaymentMethod().getDeclarantEori)
+          .submitMovementReferenceNumberAndDeclaration(
+            exampleMrn,
+            exampleDisplayDeclaration.withSubsidiesPaymentMethod()
+          )
+          .getOrFail
+
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.subsidies.title"),
           assertPageContent(_, journey, Seq.empty)
         )
       }
