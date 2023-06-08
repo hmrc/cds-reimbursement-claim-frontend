@@ -50,13 +50,17 @@ class SelectDutiesController @Inject() (
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
+    val h1MessageKey                             =
+      if (journey.getLeadDisplayDeclaration.exists(_.hasSubsidyPayment))
+        Some("select-duties.subsidies.title")
+      else None
 
     if (availableDuties.isEmpty) {
       logger.warn("No available duties")
       Redirect(baseRoutes.IneligibleController.ineligible())
     } else {
       val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
-      Ok(selectDutiesPage(form, availableDuties, None, true, None, postAction))
+      Ok(selectDutiesPage(form, availableDuties, None, true, None, postAction, h1MessageKey))
     }
   }
 

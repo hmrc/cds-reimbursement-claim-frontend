@@ -45,11 +45,12 @@
     indexAndMrnOpt: Option[(Int,MRN)], 
     showCmaNotEligibleHint: Boolean,
     subKey: Option[String], 
-    postAction: Call
+    postAction: Call,
+    h1KeyOverride: Option[String] = None
 )(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duties"}
-    @title = @{messages(combine(key, subKey, "title"), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
+    @title = @{messages(h1KeyOverride.map(Seq(_)).getOrElse(combine(key, subKey, "title")), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
 
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
         CheckboxItem(
