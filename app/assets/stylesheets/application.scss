@@ -55,8 +55,14 @@ $hmrc-assets-path: "/claim-back-import-duty-vat/assets/lib/hmrc-frontend/hmrc/";
 
 }
 
-abbr[title] {
-    text-decoration: none;
+.cds-combined-checkbox-groups > .govuk-form-group {
+    margin-bottom:0;
+    padding-bottom:30px;
+
+    &:last-of-type {
+        margin-bottom:30px;
+        padding-bottom:0;
+    }
 }
 
 

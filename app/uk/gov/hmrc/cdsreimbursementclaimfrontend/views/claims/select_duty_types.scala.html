@@ -75,22 +75,28 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @checkboxes(
-            field = form(s"$key"),
-            legend = HtmlContent(messages(s"$key.checkbox-legend.1")),
-            legendAsHeading = false,
-            items = customsOptions
-        )
+        <div class="cds-combined-checkbox-groups">
 
-        @checkboxes(
-            field = form(s"$key"),
-            legend = HtmlContent(messages(s"$key.checkbox-legend.2")),
-            legendAsHeading = false,
-            items = exciseOptions,
-            idPrefix = s"$key-excise",
-            hideError = true
-        )
+            @checkboxes(
+                field = form(s"$key"),
+                legend = HtmlContent(messages(s"$key.checkbox-legend.1")),
+                legendAsHeading = false,
+                items = customsOptions
+            )
+
+            @checkboxes(
+                field = form(s"$key"),
+                legend = HtmlContent(messages(s"$key.checkbox-legend.2")),
+                legendAsHeading = false,
+                items = exciseOptions,
+                idPrefix = s"$key-excise",
+                hideError = true
+            )
+
+        </div>
 
         @submitButton("button.continue")
+
     }
+
 }
