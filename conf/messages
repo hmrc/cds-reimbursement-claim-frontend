@@ -1544,6 +1544,9 @@ check-your-answers.declaration-details.declarant-address-label=Declarant address
 check-your-answers.declaration-details.reason-for-security-label=Reason for security deposit
 check-your-answers.declaration-details.acceptance-date-label=Date duty to be collected
 check-your-answers.declaration-details.bta-due-date-label=Date security deposit made
+check-your-answers.declaration-details.subsidy-status-label=Subsidy status
+check-your-answers.declaration-details.subsidy-label=Subsidy
+
 
 check-your-answers.claimant-type.h2=Claimant type
 check-your-answers.claimant-type.l0=Type of claimant
