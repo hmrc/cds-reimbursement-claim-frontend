@@ -200,7 +200,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsMultipleJourney.Features] = None
   ): Gen[RejectedGoodsMultipleJourney] =
     buildJourneyGen(
@@ -216,7 +216,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       minNumberOfMRNs = minNumberOfMRNs,
       maxNumberOfMRNs = maxNumberOfMRNs,
       maxSize = maxSize,
-      allowSubsidyPayments = allowSubsidyPayments,
+      generateSubsidyPayments = generateSubsidyPayments,
       features = features
     ).map(
       _.fold(
@@ -256,7 +256,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsMultipleJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsMultipleJourney]] =
     for {
@@ -314,7 +314,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
             paidDutiesPerMrn,
             if (submitConsigneeDetails) consigneeContact else None,
             declarantContact,
-            allowSubsidyPayments = allowSubsidyPayments
+            generateSubsidyPayments = generateSubsidyPayments
           )
         }
 

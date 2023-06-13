@@ -150,7 +150,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsScheduledJourney.Features] = None
   ): Gen[RejectedGoodsScheduledJourney] =
     buildJourneyGen(
@@ -162,7 +162,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
-      allowSubsidyPayments = allowSubsidyPayments,
+      generateSubsidyPayments = generateSubsidyPayments,
       features = features
     ).map(
       _.fold(
@@ -184,7 +184,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsScheduledJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsScheduledJourney]] =
     for {
@@ -218,7 +218,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
           reimbursements.flatMap(_._2).map(d => (d._1, d._3, false)),
           if (submitConsigneeDetails) consigneeContact else None,
           declarantContact,
-          allowSubsidyPayments = allowSubsidyPayments
+          generateSubsidyPayments = generateSubsidyPayments
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
