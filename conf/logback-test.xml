@@ -53,6 +53,10 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
+    <logger name="uk.gov.hmrc.play.bootstrap" level="ERROR"/>
+    <logger name="akka.event" level="ERROR"/>
+    <logger name="akka.actor.CoordinatedShutdown" level="ERROR"/>
+
     <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>

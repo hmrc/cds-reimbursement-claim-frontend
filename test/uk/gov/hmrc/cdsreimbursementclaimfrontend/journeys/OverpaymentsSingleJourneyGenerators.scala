@@ -228,7 +228,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
-      numberOfTaxCodes            <- Gen.choose(1, 5)
+      numberOfTaxCodes            <- Gen.choose(if (generateSubsidyPayments == GenerateSubsidyPayments.Some) 2 else 1, 5)
       taxCodes                    <- Gen
                                        .pick(
                                          numberOfTaxCodes,

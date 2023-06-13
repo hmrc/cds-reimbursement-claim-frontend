@@ -161,7 +161,7 @@ trait JourneyTestData {
           amount = paidAmount.toString(),
           paymentMethod = generateSubsidyPayments match {
             case GenerateSubsidyPayments.None                  => if (cmaEligible) "002" else "001"
-            case GenerateSubsidyPayments.Some                  => if (index % 2 == 0) "006" else if (cmaEligible) "002" else "001"
+            case GenerateSubsidyPayments.Some                  => if (index % 2 == 1) "006" else if (cmaEligible) "002" else "001"
             case GenerateSubsidyPayments.All                   => "006"
             case GenerateSubsidyPayments.ForTaxCodes(taxCodes) =>
               if (taxCodes.contains(taxCode)) "006" else if (cmaEligible) "002" else "001"

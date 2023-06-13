@@ -257,7 +257,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       reimbursements              <- dutyTypesWithTaxCodesWithClaimAmountsGen
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry)
-      numberOfTaxCodes            <- Gen.choose(1, 5)
+      numberOfTaxCodes            <- Gen.choose(if (generateSubsidyPayments == GenerateSubsidyPayments.Some) 2 else 1, 5)
       taxCodes                    <- Gen
                                        .pick(
                                          numberOfTaxCodes,

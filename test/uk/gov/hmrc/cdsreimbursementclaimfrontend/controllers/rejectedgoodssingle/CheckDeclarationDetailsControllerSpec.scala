@@ -145,11 +145,8 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "do not display subsidy status when declaration has mixed payments" in {
-        val journey = buildCompleteJourneyGen(
-          acc14DeclarantMatchesUserEori = false,
-          acc14ConsigneeMatchesUserEori = false,
-          generateSubsidyPayments = GenerateSubsidyPayments.Some
-        ).sample.getOrElse(fail("Journey building has failed."))
+        val journey =
+          completeJourneyWithSomeSubsidiesGen.sample.getOrElse(fail("Journey building has failed."))
 
         val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
 

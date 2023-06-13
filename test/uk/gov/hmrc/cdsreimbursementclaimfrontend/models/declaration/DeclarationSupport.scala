@@ -29,7 +29,7 @@ trait DeclarationSupport {
       declaration.copy(displayResponseDetail =
         declaration.displayResponseDetail.copy(ndrcDetails =
           declaration.displayResponseDetail.ndrcDetails.map(_.zipWithIndex.map { case (ndrcDetails, index) =>
-            if (index % 2 == 0)
+            if (index % 2 == 1)
               ndrcDetails.copy(paymentMethod = "006")
             else
               ndrcDetails
