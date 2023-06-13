@@ -51,7 +51,7 @@ class SelectDutiesController @Inject() (
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
     val h1MessageKey                             =
-      if (journey.getLeadDisplayDeclaration.exists(_.hasSomeSubsidyPayment))
+      if (journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments))
         Some("select-duties.subsidies.title")
       else None
 
