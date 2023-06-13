@@ -19,22 +19,25 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import com.github.arturopala.validator.Validator._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 
-trait OverpaymentsJourneyChecks[T <: OverpaymentsJourneyProperties]
+trait OverpaymentsJourneyChecks[J <: OverpaymentsJourneyProperties]
     extends CommonJourneyChecks[OverpaymentsJourneyProperties] {
 
-  final val basisOfClaimHasBeenProvided: Validate[T] =
+  final val basisOfClaimHasBeenProvided: Validate[J] =
     checkIsDefined(_.answers.basisOfClaim, MISSING_BASIS_OF_CLAIM)
 
-  final val additionalDetailsHasBeenProvided: Validate[T] =
+  final val additionalDetailsHasBeenProvided: Validate[J] =
     checkIsDefined(_.answers.additionalDetails, MISSING_DETAILS_OF_OVERPAYMENT)
 
-  final val reimbursementClaimsHasBeenProvided: Validate[T] =
+  final val reimbursementClaimsHasBeenProvided: Validate[J] =
     all(
       checkIsTrue(_.hasCompleteReimbursementClaims, INCOMPLETE_REIMBURSEMENT_CLAIMS),
       checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO)
     )
 
-  final def shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments: Validate[T] =
-    whenTrue(_.features.exists(_.shouldBlockSubsidies), declarationsHasNoSubsidyPayments)
+  final def whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments: Validate[J] =
+    whenTrue(
+      _.features.exists(features => features.shouldBlockSubsidies && !features.shouldAllowSubsidyOnlyPayments),
+      declarationsHasNoSubsidyPayments
+    )
 
 }

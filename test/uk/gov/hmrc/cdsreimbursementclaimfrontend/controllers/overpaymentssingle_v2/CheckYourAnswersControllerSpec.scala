@@ -159,7 +159,7 @@ class CheckYourAnswersControllerSpec
         "Method"                                          -> (
           if (journey.isAllSelectedDutiesAreCMAEligible) Some(claim.reimbursementMethod match {
             case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.reimbursement-method.cma")
-            case ReimbursementMethod.BankAccountTransfer    => m("check-your-answers.reimbursement-method.bt")
+            case _                                          => m("check-your-answers.reimbursement-method.bt")
           })
           else None
         ),

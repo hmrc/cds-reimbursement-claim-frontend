@@ -1187,11 +1187,11 @@ class RejectedGoodsScheduledJourneySpec
       }
     }
 
-    "validate subsidy payment methods in declaration" when {
+    "validate if any subsidy payment method is in the declaration" when {
 
       import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 
-      "feature not enabled" in new DeclarationSupport {
+      "BlockSubsidies feature not enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
             .withAllSubsidiesPaymentMethod()
@@ -1203,12 +1203,12 @@ class RejectedGoodsScheduledJourneySpec
 
         journey.features shouldBe None
 
-        RejectedGoodsScheduledJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Valid
       }
 
-      "feature enabled" in new DeclarationSupport {
+      "BlockSubsidies feature enabled and SubsidyOnlyPayments not" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
             .withAllSubsidiesPaymentMethod()
@@ -1228,9 +1228,58 @@ class RejectedGoodsScheduledJourneySpec
           RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
         )
 
-        RejectedGoodsScheduledJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
+      }
+
+      "BlockSubsidies feature disabled and SubsidyOnlyPayments enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withAllSubsidiesPaymentMethod()
+
+        val journey = RejectedGoodsScheduledJourney
+          .empty(
+            exampleEori,
+            features = Some(
+              RejectedGoodsScheduledJourney
+                .Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+            )
+          )
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe Some(
+          RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+        )
+
+        RejectedGoodsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Valid
+      }
+
+      "both BlockSubsidies and SubsidyOnlyPayments features enabled" in new DeclarationSupport {
+        val declaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+            .withAllSubsidiesPaymentMethod()
+
+        val journey = RejectedGoodsScheduledJourney
+          .empty(
+            exampleEori,
+            features = Some(
+              RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
+            )
+          )
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .getOrFail
+
+        journey.features shouldBe Some(
+          RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
+        )
+
+        RejectedGoodsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
+          journey
+        ) shouldBe Validator.Valid
       }
     }
 

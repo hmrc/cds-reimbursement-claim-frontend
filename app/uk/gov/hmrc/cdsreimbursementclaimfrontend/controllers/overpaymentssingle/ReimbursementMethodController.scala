@@ -92,12 +92,12 @@ class ReimbursementMethodController @Inject() (
                 logAndDisplayError("could not get reimbursement method selected "),
                 _ =>
                   Redirect((answer, isAmend(fillingOutClaim)) match {
-                    case (_, true)                                       =>
+                    case (_, true)                                    =>
                       routes.CheckYourAnswersAndSubmitController.checkAllAnswers
-                    case (ReimbursementMethod.CurrentMonthAdjustment, _) =>
-                      routes.ChooseFileTypeController.show
-                    case (ReimbursementMethod.BankAccountTransfer, _)    =>
+                    case (ReimbursementMethod.BankAccountTransfer, _) =>
                       routes.BankAccountController.checkBankAccountDetails
+                    case _                                            =>
+                      routes.ChooseFileTypeController.show
                   })
               )
           }

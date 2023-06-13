@@ -1179,7 +1179,7 @@ class RejectedGoodsSingleJourneySpec
 
         journey.features shouldBe None
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Valid
       }
@@ -1203,7 +1203,7 @@ class RejectedGoodsSingleJourneySpec
           RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
         )
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
       }
@@ -1227,7 +1227,7 @@ class RejectedGoodsSingleJourneySpec
           RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
         )
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Valid
       }
@@ -1251,9 +1251,9 @@ class RejectedGoodsSingleJourneySpec
           RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
         )
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
-        ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
+        ) shouldBe Validator.Valid
       }
     }
   }
