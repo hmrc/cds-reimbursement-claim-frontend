@@ -18,10 +18,22 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 trait DeclarationSupport {
   implicit class TestDisplayDeclaration(val declaration: DisplayDeclaration) {
-    def withSubsidiesPaymentMethod(): DisplayDeclaration =
+    def withAllSubsidiesPaymentMethod(): DisplayDeclaration =
       declaration.copy(displayResponseDetail =
         declaration.displayResponseDetail.copy(ndrcDetails =
           declaration.displayResponseDetail.ndrcDetails.map(_.map(_.copy(paymentMethod = "006")))
+        )
+      )
+
+    def withSomeSubsidiesPaymentMethod(): DisplayDeclaration =
+      declaration.copy(displayResponseDetail =
+        declaration.displayResponseDetail.copy(ndrcDetails =
+          declaration.displayResponseDetail.ndrcDetails.map(_.zipWithIndex.map { case (ndrcDetails, index) =>
+            if (index % 2 == 0)
+              ndrcDetails.copy(paymentMethod = "006")
+            else
+              ndrcDetails
+          })
         )
       )
   }

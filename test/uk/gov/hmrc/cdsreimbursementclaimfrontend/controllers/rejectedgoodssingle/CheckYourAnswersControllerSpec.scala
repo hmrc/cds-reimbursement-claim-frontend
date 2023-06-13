@@ -220,7 +220,9 @@ class CheckYourAnswersControllerSpec
         val journey =
           buildCompleteJourneyGen(
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
-            features = Some(RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true))
+            features = Some(
+              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+            )
           ).sample.getOrElse(fail())
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)

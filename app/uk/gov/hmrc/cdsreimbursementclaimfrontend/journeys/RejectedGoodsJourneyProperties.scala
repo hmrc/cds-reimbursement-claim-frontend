@@ -31,4 +31,8 @@ trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
   final def needsSpecialCircumstancesBasisOfClaim: Boolean =
     answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
+  final def isSubsidyOnlyJourney: Boolean =
+    features.exists(_.shouldAllowSubsidyOnlyPayments) &&
+      declarationsHasOnlySubsidyPayments
+
 }
