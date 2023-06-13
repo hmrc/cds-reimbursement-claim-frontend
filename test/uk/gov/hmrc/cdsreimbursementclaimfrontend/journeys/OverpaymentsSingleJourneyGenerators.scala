@@ -243,7 +243,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       duplicateMrn                <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
                                      else Gen.const(None)
       whetherNorthernIreland      <- Gen.oneOf(true, false)
-      reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.values))
+      reimbursementMethod         <-
+        reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.nonSubsidyValues))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(0, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)

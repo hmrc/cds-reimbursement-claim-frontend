@@ -1397,7 +1397,7 @@ class OverpaymentsScheduledJourneySpec
       "feature not enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSubsidiesPaymentMethod()
+            .withAllSubsidiesPaymentMethod()
 
         val journey = OverpaymentsScheduledJourney
           .empty(exampleEori)
@@ -1414,14 +1414,21 @@ class OverpaymentsScheduledJourneySpec
       "feature enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSubsidiesPaymentMethod()
+            .withAllSubsidiesPaymentMethod()
 
         val journey = OverpaymentsScheduledJourney
-          .empty(exampleEori, features = Some(OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true)))
+          .empty(
+            exampleEori,
+            features = Some(
+              OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+            )
+          )
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
           .getOrFail
 
-        journey.features shouldBe Some(OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true))
+        journey.features shouldBe Some(
+          OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+        )
 
         OverpaymentsScheduledJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
           journey

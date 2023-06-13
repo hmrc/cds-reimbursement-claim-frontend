@@ -367,7 +367,7 @@ class EnterMovementReferenceNumberControllerSpec
             .withDeclarationId(mrn.value)
             .withDeclarantEori(declarant)
             .withConsigneeEori(consignee)
-            .withSubsidiesPaymentMethod()
+            .withAllSubsidiesPaymentMethod()
 
         inSequence {
           mockAuthWithNoRetrievals()

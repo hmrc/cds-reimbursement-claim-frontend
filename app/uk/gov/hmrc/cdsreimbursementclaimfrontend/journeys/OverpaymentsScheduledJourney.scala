@@ -533,7 +533,8 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
   final case class Features(
-    shouldBlockSubsidies: Boolean
+    shouldBlockSubsidies: Boolean,
+    shouldAllowSubsidyOnlyPayments: Boolean
   ) extends SubsidiesFeatures
 
   final case class Answers(

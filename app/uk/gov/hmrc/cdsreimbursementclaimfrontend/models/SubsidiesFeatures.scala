@@ -18,4 +18,5 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 trait SubsidiesFeatures {
   def shouldBlockSubsidies: Boolean
+  def shouldAllowSubsidyOnlyPayments: Boolean
 }

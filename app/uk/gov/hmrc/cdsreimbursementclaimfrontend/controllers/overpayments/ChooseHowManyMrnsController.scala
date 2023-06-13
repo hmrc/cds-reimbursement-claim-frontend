@@ -77,27 +77,51 @@ class ChooseHowManyMrnsController @Inject() (
 
   private def overpaymentsSingleJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsSingleJourney.Features] =
-    featureSwitchService.optionally(
-      Feature.BlockSubsidies,
-      OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true)
-    )
+  ): Option[OverpaymentsSingleJourney.Features] = {
+    val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
+    val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
+    if (blockSubsidies || subsidiesForOverpayments)
+      Some(
+        OverpaymentsSingleJourney
+          .Features(
+            shouldBlockSubsidies = blockSubsidies,
+            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments
+          )
+      )
+    else None
+  }
 
   private def overpaymentsMultipleJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsMultipleJourney.Features] =
-    featureSwitchService.optionally(
-      Feature.BlockSubsidies,
-      OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true)
-    )
+  ): Option[OverpaymentsMultipleJourney.Features] = {
+    val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
+    val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
+    if (blockSubsidies || subsidiesForOverpayments)
+      Some(
+        OverpaymentsMultipleJourney
+          .Features(
+            shouldBlockSubsidies = blockSubsidies,
+            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments
+          )
+      )
+    else None
+  }
 
   private def overpaymentsScheduledJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsScheduledJourney.Features] =
-    featureSwitchService.optionally(
-      Feature.BlockSubsidies,
-      OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true)
-    )
+  ): Option[OverpaymentsScheduledJourney.Features] = {
+    val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
+    val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
+    if (blockSubsidies || subsidiesForOverpayments)
+      Some(
+        OverpaymentsScheduledJourney
+          .Features(
+            shouldBlockSubsidies = blockSubsidies,
+            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments
+          )
+      )
+    else None
+  }
 
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show()))

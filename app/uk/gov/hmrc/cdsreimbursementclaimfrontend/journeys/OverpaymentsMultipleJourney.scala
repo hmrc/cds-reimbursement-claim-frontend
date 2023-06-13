@@ -679,7 +679,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
   final case class Features(
-    shouldBlockSubsidies: Boolean
+    shouldBlockSubsidies: Boolean,
+    shouldAllowSubsidyOnlyPayments: Boolean
   ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 single MRN journey

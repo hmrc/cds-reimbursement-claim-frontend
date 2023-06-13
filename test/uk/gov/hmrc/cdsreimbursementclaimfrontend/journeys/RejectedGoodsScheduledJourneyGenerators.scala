@@ -127,6 +127,26 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
       completeJourneyWithNonNatchingUserEoriGen
     )
 
+  val completeJourneyWithOnlySubsidiesGen: Gen[RejectedGoodsScheduledJourney] =
+    buildCompleteJourneyGen(
+      generateSubsidyPayments = GenerateSubsidyPayments.All,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsScheduledJourney.Features(false, true))
+    )
+
+  val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsScheduledJourney] =
+    buildCompleteJourneyGen(
+      generateSubsidyPayments = GenerateSubsidyPayments.Some,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsScheduledJourney.Features(false, true))
+    )
+
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsScheduledJourney] = for {
     journey      <- completeJourneyGen
     basisOfClaim <- Gen.oneOf(BasisOfRejectedGoodsClaim.values - BasisOfRejectedGoodsClaim.SpecialCircumstances)

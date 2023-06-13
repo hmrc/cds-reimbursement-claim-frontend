@@ -301,7 +301,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         val displayDeclaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)
-            .withSubsidiesPaymentMethod()
+            .withAllSubsidiesPaymentMethod()
 
         inSequence {
           mockAuthWithNoRetrievals()

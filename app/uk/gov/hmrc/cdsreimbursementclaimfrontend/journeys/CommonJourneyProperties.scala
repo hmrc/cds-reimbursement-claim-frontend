@@ -217,4 +217,8 @@ trait CommonJourneyProperties {
     else Some(seq(i + 1))
   }
 
+  final def declarationsHasOnlySubsidyPayments: Boolean =
+    getDisplayDeclarations.nonEmpty &&
+      getDisplayDeclarations.forall(_.hasOnlySubsidyPayments)
+
 }

@@ -24,7 +24,11 @@ object ReimbursementMethod extends EnumerationFormat[ReimbursementMethod] {
 
   case object CurrentMonthAdjustment extends ReimbursementMethod
   case object BankAccountTransfer extends ReimbursementMethod
+  case object Subsidy extends ReimbursementMethod
 
   override val values: Set[ReimbursementMethod] =
+    Set(CurrentMonthAdjustment, BankAccountTransfer, Subsidy)
+
+  val nonSubsidyValues: Set[ReimbursementMethod] =
     Set(CurrentMonthAdjustment, BankAccountTransfer)
 }

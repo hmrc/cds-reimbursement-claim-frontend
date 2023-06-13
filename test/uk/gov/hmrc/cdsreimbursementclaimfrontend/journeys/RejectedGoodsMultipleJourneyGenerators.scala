@@ -173,6 +173,26 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       completeJourneyNotCMAEligibleGen
     )
 
+  val completeJourneyWithOnlySubsidiesGen: Gen[RejectedGoodsMultipleJourney] =
+    buildCompleteJourneyGen(
+      generateSubsidyPayments = GenerateSubsidyPayments.All,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsMultipleJourney.Features(false, true))
+    )
+
+  val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsMultipleJourney] =
+    buildCompleteJourneyGen(
+      generateSubsidyPayments = GenerateSubsidyPayments.Some,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsMultipleJourney.Features(false, true))
+    )
+
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for {
     journey      <- completeJourneyGen
     basisOfClaim <- Gen.oneOf(BasisOfRejectedGoodsClaim.values - BasisOfRejectedGoodsClaim.SpecialCircumstances)
