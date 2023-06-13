@@ -181,7 +181,7 @@ class UploadFilesControllerSpec
         )
 
       "return 204 if callback accepted" in {
-        val journey = journeyWithMrnAndDD
+        val journey = journeyWithMrnAndDeclaration
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
@@ -201,7 +201,7 @@ class UploadFilesControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journeyWithMrnAndDD)
+            SessionData(journeyWithMrnAndDeclaration)
           )
         }
         val result = performAction(callbackPayload.copy(nonce = Nonce.random))
@@ -212,7 +212,7 @@ class UploadFilesControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journeyWithMrnAndDD)
+            SessionData(journeyWithMrnAndDeclaration)
           )
         }
         val result = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))

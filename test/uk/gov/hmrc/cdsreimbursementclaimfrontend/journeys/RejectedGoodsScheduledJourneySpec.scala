@@ -1194,7 +1194,7 @@ class RejectedGoodsScheduledJourneySpec
       "BlockSubsidies feature not enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsScheduledJourney
           .empty(exampleEori)
@@ -1211,7 +1211,7 @@ class RejectedGoodsScheduledJourneySpec
       "BlockSubsidies feature enabled and SubsidyOnlyPayments not" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsScheduledJourney
           .empty(
@@ -1236,7 +1236,7 @@ class RejectedGoodsScheduledJourneySpec
       "BlockSubsidies feature disabled and SubsidyOnlyPayments enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsScheduledJourney
           .empty(
@@ -1261,7 +1261,7 @@ class RejectedGoodsScheduledJourneySpec
       "both BlockSubsidies and SubsidyOnlyPayments features enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsScheduledJourney
           .empty(

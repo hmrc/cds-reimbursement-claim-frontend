@@ -122,7 +122,7 @@ class SelectDutiesControllerSpec
 
       "display the page for subsidies MRNs" in {
         val journey = RejectedGoodsSingleJourney
-          .empty(exampleDisplayDeclaration.withAllSubsidiesPaymentMethod().getDeclarantEori)
+          .empty(exampleDisplayDeclaration.withSomeSubsidiesPaymentMethod().getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(
             exampleMrn,
             exampleDisplayDeclaration.withAllSubsidiesPaymentMethod()

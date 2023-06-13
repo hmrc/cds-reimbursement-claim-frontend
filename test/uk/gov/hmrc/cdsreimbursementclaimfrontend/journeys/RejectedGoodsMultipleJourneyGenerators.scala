@@ -36,9 +36,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
 
-  val journeyWithMrnAndDD: RejectedGoodsMultipleJourney =
+  val journeyWithMrnAndDeclaration: RejectedGoodsMultipleJourney =
     RejectedGoodsMultipleJourney
       .empty(exampleDisplayDeclaration.getDeclarantEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
+  def journeyWithMrnAndDeclarationWithFeatures(
+    features: RejectedGoodsMultipleJourney.Features
+  ): RejectedGoodsMultipleJourney =
+    RejectedGoodsMultipleJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori, features = Some(features))
       .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
       .getOrFail
 

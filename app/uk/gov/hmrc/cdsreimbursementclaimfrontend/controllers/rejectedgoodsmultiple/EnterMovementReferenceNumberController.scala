@@ -108,8 +108,8 @@ class EnterMovementReferenceNumberController @Inject() (
             {
               for {
                 maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
-                _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(
-                                     featureSwitchService.isEnabled(Feature.BlockSubsidies),
+                _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(
+                                     journey,
                                      maybeAcc14
                                    )
                 updatedJourney  <- updateJourney(journey, mrnIndex, mrn, maybeAcc14)
@@ -117,13 +117,13 @@ class EnterMovementReferenceNumberController @Inject() (
               } yield updatedJourney2
             }.fold(
               error =>
-                if (error.message === EnterMovementReferenceNumberUtil.SUBSIDY_PAYMENT_FOUND_ERROR) {
+                if (error.message.startsWith("error.")) {
                   (
                     journey,
                     BadRequest(
                       enterMovementReferenceNumberPage(
                         filledForm
-                          .withError("enter-movement-reference-number.rejected-goods", "error.subsidy-payment-found"),
+                          .withError("enter-movement-reference-number.rejected-goods", error.message),
                         subKey,
                         pageIndex,
                         routes.EnterMovementReferenceNumberController.submit(pageIndex)

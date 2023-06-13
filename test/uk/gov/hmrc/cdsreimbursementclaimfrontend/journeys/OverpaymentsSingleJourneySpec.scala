@@ -1193,7 +1193,7 @@ class OverpaymentsSingleJourneySpec
       "BlockSubsidies feature not enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = OverpaymentsSingleJourney
           .empty(exampleEori)
@@ -1210,7 +1210,7 @@ class OverpaymentsSingleJourneySpec
       "BlockSubsidies feature enabled and SubsidyOnlyPayments not" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = OverpaymentsSingleJourney
           .empty(
@@ -1235,7 +1235,7 @@ class OverpaymentsSingleJourneySpec
       "BlockSubsidies feature disabled and SubsidyOnlyPayments enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = OverpaymentsSingleJourney
           .empty(
@@ -1260,7 +1260,7 @@ class OverpaymentsSingleJourneySpec
       "both BlockSubsidies and SubsidyOnlyPayments features enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = OverpaymentsSingleJourney
           .empty(

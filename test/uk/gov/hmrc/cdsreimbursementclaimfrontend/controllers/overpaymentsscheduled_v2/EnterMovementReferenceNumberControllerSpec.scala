@@ -271,14 +271,19 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "reject an MRN with subsidies payment method" in forAll { (mrn: MRN, declarant: Eori, consignee: Eori) =>
-        featureSwitch.enable(Feature.BlockSubsidies)
+        val session = SessionData.empty.copy(
+          overpaymentsScheduledJourney = Some(
+            OverpaymentsScheduledJourney
+              .empty(exampleEori, features = Some(OverpaymentsScheduledJourney.Features(true, false)))
+          )
+        )
 
         val displayDeclaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)
             .withDeclarantEori(declarant)
             .withConsigneeEori(consignee)
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         inSequence {
           mockAuthWithNoRetrievals()

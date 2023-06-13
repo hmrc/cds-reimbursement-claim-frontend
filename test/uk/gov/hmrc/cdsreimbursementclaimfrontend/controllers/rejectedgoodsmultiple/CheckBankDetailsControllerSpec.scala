@@ -90,7 +90,7 @@ class CheckBankDetailsControllerSpec
 
   def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   "Check Bank Details Controller" must {
 
