@@ -132,7 +132,7 @@ object EnterMovementReferenceNumberUtil {
       case (false, _)             => EitherT.rightT(())
       case (_, None)              => EitherT.rightT(())
       case (_, Some(declaration)) =>
-        if (declaration.hasSubsidyPayment)
+        if (declaration.hasSomeSubsidyPayment)
           EitherT.leftT(Error(SUBSIDY_PAYMENT_FOUND_ERROR))
         else
           EitherT.rightT(())

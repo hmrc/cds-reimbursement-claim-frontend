@@ -210,7 +210,7 @@ class CheckYourAnswersControllerSpec
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
-            allowSubsidyPayments = true,
+            generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = true))
           ).sample.getOrElse(fail())
 

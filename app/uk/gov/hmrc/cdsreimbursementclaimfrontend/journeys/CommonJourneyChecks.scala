@@ -98,7 +98,7 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
     checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
 
   final def declarationHasNoSubsidyPayments: Validate[DisplayDeclaration] =
-    checkIsFalse(_.hasSubsidyPayment, DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
+    checkIsFalse(_.hasSomeSubsidyPayment, DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
 
   final val declarationsHasNoSubsidyPayments: Validate[J] =
     checkEach(_.getDisplayDeclarations, declarationHasNoSubsidyPayments)
