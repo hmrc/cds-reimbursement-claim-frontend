@@ -64,7 +64,7 @@ trait RejectedGoodsJourneyChecks[J <: RejectedGoodsJourneyProperties]
 
   final def whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments: Validate[J] =
     whenTrue(
-      _.features.exists(features => features.shouldBlockSubsidies && !features.shouldAllowSubsidyOnlyPayments),
+      journey => journey.features.exists(_.shouldBlockSubsidies) && !journey.isSubsidyOnlyJourney,
       declarationsHasNoSubsidyPayments
     )
 
