@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.completeJourneyGenWithSpecialCircumstances
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDD
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -69,7 +69,7 @@ class EnterSpecialCircumstancesControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   def showPage(): Future[Result] =
     controller.show()(FakeRequest())
@@ -118,7 +118,7 @@ class EnterSpecialCircumstancesControllerSpec
 
     "handle submit requests" when {
       "the user enters details for the first time" in {
-        val journey        = journeyWithMrnAndDD
+        val journey        = journeyWithMrnAndDeclaration
           .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
         val session        = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
         val updatedJourney = journey

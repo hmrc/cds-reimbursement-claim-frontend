@@ -45,6 +45,14 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
       .getOrFail
 
+  def journeyWithMrnAndDeclarationWithFeatures(
+    features: OverpaymentsMultipleJourney.Features
+  ): OverpaymentsMultipleJourney =
+    OverpaymentsMultipleJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random, features = Some(features))
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
   val completeJourneyWithMatchingUserEoriGen: Gen[OverpaymentsMultipleJourney] =
     Gen.oneOf(
       buildCompleteJourneyGen(

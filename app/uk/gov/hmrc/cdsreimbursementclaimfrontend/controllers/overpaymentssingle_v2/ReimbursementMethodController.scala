@@ -86,10 +86,10 @@ class ReimbursementMethodController @Inject() (
                 (
                   modifiedJourney,
                   Redirect(method match {
-                    case ReimbursementMethod.CurrentMonthAdjustment =>
-                      routes.ChooseFileTypeController.show
-                    case ReimbursementMethod.BankAccountTransfer    =>
+                    case ReimbursementMethod.BankAccountTransfer =>
                       routes.CheckBankDetailsController.show
+                    case _                                       =>
+                      routes.ChooseFileTypeController.show
                   })
                 ).asFuture
 

@@ -735,7 +735,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

@@ -82,5 +82,7 @@ object JourneyValidationErrors {
     "dutiesChangeModeEnabled"
   val DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT: String                           =
     "displayDeclarationHasSubsidyPayment"
+  val DISPLAY_DECLARATION_MUST_HAVE_ONLY_SUBSIDY_PAYMENTS: String               =
+    "displayDeclarationMustHaveOnlySubsidyPayments"
 
 }

@@ -595,7 +595,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

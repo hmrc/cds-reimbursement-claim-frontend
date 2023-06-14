@@ -48,6 +48,9 @@ trait CommonJourneyProperties {
   def getDisplayDeclarations: Seq[DisplayDeclaration] =
     getLeadDisplayDeclaration.fold(Seq.empty[DisplayDeclaration])(Seq.apply(_))
 
+  def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
+    None
+
   final val ZERO: BigDecimal = BigDecimal("0")
 
   final def hasCompleteSupportingEvidences: Boolean =

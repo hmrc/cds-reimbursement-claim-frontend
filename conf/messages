@@ -1619,6 +1619,7 @@ check-your-answers.reimbursement-method.h2=Repayment method
 check-your-answers.reimbursement-method.label=Method
 check-your-answers.reimbursement-method.cma=Current Month Adjustment (CMA)
 check-your-answers.reimbursement-method.bt=Bank account transfer
+check-your-answers.reimbursement-method.subsidy=Subsidy payment
 check-your-answers.claimant-details.cds.contact.details=Details as registered with CDS
 check-your-answers.claimant-details.cds.contact.address=Address as registered with CDS
 check-your-answers.claimant-details.contact.additional=Use different contact details

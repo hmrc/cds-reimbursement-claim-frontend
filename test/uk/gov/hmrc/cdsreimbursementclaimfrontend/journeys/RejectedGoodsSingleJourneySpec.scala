@@ -1170,7 +1170,7 @@ class RejectedGoodsSingleJourneySpec
       "BlockSubsidies feature not enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsSingleJourney
           .empty(exampleEori)
@@ -1179,7 +1179,7 @@ class RejectedGoodsSingleJourneySpec
 
         journey.features shouldBe None
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Valid
       }
@@ -1187,7 +1187,7 @@ class RejectedGoodsSingleJourneySpec
       "BlockSubsidies feature enabled and SubsidyOnlyPayments not" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsSingleJourney
           .empty(
@@ -1203,7 +1203,7 @@ class RejectedGoodsSingleJourneySpec
           RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
         )
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
       }
@@ -1211,7 +1211,7 @@ class RejectedGoodsSingleJourneySpec
       "BlockSubsidies feature disabled and SubsidyOnlyPayments enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsSingleJourney
           .empty(
@@ -1227,7 +1227,7 @@ class RejectedGoodsSingleJourneySpec
           RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
         )
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Valid
       }
@@ -1235,7 +1235,7 @@ class RejectedGoodsSingleJourneySpec
       "both BlockSubsidies and SubsidyOnlyPayments features enabled" in new DeclarationSupport {
         val declaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withAllSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         val journey = RejectedGoodsSingleJourney
           .empty(
@@ -1251,9 +1251,9 @@ class RejectedGoodsSingleJourneySpec
           RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
         )
 
-        RejectedGoodsSingleJourney.Checks.shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments.apply(
+        RejectedGoodsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
-        ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
+        ) shouldBe Validator.Valid
       }
     }
   }
