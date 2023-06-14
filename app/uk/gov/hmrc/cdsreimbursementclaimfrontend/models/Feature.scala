@@ -49,7 +49,9 @@ object Feature extends EnumerationFormat[Feature] {
       ViewUpload,
       Overpayments_v2,
       XiEori,
-      BlockSubsidies
+      BlockSubsidies,
+      SubsidiesForRejectedGoods,
+      SubsidiesForOverpayments
     )
 }
 
