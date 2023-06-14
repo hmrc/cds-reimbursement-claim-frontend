@@ -247,10 +247,15 @@ check-eori-details.error.invalid=Are these details correct?
 #  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
 rejected-goods.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
-rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
+rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
+rejected-goods.choose-how-many-mrns.p1-xi-info=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple MRNs
-rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with both GB and XI EORI numbers. 
+rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must:
+rejected-goods.choose-how-many-mrns.inset.paragraph-xi-info=You can enter MRNs associated with both GB and XI EORI numbers. If your claim includes multiple MRNs, the goods must:
+rejected-goods.choose-how-many-mrns.inset.bullet.importer=all be from the same importer
+rejected-goods.choose-how-many-mrns.inset.bullet.reason=have the same reason for overpayment
+rejected-goods.choose-how-many-mrns.inset.bullet.subsidy=be either subsidy only, or non-subsidy only
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.multiple.hint=Manually enter details for each MRN.
