@@ -110,10 +110,83 @@ class ChooseHowManyMrnsControllerSpec
         mockGetSession(SessionData.empty)
       }
 
+      featureSwitch.disable(Feature.XiEori)
+      featureSwitch.disable(Feature.SubsidiesForRejectedGoods)
+
       checkPageIsDisplayed(
         performAction(),
         messageFromMessageKey(s"$formKey.title"),
         doc => {
+          val firstP  = doc.select("h1 + p").first()
+          val insetP  = doc.select("h2 + p").first()
+          val bullets = doc.select("ul.govuk-list li").asScala.toList
+          firstP.html()  shouldBe messageFromMessageKey(s"$formKey.p1")
+          insetP.html()  shouldBe messageFromMessageKey(s"$formKey.inset.paragraph")
+          bullets.length shouldBe 2
+
+          val buttons          = radioButtons(doc)
+          val individualButton = extractButton(buttons, "Individual")
+          val multipleButton   = extractButton(buttons, "Multiple")
+          val scheduledButton  = extractButton(buttons, "Scheduled")
+          extractLabel(individualButton) shouldBe messageFromMessageKey(s"$formKey.individual.title")
+          extractHint(individualButton)  shouldBe ""
+          extractLabel(multipleButton)   shouldBe messageFromMessageKey(s"$formKey.multiple.title")
+          extractHint(multipleButton)    shouldBe messageFromMessageKey(s"$formKey.multiple.hint")
+          extractLabel(scheduledButton)  shouldBe messageFromMessageKey(s"$formKey.scheduled.title")
+          extractHint(scheduledButton)   shouldBe messageFromMessageKey(s"$formKey.scheduled.hint")
+        }
+      )
+    }
+
+    "display the page with xi info" in {
+      featureSwitch.enable(Feature.XiEori)
+
+      inSequence {
+        mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+        mockGetSession(SessionData.empty)
+      }
+
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey(s"$formKey.title"),
+        doc => {
+          val firstP = doc.select("h1 + p").first()
+          val insetP = doc.select("h2 + p").first()
+          firstP.html() shouldBe messageFromMessageKey(s"$formKey.p1-xi-info")
+          insetP.html() shouldBe messageFromMessageKey(s"$formKey.inset.paragraph-xi-info")
+
+          val buttons          = radioButtons(doc)
+          val individualButton = extractButton(buttons, "Individual")
+          val multipleButton   = extractButton(buttons, "Multiple")
+          val scheduledButton  = extractButton(buttons, "Scheduled")
+          extractLabel(individualButton) shouldBe messageFromMessageKey(s"$formKey.individual.title")
+          extractHint(individualButton)  shouldBe ""
+          extractLabel(multipleButton)   shouldBe messageFromMessageKey(s"$formKey.multiple.title")
+          extractHint(multipleButton)    shouldBe messageFromMessageKey(s"$formKey.multiple.hint")
+          extractLabel(scheduledButton)  shouldBe messageFromMessageKey(s"$formKey.scheduled.title")
+          extractHint(scheduledButton)   shouldBe messageFromMessageKey(s"$formKey.scheduled.hint")
+        }
+      )
+    }
+
+    "display the page with subsidies info" in {
+      inSequence {
+        mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+        mockGetSession(SessionData.empty)
+      }
+
+      featureSwitch.enable(Feature.SubsidiesForRejectedGoods)
+
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey(s"$formKey.title"),
+        doc => {
+          val firstP  = doc.select("h1 + p").first()
+          val insetP  = doc.select("h2 + p").first()
+          val bullets = doc.select("ul.govuk-list li").asScala.toList
+          bullets.length      shouldBe 3
+          bullets.last.html() shouldBe messageFromMessageKey(s"$formKey.inset.bullet.subsidy")
+
           val buttons          = radioButtons(doc)
           val individualButton = extractButton(buttons, "Individual")
           val multipleButton   = extractButton(buttons, "Multiple")
