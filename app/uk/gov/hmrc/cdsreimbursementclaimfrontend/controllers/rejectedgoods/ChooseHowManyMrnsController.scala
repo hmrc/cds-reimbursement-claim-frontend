@@ -130,7 +130,7 @@ class ChooseHowManyMrnsController @Inject() (
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
       val shouldShowXiContent        = featureSwitchService.isEnabled(Feature.XiEori)
-      val shouldShowSubsidiesContent = !featureSwitchService.isEnabled(Feature.BlockSubsidies) ||
+      val shouldShowSubsidiesContent = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods) ||
         featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
       Ok(chooseHowManyMrnsPage(form, postAction, shouldShowXiContent, shouldShowSubsidiesContent))
     }
