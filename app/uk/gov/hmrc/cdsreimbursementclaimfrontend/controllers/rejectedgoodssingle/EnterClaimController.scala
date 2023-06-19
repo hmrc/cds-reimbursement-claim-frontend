@@ -25,7 +25,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_claim
 
 import javax.inject.Inject
@@ -36,6 +38,7 @@ import scala.concurrent.Future
 @Singleton
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
+  featureSwitchService: FeatureSwitchService,
   enterClaim: enter_claim
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
@@ -61,6 +64,9 @@ class EnterClaimController @Inject() (
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
+      val isSubsidy = featureSwitchService.isEnabled(
+        Feature.SubsidiesForRejectedGoods
+      ) && journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments)
       journey.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show()).asFuture
@@ -77,7 +83,17 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                              =
                 Forms.claimAmountForm(key, amountPaid).withDefault(claimedAmount)
-              Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), None, amountPaid, subKey, postAction(taxCode))).asFuture
+              Ok(
+                enterClaim(
+                  form,
+                  TaxCode(ndrcDetails.taxType),
+                  None,
+                  amountPaid,
+                  subKey,
+                  postAction(taxCode),
+                  isSubsidy = isSubsidy
+                )
+              ).asFuture
           }
 
         case _ =>
@@ -88,6 +104,9 @@ class EnterClaimController @Inject() (
   final def submit(taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
       { implicit request => journey =>
+        val isSubsidy = featureSwitchService.isEnabled(
+          Feature.SubsidiesForRejectedGoods
+        ) && journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments)
         journey.getSelectedDuties match {
           case None =>
             (journey, Redirect(routes.SelectDutiesController.show())).asFuture
@@ -110,7 +129,8 @@ class EnterClaimController @Inject() (
                               None,
                               BigDecimal(ndrcDetails.amount),
                               subKey,
-                              postAction(taxCode)
+                              postAction(taxCode),
+                              isSubsidy = isSubsidy
                             )
                           )
                         )

@@ -38,12 +38,14 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, subKey: Option[String], postAction: Call, maybeMrn: Option[MRN] = None)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, subKey: Option[String], postAction: Call, maybeMrn: Option[MRN] = None, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim.rejected-goods"}
 @title = @{messages(combine(key, subKey, "title"), taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumber.label(indexOpt.getOrElse(0)))}
-@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
+@hintText = @{Html(messages(s"$key.claim-amount.hint", paidAmount.toPoundSterlingString))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@subsidyText = @{ if(isSubsidy) { " " + messages("enter-claim.rejected-goods.subsidy-text") } else "" }
+@p1Text = @{ maybeMrn.fold(messages(s"$key.paragraph")) { mrn => messages(s"$key.for-mrn.paragraph", mrn.value)} }
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
@@ -51,7 +53,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(maybeMrn.fold(messages(s"$key.paragraph")) { mrn => messages(s"$key.for-mrn.paragraph", mrn.value)}))
+    @paragraph(Html(p1Text + subsidyText))
 
     @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
