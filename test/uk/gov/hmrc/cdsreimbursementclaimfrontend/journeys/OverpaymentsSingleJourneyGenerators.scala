@@ -142,7 +142,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[OverpaymentsSingleJourney.Features] = None
   ): Gen[OverpaymentsSingleJourney] =
     buildJourneyGen(
@@ -157,7 +157,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       submitBankAccountDetails = submitBankAccountDetails,
       reimbursementMethod = reimbursementMethod,
       taxCodes = taxCodes,
-      allowSubsidyPayments = allowSubsidyPayments,
+      generateSubsidyPayments = generateSubsidyPayments,
       features = features
     ).map(
       _.fold(
@@ -182,7 +182,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[OverpaymentsSingleJourney.Features] = None
   ): Gen[Either[String, OverpaymentsSingleJourney]] =
     buildAnswersGen(
@@ -200,7 +200,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       true,
       reimbursementMethod,
       taxCodes,
-      allowSubsidyPayments = allowSubsidyPayments
+      generateSubsidyPayments = generateSubsidyPayments
     ).map(OverpaymentsSingleJourney.tryBuildFrom(_, features))
 
   def buildAnswersGen(
@@ -220,7 +220,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = true,
-    allowSubsidyPayments: Boolean = false
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -228,7 +228,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
-      numberOfTaxCodes            <- Gen.choose(1, 5)
+      numberOfTaxCodes            <- Gen.choose(if (generateSubsidyPayments == GenerateSubsidyPayments.Some) 2 else 1, 5)
       taxCodes                    <- Gen
                                        .pick(
                                          numberOfTaxCodes,
@@ -243,7 +243,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       duplicateMrn                <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
                                      else Gen.const(None)
       whetherNorthernIreland      <- Gen.oneOf(true, false)
-      reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.values))
+      reimbursementMethod         <-
+        reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.nonSubsidyValues))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(0, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
@@ -280,7 +281,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           paidDuties,
           consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
           declarantContact = declarantContact,
-          allowSubsidyPayments = allowSubsidyPayments
+          generateSubsidyPayments = generateSubsidyPayments
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori

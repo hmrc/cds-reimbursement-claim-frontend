@@ -315,7 +315,7 @@ object Forms {
               else BankAccountTransfer,
             {
               case CurrentMonthAdjustment => 0
-              case BankAccountTransfer    => 1
+              case _                      => 1
             }
           )
       )(identity)(Some(_))

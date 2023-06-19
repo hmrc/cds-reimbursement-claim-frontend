@@ -37,18 +37,23 @@
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+        bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
 
-@(form: Form[RejectedGoodsJourneyType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[RejectedGoodsJourneyType], postAction: Call, showXiContent: Boolean = false, showSubsidyContent: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"rejected-goods.choose-how-many-mrns"}
 @title = @{messages(s"$key.title")}
 
 @inset = {
     @subHeading(Html(messages(s"$key.inset.title")), classes = "govuk-heading-s")
-    @paragraph(Html(messages(s"$key.inset.paragraph")))
+    @paragraph(Html(messages(s"$key.inset.${if (showXiContent) "paragraph-xi-info" else "paragraph"}")))
+    @bullets(Seq(
+        Html(messages(s"$key.inset.bullet.importer")),
+        Html(messages(s"$key.inset.bullet.reason"))
+    ) ++ (if (showSubsidyContent) Seq(Html(messages(s"$key.inset.bullet.subsidy"))) else Nil))
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -59,7 +64,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.p1")))
+    @paragraph(Html(messages(s"$key.${if (showXiContent) "p1-xi-info" else "p1"}")))
 
     @paragraph(Html(messages(s"$key.p2")))
 

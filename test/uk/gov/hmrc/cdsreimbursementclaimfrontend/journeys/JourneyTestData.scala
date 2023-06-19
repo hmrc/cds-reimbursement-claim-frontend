@@ -152,14 +152,20 @@ trait JourneyTestData {
     dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty,
     consigneeContact: Option[ContactDetails] = None,
     declarantContact: Option[ContactDetails] = None,
-    allowSubsidyPayments: Boolean = false
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
   ): DisplayDeclaration = {
     val ndrcDetails: List[NdrcDetails] =
-      dutyDetails.map { case (taxCode, paidAmount, cmaEligible) =>
+      dutyDetails.zipWithIndex.map { case ((taxCode, paidAmount, cmaEligible), index) =>
         NdrcDetails(
           taxType = taxCode.value,
           amount = paidAmount.toString(),
-          paymentMethod = if (allowSubsidyPayments) "006" else if (cmaEligible) "002" else "001",
+          paymentMethod = generateSubsidyPayments match {
+            case GenerateSubsidyPayments.None                  => if (cmaEligible) "002" else "001"
+            case GenerateSubsidyPayments.Some                  => if (index % 2 == 1) "006" else if (cmaEligible) "002" else "001"
+            case GenerateSubsidyPayments.All                   => "006"
+            case GenerateSubsidyPayments.ForTaxCodes(taxCodes) =>
+              if (taxCodes.contains(taxCode)) "006" else if (cmaEligible) "002" else "001"
+          },
           paymentReference = s"payment-reference-$id",
           cmaEligible = if (cmaEligible) Some("1") else None
         )
@@ -297,5 +303,13 @@ trait JourneyTestData {
 
   final def nextTaxCode(seq: Seq[TaxCode], current: TaxCode): TaxCode =
     seq(seq.indexOf(current) + 1)
+
+  sealed trait GenerateSubsidyPayments
+  object GenerateSubsidyPayments {
+    case object None extends GenerateSubsidyPayments
+    case object Some extends GenerateSubsidyPayments
+    case object All extends GenerateSubsidyPayments
+    sealed case class ForTaxCodes(taxCodes: Set[TaxCode]) extends GenerateSubsidyPayments
+  }
 
 }

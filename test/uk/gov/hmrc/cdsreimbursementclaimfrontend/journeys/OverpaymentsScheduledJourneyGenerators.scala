@@ -143,7 +143,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[OverpaymentsScheduledJourney.Features] = None
   ): Gen[OverpaymentsScheduledJourney] =
     buildJourneyGen(
@@ -156,7 +156,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
       taxCodes = taxCodes,
-      allowSubsidyPayments = allowSubsidyPayments,
+      generateSubsidyPayments = generateSubsidyPayments,
       features = features
     ).map(
       _.fold(
@@ -215,7 +215,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[OverpaymentsScheduledJourney.Features] = None
   ): Gen[Either[String, OverpaymentsScheduledJourney]] =
     buildAnswersGen(
@@ -230,7 +230,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       submitBankAccountType,
       submitEvidence = true,
       taxCodes = taxCodes,
-      allowSubsidyPayments = allowSubsidyPayments
+      generateSubsidyPayments = generateSubsidyPayments
     ).map(OverpaymentsScheduledJourney.tryBuildFrom(_, features))
 
   def buildAnswersGen(
@@ -248,7 +248,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     forcedTaxCodes: Seq[TaxCode] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = true,
     emptyDocumentType: Boolean = false,
-    allowSubsidyPayments: Boolean = false
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
   ): Gen[OverpaymentsScheduledJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -257,7 +257,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       reimbursements              <- dutyTypesWithTaxCodesWithClaimAmountsGen
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry)
-      numberOfTaxCodes            <- Gen.choose(1, 5)
+      numberOfTaxCodes            <- Gen.choose(if (generateSubsidyPayments == GenerateSubsidyPayments.Some) 2 else 1, 5)
       taxCodes                    <- Gen
                                        .pick(
                                          numberOfTaxCodes,
@@ -303,7 +303,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
           paidDuties,
           consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
           declarantContact = declarantContact,
-          allowSubsidyPayments = allowSubsidyPayments
+          generateSubsidyPayments = generateSubsidyPayments
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori

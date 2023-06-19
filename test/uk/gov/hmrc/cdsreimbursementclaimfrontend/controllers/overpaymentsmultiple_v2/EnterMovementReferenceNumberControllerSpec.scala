@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -390,14 +391,19 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "reject a lead MRN with subsidies payment method" in forAll { (mrn: MRN, declarant: Eori, consignee: Eori) =>
-        featureSwitch.enable(Feature.BlockSubsidies)
+        val session = SessionData.empty.copy(
+          overpaymentsMultipleJourney = Some(
+            OverpaymentsMultipleJourney
+              .empty(exampleEori, features = Some(OverpaymentsMultipleJourney.Features(true, false)))
+          )
+        )
 
         val displayDeclaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)
             .withDeclarantEori(declarant)
             .withConsigneeEori(consignee)
-            .withSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -417,17 +423,15 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "reject a non-first MRN with subsidies payment method" in forAll(
-        journeyWithMrnAndDeclaration,
+        journeyWithMrnAndDeclarationWithFeatures(OverpaymentsMultipleJourney.Features(true, false)),
         genMRN
       ) { (journey, mrn: MRN) =>
-        featureSwitch.enable(Feature.BlockSubsidies)
-
         val displayDeclaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)
             .withDeclarantEori(journey.getDeclarantEoriFromACC14.value)
             .withConsigneeEori(journey.getConsigneeEoriFromACC14.value)
-            .withSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         inSequence {
           mockAuthWithNoRetrievals()

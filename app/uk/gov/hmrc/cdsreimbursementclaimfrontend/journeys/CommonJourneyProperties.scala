@@ -48,6 +48,9 @@ trait CommonJourneyProperties {
   def getDisplayDeclarations: Seq[DisplayDeclaration] =
     getLeadDisplayDeclaration.fold(Seq.empty[DisplayDeclaration])(Seq.apply(_))
 
+  def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
+    None
+
   final val ZERO: BigDecimal = BigDecimal("0")
 
   final def hasCompleteSupportingEvidences: Boolean =
@@ -216,5 +219,9 @@ trait CommonJourneyProperties {
     else if (i === seq.size - 1) None
     else Some(seq(i + 1))
   }
+
+  final def declarationsHasOnlySubsidyPayments: Boolean =
+    getDisplayDeclarations.nonEmpty &&
+      getDisplayDeclarations.forall(_.hasOnlySubsidyPayments)
 
 }

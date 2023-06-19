@@ -45,6 +45,14 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
       .getOrFail
 
+  def journeyWithMrnAndDeclarationWithFeatures(
+    features: OverpaymentsMultipleJourney.Features
+  ): OverpaymentsMultipleJourney =
+    OverpaymentsMultipleJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random, features = Some(features))
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
   val completeJourneyWithMatchingUserEoriGen: Gen[OverpaymentsMultipleJourney] =
     Gen.oneOf(
       buildCompleteJourneyGen(
@@ -92,7 +100,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[OverpaymentsMultipleJourney.Features] = None
   ): Gen[OverpaymentsMultipleJourney] =
     buildJourneyGen(
@@ -107,7 +115,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       minNumberOfMRNs = minNumberOfMRNs,
       maxNumberOfMRNs = maxNumberOfMRNs,
       maxSize = maxSize,
-      allowSubsidyPayments = allowSubsidyPayments,
+      generateSubsidyPayments = generateSubsidyPayments,
       features = features
     ).map(
       _.fold(
@@ -148,7 +156,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[OverpaymentsMultipleJourney.Features] = None
   ): Gen[Either[String, OverpaymentsMultipleJourney]] =
     buildAnswersGen(
@@ -164,7 +172,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       minNumberOfMRNs,
       maxNumberOfMRNs,
       maxSize,
-      allowSubsidyPayments = allowSubsidyPayments
+      generateSubsidyPayments = generateSubsidyPayments
     )
       .map(OverpaymentsMultipleJourney.tryBuildFrom(_, features))
 
@@ -181,7 +189,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    allowSubsidyPayments: Boolean = false
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
   ): Gen[OverpaymentsMultipleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -237,7 +245,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
             paidDutiesPerMrn,
             consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
             declarantContact = declarantContact,
-            allowSubsidyPayments = allowSubsidyPayments
+            generateSubsidyPayments = generateSubsidyPayments
           )
         }
 

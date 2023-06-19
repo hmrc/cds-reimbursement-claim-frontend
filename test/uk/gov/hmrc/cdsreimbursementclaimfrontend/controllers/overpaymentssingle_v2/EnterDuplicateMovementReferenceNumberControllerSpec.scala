@@ -99,6 +99,10 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
 
+  def journeyWithFeaturesGen(features: OverpaymentsSingleJourney.Features): Gen[OverpaymentsSingleJourney] =
+    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen(), features = Some(features))
+      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+
   "Duplicate Movement Reference Number Controller" when {
     "Enter MRN page" must {
 
@@ -295,13 +299,14 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           }
       }
 
-      "reject an MRN with subsidies payment method" in forAll(genMRN, journeyGen) { (mrn: MRN, journey) =>
-        featureSwitch.enable(Feature.BlockSubsidies)
-
+      "reject an MRN with subsidies payment method" in forAll(
+        genMRN,
+        journeyWithFeaturesGen(OverpaymentsSingleJourney.Features(true, false))
+      ) { (mrn: MRN, journey) =>
         val displayDeclaration =
           buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)
-            .withSubsidiesPaymentMethod()
+            .withSomeSubsidiesPaymentMethod()
 
         inSequence {
           mockAuthWithNoRetrievals()

@@ -113,6 +113,28 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       completeJourneyNotCMAEligibleGen
     )
 
+  val completeJourneyWithOnlySubsidiesGen: Gen[RejectedGoodsSingleJourney] =
+    buildCompleteJourneyGen(
+      allDutiesCmaEligible = false,
+      generateSubsidyPayments = GenerateSubsidyPayments.All,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsSingleJourney.Features(false, true))
+    )
+
+  val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsSingleJourney] =
+    buildCompleteJourneyGen(
+      allDutiesCmaEligible = false,
+      generateSubsidyPayments = GenerateSubsidyPayments.Some,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsSingleJourney.Features(false, true))
+    )
+
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsSingleJourney] = for {
     journey      <- completeJourneyGen
     basisOfClaim <- Gen.oneOf(BasisOfRejectedGoodsClaim.values - BasisOfRejectedGoodsClaim.SpecialCircumstances)
@@ -138,7 +160,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsSingleJourney.Features] = None
   ): Gen[RejectedGoodsSingleJourney] =
     buildJourneyGen(
@@ -152,7 +174,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
       reimbursementMethod = reimbursementMethod,
-      allowSubsidyPayments = allowSubsidyPayments,
+      generateSubsidyPayments = generateSubsidyPayments,
       features = features
     ).map(
       _.fold(
@@ -176,7 +198,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsSingleJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
     for {
@@ -184,7 +206,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       mrn                         <- IdGen.genMRN
       declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      numberOfTaxCodes            <- Gen.choose(1, 5)
+      numberOfTaxCodes            <- Gen.choose(if (generateSubsidyPayments == GenerateSubsidyPayments.Some) 2 else 1, 5)
       taxCodes                    <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       reimbursementAmount         <-
@@ -193,7 +215,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
         )
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
-      reimbursementMethod         <- reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.values))
+      reimbursementMethod         <-
+        reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.nonSubsidyValues))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(0, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
@@ -230,7 +253,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           paidDuties,
           consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
           declarantContact = declarantContact,
-          allowSubsidyPayments = allowSubsidyPayments
+          generateSubsidyPayments = generateSubsidyPayments
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori

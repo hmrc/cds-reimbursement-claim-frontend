@@ -86,7 +86,8 @@ final class RejectedGoodsScheduledJourney private (
   def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
 
-  def needsBanksAccountDetailsSubmission: Boolean = true
+  def needsBanksAccountDetailsSubmission: Boolean =
+    !this.isSubsidyOnlyJourney
 
   def getSelectedDutyTypes: Option[Seq[DutyType]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
@@ -525,8 +526,12 @@ final class RejectedGoodsScheduledJourney private (
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
           supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
-          bankAccountDetails = answers.bankAccountDetails
+          reimbursementMethod =
+            if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+            else ReimbursementMethod.BankAccountTransfer,
+          bankAccountDetails =
+            if (isSubsidyOnlyJourney) None
+            else answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -547,7 +552,8 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
   type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]
 
   final case class Features(
-    shouldBlockSubsidies: Boolean
+    shouldBlockSubsidies: Boolean,
+    shouldAllowSubsidyOnlyPayments: Boolean
   ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 scheduled MRN journey
@@ -620,7 +626,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

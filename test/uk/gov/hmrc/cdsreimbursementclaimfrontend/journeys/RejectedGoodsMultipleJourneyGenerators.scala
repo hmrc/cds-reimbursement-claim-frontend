@@ -36,9 +36,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
 
-  val journeyWithMrnAndDD: RejectedGoodsMultipleJourney =
+  val journeyWithMrnAndDeclaration: RejectedGoodsMultipleJourney =
     RejectedGoodsMultipleJourney
       .empty(exampleDisplayDeclaration.getDeclarantEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .getOrFail
+
+  def journeyWithMrnAndDeclarationWithFeatures(
+    features: RejectedGoodsMultipleJourney.Features
+  ): RejectedGoodsMultipleJourney =
+    RejectedGoodsMultipleJourney
+      .empty(exampleDisplayDeclaration.getDeclarantEori, features = Some(features))
       .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
       .getOrFail
 
@@ -173,6 +181,26 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       completeJourneyNotCMAEligibleGen
     )
 
+  val completeJourneyWithOnlySubsidiesGen: Gen[RejectedGoodsMultipleJourney] =
+    buildCompleteJourneyGen(
+      generateSubsidyPayments = GenerateSubsidyPayments.All,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsMultipleJourney.Features(false, true))
+    )
+
+  val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsMultipleJourney] =
+    buildCompleteJourneyGen(
+      generateSubsidyPayments = GenerateSubsidyPayments.Some,
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      features = Some(RejectedGoodsMultipleJourney.Features(false, true))
+    )
+
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for {
     journey      <- completeJourneyGen
     basisOfClaim <- Gen.oneOf(BasisOfRejectedGoodsClaim.values - BasisOfRejectedGoodsClaim.SpecialCircumstances)
@@ -200,7 +228,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsMultipleJourney.Features] = None
   ): Gen[RejectedGoodsMultipleJourney] =
     buildJourneyGen(
@@ -216,7 +244,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       minNumberOfMRNs = minNumberOfMRNs,
       maxNumberOfMRNs = maxNumberOfMRNs,
       maxSize = maxSize,
-      allowSubsidyPayments = allowSubsidyPayments,
+      generateSubsidyPayments = generateSubsidyPayments,
       features = features
     ).map(
       _.fold(
@@ -256,7 +284,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    allowSubsidyPayments: Boolean = false,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsMultipleJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsMultipleJourney]] =
     for {
@@ -314,7 +342,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
             paidDutiesPerMrn,
             if (submitConsigneeDetails) consigneeContact else None,
             declarantContact,
-            allowSubsidyPayments = allowSubsidyPayments
+            generateSubsidyPayments = generateSubsidyPayments
           )
         }
 

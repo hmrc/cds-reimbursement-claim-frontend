@@ -359,32 +359,73 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      "reject an MRN with subsidies payment method" in forAll { (mrn: MRN, declarant: Eori, consignee: Eori) =>
-        featureSwitch.enable(Feature.BlockSubsidies)
+      "reject an MRN with subsidies payment method when blockSubsidies feature enabled" in forAll {
+        (mrn: MRN, declarant: Eori, consignee: Eori) =>
+          val session = SessionData.empty.copy(
+            rejectedGoodsSingleJourney = Some(
+              RejectedGoodsSingleJourney
+                .empty(exampleEori, features = Some(RejectedGoodsSingleJourney.Features(true, false)))
+            )
+          )
 
-        val displayDeclaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
-            .withDeclarationId(mrn.value)
-            .withDeclarantEori(declarant)
-            .withConsigneeEori(consignee)
-            .withSubsidiesPaymentMethod()
+          val displayDeclaration =
+            buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+              .withDeclarationId(mrn.value)
+              .withDeclarantEori(declarant)
+              .withConsigneeEori(consignee)
+              .withSomeSubsidiesPaymentMethod()
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
-        }
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
+          }
 
-        checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> mrn.value),
-          messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.title"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.rejected-goods.error.subsidy-payment-found"
-            ),
-          expectedStatus = BAD_REQUEST
-        )
+          checkPageIsDisplayed(
+            performAction(enterMovementReferenceNumberKey -> mrn.value),
+            messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.title"),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey(
+                "enter-movement-reference-number.rejected-goods.error.subsidy-payment-found"
+              ),
+            expectedStatus = BAD_REQUEST
+          )
       }
+
+      "not reject an MRN with only subsidies payment methods when subsidies-rejected-goods feature enabled" in forAll {
+        (mrn: MRN) =>
+          val journey                       = RejectedGoodsSingleJourney.empty(
+            exampleEori,
+            features = Some(RejectedGoodsSingleJourney.Features(true, true))
+          )
+          val displayDeclaration            =
+            buildDisplayDeclaration()
+              .withDeclarationId(mrn.value)
+              .withAllSubsidiesPaymentMethod()
+          val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
+            declarantEORI = journey.answers.userEoriNumber.value
+          )
+          val updatedDisplayResponseDetails =
+            displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+          val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+          val updatedJourney                =
+            journey
+              .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+              .getOrFail
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(enterMovementReferenceNumberKey -> mrn.value),
+            routes.CheckDeclarationDetailsController.show()
+          )
+      }
+
     }
   }
 }

@@ -25,12 +25,11 @@ import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -41,7 +40,6 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey]
 
   def claimService: ClaimService
-  def featureSwitchService: FeatureSwitchService
   def form(journey: Journey): Form[MRN]
   def getMovementReferenceNumber(journey: Journey): Option[MRN]
   def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
@@ -75,26 +73,23 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
         {
           for {
             maybeAcc14      <- getDeclaration(mrn)
-            _               <- EnterMovementReferenceNumberUtil.validateDeclarationHasSubsidyPayment(
-                                 featureSwitchService.isEnabled(Feature.BlockSubsidies),
-                                 maybeAcc14
-                               )
+            _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(journey, maybeAcc14)
             updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
             updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
           } yield updatedJourney2
         }.fold(
-          errors =>
-            if (errors.contains(EnterMovementReferenceNumberUtil.SUBSIDY_PAYMENT_FOUND_ERROR)) {
+          error =>
+            if (error.message.startsWith("error.")) {
               (
                 journey,
                 BadRequest(
-                  viewTemplate(filledForm.withError(formKey, "error.subsidy-payment-found"))(
+                  viewTemplate(filledForm.withError(formKey, error.message))(
                     request
                   )
                 )
               )
             } else {
-              logger.error(s"Unable to record $mrn", errors.toException)
+              logger.error(s"Unable to record $mrn", error.toException)
               (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
             },
           updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
@@ -119,22 +114,21 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   private def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     claimService
       .getDisplayDeclaration(mrn)
+
 }
 
 object EnterMovementReferenceNumberUtil {
-  val SUBSIDY_PAYMENT_FOUND_ERROR = "SUBSIDY_PAYMENT_FOUND_ERROR"
 
-  def validateDeclarationHasSubsidyPayment(
-    blockSubsidies: Boolean,
+  def validateDeclarationCandidate[Journey <: CommonJourneyProperties](
+    journey: Journey,
     maybeAcc14: Option[DisplayDeclaration]
   )(implicit ec: ExecutionContext): EitherT[Future, Error, Unit] =
-    (blockSubsidies, maybeAcc14) match {
-      case (false, _)             => EitherT.rightT(())
-      case (_, None)              => EitherT.rightT(())
-      case (_, Some(declaration)) =>
-        if (declaration.hasSubsidyPayment)
-          EitherT.leftT(Error(SUBSIDY_PAYMENT_FOUND_ERROR))
-        else
-          EitherT.rightT(())
+    maybeAcc14 match {
+      case None              => EitherT.rightT(())
+      case Some(declaration) =>
+        journey.validateDeclarationCandidate(declaration) match {
+          case None        => EitherT.rightT(())
+          case Some(error) => EitherT.leftT(Error(error))
+        }
     }
 }

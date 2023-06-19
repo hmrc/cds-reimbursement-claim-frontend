@@ -75,7 +75,8 @@ final class RejectedGoodsSingleJourney private (
     answers.displayDeclaration
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    answers.reimbursementMethod.isEmpty ||
+    !isSubsidyOnlyJourney &&
+      answers.reimbursementMethod.isEmpty ||
       answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
@@ -506,8 +507,12 @@ final class RejectedGoodsSingleJourney private (
           reimbursementClaims = getReimbursementClaims,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
-          bankAccountDetails = answers.bankAccountDetails
+          reimbursementMethod =
+            if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+            else answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
+          bankAccountDetails =
+            if (isSubsidyOnlyJourney) None
+            else answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -528,7 +533,8 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
   type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
 
   final case class Features(
-    shouldBlockSubsidies: Boolean
+    shouldBlockSubsidies: Boolean,
+    shouldAllowSubsidyOnlyPayments: Boolean
   ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 single MRN journey
@@ -593,9 +599,15 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
           )
+        ),
+        whenTrue(
+          _.isSubsidyOnlyJourney,
+          checkIsEmpty(
+            _.answers.reimbursementMethod,
+            REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
+          )
         )
       )
-
   }
 
   import Checks._
@@ -616,7 +628,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      shouldBlockSubsidiesAndDeclarationHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

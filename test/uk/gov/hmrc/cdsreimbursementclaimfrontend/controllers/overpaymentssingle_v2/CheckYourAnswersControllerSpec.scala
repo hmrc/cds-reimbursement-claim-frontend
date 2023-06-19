@@ -159,7 +159,7 @@ class CheckYourAnswersControllerSpec
         "Method"                                          -> (
           if (journey.isAllSelectedDutiesAreCMAEligible) Some(claim.reimbursementMethod match {
             case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.reimbursement-method.cma")
-            case ReimbursementMethod.BankAccountTransfer    => m("check-your-answers.reimbursement-method.bt")
+            case _                                          => m("check-your-answers.reimbursement-method.bt")
           })
           else None
         ),
@@ -205,8 +205,10 @@ class CheckYourAnswersControllerSpec
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
-            allowSubsidyPayments = true,
-            features = Some(OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true))
+            generateSubsidyPayments = GenerateSubsidyPayments.Some,
+            features = Some(
+              OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+            )
           ).sample.getOrElse(fail())
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)

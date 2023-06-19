@@ -51,6 +51,12 @@ object RejectedGoodsCdsDisplayDeclarationSummary extends AnswerSummary[DisplayDe
         key = Key(HtmlContent(messages(s"$key.import-date-label"))),
         value = Value(Text(declaration.displayResponseDetail.acceptanceDate))
       ).some,
+      if (declaration.hasOnlySubsidyPayments)
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.subsidy-status-label"))),
+          value = Value(Text(messages(s"$key.subsidy-label")))
+        ).some
+      else None,
       SummaryListRow(
         key = Key(HtmlContent(messages(s"$key.paid-duties-charges-label"))),
         value = Value(Text(declaration.totalDutiesPaidCharges.toPoundSterlingString))

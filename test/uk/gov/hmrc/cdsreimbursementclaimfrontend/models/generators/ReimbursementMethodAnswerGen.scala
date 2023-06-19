@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.Typeclass
-import org.scalacheck.magnolia.gen
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 
 object ReimbursementMethodGen {
 
-  implicit lazy val arbitraryReimbursementMethod: Typeclass[Option[ReimbursementMethod]] =
-    gen[Option[ReimbursementMethod]]
+  implicit lazy val arbitraryReimbursementMethod: Arbitrary[Option[ReimbursementMethod]] =
+    Arbitrary(Gen.option(Gen.oneOf(ReimbursementMethod.nonSubsidyValues)))
 
 }
