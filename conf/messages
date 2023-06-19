@@ -859,10 +859,11 @@ enter-claim.rejected-goods.single.title=Claim details for {0} - {1}
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
 enter-claim.rejected-goods.paragraph=This is to calculate your repayment as part of your claim.
 enter-claim.rejected-goods.for-mrn.paragraph=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
+enter-claim.rejected-goods.subsidy-text=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.rejected-goods.claim-amount.hint=The claim amount must be {0} or less.
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
