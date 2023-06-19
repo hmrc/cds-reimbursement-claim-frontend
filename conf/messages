@@ -201,7 +201,7 @@ landing-securities.start.heading=Starting your claim
 landing-securities.start.p1=To start your claim, you will need the reference number that matches the declaration that you will be including in your claim. There are 2 types of reference number you may have:
 landing-securities.start.subheading1=A Movement reference Number (MRN)
 landing-securities.start.p2=An MRN has 18 numbers and letters. For example, 21GBJD4DCMAM33D012
-landing-securities.start.p3=Continue to use this service if you have a movement reference number
+landing-securities.start.p3=Continue to use this service if you have a Movement Reference Number
 landing-securities.start.subheading2=An Entry Number
 landing-securities.start.p4=An entry number has 18 numbers and letters. For example, 123123456A01112022
 landing-securities.start.p5=If you have an entry number, you should <a href="">contact HMRC</a> about your claim.
@@ -302,11 +302,11 @@ enter-movement-reference-number.details.paragraph=You can find your MRN in your 
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.help-text=The MRN is issued when an import is declared.
 enter-movement-reference-number.enter-mrn.label=Enter MRN
-enter-movement-reference-number.invalid.number=Enter a movement reference number (MRN)
-enter-movement-reference-number.error.required=Enter a movement reference number (MRN)
+enter-movement-reference-number.invalid.number=Enter a Movement Reference Number (MRN)
+enter-movement-reference-number.error.required=Enter a Movement Reference Number (MRN)
 enter-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
-enter-movement-reference-number.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
-enter-movement-reference-number.multiple.error.existingMRN=This movement reference number (MRN) has already been used. Enter a different MRN
+enter-movement-reference-number.multiple.error.wrongMRN=This Movement Reference Number (MRN) has not been recognised
+enter-movement-reference-number.multiple.error.existingMRN=This Movement Reference Number (MRN) has already been used. Enter a different MRN
 enter-movement-reference-number.multiple.title=Enter the first Movement Reference Number (MRN)
 enter-movement-reference-number.multiple.help-text=The MRN is issued when an import is declared.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter first MRN
@@ -316,17 +316,17 @@ enter-movement-reference-number.scheduled.enter-mrn.label=Enter first MRN
 
 enter-movement-reference-number.rejected-goods.single.title=Enter the Movement Reference Number (MRN)
 enter-movement-reference-number.rejected-goods.single.help-text=The MRN is issued when an import is declared.
-enter-movement-reference-number.rejected-goods.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-movement-reference-number.rejected-goods.error.required=Enter a movement reference number (MRN)
+enter-movement-reference-number.rejected-goods.invalid.number=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-movement-reference-number.rejected-goods.error.required=Enter a Movement Reference Number (MRN)
 enter-movement-reference-number.rejected-goods.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
-enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This movement reference number (MRN) has not been recognised
-enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
+enter-movement-reference-number.rejected-goods.multiple.error.wrongMRN=This Movement Reference Number (MRN) has not been recognised
+enter-movement-reference-number.rejected-goods.multiple.error.existingMRN=Enter a Movement Reference Number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.multiple.title=Enter the {0} Movement Reference Number (MRN)
 enter-movement-reference-number.rejected-goods.multiple.help-text1=The MRN is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label=Enter {0} MRN
 enter-movement-reference-number.rejected-goods.multiple.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This movement reference number (MRN) has not been recognised
-enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a movement reference number (MRN) that has not been used before
+enter-movement-reference-number.rejected-goods.scheduled.error.wrongMRN=This Movement Reference Number (MRN) has not been recognised
+enter-movement-reference-number.rejected-goods.scheduled.error.existingMRN=Enter a Movement Reference Number (MRN) that has not been used before
 enter-movement-reference-number.rejected-goods.scheduled.title=Enter the {0} Movement Reference Number (MRN)
 enter-movement-reference-number.rejected-goods.scheduled.help-text1=The MRN is issued when an import is declared.
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label=Enter {0} MRN
@@ -340,8 +340,8 @@ enter-movement-reference-number.securities.details.paragraph=You can find your M
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.securities.help-text=The MRN is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 enter-movement-reference-number.securities.enter-mrn.label=Enter MRN
-enter-movement-reference-number.securities.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-movement-reference-number.securities.error.required=Enter a movement reference number (MRN)
+enter-movement-reference-number.securities.invalid.number=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-movement-reference-number.securities.error.required=Enter a Movement Reference Number (MRN)
 
 #===================================================
 #  ENTER EXPORT MRN PAGE
@@ -353,9 +353,9 @@ enter-export-movement-reference-number.securities.details.paragraph=You can find
 enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.securities.enter-mrn.label=Enter export MRN
-enter-export-movement-reference-number.securities.invalid.number=Export movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-export-movement-reference-number.error.required=Enter your Export movement reference number
-enter-export-movement-reference-number.securities.error.import=Enter an export movement reference number (MRN)
+enter-export-movement-reference-number.securities.invalid.number=Export Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-export-movement-reference-number.error.required=Enter your Export Movement Reference Number
+enter-export-movement-reference-number.securities.error.import=Enter an export Movement Reference Number (MRN)
 
 #===================================================
 #  ENTER EXPORT MRN MULTIPLE PAGE
@@ -367,9 +367,9 @@ enter-export-movement-reference-number-multiple.securities.details.paragraph=You
 enter-export-movement-reference-number-multiple.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number-multiple.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number-multiple.securities.enter-mrn.label=Enter the first export MRN
-enter-export-movement-reference-number-multiple.securities.invalid.number=Export movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-export-movement-reference-number-multiple.error.required=Enter your Export movement reference number
-enter-export-movement-reference-number-multiple.securities.error.import=Enter an export movement reference number (MRN)
+enter-export-movement-reference-number-multiple.securities.invalid.number=Export Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-export-movement-reference-number-multiple.error.required=Enter your Export Movement Reference Number
+enter-export-movement-reference-number-multiple.securities.error.import=Enter an export Movement Reference Number (MRN)
 
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
@@ -380,11 +380,11 @@ enter-associated-mrn.details.heading=Finding your MRN
 enter-associated-mrn.details.para=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-associated-mrn.error.required=Enter a movement reference number (MRN)
-enter-associated-mrn.invalid.number=Enter a movement reference number (MRN)
-enter-associated-mrn.error.exists=This movement reference number (MRN) has already been used. Enter a different MRN
-enter-associated-mrn.error.eori-not-matching=This movement reference number (MRN) is not linked to your EORI number
-enter-associated-mrn.error.missing-declaration=This movement reference number (MRN) has not been recognised
+enter-associated-mrn.error.required=Enter a Movement Reference Number (MRN)
+enter-associated-mrn.invalid.number=Enter a Movement Reference Number (MRN)
+enter-associated-mrn.error.exists=This Movement Reference Number (MRN) has already been used. Enter a different MRN
+enter-associated-mrn.error.eori-not-matching=This Movement Reference Number (MRN) is not linked to your EORI number
+enter-associated-mrn.error.missing-declaration=This Movement Reference Number (MRN) has not been recognised
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS
@@ -392,8 +392,8 @@ enter-associated-mrn.error.missing-declaration=This movement reference number (M
 check-movement-reference-numbers.title=Movement Reference Numbers (MRNs) added to your claim
 check-movement-reference-numbers.help-text=These are the MRNs that you have added so far. You can add more if you wish.
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
-check-movement-reference-numbers.error.invalid=Select yes to add another movement reference number (MRN)
-check-movement-reference-numbers.error.required=Select yes to add another movement reference number (MRN)
+check-movement-reference-numbers.error.invalid=Select yes to add another Movement Reference Number (MRN)
+check-movement-reference-numbers.error.required=Select yes to add another Movement Reference Number (MRN)
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS - REJECTED GOODS
@@ -403,8 +403,8 @@ check-movement-reference-numbers.rejected-goods.help-text=These are the MRNs tha
 check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=First MRN
 check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} MRN
 check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another MRN?
-check-movement-reference-numbers.rejected-goods.error.invalid=Select yes to add another movement reference number (MRN)
-check-movement-reference-numbers.rejected-goods.error.required=Select yes to add another movement reference number (MRN)
+check-movement-reference-numbers.rejected-goods.error.invalid=Select yes to add another Movement Reference Number (MRN)
+check-movement-reference-numbers.rejected-goods.error.required=Select yes to add another Movement Reference Number (MRN)
 
 #===================================================
 #  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
@@ -419,10 +419,10 @@ enter-duplicate-movement-reference-number.title=Enter the duplicate MRN
 enter-duplicate-movement-reference-number.input-title=Enter duplicate MRN
 enter-duplicate-movement-reference-number.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-duplicate-movement-reference-number.invalid.number=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.invalid=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
-enter-duplicate-movement-reference-number.error.required=Movement reference number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
-enter-duplicate-movement-reference-number.invalid.enter-different-mrn=This movement reference number (MRN) has already been used. Enter a different MRN
+enter-duplicate-movement-reference-number.invalid.number=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-duplicate-movement-reference-number.invalid=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
+enter-duplicate-movement-reference-number.error.required=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
+enter-duplicate-movement-reference-number.invalid.enter-different-mrn=This Movement Reference Number (MRN) has already been used. Enter a different MRN
 enter-duplicate-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
 
 
@@ -1688,7 +1688,7 @@ check-your-answers.claim-for-security.claim-full-amount.yes=Yes
 check-your-answers.claim-for-security.claim-full-amount.no=No
 check-your-answers.claim-for-security.duties-selected.label=Duties selected
 
-check-your-answers.export-declaration-details.h2=Export movement reference number (MRN)
+check-your-answers.export-declaration-details.h2=Export Movement Reference Number (MRN)
 check-your-answers.export-declaration-details.mrn=Export MRN
 
 #===================================================
@@ -1757,7 +1757,7 @@ choose-claim-type.error.unknown=Select the reason for making this claim
 #===================================================
 invalid-reason-for-security.title=There is a problem with your claim
 invalid-reason-for-security.because=This may because:
-invalid-reason-for-security.point.1=no security was paid for the selected movement reference number (MRN)
+invalid-reason-for-security.point.1=no security was paid for the selected Movement Reference Number (MRN)
 invalid-reason-for-security.point.2=the MRN was entered incorrectly
 invalid-reason-for-security.point.3=the reason for security was entered incorrectly
 invalid-reason-for-security.submit=Enter a different MRN
