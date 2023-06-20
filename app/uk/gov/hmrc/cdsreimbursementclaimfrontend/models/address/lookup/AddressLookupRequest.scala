@@ -74,6 +74,9 @@ object AddressLookupRequest {
     def whetherShowConfirmChangeText(value: Boolean): Builder =
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showConfirmChangeText = value.some)))
 
+    def disableTranslations(value: Boolean): Builder =
+      copy(options.copy(disableTranslations = Some(value)))
+
     def withPageTitles(
       appTitle: Option[String] = None,
       phaseBannerHtml: Option[String] = None,

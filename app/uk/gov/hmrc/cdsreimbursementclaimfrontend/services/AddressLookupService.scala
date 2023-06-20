@@ -119,6 +119,7 @@ class DefaultAddressLookupService @Inject() (
         .whetherShowSearchAgainLink(true)
         .whetherShowChangeLink(true)
         .whetherShowBanner(true)
+        .disableTranslations(true)
 
     logger.debug(s"Making ALF call sending payload:\n${Json.prettyPrint(Json.toJson(request))}")
 

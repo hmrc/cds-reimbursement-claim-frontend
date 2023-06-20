@@ -30,7 +30,8 @@ final case class AddressLookupOptions(
   phaseFeedbackLink: Option[String] = None,
   deskProServiceName: Option[String] = None,
   showPhaseBanner: Option[Boolean] = None,
-  ukMode: Option[Boolean] = None
+  ukMode: Option[Boolean] = None,
+  disableTranslations: Option[Boolean] = None
 )
 
 object AddressLookupOptions {

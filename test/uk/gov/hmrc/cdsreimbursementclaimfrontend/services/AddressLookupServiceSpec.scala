@@ -94,6 +94,7 @@ class AddressLookupServiceSpec
     .whetherShowSearchAgainLink(true)
     .whetherShowChangeLink(true)
     .whetherShowBanner(true)
+    .disableTranslations(true)
     .withPageTitles(
       Some(s"${messages("service.title")}"),
       None,
