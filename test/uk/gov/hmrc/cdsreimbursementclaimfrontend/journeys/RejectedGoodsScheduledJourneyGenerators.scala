@@ -54,7 +54,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
 
   val dutyTypesGen: Gen[Seq[DutyType]] =
     for {
-      n   <- Gen.choose(1, DutyTypes.all.size - 1)
+      n   <- Gen.choose(2, DutyTypes.all.size - 1)
       dts <- Gen.pick(n, DutyTypes.all)
     } yield dts.sorted.toSeq
 

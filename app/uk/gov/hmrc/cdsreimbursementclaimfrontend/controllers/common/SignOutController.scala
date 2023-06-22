@@ -23,18 +23,16 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
 class SignOutController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  signOut: pages.sign_out
+  val controllerComponents: MessagesControllerComponents
 )(implicit viewConfig: ViewConfig)
     extends FrontendBaseController
     with Logging {
 
-  def showSignOutPage(): Action[AnyContent] = Action { implicit request =>
-    Ok(signOut()).withNewSession
+  def showSignOutPage(): Action[AnyContent] = Action { _ =>
+    Redirect(viewConfig.betaFeedbackUrl).withNewSession
   }
 }

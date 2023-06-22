@@ -113,7 +113,7 @@ class CheckYourAnswersControllerSpec
     headers.toSeq should containOnlyDefinedElementsOf(
       (Seq(
         "Declaration details".expectedAlways,
-        "Export movement reference number (MRN)".expectedWhen(journey.needsExportMRNSubmission),
+        "Export Movement Reference Number (MRN)".expectedWhen(journey.needsExportMRNSubmission),
         "Contact information for this claim".expectedAlways,
         "Bank details".expectedWhen(claim.bankAccountDetails),
         "Documents".expectedAlways,
