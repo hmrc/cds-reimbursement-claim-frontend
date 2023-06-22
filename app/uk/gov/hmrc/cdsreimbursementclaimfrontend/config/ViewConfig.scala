@@ -71,12 +71,6 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val weSignedYouOutPageUrl: String =
     s"$selfBaseUrl/claim-back-import-duty-vat${baseRoutes.StartController.timedOut().url}"
 
-  lazy val serviceFeedBackUrl: String = {
-    val baseUrl = config.get[String]("microservice.services.feedback.url")
-    val path    = config.get[String]("microservice.services.feedback.source")
-    s"$baseUrl$path"
-  }
-
   val govUkUrl: String = getString("external-url.gov-uk")
 
   val enableLanguageSwitching: Boolean = servicesConfig.getBoolean("enable-language-switching")

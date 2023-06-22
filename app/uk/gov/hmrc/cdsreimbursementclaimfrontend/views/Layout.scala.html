@@ -97,7 +97,7 @@
 @beforeContentBlock = {
     @govukPhaseBanner(PhaseBanner(
         tag = Some(Tag(content = HtmlContent(messages("phasebanner.phase")))),
-        content = HtmlContent(messages("phasebanner.feedback.text", viewConfig.serviceFeedBackUrl))))
+        content = HtmlContent(messages("phasebanner.feedback.text", viewConfig.feedbackUrl))))
 
     <div class="cds-user-banner cds-no-border">
         @if(!suppressBackLink) {

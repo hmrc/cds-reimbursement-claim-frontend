@@ -107,7 +107,7 @@ class UploadDocumentsConnectorSpec
           serviceUrl = "homePageUrl",
           accessibilityStatementUrl = "accessibilityStatementUrl",
           phaseBanner = "beta",
-          phaseBannerUrl = "serviceFeedBackUrl",
+          phaseBannerUrl = "feedbackUrl",
           signOutUrl = "signOutUrl",
           timedOutUrl = "ggTimedOutUrl",
           keepAliveUrl = "ggKeepAliveUrl",

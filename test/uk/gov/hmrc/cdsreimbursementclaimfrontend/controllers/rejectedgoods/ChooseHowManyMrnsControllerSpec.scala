@@ -57,6 +57,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import scala.annotation.nowarn
 
 class ChooseHowManyMrnsControllerSpec
     extends ControllerSpec
