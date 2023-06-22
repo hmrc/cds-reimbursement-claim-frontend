@@ -74,7 +74,7 @@
     countdown= Some(viewConfig.countdown),
     message= Some(messages("session-expired-message")),
     keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
-    signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
+    signOutUrl= signOutUrl,
     timeoutUrl= Some(s"${StartController.timedOut.url}"),
     keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
     signOutButtonText= Some(messages("session-expired.sign-out-button-text"))

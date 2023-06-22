@@ -135,6 +135,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val ukTradeTariffGuidance: String = getString("external-url.uk-trade-tariff-guidance")
 
+  val betaFeedbackUrl: String = getString("external-url.beta-feedback")
+
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
