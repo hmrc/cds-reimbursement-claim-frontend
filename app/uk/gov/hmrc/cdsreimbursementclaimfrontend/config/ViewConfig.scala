@@ -136,6 +136,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val ukTradeTariffGuidance: String = getString("external-url.uk-trade-tariff-guidance")
 
   val betaFeedbackUrl: String = getString("external-url.beta-feedback")
+  val feedbackUrl: String     = getString("external-url.feedback")
 
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
