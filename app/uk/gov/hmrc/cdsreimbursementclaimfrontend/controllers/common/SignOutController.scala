@@ -33,6 +33,6 @@ class SignOutController @Inject() (
     with Logging {
 
   def showSignOutPage(): Action[AnyContent] = Action { _ =>
-    Redirect(viewConfig.betaFeedbackUrl).withNewSession
+    Redirect(viewConfig.feedbackUrl).withNewSession
   }
 }

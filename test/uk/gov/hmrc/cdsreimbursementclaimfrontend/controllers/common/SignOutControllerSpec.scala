@@ -30,7 +30,7 @@ class SignOutControllerSpec extends ControllerSpec {
     "redirect to the beta feedback URL" in {
       checkIsRedirect(
         controller.showSignOutPage()(FakeRequest()),
-        viewConfig.betaFeedbackUrl
+        viewConfig.feedbackUrl
       )
     }
   }
