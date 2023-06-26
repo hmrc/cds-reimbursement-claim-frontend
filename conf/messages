@@ -1725,6 +1725,9 @@ confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
 confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
 confirmation-of-submission.view-upload=View or update an existing claim
+confirmation-of-submission.feedback-subheading=Help us improve the service
+confirmation-of-submission.feedback-paragraph=Tell us about your experience using this service to help us improve it.
+confirmation-of-submission.feedback-link=Give feedback
 #===================================================
 #  PROBLEM WITH ADDRESS
 #===================================================
