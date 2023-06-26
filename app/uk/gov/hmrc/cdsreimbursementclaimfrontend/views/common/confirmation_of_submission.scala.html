@@ -68,8 +68,10 @@
         <p class="govuk-body govuk-!-margin-bottom-4"><a href="@{viewConfig.viewUploadUrl}" class="govuk-link">@messages(s"$key.view-upload")</a></p>
 
         @subHeading(Html(messages(s"$key.what-next.link.1.start-another-claim")), classes = "govuk-heading-s")
-        <p class="govuk-body govuk-!-margin-bottom-9"><a href="@{routes.LandingPageController.showLandingPage().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
+        <p class="govuk-body govuk-!-margin-bottom-4"><a href="@{routes.LandingPageController.showLandingPage().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
 
-        @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.ggSignOut)))
+        @subHeading(Html(messages(s"$key.feedback-subheading")), classes = "govuk-heading-s")
+        @paragraph(Html(messages(s"$key.feedback-paragraph")))
+        <p class="govuk-body govuk-!-margin-bottom-9"><a href="@{viewConfig.feedbackUrl}" class="govuk-link">@messages(s"$key.feedback-link")</a></p>
 
-    }
+}
