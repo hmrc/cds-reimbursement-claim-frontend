@@ -27,6 +27,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers.session
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.Name
@@ -240,18 +241,19 @@ class CheckEoriDetailsControllerSpec
       }
 
       "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (sessionData, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(
             fillingOutClaim.signedInUserDetails.eori,
             fillingOutClaim.signedInUserDetails.contactName
           )
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(sessionData.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "false"))
-        checkIsRedirect(result, viewConfig.ggSignOut)
+        checkIsRedirect(result, baseRoutes.StartController.start())
+        session(result).data shouldBe Map.empty
       }
 
       "The user submits an invalid choice" in {
