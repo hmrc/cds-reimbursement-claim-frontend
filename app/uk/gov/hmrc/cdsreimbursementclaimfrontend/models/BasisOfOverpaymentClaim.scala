@@ -42,7 +42,6 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
   case object InwardProcessingReliefFromCustomsDuty extends BasisOfOverpaymentClaim { val order = 7 }
   case object OutwardProcessingRelief extends BasisOfOverpaymentClaim { val order = 8 }
   case object PersonalEffects extends BasisOfOverpaymentClaim { val order = 9 }
-
   case object Preference extends BasisOfOverpaymentClaim { val order = 10 }
   case object ProofOfReturnRefundGiven extends BasisOfOverpaymentClaim { val order = 11 }
   case object RGR extends BasisOfOverpaymentClaim { val order = 12 }
