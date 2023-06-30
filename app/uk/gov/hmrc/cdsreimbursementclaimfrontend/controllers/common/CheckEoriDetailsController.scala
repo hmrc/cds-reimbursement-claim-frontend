@@ -107,7 +107,7 @@ class CheckEoriDetailsController @Inject() (
                       Redirect(commonRoutes.ChooseClaimTypeController.show())
                   }
               case No  =>
-                Future.successful(Redirect(viewConfig.ggSignOut))
+                Future.successful(Redirect(baseRoutes.StartController.start()).withNewSession)
             }
           )
       }
