@@ -25,26 +25,31 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Missi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
+import scala.math.Ordering
 
-sealed trait BasisOfOverpaymentClaim
+sealed trait BasisOfOverpaymentClaim {
+  val order: Int
+}
 
 object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim] {
 
-  case object DuplicateEntry extends BasisOfOverpaymentClaim
-  case object DutySuspension extends BasisOfOverpaymentClaim
-  case object EndUseRelief extends BasisOfOverpaymentClaim
-  case object IncorrectCommodityCode extends BasisOfOverpaymentClaim
-  case object IncorrectCpc extends BasisOfOverpaymentClaim
-  case object IncorrectValue extends BasisOfOverpaymentClaim
-  case object InwardProcessingReliefFromCustomsDuty extends BasisOfOverpaymentClaim
-  case object OutwardProcessingRelief extends BasisOfOverpaymentClaim
-  case object PersonalEffects extends BasisOfOverpaymentClaim
-  case object Preference extends BasisOfOverpaymentClaim
-  case object RGR extends BasisOfOverpaymentClaim
-  case object ProofOfReturnRefundGiven extends BasisOfOverpaymentClaim
-  case object IncorrectExciseValue extends BasisOfOverpaymentClaim //Northern Ireland only
-  case object IncorrectAdditionalInformationCode extends BasisOfOverpaymentClaim //Northern Ireland only
-  case object Miscellaneous extends BasisOfOverpaymentClaim
+  case object DuplicateEntry extends BasisOfOverpaymentClaim { val order = 0 }
+  case object DutySuspension extends BasisOfOverpaymentClaim { val order = 2 }
+  case object EndUseRelief extends BasisOfOverpaymentClaim { val order = 3 }
+  case object IncorrectCommodityCode extends BasisOfOverpaymentClaim { val order = 4 }
+  case object IncorrectCpc extends BasisOfOverpaymentClaim { val order = 5 }
+  case object IncorrectValue extends BasisOfOverpaymentClaim { val order = 6 }
+  case object InwardProcessingReliefFromCustomsDuty extends BasisOfOverpaymentClaim { val order = 7 }
+  case object OutwardProcessingRelief extends BasisOfOverpaymentClaim { val order = 8 }
+  case object PersonalEffects extends BasisOfOverpaymentClaim { val order = 9 }
+  case object Preference extends BasisOfOverpaymentClaim { val order = 10 }
+  case object ProofOfReturnRefundGiven extends BasisOfOverpaymentClaim { val order = 11 }
+  case object RGR extends BasisOfOverpaymentClaim { val order = 12 }
+  case object IncorrectExciseValue extends BasisOfOverpaymentClaim { val order = 13 } //Northern Ireland only
+  case object IncorrectAdditionalInformationCode extends BasisOfOverpaymentClaim {
+    val order = 14
+  } //Northern Ireland only
+  case object Miscellaneous extends BasisOfOverpaymentClaim { val order = 15 }
 
   val values: Set[BasisOfOverpaymentClaim] =
     Set(
@@ -120,5 +125,8 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
 
   implicit val basisOfClaimFormat: OFormat[BasisOfOverpaymentClaim] =
     derived.oformat[BasisOfOverpaymentClaim]()
+
+  implicit val ordering: Ordering[BasisOfOverpaymentClaim] =
+    Ordering.by[BasisOfOverpaymentClaim, Int](_.order)
 
 }
