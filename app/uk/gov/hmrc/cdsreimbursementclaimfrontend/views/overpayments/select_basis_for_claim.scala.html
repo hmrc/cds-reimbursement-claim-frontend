@@ -44,7 +44,7 @@
 @title = @{messages(s"$key.title")}
 
 @radioItems = @{
-  claimTypes.map { basisOfClaim =>
+  claimTypes.toList.sorted.map { basisOfClaim =>
      val hint = if (messages.isDefinedAt(s"$key.reason.hint.$basisOfClaim"))
             Some(Hint(content = HtmlContent(messages(s"$key.reason.hint.$basisOfClaim"))))
         else
@@ -56,7 +56,7 @@
       hint = hint,
       checked = form.value.contains(basisOfClaim)
     )
-  }.toList
+  }
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
