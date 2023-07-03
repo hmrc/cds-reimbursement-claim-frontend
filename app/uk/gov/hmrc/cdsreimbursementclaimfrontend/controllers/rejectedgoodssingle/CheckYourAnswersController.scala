@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -103,6 +103,7 @@ class CheckYourAnswersController @Inject() (
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
                   )
+                  JourneyLog(output).logInfo()
                   uploadDocumentsConnector.wipeOut
                     .map(_ =>
                       (
