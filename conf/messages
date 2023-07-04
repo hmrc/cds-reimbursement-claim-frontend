@@ -334,13 +334,13 @@ enter-movement-reference-number.rejected-goods.scheduled.help=Must be 18 charact
 enter-movement-reference-number.rejected-goods.details.heading=Finding your MRN
 enter-movement-reference-number.rejected-goods.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 
-enter-movement-reference-number.securities.title=Enter the import MRN
+enter-movement-reference-number.securities.title=Enter the Movement Reference Number (MRN)
 enter-movement-reference-number.securities.details.heading=Finding your MRN
 enter-movement-reference-number.securities.details.paragraph=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.securities.help-text=The MRN is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 enter-movement-reference-number.securities.enter-mrn.label=Enter MRN
-enter-movement-reference-number.securities.invalid.number=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-movement-reference-number.securities.invalid.number=Enter the MRN in the correct format
 enter-movement-reference-number.securities.error.required=Enter a Movement Reference Number (MRN)
 
 #===================================================
@@ -353,7 +353,7 @@ enter-export-movement-reference-number.securities.details.paragraph=You can find
 enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.securities.enter-mrn.label=Enter export MRN
-enter-export-movement-reference-number.securities.invalid.number=Export Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-export-movement-reference-number.securities.invalid.number=Enter the MRN in the correct format
 enter-export-movement-reference-number.error.required=Enter your Export Movement Reference Number
 enter-export-movement-reference-number.securities.error.import=Enter an export Movement Reference Number (MRN)
 
@@ -367,7 +367,7 @@ enter-export-movement-reference-number-multiple.securities.details.paragraph=You
 enter-export-movement-reference-number-multiple.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number-multiple.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number-multiple.securities.enter-mrn.label=Enter the first export MRN
-enter-export-movement-reference-number-multiple.securities.invalid.number=Export Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
+enter-export-movement-reference-number-multiple.securities.invalid.number=Enter the MRN in the correct format
 enter-export-movement-reference-number-multiple.error.required=Enter your Export Movement Reference Number
 enter-export-movement-reference-number-multiple.securities.error.import=Enter an export Movement Reference Number (MRN)
 
