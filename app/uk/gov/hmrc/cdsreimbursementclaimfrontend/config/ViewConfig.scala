@@ -80,7 +80,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   def pageTitleWithServiceName(pageTitle: String, serviceName: String, hasErrors: Boolean): String = {
     val pageTitleNoHTML = pageTitle.replaceAll("\\<.*?\\>", "")
     if (hasErrors)
-      s"ERROR: $pageTitleNoHTML - $serviceName - GOV.UK"
+      s"Error: $pageTitleNoHTML - $serviceName - GOV.UK"
     else
       s"$pageTitleNoHTML - $serviceName - GOV.UK"
   }

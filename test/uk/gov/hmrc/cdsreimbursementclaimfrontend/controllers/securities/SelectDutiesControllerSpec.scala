@@ -108,7 +108,7 @@ class SelectDutiesControllerSpec
 
     title                    should ===(
       List(
-        (if (isError) "ERROR: "
+        (if (isError) "Error: "
          else "") + "Select the duties you want to claim for - Claim back import duty and VAT - GOV.UK"
       )
     )

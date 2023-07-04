@@ -103,7 +103,7 @@ class ConfirmFullRepaymentControllerSpec
     )
     title           should ===(
       List(
-        (if (isError) "ERROR: "
+        (if (isError) "Error: "
          else
            "") + "Do you want to claim back all of this security deposit? - Claim back import duty and VAT - GOV.UK"
       )

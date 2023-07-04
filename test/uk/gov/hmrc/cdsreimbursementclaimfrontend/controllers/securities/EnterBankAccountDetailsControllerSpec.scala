@@ -96,7 +96,7 @@ class EnterBankAccountDetailsControllerSpec
       doc.select("input[name='enter-bank-account-details.account-number']").first().attr("value")
     title         should ===(
       List(
-        (if (error) "ERROR: "
+        (if (error) "Error: "
          else "") + "Enter your bank account details - Claim back import duty and VAT - GOV.UK"
       )
     )
