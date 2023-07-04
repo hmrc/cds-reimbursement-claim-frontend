@@ -49,13 +49,9 @@
 
     <logger name="application" level="DEBUG"/>
 
-    <logger name="connector" level="TRACE">
-        <appender-ref ref="STDOUT"/>
-    </logger>
+    <logger name="connector" level="TRACE"/>
 
-    <logger name="uk.gov.hmrc.cdsreimbursementclaimfrontend" level="INFO">
-        <appender-ref ref="STDOUT"/>
-    </logger>
+    <logger name="uk.gov.hmrc.cdsreimbursementclaimfrontend" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="FILE"/>
