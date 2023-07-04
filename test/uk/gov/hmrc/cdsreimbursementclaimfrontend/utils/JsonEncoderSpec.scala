@@ -54,7 +54,7 @@ class JsonEncoderSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Mat
     "decode json message into an object node" in {
       val node = new ObjectNode(jnf)
       encoder.decodeMessage(node, """json{"foo":"bar"}""")
-      node.get("route1")  shouldBe new ObjectNode(
+      node.get("cdsr")    shouldBe new ObjectNode(
         jnf,
         Map[String, JsonNode]("foo" -> new TextNode("bar")).asJava
       )
@@ -72,7 +72,7 @@ class JsonEncoderSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Mat
     }
 
     "encode event with json message" in {
-      assertLog("""json{"foo":"bar"}""", """"route1":{"foo":"bar"}""")
+      assertLog("""json{"foo":"bar"}""", """"cdsr":{"foo":"bar"}""")
     }
 
     def assertLog(message: String, expected: String) = {

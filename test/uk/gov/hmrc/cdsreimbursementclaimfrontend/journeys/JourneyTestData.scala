@@ -34,6 +34,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.LocalDateTime
 
 trait JourneyTestData {
 
@@ -144,6 +145,77 @@ trait JourneyTestData {
 
   final val exampleRejectedGoodsDetails: String        = "Some example details for rejected goods"
   final val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
+
+  final val exampleContactInformation1: ContactInformation =
+    ContactInformation(
+      contactPerson = Some("Foo Bar"),
+      addressLine1 = Some("7 Flower Street"),
+      addressLine2 = Some("Daisy House"),
+      addressLine3 = None,
+      street = Some("7 Flower Street"),
+      city = Some("Bloomingham"),
+      countryCode = Some("UK"),
+      postalCode = Some("AA1AAB"),
+      telephoneNumber = None,
+      faxNumber = None,
+      emailAddress = None
+    )
+
+  final val exampleContactInformation2: ContactInformation =
+    ContactInformation(
+      contactPerson = Some("Kind Man"),
+      addressLine1 = Some("1 Barn Crescent"),
+      addressLine2 = None,
+      addressLine3 = None,
+      street = Some("1 Barn Crescent"),
+      city = Some("Loolipools"),
+      countryCode = Some("UK"),
+      postalCode = Some("AA2AAA"),
+      telephoneNumber = None,
+      faxNumber = None,
+      emailAddress = None
+    )
+
+  final val exampleClaimantInformation =
+    ClaimantInformation(
+      eori = exampleEori,
+      fullName = "",
+      establishmentAddress = exampleContactInformation1,
+      contactInformation = exampleContactInformation2
+    )
+
+  final val exampleSupportingEvidences =
+    Seq(
+      EvidenceDocument(
+        checksum = "",
+        downloadUrl = "",
+        fileName = "",
+        fileMimeType = "image/jpeg",
+        size = 1234L,
+        uploadedOn = LocalDateTime.now(),
+        documentType = UploadDocumentType.CommercialInvoice
+      ),
+      EvidenceDocument(
+        checksum = "",
+        downloadUrl = "",
+        fileName = "",
+        fileMimeType = "application/pdf",
+        size = 567L,
+        uploadedOn = LocalDateTime.now(),
+        documentType = UploadDocumentType.Other
+      )
+    )
+
+  final val exampleScheduledDocument =
+    EvidenceDocument(
+      checksum = "",
+      downloadUrl = "",
+      fileName = "",
+      fileMimeType = "image/png",
+      size = 9876L,
+      uploadedOn = LocalDateTime.now(),
+      documentType = UploadDocumentType.ScheduleOfMRNs
+    )
 
   final def buildDisplayDeclaration(
     id: String = exampleMrnAsString,
