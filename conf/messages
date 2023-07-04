@@ -236,11 +236,11 @@ check-eori-details.paragraph=These are the EORI details associated with your Gov
 check-eori-details.eori-number.label=EORI number
 check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
-check-eori-details.eori-correct-label=Are these details correct?
+check-eori-details.eori-correct-label=Select yes if the EORI details are correct
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No
-check-eori-details.error.required=Are these details correct?
-check-eori-details.error.invalid=Are these details correct?
+check-eori-details.error.required=Select yes if the EORI details are correct
+check-eori-details.error.invalid=Select yes if the EORI details are correct
 
 
 #===================================================
