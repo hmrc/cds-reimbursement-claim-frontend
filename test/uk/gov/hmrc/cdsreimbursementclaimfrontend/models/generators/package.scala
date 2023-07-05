@@ -20,6 +20,7 @@ import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 
+import java.net.URI
 import java.net.URL
 import java.time.Instant
 import java.time.LocalDate
@@ -79,7 +80,7 @@ package object generators {
       protocol <- Gen.oneOf("http", "https")
       hostname <- genStringWithMaxSizeOfN(7)
       domain   <- Gen.oneOf("com", "co.uk", "lv")
-    } yield new URL(s"$protocol://$hostname.$domain")
+    } yield URI.create(s"$protocol://$hostname.$domain").toURL
 
   implicit lazy val arbitraryUrl: Arbitrary[URL] = Arbitrary(genUrl)
 }
