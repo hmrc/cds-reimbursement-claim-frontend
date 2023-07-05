@@ -24,7 +24,9 @@ lazy val wartremoverSettings =
       Wart.PublicInference,
       Wart.SizeIs,
       Wart.StringPlusAny,
-      Wart.Any
+      Wart.Any,
+      Wart.SeqApply,
+      Wart.CaseClassPrivateApply
     ),
     WartRemover.autoImport.wartremoverExcluded += target.value,
     Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
@@ -65,7 +67,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "2.13.10")
+  .settings(scalaVersion := "2.13.11")
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
     routesImport := Seq(

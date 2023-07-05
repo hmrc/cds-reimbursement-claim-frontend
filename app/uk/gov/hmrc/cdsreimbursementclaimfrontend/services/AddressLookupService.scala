@@ -47,6 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.net.URL
+import java.net.URI
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -130,7 +131,7 @@ class DefaultAddressLookupService @Inject() (
         if (response.status === ACCEPTED)
           response
             .header(LOCATION)
-            .map(new URL(_))
+            .map(URI.create(_).toURL())
             .toRight(Error("The ALF user redirect URL is missing in the header"))
         else Left(Error("The request was refused by ALF"))
       }
