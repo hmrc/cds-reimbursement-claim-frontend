@@ -34,7 +34,6 @@
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio
@@ -60,14 +59,11 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @subHeading(Html(messages(s"$key.subheading")), "govuk-heading-m")
-
         @radios(
             form = form,
             name = key,
-            legend = title,
+            legend = messages(s"$key.subheading"),
             hintKey = None,
-            classes = "govuk-visually-hidden",
             inline = true,
             items = Seq(
                 RadioItem(
