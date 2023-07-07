@@ -297,14 +297,14 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       basisOfClaim        <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal    <- Gen.oneOf(MethodOfDisposal.values)
 
-      numberOfSupportingEvidences <- Gen.choose(0, maxSize)
+      numberOfSupportingEvidences <- Gen.choose(1, maxSize)
       numberOfDocumentTypes       <- Gen.choose(1, maxSize - 1)
       documentTypes               <-
         Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.rejectedGoodsMultipleDocumentTypes))
       supportingEvidences         <-
         Gen
           .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](
-            documentTypes.map(dt => Gen.choose(0, numberOfSupportingEvidences).map(n => (dt, n)))
+            documentTypes.map(dt => Gen.choose(1, numberOfSupportingEvidences).map(n => (dt, n)))
           )
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
