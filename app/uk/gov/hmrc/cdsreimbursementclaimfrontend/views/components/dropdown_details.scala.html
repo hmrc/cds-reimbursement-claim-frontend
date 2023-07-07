@@ -14,20 +14,12 @@
  * limitations under the License.
  *@
 
-@import play.api.i18n._
-@import play.twirl.api.Html
-
-@this()
-
-@(summary:String, content:Html)(implicit messages: Messages)
-
-<details class="govuk-details" data-module="govuk-details">
-    <summary class="govuk-details__summary" role="button">
-        <span class="govuk-details__summary-text">
-            @Html(messages(summary))
-        </span>
-    </summary>
-    <div class="govuk-details__text">
-        @content
-    </div>
-</details>
+ @import play.api.i18n._
+ @import play.twirl.api.Html
+ @import uk.gov.hmrc.govukfrontend.views.html.components._
+ 
+ @this(govukDetails: GovukDetails)
+ 
+ @(summary:String, content:Html)(implicit messages: Messages)
+ 
+ @govukDetails(Details(summary = HtmlContent(messages(summary)), content = HtmlContent(content)))
