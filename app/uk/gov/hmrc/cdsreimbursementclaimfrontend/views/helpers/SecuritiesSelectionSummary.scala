@@ -58,7 +58,7 @@ object SecuritiesSelectionSummary {
               ActionItem(
                 href = changeCall(securityDepositId).url,
                 content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.claim-for-security.label"))
+                visuallyHiddenText = Some(messages(s"$key.claim-for-security.label", securityDepositId))
               )
             )
           )
