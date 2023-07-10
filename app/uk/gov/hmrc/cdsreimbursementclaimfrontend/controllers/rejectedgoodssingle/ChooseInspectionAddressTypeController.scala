@@ -70,5 +70,5 @@ class ChooseInspectionAddressTypeController @Inject() (
       (journey, Redirect(checkYourAnswers))
     else if (journey.isAllSelectedDutiesAreCMAEligible)
       (journey, Redirect(routes.ChooseRepaymentMethodController.show()))
-    else (journey, Redirect(routes.CheckBankDetailsController.show()))
+    else (journey, Redirect(routes.UploadFilesController.show()))
 }
