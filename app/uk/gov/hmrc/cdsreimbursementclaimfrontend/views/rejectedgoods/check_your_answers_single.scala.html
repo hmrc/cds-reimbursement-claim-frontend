@@ -37,7 +37,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
@@ -46,7 +46,7 @@
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"$key.reference-number", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @subHeading(Html(messages(combine(s"$key.reference-number", subKey, if (isSubsidy) "h2-subsidy" else "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
 
     @displayDeclarationOpt.map { displayDeclaration =>
