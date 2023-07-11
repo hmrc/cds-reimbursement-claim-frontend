@@ -216,6 +216,35 @@ class CheckYourAnswersControllerSpec
         }
       }
 
+      "display subsidy status when declaration has only subsidy payments" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14DeclarantMatchesUserEori = false,
+            acc14ConsigneeMatchesUserEori = false,
+            generateSubsidyPayments = GenerateSubsidyPayments.All
+          )
+        ) { journey =>
+          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              validateCheckYourAnswersPage(doc, claim, journey.isAllSelectedDutiesAreCMAEligible)
+              doc
+                .select(".govuk-summary-list__row dt.govuk-summary-list__key")
+                .get(4)
+                .text() shouldBe "Subsidy status"
+            }
+          )
+        }
+      }
+
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
