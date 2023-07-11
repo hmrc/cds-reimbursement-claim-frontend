@@ -71,7 +71,7 @@ class RejectedGoodsMultipleJourneySpec
       emptyJourney.getTotalReimbursementAmount                                    shouldBe BigDecimal("0.00")
       emptyJourney.isAllSelectedDutiesAreCMAEligible                              shouldBe false
       emptyJourney.hasCompleteReimbursementClaims                                 shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences                                 shouldBe true
+      emptyJourney.hasCompleteSupportingEvidences                                 shouldBe false
       emptyJourney.hasCompleteAnswers                                             shouldBe false
       emptyJourney.toOutput.isLeft                                                shouldBe true
       emptyJourney.isFinalized                                                    shouldBe false
@@ -171,7 +171,7 @@ class RejectedGoodsMultipleJourneySpec
         journey.getLeadDisplayDeclaration      shouldBe Some(displayDeclaration)
         journey.hasCompleteAnswers             shouldBe false
         journey.hasCompleteReimbursementClaims shouldBe false
-        journey.hasCompleteSupportingEvidences shouldBe true
+        journey.hasCompleteSupportingEvidences shouldBe false
         journey.isFinalized                    shouldBe false
       }
     }
@@ -204,7 +204,7 @@ class RejectedGoodsMultipleJourneySpec
 
         journey.hasCompleteAnswers             shouldBe false
         journey.hasCompleteReimbursementClaims shouldBe false
-        journey.hasCompleteSupportingEvidences shouldBe true
+        journey.hasCompleteSupportingEvidences shouldBe false
         journey.isFinalized                    shouldBe false
       }
     }
@@ -228,7 +228,7 @@ class RejectedGoodsMultipleJourneySpec
         modifiedJourney.getLeadDisplayDeclaration       shouldBe Some(displayDeclaration)
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
         modifiedJourney.answers.reimbursementClaims     shouldBe None
         modifiedJourney.answers.inspectionAddress       shouldBe None
         modifiedJourney.answers.inspectionDate          shouldBe None
@@ -251,7 +251,7 @@ class RejectedGoodsMultipleJourneySpec
         modifiedJourney.getLeadDisplayDeclaration       shouldBe Some(decl2)
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
         modifiedJourney.answers.eoriNumbersVerification shouldBe Some(
           EoriNumbersVerification(userXiEori = Some(UserXiEori(exampleXIEori.value)))
         )

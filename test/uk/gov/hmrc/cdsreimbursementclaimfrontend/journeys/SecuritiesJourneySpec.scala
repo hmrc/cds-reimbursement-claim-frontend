@@ -54,7 +54,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       emptyJourney.answers.selectedDocumentType                                   shouldBe None
       emptyJourney.answers.supportingEvidences                                    shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode                             shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences                                 shouldBe true
+      emptyJourney.hasCompleteSupportingEvidences                                 shouldBe false
       emptyJourney.hasCompleteSecuritiesReclaims                                  shouldBe false
       emptyJourney.hasCompleteAnswers                                             shouldBe false
       emptyJourney.toOutput.isLeft                                                shouldBe true
@@ -105,7 +105,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.isFinalized                                   shouldBe false
       }
     }
@@ -116,7 +116,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitMovementReferenceNumber(mrn)
         modifiedJourney.hasCompleteAnswers             shouldBe false
         modifiedJourney.hasCompleteSecuritiesReclaims  shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences shouldBe false
         modifiedJourney.getLeadMovementReferenceNumber shouldBe Some(mrn)
       }
     }
@@ -131,7 +131,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.isFinalized                                   shouldBe false
         journey.needsExportMRNSubmission                      shouldBe (ReasonForSecurity.temporaryAdmissions(
           rfs
@@ -210,7 +210,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         modifiedJourney.answers.displayDeclaration.contains(declWithMRN) shouldBe true
         modifiedJourney.hasCompleteAnswers                               shouldBe false
         modifiedJourney.hasCompleteSecuritiesReclaims                    shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences                   shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences                   shouldBe false
         modifiedJourney.isFinalized                                      shouldBe false
       }
     }
@@ -329,7 +329,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
         journey.isFinalized                                   shouldBe false
       }
@@ -420,7 +420,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs Seq(depositId)
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
         journey.isFinalized                                   shouldBe false
       }
@@ -448,7 +448,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds.tail
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
         journey.isFinalized                                   shouldBe false
       }
@@ -506,7 +506,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
         journey.isFinalized                                   shouldBe false
       }
@@ -553,7 +553,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
         journey.isFinalized                                   shouldBe false
       }
@@ -727,7 +727,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe true
         journey.isFinalized                                   shouldBe false
         depositIds.foreach { depositId =>
@@ -781,7 +781,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe true
         journey.isFinalized                                   shouldBe false
         depositIds.foreach { depositId =>
@@ -1010,7 +1010,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
-        journey.hasCompleteSupportingEvidences                shouldBe true
+        journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe true
         journey.isFinalized                                   shouldBe false
       }
