@@ -33,7 +33,7 @@ object JourneyFormats {
   implicit lazy val amountFormat: Format[BigDecimal] =
     SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
 
-  implicit lazy val dutyFormat = DutyType.simpleDutyTypeFormat
+  implicit lazy val dutyFormat: Format[DutyType] = DutyType.simpleDutyTypeFormat
 
   implicit def mapFormat1[K : Format, V : Format]: Format[Map[K, V]] =
     MapFormat.format[K, V]

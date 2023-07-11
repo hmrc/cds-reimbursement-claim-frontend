@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
@@ -27,5 +28,5 @@ final case class DuplicateDeclaration(
 )
 
 object DuplicateDeclaration {
-  implicit val format = Json.format[DuplicateDeclaration]
+  implicit val format: OFormat[DuplicateDeclaration] = Json.format[DuplicateDeclaration]
 }
