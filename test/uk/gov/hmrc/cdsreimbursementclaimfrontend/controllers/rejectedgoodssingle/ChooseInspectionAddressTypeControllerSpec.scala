@@ -202,7 +202,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
-            routes.UploadFilesController.show()
+            routes.CheckBankDetailsController.show()
           )
         }
       }
@@ -269,7 +269,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
       checkIsRedirect(
         retrieveAddress(Some(UUID.randomUUID())),
-        routes.UploadFilesController.show()
+        routes.CheckBankDetailsController.show()
       )
     }
 
