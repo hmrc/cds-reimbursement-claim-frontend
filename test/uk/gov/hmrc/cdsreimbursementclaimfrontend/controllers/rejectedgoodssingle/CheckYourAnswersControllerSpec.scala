@@ -235,7 +235,7 @@ class CheckYourAnswersControllerSpec
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              validateCheckYourAnswersPage(doc, claim, journey.isAllSelectedDutiesAreCMAEligible)
+              validateCheckYourAnswersPage(doc, claim, journey.isSubsidyOnlyJourney)
               doc
                 .select(".govuk-summary-list__row dt.govuk-summary-list__key")
                 .get(4)
