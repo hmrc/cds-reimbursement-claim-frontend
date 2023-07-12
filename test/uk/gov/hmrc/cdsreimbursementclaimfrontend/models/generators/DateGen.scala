@@ -24,9 +24,9 @@ import java.time.LocalDate
 
 object DateGen {
 
-  implicit lazy val arbitraryDate = Arbitrary(date)
+  implicit lazy val arbitraryDate: Arbitrary[InspectionDate] = Arbitrary(date)
 
-  lazy val genDate = arbitraryDate.arbitrary
+  lazy val genDate: Gen[InspectionDate] = arbitraryDate.arbitrary
 
   def date: Gen[InspectionDate] = {
     val rangeStart  = LocalDate.now.minusMonths(6).toEpochDay

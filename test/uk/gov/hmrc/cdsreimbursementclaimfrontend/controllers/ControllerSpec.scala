@@ -160,7 +160,7 @@ trait ControllerSpec
   def instanceOf[A : ClassTag]: A = fakeApplication.injector.instanceOf[A]
 
   lazy implicit val materializer: Materializer = fakeApplication.materializer
-  lazy implicit val viewConfig                 = instanceOf[ViewConfig]
+  lazy implicit val viewConfig: ViewConfig     = instanceOf[ViewConfig]
 
   abstract override def beforeAll(): Unit = {
     Play.start(fakeApplication)

@@ -159,7 +159,7 @@ trait UploadFilesMixin extends JourneyBaseController {
     documentType: UploadDocumentType,
     continueAfterYesAnswerUrl: String,
     continueAfterNoAnswerUrl: String,
-    minimumNumberOfFiles: Int = 0, // user can skip uploading the files,
+    minimumNumberOfFiles: Int = 1,
     showYesNoQuestionBeforeContinue: Boolean = true
   )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(

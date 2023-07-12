@@ -246,14 +246,14 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       reimbursementMethod         <-
         reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.nonSubsidyValues))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
-      numberOfSupportingEvidences <- Gen.choose(0, 3)
+      numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
       documentTypes               <-
         Gen.listOfN(numberOfDocumentTypes, Gen.oneOf(UploadDocumentType.overpaymentsSingleDocumentTypes))
       supportingEvidences         <-
         Gen
           .sequence[Seq[(UploadDocumentType, Int)], (UploadDocumentType, Int)](
-            documentTypes.map(dt => Gen.choose(0, numberOfSupportingEvidences).map(n => (dt, n)))
+            documentTypes.map(dt => Gen.choose(1, numberOfSupportingEvidences).map(n => (dt, n)))
           )
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)

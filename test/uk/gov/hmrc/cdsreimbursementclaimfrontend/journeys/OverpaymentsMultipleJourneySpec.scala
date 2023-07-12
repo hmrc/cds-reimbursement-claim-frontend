@@ -62,7 +62,7 @@ class OverpaymentsMultipleJourneySpec
       emptyJourney.getNdrcDetails                                                 shouldBe None
       emptyJourney.isAllSelectedDutiesAreCMAEligible                              shouldBe false
       emptyJourney.hasCompleteReimbursementClaims                                 shouldBe false
-      emptyJourney.hasCompleteSupportingEvidences                                 shouldBe true
+      emptyJourney.hasCompleteSupportingEvidences                                 shouldBe false
       emptyJourney.hasCompleteAnswers                                             shouldBe false
       emptyJourney.toOutput.isLeft                                                shouldBe true
       emptyJourney.isFinalized                                                    shouldBe false
@@ -129,7 +129,7 @@ class OverpaymentsMultipleJourneySpec
         journey.answers.movementReferenceNumbers.flatMap(_.headOption).contains(mrn) shouldBe true
         journey.hasCompleteAnswers                                                   shouldBe false
         journey.hasCompleteReimbursementClaims                                       shouldBe false
-        journey.hasCompleteSupportingEvidences                                       shouldBe true
+        journey.hasCompleteSupportingEvidences                                       shouldBe false
         journey.isFinalized                                                          shouldBe false
       }
     }
@@ -152,7 +152,7 @@ class OverpaymentsMultipleJourneySpec
         modifiedJourney.answers.displayDeclarations.flatMap(_.headOption) shouldBe Some(decl2)
         modifiedJourney.hasCompleteAnswers                                shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims                    shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences                    shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences                    shouldBe false
       }
     }
 
@@ -168,7 +168,7 @@ class OverpaymentsMultipleJourneySpec
         modifiedJourney.getLeadDisplayDeclaration       shouldBe Some(decl2)
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences  shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
         modifiedJourney.answers.eoriNumbersVerification shouldBe Some(
           EoriNumbersVerification(userXiEori = Some(UserXiEori(exampleXIEori.value)))
         )
@@ -204,7 +204,7 @@ class OverpaymentsMultipleJourneySpec
           .contains(acc14.withDeclarationId(exampleMrnAsString))                     shouldBe true
         journey.hasCompleteAnswers                                                   shouldBe false
         journey.hasCompleteReimbursementClaims                                       shouldBe false
-        journey.hasCompleteSupportingEvidences                                       shouldBe true
+        journey.hasCompleteSupportingEvidences                                       shouldBe false
       }
     }
 
@@ -222,7 +222,7 @@ class OverpaymentsMultipleJourneySpec
         modifiedJourney.answers.correctedAmounts         shouldBe None
         modifiedJourney.hasCompleteAnswers               shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims   shouldBe false
-        modifiedJourney.hasCompleteSupportingEvidences   shouldBe true
+        modifiedJourney.hasCompleteSupportingEvidences   shouldBe false
       }
     }
 

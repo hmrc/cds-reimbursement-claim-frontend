@@ -54,7 +54,8 @@ trait CommonJourneyProperties {
   final val ZERO: BigDecimal = BigDecimal("0")
 
   final def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.forall(_.documentType.isDefined)
+    answers.supportingEvidences.size >= 1 &&
+      answers.supportingEvidences.forall(_.documentType.isDefined)
 
   final def getConsigneeEoriFromACC14: Option[Eori] =
     getLeadDisplayDeclaration.flatMap(_.getConsigneeEori)

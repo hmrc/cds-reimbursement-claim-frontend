@@ -181,8 +181,6 @@ class ChooseHowManyMrnsControllerSpec
         performAction(),
         messageFromMessageKey(s"$formKey.title"),
         doc => {
-          val firstP  = doc.select("h1 + p").first()
-          val insetP  = doc.select("h2 + p").first()
           val bullets = doc.select("ul.govuk-list li").asScala.toList
           bullets.length      shouldBe 3
           bullets.last.html() shouldBe messageFromMessageKey(s"$formKey.inset.bullet.subsidy")

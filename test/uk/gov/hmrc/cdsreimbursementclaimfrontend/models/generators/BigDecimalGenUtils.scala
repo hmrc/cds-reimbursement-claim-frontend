@@ -21,7 +21,7 @@ import org.scalacheck.Gen
 
 trait BigDecimalGen {
 
-  implicit final val bigDecimalChoose = new Gen.Choose[BigDecimal] {
+  implicit final val bigDecimalChoose: Gen.Choose[BigDecimal] = new Gen.Choose[BigDecimal] {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
       Gen
         .choose(1, 10000)
