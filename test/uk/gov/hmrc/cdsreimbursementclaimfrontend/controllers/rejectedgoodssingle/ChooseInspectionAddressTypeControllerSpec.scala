@@ -294,10 +294,16 @@ class ChooseInspectionAddressTypeControllerSpec
             )(Right(()))
           }
 
-          checkIsRedirect(
-            submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
-            routes.CheckYourAnswersController.show()
-          )
+          if (journey.needsBanksAccountDetailsSubmission)
+            checkIsRedirect(
+              submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
+              routes.CheckYourAnswersController.show()
+            )
+          else
+            checkIsRedirect(
+              submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
+              routes.UploadFilesController.show()
+            )
         }
       }
     }
