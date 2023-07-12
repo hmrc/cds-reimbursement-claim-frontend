@@ -37,16 +37,26 @@ object RejectedGoodsCdsDisplayDeclarationSummary extends AnswerSummary[DisplayDe
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
+  ): SummaryList = render(declaration, key, subKey)
+
+  def render(
+    declaration: DisplayDeclaration,
+    key: String,
+    subKey: Option[String],
+    showRule: Boolean = true,
+    showImportMrn: Boolean = true
+  )(implicit
+    messages: Messages
   ): SummaryList = SummaryList(
     Seq(
       SummaryListRow(
         key = Key(Text("")),
         value = Value()
-      ).some,
+      ).some.filter(_ => showRule),
       SummaryListRow(
         key = Key(HtmlContent(messages(combine(key, subKey, "mrn-label")))),
         value = Value(Text(declaration.displayResponseDetail.declarationId))
-      ).some,
+      ).some.filter(_ => showImportMrn),
       SummaryListRow(
         key = Key(HtmlContent(messages(s"$key.import-date-label"))),
         value = Value(Text(declaration.displayResponseDetail.acceptanceDate))

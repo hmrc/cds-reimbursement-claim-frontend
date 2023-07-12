@@ -587,14 +587,14 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     val reimbursementMethodHasBeenProvidedIfNeeded: Validate[RejectedGoodsSingleJourney] =
       all(
         whenTrue(
-          _.isAllSelectedDutiesAreCMAEligible,
+          j => j.isAllSelectedDutiesAreCMAEligible && !j.isSubsidyOnlyJourney,
           checkIsDefined(
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_MUST_BE_DEFINED
           )
         ),
-        whenFalse(
-          _.isAllSelectedDutiesAreCMAEligible,
+        whenTrue(
+          j => !j.isAllSelectedDutiesAreCMAEligible && !j.isSubsidyOnlyJourney,
           checkIsEmpty(
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED

@@ -238,7 +238,7 @@ class CheckYourAnswersControllerSpec
               validateCheckYourAnswersPage(doc, claim, journey.isAllSelectedDutiesAreCMAEligible)
               doc
                 .select(".govuk-summary-list__row dt.govuk-summary-list__key")
-                .get(4)
+                .get(2)
                 .text() shouldBe "Subsidy status"
             }
           )
