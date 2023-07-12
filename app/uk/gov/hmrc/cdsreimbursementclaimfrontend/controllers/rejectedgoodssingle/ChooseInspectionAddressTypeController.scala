@@ -67,7 +67,15 @@ class ChooseInspectionAddressTypeController @Inject() (
 
   override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
     if (journey.hasCompleteAnswers)
-      (journey, Redirect(checkYourAnswers))
+      (
+        journey,
+        Redirect(
+          if (journey.needsBanksAccountDetailsSubmission)
+            checkYourAnswers
+          else
+            routes.UploadFilesController.show()
+        )
+      )
     else if (journey.isAllSelectedDutiesAreCMAEligible)
       (journey, Redirect(routes.ChooseRepaymentMethodController.show()))
     else
