@@ -1648,6 +1648,7 @@ check-your-answers.repayment-method.h2=Repayment method
 check-your-answers.repayment-method.label=Method
 check-your-answers.repayment-method.cma=Current Month Adjustment (CMA)
 check-your-answers.repayment-method.bt=Bank account transfer
+check-your-answers.repayment-method.subsidy=Subsidy allocation
 check-your-answers.payment-method.label=Payment method
 check-your-answers.payment-method.bt=Bank account transfer
 check-your-answers.payment-method.guarantee=Guarantee

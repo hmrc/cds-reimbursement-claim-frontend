@@ -82,6 +82,11 @@
         @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", Some(routes.ChooseRepaymentMethodController.show())))
     }
 
+    @if(isSubsidy) {
+        @subHeading(Html(messages(s"$key.repayment-method.h2")))
+        @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", None))
+    }
+
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
         @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show())))
