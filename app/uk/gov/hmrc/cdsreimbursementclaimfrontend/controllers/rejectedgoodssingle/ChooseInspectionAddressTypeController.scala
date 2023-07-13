@@ -76,6 +76,8 @@ class ChooseInspectionAddressTypeController @Inject() (
             routes.UploadFilesController.show()
         )
       )
+    else if (journey.isSubsidyOnlyJourney)
+      (journey, Redirect(routes.UploadFilesController.show()))
     else if (journey.isAllSelectedDutiesAreCMAEligible)
       (journey, Redirect(routes.ChooseRepaymentMethodController.show()))
     else
