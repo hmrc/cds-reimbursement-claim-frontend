@@ -20,7 +20,8 @@ import cats.implicits.catsSyntaxOptionId
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.EitherValues
 import org.scalatest.OptionValues
-import play.api.i18n.Lang
+import play.api.Logger
+import play.api.i18n._
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
@@ -40,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
@@ -49,10 +51,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
@@ -62,10 +66,12 @@ class ChooseInspectionAddressTypeControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
+    with DeclarationSupport
     with BeforeAndAfterEach
     with AddressLookupSupport
     with OptionValues
-    with EitherValues {
+    with EitherValues
+    with Logging {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -246,6 +252,59 @@ class ChooseInspectionAddressTypeControllerSpec
           checkIsRedirect(
             submitAddress("inspection-address.type" -> InspectionAddressType.Importer.toString),
             routes.ChooseRepaymentMethodController.show()
+          )
+        }
+      }
+    }
+
+    "update inspection address and redirect to choose file type for subsidies only journey" when {
+      "duties are eligible for CMA" in {
+        forAll { (declaration: DisplayDeclaration, consigneeDetails: ConsigneeDetails, ndrc: NdrcDetails) =>
+          val updatedDeclaration =
+            declaration
+              .copy(displayResponseDetail =
+                declaration.displayResponseDetail.copy(
+                  consigneeDetails = consigneeDetails.some,
+                  ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some
+                )
+              )
+              .withAllSubsidiesPaymentMethod()
+
+          val journey =
+            RejectedGoodsSingleJourney
+              .empty(
+                updatedDeclaration.getDeclarantEori,
+                features = Some(RejectedGoodsSingleJourney.Features(true, true))
+              )
+              .submitMovementReferenceNumberAndDeclaration(
+                updatedDeclaration.getMRN,
+                updatedDeclaration
+              )
+              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
+              .flatMap(_.submitReimbursementMethod(ReimbursementMethod.Subsidy))
+              .toOption
+
+          val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
+
+          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleJourney =
+            journey.map(
+              _.submitInspectionAddress(
+                consigneeDetails.contactDetails
+                  .map(InspectionAddress.ofType(InspectionAddressType.Importer).mapFrom(_))
+                  .value
+              )
+            )
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(sessionWithDeclaration)
+            mockStoreSession(sessionWithInspectionAddress)(Right(()))
+          }
+
+          checkIsRedirect(
+            submitAddress("inspection-address.type" -> InspectionAddressType.Importer.toString),
+            routes.UploadFilesController.show()
           )
         }
       }
