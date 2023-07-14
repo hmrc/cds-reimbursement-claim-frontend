@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import org.jsoup.nodes.Document
-import org.scalatest.BeforeAndAfterEach
+import org.scalamock.handlers.{CallHandler1, CallHandler2}
+import org.scalatest.{Assertion, BeforeAndAfterEach}
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -29,8 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{RejectedGoodsSingleClaimConnector, UploadDocumentsConnector}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -60,13 +60,13 @@ class CheckYourAnswersControllerSpec
 
   def mockSubmitClaim(submitClaimRequest: RejectedGoodsSingleClaimConnector.Request)(
     response: Future[RejectedGoodsSingleClaimConnector.Response]
-  ) =
+  ): CallHandler2[RejectedGoodsSingleClaimConnector.Request, HeaderCarrier, Future[RejectedGoodsSingleClaimConnector.Response]] =
     (mockConnector
       .submitClaim(_: RejectedGoodsSingleClaimConnector.Request)(_: HeaderCarrier))
       .expects(submitClaimRequest, *)
       .returning(response)
 
-  def mockWipeOutCall() =
+  def mockWipeOutCall(): CallHandler1[HeaderCarrier, Future[Unit]] =
     (mockUploadDocumentsConnector
       .wipeOut(_: HeaderCarrier))
       .expects(*)
@@ -97,7 +97,7 @@ class CheckYourAnswersControllerSpec
     doc: Document,
     claim: RejectedGoodsSingleJourney.Output,
     whetherShowRepaymentMethod: Boolean
-  ) = {
+  ): Unit = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -185,7 +185,7 @@ class CheckYourAnswersControllerSpec
     }
   }
 
-  def validateConfirmationPage(doc: Document, caseNumber: String) =
+  def validateConfirmationPage(doc: Document, caseNumber: String): Assertion =
     doc.select(".cds-wrap-content--forced").text shouldBe caseNumber
 
   "Check Your Answers Controller" when {
@@ -235,7 +235,7 @@ class CheckYourAnswersControllerSpec
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => {
-              validateCheckYourAnswersPage(doc, claim, journey.isAllSelectedDutiesAreCMAEligible)
+              validateCheckYourAnswersPage(doc, claim, journey.isSubsidyOnlyJourney)
               doc
                 .select(".govuk-summary-list__row dt.govuk-summary-list__key")
                 .get(2)
