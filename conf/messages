@@ -1008,7 +1008,7 @@ tax-code.99C = 99C - Gas supplied by a gas utility or any gas supplied in a gase
 tax-code.99D = 99D - Electricity
 
 select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
-select-duty-types.error.required=Choose the duties you want to include in your claim
+select-duty-types.error.required=Select one or more duty types you want to claim for
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
@@ -1016,7 +1016,7 @@ select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
 select-duty-codes.title=Select the {0} duties you want to claim for all MRNs in the file you uploaded
-select-duty-codes.error.required=Choose the duties you want to include in your claim
+select-duty-codes.error.required=Select one or more duty types you want to claim for
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
@@ -1068,7 +1068,7 @@ select-duties.multiple.title=Select the duties you want to claim for under {0} M
 select-duties.multiple.help-text.1=These are the duties that have been paid under MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
 select-duties.duty.hint=This duty is not eligible for Current Month Adjustment (CMA) repayment.
 select-duties.duty.caption=How much was paid: %s
-select-duties.error.required=Choose the duties you want to include in your claim
+select-duties.error.required=Select one or more duty types you want to claim for
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
 select-duties.duty.A30=Definitive Anti-Dumping Duty
