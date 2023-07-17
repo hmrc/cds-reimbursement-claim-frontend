@@ -17,8 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import org.jsoup.nodes.Document
-import org.scalamock.handlers.{CallHandler1, CallHandler2}
-import org.scalatest.{Assertion, BeforeAndAfterEach}
+import org.scalamock.handlers.CallHandler1
+import org.scalamock.handlers.CallHandler2
+import org.scalatest.Assertion
+import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -30,7 +32,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{RejectedGoodsSingleClaimConnector, UploadDocumentsConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -60,7 +63,9 @@ class CheckYourAnswersControllerSpec
 
   def mockSubmitClaim(submitClaimRequest: RejectedGoodsSingleClaimConnector.Request)(
     response: Future[RejectedGoodsSingleClaimConnector.Response]
-  ): CallHandler2[RejectedGoodsSingleClaimConnector.Request, HeaderCarrier, Future[RejectedGoodsSingleClaimConnector.Response]] =
+  ): CallHandler2[RejectedGoodsSingleClaimConnector.Request, HeaderCarrier, Future[
+    RejectedGoodsSingleClaimConnector.Response
+  ]] =
     (mockConnector
       .submitClaim(_: RejectedGoodsSingleClaimConnector.Request)(_: HeaderCarrier))
       .expects(submitClaimRequest, *)
