@@ -128,7 +128,7 @@ final class RejectedGoodsSingleJourney private (
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
 
-  def hasCmaReimbursementMethod =
+  def hasCmaReimbursementMethod: Boolean =
     answers.reimbursementMethod.contains(CurrentMonthAdjustment)
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
