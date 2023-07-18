@@ -216,7 +216,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, claim, journey.isAllSelectedDutiesAreCMAEligible)
+            doc => validateCheckYourAnswersPage(doc, claim, journey.hasCmaReimbursementMethod)
           )
         }
       }
