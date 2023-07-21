@@ -60,7 +60,7 @@ class SelectDutiesController @Inject() (
       Redirect(baseRoutes.IneligibleController.ineligible())
     } else {
       val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
-      Ok(selectDutiesPage(form, availableDuties, None, true, None, postAction, h1MessageKey))
+      Ok(selectDutiesPage(form, availableDuties, None, true, None, None, postAction, h1MessageKey))
     }
   }
 
@@ -78,7 +78,7 @@ class SelectDutiesController @Inject() (
             formWithErrors =>
               (
                 journey,
-                BadRequest(selectDutiesPage(formWithErrors, availableDuties, None, true, None, postAction))
+                BadRequest(selectDutiesPage(formWithErrors, availableDuties, None, true, None, None, postAction))
               ),
             taxCodesSelected =>
               (

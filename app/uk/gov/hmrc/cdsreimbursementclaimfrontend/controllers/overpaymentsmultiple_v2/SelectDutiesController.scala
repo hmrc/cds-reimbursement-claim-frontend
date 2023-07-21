@@ -64,6 +64,7 @@ class SelectDutiesController @Inject() (
               availableDuties,
               Some((pageIndex, mrn)),
               false,
+              None,
               MRNMultipleRoutes.subKey,
               routes.SelectDutiesController.submit(pageIndex)
             )
@@ -96,6 +97,7 @@ class SelectDutiesController @Inject() (
                         availableDuties,
                         Some((pageIndex, mrn)),
                         false,
+                        None,
                         MRNMultipleRoutes.subKey,
                         routes.SelectDutiesController.submit(pageIndex)
                       )
