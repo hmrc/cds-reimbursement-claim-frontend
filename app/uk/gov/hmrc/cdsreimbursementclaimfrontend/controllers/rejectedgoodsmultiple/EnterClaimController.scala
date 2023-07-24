@@ -58,6 +58,7 @@ class EnterClaimController @Inject() (
 
   final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
+      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey
         .getNthMovementReferenceNumber(pageIndex - 1)
         .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
@@ -77,7 +78,8 @@ class EnterClaimController @Inject() (
                   paidAmount,
                   subKey,
                   submitClaimAction(pageIndex, taxCode),
-                  Some(mrn)
+                  Some(mrn),
+                  isSubsidyOnly
                 )
               )
           }
