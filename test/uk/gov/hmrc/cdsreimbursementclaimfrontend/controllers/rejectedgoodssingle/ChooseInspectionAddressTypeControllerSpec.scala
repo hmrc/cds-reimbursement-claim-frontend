@@ -17,14 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import cats.implicits.catsSyntaxOptionId
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.EitherValues
-import org.scalatest.OptionValues
-import play.api.Logger
+import org.scalatest.{BeforeAndAfterEach, EitherValues, OptionValues}
 import play.api.i18n._
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -32,35 +26,21 @@ import play.api.test.FakeRequest
 import shapeless.lens
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, InspectionAddress, InspectionAddressType, ReimbursementMethod, SessionData, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ChooseInspectionAddressTypeControllerSpec
     extends PropertyBasedControllerSpec
