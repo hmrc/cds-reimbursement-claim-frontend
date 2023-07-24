@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -115,7 +116,8 @@ class CheckDeclarationDetailsControllerSpec
         val journey = buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false,
-          generateSubsidyPayments = GenerateSubsidyPayments.All
+          generateSubsidyPayments = GenerateSubsidyPayments.All,
+          features = Some(RejectedGoodsSingleJourney.Features(false, true))
         ).sample.getOrElse(fail("Journey building has failed."))
 
         val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
@@ -139,7 +141,7 @@ class CheckDeclarationDetailsControllerSpec
             doc
               .select(".govuk-summary-list__row dt.govuk-summary-list__key")
               .get(3)
-              .text()                                    shouldBe "Subsidy status"
+              .text()                                    shouldBe "Method of payment"
           }
         )
       }
