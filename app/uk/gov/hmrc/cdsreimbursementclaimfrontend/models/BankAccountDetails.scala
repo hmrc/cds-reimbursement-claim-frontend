@@ -26,6 +26,7 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.IncorrectAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 
 final case class BankAccountDetails(
   accountName: AccountName,
@@ -35,6 +36,18 @@ final case class BankAccountDetails(
 
   def masked(implicit messages: Messages): BankAccountDetails =
     BankAccountDetails(accountName, SortCode(sortCode.masked), AccountNumber(accountNumber.masked))
+
+  def withMaybeAccountName(
+    nameMatchesOpt: Option[ReputationResponse],
+    accountNameOpt: Option[String]
+  ): BankAccountDetails =
+    (nameMatchesOpt, accountNameOpt) match {
+      case (Some(ReputationResponse.Partial), Some(accountName)) =>
+        this.copy(accountName = AccountName(accountName))
+      case _                                                     =>
+        this
+    }
+
 }
 
 object BankAccountDetails {

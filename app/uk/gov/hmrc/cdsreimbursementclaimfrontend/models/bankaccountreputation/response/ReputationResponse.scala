@@ -28,8 +28,9 @@ object ReputationResponse {
   case object Indeterminate extends ReputationResponse { override def toString(): String = "indeterminate" }
   case object Inapplicable extends ReputationResponse { override def toString(): String = "inapplicable" }
   case object Error extends ReputationResponse { override def toString(): String = "error" }
+  case object Partial extends ReputationResponse { override def toString(): String = "partial" }
 
-  val allValues: Seq[ReputationResponse]         = Seq(Yes, No, Indeterminate, Inapplicable, Error)
+  val allValues: Seq[ReputationResponse]         = Seq(Yes, No, Indeterminate, Inapplicable, Error, Partial)
   val valuesMap: Map[String, ReputationResponse] = allValues.map(v => (v.toString, v)).toMap
 
   implicit val ReputationResponseEnumFormat: Format[ReputationResponse] = new Format[ReputationResponse] {
