@@ -36,6 +36,7 @@
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+ insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
@@ -52,6 +53,11 @@
 
     @key = @{"select-duties"}
     @title = @{messages(h1KeyOverride.map(Seq(_)).getOrElse(combine(key, subKey, "title")), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
+
+    @subsidyTitle = @{messages(s"$key.subsidies.title")}
+    @insetSubsidy = {
+        @paragraph(Html(subsidyTitle + "."))
+    }
 
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
         CheckboxItem(
@@ -72,7 +78,12 @@
         @heading(Html(title))
 
         @indexAndMrnOpt.map{ case(_, mrn) =>
-            @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))
+            @{if (isSubsidyOnly contains(true)){
+                    paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value) + s". $subsidyTitle."))
+                } else {
+                    paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))}}
+            @{if (isSubsidyOnly contains(true))
+                    {insetText(content = HtmlContent(insetSubsidy))}}
         }.getOrElse("")
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
