@@ -44,7 +44,8 @@ object RejectedGoodsCdsDisplayDeclarationSummary extends AnswerSummary[DisplayDe
     key: String,
     subKey: Option[String],
     showRule: Boolean = true,
-    showImportMrn: Boolean = true
+    showImportMrn: Boolean = true,
+    isSubsidy: Boolean = false
   )(implicit
     messages: Messages
   ): SummaryList = SummaryList(
@@ -61,9 +62,9 @@ object RejectedGoodsCdsDisplayDeclarationSummary extends AnswerSummary[DisplayDe
         key = Key(HtmlContent(messages(s"$key.import-date-label"))),
         value = Value(Text(declaration.displayResponseDetail.acceptanceDate))
       ).some,
-      if (declaration.hasOnlySubsidyPayments)
+      if (isSubsidy)
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.subsidy-status-label"))),
+          key = Key(HtmlContent(messages(s"$key.method-of-payment-label"))),
           value = Value(Text(messages(s"$key.subsidy-label")))
         ).some
       else None,

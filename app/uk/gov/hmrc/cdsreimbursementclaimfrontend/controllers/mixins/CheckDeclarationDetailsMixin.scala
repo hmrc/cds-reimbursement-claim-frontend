@@ -42,7 +42,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
 
   implicit val errorHandler: ErrorHandler
 
-  def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable
+  def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable
 
   val checkDeclarationDetailsAnswerForm: Form[YesNo] =
     YesOrNoQuestionForm("check-declaration-details")
@@ -53,7 +53,8 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
         Ok(
           viewTemplate(
             declaration,
-            checkDeclarationDetailsAnswerForm
+            checkDeclarationDetailsAnswerForm,
+            journey
           )(request)
         )
       )
@@ -72,7 +73,8 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
                 BadRequest(
                   viewTemplate(
                     declaration,
-                    formWithErrors
+                    formWithErrors,
+                    journey
                   )(request)
                 )
               )
