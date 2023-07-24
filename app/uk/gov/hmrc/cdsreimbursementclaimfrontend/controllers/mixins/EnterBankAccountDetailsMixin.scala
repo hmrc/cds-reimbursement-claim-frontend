@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Partial
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
@@ -78,7 +79,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     reputation: BankAccountReputation
   )(implicit request: Request[_]): Result =
     reputation match {
-      case BankAccountReputation(_, _, Some(errorResponse))                                                   =>
+      case BankAccountReputation(_, _, Some(errorResponse), _, _)                =>
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
@@ -87,7 +88,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             routesPack.submitPath
           )
         )
-      case BankAccountReputation(Yes, Some(ReputationResponseError), None)                                    =>
+      case BankAccountReputation(Yes, Some(ReputationResponseError), None, _, _) =>
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
@@ -96,7 +97,8 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             routesPack.submitPath
           )
         )
-      case BankAccountReputation(Yes, Some(No), None) | BankAccountReputation(Yes, Some(Indeterminate), None) =>
+      case BankAccountReputation(Yes, Some(No), None, _, _) |
+          BankAccountReputation(Yes, Some(Indeterminate), None, _, _) =>
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
@@ -104,7 +106,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             routesPack.submitPath
           )
         )
-      case BankAccountReputation(No, _, None)                                                                 =>
+      case BankAccountReputation(No, _, None, _, _)                              =>
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
@@ -112,7 +114,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             routesPack.submitPath
           )
         )
-      case BankAccountReputation(_, _, None)                                                                  =>
+      case BankAccountReputation(_, _, None, _, _)                               =>
         BadRequest(
           enterBankAccountDetailsPage(
             enterBankDetailsForm
@@ -160,8 +162,14 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     nextPage: RoutesPack
   )(implicit request: Request[_]): (Journey, Result) =
     bankAccountReputation match {
-      case BankAccountReputation(Yes, Some(Yes), None) =>
-        modifyJourney(journey, bankAccountDetails)
+      case BankAccountReputation(
+            Yes,
+            Some(Yes),
+            None,
+            accountNameOpt,
+            nameMatchesOpt @ (Some(Yes) | Some(Partial) | None)
+          ) =>
+        modifyJourney(journey, bankAccountDetails.withMaybeAccountName(nameMatchesOpt, accountNameOpt))
           .fold(
             error => {
               logger.warn(s"cannot submit bank account details because of $error")
@@ -176,7 +184,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
                 Redirect(nextPage.successPath)
               )
           )
-      case badReputation                               =>
+      case badReputation =>
         (journey, handleBadReputation(bankAccountDetails, badReputation))
     }
 

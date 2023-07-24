@@ -22,5 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 final case class BankAccountReputation(
   accountNumberWithSortCodeIsValid: ReputationResponse,
   accountExists: Option[ReputationResponse] = None,
-  otherError: Option[ReputationErrorResponse] = None
+  otherError: Option[ReputationErrorResponse] = None,
+  accountName: Option[String] = None,
+  nameMatches: Option[ReputationResponse] = None
 )

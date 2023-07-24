@@ -173,7 +173,9 @@ class EnterBankAccountDetailsControllerSpec
               bankaccountreputation.BankAccountReputation(
                 accountNumberWithSortCodeIsValid = Yes,
                 accountExists = Some(Yes),
-                otherError = None
+                otherError = None,
+                accountName = Some(bankDetails.accountName.value),
+                nameMatches = Some(ReputationResponse.Partial)
               )
 
             inSequence(
@@ -370,7 +372,9 @@ class EnterBankAccountDetailsControllerSpec
             bankaccountreputation.BankAccountReputation(
               accountNumberWithSortCodeIsValid = Yes,
               accountExists = Some(Yes),
-              otherError = None
+              otherError = None,
+              accountName = None,
+              nameMatches = Some(ReputationResponse.Yes)
             )
 
           inSequence(

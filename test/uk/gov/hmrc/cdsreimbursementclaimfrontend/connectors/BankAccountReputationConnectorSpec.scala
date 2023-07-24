@@ -75,8 +75,8 @@ class BankAccountReputationConnectorSpec
   val personalResponseBody: PersonalCompleteResponse = sample(
     BankAccountReputationGen.arbitraryPersonalCompleteResponse.arbitrary
   )
-  val businessUrl                                    = "http://localhost:7502/business/v2/assess"
-  val personalUrl                                    = "http://localhost:7502/personal/v3/assess"
+  val businessUrl                                    = "http://localhost:7502/verify/business"
+  val personalUrl                                    = "http://localhost:7502/verify/personal"
 
   def givenServiceReturns[T](
     expectedUrl: String,
@@ -129,7 +129,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ConnectorFailure(
-            "could not parse http response JSON: /sortCodeIsPresentOnEISCD: [error.path.missing]; /accountNumberWithSortCodeIsValid: [error.path.missing]"
+            "could not parse http response JSON: /accountExists: [error.path.missing]; /accountNumberIsWellFormatted: [error.path.missing]"
           )
         )
       )
@@ -140,7 +140,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ConnectorFailure(
-            "could not parse http response JSON: /sortCodeIsPresentOnEISCD: [error.path.missing]; /accountNumberWithSortCodeIsValid: [error.path.missing]"
+            "could not parse http response JSON: /accountExists: [error.path.missing]; /accountNumberIsWellFormatted: [error.path.missing]"
           )
         )
       )
@@ -153,7 +153,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ConnectorFailure(
-            s"""Request to POST http://localhost:7502/business/v2/assess failed because of HttpResponse status=201 "${response
+            s"""Request to POST http://localhost:7502/verify/business failed because of HttpResponse status=201 "${response
               .replace("\"", "\\\"")}""""
           )
         )
@@ -167,7 +167,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ConnectorFailure(
-            s"""Request to POST http://localhost:7502/personal/v3/assess failed because of HttpResponse status=201 "${response
+            s"""Request to POST http://localhost:7502/verify/personal failed because of HttpResponse status=201 "${response
               .replace("\"", "\\\"")}""""
           )
         )
@@ -179,7 +179,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           TechnicalServiceError(
-            "Request to POST http://localhost:7502/business/v2/assess failed because of HttpResponse status=404 not found"
+            "Request to POST http://localhost:7502/verify/business failed because of HttpResponse status=404 not found"
           )
         )
       )
@@ -190,7 +190,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getPersonalReputation(personalRequest).value) shouldBe (
         Left(
           TechnicalServiceError(
-            "Request to POST http://localhost:7502/personal/v3/assess failed because of HttpResponse status=404 not found"
+            "Request to POST http://localhost:7502/verify/personal failed because of HttpResponse status=404 not found"
           )
         )
       )
@@ -204,7 +204,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ServiceUnavailableError(
-            "Request to POST http://localhost:7502/business/v2/assess failed because of HttpResponse status=500 "
+            "Request to POST http://localhost:7502/verify/business failed because of HttpResponse status=500 "
           )
         )
       )
@@ -218,7 +218,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ServiceUnavailableError(
-            "Request to POST http://localhost:7502/personal/v3/assess failed because of HttpResponse status=500 "
+            "Request to POST http://localhost:7502/verify/personal failed because of HttpResponse status=500 "
           )
         )
       )

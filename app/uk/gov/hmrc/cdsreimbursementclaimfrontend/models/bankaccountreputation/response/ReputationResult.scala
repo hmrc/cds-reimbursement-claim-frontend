@@ -25,17 +25,13 @@ sealed trait ReputationResult {
 }
 
 final case class BusinessCompleteResponse(
-  accountNumberWithSortCodeIsValid: ReputationResponse,
-  sortCodeIsPresentOnEISCD: String,
-  accountExists: Option[ReputationResponse] = None,
-  companyNameMatches: Option[ReputationResponse],
-  companyPostCodeMatches: Option[ReputationResponse],
-  companyRegistrationNumberMatches: Option[ReputationResponse],
-  nonStandardAccountDetailsRequiredForBacs: Option[ReputationResponse] = None,
-  sortCodeBankName: Option[String] = None
+  accountNumberIsWellFormatted: ReputationResponse,
+  accountExists: ReputationResponse,
+  accountName: Option[String] = None,
+  nameMatches: Option[ReputationResponse] = None
 ) extends ReputationResult {
   def toCommonResponse(): BankAccountReputation =
-    BankAccountReputation(accountNumberWithSortCodeIsValid, accountExists, None)
+    BankAccountReputation(accountNumberIsWellFormatted, Some(accountExists), None, accountName, nameMatches)
 }
 
 object BusinessCompleteResponse {
@@ -43,21 +39,15 @@ object BusinessCompleteResponse {
 }
 
 final case class PersonalCompleteResponse(
-  accountNumberWithSortCodeIsValid: ReputationResponse,
-  sortCodeIsPresentOnEISCD: String,
-  accountExists: Option[ReputationResponse] = None,
-  nameMatches: Option[ReputationResponse] = None,
-  addressMatches: Option[ReputationResponse] = None,
-  nonConsented: Option[ReputationResponse] = None,
-  subjectHasDeceased: Option[ReputationResponse] = None,
-  nonStandardAccountDetailsRequiredForBacs: Option[ReputationResponse] = None,
-  sortCodeBankName: Option[String] = None
+  accountNumberIsWellFormatted: ReputationResponse,
+  accountExists: ReputationResponse,
+  accountName: Option[String] = None,
+  nameMatches: Option[ReputationResponse] = None
 ) extends ReputationResult {
   def toCommonResponse(): BankAccountReputation =
-    BankAccountReputation(accountNumberWithSortCodeIsValid, accountExists, None)
+    BankAccountReputation(accountNumberIsWellFormatted, Some(accountExists), None, accountName, nameMatches)
 }
 
 object PersonalCompleteResponse {
-
   implicit val personalCompleteResponseFormat: OFormat[PersonalCompleteResponse] = Json.format[PersonalCompleteResponse]
 }
