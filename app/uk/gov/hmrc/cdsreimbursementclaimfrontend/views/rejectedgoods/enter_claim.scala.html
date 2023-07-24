@@ -44,7 +44,6 @@
 @title = @{messages(combine(key, subKey, "title"), taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumber.label(indexOpt.getOrElse(0)))}
 @hintText = @{Html(messages(s"$key.claim-amount.hint", paidAmount.toPoundSterlingString))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-@subsidyText = @{ if(isSubsidy) { " " + messages("enter-claim.rejected-goods.subsidy-text") } else "" }
 @p1Text = @{ maybeMrn.fold(messages(s"$key.paragraph")) { mrn => messages(s"$key.for-mrn.paragraph", mrn.value)} }
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
@@ -53,9 +52,13 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(p1Text + subsidyText))
+    @paragraph(Html(p1Text))
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+    @if(isSubsidy) {
+        @paragraph(Html(messages("enter-claim.rejected-goods.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
+    }
+
+    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8 govuk-!-margin-top-0"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
