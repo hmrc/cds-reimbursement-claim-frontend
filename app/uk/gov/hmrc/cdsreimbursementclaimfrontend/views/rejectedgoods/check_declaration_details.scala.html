@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
+@import uk.gov.hmrc.govukfrontend.views.html.components.WarningText
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -37,7 +38,8 @@
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
 )
 
 @(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -69,6 +71,7 @@
 
         @summary(RejectedGoodsCdsDisplayDeclarationSummary.render(declaration, "check-your-answers.declaration-details", subKey, isSubsidy = isSubsidy))
 
+        @if(isSubsidy){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
         @radios(
             form = form,
             name = s"$key",
