@@ -665,6 +665,7 @@ check-declaration-details.banner.empty-securities-selection=You must choose at l
 #===================================================
 check-declaration-details.single.is-information-correct=Continue with this MRN?
 check-declaration-details.multiple.is-information-correct=Continue with this MRN?
+check-declaration-details.multiple.subsidy-warning=This is a subsidy MRN. All additional MRNs you include in this claim must be 'subsidy only'
 check-declaration-details.scheduled.is-information-correct=Continue with this MRN?
 check-declaration-details.scheduled.error.invalid=Select yes to continue with this MRN
 check-declaration-details.scheduled.error.number=Select yes to continue with this MRN
