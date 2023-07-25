@@ -136,7 +136,7 @@ object Forms {
       .verifying("invalid", e => SortCode.isValid(e.value))
 
   val accountNameMapping: Mapping[AccountName] =
-    nonEmptyText(maxLength = 40)
+    nonEmptyText(maxLength = 70)
       .transform[AccountName](s => AccountName(s.trim()), _.value)
       .verifying("invalid", e => AccountName.isValid(e.value))
 

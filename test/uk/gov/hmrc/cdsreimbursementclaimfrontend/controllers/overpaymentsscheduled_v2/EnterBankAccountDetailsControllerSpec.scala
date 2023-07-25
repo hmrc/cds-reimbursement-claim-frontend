@@ -160,11 +160,12 @@ class EnterBankAccountDetailsControllerSpec
 
         "redirect to the check bank accounts page if a personal account that exists with a valid sort code is specified" in forAll(
           genBankAccountDetails,
-          Gen.option(genPostcode)
-        ) { (bankDetails, postCode) =>
+          Gen.option(genPostcode),
+          Gen.oneOf(Yes, Indeterminate)
+        ) { (bankDetails, postCode, status) =>
           val personalResponse =
             bankaccountreputation.BankAccountReputation(
-              accountNumberWithSortCodeIsValid = Yes,
+              accountNumberWithSortCodeIsValid = status,
               accountExists = Some(Yes),
               otherError = None
             )
@@ -368,34 +369,6 @@ class EnterBankAccountDetailsControllerSpec
           )
         }
 
-        "show the bank account details page if the accountNumberWithSortCodeIsValid is Indeterminate" in forAll(
-          genBankAccountDetails,
-          Gen.option(genPostcode),
-          genReputationResponse
-        ) { (bankAccountDetails, postCode, accountResponse) =>
-          val expectedResponse = bankaccountreputation.BankAccountReputation(
-            accountNumberWithSortCodeIsValid = Indeterminate,
-            accountExists = Some(accountResponse),
-            otherError = None
-          )
-
-          inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
-          )
-
-          checkPageIsDisplayed(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
-          )
-        }
-
         "show the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
@@ -432,11 +405,12 @@ class EnterBankAccountDetailsControllerSpec
 
         "redirect to the check bank accounts page if a business account that exists with a valid sort code is specified" in forAll(
           genBankAccountDetails,
-          Gen.option(genPostcode)
-        ) { (bankDetails, postCode) =>
+          Gen.option(genPostcode),
+          Gen.oneOf(Yes, Indeterminate)
+        ) { (bankDetails, postCode, status) =>
           val expectedResponse =
             bankaccountreputation.BankAccountReputation(
-              accountNumberWithSortCodeIsValid = Yes,
+              accountNumberWithSortCodeIsValid = status,
               accountExists = Some(Yes),
               otherError = None
             )
@@ -646,34 +620,6 @@ class EnterBankAccountDetailsControllerSpec
           )
         }
 
-        "show the bank account details page if the accountNumberWithSortCodeIsValid is Indeterminate" in forAll(
-          genBankAccountDetails,
-          Gen.option(genPostcode),
-          genReputationResponse
-        ) { (bankAccountDetails, postCode, accountResponse) =>
-          val expectedResponse = bankaccountreputation.BankAccountReputation(
-            accountNumberWithSortCodeIsValid = Indeterminate,
-            accountExists = Some(accountResponse),
-            otherError = None
-          )
-
-          inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
-          )
-
-          checkPageIsDisplayed(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
-          )
-        }
-
         "show the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
@@ -815,7 +761,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "Reject names too long" in {
-        val errors = form.bind(goodData.updated(accountName, alphaNumGen(41))).errors
+        val errors = form.bind(goodData.updated(accountName, alphaNumGen(71))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }

@@ -171,11 +171,12 @@ class EnterBankAccountDetailsControllerSpec
         "redirect to the check bank accounts page if a personal account that exists with a valid sort code is specified" in
           forAll(
             genBankAccountDetails,
-            Gen.option(genPostcode)
-          ) { (bankDetails, postCode) =>
+            Gen.option(genPostcode),
+            Gen.oneOf(Yes, Indeterminate)
+          ) { (bankDetails, postCode, status) =>
             val personalResponse =
               bankaccountreputation.BankAccountReputation(
-                accountNumberWithSortCodeIsValid = Yes,
+                accountNumberWithSortCodeIsValid = status,
                 accountExists = Some(Yes),
                 otherError = None
               )
@@ -268,31 +269,6 @@ class EnterBankAccountDetailsControllerSpec
           genBankAccountDetails,
           Gen.option(genPostcode),
           Gen.const(Inapplicable),
-          genReputationResponse
-        ) { (bankAccountDetails, postCode, sortCodeResponse, accountResponse) =>
-          val expectedResponse = bankaccountreputation.BankAccountReputation(
-            accountNumberWithSortCodeIsValid = sortCodeResponse,
-            accountExists = Some(accountResponse),
-            otherError = None
-          )
-
-          inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
-          )
-
-          checkPageIsDisplayed(
-            validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed"),
-            BAD_REQUEST
-          )
-        }
-
-        "show error on the the bank account details page if Indeterminate" in forAll(
-          genBankAccountDetails,
-          Gen.option(genPostcode),
-          Gen.const(Indeterminate),
           genReputationResponse
         ) { (bankAccountDetails, postCode, sortCodeResponse, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
@@ -464,7 +440,7 @@ class EnterBankAccountDetailsControllerSpec
         "show error on the the bank account details page if the sort code is anything other than yes or no" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Inapplicable, Indeterminate, ReputationResponse.Error),
+          Gen.oneOf(Inapplicable, ReputationResponse.Error),
           genReputationResponse
         ) { (bankAccountDetails, postCode, sortCodeResponse, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
@@ -638,7 +614,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "Reject names too long" in {
-        val errors = form.bind(goodData.updated(accountName, alphaNumGen(41))).errors
+        val errors = form.bind(goodData.updated(accountName, alphaNumGen(71))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }

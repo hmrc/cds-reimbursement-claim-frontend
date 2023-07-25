@@ -163,7 +163,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
   )(implicit request: Request[_]): (Journey, Result) =
     bankAccountReputation match {
       case BankAccountReputation(
-            Yes,
+            Yes | Indeterminate,
             Some(Yes),
             None,
             accountNameOpt,

@@ -675,7 +675,7 @@ class BankAccountControllerSpec
         errors shouldBe Nil
       }
       "Reject names too long" in {
-        val errors = form.bind(goodData.updated(accountName, alphaNumGen(41))).errors
+        val errors = form.bind(goodData.updated(accountName, alphaNumGen(71))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
