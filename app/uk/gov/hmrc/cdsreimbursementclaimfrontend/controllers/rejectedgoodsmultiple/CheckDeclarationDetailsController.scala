@@ -58,10 +58,17 @@ class CheckDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDeclarationDetailsController.submit()
 
-  override def viewTemplate: (DisplayDeclaration, Form[YesNo]) => Request[_] => HtmlFormat.Appendable = {
-    case (decl, form) =>
+  override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable = {
+    case (decl, form, journey: Journey) =>
       implicit request =>
-        checkDeclarationDetailsPage(decl, form, false, postAction, MRNMultipleRoutes.subKey)
+        checkDeclarationDetailsPage(
+          decl,
+          form,
+          false,
+          postAction,
+          MRNMultipleRoutes.subKey,
+          isSubsidy = journey.isSubsidyOnlyJourney
+        )
   }
 
 }

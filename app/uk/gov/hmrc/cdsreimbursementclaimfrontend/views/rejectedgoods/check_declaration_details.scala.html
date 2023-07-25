@@ -40,7 +40,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @subKeyDetail = @{subKey.map(sk => s".$sk").getOrElse("")}
 @key = @{s"check-declaration-details"}
@@ -67,7 +67,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(RejectedGoodsCdsDisplayDeclarationSummary(declaration, "check-your-answers.declaration-details", subKey))
+        @summary(RejectedGoodsCdsDisplayDeclarationSummary.render(declaration, "check-your-answers.declaration-details", subKey, isSubsidy = isSubsidy))
 
         @radios(
             form = form,

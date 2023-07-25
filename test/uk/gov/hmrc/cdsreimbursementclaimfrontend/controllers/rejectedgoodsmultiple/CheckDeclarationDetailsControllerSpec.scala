@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import org.scalatest.BeforeAndAfterEach
+import org.jsoup.Jsoup
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -34,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.completeJourneyWithOnlySubsidiesGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -102,6 +104,35 @@ class CheckDeclarationDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => doc.select(s"#$messagesKey").attr("checked") shouldBe ""
+        )
+      }
+
+      "display subsidy status when declaration has only subsidy payments" in {
+        val journey = completeJourneyWithOnlySubsidiesGen.sample.getOrElse(fail("Journey building has failed."))
+
+        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionToAmend)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => {
+            val expectedMainParagraph = Jsoup.parse(messageFromMessageKey(s"$messagesKey.help-text")).text()
+
+            doc
+              .select("main p")
+              .get(0)
+              .text()                                    shouldBe expectedMainParagraph
+            doc.select(s"#$messagesKey").attr("checked") shouldBe ""
+            doc
+              .select(".govuk-summary-list__row dt.govuk-summary-list__key")
+              .get(3)
+              .text()                                    shouldBe "Method of payment"
+          }
         )
       }
 
