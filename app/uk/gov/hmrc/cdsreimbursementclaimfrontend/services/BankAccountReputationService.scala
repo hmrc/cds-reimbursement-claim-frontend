@@ -71,7 +71,9 @@ class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnec
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
     val barsAccount: BarsAccount               =
       BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-    val barsRequest: BarsBusinessAssessRequest = BarsBusinessAssessRequest(barsAccount, None)
+    val accountName                            = bankAccountDetails.accountName.value
+    val barsBusiness                           = Some(BarsBusiness(accountName, None))
+    val barsRequest: BarsBusinessAssessRequest = BarsBusinessAssessRequest(barsAccount, barsBusiness)
     bankAccountReputationConnector.getBusinessReputation(barsRequest)
   }
 
@@ -80,9 +82,8 @@ class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnec
     postCode: Option[String]
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
     val barsAccount                            = BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-    val address                                = BarsAddress(Nil, None, postCode)
     val accountName                            = Some(bankAccountDetails.accountName.value)
-    val subject                                = BarsSubject(None, accountName, None, None, None, address)
+    val subject                                = BarsSubject(None, accountName, None, None, None, None)
     val barsRequest: BarsPersonalAssessRequest = BarsPersonalAssessRequest(barsAccount, subject)
     bankAccountReputationConnector.getPersonalReputation(barsRequest)
   }

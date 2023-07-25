@@ -25,12 +25,12 @@ final case class BarsSubject(
   firstName: Option[String], // Must be between 1 and 35 characters long
   lastName: Option[String], // Must be between 1 and 35 characters long
   dob: Option[String], // date of birth: ISO-8601 YYYY-MM-DD
-  address: BarsAddress
+  address: Option[BarsAddress]
 )
 
 object BarsSubject {
   implicit val format: OFormat[BarsSubject] = Json.format[BarsSubject]
 
   def apply(address: BarsAddress): BarsSubject =
-    BarsSubject(None, None, None, None, None, address)
+    BarsSubject(None, None, None, None, None, Some(address))
 }
