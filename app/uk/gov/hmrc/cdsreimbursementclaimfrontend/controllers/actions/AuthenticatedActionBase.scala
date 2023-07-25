@@ -45,8 +45,8 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
   val sessionStore: SessionCache
   implicit val executionContext: ExecutionContext
 
-  final val limitedAccessErrorPageUrl: String = unauthorised().url
-  final val unauthorizedErrorPageUrl: String  = unauthorised().url
+  final def limitedAccessErrorPage = unauthorised()
+  final def unauthorizedErrorPage  = unauthorised()
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
   private val limitedAccessEoriSet: Set[String] =

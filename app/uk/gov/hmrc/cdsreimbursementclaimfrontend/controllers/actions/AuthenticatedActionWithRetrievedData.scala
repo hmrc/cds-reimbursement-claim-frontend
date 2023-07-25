@@ -133,9 +133,9 @@ class AuthenticatedActionWithRetrievedData @Inject() (
         )
           handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, name, request)
         else
-          Left(Results.Redirect(limitedAccessErrorPageUrl))
+          Left(Results.Redirect(limitedAccessErrorPage))
       case Right(None)       =>
-        Left(Redirect(unauthorizedErrorPageUrl))
+        Left(Redirect(unauthorizedErrorPage))
     }
 
   private def hasEoriEnrolment[A](
@@ -227,7 +227,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
               )
             )
           else
-            Left(Results.Redirect(limitedAccessErrorPageUrl))
+            Left(Results.Redirect(limitedAccessErrorPage))
         )
     }
 }
