@@ -70,7 +70,7 @@ class AuthenticatedAction @Inject() (
           if (checkUserHasAccess(enrolments))
             Future.successful(Right(AuthenticatedRequest(request)))
           else
-            Future.successful(Left(Results.Redirect(limitedAccessErrorPageUrl)))
+            Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
         }
   }
 

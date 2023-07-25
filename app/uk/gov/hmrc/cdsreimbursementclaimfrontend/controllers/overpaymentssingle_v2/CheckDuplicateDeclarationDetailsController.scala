@@ -64,7 +64,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
     routes.CheckDuplicateDeclarationDetailsController.submit
 
   final override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable = {
-    case (decl, form, journey) =>
+    case (decl, form, _) =>
       implicit request =>
         checkDeclarationDetailsPage(decl, form, true, postAction, None)
   }
