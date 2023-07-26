@@ -43,7 +43,7 @@ object SecuritiesCdsDisplayDeclarationSummary {
   ): SummaryList = SummaryList(
     Seq(
       SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.mrn-label"))),
+        key = Key(HtmlContent(messages(s"$key.securities.mrn-label"))),
         value = Value(Text(declaration.displayResponseDetail.declarationId)),
         actions = Some(
           Actions(
