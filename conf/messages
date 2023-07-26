@@ -1536,7 +1536,7 @@ check-your-answers.reference-number.rejectedgoodsmultiple.label={0} MRN
 check-your-answers.reference-number.rejectedgoodsmultiple.label-plaintext={0} Movement Reference Number (MRN)
 
 check-your-answers.declaration-details.label=Declaration details
-check-your-answers.declaration-details.mrn-label=Import MRN
+check-your-answers.declaration-details.mrn-label=MRN
 check-your-answers.declaration-details.multiple.mrn-label=First MRN
 check-your-answers.declaration-details.scheduled.mrn-label=First MRN
 check-your-answers.declaration-details.import-date-label=Import date

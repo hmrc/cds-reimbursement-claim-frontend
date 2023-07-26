@@ -101,7 +101,8 @@ class CheckYourAnswersControllerSpec
   def validateCheckYourAnswersPage(
     doc: Document,
     claim: RejectedGoodsSingleJourney.Output,
-    whetherShowRepaymentMethod: Boolean
+    whetherShowRepaymentMethod: Boolean,
+    isSubsidy: Boolean = false
   ): Unit = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -117,7 +118,7 @@ class CheckYourAnswersControllerSpec
       summaryKeys.size shouldBe summaryValues.size
 
     headers     should contain allElementsOf Seq(
-      "Movement Reference Number (MRN)",
+      if (isSubsidy) "Movement Reference Number (MRN) - Subsidy" else "Movement Reference Number (MRN)",
       "Declaration details",
       "Contact information for this claim",
       "Basis for claim",
@@ -221,36 +222,36 @@ class CheckYourAnswersControllerSpec
         }
       }
 
-//      "display subsidy status when declaration has only subsidy payments" in {
-//        forAll(
-//          buildCompleteJourneyGen(
-//            acc14DeclarantMatchesUserEori = false,
-//            acc14ConsigneeMatchesUserEori = false,
-//            generateSubsidyPayments = GenerateSubsidyPayments.All,
-//            features = Some(RejectedGoodsSingleJourney.Features(false, true))
-//          ).map(_.resetReimbursementMethod())
-//        ) { journey =>
-//          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
-//          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
-//          inSequence {
-//            mockAuthWithNoRetrievals()
-//            mockGetSession(updatedSession)
-//            mockStoreSession(updatedSession)(Left(Error("boom!")))
-//          }
-//
-//          checkPageIsDisplayed(
-//            performAction(),
-//            messageFromMessageKey(s"$messagesKey.title"),
-//            doc => {
-//              validateCheckYourAnswersPage(doc, claim, journey.isSubsidyOnlyJourney)
-//              doc
-//                .select(".govuk-summary-list__row dt.govuk-summary-list__key")
-//                .get(2)
-//                .text() shouldBe "Subsidy status"
-//            }
-//          )
-//        }
-//      }
+      "display subsidy status when declaration has only subsidy payments" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14DeclarantMatchesUserEori = false,
+            acc14ConsigneeMatchesUserEori = false,
+            generateSubsidyPayments = GenerateSubsidyPayments.All,
+            features = Some(RejectedGoodsSingleJourney.Features(false, true))
+          )
+        ) { j =>
+          val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)
+          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
+          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              validateCheckYourAnswersPage(doc, claim, journey.isSubsidyOnlyJourney, isSubsidy = true)
+              doc
+                .select(".govuk-summary-list__row dt.govuk-summary-list__key")
+                .get(2)
+                .text() shouldBe "Method of payment"
+            }
+          )
+        }
+      }
 
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
