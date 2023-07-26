@@ -69,7 +69,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(RejectedGoodsCdsDisplayDeclarationSummary.render(declaration, "check-your-answers.declaration-details", subKey, isSubsidy = isSubsidy))
+        @summary(RejectedGoodsCdsDisplayDeclarationSummary.render(declaration, "check-your-answers.declaration-details", None, isSubsidy = isSubsidy))
 
         @if(isSubsidy){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
         @radios(
