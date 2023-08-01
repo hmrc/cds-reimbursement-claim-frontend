@@ -81,7 +81,23 @@
 
     @subHeading(Html(messages(s"$key.inspection.h2")))
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
-    
+
+    @if(isSubsidyOnly contains(true)){
+        @subHeading(Html(messages(s"$key.repayment-method.h2")))
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    @Html(messages(s"$key.repayment-method.label"))
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    @Html(messages(s"$key.repayment-method.subsidy"))
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                </dd>
+            </div>
+        </dl>
+    }
+
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
         @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show())))
