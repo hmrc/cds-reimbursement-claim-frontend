@@ -112,7 +112,12 @@ class EnterMovementReferenceNumberController @Inject() (
                                      journey,
                                      maybeAcc14
                                    )
-                updatedJourney  <- updateJourney(journey, mrnIndex, mrn, maybeAcc14)
+                updatedJourney  <- updateJourney(
+                                     journey,
+                                     mrnIndex,
+                                     mrn,
+                                     maybeAcc14
+                                   )
                 updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, mrnIndex === 0)
               } yield updatedJourney2
             }.fold(
@@ -153,7 +158,14 @@ class EnterMovementReferenceNumberController @Inject() (
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
-          journey.submitMovementReferenceNumberAndDeclaration(mrnIndex, mrn, acc14).left.map(Error.apply)
+          journey
+            .submitMovementReferenceNumberAndDeclaration(
+              mrnIndex,
+              mrn,
+              acc14
+            )
+            .left
+            .map(Error.apply)
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))

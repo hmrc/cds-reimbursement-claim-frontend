@@ -204,6 +204,21 @@ final class RejectedGoodsMultipleJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsMultipleDocumentTypes)
 
+  def isPaymentMethodSame(displayDeclaration: DisplayDeclaration): Boolean =
+    getLeadDisplayDeclaration
+      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
+      .fold {
+        false
+      } { leadNdrcDetails: List[NdrcDetails] =>
+        displayDeclaration.getNdrcDetailsList.fold {
+          false
+        } { ndrcDetails: List[NdrcDetails] =>
+          val paymentMethodsFromDisplayDeclaration: List[String] = ndrcDetails.map(_.paymentMethod)
+          val leadPaymentMethods: List[String]                   = leadNdrcDetails.map(_.paymentMethod)
+          paymentMethodsFromDisplayDeclaration.intersect(leadPaymentMethods).nonEmpty
+        }
+      }
+
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
@@ -225,12 +240,10 @@ final class RejectedGoodsMultipleJourney private (
           "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
       else if (
-        index > 0 &&
-        !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs)
+        index > 0 && ((this.isSubsidyOnlyJourney && !isPaymentMethodSame(displayDeclaration)) ||
+          !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs))
       )
-        Left(
-          "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
-        )
+        Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
       else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
