@@ -213,8 +213,8 @@ final class RejectedGoodsMultipleJourney private (
         displayDeclaration.getNdrcDetailsList.fold {
           false
         } { ndrcDetails: List[NdrcDetails] =>
-          val paymentMethodsFromDisplayDeclaration: List[String] = ndrcDetails.map(_.paymentMethod)
-          val leadPaymentMethods: List[String]                   = leadNdrcDetails.map(_.paymentMethod)
+          val paymentMethodsFromDisplayDeclaration: List[String] = ndrcDetails.map(_.paymentMethod).distinct
+          val leadPaymentMethods: List[String]                   = leadNdrcDetails.map(_.paymentMethod).distinct
           (leadPaymentMethods, paymentMethodsFromDisplayDeclaration) match {
             case (Seq("006"), Seq("006"))                           => true
             case (a, b) if !a.contains("006") && !b.contains("006") => true
