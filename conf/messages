@@ -1596,6 +1596,7 @@ check-your-answers.bank-details.account-number.label=Account number
 check-your-answers.reference-number.h2=Movement Reference Number (MRN)
 check-your-answers.reference-number.h2-subsidy=Movement Reference Number (MRN) - Subsidy
 check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (MRNs)
+check-your-answers.reference-number.multiple.h2-subsidy=Movement Reference Numbers (MRNs) - Subsidy
 check-your-answers.reference-number.scheduled.h2=First Movement Reference Number (MRN)
 check-your-answers.reference-number.rejectedgoods.scheduled.h2=First Movement Reference Number (MRN)
 check-your-answers.declaration-details.h2=Declaration details

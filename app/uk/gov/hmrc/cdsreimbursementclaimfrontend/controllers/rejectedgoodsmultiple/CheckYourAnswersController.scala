@@ -56,6 +56,7 @@ class CheckYourAnswersController @Inject() (
 
   val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
+      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey
         .submitCheckYourAnswersChangeMode(true)
         .toOutput
@@ -74,6 +75,7 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   journey.getLeadDisplayDeclaration,
+                  Some(isSubsidyOnly),
                   postAction
                 )
               )
