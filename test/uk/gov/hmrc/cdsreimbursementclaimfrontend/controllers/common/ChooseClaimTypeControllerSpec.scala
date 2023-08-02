@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -41,9 +41,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.{routes => overpaymentsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -73,9 +73,12 @@ class ChooseClaimTypeControllerSpec
     )
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.ViewUpload)
-    featureSwitch.disable(Feature.Overpayments_v2)
+    featureSwitch.enable(Feature.Overpayments_v2)
+    featureSwitch.enable(Feature.RejectedGoods)
+    featureSwitch.enable(Feature.Securities)
   }
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
@@ -155,6 +158,33 @@ class ChooseClaimTypeControllerSpec
       )
     }
 
+    "display the page when features switched off" in {
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(SessionData.empty)
+      }
+
+      featureSwitch.disable(Feature.ViewUpload)
+      featureSwitch.disable(Feature.Overpayments_v2)
+      featureSwitch.disable(Feature.RejectedGoods)
+      featureSwitch.disable(Feature.Securities)
+
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey(s"$formKey.title"),
+        doc => {
+          val buttons    = radioButtons(doc)
+          val c285Button = extractButton(buttons, "C285")
+          hasButton(buttons, "C285")          shouldBe true
+          hasButton(buttons, "RejectedGoods") shouldBe false
+          hasButton(buttons, "Securities")    shouldBe false
+          hasButton(buttons, "ViewUpload")    shouldBe false
+          extractLabel(c285Button)            shouldBe messageFromMessageKey(s"$formKey.c285.title")
+          extractHint(c285Button)             shouldBe messageFromMessageKey(s"$formKey.c285.hint")
+        }
+      )
+    }
+
     "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
@@ -167,7 +197,7 @@ class ChooseClaimTypeControllerSpec
         }
 
         val result = performAction(Seq(dataKey -> C285.toString))
-        checkIsRedirect(result, commonRoutes.SelectTypeOfClaimController.show())
+        checkIsRedirect(result, overpaymentsRoutes.ChooseHowManyMrnsController.show())
       }
 
       "Redirect to View Upload if user chooses ViewUpload" in {
@@ -251,6 +281,9 @@ class ChooseClaimTypeControllerSpec
 
   private def radioButtons(doc: Document): Elements =
     doc.select("div.govuk-radios div.govuk-radios__item")
+
+  private def hasButton(buttons: Elements, requiredValue: String): Boolean =
+    buttons.asScala.exists(button => !button.select(s"""input[value="$requiredValue"]""").isEmpty)
 
   private def extractButton(buttons: Elements, requiredValue: String): Element =
     buttons.asScala.filterNot(button => button.select(s"""input[value="$requiredValue"]""").isEmpty).head

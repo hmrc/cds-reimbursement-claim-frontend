@@ -96,7 +96,6 @@ class JsonEncoderSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Mat
       val array    = Array.ofDim[Byte](buf.limit())
       buf.get(array)
       val log      = new String(array, StandardCharsets.UTF_8)
-      println(log)
       log.contains(expected) shouldBe true
       buf.clear()
     }
