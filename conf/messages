@@ -1053,9 +1053,10 @@ reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustme
 #===================================================
 
 confirm-full-repayment.caption=Security ID: {0}
-confirm-full-repayment.title=Do you want to claim back all of this security deposit?
-confirm-full-repayment.help-text=Select Yes or No
-confirm-full-repayment.question=The total value of {0} is {1}.
+confirm-full-repayment.title=Claim back this security deposit?
+confirm-full-repayment.security-id=Security deposit ID: <strong>{0}</strong>
+confirm-full-repayment.security-value=Security deposit value: <strong>{0}</strong>
+confirm-full-repayment.question=Do you want to claim back all of this security deposit?
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
 
 

@@ -52,7 +52,8 @@
 
         @heading(Html(title), messages(s"$key.caption", securityId))
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(s"$key.security-id", securityId)), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(s"$key.security-value", totalValueStr)), Some("govuk-body govuk-!-margin-bottom-6"))
 
         @radios(
             form = form,
