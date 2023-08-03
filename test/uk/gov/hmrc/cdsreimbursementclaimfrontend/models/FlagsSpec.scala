@@ -80,7 +80,6 @@ class FlagsSpec extends AnyWordSpec with Matchers {
     "unset and check multiple positions" in {
       @SuppressWarnings(Array("org.wartremover.warts.Var"))
       var f = Flags.full
-      println(f)
       (0 to 63).foreach { i =>
         f.check(i)    shouldBe true
         f = f.unset(i)

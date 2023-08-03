@@ -143,8 +143,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
 
       val log = JourneyLog.apply(output)
 
-      println(log)
-
       log.journeyType                        shouldBe "overpayments"
       log.journeyVariant                     shouldBe "scheduled"
       log.numberOfMultipleMRNs               shouldBe None

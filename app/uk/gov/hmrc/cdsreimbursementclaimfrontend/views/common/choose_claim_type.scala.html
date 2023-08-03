@@ -43,28 +43,30 @@
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @normalRadioItems = @{Seq(
- RadioItem(
-  id = Some(s"$key-c285"),
-  value = Some(C285.toString),
-  content = HtmlContent(messages(s"$key.c285.title")),
-  hint = Some(Hint(content = HtmlContent(messages(s"$key.c285.hint")))),
-  checked = form.value.contains(C285)
- ),
- RadioItem(
-  id = Some(s"$key-ce1179"),
-  value = Some(RejectedGoods.toString),
-  content = HtmlContent(messages(s"$key.ce1179.title")),
-  hint = Some(Hint(content = HtmlContent(messages(s"$key.ce1179.hint")))),
-  checked = form.value.contains(RejectedGoods)
- ),
- RadioItem(
-  id = Some(s"$key-securities"),
-  value = Some(Securities.toString),
-  content = HtmlContent(messages(s"$key.securities.title")),
-  hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
-  checked = form.value.contains(Securities)
- )
-)}
+    Some(RadioItem(
+        id = Some(s"$key-c285"),
+        value = Some(C285.toString),
+        content = HtmlContent(messages(s"$key.c285.title")),
+        hint = Some(Hint(content = HtmlContent(messages(s"$key.c285.hint")))),
+        checked = form.value.contains(C285)
+    )),
+ if(featureSwitchService.isEnabled(Feature.RejectedGoods))
+    Some(RadioItem(
+        id = Some(s"$key-ce1179"),
+        value = Some(RejectedGoods.toString),
+        content = HtmlContent(messages(s"$key.ce1179.title")),
+        hint = Some(Hint(content = HtmlContent(messages(s"$key.ce1179.hint")))),
+        checked = form.value.contains(RejectedGoods)
+    )) else None,
+ if(featureSwitchService.isEnabled(Feature.Securities))
+    Some(RadioItem(
+        id = Some(s"$key-securities"),
+        value = Some(Securities.toString),
+        content = HtmlContent(messages(s"$key.securities.title")),
+        hint = Some(Hint(content = HtmlContent(messages(s"$key.securities.hint")))),
+        checked = form.value.contains(Securities)
+    )) else None   
+).filter(_.isDefined).map(_.get)}
 
 @dividerRadio = @{RadioItem(
  divider = Some(messages("radio.divider"))
