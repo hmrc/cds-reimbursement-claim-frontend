@@ -50,10 +50,6 @@ class SelectDutiesController @Inject() (
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-    val h1MessageKey                             =
-      if (journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments))
-        Some("select-duties.subsidies.title")
-      else None
 
     if (availableDuties.isEmpty) {
       logger.warn("No available duties")
@@ -67,9 +63,8 @@ class SelectDutiesController @Inject() (
           None,
           !journey.isSubsidyOnlyJourney,
           None,
-          None,
           postAction,
-          h1MessageKey
+          journey.isSubsidyOnlyJourney
         )
       )
     }
@@ -96,8 +91,8 @@ class SelectDutiesController @Inject() (
                     None,
                     !journey.isSubsidyOnlyJourney,
                     None,
-                    None,
-                    postAction
+                    postAction,
+                    journey.isSubsidyOnlyJourney
                   )
                 )
               ),

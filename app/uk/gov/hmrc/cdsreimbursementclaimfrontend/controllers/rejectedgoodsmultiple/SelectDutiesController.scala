@@ -49,8 +49,6 @@ class SelectDutiesController @Inject() (
   val showFirst: Action[AnyContent] = show(1)
 
   def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
-
     journey
       .getNthMovementReferenceNumber(pageIndex - 1)
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
@@ -66,9 +64,9 @@ class SelectDutiesController @Inject() (
               availableDuties,
               Some((pageIndex, mrn)),
               false,
-              Some(isSubsidyOnly),
               MRNMultipleRoutes.subKey,
-              routes.SelectDutiesController.submit(pageIndex)
+              routes.SelectDutiesController.submit(pageIndex),
+              isSubsidyOnly = journey.isSubsidyOnlyJourney
             )
           )
         }
@@ -82,7 +80,6 @@ class SelectDutiesController @Inject() (
         .getNthMovementReferenceNumber(pageIndex - 1)
         .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
           val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties(mrn)
-          val isSubsidyOnly: Boolean                   = journey.isSubsidyOnlyJourney
           if (availableDuties.isEmpty) {
             logger.warn("No available duties")
             (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
@@ -100,9 +97,9 @@ class SelectDutiesController @Inject() (
                         availableDuties,
                         Some((pageIndex, mrn)),
                         false,
-                        Some(isSubsidyOnly),
                         MRNMultipleRoutes.subKey,
-                        routes.SelectDutiesController.submit(pageIndex)
+                        routes.SelectDutiesController.submit(pageIndex),
+                        isSubsidyOnly = journey.isSubsidyOnlyJourney
                       )
                     )
                   ),
