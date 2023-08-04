@@ -40,11 +40,23 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
                )
     } yield (mrn, acc14)
 
+  final lazy val mrnWithDisplayDeclarationSubsidyOnlyGen: Gen[(MRN, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      acc14 <- displayDeclarationSubsidyOnly.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+               )
+    } yield (mrn, acc14)
+
   final val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = true)
 
   final val displayDeclarationNotCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = false)
+
+  final val displayDeclarationSubsidyOnly: Gen[DisplayDeclaration] =
+    buildDisplayDeclarationGen(cmaEligible = false, subsidyPayments = GenerateSubsidyPayments.All)
 
   final lazy val displayDeclarationGen: Gen[DisplayDeclaration] =
     Gen.oneOf(
@@ -103,7 +115,10 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
         )
     } yield taxCodes.zip(amounts).toSeq
 
-  final def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
+  final def buildDisplayDeclarationGen(
+    cmaEligible: Boolean,
+    subsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
+  ): Gen[DisplayDeclaration] =
     for {
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
@@ -111,7 +126,8 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
     } yield buildDisplayDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
-      dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) }
+      dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) },
+      generateSubsidyPayments = subsidyPayments
     )
 
   final lazy val depositIdGen: Gen[String] =

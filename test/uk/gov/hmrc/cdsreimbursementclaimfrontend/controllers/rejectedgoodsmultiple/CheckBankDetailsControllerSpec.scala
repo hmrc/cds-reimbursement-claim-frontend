@@ -25,6 +25,7 @@ import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.status
 import play.api.test.Helpers._
@@ -197,6 +198,24 @@ class CheckBankDetailsControllerSpec
       )
     }
 
-  }
+    "Redirect when journey is subsidy only" in {
+      forAll(
+        incompleteJourneyWithCompleteClaimsGen(10, true)
+      ) { case (journey, _) =>
+        featureSwitch.enable(Feature.SubsidiesForRejectedGoods)
+        featureSwitch.disable(Feature.BlockSubsidies)
 
+        val subsidySession = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(subsidySession)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ChooseFileTypeController.show()
+        )
+      }
+    }
+  }
 }
