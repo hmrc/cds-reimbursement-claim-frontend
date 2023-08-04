@@ -45,14 +45,13 @@
     availableTaxCodes : Seq[(TaxCode,Boolean)], 
     indexAndMrnOpt: Option[(Int,MRN)], 
     showCmaNotEligibleHint: Boolean,
-    isSubsidyOnly: Option[Boolean],
-    subKey: Option[String], 
+    subKey: Option[String],
     postAction: Call,
-    h1KeyOverride: Option[String] = None
+    isSubsidyOnly: Boolean = false,
 )(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duties"}
-    @title = @{messages(h1KeyOverride.map(Seq(_)).getOrElse(combine(key, subKey, "title")), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
+    @title = @{messages(combine(key, subKey, if (isSubsidyOnly) "subsidies.title" else "title"), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
 
     @subsidyTitle = @{messages(s"$key.subsidies.title")}
     @insetSubsidy = {
@@ -79,7 +78,7 @@
 
         @indexAndMrnOpt.map{ case(_, mrn) =>
             @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))
-            @{if (isSubsidyOnly contains(true))
+            @{if (isSubsidyOnly)
                 {insetText(content = HtmlContent(insetSubsidy))}}
         }.getOrElse("")
 
