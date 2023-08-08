@@ -259,7 +259,7 @@ final class RejectedGoodsMultipleJourney private (
         )
       else if (index > 0 && !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs))
         Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
-      else if (index > 0 && this.isSubsidyOnlyJourney && !isPaymentMethodsMatching(displayDeclaration)) {
+      else if (index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(displayDeclaration)) {
         Left(getSubsidyError())
       } else
         getNthMovementReferenceNumber(index) match {
