@@ -243,11 +243,14 @@ final class RejectedGoodsMultipleJourney private (
         Left(
           "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
-      else if (
-        index > 0 && ((this.isSubsidyOnlyJourney && !isPaymentMethodsMatching(displayDeclaration)) ||
-          !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs))
-      )
+      else if (index > 0 && !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs))
         Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
+      else if (index > 0 && this.isSubsidyOnlyJourney && !isPaymentMethodsMatching(displayDeclaration))
+        if(this.isSubsidyOnlyJourney) {
+          Left("submitMovementReferenceNumber.needsSubsidy")
+        } else {
+          Left("submitMovementReferenceNumber.needsNonSubsidy")
+        }
       else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
