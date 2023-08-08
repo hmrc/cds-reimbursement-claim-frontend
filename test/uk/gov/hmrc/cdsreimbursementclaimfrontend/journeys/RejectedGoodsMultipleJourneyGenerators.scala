@@ -68,6 +68,30 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     }
   }
 
+  def incompleteJourneyWithMrnsSubsidyOnlyGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
+    def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) = {
+      val ((mrn, declaration), index) = data
+      if (index == 0)
+        journey
+          .submitMovementReferenceNumberAndDeclaration(index, mrn, declaration)
+          .flatMapWhenDefined(declaration.getConsigneeEori)(_.submitConsigneeEoriNumber _)
+          .flatMap(_.submitDeclarantEoriNumber(declaration.getDeclarantEori))
+      else
+        journey
+          .submitMovementReferenceNumberAndDeclaration(index, mrn, declaration)
+    }
+
+    listOfExactlyN(n, mrnWithDisplayDeclarationSubsidyOnlyGen).map { data =>
+      val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
+      (
+        journeyWithMrnAndDeclarationWithFeatures(RejectedGoodsMultipleJourney.Features(false, true))
+          .flatMapEach(dataWithIndex, submitData)
+          .getOrFail,
+        data.map(_._1)
+      )
+    }
+  }
+
   private def mrnWithSelectedTaxCodesGen(journey: RejectedGoodsMultipleJourney): Seq[Gen[(MRN, Seq[TaxCode])]] =
     journey.answers.movementReferenceNumbers.get.map { mrn =>
       val availableTaxCodes = journey.getAvailableDuties(mrn).map(_._1)
@@ -77,11 +101,16 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
         .map(seq => (mrn, seq))
     }
 
-  def incompleteJourneyWithSelectedDutiesGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
+  def incompleteJourneyWithSelectedDutiesGen(
+    n: Int,
+    subsidyOnly: Boolean = false
+  ): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
     def submitData(journey: RejectedGoodsMultipleJourney)(data: (MRN, Seq[TaxCode])) =
       journey.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
 
-    incompleteJourneyWithMrnsGen(n).flatMap { case (journey, _) =>
+    val incompleteJourney =
+      if (subsidyOnly) incompleteJourneyWithMrnsSubsidyOnlyGen(n) else incompleteJourneyWithMrnsGen(n)
+    incompleteJourney.flatMap { case (journey, _) =>
       val gen = mrnWithSelectedTaxCodesGen(journey)
       Gen
         .sequence[Seq[(MRN, Seq[TaxCode])], (MRN, Seq[TaxCode])](gen)
@@ -97,11 +126,14 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     }
   }
 
-  def incompleteJourneyWithCompleteClaimsGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
+  def incompleteJourneyWithCompleteClaimsGen(
+    n: Int,
+    subsidyOnly: Boolean = false
+  ): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
     def submitData(journey: RejectedGoodsMultipleJourney)(data: (MRN, TaxCode, BigDecimal)) =
       journey.submitAmountForReimbursement(data._1, data._2, data._3)
 
-    incompleteJourneyWithSelectedDutiesGen(n).map { case (journey, mrns) =>
+    incompleteJourneyWithSelectedDutiesGen(n, subsidyOnly).map { case (journey, mrns) =>
       val data: Seq[(MRN, TaxCode, BigDecimal)] = mrns.flatMap { mrn =>
         journey.getSelectedDuties(mrn).get.map { taxCode =>
           (mrn, taxCode, BigDecimal(formatAmount(journey.getAmountPaidFor(mrn, taxCode).get / 2)))

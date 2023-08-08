@@ -170,10 +170,9 @@ class CheckBankDetailsControllerSpec
     "display the page on a pre-existing journey" in forAll(
       buildCompleteJourneyGen()
     ) { journey =>
-      val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(sessionToAmend)
+        mockGetSession(SessionData(journey))
       }
 
       checkPageIsDisplayed(
@@ -197,6 +196,23 @@ class CheckBankDetailsControllerSpec
       )
     }
 
-  }
+    "Redirect when journey is subsidy only" in {
+      forAll(
+        incompleteJourneyWithCompleteClaimsGen(2, true)
+      ) { case (journey, _) =>
+        featureSwitch.enable(Feature.SubsidiesForRejectedGoods)
+        featureSwitch.disable(Feature.BlockSubsidies)
 
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ChooseFileTypeController.show()
+        )
+      }
+    }
+  }
 }
