@@ -69,8 +69,17 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
   }
 
   def incompleteJourneyWithMrnsSubsidyOnlyGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
-    def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) =
-      journey.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
+    def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) = {
+      val ((mrn, declaration), index) = data
+      if (index == 0)
+        journey
+          .submitMovementReferenceNumberAndDeclaration(index, mrn, declaration)
+          .flatMapWhenDefined(declaration.getConsigneeEori)(_.submitConsigneeEoriNumber _)
+          .flatMap(_.submitDeclarantEoriNumber(declaration.getDeclarantEori))
+      else
+        journey
+          .submitMovementReferenceNumberAndDeclaration(index, mrn, declaration)
+    }
 
     listOfExactlyN(n, mrnWithDisplayDeclarationSubsidyOnlyGen).map { data =>
       val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex

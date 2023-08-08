@@ -25,7 +25,6 @@ import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.status
 import play.api.test.Helpers._
@@ -171,10 +170,9 @@ class CheckBankDetailsControllerSpec
     "display the page on a pre-existing journey" in forAll(
       buildCompleteJourneyGen()
     ) { journey =>
-      val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(sessionToAmend)
+        mockGetSession(SessionData(journey))
       }
 
       checkPageIsDisplayed(
@@ -200,15 +198,14 @@ class CheckBankDetailsControllerSpec
 
     "Redirect when journey is subsidy only" in {
       forAll(
-        incompleteJourneyWithCompleteClaimsGen(10, true)
+        incompleteJourneyWithCompleteClaimsGen(2, true)
       ) { case (journey, _) =>
         featureSwitch.enable(Feature.SubsidiesForRejectedGoods)
         featureSwitch.disable(Feature.BlockSubsidies)
 
-        val subsidySession = session.copy(rejectedGoodsMultipleJourney = Some(journey))
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(subsidySession)
+          mockGetSession(SessionData(journey))
         }
 
         checkIsRedirect(

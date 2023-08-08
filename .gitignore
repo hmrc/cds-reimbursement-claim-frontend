@@ -35,3 +35,4 @@ tmp
 .idea_modules
 bin
 /project/metals.sbt
+sbt-launch.jar
