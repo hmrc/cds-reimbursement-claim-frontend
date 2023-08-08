@@ -44,7 +44,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
 
       log.journeyType                        shouldBe "overpayments"
       log.journeyVariant                     shouldBe "single"
@@ -66,6 +66,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.fileSizes                          shouldBe Seq(567L, 1234L)
       log.scheduleFileType                   shouldBe None
       log.scheduleFileSize                   shouldBe None
+      log.caseNumber                         shouldBe Some("REF-1234")
+      log.userHash                           shouldBe "931058e4"
     }
 
     "log OverpaymentsMultipleJourney.Output" in {
@@ -88,7 +90,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
 
       log.journeyType                        shouldBe "overpayments"
       log.journeyVariant                     shouldBe "multiple"
@@ -110,6 +112,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.fileSizes                          shouldBe Seq(567L, 1234L)
       log.scheduleFileType                   shouldBe None
       log.scheduleFileSize                   shouldBe None
+      log.caseNumber                         shouldBe Some("REF-1234")
+      log.userHash                           shouldBe "931058e4"
     }
 
     "log OverpaymentsScheduledJourney.Output" in {
@@ -141,7 +145,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
 
       log.journeyType                        shouldBe "overpayments"
       log.journeyVariant                     shouldBe "scheduled"
@@ -163,6 +167,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.fileSizes                          shouldBe Seq(567L, 1234L)
       log.scheduleFileType                   shouldBe Some("image/png")
       log.scheduleFileSize                   shouldBe Some(9876L)
+      log.caseNumber                         shouldBe Some("REF-1234")
+      log.userHash                           shouldBe "931058e4"
     }
 
     "log RejectedGoodsSingleJourney.Output" in {
@@ -187,7 +193,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
 
       log.journeyType                        shouldBe "rejectedgoods"
       log.journeyVariant                     shouldBe "single"
@@ -209,6 +215,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.fileSizes                          shouldBe Seq(567L, 1234L)
       log.scheduleFileType                   shouldBe None
       log.scheduleFileSize                   shouldBe None
+      log.caseNumber                         shouldBe Some("REF-1234")
+      log.userHash                           shouldBe "931058e4"
     }
 
     "log RejectedGoodsMultipleJourney.Output" in {
@@ -234,7 +242,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
 
       log.journeyType                        shouldBe "rejectedgoods"
       log.journeyVariant                     shouldBe "multiple"
@@ -256,6 +264,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.fileSizes                          shouldBe Seq(567L, 1234L)
       log.scheduleFileType                   shouldBe None
       log.scheduleFileSize                   shouldBe None
+      log.caseNumber                         shouldBe Some("REF-1234")
+      log.userHash                           shouldBe "931058e4"
     }
 
     "log RejectedGoodsScheduledJourney.Output" in {
@@ -290,7 +300,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
 
       log.journeyType                        shouldBe "rejectedgoods"
       log.journeyVariant                     shouldBe "scheduled"
@@ -312,6 +322,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.fileSizes                          shouldBe Seq(567L, 1234L)
       log.scheduleFileType                   shouldBe Some("image/png")
       log.scheduleFileSize                   shouldBe Some(9876L)
+      log.caseNumber                         shouldBe Some("REF-1234")
+      log.userHash                           shouldBe "931058e4"
     }
 
     "log SecuritiesJourney.Output" in {
@@ -336,7 +348,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           exportMovementReferenceNumber = Some(anotherExampleMrn)
         )
 
-      val log = JourneyLog.apply(output)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
 
       log.journeyType                        shouldBe "securities"
       log.journeyVariant                     shouldBe "single"
@@ -358,6 +370,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.fileSizes                          shouldBe Seq(567L, 1234L)
       log.scheduleFileType                   shouldBe None
       log.scheduleFileSize                   shouldBe None
+      log.caseNumber                         shouldBe Some("REF-1234")
+      log.userHash                           shouldBe "931058e4"
     }
 
   }

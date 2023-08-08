@@ -104,7 +104,7 @@ class CheckYourAnswersController @Inject() (
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
                   )
-                  JourneyLog(output).logInfo()
+                  JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber)).logInfo()
                   uploadDocumentsConnector.wipeOut
                     .map(_ =>
                       (
@@ -115,6 +115,7 @@ class CheckYourAnswersController @Inject() (
                 }
                 .recover { case e =>
                   logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
+                  JourneyLog(output, journey.answers.userEoriNumber.value, None).logError(e)
                   (journey, Ok(submitClaimFailedPage()))
                 }
           )

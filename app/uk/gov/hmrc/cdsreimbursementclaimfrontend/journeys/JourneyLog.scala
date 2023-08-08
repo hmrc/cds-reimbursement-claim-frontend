@@ -19,6 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import play.api.Logger
+import java.security.MessageDigest
+import play.api.libs.json.JsString
 
 final case class JourneyLog(
   journeyType: String,
@@ -40,18 +42,29 @@ final case class JourneyLog(
   fileTypesAttached: Seq[String],
   fileSizes: Seq[Long],
   scheduleFileType: Option[String] = None,
-  scheduleFileSize: Option[Long] = None
+  scheduleFileSize: Option[Long] = None,
+  userHash: String,
+  caseNumber: Option[String] = None
 ) {
 
   def logInfo(): Unit = {
     val jsonString = Json.stringify(JourneyLog.formatter.writes(this))
     Logger(getClass()).info(s"json$jsonString")
   }
+
+  def logError(e: Throwable): Unit = {
+    val jsonString = Json.stringify(JourneyLog.formatter.writes(this).+("error" -> JsString(e.getMessage())))
+    Logger(getClass()).error(s"json$jsonString")
+  }
 }
 
 object JourneyLog {
 
-  def apply(output: OverpaymentsSingleJourney.Output): JourneyLog =
+  def apply(
+    output: OverpaymentsSingleJourney.Output,
+    userEORI: String,
+    caseNumber: Option[String]
+  ): JourneyLog =
     JourneyLog(
       journeyType = "overpayments",
       journeyVariant = "single",
@@ -72,10 +85,16 @@ object JourneyLog {
       fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
       fileSizes = output.supportingEvidences.map(_.size).sorted,
       scheduleFileType = None,
-      scheduleFileSize = None
+      scheduleFileSize = None,
+      userHash = hash(userEORI).take(8),
+      caseNumber = caseNumber
     )
 
-  def apply(output: OverpaymentsMultipleJourney.Output): JourneyLog =
+  def apply(
+    output: OverpaymentsMultipleJourney.Output,
+    userEORI: String,
+    caseNumber: Option[String]
+  ): JourneyLog =
     JourneyLog(
       journeyType = "overpayments",
       journeyVariant = "multiple",
@@ -96,10 +115,16 @@ object JourneyLog {
       fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
       fileSizes = output.supportingEvidences.map(_.size).sorted,
       scheduleFileType = None,
-      scheduleFileSize = None
+      scheduleFileSize = None,
+      userHash = hash(userEORI).take(8),
+      caseNumber = caseNumber
     )
 
-  def apply(output: OverpaymentsScheduledJourney.Output): JourneyLog =
+  def apply(
+    output: OverpaymentsScheduledJourney.Output,
+    userEORI: String,
+    caseNumber: Option[String]
+  ): JourneyLog =
     JourneyLog(
       journeyType = "overpayments",
       journeyVariant = "scheduled",
@@ -120,10 +145,16 @@ object JourneyLog {
       fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
       fileSizes = output.supportingEvidences.map(_.size).sorted,
       scheduleFileType = Some(output.scheduledDocument.fileMimeType),
-      scheduleFileSize = Some(output.scheduledDocument.size)
+      scheduleFileSize = Some(output.scheduledDocument.size),
+      userHash = hash(userEORI).take(8),
+      caseNumber = caseNumber
     )
 
-  def apply(output: RejectedGoodsSingleJourney.Output): JourneyLog =
+  def apply(
+    output: RejectedGoodsSingleJourney.Output,
+    userEORI: String,
+    caseNumber: Option[String]
+  ): JourneyLog =
     JourneyLog(
       journeyType = "rejectedgoods",
       journeyVariant = "single",
@@ -144,10 +175,16 @@ object JourneyLog {
       fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
       fileSizes = output.supportingEvidences.map(_.size).sorted,
       scheduleFileType = None,
-      scheduleFileSize = None
+      scheduleFileSize = None,
+      userHash = hash(userEORI).take(8),
+      caseNumber = caseNumber
     )
 
-  def apply(output: RejectedGoodsMultipleJourney.Output): JourneyLog =
+  def apply(
+    output: RejectedGoodsMultipleJourney.Output,
+    userEORI: String,
+    caseNumber: Option[String]
+  ): JourneyLog =
     JourneyLog(
       journeyType = "rejectedgoods",
       journeyVariant = "multiple",
@@ -168,10 +205,16 @@ object JourneyLog {
       fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
       fileSizes = output.supportingEvidences.map(_.size).sorted,
       scheduleFileType = None,
-      scheduleFileSize = None
+      scheduleFileSize = None,
+      userHash = hash(userEORI).take(8),
+      caseNumber = caseNumber
     )
 
-  def apply(output: RejectedGoodsScheduledJourney.Output): JourneyLog =
+  def apply(
+    output: RejectedGoodsScheduledJourney.Output,
+    userEORI: String,
+    caseNumber: Option[String]
+  ): JourneyLog =
     JourneyLog(
       journeyType = "rejectedgoods",
       journeyVariant = "scheduled",
@@ -192,10 +235,16 @@ object JourneyLog {
       fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
       fileSizes = output.supportingEvidences.map(_.size).sorted,
       scheduleFileType = Some(output.scheduledDocument.fileMimeType),
-      scheduleFileSize = Some(output.scheduledDocument.size)
+      scheduleFileSize = Some(output.scheduledDocument.size),
+      userHash = hash(userEORI).take(8),
+      caseNumber = caseNumber
     )
 
-  def apply(output: SecuritiesJourney.Output): JourneyLog =
+  def apply(
+    output: SecuritiesJourney.Output,
+    userEORI: String,
+    caseNumber: Option[String]
+  ): JourneyLog =
     JourneyLog(
       journeyType = "securities",
       journeyVariant = "single",
@@ -216,7 +265,9 @@ object JourneyLog {
       fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
       fileSizes = output.supportingEvidences.map(_.size).sorted,
       scheduleFileType = None,
-      scheduleFileSize = None
+      scheduleFileSize = None,
+      userHash = hash(userEORI).take(8),
+      caseNumber = caseNumber
     )
 
   private def threshold(amount: BigDecimal): String =
@@ -230,6 +281,13 @@ object JourneyLog {
     else if (amount >= 100) "3"
     else if (amount >= 10) "2"
     else "1"
+
+  private def hash(value: String): String =
+    MessageDigest
+      .getInstance("SHA-256")
+      .digest(value.getBytes("UTF-8"))
+      .map("%02x".format(_))
+      .mkString
 
   implicit val formatter: OFormat[JourneyLog] = Json.format[JourneyLog]
 }
