@@ -46,6 +46,7 @@
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
 @subsidySubHeading = @{if (isSubsidyOnly contains(true)) "h2-subsidy" else "h2"}
+@isSubsidy = @{if (isSubsidyOnly contains(true)) true else false}
 
 @layout(pageTitle = Some(s"$title")) {
 
@@ -56,7 +57,7 @@
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
+        @summary(SummaryList(RejectedGoodsCdsDisplayDeclarationSummary.render(displayDeclaration, s"$key.declaration-details", subKey, isSubsidy = isSubsidy).rows.drop(2)))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
