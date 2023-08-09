@@ -137,6 +137,10 @@ class EnterMovementReferenceNumberController @Inject() (
                   )
                 } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
+                } else if (error.message === "submitMovementReferenceNumber.needsSubsidy") {
+                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.needsSubsidy")))
+                } else if (error.message === "submitMovementReferenceNumber.needsNonSubsidy") {
+                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.needsNonSubsidy")))
                 } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                 } else {

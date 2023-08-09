@@ -223,6 +223,20 @@ final class RejectedGoodsMultipleJourney private (
         }
       }
 
+  def getSubsidyError(): String =
+    getLeadDisplayDeclaration
+      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
+      .fold {
+        "submitMovementReferenceNumber.needsNonSubsidy"
+      } { leadNdrcDetails: List[NdrcDetails] =>
+        leadNdrcDetails.map(_.paymentMethod).distinct match {
+          case a if a.contains("006")                                           => "submitMovementReferenceNumber.needsSubsidy"
+          case b if b.contains("001") || b.contains("002") || b.contains("003") =>
+            "submitMovementReferenceNumber.needsNonSubsidy"
+          case _                                                                => "submitMovementReferenceNumber.needsNonSubsidy"
+        }
+      }
+
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
@@ -243,12 +257,13 @@ final class RejectedGoodsMultipleJourney private (
         Left(
           "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
-      else if (
-        index > 0 && ((this.isSubsidyOnlyJourney && !isPaymentMethodsMatching(displayDeclaration)) ||
-          !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs))
-      )
+      else if (index > 0 && !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs))
         Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
-      else
+      else if (
+        index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(displayDeclaration)
+      ) {
+        Left(getSubsidyError())
+      } else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
