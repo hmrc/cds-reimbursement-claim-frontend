@@ -66,7 +66,13 @@ object SecuritiesReclaimDetailsSummary {
               ActionItem(
                 href = fullAmountChangeCall(securityDepositId).url,
                 content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.claim-full-amount.label"))
+                visuallyHiddenText = Some(
+                  messages(
+                    "check-claim.securities.hidden.claim-full-amount",
+                    messages(s"$key.claim-full-amount.label"),
+                    securityDepositId
+                  )
+                )
               )
             )
           )
@@ -87,7 +93,13 @@ object SecuritiesReclaimDetailsSummary {
               ActionItem(
                 href = dutiesSelectionChangeCall(securityDepositId).url,
                 content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.duties-selected.label"))
+                visuallyHiddenText = Some(
+                  messages(
+                    "check-claim.securities.hidden.duties-selected",
+                    messages(s"$key.duties-selected.label"),
+                    securityDepositId
+                  )
+                )
               )
             )
           )
@@ -103,8 +115,16 @@ object SecuritiesReclaimDetailsSummary {
               ActionItem(
                 href = reclaimAmountChangeCall(securityDepositId, taxCode).url,
                 content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
-                  .findTaxType(taxCode)} Duty $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+                visuallyHiddenText = Some(
+                  messages(
+                    "check-claim.securities.hidden.tax-code",
+                    OrdinalNumber.label(index + 1).capitalize,
+                    TaxCodes.findTaxType(taxCode),
+                    taxCode,
+                    messages(s"select-duties.duty.$taxCode"),
+                    securityDepositId
+                  )
+                )
               )
             )
           )
