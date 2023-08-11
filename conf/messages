@@ -1227,7 +1227,7 @@ check-claim.securities.summary=Your repayment calculations are shown below. This
 check-claim.securities.claim-for-security.h2=Security ID: {0}
 check-claim.securities.hidden.claim-full-amount=Change {0} for Security ID: {1}
 check-claim.securities.hidden.duties-selected=Change {0} for Security ID: {1}
-check-claim.securities.hidden.tax-code=Change {0} MRN: {1} Duty {2} - {3} for Security ID: {4}
+check-claim.securities.hidden.tax-code=Change {0} amount for Security ID: {1}
 
 
 #===================================================

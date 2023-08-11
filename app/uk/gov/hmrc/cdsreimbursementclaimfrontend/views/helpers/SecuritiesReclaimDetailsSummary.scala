@@ -69,7 +69,7 @@ object SecuritiesReclaimDetailsSummary {
                 visuallyHiddenText = Some(
                   messages(
                     "check-claim.securities.hidden.claim-full-amount",
-                    messages(s"$key.claim-full-amount.label"),
+                    messages(s"$key.claim-full-amount.label").toLowerCase,
                     securityDepositId
                   )
                 )
@@ -96,7 +96,7 @@ object SecuritiesReclaimDetailsSummary {
                 visuallyHiddenText = Some(
                   messages(
                     "check-claim.securities.hidden.duties-selected",
-                    messages(s"$key.duties-selected.label"),
+                    messages(s"$key.duties-selected.label").toLowerCase,
                     securityDepositId
                   )
                 )
@@ -118,9 +118,6 @@ object SecuritiesReclaimDetailsSummary {
                 visuallyHiddenText = Some(
                   messages(
                     "check-claim.securities.hidden.tax-code",
-                    OrdinalNumber.label(index + 1).capitalize,
-                    TaxCodes.findTaxType(taxCode),
-                    taxCode,
                     messages(s"select-duties.duty.$taxCode"),
                     securityDepositId
                   )
