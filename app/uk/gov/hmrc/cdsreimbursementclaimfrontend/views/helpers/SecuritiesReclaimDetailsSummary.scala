@@ -32,6 +32,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
+import java.util.Locale
 import scala.collection.immutable.SortedMap
 
 object SecuritiesReclaimDetailsSummary {
@@ -69,7 +70,7 @@ object SecuritiesReclaimDetailsSummary {
                 visuallyHiddenText = Some(
                   messages(
                     "check-claim.securities.hidden.claim-full-amount",
-                    messages(s"$key.claim-full-amount.label").toLowerCase,
+                    messages(s"$key.claim-full-amount.label").toLowerCase(Locale.ROOT),
                     securityDepositId
                   )
                 )
@@ -96,7 +97,7 @@ object SecuritiesReclaimDetailsSummary {
                 visuallyHiddenText = Some(
                   messages(
                     "check-claim.securities.hidden.duties-selected",
-                    messages(s"$key.duties-selected.label").toLowerCase,
+                    messages(s"$key.duties-selected.label").toLowerCase(Locale.ROOT),
                     securityDepositId
                   )
                 )
