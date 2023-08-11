@@ -74,7 +74,8 @@ class EnterMovementReferenceNumberController @Inject() (
              .withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
            subKey,
            pageIndex,
-           routes.EnterMovementReferenceNumberController.submit(pageIndex)
+           routes.EnterMovementReferenceNumberController.submit(pageIndex),
+           isSubsidy = journey.isSubsidyOnlyJourney
          )
        )
      }).asFuture
@@ -100,7 +101,8 @@ class EnterMovementReferenceNumberController @Inject() (
                   formWithErrors,
                   subKey,
                   pageIndex,
-                  routes.EnterMovementReferenceNumberController.submit(pageIndex)
+                  routes.EnterMovementReferenceNumberController.submit(pageIndex),
+                  isSubsidy = journey.isSubsidyOnlyJourney
                 )
               )
             ).asFuture,
@@ -131,18 +133,33 @@ class EnterMovementReferenceNumberController @Inject() (
                           .withError("enter-movement-reference-number.rejected-goods", error.message),
                         subKey,
                         pageIndex,
-                        routes.EnterMovementReferenceNumberController.submit(pageIndex)
+                        routes.EnterMovementReferenceNumberController.submit(pageIndex),
+                        isSubsidy = journey.isSubsidyOnlyJourney
                       )
                     )
                   )
                 } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
+                  (
+                    journey,
+                    BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN", journey.isSubsidyOnlyJourney))
+                  )
                 } else if (error.message === "submitMovementReferenceNumber.needsSubsidy") {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.needsSubsidy")))
+                  (
+                    journey,
+                    BadRequest(customError(mrn, pageIndex, "multiple.error.needsSubsidy", journey.isSubsidyOnlyJourney))
+                  )
                 } else if (error.message === "submitMovementReferenceNumber.needsNonSubsidy") {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.needsNonSubsidy")))
+                  (
+                    journey,
+                    BadRequest(
+                      customError(mrn, pageIndex, "multiple.error.needsNonSubsidy", journey.isSubsidyOnlyJourney)
+                    )
+                  )
                 } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
+                  (
+                    journey,
+                    BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN", journey.isSubsidyOnlyJourney))
+                  )
                 } else {
                   logger.error(s"Unable to record $mrn", error.toException)
                   (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
@@ -175,7 +192,9 @@ class EnterMovementReferenceNumberController @Inject() (
         EitherT.leftT(Error("could not unbox display declaration"))
     }
 
-  private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String)(implicit request: Request[_]) =
+  private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String, isSubsidy: Boolean)(implicit
+    request: Request[_]
+  ) =
     enterMovementReferenceNumberPage(
       movementReferenceNumberRejectedGoodsForm
         .fill(mrn)
