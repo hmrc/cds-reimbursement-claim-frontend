@@ -56,6 +56,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Features
 
 class EnterMovementReferenceNumberControllerSpec
     extends ControllerSpec
@@ -125,7 +126,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -153,7 +154,37 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
+          doc => {
+            doc
+              .getElementById(s"$messageKey-hint")
+              .text()                              shouldBe messageFromMessageKey(
+              s"$messageKey.multiple.help"
+            )
+            doc.getElementById(messageKey).`val`() shouldBe mrn.value
+          }
+        )
+      }
+
+      "display the page on a pre-existing subsidies journey" in forAll(
+        buildCompleteJourneyGen(
+          generateSubsidyPayments = GenerateSubsidyPayments.All,
+          features = Some(Features(true, true)),
+          submitBankAccountDetails = false,
+          submitBankAccountType = false
+        )
+      ) { journey =>
+        val mrn            = journey.getNthMovementReferenceNumber(1).get
+        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionToAmend)
+        }
+
+        checkPageIsDisplayed(
+          controller.show(2)(FakeRequest()),
+          messageFromMessageKey(s"$messageKey.multiple.title", "second", " subsidy"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -200,7 +231,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number.rejected-goods" -> "")(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
         )
@@ -216,7 +247,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number.rejected-goods" -> invalidMRN.value)(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
           doc => {
             getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
             doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
@@ -413,7 +444,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(messageKey -> mrn.value)(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               s"$messageKey.error.subsidy-payment-found"
@@ -443,7 +474,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(messageKey -> mrn.value)(2),
-          messageFromMessageKey(s"$messageKey.multiple.title", "second"),
+          messageFromMessageKey(s"$messageKey.multiple.title", "second", ""),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               s"$messageKey.error.subsidy-payment-found"
