@@ -141,24 +141,24 @@ class EnterMovementReferenceNumberController @Inject() (
                 } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
                   (
                     journey,
-                    BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN", journey.isSubsidyOnlyJourney))
+                    BadRequest(customError(mrn, pageIndex, "error.wrongMRN", journey.isSubsidyOnlyJourney))
                   )
                 } else if (error.message === "submitMovementReferenceNumber.needsSubsidy") {
                   (
                     journey,
-                    BadRequest(customError(mrn, pageIndex, "multiple.error.needsSubsidy", journey.isSubsidyOnlyJourney))
+                    BadRequest(customError(mrn, pageIndex, "error.needsSubsidy", journey.isSubsidyOnlyJourney))
                   )
                 } else if (error.message === "submitMovementReferenceNumber.needsNonSubsidy") {
                   (
                     journey,
                     BadRequest(
-                      customError(mrn, pageIndex, "multiple.error.needsNonSubsidy", journey.isSubsidyOnlyJourney)
+                      customError(mrn, pageIndex, "error.needsNonSubsidy", journey.isSubsidyOnlyJourney)
                     )
                   )
                 } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
                   (
                     journey,
-                    BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN", journey.isSubsidyOnlyJourney))
+                    BadRequest(customError(mrn, pageIndex, "error.existingMRN", journey.isSubsidyOnlyJourney))
                   )
                 } else {
                   logger.error(s"Unable to record $mrn", error.toException)
@@ -198,7 +198,7 @@ class EnterMovementReferenceNumberController @Inject() (
     enterMovementReferenceNumberPage(
       movementReferenceNumberRejectedGoodsForm
         .fill(mrn)
-        .withError("enter-movement-reference-number", errorSuffix),
+        .withError("enter-movement-reference-number.rejected-goods", errorSuffix),
       subKey,
       pageIndex,
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
