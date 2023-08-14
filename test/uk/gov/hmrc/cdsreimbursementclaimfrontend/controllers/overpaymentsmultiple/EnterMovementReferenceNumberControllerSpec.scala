@@ -228,7 +228,7 @@ class EnterMovementReferenceNumberControllerSpec
           ),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$enterMovementReferenceNumberKey.multiple.error.existingMRN"
+              s"$enterMovementReferenceNumberKey.error.existingMRN"
             ),
           expectedStatus = 400
         )
