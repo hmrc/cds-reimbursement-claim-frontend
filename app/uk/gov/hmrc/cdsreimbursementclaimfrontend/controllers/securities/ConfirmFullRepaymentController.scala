@@ -31,10 +31,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SummaryListCreator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -62,18 +66,32 @@ class ConfirmFullRepaymentController @Inject() (
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
 
+  private def getIndexAndSummaryList(displayDeclaration: DisplayDeclaration, id: String): (Int, SummaryList) =
+    (
+      displayDeclaration.getSecurityDepositIdIndex(id) + 1,
+      getSummaryList(displayDeclaration, id)
+    )
+
+  private def getSummaryList(displayDeclaration: DisplayDeclaration, id: String): SummaryList =
+    SummaryListCreator.create(
+      ("Security deposit ID", id),
+      ("Deposit value", displayDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString)
+    )
+
   def show(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(id)
-      .map(_.getSecurityTotalValueFor(id))
-      .fold((journey, errorHandler.errorResult())) { amountPaid =>
+      .map(getIndexAndSummaryList(_, id))
+      .fold((journey, errorHandler.errorResult())) { case (index, summaryList) =>
         (
           journey.resetClaimFullAmountMode(),
           Ok(
             confirmFullRepaymentPage(
               form.withDefault(journey.getClaimFullAmountStatus(id)),
               id,
-              amountPaid,
+              index,
+              journey.getSelectedDepositIds.length,
+              summaryList,
               routes.ConfirmFullRepaymentController.submit(id)
             )
           )
@@ -92,17 +110,19 @@ class ConfirmFullRepaymentController @Inject() (
               journey,
               journey
                 .getDisplayDeclarationIfValidSecurityDepositId(id)
-                .map(_.getSecurityTotalValueFor(id))
-                .map(amountPaid =>
+                .map(getIndexAndSummaryList(_, id))
+                .map { case (index, summaryList) =>
                   BadRequest(
                     confirmFullRepaymentPage(
                       formWithErrors,
                       id,
-                      amountPaid,
+                      index,
+                      journey.getSelectedDepositIds.length,
+                      summaryList,
                       routes.ConfirmFullRepaymentController.submit(id)
                     )
                   )
-                )
+                }
                 .getOrElse(errorHandler.errorResult())
             ).asFuture,
           answer =>
