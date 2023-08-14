@@ -23,6 +23,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
 object SummaryListCreator {
-  def create(summaryItems: (String, String)*) =
+  def apply(summaryItems: (String, String)*): SummaryList =
     SummaryList(summaryItems.map(item => SummaryListRow(Key(Text(item._1)), Value(Text(item._2)))))
 }

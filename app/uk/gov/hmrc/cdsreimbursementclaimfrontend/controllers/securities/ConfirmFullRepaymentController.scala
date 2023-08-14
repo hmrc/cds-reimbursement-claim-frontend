@@ -66,14 +66,8 @@ class ConfirmFullRepaymentController @Inject() (
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
 
-  private def getIndexAndSummaryList(displayDeclaration: DisplayDeclaration, id: String): (Int, SummaryList) =
-    (
-      displayDeclaration.getSecurityDepositIdIndex(id) + 1,
-      getSummaryList(displayDeclaration, id)
-    )
-
   private def getSummaryList(displayDeclaration: DisplayDeclaration, id: String): SummaryList =
-    SummaryListCreator.create(
+    SummaryListCreator(
       ("Security deposit ID", id),
       ("Deposit value", displayDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString)
     )
@@ -81,15 +75,15 @@ class ConfirmFullRepaymentController @Inject() (
   def show(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(id)
-      .map(getIndexAndSummaryList(_, id))
-      .fold((journey, errorHandler.errorResult())) { case (index, summaryList) =>
+      .map(getSummaryList(_, id))
+      .fold((journey, errorHandler.errorResult())) { case summaryList =>
         (
           journey.resetClaimFullAmountMode(),
           Ok(
             confirmFullRepaymentPage(
               form.withDefault(journey.getClaimFullAmountStatus(id)),
               id,
-              index,
+              journey.getIndexOf(id),
               journey.getSelectedDepositIds.length,
               summaryList,
               routes.ConfirmFullRepaymentController.submit(id)
@@ -110,13 +104,13 @@ class ConfirmFullRepaymentController @Inject() (
               journey,
               journey
                 .getDisplayDeclarationIfValidSecurityDepositId(id)
-                .map(getIndexAndSummaryList(_, id))
-                .map { case (index, summaryList) =>
+                .map(getSummaryList(_, id))
+                .map { case summaryList =>
                   BadRequest(
                     confirmFullRepaymentPage(
                       formWithErrors,
                       id,
-                      index,
+                      journey.getIndexOf(id),
                       journey.getSelectedDepositIds.length,
                       summaryList,
                       routes.ConfirmFullRepaymentController.submit(id)
