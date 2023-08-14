@@ -128,9 +128,9 @@ class EnterMovementReferenceNumberController @Inject() (
                     )
                   )
                 } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
+                  (journey, BadRequest(customError(mrn, pageIndex, "error.wrongMRN")))
                 } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
+                  (journey, BadRequest(customError(mrn, pageIndex, "error.existingMRN")))
                 } else {
                   logger.error(s"Unable to record $mrn", error.toException)
                   (journey, Redirect(baseRoutes.IneligibleController.ineligible()))

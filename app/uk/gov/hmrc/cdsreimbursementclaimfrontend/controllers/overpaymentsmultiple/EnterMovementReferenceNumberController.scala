@@ -120,7 +120,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 previousAnswer.exists(_.value === mrnNumber.value)
 
               if (draftClaim.associatedMRNsAnswer.list.exists(_ === mrnNumber)) {
-                val (key, message) = ("enter-movement-reference-number", "multiple.error.existingMRN")
+                val (key, message) = ("enter-movement-reference-number", "error.existingMRN")
                 showMRNPage(BadRequest, movementReferenceNumberForm.withError(key, message))
               } else if (isSameAsPrevious && draftClaim.isComplete)
                 Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers)
