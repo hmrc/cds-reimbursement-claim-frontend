@@ -97,6 +97,8 @@ class ConfirmFullRepaymentControllerSpec
     val caption             = doc.select("span.govuk-caption-xl").eachText().asScala.toList
     val heading             = doc.select(".govuk-heading-xl").eachText().asScala.toList
     val legend              = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
+    val summaryKeys   = doc.select(".govuk-summary-list__key").eachText().asScala.toList
+    val summaryValues   = doc.select(".govuk-summary-list__value").eachText().asScala.toList
     val currencyFormatter   = NumberFormat.getCurrencyInstance(Locale.UK)
     val amountPaidFormatted = currencyFormatter.format(
       journey.getSecurityDetailsFor(securityId).value.getTotalAmount
@@ -105,16 +107,17 @@ class ConfirmFullRepaymentControllerSpec
       List(
         (if (isError) "Error: "
          else
-           "") + "Do you want to claim back all of this security deposit? - Claim back import duty and VAT - GOV.UK"
+           "") + "Claim back this security deposit? - Claim back import duty and VAT - GOV.UK"
       )
     )
-    caption         should ===(List(s"Security ID: $securityId"))
-    heading         should ===(List("Do you want to claim back all of this security deposit?"))
+    caption         should ===(
+      List(s"Security deposit ${journey.getIndexOf(securityId)} of ${journey.getSelectedDepositIds.length}")
+    )
+    heading         should ===(List("Claim back this security deposit?"))
+    summaryKeys     should ===(List("Security deposit ID", "Deposit value"))
+    summaryValues   should ===(List(securityId, amountPaidFormatted))
     legend          should ===(
-      List(
-        s"The total value of $securityId is " +
-          s"$amountPaidFormatted."
-      )
+      List("Do you want to claim back all of this security deposit?")
     )
     radioItems(doc) should contain theSameElementsAs Seq(
       ("Yes", "true"),
@@ -396,7 +399,7 @@ class ConfirmFullRepaymentControllerSpec
 
           checkPageIsDisplayed(
             performAction(securityId, Seq()),
-            "Do you want to claim back all of this security deposit?",
+            "Claim back this security deposit?",
             doc => validateConfirmFullRepaymentPage(securityId, doc, journey, true),
             400
           )
