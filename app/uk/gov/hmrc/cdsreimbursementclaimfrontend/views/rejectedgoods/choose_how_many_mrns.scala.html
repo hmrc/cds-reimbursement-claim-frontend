@@ -52,8 +52,9 @@
     @paragraph(Html(messages(s"$key.inset.${if (showXiContent) "paragraph-xi-info" else "paragraph"}")))
     @bullets(Seq(
         Html(messages(s"$key.inset.bullet.importer")),
-        Html(messages(s"$key.inset.bullet.reason"))
-    ) ++ (if (showSubsidyContent) Seq(Html(messages(s"$key.inset.bullet.subsidy"))) else Nil))
+        Html(messages(s"$key.inset.bullet.reason")),
+        Html(messages(s"$key.inset.bullet.mop"))
+    ))
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
