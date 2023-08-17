@@ -110,6 +110,39 @@ class CheckDeclarationDetailsControllerSpec
           }
         )
       }
+
+      "display subsidy status when declaration has only subsidy payments" in {
+        val journey = buildCompleteJourneyGen(
+          acc14DeclarantMatchesUserEori = false,
+          acc14ConsigneeMatchesUserEori = false,
+          submitBankAccountType = false,
+          submitBankAccountDetails = false,
+          generateSubsidyPayments = GenerateSubsidyPayments.All,
+          features = Some(RejectedGoodsScheduledJourney.Features(false, true))
+        ).sample.getOrElse(fail("Journey building has failed."))
+
+        val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionToAmend)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => {
+            doc
+              .select(".govuk-summary-list__row dt.govuk-summary-list__key")
+              .get(3)
+              .text() shouldBe messageFromMessageKey(s"$messagesKey.method-of-payment-label")
+            doc
+              .select(".govuk-summary-list__row dd.govuk-summary-list__value")
+              .get(3)
+              .text() shouldBe messageFromMessageKey(s"$messagesKey.subsidy-label")
+          }
+        )
+      }
     }
 
     "Submit Check Declaration Details page" must {

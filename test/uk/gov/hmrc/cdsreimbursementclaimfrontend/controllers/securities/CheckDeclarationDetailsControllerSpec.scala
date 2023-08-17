@@ -123,19 +123,19 @@ class CheckDeclarationDetailsControllerSpec
           .map(_.getTotalSecuritiesAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
         "Total security deposit paid"  -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesPaidAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
-        "Payment method"               -> (if (securitiesReclaims.isEmpty)
-                               Some("Unavailable")
-                             else
-                               journey.answers.displayDeclaration
-                                 .map(
-                                   _.isAllSelectedSecuritiesEligibleForGuaranteePayment(
-                                     securitiesReclaims.keySet
-                                   )
-                                 )
-                                 .map {
-                                   case true  => "Guarantee"
-                                   case false => "Bank account transfer"
-                                 })
+        "Method of payment"            -> (if (securitiesReclaims.isEmpty)
+                                  Some("Unavailable")
+                                else
+                                  journey.answers.displayDeclaration
+                                    .map(
+                                      _.isAllSelectedSecuritiesEligibleForGuaranteePayment(
+                                        securitiesReclaims.keySet
+                                      )
+                                    )
+                                    .map {
+                                      case true  => "Guarantee"
+                                      case false => "Bank account transfer"
+                                    })
       ) ++
         journey.answers.displayDeclaration
           .flatMap(_.getSecurityDepositIds)
