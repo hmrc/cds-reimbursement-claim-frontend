@@ -73,11 +73,7 @@ final class SecuritiesJourney private (
       .flatMap(d => d.getSecurityDetailsFor(securityDepositId).map(_ => d))
 
   def getIndexOf(securityDepositId: String): Int =
-    getLeadDisplayDeclaration
-      .flatMap(d =>
-        d.getSecurityDetailsFor(securityDepositId).map(_ => d.getSecurityDepositIdIndex(securityDepositId) + 1)
-      )
-      .getOrElse(1)
+    this.getSelectedDepositIds.indexOf(securityDepositId) + 1
 
   /** Returns all the security IDs available on the ACC14 declaration. */
   def getSecurityDepositIds: Seq[String] =
