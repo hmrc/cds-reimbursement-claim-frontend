@@ -97,8 +97,8 @@ class ConfirmFullRepaymentControllerSpec
     val caption             = doc.select("span.govuk-caption-xl").eachText().asScala.toList
     val heading             = doc.select(".govuk-heading-xl").eachText().asScala.toList
     val legend              = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
-    val summaryKeys   = doc.select(".govuk-summary-list__key").eachText().asScala.toList
-    val summaryValues   = doc.select(".govuk-summary-list__value").eachText().asScala.toList
+    val summaryKeys         = doc.select(".govuk-summary-list__key").eachText().asScala.toList
+    val summaryValues       = doc.select(".govuk-summary-list__value").eachText().asScala.toList
     val currencyFormatter   = NumberFormat.getCurrencyInstance(Locale.UK)
     val amountPaidFormatted = currencyFormatter.format(
       journey.getSecurityDetailsFor(securityId).value.getTotalAmount
