@@ -122,7 +122,7 @@ class ChooseHowManyMrnsControllerSpec
           val bullets = doc.select("ul.govuk-list li").asScala.toList
           firstP.html()  shouldBe messageFromMessageKey(s"$formKey.p1")
           insetP.html()  shouldBe messageFromMessageKey(s"$formKey.inset.paragraph")
-          bullets.length shouldBe 2
+          bullets.length shouldBe 3
 
           val buttons          = radioButtons(doc)
           val individualButton = extractButton(buttons, "Individual")
@@ -169,7 +169,7 @@ class ChooseHowManyMrnsControllerSpec
       )
     }
 
-    "display the page with subsidies info" in {
+    "display the page with method of payment info" in {
       inSequence {
         mockAuthWithEoriEnrolmentRetrievals(exampleEori)
         mockGetSession(SessionData.empty)
@@ -183,7 +183,7 @@ class ChooseHowManyMrnsControllerSpec
         doc => {
           val bullets = doc.select("ul.govuk-list li").asScala.toList
           bullets.length      shouldBe 3
-          bullets.last.html() shouldBe messageFromMessageKey(s"$formKey.inset.bullet.subsidy")
+          bullets.last.html() shouldBe messageFromMessageKey(s"$formKey.inset.bullet.mop")
 
           val buttons          = radioButtons(doc)
           val individualButton = extractButton(buttons, "Individual")
