@@ -65,6 +65,8 @@
             id = s"$key.sort-code",
             name = s"$key.sort-code",
             label = s"$key.sort-code.label",
+            inputMode = Some("numeric"),
+            pattern = Some("[0-9]*"),
             isPageHeading = false,
             hint = Some(s"$key.sort-code.help-text"),
             classes = Some("govuk-input--width-5")
@@ -75,6 +77,8 @@
             id = s"$key.account-number",
             name = s"$key.account-number",
             label = s"$key.account-number.label",
+            inputMode = Some("numeric"),
+            pattern = Some("[0-9]*"),
             isPageHeading = false,
             hint = Some(s"$key.account-number.help-text"),
             classes = Some("govuk-input--width-10")
