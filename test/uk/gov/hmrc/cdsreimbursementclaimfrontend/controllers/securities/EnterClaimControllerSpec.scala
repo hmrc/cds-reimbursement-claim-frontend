@@ -47,6 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -81,15 +82,22 @@ class EnterClaimControllerSpec
     taxCode: TaxCode,
     amount: BigDecimal
   ) = {
-    doc.select("span.govuk-caption-xl").text()                              shouldBe messages(
-      "enter-claim.securities.title.caption",
-      securityDepositId
+
+    val caption = doc.select("span.govuk-caption-xl").eachText().asScala.toList
+    val heading = doc.select(".govuk-heading-xl").eachText().asScala.toList
+
+    caption should ===(
+      List(
+        messages(
+          "enter-claim.securities.title.caption",
+          securityDepositId
+        )
+      )
     )
-    doc.select("h1").text()                                                 shouldBe messages(
-      "enter-claim.securities.title",
-      taxCode,
-      messages(s"select-duties.duty.$taxCode")
+    heading should ===(
+      List(s"Security ID: $securityDepositId Claim details for $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
     )
+
     doc.select("#amount-paid").text()                                       shouldBe amount.toPoundSterlingString
     doc.select("input[name='enter-claim.securities.claim-amount']").`val`() shouldBe ""
     doc.select("form").attr("action")                                       shouldBe routes.EnterClaimController.submit(securityDepositId, taxCode).url
