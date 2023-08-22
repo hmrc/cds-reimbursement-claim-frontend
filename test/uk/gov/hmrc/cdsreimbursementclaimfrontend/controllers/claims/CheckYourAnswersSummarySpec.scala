@@ -31,14 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -62,23 +59,6 @@ abstract class CheckYourAnswersSummarySpec
   implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  protected def genData(maybeTypeOfClaim: TypeOfClaimAnswer): (SessionData, DraftClaim) = {
-    val ggCredId            = sample[GGCredId]
-    val signedInUserDetails = sample[SignedInUserDetails]
-    val claim               = sample(genValidDraftClaim(maybeTypeOfClaim))
-    val fillingOutClaim     = FillingOutClaim(ggCredId, signedInUserDetails, claim)
-    val session             = SessionData.empty.copy(journeyStatus = Some(fillingOutClaim))
-    (session, claim)
-  }
-
-  def draftClaimGen(
-    maybeTypeOfClaim: TypeOfClaimAnswer
-  ): Gen[(SessionData, DraftClaim, SignedInUserDetails)] = for {
-    ggCredId            <- implicitly[Arbitrary[GGCredId]].arbitrary
-    signedInUserDetails <- implicitly[Arbitrary[SignedInUserDetails]].arbitrary
-    claim               <- genValidDraftClaim(maybeTypeOfClaim)
-    fillingOutClaim      = FillingOutClaim(ggCredId, signedInUserDetails, claim)
-  } yield (SessionData.empty.copy(journeyStatus = Some(fillingOutClaim)), claim, signedInUserDetails)
 }
 
 object CheckYourAnswersSummarySpec extends HtmlParseSupport {

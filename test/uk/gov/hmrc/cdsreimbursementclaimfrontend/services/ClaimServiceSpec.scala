@@ -31,9 +31,7 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
@@ -42,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayRespo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
@@ -55,12 +52,11 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
   implicit val hc: HeaderCarrier   = HeaderCarrier()
   implicit val request: Request[_] = FakeRequest()
 
-  val mockClaimConnector: ClaimConnector             = mock[ClaimConnector]
   val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
 
   val language: Lang = Lang("en")
 
-  val claimService = new DefaultClaimService(mockClaimConnector, mockDeclarationConnector)
+  val claimService = new DefaultClaimService(mockDeclarationConnector)
 
   val okSubmitClaimResponse: JsValue = Json.parse(
     """
@@ -117,14 +113,6 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
       |""".stripMargin
   )
 
-  def mockSubmitClaim(c285Claim: C285ClaimRequest)(
-    response: Either[Error, HttpResponse]
-  ): CallHandler2[C285ClaimRequest, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
-    (mockClaimConnector
-      .submitClaim(_: C285ClaimRequest)(_: HeaderCarrier))
-      .expects(c285Claim, *)
-      .returning(EitherT.fromEither[Future](response))
-
   def mockGetDisplayDeclaration(mrn: MRN)(
     response: Either[Error, HttpResponse]
   ): CallHandler2[MRN, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
@@ -142,44 +130,6 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
       .returning(EitherT.fromEither[Future](response))
 
   "Claim Service" when {
-
-    "handling request to submit a claim" must {
-
-      "return an error" when {
-
-        "the http call fails" in {
-          val submitClaimRequest = sample[C285ClaimRequest]
-          mockSubmitClaim(submitClaimRequest)(Left(Error("boom!")))
-          await(claimService.submitClaim(submitClaimRequest, language).value).isLeft shouldBe true
-        }
-
-        "the http call comes back with invalid json" in {
-          val submitClaimRequest = sample[C285ClaimRequest]
-          mockSubmitClaim(submitClaimRequest)(Right(HttpResponse(INTERNAL_SERVER_ERROR, "---")))
-          await(claimService.submitClaim(submitClaimRequest, language).value).isLeft shouldBe true
-        }
-
-        "the http call comes back with a status other than 200" in {
-          val submitClaimRequest = sample[C285ClaimRequest]
-          mockSubmitClaim(submitClaimRequest)(Right(HttpResponse(INTERNAL_SERVER_ERROR, "{}")))
-          await(claimService.submitClaim(submitClaimRequest, language).value).isLeft shouldBe true
-        }
-      }
-
-      "return an ok response" when {
-        "the http response came back with a 200 OK" in {
-          val submitClaimRequest = sample[C285ClaimRequest]
-          mockSubmitClaim(submitClaimRequest)(
-            Right(HttpResponse(OK, okSubmitClaimResponse, Map[String, Seq[String]]()))
-          )
-          await(claimService.submitClaim(submitClaimRequest, language).value) shouldBe Right(
-            SubmitClaimResponse("NDRC-1")
-          )
-        }
-
-      }
-
-    }
 
     "handling request to get a declaration" must {
 

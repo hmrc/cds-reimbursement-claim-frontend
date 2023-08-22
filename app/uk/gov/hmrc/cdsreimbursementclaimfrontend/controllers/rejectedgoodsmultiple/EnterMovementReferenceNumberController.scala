@@ -27,7 +27,6 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberRejectedGoodsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes.subKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -72,7 +71,7 @@ class EnterMovementReferenceNumberController @Inject() (
          enterMovementReferenceNumberPage(
            movementReferenceNumberRejectedGoodsForm
              .withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
-           subKey,
+           Some("multiple"),
            pageIndex,
            routes.EnterMovementReferenceNumberController.submit(pageIndex),
            isSubsidy = journey.isSubsidyOnlyJourney
@@ -99,7 +98,7 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors,
-                  subKey,
+                  Some("multiple"),
                   pageIndex,
                   routes.EnterMovementReferenceNumberController.submit(pageIndex),
                   isSubsidy = journey.isSubsidyOnlyJourney
@@ -131,7 +130,7 @@ class EnterMovementReferenceNumberController @Inject() (
                       enterMovementReferenceNumberPage(
                         filledForm
                           .withError("enter-movement-reference-number.rejected-goods", error.message),
-                        subKey,
+                        Some("multiple"),
                         pageIndex,
                         routes.EnterMovementReferenceNumberController.submit(pageIndex),
                         isSubsidy = journey.isSubsidyOnlyJourney
@@ -199,7 +198,7 @@ class EnterMovementReferenceNumberController @Inject() (
       movementReferenceNumberRejectedGoodsForm
         .fill(mrn)
         .withError("enter-movement-reference-number.rejected-goods", errorSuffix),
-      subKey,
+      Some("multiple"),
       pageIndex,
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
     )

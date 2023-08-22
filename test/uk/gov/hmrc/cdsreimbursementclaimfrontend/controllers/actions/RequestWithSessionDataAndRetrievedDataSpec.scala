@@ -31,11 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRespons
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.arbitraryIndividual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.C285ClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.C285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -77,48 +74,14 @@ class RequestWithSessionDataAndRetrievedDataSpec
         request.signedInUserDetails shouldBe None
       }
 
-      "We have a C285 Filling Out Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
-        val fillingOutClaim: JourneyStatus =
-          JourneyStatus.FillingOutClaim(
-            randomIndividual.ggCredId,
-            signedInUser(randomIndividual),
-            DraftClaim.blank
-          )
-        val request                        = RequestWithSessionDataAndRetrievedData(
-          SessionData(journeyStatus = Some(fillingOutClaim)),
-          authenticatedRequest(randomIndividual)
-        )
-        request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
-      }
-
-      "We have a C285 Just Submitted Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
-        val claim: C285Claim = sample[C285Claim]
-
-        val justSubmittedClaim: JourneyStatus =
-          JourneyStatus.JustSubmittedClaim(
-            randomIndividual.ggCredId,
-            signedInUser(randomIndividual),
-            claim,
-            SubmitClaimResponse("Case Number")
-          )
-
-        val request =
-          RequestWithSessionDataAndRetrievedData(
-            SessionData(journeyStatus = Some(justSubmittedClaim)),
-            authenticatedRequest(randomIndividual)
-          )
-
-        request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))
-      }
-
-      "We have a C285 Failed Submitted Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
-        val claim: JourneyStatus =
-          JourneyStatus.SubmitClaimFailed(
+      "We have a Government Gateway Claim" in forAll { randomIndividual: AuthenticatedUser.Individual =>
+        val ggJourney: JourneyStatus =
+          JourneyStatus.GovernmentGatewayJourney(
             randomIndividual.ggCredId,
             signedInUser(randomIndividual)
           )
-        val request              = RequestWithSessionDataAndRetrievedData(
-          SessionData(journeyStatus = Some(claim)),
+        val request                  = RequestWithSessionDataAndRetrievedData(
+          SessionData(journeyStatus = Some(ggJourney)),
           authenticatedRequest(randomIndividual)
         )
         request.signedInUserDetails shouldBe Some(signedInUser(randomIndividual))

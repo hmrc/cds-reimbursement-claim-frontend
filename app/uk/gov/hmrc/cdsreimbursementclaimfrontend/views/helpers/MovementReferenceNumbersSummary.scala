@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.LeadMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
@@ -58,7 +57,8 @@ object MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
           Actions(items =
             Seq(
               ActionItem(
-                href = s"${overpaymentsMultipleRoutes.EnterAssociatedMrnController.changeMrn(mrnIndex).url}",
+                href = "", //  s"${overpaymentsMultipleRoutes.EnterAssociatedMrnController.changeMrn(mrnIndex).url}",
+                // TODO: investigate the line above, why are we using these old routes? this is still used in uk/gov/hmrc/cdsreimbursementclaimfrontend/views/claims/check_your_answers.scala.html
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
                   messages(

@@ -24,7 +24,6 @@ import play.api.data.validation.Valid
 import play.api.data.Form
 import play.api.data.Mapping
 import play.api.data.validation.Constraints.maxLength
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.dataKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
@@ -63,7 +62,7 @@ object Forms {
     )(OverpaymentsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
   )
 
-  val northernIrelandForm: Form[YesNo] = YesOrNoQuestionForm(dataKey)
+  val northernIrelandForm: Form[YesNo] = YesOrNoQuestionForm("claim-northern-ireland")
 
   val selectSecuritiesForm: Form[YesNo] = YesOrNoQuestionForm("select-securities")
 

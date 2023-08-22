@@ -19,11 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -33,16 +33,20 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   "The basis of claims" should {
 
     "filter Northern Ireland claims" in {
-      val draftC285Claim = sample[DraftClaim].copy(
-        movementReferenceNumber = Some(sample[MRN]),
-        whetherNorthernIrelandAnswer = No.some
-      )
+      val journeyAnswers =
+        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
+          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+          .answers
+          .copy(
+            movementReferenceNumber = Some(sample[MRN]),
+            whetherNorthernIreland = Some(false)
+          )
 
       val claims: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
-          draftC285Claim.displayDeclaration
+          journeyAnswers.whetherNorthernIreland.getOrElse(false),
+          journeyAnswers.displayDeclaration
         )
 
       claims should be(
@@ -66,16 +70,20 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "contain Northern Ireland claims" in {
-    val draftC285Claim = sample[DraftClaim].copy(
-      movementReferenceNumber = sample[MRN].some,
-      whetherNorthernIrelandAnswer = Yes.some,
-      displayDeclaration = None
-    )
+    val draftC285Claim =
+      OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
+        .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+        .answers
+        .copy(
+          movementReferenceNumber = Some(sample[MRN]),
+          whetherNorthernIreland = Some(true),
+          displayDeclaration = None
+        )
 
     val claims: Set[BasisOfOverpaymentClaim] =
       BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
         true,
-        draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
+        draftC285Claim.whetherNorthernIreland.getOrElse(false),
         draftC285Claim.displayDeclaration
       )
 

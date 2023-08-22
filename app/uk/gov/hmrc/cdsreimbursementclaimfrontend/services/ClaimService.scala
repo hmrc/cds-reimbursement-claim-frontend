@@ -25,8 +25,6 @@ import com.google.inject.Singleton
 import play.api.http.Status._
 import play.api.i18n.Lang
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -42,11 +40,6 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {
-
-  def submitClaim(submitClaimRequest: C285ClaimRequest, lang: Lang)(implicit
-    hc: HeaderCarrier
-  ): EitherT[Future, Error, SubmitClaimResponse]
-
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
 
   def getDisplayDeclaration(mrn: MRN, rfs: ReasonForSecurity)(implicit
@@ -60,29 +53,11 @@ trait ClaimService {
 
 @Singleton
 class DefaultClaimService @Inject() (
-  claimConnector: ClaimConnector,
   DeclarationConnector: DeclarationConnector
 )(implicit
   ec: ExecutionContext
 ) extends ClaimService
     with Logging {
-
-  def submitClaim(
-    submitClaimRequest: C285ClaimRequest,
-    lang: Lang
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
-    claimConnector.submitClaim(submitClaimRequest).subflatMap { httpResponse =>
-      if (httpResponse.status === OK)
-        httpResponse
-          .parseJSON[SubmitClaimResponse]()
-          .leftMap(Error(_))
-      else
-        Left(
-          Error(
-            s"call to get submit claim came back with status ${httpResponse.status}}"
-          )
-        )
-    }
 
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     DeclarationConnector

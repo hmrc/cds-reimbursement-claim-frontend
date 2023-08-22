@@ -4,12 +4,6 @@ POST        /check-eori-details                    uk.gov.hmrc.cdsreimbursementc
 GET         /select-claim-type                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.show()
 POST        /select-claim-type                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.submit()
 
-GET         /choose-how-many-mrns                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController.show()
-POST        /choose-how-many-mrns                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController.submit()
-
-GET         /single/change-number-of-claims        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController.show()
-POST        /single/change-number-of-claims        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SelectTypeOfClaimController.submit()
-
 GET         /bank-account-verification-unavailable uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.BankAccountVerificationUnavailable.show()
 
 GET         /sign-out                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.SignOutController.showSignOutPage()

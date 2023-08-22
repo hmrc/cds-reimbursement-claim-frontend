@@ -22,7 +22,6 @@ import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
@@ -64,7 +63,7 @@ class SelectDutiesController @Inject() (
               availableDuties,
               Some((pageIndex, mrn)),
               false,
-              MRNMultipleRoutes.subKey,
+              Some("multiple"),
               routes.SelectDutiesController.submit(pageIndex),
               isSubsidyOnly = journey.isSubsidyOnlyJourney
             )
@@ -97,7 +96,7 @@ class SelectDutiesController @Inject() (
                         availableDuties,
                         Some((pageIndex, mrn)),
                         false,
-                        MRNMultipleRoutes.subKey,
+                        Some("multiple"),
                         routes.SelectDutiesController.submit(pageIndex),
                         isSubsidyOnly = journey.isSubsidyOnlyJourney
                       )

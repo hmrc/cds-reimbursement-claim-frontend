@@ -23,12 +23,8 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction.NextPageBuilder
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -44,12 +40,6 @@ final case class RequestWithSessionData[A](
 
   override def messagesApi: MessagesApi = authenticatedRequest.request.messagesApi
 
-  val signedInUserDetails: Option[SignedInUserDetails] = sessionData.flatMap(_.journeyStatus).collect {
-    case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => signedInUserDetails
-    case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => signedInUserDetails
-    case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => signedInUserDetails
-  }
-
   def using(
     matchExpression: PartialFunction[JourneyStatus, Future[Result]],
     applyIfNone: => Result = startNewJourney
@@ -61,10 +51,6 @@ final case class RequestWithSessionData[A](
 
   def startNewJourney: Result =
     Redirect(baseRoutes.StartController.start())
-
-  def routeToCheckAnswers(journeyBindable: JourneyBindable): NextPageBuilder =
-    NextPageBuilder(ReimbursementRoutes(journeyBindable))
-
 }
 
 @Singleton
@@ -94,16 +80,4 @@ class SessionDataAction @Inject() (
         override val headersFromRequestOnly: Boolean = b
       }
 
-}
-
-object SessionDataAction {
-
-  final case class NextPageBuilder(router: ReimbursementRoutes) extends AnyVal {
-    import router._
-
-    def whenComplete(claim: DraftClaim)(alternatively: Call): Result =
-      Redirect(
-        CheckAnswers.when(claim.isComplete)(alternatively)
-      )
-  }
 }
