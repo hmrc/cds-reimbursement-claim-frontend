@@ -107,7 +107,7 @@ class ConfirmFullRepaymentControllerSpec
       List(
         (if (isError) "Error: "
          else
-           "") + "Claim back this security deposit? - Claim back import duty and VAT - GOV.UK"
+           "") + s"Security deposit ${journey.getIndexOf(securityId)} of ${journey.getSelectedDepositIds.length}: Claim back this security deposit? - Claim back import duty and VAT - GOV.UK"
       )
     )
     caption         should ===(

@@ -39,6 +39,8 @@
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
+  @caption = @{messages(s"$key.caption", securityId)}
+  @pageTitleWithCaption = @{s"$caption: $title"}
 
   @options = @{SelectDutiesSummary(dutiesToDisplay).zipWithIndex.map {
     case (dutyDescription: DutyDescription, _: Int) =>
@@ -54,12 +56,12 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(title), hasErrors = hasErrors) {
+    @layout(pageTitle = Some(pageTitleWithCaption), hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @heading(Html(title), messages(s"$key.caption", securityId))
+        @heading(Html(title), caption)
         @checkboxes(
             field = form(s"$key"),
             legendAsHeading = false,

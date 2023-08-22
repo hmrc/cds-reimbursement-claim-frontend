@@ -42,16 +42,18 @@
 
 @key = @{"select-securities"}
 @title = @{messages(s"$key.title")}
+@caption = @{messages(s"$key.title.caption", currentIndex, maxIndex)}
+@pageTitleWithCaption = @{s"$caption: $title"}
 @currentIndex = @{declaration.getSecurityDepositIdIndex(securityDepositId) + 1}
 @maxIndex = @{declaration.getNumberOfSecurityDeposits}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$pageTitleWithCaption"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), caption = messages(s"$key.title.caption", currentIndex, maxIndex))
+    @heading(Html(title), caption = caption)
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

@@ -42,16 +42,18 @@
 
 @key = @{"confirm-full-repayment"}
 @title = @{messages(s"$key.title")}
+@caption = @{messages(s"$key.caption", index, size)}
+@pageTitleWithCaption = @{s"$caption: $title"}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(title), hasErrors = hasErrors) {
+@layout(pageTitle = Some(pageTitleWithCaption), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @errorSummary(form.errors)
 
-        @heading(Html(title), messages(s"$key.caption", index, size))
+        @heading(Html(title), caption)
 
         @summary(summaryItems)
 
