@@ -74,7 +74,7 @@
 
     @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
         displayDeclaration,
-        s"check-your-answers.declaration-details",
+        key,
         routes.EnterMovementReferenceNumberController.show(),
         routes.ChooseReasonForSecurityController.show()
     ).rows ++
@@ -90,7 +90,7 @@
             } else {
                 Seq(
                     SummaryListRow(
-                        key = Key(Text(messages(s"check-declaration-details.payment-method.label"))),
+                        key = Key(Text(messages(s"$key.method-of-payment-label"))),
                         value = Value(Text(
                             messages(
                                 if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)) {

@@ -667,9 +667,31 @@ check-declaration-details.error.invalid=Select yes to continue with this MRN
 check-declaration-details.error.number=Select yes to continue with this MRN
 check-declaration-details.error.required=Select yes to continue with this MRN
 check-declaration-details.scheduled.mrn-number.label=First MRN
-check-declaration-details.payment-method.label=Payment method
+check-declaration-details.method-of-payment-label=Method of payment
+check-declaration-details.subsidy-label=Subsidy
 check-declaration-details.payment-method.unavailable=Unavailable
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
+check-declaration-details.label=Declaration details
+check-declaration-details.mrn-label=MRN
+check-declaration-details.securities.mrn-label=Import MRN
+check-declaration-details.multiple.mrn-label=First MRN
+check-declaration-details.scheduled.mrn-label=First MRN
+check-declaration-details.import-date-label=Import date
+check-declaration-details.paid-charges-label=Duties and VAT paid
+check-declaration-details.paid-duties-charges-label=Duties paid
+check-declaration-details.paid-vat-charges-label=VAT paid
+check-declaration-details.importer-name-label=Importer name
+check-declaration-details.importer-email-label=Importer email
+check-declaration-details.importer-telephone-label=Importer telephone
+check-declaration-details.importer-address-label=Importer address
+check-declaration-details.declarant-name-label=Declarant name
+check-declaration-details.declarant-address-label=Declarant address
+check-declaration-details.reason-for-security-label=Reason for security deposit
+check-declaration-details.acceptance-date-label=Date duty to be collected
+check-declaration-details.bta-due-date-label=Date security deposit made
+check-declaration-details.subsidy-status-label=Subsidy status
+check-declaration-details.method-of-payment-label=Method of payment
+check-declaration-details.subsidy-label=Subsidy
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
