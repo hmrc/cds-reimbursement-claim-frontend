@@ -113,7 +113,11 @@ class ConfirmFullRepaymentControllerSpec
     caption         should ===(
       List(s"Security deposit ${journey.getIndexOf(securityId)} of ${journey.getSelectedDepositIds.length}")
     )
-    heading         should ===(List("Claim back this security deposit?"))
+    heading         should ===(
+      List(
+        s"Security deposit ${journey.getIndexOf(securityId)} of ${journey.getSelectedDepositIds.length} Claim back this security deposit?"
+      )
+    )
     summaryKeys     should ===(List("Security deposit ID", "Deposit value"))
     summaryValues   should ===(List(securityId, amountPaidFormatted))
     legend          should ===(

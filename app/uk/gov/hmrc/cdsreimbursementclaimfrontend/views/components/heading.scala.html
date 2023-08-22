@@ -21,17 +21,13 @@
 @(
     heading: Html,
     caption: String = "",
-    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content",
-    id: String = null
+    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content"
 )
 
 
-@if(caption.nonEmpty) {
-    <span class="govuk-caption-xl">@caption</span>
-}
-
-@if(id==null){<h1 class="@classes">
+<h1 class="@classes">
+    @if(caption.nonEmpty) {
+        <span class="govuk-caption-xl">@caption</span>
+    }
     @heading
-</h1>} else {<h1 id="@id" class="@classes">
-    @heading
-</h1>}
+</h1>
