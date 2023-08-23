@@ -61,18 +61,6 @@ class StartController @Inject() (
 
   val start: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-      logger.warn("Session data: " + Json.toJson(request.sessionData).toString())
-      logger.warn(
-        "Authenticated request: " + Json
-          .toJson(
-            (
-              request.authenticatedRequest.userType,
-              request.authenticatedRequest.request.session.data,
-              request.authenticatedRequest.journeyUserType match { case x => (x.name, x.email) }
-            )
-          )
-          .toString()
-      )
       handleAuthenticatedUser(request.authenticatedRequest.journeyUserType)
     }
 
