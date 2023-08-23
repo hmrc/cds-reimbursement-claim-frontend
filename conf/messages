@@ -1469,10 +1469,12 @@ supporting-evidence.choose-document-type.error.invalid-document-type=The selecte
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
 schedule-document.upload.title=Add a document showing all MRNs in this claim
+schedule-document.upload.title.subsidy=Add a document which shows all the subsidy MRNs in this claim
 schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with both GB and XI EORI numbers.
 schedule-document.upload.things-to-show.p1=The MRNs in the document must:
 schedule-document.upload.things-to-show.l1=all be from the same importer
 schedule-document.upload.things-to-show.l2=all have the same reason for overpayment
+schedule-document.upload.things-to-show.l3=have the same method of payment
 schedule-document.upload.help-text.para2=Use this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">MRN claim template (opens in new tab)</a> to help you provide the required details in the file you upload.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
 schedule-document.upload.help-text.para4=This document can be up to 10MB and must be a JPG, PNG or PDF.
