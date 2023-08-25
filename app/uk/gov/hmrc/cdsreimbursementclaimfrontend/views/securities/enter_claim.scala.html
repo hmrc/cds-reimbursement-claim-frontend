@@ -39,14 +39,16 @@
 
 @key = @{"enter-claim.securities"}
 @title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
+@caption = @{messages(s"$key.title.caption", securityDepositId)}
+@pageTitleWithCaption = @{s"$caption: $title"}
 @hintText = @{Html(messages(s"$key.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$pageTitleWithCaption"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), caption = messages(s"$key.title.caption", securityDepositId))
+    @heading(Html(title), caption = caption)
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

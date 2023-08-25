@@ -20,9 +20,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -106,7 +104,7 @@ object SecuritiesReclaimDetailsSummary {
           )
         )
       )
-    ) ++ reclaims.toList.sorted.zipWithIndex.map { case ((taxCode, amount), index) =>
+    ) ++ reclaims.toList.sorted.zipWithIndex.map { case ((taxCode, amount), _) =>
       SummaryListRow(
         key = Key(HtmlContent(messages(s"tax-code.$taxCode"))),
         value = Value(Text(amount.toPoundSterlingString)),

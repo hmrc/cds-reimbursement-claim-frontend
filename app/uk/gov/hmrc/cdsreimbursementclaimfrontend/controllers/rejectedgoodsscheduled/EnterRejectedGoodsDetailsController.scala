@@ -23,8 +23,10 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
 
 import javax.inject.Inject
@@ -53,25 +55,49 @@ class EnterRejectedGoodsDetailsController @Inject() (
     ).asFuture
   }
 
-  def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    enterRejectedGoodsDetailsForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            BadRequest(
-              enterRejectedGoodsDetailsPage(
-                formWithErrors,
-                postAction
+  def submit: Action[AnyContent] = actionReadWriteJourney {
+    implicit request => (journey: RejectedGoodsScheduledJourney) =>
+      enterRejectedGoodsDetailsForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(
+                enterRejectedGoodsDetailsPage(
+                  formWithErrors,
+                  postAction
+                )
               )
+            ),
+          details => {
+            val updatedJourney = journey
+              .submitDetailsOfRejectedGoods(details)
+            println("IMPORTANTT!!!!!")
+            println(journey.features.exists(_.shouldAllowSubsidyOnlyPayments))
+            println(
+              journey.getDisplayDeclarations
+                .flatMap(dis => dis.getNdrcDetailsList.map(nd => nd.map(ndrc => ndrc.hasSubsidyPaymentMethod)))
+                .flatten
             )
-          ),
-        details => {
-          val updatedJourney = journey.submitDetailsOfRejectedGoods(details)
-          (updatedJourney, Redirect(routes.SelectDutyTypesController.show()))
-        }
-      )
-      .asFuture
+            println(journey.isSubsidyOnlyJourney)
+            if (journey.isSubsidyOnlyJourney) {
+              updatedJourney
+                .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.EuDuty))
+                .fold(
+                  errors => {
+                    logger.error(s"Error updating duty types  - $errors")
+                    (journey, BadRequest(enterRejectedGoodsDetailsPage(enterRejectedGoodsDetailsForm, postAction)))
+                  },
+                  subsidyJourney => (subsidyJourney, Redirect(routes.SelectDutiesController.show(DutyType.EuDuty)))
+                )
+
+            } else {
+              (updatedJourney, Redirect(routes.SelectDutyTypesController.show()))
+            }
+
+          }
+        )
+        .asFuture
   }
 }

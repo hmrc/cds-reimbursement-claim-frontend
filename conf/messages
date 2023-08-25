@@ -409,8 +409,8 @@ check-movement-reference-numbers.error.required=Select yes to add another Moveme
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS - REJECTED GOODS
 #===================================================
-check-movement-reference-numbers.rejected-goods.title=Movement Reference Numbers (MRNs) added to your claim
-check-movement-reference-numbers.rejected-goods.help-text=These are the MRNs that you have added so far. You can add more if you wish.
+check-movement-reference-numbers.rejected-goods.title=Movement Reference Numbers (MRNs) added
+check-movement-reference-numbers.rejected-goods.help-text=These are the MRNs that you have added to your claim so far. You can add more if you wish.
 check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=First MRN
 check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} MRN
 check-movement-reference-numbers.rejected-goods.add-another-mrn-question=Do you want to add another MRN?
@@ -667,9 +667,31 @@ check-declaration-details.error.invalid=Select yes to continue with this MRN
 check-declaration-details.error.number=Select yes to continue with this MRN
 check-declaration-details.error.required=Select yes to continue with this MRN
 check-declaration-details.scheduled.mrn-number.label=First MRN
-check-declaration-details.payment-method.label=Payment method
+check-declaration-details.method-of-payment-label=Method of payment
+check-declaration-details.subsidy-label=Subsidy
 check-declaration-details.payment-method.unavailable=Unavailable
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
+check-declaration-details.label=Declaration details
+check-declaration-details.mrn-label=MRN
+check-declaration-details.securities.mrn-label=Import MRN
+check-declaration-details.multiple.mrn-label=First MRN
+check-declaration-details.scheduled.mrn-label=First MRN
+check-declaration-details.import-date-label=Import date
+check-declaration-details.paid-charges-label=Duties and VAT paid
+check-declaration-details.paid-duties-charges-label=Duties paid
+check-declaration-details.paid-vat-charges-label=VAT paid
+check-declaration-details.importer-name-label=Importer name
+check-declaration-details.importer-email-label=Importer email
+check-declaration-details.importer-telephone-label=Importer telephone
+check-declaration-details.importer-address-label=Importer address
+check-declaration-details.declarant-name-label=Declarant name
+check-declaration-details.declarant-address-label=Declarant address
+check-declaration-details.reason-for-security-label=Reason for security deposit
+check-declaration-details.acceptance-date-label=Date duty to be collected
+check-declaration-details.bta-due-date-label=Date security deposit made
+check-declaration-details.subsidy-status-label=Subsidy status
+check-declaration-details.method-of-payment-label=Method of payment
+check-declaration-details.subsidy-label=Subsidy
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - ALTERNATIVE TEXTS
@@ -845,8 +867,8 @@ enter-rejected-goods-details.rejected-goods.bullet.2=the quantity of goods being
 enter-rejected-goods-details.rejected-goods.bullet.3=the value of the goods being claimed for
 enter-rejected-goods-details.rejected-goods.bullet.4=the reason for rejection
 enter-rejected-goods-details.rejected-goods.label=Provide details of the rejected goods
-enter-rejected-goods-details.rejected-goods.error.required=Enter the details of the rejected goods
-enter-rejected-goods-details.rejected-goods.error.maxLength=Details of the rejected goods must be 500 characters or less
+enter-rejected-goods-details.rejected-goods.error.required=Enter details of the rejected goods
+enter-rejected-goods-details.rejected-goods.error.maxLength=Details of the rejected goods must be 500 characters or fewer
 
 #===================================================
 #  ENTER ADDITIONAL DETAILS PAGE
@@ -1447,10 +1469,12 @@ supporting-evidence.choose-document-type.error.invalid-document-type=The selecte
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
 schedule-document.upload.title=Add a document showing all MRNs in this claim
+schedule-document.upload.title.subsidy=Add a document which shows all the subsidy MRNs in this claim
 schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with both GB and XI EORI numbers.
 schedule-document.upload.things-to-show.p1=The MRNs in the document must:
 schedule-document.upload.things-to-show.l1=all be from the same importer
 schedule-document.upload.things-to-show.l2=all have the same reason for overpayment
+schedule-document.upload.things-to-show.l3=have the same method of payment
 schedule-document.upload.help-text.para2=Use this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">MRN claim template (opens in new tab)</a> to help you provide the required details in the file you upload.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
 schedule-document.upload.help-text.para4=This document can be up to 10MB and must be a JPG, PNG or PDF.

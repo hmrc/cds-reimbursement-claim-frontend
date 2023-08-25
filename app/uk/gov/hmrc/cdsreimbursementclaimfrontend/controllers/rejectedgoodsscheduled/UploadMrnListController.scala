@@ -55,13 +55,16 @@ class UploadMrnListController @Inject() (
       if (journey.hasCompleteAnswers) checkYourAnswers
       else routes.CheckClaimantDetailsController.show()
 
+    val isSubsidy = journey.isSubsidyOnlyJourney
+
     uploadDocumentsConnector
       .initialize(
         UploadDocumentsConnector
           .Request(
             uploadDocumentsSessionConfig(
               journey.answers.nonce,
-              continueUrl
+              continueUrl,
+              isSubsidy
             ),
             journey.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty)
           )
@@ -111,7 +114,8 @@ class UploadMrnListController @Inject() (
 
   def uploadDocumentsSessionConfig(
     nonce: Nonce,
-    continueUrl: Call
+    continueUrl: Call,
+    isSubsidy: Boolean
   )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
@@ -127,7 +131,7 @@ class UploadMrnListController @Inject() (
       cargo = Some(UploadDocumentType.ScheduleOfMRNs),
       newFileDescription =
         Some(messages(s"schedule-document.file-type.${UploadDocumentType.keyOf(UploadDocumentType.ScheduleOfMRNs)}")),
-      content = uploadDocumentsContent,
+      content = uploadDocumentsContent(isSubsidy),
       features = UploadDocumentsSessionConfig.Features(
         showUploadMultiple = true,
         showLanguageSelection = viewConfig.enableLanguageSwitching,
@@ -136,14 +140,16 @@ class UploadMrnListController @Inject() (
       )
     )
 
-  def uploadDocumentsContent(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
+  def uploadDocumentsContent(isSubsidy: Boolean)(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
     val descriptionHtml = upload_mrn_list_description(
       "schedule-document.upload"
     )(messages).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
-      title = messages("schedule-document.upload.title"),
+      title =
+        if (isSubsidy) messages("schedule-document.upload.title.subsidy")
+        else messages("schedule-document.upload.title"),
       descriptionHtml = descriptionHtml,
       serviceUrl = viewConfig.homePageUrl,
       accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
