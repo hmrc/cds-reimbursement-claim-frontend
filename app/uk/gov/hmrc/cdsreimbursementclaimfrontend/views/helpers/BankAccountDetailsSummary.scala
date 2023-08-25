@@ -37,7 +37,16 @@ object BankAccountDetailsSummary {
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.account-name.label"))),
           value = Value(Text(bankAccountDetails.accountName.value)),
-          classes = "govuk-summary-list__row--no-border",
+          classes = "govuk-summary-list__row--no-border"
+        ),
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.sort-code.label"))),
+          value = Value(Text(bankAccountDetails.sortCode.masked)),
+          classes = "govuk-summary-list__row--no-border"
+        ),
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.account-number.label"))),
+          value = Value(Text(bankAccountDetails.accountNumber.masked)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
@@ -49,15 +58,6 @@ object BankAccountDetailsSummary {
               )
             )
           )
-        ),
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.sort-code.label"))),
-          value = Value(Text(bankAccountDetails.sortCode.masked)),
-          classes = "govuk-summary-list__row--no-border"
-        ),
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.account-number.label"))),
-          value = Value(Text(bankAccountDetails.accountNumber.masked))
         )
       )
     )
