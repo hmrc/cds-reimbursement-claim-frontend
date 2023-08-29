@@ -170,7 +170,6 @@ trait CommonJourneyProperties {
       def currentUserEmail = verifiedEmailOpt
         .map(_.toEmail)
         .orElse(authenticatedUser.email)
-        .getOrElse(Email(""))
       (
         getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
         getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
@@ -179,7 +178,7 @@ trait CommonJourneyProperties {
           MrnContactDetails(
             consigneeContactDetails.contactName.getOrElse(""),
             consigneeContactDetails.maybeEmailAddress
-              .fold(currentUserEmail)(address => Email(address)),
+              .fold(currentUserEmail)(address => Some(Email(address))),
             consigneeContactDetails.telephone.map(PhoneNumber(_))
           )
 
@@ -187,7 +186,7 @@ trait CommonJourneyProperties {
           MrnContactDetails(
             declarantContactDetails.contactName.getOrElse(""),
             declarantContactDetails.maybeEmailAddress
-              .fold(currentUserEmail)(address => Email(address)),
+              .fold(currentUserEmail)(address => Some(Email(address))),
             declarantContactDetails.telephone.map(PhoneNumber(_))
           )
 

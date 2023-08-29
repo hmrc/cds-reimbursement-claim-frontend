@@ -103,7 +103,7 @@ class EnterContactDetailsControllerSpec
                 .`val`() shouldBe contactDetails.get.fullName
               doc
                 .select("form input[name='enter-contact-details.contact-email']")
-                .`val`() shouldBe contactDetails.get.emailAddress.value
+                .`val`() shouldBe contactDetails.get.emailAddress.get.value
             }
           )
         }
@@ -159,7 +159,7 @@ class EnterContactDetailsControllerSpec
             mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
             mockStoreSession(
               session.copy(rejectedGoodsMultipleJourney =
-                Some(journey.submitContactDetails(Some(MrnContactDetails(name.toFullName, email, None))))
+                Some(journey.submitContactDetails(Some(MrnContactDetails(name.toFullName, Some(email), None))))
               )
             )(Right(()))
           }

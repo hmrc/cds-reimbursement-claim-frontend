@@ -43,21 +43,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.GovernmentGatewayJourney
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 
 class CheckEoriDetailsControllerSpec
     extends ControllerSpec
@@ -81,20 +79,6 @@ class CheckEoriDetailsControllerSpec
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-
-  private def sessionWithClaimState(): (SessionData, GovernmentGatewayJourney) = {
-    val ggCredId            = sample[GGCredId]
-    val email               = sample[Email]
-    val eori                = sample[Eori]
-    val signedInUserDetails =
-      SignedInUserDetails(Some(email), eori, Email("amina@email.com"), ContactName("Fred Bread"))
-    val journey             =
-      GovernmentGatewayJourney(ggCredId, signedInUserDetails)
-    (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
-      journey
-    )
-  }
 
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
@@ -123,15 +107,10 @@ class CheckEoriDetailsControllerSpec
     "redirect to the start of the journey" when {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "there is no journey status in the session" in {
-        val (session, fillingOutClaim) = sessionWithClaimState()
-
+      "user does not have CDS enrolment" in {
         inSequence {
-          mockC285AuthRequiredRetrievals(
-            fillingOutClaim.signedInUserDetails.eori,
-            fillingOutClaim.signedInUserDetails.contactName
-          )
-          mockGetSession(session.copy(journeyStatus = None))
+          mockAuthWithNonGGUserRetrievals()
+          mockGetSession(SessionData.empty)
         }
 
         checkIsRedirect(
@@ -144,20 +123,36 @@ class CheckEoriDetailsControllerSpec
     "Render the page" when {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "The user is logged into a C285 journey" in forAll { (eori: Eori, name: contactdetails.Name) =>
-        val (session, fillingOutClaim) = sessionWithClaimState()
-
+      "The user is logged with CDS enrolment" in forAll { (eori: Eori, name: contactdetails.Name) =>
         inSequence {
           mockAuthRequiredRetrievals(eori, name)
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(SessionData.empty)
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey("check-eori-details.title"),
           doc => {
-            doc.select("form dl div dd").get(0).text() shouldBe fillingOutClaim.signedInUserDetails.eori.value
-            doc.select("form dl div dd").get(1).text() shouldBe fillingOutClaim.signedInUserDetails.contactName.value
+            doc.select("form dl div dd").get(0).text() shouldBe eori.value
+            doc.select("form dl div dd").get(1).text() shouldBe name.toFullName
+          }
+        )
+      }
+
+      "The user is logged in with a C2825 journey" in forAll { (eori: Eori, name: contactdetails.Name) =>
+        val session = SessionData(OverpaymentsSingleJourney.empty(eori))
+
+        inSequence {
+          mockAuthRequiredRetrievals(eori, name)
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("check-eori-details.title"),
+          doc => {
+            doc.select("form dl div dd").get(0).text() shouldBe eori.value
+            doc.select("form dl div dd").get(1).text() shouldBe name.toFullName
           }
         )
       }
@@ -175,7 +170,7 @@ class CheckEoriDetailsControllerSpec
           messageFromMessageKey("check-eori-details.title"),
           doc => {
             doc.select("form dl div dd").get(0).text() shouldBe eori.value
-            doc.select("form dl div dd").get(1).text() shouldBe name.name.get
+            doc.select("form dl div dd").get(1).text() shouldBe name.toFullName
           }
         )
       }
@@ -189,14 +184,13 @@ class CheckEoriDetailsControllerSpec
 
       "Redirect to ChooseClaimTypeController if user says details are correct and email address is verified" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        val (session, fillingOutClaim) = sessionWithClaimState()
+
+        val eori        = sample[Eori]
+        val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(
-            fillingOutClaim.signedInUserDetails.eori,
-            fillingOutClaim.signedInUserDetails.contactName
-          )
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockGetSession(SessionData.empty)
           mockGetEmail(Right(Some(CdsVerifiedEmail(verifiedEmail, ""))))
         }
 
@@ -206,14 +200,13 @@ class CheckEoriDetailsControllerSpec
 
       "Redirect to the email frontend if user says details are correct but email address not verified" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        val (session, fillingOutClaim) = sessionWithClaimState()
+
+        val eori        = sample[Eori]
+        val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(
-            fillingOutClaim.signedInUserDetails.eori,
-            fillingOutClaim.signedInUserDetails.contactName
-          )
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockGetSession(SessionData.empty)
           mockGetEmail(Right(None))
         }
 
@@ -223,14 +216,13 @@ class CheckEoriDetailsControllerSpec
 
       "Display an error page if user says details are correct but email address verification fails" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        val (session, fillingOutClaim) = sessionWithClaimState()
+
+        val eori        = sample[Eori]
+        val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(
-            fillingOutClaim.signedInUserDetails.eori,
-            fillingOutClaim.signedInUserDetails.contactName
-          )
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockGetSession(SessionData.empty)
           mockGetEmail(Left(Error("Cannot verify email address")))
         }
 
@@ -239,14 +231,12 @@ class CheckEoriDetailsControllerSpec
       }
 
       "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {
-        val (sessionData, fillingOutClaim) = sessionWithClaimState()
+        val eori        = sample[Eori]
+        val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(
-            fillingOutClaim.signedInUserDetails.eori,
-            fillingOutClaim.signedInUserDetails.contactName
-          )
-          mockGetSession(sessionData.copy(journeyStatus = Some(fillingOutClaim)))
+          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockGetSession(SessionData.empty)
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "false"))
@@ -255,14 +245,12 @@ class CheckEoriDetailsControllerSpec
       }
 
       "The user submits an invalid choice" in {
-        val (session, fillingOutClaim) = sessionWithClaimState()
+        val eori        = sample[Eori]
+        val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(
-            fillingOutClaim.signedInUserDetails.eori,
-            fillingOutClaim.signedInUserDetails.contactName
-          )
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockGetSession(SessionData.empty)
         }
 
         val result = performAction(Seq())
@@ -279,14 +267,12 @@ class CheckEoriDetailsControllerSpec
       }
 
       "The user submits no choice" in {
-        val (session, fillingOutClaim) = sessionWithClaimState()
+        val eori        = sample[Eori]
+        val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(
-            fillingOutClaim.signedInUserDetails.eori,
-            fillingOutClaim.signedInUserDetails.contactName
-          )
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockGetSession(SessionData.empty)
         }
 
         val result = performAction(Seq.empty)

@@ -23,10 +23,8 @@ import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.http.Status._
-import play.api.i18n.Lang
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error

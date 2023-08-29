@@ -35,7 +35,6 @@ sealed trait AuthenticatedUser {
 object AuthenticatedUser {
 
   final case class Individual(
-    ggCredId: GGCredId,
     email: Option[Email],
     eori: Eori,
     name: Option[Name]
@@ -44,7 +43,6 @@ object AuthenticatedUser {
   }
 
   final case class Organisation(
-    ggCredId: GGCredId,
     email: Option[Email],
     eori: Eori,
     name: Option[Name]

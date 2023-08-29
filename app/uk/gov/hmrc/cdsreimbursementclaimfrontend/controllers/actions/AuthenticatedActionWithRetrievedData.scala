@@ -81,7 +81,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
           Retrievals.credentials and
           Retrievals.name
       ) { case affinityGroup ~ maybeEmail ~ enrolments ~ creds ~ name =>
-        withGGCredentials(creds, request) { ggCredId =>
+        withGGCredentials(creds, request) {
           affinityGroup match {
 
             case Some(AffinityGroup.Individual) =>
@@ -89,7 +89,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 Right(AffinityGroup.Individual),
                 maybeEmail,
                 enrolments,
-                ggCredId,
                 name,
                 request
               )
@@ -99,7 +98,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 Left(AffinityGroup.Organisation),
                 maybeEmail,
                 enrolments,
-                ggCredId,
                 name,
                 request
               )
@@ -120,7 +118,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     ],
     maybeEmail: Option[String],
     enrolments: Enrolments,
-    ggCredId: GGCredId,
     name: Option[Name],
     request: MessagesRequest[A]
   )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
@@ -131,7 +128,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
           featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
           checkEoriIsAllowed(eori.value)
         )
-          handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, name, request)
+          handleSignedInUser(eori, affinityGroup, maybeEmail, name, request)
         else
           Left(Results.Redirect(limitedAccessErrorPage))
       case Right(None)       =>
@@ -158,7 +155,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
   private def handleSignedInUser[A](
     eori: Eori,
-    ggCredId: GGCredId,
     affinityGroup: Either[
       Organisation,
       Individual
@@ -171,7 +167,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       if (userType === UserType.Individual) {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser.Individual(
-            ggCredId,
             maybeEmail.map(Email(_)),
             eori,
             models.contactdetails.Name.fromGGName(name)
@@ -183,7 +178,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       } else {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser
-            .Organisation(ggCredId, maybeEmail.map(Email(_)), eori, models.contactdetails.Name.fromGGName(name)),
+            .Organisation(maybeEmail.map(Email(_)), eori, models.contactdetails.Name.fromGGName(name)),
           Some(userType),
           request
         )
@@ -202,7 +197,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     credentials: Option[Credentials],
     request: MessagesRequest[A]
   )(
-    f: GGCredId => Future[
+    f: => Future[
       Either[Result, AuthenticatedRequestWithRetrievedData[A]]
     ]
   )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
@@ -211,8 +206,8 @@ class AuthenticatedActionWithRetrievedData @Inject() (
         logger.warn("No credentials were retrieved")
         Future.successful(Left(errorHandler.errorResult()(request)))
 
-      case Some(Credentials(id, "GovernmentGateway")) =>
-        f(GGCredId(id))
+      case Some(Credentials(_, "GovernmentGateway")) =>
+        f
 
       case Some(Credentials(_, otherProvider)) =>
         Future.successful(

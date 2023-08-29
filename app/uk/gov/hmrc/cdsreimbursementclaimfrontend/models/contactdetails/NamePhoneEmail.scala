@@ -34,6 +34,6 @@ object NamePhoneEmail {
     NamePhoneEmail(
       Some(mrnContactDetails.fullName),
       mrnContactDetails.phoneNumber,
-      Some(mrnContactDetails.emailAddress)
+      mrnContactDetails.emailAddress
     )
 }

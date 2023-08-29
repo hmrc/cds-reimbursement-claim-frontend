@@ -26,7 +26,7 @@ import play.api.libs.json.Format
 
 import java.util.function.Predicate
 
-final case class Email(value: String) extends AnyVal
+final case class Email(value: String)
 
 object Email {
 
@@ -39,9 +39,10 @@ object Email {
 
   implicit val eq: Eq[Email] = Eq.instance(_.value === _.value)
 
-  val mappingMaxLength: Mapping[Email] =
+  val mappingMaxLength: Mapping[Option[Email]] =
     nonEmptyText(maxLength = 241)
       .transform[Email](s => Email(s.replace(" ", "")), _.value)
       .verifying("invalid", e => emailRegex.test(e.value))
+      .transform(Some.apply(_), _.getOrElse(Email("")))
 
 }

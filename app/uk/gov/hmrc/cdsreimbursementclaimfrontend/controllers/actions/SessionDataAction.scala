@@ -19,18 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.i18n.MessagesApi
-import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 final case class RequestWithSessionData[A](
   sessionData: Option[SessionData],
@@ -39,18 +33,6 @@ final case class RequestWithSessionData[A](
     with PreferredMessagesProvider {
 
   override def messagesApi: MessagesApi = authenticatedRequest.request.messagesApi
-
-  def using(
-    matchExpression: PartialFunction[JourneyStatus, Future[Result]],
-    applyIfNone: => Result = startNewJourney
-  ): Future[Result] =
-    sessionData
-      .flatMap(session => session.journeyStatus)
-      .collect(matchExpression)
-      .getOrElse(Future.successful(applyIfNone))
-
-  def startNewJourney: Result =
-    Redirect(baseRoutes.StartController.start())
 }
 
 @Singleton

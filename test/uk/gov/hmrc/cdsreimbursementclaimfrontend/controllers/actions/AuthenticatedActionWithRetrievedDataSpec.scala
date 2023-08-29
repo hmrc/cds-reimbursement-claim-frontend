@@ -101,7 +101,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
   implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
 
-  val (ggCredentials, ggCredId) = Credentials("id", "GovernmentGateway") -> GGCredId("id")
+  val ggCredentials = Credentials("id", "GovernmentGateway")
 
   "Authenticated action with retrieved data" when {
 
@@ -169,7 +169,6 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
             AuthenticatedUser
               .Individual(
-                GGCredId("id"),
                 Some(Email("email")),
                 eori,
                 Some(contactdetails.Name(Some("John Smith"), Some("Smith")))
@@ -193,7 +192,6 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
             AuthenticatedUser
               .Organisation(
-                GGCredId("id"),
                 Some(Email("email")),
                 eori,
                 None
@@ -353,7 +351,6 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
             AuthenticatedUser
               .Individual(
-                GGCredId("id"),
                 Some(Email("email")),
                 Eori("GB000000000000001"),
                 Some(contactdetails.Name(Some("John Smith"), Some("Smith")))
@@ -377,7 +374,6 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
             AuthenticatedUser
               .Organisation(
-                GGCredId("id"),
                 Some(Email("email")),
                 Eori("GB000000000000002"),
                 None

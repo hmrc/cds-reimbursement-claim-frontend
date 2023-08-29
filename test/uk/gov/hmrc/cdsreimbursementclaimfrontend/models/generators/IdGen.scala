@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 object IdGen {
@@ -70,9 +70,6 @@ object IdGen {
 
   implicit lazy val arbitraryName: Typeclass[Name] = Arbitrary(genName)
 
-  lazy val genGGCredId: Gen[GGCredId] = gen[GGCredId].arbitrary
-
   implicit lazy val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
 
-  implicit lazy val arbitraryGGCredIdGen: Typeclass[GGCredId] = gen[GGCredId]
 }

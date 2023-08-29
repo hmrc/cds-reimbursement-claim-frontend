@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 final case class SessionData(
   verifiedEmail: Option[CdsVerifiedEmail] = None,
-  journeyStatus: Option[JourneyStatus] = None,
   overpaymentsSingleJourney: Option[OverpaymentsSingleJourney] = None,
   overpaymentsMultipleJourney: Option[OverpaymentsMultipleJourney] = None,
   overpaymentsScheduledJourney: Option[OverpaymentsScheduledJourney] = None,
@@ -48,9 +47,6 @@ final case class SessionData(
 }
 
 object SessionData {
-
-  def apply(status: JourneyStatus): SessionData =
-    SessionData(journeyStatus = Some(status))
 
   def apply(overpaymentsSingleJourney: OverpaymentsSingleJourney): SessionData =
     SessionData(overpaymentsSingleJourney = Some(overpaymentsSingleJourney))
