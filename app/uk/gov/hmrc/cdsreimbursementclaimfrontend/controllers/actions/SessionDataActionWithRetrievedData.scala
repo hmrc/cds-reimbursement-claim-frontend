@@ -45,10 +45,8 @@ final case class RequestWithSessionDataAndRetrievedData[A](
 
   val signedInUserDetails: Option[SignedInUserDetails] = sessionData match {
     case SessionData(_, journeyStatus @ Some(_), _, None, None, None, None, None, None, None) =>
-      journeyStatus.collect {
-        case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => signedInUserDetails
-        case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => signedInUserDetails
-        case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => signedInUserDetails
+      journeyStatus.collect { case JourneyStatus.GovernmentGatewayJourney(_, signedInUserDetails) =>
+        signedInUserDetails
       }
 
     case SessionData.HasClaimantEori(eori) => Some(signedInUserDetailsFromRequest(eori))

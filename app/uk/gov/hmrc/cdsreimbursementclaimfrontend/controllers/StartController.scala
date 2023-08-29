@@ -21,18 +21,20 @@ import cats.instances.future._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
+import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.GovernmentGatewayJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.NonGovernmentGatewayJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -59,13 +61,7 @@ class StartController @Inject() (
 
   val start: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-      (
-        request.authenticatedRequest.journeyUserType,
-        request.sessionData.journeyStatus
-      ) match {
-        case (authenticatedUser, _) =>
-          handleAuthenticatedUser(authenticatedUser)
-      }
+      handleAuthenticatedUser(request.authenticatedRequest.journeyUserType)
     }
 
   val startNewClaim: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
@@ -163,10 +159,9 @@ class StartController @Inject() (
              updateSession(sessionStore, request)(_ =>
                SessionData.empty.copy(
                  journeyStatus = Some(
-                   FillingOutClaim(
+                   GovernmentGatewayJourney(
                      ggCredId,
-                     request.signedInUserDetailsFromRequest(eori),
-                     DraftClaim.blank
+                     request.signedInUserDetailsFromRequest(eori)
                    )
                  )
                )

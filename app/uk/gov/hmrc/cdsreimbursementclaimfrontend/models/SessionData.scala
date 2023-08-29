@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
@@ -42,14 +41,6 @@ final case class SessionData(
   securitiesJourney: Option[SecuritiesJourney] = None,
   uploadDocumentsSessionModel: Option[UploadDocumentsSessionModel] = None
 ) {
-
-  def withUpdatedC285Claim(update: DraftClaim => DraftClaim): SessionData =
-    SessionData(journeyStatus = journeyStatus.map {
-      case FillingOutClaim(ggCredId, signedInUserDetails, draftClaim) =>
-        FillingOutClaim(ggCredId, signedInUserDetails, update(draftClaim))
-
-      case other => other
-    })
 
   def withExistingUserData(sessionData: SessionData): SessionData =
     copy(verifiedEmail = sessionData.verifiedEmail)

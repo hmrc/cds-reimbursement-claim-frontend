@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import play.api.Environment
 import play.api.data.Form
 import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
@@ -82,6 +83,7 @@ class CheckEoriDetailsController @Inject() (
   )
 
   def show(): Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
+    logger.warn(Json.toJson(request.sessionData).toString())
     request.signedInUserDetails
       .fold(Redirect(baseRoutes.StartController.start()))(user => Ok(getPage(user, whetherEoriDetailsCorrect)))
   }

@@ -43,7 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.GovernmentGatewayJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
@@ -82,19 +82,17 @@ class CheckEoriDetailsControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def sessionWithClaimState(): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftC285Claim      = DraftClaim.blank
+  private def sessionWithClaimState(): (SessionData, GovernmentGatewayJourney) = {
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
     val signedInUserDetails =
       SignedInUserDetails(Some(email), eori, Email("amina@email.com"), ContactName("Fred Bread"))
     val journey             =
-      FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+      GovernmentGatewayJourney(ggCredId, signedInUserDetails)
     (
       SessionData.empty.copy(journeyStatus = Some(journey)),
-      journey,
-      draftC285Claim
+      journey
     )
   }
 
@@ -126,7 +124,7 @@ class CheckEoriDetailsControllerSpec
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "there is no journey status in the session" in {
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (session, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(
@@ -147,7 +145,7 @@ class CheckEoriDetailsControllerSpec
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "The user is logged into a C285 journey" in forAll { (eori: Eori, name: contactdetails.Name) =>
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (session, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockAuthRequiredRetrievals(eori, name)
@@ -191,7 +189,7 @@ class CheckEoriDetailsControllerSpec
 
       "Redirect to ChooseClaimTypeController if user says details are correct and email address is verified" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (session, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(
@@ -208,7 +206,7 @@ class CheckEoriDetailsControllerSpec
 
       "Redirect to the email frontend if user says details are correct but email address not verified" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (session, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(
@@ -225,7 +223,7 @@ class CheckEoriDetailsControllerSpec
 
       "Display an error page if user says details are correct but email address verification fails" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (session, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(
@@ -241,7 +239,7 @@ class CheckEoriDetailsControllerSpec
       }
 
       "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {
-        val (sessionData, fillingOutClaim, _) = sessionWithClaimState()
+        val (sessionData, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(
@@ -257,7 +255,7 @@ class CheckEoriDetailsControllerSpec
       }
 
       "The user submits an invalid choice" in {
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (session, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(
@@ -281,7 +279,7 @@ class CheckEoriDetailsControllerSpec
       }
 
       "The user submits no choice" in {
-        val (session, fillingOutClaim, _) = sessionWithClaimState()
+        val (session, fillingOutClaim) = sessionWithClaimState()
 
         inSequence {
           mockC285AuthRequiredRetrievals(

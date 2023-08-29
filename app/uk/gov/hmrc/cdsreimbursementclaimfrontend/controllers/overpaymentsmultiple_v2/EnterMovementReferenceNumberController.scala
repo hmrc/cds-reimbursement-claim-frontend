@@ -27,7 +27,6 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNMultipleRoutes.subKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
@@ -71,7 +70,7 @@ class EnterMovementReferenceNumberController @Inject() (
        Ok(
          enterMovementReferenceNumberPage(
            movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
-           subKey,
+           Some("multiple"),
            pageIndex,
            routes.EnterMovementReferenceNumberController.submit(pageIndex)
          )
@@ -96,7 +95,7 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors,
-                  subKey,
+                  Some("multiple"),
                   pageIndex,
                   routes.EnterMovementReferenceNumberController.submit(pageIndex)
                 )
@@ -121,7 +120,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     BadRequest(
                       enterMovementReferenceNumberPage(
                         filledForm.withError("enter-movement-reference-number", error.message),
-                        subKey,
+                        Some("multiple"),
                         pageIndex,
                         routes.EnterMovementReferenceNumberController.submit(pageIndex)
                       )
@@ -161,7 +160,7 @@ class EnterMovementReferenceNumberController @Inject() (
       movementReferenceNumberForm
         .fill(mrn)
         .withError("enter-movement-reference-number", errorSuffix),
-      subKey,
+      Some("multiple"),
       pageIndex,
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
     )

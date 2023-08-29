@@ -23,7 +23,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MRNScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
@@ -48,7 +47,7 @@ class CheckClaimDetailsController @Inject() (
 
   final val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm("check-claim-summary")
 
-  implicit val subKey: Option[String] = MRNScheduledRoutes.subKey
+  implicit val subKey: Option[String] = Some("scheduled")
 
   final val selectDutiesAction: Call                      = routes.SelectDutyTypesController.show
   final val enterMrnAction: Call                          = routes.EnterMovementReferenceNumberController.show

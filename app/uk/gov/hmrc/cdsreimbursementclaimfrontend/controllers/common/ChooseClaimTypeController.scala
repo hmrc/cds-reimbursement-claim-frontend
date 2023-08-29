@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimT
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.{routes => overpaymentsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -64,7 +63,6 @@ class ChooseClaimTypeController @Inject() (
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
     with WithAuthRetrievalsAndSessionDataAction
-    with SessionDataExtractor
     with SessionUpdates
     with Logging {
 
@@ -85,10 +83,7 @@ class ChooseClaimTypeController @Inject() (
           },
           {
             case C285 =>
-              if (featureSwitchService.isEnabled(Feature.Overpayments_v2))
-                Future.successful(Redirect(overpaymentsRoutes.ChooseHowManyMrnsController.show()))
-              else
-                Future.successful(Redirect(routes.SelectTypeOfClaimController.show()))
+              Future.successful(Redirect(overpaymentsRoutes.ChooseHowManyMrnsController.show()))
 
             case RejectedGoods =>
               Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))

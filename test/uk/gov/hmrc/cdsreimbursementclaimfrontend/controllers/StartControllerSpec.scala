@@ -31,10 +31,8 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmittedClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.GovernmentGatewayJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.NonGovernmentGatewayJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.SubmitClaimFailed
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
@@ -152,15 +150,14 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
             mockStoreSession(
               sessionData.copy(
                 journeyStatus = Some(
-                  FillingOutClaim(
+                  GovernmentGatewayJourney(
                     GGCredId("gg-cred-id"),
                     SignedInUserDetails(
                       None,
                       Eori("AB12345678901234Z"),
                       Email(""),
                       ContactName("John Smith")
-                    ),
-                    DraftClaim.blank
+                    )
                   )
                 )
               )
@@ -197,15 +194,14 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
             mockStoreSession(
               sessionData.copy(
                 journeyStatus = Some(
-                  FillingOutClaim(
+                  GovernmentGatewayJourney(
                     GGCredId("gg-cred-id"),
                     SignedInUserDetails(
                       None,
                       Eori("AB12345678901234Z"),
                       Email(""),
                       ContactName("John Smith")
-                    ),
-                    DraftClaim.blank
+                    )
                   )
                 )
               )
@@ -246,15 +242,14 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
             mockStoreSession(
               sessionData.copy(
                 journeyStatus = Some(
-                  FillingOutClaim(
+                  GovernmentGatewayJourney(
                     GGCredId("gg-cred-id"),
                     SignedInUserDetails(
                       None,
                       Eori("AB12345678901234Z"),
                       Email(""),
                       ContactName("John Smith")
-                    ),
-                    DraftClaim.blank
+                    )
                   )
                 )
               )
@@ -266,107 +261,6 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
         }
 
-      }
-
-      "there is a claim submission failure journey status" must {
-
-        "redirect the user to the start of the journey" in {
-
-          val submitClaimFailed = sample[SubmitClaimFailed]
-          val sessionData       = sample[SessionData].copy(journeyStatus = Some(submitClaimFailed))
-
-          inSequence {
-            mockAuthWithEoriEnrolmentRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  FillingOutClaim(
-                    GGCredId("gg-cred-id"),
-                    SignedInUserDetails(
-                      None,
-                      Eori("AB12345678901234Z"),
-                      Email(""),
-                      ContactName("John Smith")
-                    ),
-                    DraftClaim.blank
-                  )
-                )
-              )
-            )(Right(()))
-          }
-
-          val result = performAction()
-          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
-
-        }
-
-      }
-
-      "there is just submitted claim journey status" must {
-
-        "redirect the user to the start of the journey" in {
-
-          val justSubmittedClaim = sample[JustSubmittedClaim]
-          val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
-
-          inSequence {
-            mockAuthWithEoriEnrolmentRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  FillingOutClaim(
-                    GGCredId("gg-cred-id"),
-                    SignedInUserDetails(
-                      None,
-                      Eori("AB12345678901234Z"),
-                      Email(""),
-                      ContactName("John Smith")
-                    ),
-                    DraftClaim.blank
-                  )
-                )
-              )
-            )(Right(()))
-          }
-
-          val result = performAction()
-          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
-        }
-
-      }
-
-      "there is filling out claim journey status" must {
-
-        "redirect the user to the start of the journey" in {
-          val fillingOutClaim = sample[FillingOutClaim]
-          val sessionData     = sample[SessionData].copy(journeyStatus = Some(fillingOutClaim))
-
-          inSequence {
-            mockAuthWithOrgWithEoriEnrolmentRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  FillingOutClaim(
-                    GGCredId("gg-cred-id"),
-                    SignedInUserDetails(
-                      None,
-                      Eori("AB12345678901234Z"),
-                      Email(""),
-                      ContactName("John Smith")
-                    ),
-                    DraftClaim.blank
-                  )
-                )
-              )
-            )(Right(()))
-          }
-
-          val result = performAction()
-          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
-        }
       }
 
       "there is non government way journey status" must {
@@ -383,67 +277,6 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           val result = performAction()
           checkIsRedirect(result, routes.StartController.weOnlySupportGG())
 
-        }
-
-      }
-
-    }
-
-    "handling requests to start a new claim" when {
-
-      def performAction(rh: Request[AnyContent] = FakeRequest()): Future[Result] = controller.startNewClaim()(rh)
-
-      "the user has just submitted a claim" must {
-
-        "redirect the user to the first page of the journey" in {
-
-          val justSubmittedClaim = sample[JustSubmittedClaim]
-          val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(SessionData.empty)(Right(()))
-          }
-
-          val result = performAction()
-          checkIsRedirect(
-            result,
-            routes.StartController.start()
-          )
-        }
-
-        "return an error if session update fails" in {
-          val justSubmittedClaim = sample[JustSubmittedClaim]
-          val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(SessionData.empty)(Left(Error("boom!")))
-          }
-
-          val result = performAction()
-          checkIsTechnicalErrorPage(result)
-        }
-
-      }
-
-      "the user has not just submitted a claim" must {
-
-        "redirect the user to the error page" in {
-
-          val fillingOutClaim = sample[FillingOutClaim]
-          val sessionData     = sample[SessionData].copy(journeyStatus = Some(fillingOutClaim))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(SessionData.empty)(Right(()))
-          }
-
-          val result = performAction()
-          checkIsRedirect(result, routes.StartController.start())
         }
 
       }

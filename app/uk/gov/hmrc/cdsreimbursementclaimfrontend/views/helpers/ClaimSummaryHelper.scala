@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import cats.data.NonEmptyList
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
@@ -32,27 +31,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 object ClaimSummaryHelper {
 
-  private val key = "check-claim-summary"
-
-  def makeClaimSummary(claims: NonEmptyList[ClaimedReimbursement])(implicit messages: Messages): List[SummaryListRow] =
-    makeClaimSummaryRows(claims) ++ makeTotalRow(claims)
-
+  private val key                                                                                                   = "check-claim-summary"
   def makeClaimSummary(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): List[SummaryListRow] =
     makeClaimSummaryRows(claims) ++ makeTotalRow(claims)
-
-  def makeClaimSummaryRows(claims: NonEmptyList[ClaimedReimbursement])(implicit
-    messages: Messages
-  ): List[SummaryListRow] =
-    makeClaimSummaryRows(
-      claims.toList
-        .map(c =>
-          (
-            c.taxCode,
-            c.claimAmount,
-            overpaymentsSingleRoutes.EnterSingleClaimController.enterClaim(c.id)
-          )
-        )
-    )
 
   def makeClaimSummaryRows(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit
     messages: Messages

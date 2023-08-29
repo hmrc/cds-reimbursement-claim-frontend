@@ -20,6 +20,7 @@ import cats.Functor
 import cats.Id
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectAdditionalInformationCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -29,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -40,17 +40,20 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
 
   "ExciseCodes" should {
     "Return only excise codes not related to Northern Ireland" in {
-      val draftC285Claim =
-        sample[DraftClaim].copy(
-          movementReferenceNumber = Some(sample[MRN]),
-          whetherNorthernIrelandAnswer = Some(No)
-        )
+      val overpaymentsJourneyAnswers =
+        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
+          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+          .answers
+          .copy(
+            movementReferenceNumber = Some(sample[MRN]),
+            whetherNorthernIreland = Some(false)
+          )
 
       val codes: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
-          draftC285Claim.displayDeclaration
+          overpaymentsJourneyAnswers.whetherNorthernIreland.getOrElse(false),
+          overpaymentsJourneyAnswers.displayDeclaration
         )
 
       codes.size shouldBe 13
@@ -71,19 +74,20 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
       )
 
-      val draftC285Claim =
-        sample[DraftClaim]
+      val journeyAnswers                      =
+        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
+          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+          .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            whetherNorthernIrelandAnswer = Some(Yes),
+            whetherNorthernIreland = Some(true),
             displayDeclaration = Some(acc14)
           )
-
       val codes: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
-          draftC285Claim.displayDeclaration
+          journeyAnswers.whetherNorthernIreland.getOrElse(false),
+          journeyAnswers.displayDeclaration
         )
 
       codes.size shouldBe 15
@@ -97,19 +101,21 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
       )
 
-      val draftC285Claim =
-        sample[DraftClaim]
+      val journeyAnswers =
+        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
+          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+          .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            whetherNorthernIrelandAnswer = Some(Yes),
+            whetherNorthernIreland = Some(true),
             displayDeclaration = Some(acc14)
           )
 
       val codes: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          draftC285Claim.whetherNorthernIrelandAnswer.getOrElse(YesNo.No).asBoolean,
-          draftC285Claim.displayDeclaration
+          journeyAnswers.whetherNorthernIreland.getOrElse(false),
+          journeyAnswers.displayDeclaration
         )
 
       codes.size shouldBe 14

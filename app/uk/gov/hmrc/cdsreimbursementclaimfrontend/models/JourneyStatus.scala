@@ -26,53 +26,15 @@ sealed trait JourneyStatus extends Product with Serializable
 
 object JourneyStatus {
 
-  final case class FillingOutClaim(
-    ggCredId: GGCredId,
-    signedInUserDetails: SignedInUserDetails,
-    draftClaim: DraftClaim
-  ) extends JourneyStatus {
-
-    def consigneeEORI: Option[String] = for {
-      declaration <- draftClaim.displayDeclaration
-      consignee   <- declaration.displayResponseDetail.consigneeDetails
-    } yield consignee.consigneeEORI
-
-    def declarantEORI: Option[String] = for {
-      declaration <- draftClaim.displayDeclaration
-    } yield declaration.displayResponseDetail.declarantDetails.declarantEORI
-
-  }
-
-  final case class JustSubmittedClaim(
-    ggCredId: GGCredId,
-    signedInUserDetails: SignedInUserDetails,
-    claim: C285Claim,
-    submissionResponse: SubmitClaimResponse
-  ) extends JourneyStatus
-
-  final case class SubmitClaimFailed(
+  final case class GovernmentGatewayJourney(
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails
   ) extends JourneyStatus
 
   case object NonGovernmentGatewayJourney extends JourneyStatus
 
-  object FillingOutClaim {
-    def from(fillingOutClaim: FillingOutClaim)(f: DraftClaim => DraftClaim): FillingOutClaim =
-      fillingOutClaim.copy(draftClaim = f(fillingOutClaim.draftClaim))
-
-    def ofEither[E](fillingOutClaim: FillingOutClaim)(
-      f: DraftClaim => Either[E, DraftClaim]
-    ): Either[E, FillingOutClaim] =
-      fillingOutClaim.draftClaim match {
-        case draftC285Claim: DraftClaim =>
-          f(draftC285Claim)
-            .map(updatedDraftClaim => fillingOutClaim.copy(draftClaim = updatedDraftClaim))
-      }
-  }
-
-  implicit val format: OFormat[JourneyStatus]                  = derived.oformat()
-  implicit val fillingOutClaimFormat: OFormat[FillingOutClaim] = derived.oformat()
+  implicit val format: OFormat[JourneyStatus]                                  = derived.oformat()
+  implicit val governmentGatewayClaimFormat: OFormat[GovernmentGatewayJourney] = derived.oformat()
 
   implicit val eq: Eq[JourneyStatus] = Eq.fromUniversalEquals
 
