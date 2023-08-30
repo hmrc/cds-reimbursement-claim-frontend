@@ -26,20 +26,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 object AuthenticatedUserGen {
 
   lazy val individualGen: Gen[Individual] = for {
-    ggCredId <- genGGCredId
-    email    <- genEmail
-    eori     <- genEori
-    name     <- genName
-  } yield AuthenticatedUser.Individual(ggCredId, Some(email), eori, Some(name))
+
+    email <- genEmail
+    eori  <- genEori
+    name  <- genName
+  } yield AuthenticatedUser.Individual(Some(email), eori, Some(name))
 
   implicit lazy val arbitraryIndividual: Arbitrary[Individual] = Arbitrary(individualGen)
 
   lazy val organisationGen: Gen[Organisation] = for {
-    ggCredId <- genGGCredId
-    email    <- genEmail
-    eori     <- genEori
-    name     <- genName
-  } yield AuthenticatedUser.Organisation(ggCredId, Some(email), eori, Some(name))
+
+    email <- genEmail
+    eori  <- genEori
+    name  <- genName
+  } yield AuthenticatedUser.Organisation(Some(email), eori, Some(name))
 
   lazy val authenticatedUserGen: Gen[AuthenticatedUser] =
     Gen.oneOf[AuthenticatedUser](individualGen, organisationGen)

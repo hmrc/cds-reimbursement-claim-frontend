@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DetailsRegisteredWithCdsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.arbitraryEmail
 
 object DetailsRegisteredWithCdsAnswerGen {
 

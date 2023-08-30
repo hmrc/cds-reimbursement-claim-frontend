@@ -108,7 +108,7 @@ trait JourneyTestData {
   final val exampleContactDetails: MrnContactDetails =
     MrnContactDetails(
       fullName = "Foo Bar",
-      emailAddress = Email("foo@bar.com"),
+      emailAddress = Some(Email("foo@bar.com")),
       phoneNumber = Some(PhoneNumber("000000000"))
     )
 

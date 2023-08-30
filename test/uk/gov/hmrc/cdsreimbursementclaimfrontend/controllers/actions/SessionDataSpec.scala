@@ -25,8 +25,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
@@ -44,7 +42,7 @@ class SessionDataActionSpec extends ControllerSpec with SessionSupport {
     lazy val messagesRequest      = new MessagesRequest(FakeRequest(), messagesApi)
     lazy val authenticatedRequest = AuthenticatedRequest(messagesRequest)
 
-    val sessionData = sample[SessionData]
+    val sessionData = SessionData.empty
 
     def performAction(): Future[Result] =
       action.invokeBlock(

@@ -26,8 +26,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.TestEnvironment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.config
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
+
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.mongo.CurrentTimestampSupport
@@ -49,16 +48,16 @@ class SessionCacheSpec
   "SessionCache" must {
 
     "be able to insert SessionData into mongo and read it back" in new TestEnvironment {
-      forAll { sessionData: SessionData =>
-        val result = sessionStore.store(sessionData)
+      val sessionData = SessionData.empty
+      val result      = sessionStore.store(sessionData)
 
-        await(result) should be(Right(()))
+      await(result) should be(Right(()))
 
-        eventually {
-          val getResult = sessionStore.get()
-          await(getResult) should be(Right(Some(sessionData)))
-        }
+      eventually {
+        val getResult = sessionStore.get()
+        await(getResult) should be(Right(Some(sessionData)))
       }
+
     }
 
     "return no SessionData if there is no data in mongo" in new TestEnvironment {
@@ -67,7 +66,7 @@ class SessionCacheSpec
 
     "return an error there is no session id in the header carrier" in {
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      val sessionData                = sample[SessionData]
+      val sessionData                = SessionData.empty
 
       await(sessionStore.store(sessionData)).isLeft shouldBe true
       await(sessionStore.get()).isLeft              shouldBe true

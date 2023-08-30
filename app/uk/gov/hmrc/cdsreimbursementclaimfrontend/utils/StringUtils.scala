@@ -22,4 +22,5 @@ object StringUtils {
     def asSomeIfNonEmpty: Option[String] =
       if (string.trim().isEmpty()) None else Some(string.trim())
   }
+
 }

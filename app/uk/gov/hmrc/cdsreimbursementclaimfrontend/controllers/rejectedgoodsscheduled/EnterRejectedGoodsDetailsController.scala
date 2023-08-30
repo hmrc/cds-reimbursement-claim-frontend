@@ -23,7 +23,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -73,14 +72,6 @@ class EnterRejectedGoodsDetailsController @Inject() (
           details => {
             val updatedJourney = journey
               .submitDetailsOfRejectedGoods(details)
-            println("IMPORTANTT!!!!!")
-            println(journey.features.exists(_.shouldAllowSubsidyOnlyPayments))
-            println(
-              journey.getDisplayDeclarations
-                .flatMap(dis => dis.getNdrcDetailsList.map(nd => nd.map(ndrc => ndrc.hasSubsidyPaymentMethod)))
-                .flatten
-            )
-            println(journey.isSubsidyOnlyJourney)
             if (journey.isSubsidyOnlyJourney) {
               updatedJourney
                 .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.EuDuty))

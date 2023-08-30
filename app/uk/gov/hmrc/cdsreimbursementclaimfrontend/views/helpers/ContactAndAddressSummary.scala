@@ -53,7 +53,7 @@ object ContactAndAddressSummary
     val (contactDetails, contactAddress, changeContactDetailsCall, maybeChangeContactAddressCall) = answer
     val contactData                                                                               = List(
       Some(Paragraph(contactDetails.fullName)),
-      Some(Paragraph(contactDetails.emailAddress.value)),
+      contactDetails.emailAddress.map(e => Paragraph(e.value)),
       contactDetails.phoneNumber.map(n => Paragraph(n.value))
     ).flattenOption
 

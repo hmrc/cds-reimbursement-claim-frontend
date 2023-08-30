@@ -31,21 +31,14 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.GovernmentGatewayJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.NonGovernmentGatewayJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
 
-class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSupport with RedirectToStartBehaviour {
+class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -75,62 +68,25 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
-          val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
+          val sessionData = SessionData.empty
 
           inSequence {
             mockAuthWithNonGGUserRetrievals()
             mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(NonGovernmentGatewayJourney)
-              )
-            )(Right(()))
           }
 
           val result = performAction(authenticatedRequest)
           checkIsRedirect(result, routes.StartController.weOnlySupportGG())
-
         }
-
-        "must return an error if the session cannot be updated" in {
-          lazy val authenticatedRequest =
-            AuthenticatedRequestWithRetrievedData(
-              AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser("some auth provider"),
-              Some(UserType.NonGovernmentGatewayUser),
-              messagesRequest
-            )
-
-          lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
-
-          val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
-
-          inSequence {
-            mockAuthWithNonGGUserRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(NonGovernmentGatewayJourney)
-              )
-            )(Left(Error("Boom!")))
-          }
-
-          val result = performAction(authenticatedRequest)
-          checkIsTechnicalErrorPage(result)
-
-        }
-
       }
 
-      "there is a signed in individual gg user user and there is no current journey status" must {
+      "there is a signed in individual gg user user" must {
 
-        "redirect the individual to the start of the journey" in {
+        "redirect the individual to the check EORI details page" in {
 
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
               AuthenticatedUser.Individual(
-                GGCredId("gg-cred-id"),
                 None,
                 Eori("AB12345678901234Z"),
                 Some(Name(Some("John Smith"), Some("Smith")))
@@ -141,88 +97,26 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
-          val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
+          val sessionData = SessionData.empty
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  GovernmentGatewayJourney(
-                    GGCredId("gg-cred-id"),
-                    SignedInUserDetails(
-                      None,
-                      Eori("AB12345678901234Z"),
-                      Email(""),
-                      ContactName("John Smith")
-                    )
-                  )
-                )
-              )
-            )(Right(()))
           }
 
           val result = performAction(authenticatedRequest)
           checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
 
         }
-
-        "return an error if the session cannot be updated" in {
-
-          lazy val authenticatedRequest =
-            AuthenticatedRequestWithRetrievedData(
-              AuthenticatedUser.Individual(
-                GGCredId("gg-cred-id"),
-                None,
-                Eori("AB12345678901234Z"),
-                Some(Name(Some("John Smith"), Some("Smith")))
-              ),
-              Some(UserType.Individual),
-              messagesRequest
-            )
-
-          lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
-
-          val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
-
-          inSequence {
-            mockAuthWithEoriEnrolmentRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  GovernmentGatewayJourney(
-                    GGCredId("gg-cred-id"),
-                    SignedInUserDetails(
-                      None,
-                      Eori("AB12345678901234Z"),
-                      Email(""),
-                      ContactName("John Smith")
-                    )
-                  )
-                )
-              )
-            )(Left((Error("boom!"))))
-          }
-
-          val result = performAction(authenticatedRequest)
-          checkIsTechnicalErrorPage(result)
-
-        }
-
       }
 
-      "there is a signed in organisation  and there is no current journey status" must {
+      "there is a signed in organisation user" must {
 
-        "redirect the organisation to the start of the journey" in {
+        "redirect the organisation to the check EORI details page" in {
 
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
               AuthenticatedUser.Organisation(
-                GGCredId("gg-cred-id"),
                 Some(Email("email")),
                 Eori("AB12345678901234Z"),
                 Some(Name(Some("John Smith"), Some("Smith")))
@@ -233,54 +127,28 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
-          val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
-
           inSequence {
             mockAuthWithOrgWithEoriEnrolmentRetrievals()
-            mockGetSession(sessionData)
-            mockStoreSession(
-              sessionData.copy(
-                journeyStatus = Some(
-                  GovernmentGatewayJourney(
-                    GGCredId("gg-cred-id"),
-                    SignedInUserDetails(
-                      None,
-                      Eori("AB12345678901234Z"),
-                      Email(""),
-                      ContactName("John Smith")
-                    )
-                  )
-                )
-              )
-            )(Right(()))
+            mockGetSession(SessionData.empty)
           }
 
           val result = performAction(authenticatedRequest)
           checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
-
         }
-
       }
 
       "there is non government way journey status" must {
 
         "redirect the user to the `we only support gg page`" in {
-
-          val sessionData = sample[SessionData].copy(journeyStatus = Some(NonGovernmentGatewayJourney))
-
           inSequence {
             mockAuthWithNonGGUserRetrievals()
-            mockGetSession(sessionData)
+            mockGetSession(SessionData.empty)
           }
 
           val result = performAction()
           checkIsRedirect(result, routes.StartController.weOnlySupportGG())
-
         }
-
       }
-
     }
 
     "handling requests to sign out and sign in" must {
@@ -290,30 +158,15 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           FakeRequest().withSession(sessionData: _*)
         )
 
-      behave like redirectToStartWhenInvalidJourney(
-        () => performAction(Seq.empty),
-        {
-          case NonGovernmentGatewayJourney => true
-          case _                           => false
-        }
-      )
-
-      "kill the session and redirect to the gg service" in {
-        List(
-          NonGovernmentGatewayJourney
-        ).foreach { journey =>
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(
-              SessionData.empty.copy(journeyStatus = Some(journey))
-            )
-          }
-
-          val result = performAction(Seq("key" -> "value"))
-          checkIsRedirect(result, routes.StartController.start())
-          session(result).data shouldBe Map.empty
+      "kill the session and redirect to service" in {
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData.empty)
         }
 
+        val result = performAction(Seq("key" -> "value"))
+        checkIsRedirect(result, routes.StartController.start())
+        session(result).data shouldBe Map.empty
       }
 
     }
@@ -323,21 +176,10 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
       def performAction(): Future[Result] =
         controller.weOnlySupportGG()(FakeRequest())
 
-      behave like redirectToStartWhenInvalidJourney(
-        performAction _,
-        {
-          case NonGovernmentGatewayJourney => true
-          case _                           => false
-        }
-      )
-
       "display the page" in {
         inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(
-            SessionData.empty
-              .copy(journeyStatus = Some(NonGovernmentGatewayJourney))
-          )
+          mockAuthWithNonGGUserRetrievals()
+          mockGetSession(SessionData.empty)
         }
 
         val result = performAction()
@@ -355,23 +197,10 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           FakeRequest().withSession(sessionData: _*)
         )
 
-      behave like redirectToStartWhenInvalidJourney(
-        () => performAction(Seq.empty),
-        {
-          case NonGovernmentGatewayJourney => true
-          case _                           => false
-        }
-      )
-
-      "trash the session adn redirect to the gg registration service" in {
+      "trash the session and redirect to the gg registration service" in {
         inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(
-            SessionData.empty
-              .copy(
-                journeyStatus = Some(NonGovernmentGatewayJourney)
-              )
-          )
+          mockAuthWithNonGGUserRetrievals()
+          mockGetSession(SessionData.empty)
         }
 
         val result = performAction(Seq("key" -> "value"))

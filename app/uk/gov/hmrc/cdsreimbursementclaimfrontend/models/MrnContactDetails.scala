@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumb
 
 final case class MrnContactDetails(
   fullName: String,
-  emailAddress: Email,
+  emailAddress: Option[Email],
   phoneNumber: Option[PhoneNumber]
 )
 

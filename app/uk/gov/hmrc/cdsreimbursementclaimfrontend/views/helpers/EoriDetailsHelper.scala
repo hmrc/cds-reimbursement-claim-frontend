@@ -20,7 +20,6 @@ import cats.implicits._
 import play.api.i18n.Lang
 import play.api.i18n.Langs
 import play.api.i18n.MessagesApi
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
@@ -29,6 +28,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 @Singleton
 class EoriDetailsHelper @Inject() (implicit langs: Langs, messages: MessagesApi) {
@@ -37,10 +37,10 @@ class EoriDetailsHelper @Inject() (implicit langs: Langs, messages: MessagesApi)
 
   private val key = "check-eori-details"
 
-  def eoriSummary(user: SignedInUserDetails): List[SummaryListRow] =
+  def eoriSummary(eori: Eori, name: String): List[SummaryListRow] =
     List(
-      makeRow("eori-number", user.eori.value),
-      makeRow("name", user.contactName.value)
+      makeRow("eori-number", eori.value),
+      makeRow("name", name)
     ).flattenOption
 
   private def makeRow(fieldName: String, fieldValue: String): Option[SummaryListRow] =

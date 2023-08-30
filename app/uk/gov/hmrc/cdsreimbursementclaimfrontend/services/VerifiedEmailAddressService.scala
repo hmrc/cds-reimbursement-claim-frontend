@@ -50,7 +50,7 @@ class DefaultVerifiedEmailAddressService @Inject() (
 
   def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[CdsVerifiedEmail]]] =
     sessionStore
-      .updateF { sessionData =>
+      .updateF(forceSessionCreation = true) { sessionData =>
         if (sessionData.verifiedEmail.isDefined)
           Future.successful(Right(sessionData))
         else

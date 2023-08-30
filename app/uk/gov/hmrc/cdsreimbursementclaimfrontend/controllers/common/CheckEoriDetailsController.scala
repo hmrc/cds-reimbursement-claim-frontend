@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import play.api.Environment
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
@@ -37,10 +36,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => c
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -71,49 +71,50 @@ class CheckEoriDetailsController @Inject() (
     with Logging {
 
   protected def getPage(
-    signedInUserDetails: SignedInUserDetails,
+    eori: Eori,
+    name: Option[Name],
     form: Form[YesNo]
   )(implicit
     request: Request[_],
     messages: Messages
   ): Appendable = checkEoriDetailsPage(
-    signedInUserDetails,
+    eori,
+    name.map(_.toFullName).getOrElse("No name"),
     form,
     routes.CheckEoriDetailsController.submit()
   )
 
-  def show(): Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
-    logger.warn(Json.toJson(request.sessionData).toString())
-    request.signedInUserDetails
-      .fold(Redirect(baseRoutes.StartController.start()))(user => Ok(getPage(user, whetherEoriDetailsCorrect)))
-  }
+  final val show: Action[AnyContent] =
+    authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+      request.whenAuthorisedUser { (eori: Eori, name: Option[Name]) =>
+        Future.successful(Ok(getPage(eori, name, whetherEoriDetailsCorrect)))
+      }(resultIfUnsupportedUser = Redirect(baseRoutes.StartController.start()))
+    }
 
-  def submit(): Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-    request.signedInUserDetails
-      .map { user =>
-        whetherEoriDetailsCorrect
-          .bindFromRequest()
-          .fold(
-            formWithErrors => Future.successful(BadRequest(getPage(user, formWithErrors))),
-            {
-              case Yes =>
-                verifiedEmailAddressService
-                  .getVerifiedEmailAddress(user.eori)
-                  .map {
-                    case Left(error)    =>
-                      logger.warn("Error submitting a verified email", error.toException)
-                      errorHandler.errorResult()
-                    case Right(None)    =>
-                      Redirect(viewConfig.customsEmailFrontendUrl)
-                    case Right(Some(_)) =>
-                      Redirect(commonRoutes.ChooseClaimTypeController.show())
-                  }
-              case No  =>
-                Future.successful(Redirect(baseRoutes.StartController.start()).withNewSession)
-            }
-          )
-      }
-      .getOrElse(Future.successful(Redirect(baseRoutes.StartController.start())))
+  final val submit: Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+    request.whenAuthorisedUser { (eori: Eori, name: Option[Name]) =>
+      whetherEoriDetailsCorrect
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(getPage(eori, name, formWithErrors))),
+          {
+            case Yes =>
+              verifiedEmailAddressService
+                .getVerifiedEmailAddress(eori)
+                .map {
+                  case Left(error)    =>
+                    logger.warn("Error submitting a verified email", error.toException)
+                    errorHandler.errorResult()
+                  case Right(None)    =>
+                    Redirect(viewConfig.customsEmailFrontendUrl)
+                  case Right(Some(_)) =>
+                    Redirect(commonRoutes.ChooseClaimTypeController.show())
+                }
+            case No  =>
+              Future.successful(Redirect(baseRoutes.StartController.start()).withNewSession)
+          }
+        )
+    }(resultIfUnsupportedUser = Redirect(baseRoutes.StartController.start()))
   }
 }
 

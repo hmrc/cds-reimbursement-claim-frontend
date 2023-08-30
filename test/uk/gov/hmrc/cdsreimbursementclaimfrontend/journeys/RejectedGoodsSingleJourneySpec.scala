@@ -447,7 +447,7 @@ class RejectedGoodsSingleJourneySpec
               .getOrElse(fail("Failed to get contact details"))
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-            calculatedContact.emailAddress.value       shouldBe expectedContact.maybeEmailAddress.getOrElse(
+            calculatedContact.emailAddress.get.value   shouldBe expectedContact.maybeEmailAddress.getOrElse(
               signedInUser.email.get.value
             )
             calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
@@ -470,13 +470,13 @@ class RejectedGoodsSingleJourneySpec
               journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isEmpty
           ) {
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
-            calculatedContact.fullName           shouldBe signedInUser.name
+            calculatedContact.fullName               shouldBe signedInUser.name
               .map(_.toFullName)
               .getOrElse(fail("No signed in user name present"))
-            calculatedContact.emailAddress.value shouldBe signedInUser.email
+            calculatedContact.emailAddress.get.value shouldBe signedInUser.email
               .map(_.value)
               .getOrElse(fail("No signed in user email present"))
-            calculatedContact.phoneNumber        shouldBe None
+            calculatedContact.phoneNumber            shouldBe None
           }
         }
       }
@@ -499,7 +499,7 @@ class RejectedGoodsSingleJourneySpec
               .getOrElse(fail("Failed to get contact details"))
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
-            calculatedContact.emailAddress.value       shouldBe expectedContact.maybeEmailAddress.getOrElse(
+            calculatedContact.emailAddress.get.value   shouldBe expectedContact.maybeEmailAddress.getOrElse(
               signedInUser.email.get.value
             )
             calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
@@ -522,7 +522,7 @@ class RejectedGoodsSingleJourneySpec
           ) {
             val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
             calculatedContact.fullName                 shouldBe signedInUser.name.map(_.toFullName).getOrElse("")
-            calculatedContact.emailAddress.value       shouldBe signedInUser.email.map(_.value).getOrElse("")
+            calculatedContact.emailAddress.get.value   shouldBe signedInUser.email.map(_.value).getOrElse("")
             calculatedContact.phoneNumber.map(_.value) shouldBe None
           }
         }

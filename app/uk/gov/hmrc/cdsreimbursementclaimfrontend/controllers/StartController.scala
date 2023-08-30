@@ -16,25 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.data.EitherT
-import cats.instances.future._
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
-import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.GovernmentGatewayJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.NonGovernmentGatewayJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -61,7 +53,13 @@ class StartController @Inject() (
 
   val start: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-      handleAuthenticatedUser(request.authenticatedRequest.journeyUserType)
+      request.whenAuthorisedUser((_, _) =>
+        Future.successful(
+          Redirect(
+            controllers.common.routes.CheckEoriDetailsController.show()
+          )
+        )
+      )(resultIfUnsupportedUser = Redirect(routes.StartController.weOnlySupportGG()))
     }
 
   val startNewClaim: Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
@@ -78,29 +76,24 @@ class StartController @Inject() (
   }
 
   val weOnlySupportGG: Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      request.sessionData.flatMap(_.journeyStatus) match {
-        case Some(NonGovernmentGatewayJourney) => Ok(weOnlySupportGGPage())
-        case _                                 => Redirect(routes.StartController.start())
-      }
+    authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+      request.whenAuthorisedUser { (_, _) =>
+        Future.successful(Redirect(routes.StartController.start()))
+      }(resultIfUnsupportedUser = Ok(weOnlySupportGGPage()))
     }
 
   val signOutAndRegisterForGG: Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      request.sessionData.flatMap(_.journeyStatus) match {
-        case Some(NonGovernmentGatewayJourney) =>
-          Redirect(viewConfig.ggCreateAccountUrl).withNewSession
-        case _                                 => Redirect(routes.StartController.start())
-      }
+    authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+      request.whenAuthorisedUser { (_, _) =>
+        Future.successful(Redirect(routes.StartController.start()))
+      }(resultIfUnsupportedUser = Redirect(viewConfig.ggCreateAccountUrl).withNewSession)
     }
 
   val signOutAndSignIn: Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      request.sessionData.flatMap(_.journeyStatus) match {
-        case Some(NonGovernmentGatewayJourney) =>
-          Redirect(routes.StartController.start()).withNewSession
-        case _                                 => Redirect(routes.StartController.start())
-      }
+    authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
+      request.whenAuthorisedUser { (_, _) =>
+        Future.successful(Redirect(routes.StartController.start()))
+      }(resultIfUnsupportedUser = Redirect(routes.StartController.start()).withNewSession)
     }
 
   val keepAlive: Action[AnyContent] =
@@ -108,74 +101,5 @@ class StartController @Inject() (
 
   val timedOut: Action[AnyContent] =
     Action(implicit request => Ok(timedOutPage()))
-
-  private def handleAuthenticatedUser(
-    authenticatedUser: AuthenticatedUser
-  )(implicit
-    request: RequestWithSessionDataAndRetrievedData[AnyContent]
-  ): Future[Result] =
-    authenticatedUser match {
-      case AuthenticatedUser.Individual(ggCredId, _, eori, _) =>
-        handleSignedInUser(ggCredId, eori)
-
-      case AuthenticatedUser.Organisation(ggCredId, _, eori, _) =>
-        handleSignedInUser(ggCredId, eori)
-
-      case u: AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser =>
-        handleNonGovernmentGatewayUser(u)
-    }
-
-  private def handleNonGovernmentGatewayUser(
-    nonGovernmentGatewayUser: NonGovernmentGatewayAuthenticatedUser
-  )(implicit
-    request: RequestWithSessionDataAndRetrievedData[_]
-  ): Future[Result] = {
-    logger.warn(
-      s"User logged in with unsupported provider: ${nonGovernmentGatewayUser.authProvider}"
-    )
-
-    updateSession(sessionStore, request)(_ =>
-      SessionData.empty.copy(
-        journeyStatus = Some(NonGovernmentGatewayJourney)
-      )
-    ).map {
-      case Left(e) =>
-        logAndDisplayError("could not update session:").apply(e)
-
-      case Right(_) =>
-        Redirect(routes.StartController.weOnlySupportGG())
-    }
-
-  }
-
-  private def handleSignedInUser(
-    ggCredId: GGCredId,
-    eori: Eori
-  )(implicit
-    request: RequestWithSessionDataAndRetrievedData[_]
-  ): Future[Result] = {
-    val result = for {
-      _ <- EitherT(
-             updateSession(sessionStore, request)(_ =>
-               SessionData.empty.copy(
-                 journeyStatus = Some(
-                   GovernmentGatewayJourney(
-                     ggCredId,
-                     request.signedInUserDetailsFromRequest(eori)
-                   )
-                 )
-               )
-             )
-           )
-    } yield ()
-
-    result.fold(
-      logAndDisplayError("could not initiate claim journey:"),
-      _ =>
-        Redirect(
-          controllers.common.routes.CheckEoriDetailsController.show()
-        )
-    )
-  }
 
 }

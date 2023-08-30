@@ -28,10 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,7 +51,6 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
     lazy val authenticatedRequest =
       AuthenticatedRequestWithRetrievedData(
         AuthenticatedUser.Individual(
-          GGCredId("id"),
           Some(Email("email")),
           Eori("Some eori"),
           Some(Name(Some("John Smith"), Some("Smith")))
@@ -63,7 +59,7 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
         messagesRequest
       )
 
-    val sessionData = sample[SessionData]
+    val sessionData = SessionData.empty
 
     def performAction(): Future[Result] =
       action.invokeBlock(

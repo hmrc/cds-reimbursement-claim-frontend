@@ -19,20 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.i18n.MessagesApi
-import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 
 final case class RequestWithSessionDataAndRetrievedData[A](
   sessionData: SessionData,
@@ -43,34 +39,20 @@ final case class RequestWithSessionDataAndRetrievedData[A](
   override def messagesApi: MessagesApi =
     authenticatedRequest.request.messagesApi
 
-  val signedInUserDetails: Option[SignedInUserDetails] = sessionData match {
-    case SessionData(_, journeyStatus @ Some(_), _, None, None, None, None, None, None, None) =>
-      journeyStatus.collect { case JourneyStatus.GovernmentGatewayJourney(_, signedInUserDetails) =>
-        signedInUserDetails
-      }
-
-    case SessionData.HasClaimantEori(eori) => Some(signedInUserDetailsFromRequest(eori))
-    case _                                 => None
-  }
-
-  def signedInUserDetailsFromRequest(eori: Eori): SignedInUserDetails =
-    SignedInUserDetails(
-      authenticatedRequest.journeyUserType.email,
-      eori,
-      Email(""),
-      ContactName(authenticatedRequest.journeyUserType.name.flatMap(_.name).getOrElse("No name"))
-    )
-
-  def using(
-    matchExpression: PartialFunction[JourneyStatus, Future[Result]],
-    applyIfNone: => Result = startNewJourney
+  def whenAuthorisedUser(f: (Eori, Option[Name]) => Future[Result])(resultIfUnsupportedUser: => Result)(implicit
+    request: RequestWithSessionDataAndRetrievedData[AnyContent]
   ): Future[Result] =
-    sessionData.journeyStatus
-      .collect(matchExpression)
-      .getOrElse(Future.successful(applyIfNone))
+    request.authenticatedRequest.journeyUserType match {
+      case AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(_) =>
+        Future.successful(resultIfUnsupportedUser)
 
-  def startNewJourney: Result =
-    Redirect(baseRoutes.StartController.start())
+      case AuthenticatedUser.Organisation(_, eori, name) =>
+        f(eori, name)
+
+      case AuthenticatedUser.Individual(_, eori, name) =>
+        f(eori, name)
+    }
+
 }
 
 @Singleton
