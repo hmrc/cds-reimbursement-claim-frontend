@@ -68,7 +68,7 @@ trait SessionCache {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 
-  final def updateF[R](
+  final def updateF[R](forceSessionCreation: Boolean)(
     update: SessionData => Future[Either[Error, SessionData]]
   )(implicit
     hc: HeaderCarrier,
@@ -89,9 +89,19 @@ trait SessionCache {
         }
 
       case Right(None) =>
-        Future.successful(
-          Left(Error("no session found in mongo"))
-        )
+        if (forceSessionCreation)
+          update(SessionData.empty).flatMap {
+            case Right(updatedSessionData) =>
+              store(updatedSessionData)
+                .map(_.map(_ => updatedSessionData))
+
+            case Left(error) =>
+              Future.successful(Left(error))
+          }
+        else
+          Future.successful(
+            Left(Error("no session found in mongo"))
+          )
 
       case Left(error) =>
         Future.successful(Left(error))
