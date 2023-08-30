@@ -26,6 +26,14 @@ import java.time.LocalDate
 
 class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
 
+  val journeyAnalytics = new JourneyAnalytics {
+    def emailAddressHasChanged: Boolean   = true
+    def contactNameHasChanged: Boolean    = true
+    def phoneNumberHasChanged: Boolean    = true
+    def contactAddressHasChanged: Boolean = true
+    def bankAccountHasChanged: Boolean    = true
+  }
+
   "JourneyOutputLogger" should {
 
     "log OverpaymentsSingleJourney.Output" in {
@@ -44,30 +52,35 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
 
-      log.journeyType                        shouldBe "overpayments"
-      log.journeyVariant                     shouldBe "single"
-      log.numberOfMultipleMRNs               shouldBe None
-      log.claimantType                       shouldBe "Consignee"
-      log.basisOfClaim                       shouldBe Some("OutwardProcessingRelief")
-      log.basisOfClaimSpecialCircumstances   shouldBe None
-      log.methodOfDisposal                   shouldBe None
-      log.whetherNorthernIreland             shouldBe Some(true)
-      log.reasonForSecurity                  shouldBe None
-      log.temporaryAdmissionMethodOfDisposal shouldBe None
-      log.reimbursementMethod                shouldBe "CurrentMonthAdjustment"
-      log.claimedAmountThreshold             shouldBe "4"
-      log.claimedDuties                      shouldBe Seq("A00", "A30")
-      log.numberOfClaimedDuties              shouldBe 2
-      log.numberOfEvidenceFilesAttached      shouldBe 2
-      log.documentTypesAttached              shouldBe Seq("CommercialInvoice", "Other")
-      log.fileTypesAttached                  shouldBe Seq("application/pdf", "image/jpeg")
-      log.fileSizes                          shouldBe Seq(567L, 1234L)
-      log.scheduleFileType                   shouldBe None
-      log.scheduleFileSize                   shouldBe None
-      log.caseNumber                         shouldBe Some("REF-1234")
-      log.userHash                           shouldBe "931058e4"
+      log.journeyType                           shouldBe "overpayments"
+      log.journeyVariant                        shouldBe "single"
+      log.numberOfMultipleMRNs                  shouldBe None
+      log.claimantType                          shouldBe "Consignee"
+      log.basisOfClaim                          shouldBe Some("OutwardProcessingRelief")
+      log.basisOfClaimSpecialCircumstances      shouldBe None
+      log.methodOfDisposal                      shouldBe None
+      log.whetherNorthernIreland                shouldBe Some(true)
+      log.reasonForSecurity                     shouldBe None
+      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.reimbursementMethod                   shouldBe "CurrentMonthAdjustment"
+      log.claimedAmountThreshold                shouldBe "4"
+      log.claimedDuties                         shouldBe Seq("A00", "A30")
+      log.numberOfClaimedDuties                 shouldBe 2
+      log.uploads.numberOfEvidenceFilesAttached shouldBe 2
+      log.uploads.documentTypesAttached         shouldBe Seq("CommercialInvoice", "Other")
+      log.uploads.fileTypesAttached             shouldBe Seq("application/pdf", "image/jpeg")
+      log.uploads.fileSizes                     shouldBe Seq(567L, 1234L)
+      log.uploads.scheduleFileType              shouldBe None
+      log.uploads.scheduleFileSize              shouldBe None
+      log.caseNumber                            shouldBe Some("REF-1234")
+      log.userHash                              shouldBe "931058e4"
+      log.changes.emailAddress                  shouldBe true
+      log.changes.contactName                   shouldBe true
+      log.changes.phoneNumber                   shouldBe true
+      log.changes.contactAddress                shouldBe true
+      log.changes.bankAccount                   shouldBe true
     }
 
     "log OverpaymentsMultipleJourney.Output" in {
@@ -90,30 +103,35 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
 
-      log.journeyType                        shouldBe "overpayments"
-      log.journeyVariant                     shouldBe "multiple"
-      log.numberOfMultipleMRNs               shouldBe Some(2)
-      log.claimantType                       shouldBe "Declarant"
-      log.basisOfClaim                       shouldBe Some("IncorrectAdditionalInformationCode")
-      log.basisOfClaimSpecialCircumstances   shouldBe None
-      log.methodOfDisposal                   shouldBe None
-      log.whetherNorthernIreland             shouldBe Some(false)
-      log.reasonForSecurity                  shouldBe None
-      log.temporaryAdmissionMethodOfDisposal shouldBe None
-      log.reimbursementMethod                shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold             shouldBe "6"
-      log.claimedDuties                      shouldBe Seq("A00", "A30", "A90")
-      log.numberOfClaimedDuties              shouldBe 3
-      log.numberOfEvidenceFilesAttached      shouldBe 2
-      log.documentTypesAttached              shouldBe Seq("CommercialInvoice", "Other")
-      log.fileTypesAttached                  shouldBe Seq("application/pdf", "image/jpeg")
-      log.fileSizes                          shouldBe Seq(567L, 1234L)
-      log.scheduleFileType                   shouldBe None
-      log.scheduleFileSize                   shouldBe None
-      log.caseNumber                         shouldBe Some("REF-1234")
-      log.userHash                           shouldBe "931058e4"
+      log.journeyType                           shouldBe "overpayments"
+      log.journeyVariant                        shouldBe "multiple"
+      log.numberOfMultipleMRNs                  shouldBe Some(2)
+      log.claimantType                          shouldBe "Declarant"
+      log.basisOfClaim                          shouldBe Some("IncorrectAdditionalInformationCode")
+      log.basisOfClaimSpecialCircumstances      shouldBe None
+      log.methodOfDisposal                      shouldBe None
+      log.whetherNorthernIreland                shouldBe Some(false)
+      log.reasonForSecurity                     shouldBe None
+      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.reimbursementMethod                   shouldBe "BankAccountTransfer"
+      log.claimedAmountThreshold                shouldBe "6"
+      log.claimedDuties                         shouldBe Seq("A00", "A30", "A90")
+      log.numberOfClaimedDuties                 shouldBe 3
+      log.uploads.numberOfEvidenceFilesAttached shouldBe 2
+      log.uploads.documentTypesAttached         shouldBe Seq("CommercialInvoice", "Other")
+      log.uploads.fileTypesAttached             shouldBe Seq("application/pdf", "image/jpeg")
+      log.uploads.fileSizes                     shouldBe Seq(567L, 1234L)
+      log.uploads.scheduleFileType              shouldBe None
+      log.uploads.scheduleFileSize              shouldBe None
+      log.caseNumber                            shouldBe Some("REF-1234")
+      log.userHash                              shouldBe "931058e4"
+      log.changes.emailAddress                  shouldBe true
+      log.changes.contactName                   shouldBe true
+      log.changes.phoneNumber                   shouldBe true
+      log.changes.contactAddress                shouldBe true
+      log.changes.bankAccount                   shouldBe true
     }
 
     "log OverpaymentsScheduledJourney.Output" in {
@@ -145,30 +163,35 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
 
-      log.journeyType                        shouldBe "overpayments"
-      log.journeyVariant                     shouldBe "scheduled"
-      log.numberOfMultipleMRNs               shouldBe None
-      log.claimantType                       shouldBe "User"
-      log.basisOfClaim                       shouldBe Some("PersonalEffects")
-      log.basisOfClaimSpecialCircumstances   shouldBe None
-      log.methodOfDisposal                   shouldBe None
-      log.whetherNorthernIreland             shouldBe Some(false)
-      log.reasonForSecurity                  shouldBe None
-      log.temporaryAdmissionMethodOfDisposal shouldBe None
-      log.reimbursementMethod                shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold             shouldBe "6"
-      log.claimedDuties                      shouldBe Seq("A00", "A30")
-      log.numberOfClaimedDuties              shouldBe 2
-      log.numberOfEvidenceFilesAttached      shouldBe 2
-      log.documentTypesAttached              shouldBe Seq("CommercialInvoice", "Other")
-      log.fileTypesAttached                  shouldBe Seq("application/pdf", "image/jpeg")
-      log.fileSizes                          shouldBe Seq(567L, 1234L)
-      log.scheduleFileType                   shouldBe Some("image/png")
-      log.scheduleFileSize                   shouldBe Some(9876L)
-      log.caseNumber                         shouldBe Some("REF-1234")
-      log.userHash                           shouldBe "931058e4"
+      log.journeyType                           shouldBe "overpayments"
+      log.journeyVariant                        shouldBe "scheduled"
+      log.numberOfMultipleMRNs                  shouldBe None
+      log.claimantType                          shouldBe "User"
+      log.basisOfClaim                          shouldBe Some("PersonalEffects")
+      log.basisOfClaimSpecialCircumstances      shouldBe None
+      log.methodOfDisposal                      shouldBe None
+      log.whetherNorthernIreland                shouldBe Some(false)
+      log.reasonForSecurity                     shouldBe None
+      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.reimbursementMethod                   shouldBe "BankAccountTransfer"
+      log.claimedAmountThreshold                shouldBe "6"
+      log.claimedDuties                         shouldBe Seq("A00", "A30")
+      log.numberOfClaimedDuties                 shouldBe 2
+      log.uploads.numberOfEvidenceFilesAttached shouldBe 2
+      log.uploads.documentTypesAttached         shouldBe Seq("CommercialInvoice", "Other")
+      log.uploads.fileTypesAttached             shouldBe Seq("application/pdf", "image/jpeg")
+      log.uploads.fileSizes                     shouldBe Seq(567L, 1234L)
+      log.uploads.scheduleFileType              shouldBe Some("image/png")
+      log.uploads.scheduleFileSize              shouldBe Some(9876L)
+      log.caseNumber                            shouldBe Some("REF-1234")
+      log.userHash                              shouldBe "931058e4"
+      log.changes.emailAddress                  shouldBe true
+      log.changes.contactName                   shouldBe true
+      log.changes.phoneNumber                   shouldBe true
+      log.changes.contactAddress                shouldBe true
+      log.changes.bankAccount                   shouldBe true
     }
 
     "log RejectedGoodsSingleJourney.Output" in {
@@ -193,30 +216,35 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
 
-      log.journeyType                        shouldBe "rejectedgoods"
-      log.journeyVariant                     shouldBe "single"
-      log.numberOfMultipleMRNs               shouldBe None
-      log.claimantType                       shouldBe "Consignee"
-      log.basisOfClaim                       shouldBe Some("DamagedBeforeClearance")
-      log.basisOfClaimSpecialCircumstances   shouldBe Some("BasisOfClaimSpecialCircumstances")
-      log.methodOfDisposal                   shouldBe Some("Destruction")
-      log.whetherNorthernIreland             shouldBe None
-      log.reasonForSecurity                  shouldBe None
-      log.temporaryAdmissionMethodOfDisposal shouldBe None
-      log.reimbursementMethod                shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold             shouldBe "7"
-      log.claimedDuties                      shouldBe Seq("A00", "A20", "A90")
-      log.numberOfClaimedDuties              shouldBe 3
-      log.numberOfEvidenceFilesAttached      shouldBe 2
-      log.documentTypesAttached              shouldBe Seq("CommercialInvoice", "Other")
-      log.fileTypesAttached                  shouldBe Seq("application/pdf", "image/jpeg")
-      log.fileSizes                          shouldBe Seq(567L, 1234L)
-      log.scheduleFileType                   shouldBe None
-      log.scheduleFileSize                   shouldBe None
-      log.caseNumber                         shouldBe Some("REF-1234")
-      log.userHash                           shouldBe "931058e4"
+      log.journeyType                           shouldBe "rejectedgoods"
+      log.journeyVariant                        shouldBe "single"
+      log.numberOfMultipleMRNs                  shouldBe None
+      log.claimantType                          shouldBe "Consignee"
+      log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
+      log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
+      log.methodOfDisposal                      shouldBe Some("Destruction")
+      log.whetherNorthernIreland                shouldBe None
+      log.reasonForSecurity                     shouldBe None
+      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.reimbursementMethod                   shouldBe "BankAccountTransfer"
+      log.claimedAmountThreshold                shouldBe "7"
+      log.claimedDuties                         shouldBe Seq("A00", "A20", "A90")
+      log.numberOfClaimedDuties                 shouldBe 3
+      log.uploads.numberOfEvidenceFilesAttached shouldBe 2
+      log.uploads.documentTypesAttached         shouldBe Seq("CommercialInvoice", "Other")
+      log.uploads.fileTypesAttached             shouldBe Seq("application/pdf", "image/jpeg")
+      log.uploads.fileSizes                     shouldBe Seq(567L, 1234L)
+      log.uploads.scheduleFileType              shouldBe None
+      log.uploads.scheduleFileSize              shouldBe None
+      log.caseNumber                            shouldBe Some("REF-1234")
+      log.userHash                              shouldBe "931058e4"
+      log.changes.emailAddress                  shouldBe true
+      log.changes.contactName                   shouldBe true
+      log.changes.phoneNumber                   shouldBe true
+      log.changes.contactAddress                shouldBe true
+      log.changes.bankAccount                   shouldBe true
     }
 
     "log RejectedGoodsMultipleJourney.Output" in {
@@ -242,30 +270,35 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
 
-      log.journeyType                        shouldBe "rejectedgoods"
-      log.journeyVariant                     shouldBe "multiple"
-      log.numberOfMultipleMRNs               shouldBe Some(2)
-      log.claimantType                       shouldBe "Consignee"
-      log.basisOfClaim                       shouldBe Some("DamagedBeforeClearance")
-      log.basisOfClaimSpecialCircumstances   shouldBe Some("BasisOfClaimSpecialCircumstances")
-      log.methodOfDisposal                   shouldBe Some("Destruction")
-      log.whetherNorthernIreland             shouldBe None
-      log.reasonForSecurity                  shouldBe None
-      log.temporaryAdmissionMethodOfDisposal shouldBe None
-      log.reimbursementMethod                shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold             shouldBe "6"
-      log.claimedDuties                      shouldBe Seq("A00", "A30", "A90")
-      log.numberOfClaimedDuties              shouldBe 3
-      log.numberOfEvidenceFilesAttached      shouldBe 2
-      log.documentTypesAttached              shouldBe Seq("CommercialInvoice", "Other")
-      log.fileTypesAttached                  shouldBe Seq("application/pdf", "image/jpeg")
-      log.fileSizes                          shouldBe Seq(567L, 1234L)
-      log.scheduleFileType                   shouldBe None
-      log.scheduleFileSize                   shouldBe None
-      log.caseNumber                         shouldBe Some("REF-1234")
-      log.userHash                           shouldBe "931058e4"
+      log.journeyType                           shouldBe "rejectedgoods"
+      log.journeyVariant                        shouldBe "multiple"
+      log.numberOfMultipleMRNs                  shouldBe Some(2)
+      log.claimantType                          shouldBe "Consignee"
+      log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
+      log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
+      log.methodOfDisposal                      shouldBe Some("Destruction")
+      log.whetherNorthernIreland                shouldBe None
+      log.reasonForSecurity                     shouldBe None
+      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.reimbursementMethod                   shouldBe "BankAccountTransfer"
+      log.claimedAmountThreshold                shouldBe "6"
+      log.claimedDuties                         shouldBe Seq("A00", "A30", "A90")
+      log.numberOfClaimedDuties                 shouldBe 3
+      log.uploads.numberOfEvidenceFilesAttached shouldBe 2
+      log.uploads.documentTypesAttached         shouldBe Seq("CommercialInvoice", "Other")
+      log.uploads.fileTypesAttached             shouldBe Seq("application/pdf", "image/jpeg")
+      log.uploads.fileSizes                     shouldBe Seq(567L, 1234L)
+      log.uploads.scheduleFileType              shouldBe None
+      log.uploads.scheduleFileSize              shouldBe None
+      log.caseNumber                            shouldBe Some("REF-1234")
+      log.userHash                              shouldBe "931058e4"
+      log.changes.emailAddress                  shouldBe true
+      log.changes.contactName                   shouldBe true
+      log.changes.phoneNumber                   shouldBe true
+      log.changes.contactAddress                shouldBe true
+      log.changes.bankAccount                   shouldBe true
     }
 
     "log RejectedGoodsScheduledJourney.Output" in {
@@ -300,30 +333,35 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
 
-      log.journeyType                        shouldBe "rejectedgoods"
-      log.journeyVariant                     shouldBe "scheduled"
-      log.numberOfMultipleMRNs               shouldBe None
-      log.claimantType                       shouldBe "User"
-      log.basisOfClaim                       shouldBe Some("DamagedBeforeClearance")
-      log.basisOfClaimSpecialCircumstances   shouldBe Some("BasisOfClaimSpecialCircumstances")
-      log.methodOfDisposal                   shouldBe Some("Destruction")
-      log.whetherNorthernIreland             shouldBe None
-      log.reasonForSecurity                  shouldBe None
-      log.temporaryAdmissionMethodOfDisposal shouldBe None
-      log.reimbursementMethod                shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold             shouldBe "3"
-      log.claimedDuties                      shouldBe Seq("A80", "A90")
-      log.numberOfClaimedDuties              shouldBe 2
-      log.numberOfEvidenceFilesAttached      shouldBe 2
-      log.documentTypesAttached              shouldBe Seq("CommercialInvoice", "Other")
-      log.fileTypesAttached                  shouldBe Seq("application/pdf", "image/jpeg")
-      log.fileSizes                          shouldBe Seq(567L, 1234L)
-      log.scheduleFileType                   shouldBe Some("image/png")
-      log.scheduleFileSize                   shouldBe Some(9876L)
-      log.caseNumber                         shouldBe Some("REF-1234")
-      log.userHash                           shouldBe "931058e4"
+      log.journeyType                           shouldBe "rejectedgoods"
+      log.journeyVariant                        shouldBe "scheduled"
+      log.numberOfMultipleMRNs                  shouldBe None
+      log.claimantType                          shouldBe "User"
+      log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
+      log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
+      log.methodOfDisposal                      shouldBe Some("Destruction")
+      log.whetherNorthernIreland                shouldBe None
+      log.reasonForSecurity                     shouldBe None
+      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.reimbursementMethod                   shouldBe "BankAccountTransfer"
+      log.claimedAmountThreshold                shouldBe "3"
+      log.claimedDuties                         shouldBe Seq("A80", "A90")
+      log.numberOfClaimedDuties                 shouldBe 2
+      log.uploads.numberOfEvidenceFilesAttached shouldBe 2
+      log.uploads.documentTypesAttached         shouldBe Seq("CommercialInvoice", "Other")
+      log.uploads.fileTypesAttached             shouldBe Seq("application/pdf", "image/jpeg")
+      log.uploads.fileSizes                     shouldBe Seq(567L, 1234L)
+      log.uploads.scheduleFileType              shouldBe Some("image/png")
+      log.uploads.scheduleFileSize              shouldBe Some(9876L)
+      log.caseNumber                            shouldBe Some("REF-1234")
+      log.userHash                              shouldBe "931058e4"
+      log.changes.emailAddress                  shouldBe true
+      log.changes.contactName                   shouldBe true
+      log.changes.phoneNumber                   shouldBe true
+      log.changes.contactAddress                shouldBe true
+      log.changes.bankAccount                   shouldBe true
     }
 
     "log SecuritiesJourney.Output" in {
@@ -348,30 +386,35 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           exportMovementReferenceNumber = Some(anotherExampleMrn)
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"))
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
 
-      log.journeyType                        shouldBe "securities"
-      log.journeyVariant                     shouldBe "single"
-      log.numberOfMultipleMRNs               shouldBe None
-      log.claimantType                       shouldBe "Consignee"
-      log.basisOfClaim                       shouldBe None
-      log.basisOfClaimSpecialCircumstances   shouldBe None
-      log.methodOfDisposal                   shouldBe None
-      log.whetherNorthernIreland             shouldBe None
-      log.reasonForSecurity                  shouldBe Some("MissingLicenseQuota")
-      log.temporaryAdmissionMethodOfDisposal shouldBe Some("DeclaredToEndUse")
-      log.reimbursementMethod                shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold             shouldBe "5"
-      log.claimedDuties                      shouldBe Seq("A30", "A45", "A90")
-      log.numberOfClaimedDuties              shouldBe 3
-      log.numberOfEvidenceFilesAttached      shouldBe 2
-      log.documentTypesAttached              shouldBe Seq("CommercialInvoice", "Other")
-      log.fileTypesAttached                  shouldBe Seq("application/pdf", "image/jpeg")
-      log.fileSizes                          shouldBe Seq(567L, 1234L)
-      log.scheduleFileType                   shouldBe None
-      log.scheduleFileSize                   shouldBe None
-      log.caseNumber                         shouldBe Some("REF-1234")
-      log.userHash                           shouldBe "931058e4"
+      log.journeyType                           shouldBe "securities"
+      log.journeyVariant                        shouldBe "single"
+      log.numberOfMultipleMRNs                  shouldBe None
+      log.claimantType                          shouldBe "Consignee"
+      log.basisOfClaim                          shouldBe None
+      log.basisOfClaimSpecialCircumstances      shouldBe None
+      log.methodOfDisposal                      shouldBe None
+      log.whetherNorthernIreland                shouldBe None
+      log.reasonForSecurity                     shouldBe Some("MissingLicenseQuota")
+      log.temporaryAdmissionMethodOfDisposal    shouldBe Some("DeclaredToEndUse")
+      log.reimbursementMethod                   shouldBe "BankAccountTransfer"
+      log.claimedAmountThreshold                shouldBe "5"
+      log.claimedDuties                         shouldBe Seq("A30", "A45", "A90")
+      log.numberOfClaimedDuties                 shouldBe 3
+      log.uploads.numberOfEvidenceFilesAttached shouldBe 2
+      log.uploads.documentTypesAttached         shouldBe Seq("CommercialInvoice", "Other")
+      log.uploads.fileTypesAttached             shouldBe Seq("application/pdf", "image/jpeg")
+      log.uploads.fileSizes                     shouldBe Seq(567L, 1234L)
+      log.uploads.scheduleFileType              shouldBe None
+      log.uploads.scheduleFileSize              shouldBe None
+      log.caseNumber                            shouldBe Some("REF-1234")
+      log.userHash                              shouldBe "931058e4"
+      log.changes.emailAddress                  shouldBe true
+      log.changes.contactName                   shouldBe true
+      log.changes.phoneNumber                   shouldBe true
+      log.changes.contactAddress                shouldBe true
+      log.changes.bankAccount                   shouldBe true
     }
 
   }

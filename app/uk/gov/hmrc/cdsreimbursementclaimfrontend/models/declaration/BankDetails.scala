@@ -44,7 +44,7 @@ object BankDetails {
     (JsPath \ "accountHolderName").write[AccountName] and
       (JsPath \ "sortCode").write[SortCode] and
       (JsPath \ "accountNumber").write[AccountNumber]
-  )(unlift(BankAccountDetails.unapply))
+  )(unlift(BankAccountDetails.unapply3))
 
   implicit val maskedBankDetailsFormat: Format[BankDetails] =
     Format(

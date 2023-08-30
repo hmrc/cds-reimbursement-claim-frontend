@@ -49,7 +49,8 @@ final class RejectedGoodsScheduledJourney private (
     with RejectedGoodsJourneyProperties
     with CanSubmitMrnAndDeclaration
     with CanSubmitContactDetails
-    with HaveInspectionDetails {
+    with HaveInspectionDetails
+    with JourneyAnalytics {
 
   type Type = RejectedGoodsScheduledJourney
 
@@ -240,17 +241,17 @@ final class RejectedGoodsScheduledJourney private (
       else Left("submitDeclarantEoriNumber.unexpected")
     }
 
-  def submitContactDetails(contactDetails: Option[MrnContactDetails]) =
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
-  def submitContactAddress(contactAddress: ContactAddress) =
+  def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(
-        answers.copy(contactAddress = Some(contactAddress))
+        answers.copy(contactAddress = Some(contactAddress.computeChanges(getInitialAddressDetailsFromDeclaration)))
       )
     }
 
@@ -404,7 +405,9 @@ final class RejectedGoodsScheduledJourney private (
       if (needsBanksAccountDetailsSubmission)
         Right(
           this.copy(
-            answers.copy(bankAccountDetails = Some(bankAccountDetails))
+            answers.copy(bankAccountDetails =
+              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
+            )
           )
         )
       else Left("submitBankAccountDetails.unexpected")

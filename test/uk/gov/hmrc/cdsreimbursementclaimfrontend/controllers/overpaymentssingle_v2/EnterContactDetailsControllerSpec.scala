@@ -126,7 +126,7 @@ class EnterContactDetailsControllerSpec
           inSequence {
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))
-            mockAuthWithNoRetrievals()
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey.submitContactDetails(None))))
           }
 
@@ -155,11 +155,26 @@ class EnterContactDetailsControllerSpec
           inSequence {
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))
-            mockAuthWithNoRetrievals()
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))
             mockStoreSession(
               session.copy(overpaymentsSingleJourney =
-                Some(journey.submitContactDetails(Some(MrnContactDetails(name.toFullName, Some(email), None))))
+                Some(
+                  journey.submitContactDetails(
+                    Some(
+                      MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
+                        Some(
+                          journey
+                            .getInitialContactDetailsFromDeclarationAndCurrentUser(
+                              uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
+                                .Individual(Some(email), journey.getClaimantEori, Some(name)),
+                              None
+                            )
+                        )
+                      )
+                    )
+                  )
+                )
               )
             )(Right(()))
           }

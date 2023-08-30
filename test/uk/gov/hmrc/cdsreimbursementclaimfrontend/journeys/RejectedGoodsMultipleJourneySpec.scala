@@ -817,7 +817,9 @@ class RejectedGoodsMultipleJourneySpec
         val modifiedJourney = journey.submitContactDetails(Some(contactDetails))
 
         modifiedJourney.hasCompleteAnswers     shouldBe true
-        modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)
+        modifiedJourney.answers.contactDetails shouldBe Some(
+          contactDetails
+        )
       }
     }
 
@@ -834,7 +836,9 @@ class RejectedGoodsMultipleJourneySpec
         val modifiedJourney = journey.submitContactAddress(contactAddress)
 
         modifiedJourney.hasCompleteAnswers     shouldBe true
-        modifiedJourney.answers.contactAddress shouldBe Some(contactAddress)
+        modifiedJourney.answers.contactAddress shouldBe Some(
+          contactAddress.computeChanges(journey.getInitialAddressDetailsFromDeclaration)
+        )
       }
     }
 

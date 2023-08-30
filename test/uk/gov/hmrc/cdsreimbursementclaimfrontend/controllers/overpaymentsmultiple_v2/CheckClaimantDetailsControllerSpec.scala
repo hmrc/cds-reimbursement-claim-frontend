@@ -157,9 +157,7 @@ class CheckClaimantDetailsControllerSpec
               .map(_.submitContactAddress(address))
               .getOrFail
 
-            val session = SessionData.empty.copy(
-              overpaymentsMultipleJourney = Some(journey)
-            )
+            val session = SessionData(journey)
 
             inSequence {
               mockAuthWithAllRetrievals(

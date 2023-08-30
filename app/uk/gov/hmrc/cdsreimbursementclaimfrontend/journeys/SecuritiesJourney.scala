@@ -49,7 +49,8 @@ final class SecuritiesJourney private (
     with CommonJourneyProperties
     with CanSubmitContactDetails
     with DirectFluentSyntax[SecuritiesJourney]
-    with SeqUtils {
+    with SeqUtils
+    with JourneyAnalytics {
 
   type Type = SecuritiesJourney
 
@@ -57,6 +58,11 @@ final class SecuritiesJourney private (
 
   val validate: Validator.Validate[SecuritiesJourney] =
     SecuritiesJourney.validator
+
+  private def copy(
+    newAnswers: SecuritiesJourney.Answers
+  ): SecuritiesJourney =
+    new SecuritiesJourney(newAnswers, caseNumber)
 
   import SecuritiesJourney.Answers
   import SecuritiesJourney.Checks._
@@ -282,7 +288,7 @@ final class SecuritiesJourney private (
           this
 
         case _ =>
-          new SecuritiesJourney(
+          this.copy(
             Answers(
               userEoriNumber = answers.userEoriNumber,
               movementReferenceNumber = Some(mrn),
@@ -307,7 +313,7 @@ final class SecuritiesJourney private (
       ) Right(this) // unchanged
       else
         Right(
-          new SecuritiesJourney(
+          this.copy(
             Answers(
               userEoriNumber = answers.userEoriNumber,
               movementReferenceNumber = answers.movementReferenceNumber,
@@ -325,7 +331,7 @@ final class SecuritiesJourney private (
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMovementReferenceNumber & hasReasonForSecurity) {
       Right(
-        new SecuritiesJourney(
+        this.copy(
           answers.copy(
             similarClaimExistAlreadyInCDFPay = Some(similarClaimExistAlreadyInCDFPay)
           )
@@ -339,7 +345,7 @@ final class SecuritiesJourney private (
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       if (needsMethodOfDisposalSubmission) {
         Right(
-          new SecuritiesJourney(
+          this.copy(
             answers.copy(
               temporaryAdmissionMethodOfDisposal = Some(methodOfDisposal)
             )
@@ -358,7 +364,7 @@ final class SecuritiesJourney private (
           Left("submitExportMovementReferenceNumber.duplicated")
         else
           Right(
-            new SecuritiesJourney(
+            this.copy(
               answers.copy(
                 exportMovementReferenceNumber = Some(exportMrn)
               )
@@ -378,7 +384,7 @@ final class SecuritiesJourney private (
         val emptySecuritiesReclaims =
           SortedMap(securityDepositIds.map(sid => (sid, SortedMap.empty[TaxCode, Option[BigDecimal]])): _*)
         Right(
-          new SecuritiesJourney(
+          this.copy(
             answers.copy(
               securitiesReclaims = answers.securitiesReclaims
                 .map(m =>
@@ -414,7 +420,7 @@ final class SecuritiesJourney private (
           val emptySecuritiesReclaim =
             SortedMap(securityDepositId -> SortedMap.empty[TaxCode, Option[BigDecimal]])
           Right(
-            new SecuritiesJourney(
+            this.copy(
               answers.copy(
                 securitiesReclaims = answers.securitiesReclaims
                   .map(_ ++ emptySecuritiesReclaim)
@@ -431,7 +437,7 @@ final class SecuritiesJourney private (
       if (!isValidSecurityDepositId(securityDepositId))
         Left("selectSecurityDepositIds.invalidSecurityDepositId")
       else {
-        val updatedJourney = new SecuritiesJourney(
+        val updatedJourney = this.copy(
           answers.copy(
             securitiesReclaims = answers.securitiesReclaims
               .map(_ - securityDepositId)
@@ -440,7 +446,7 @@ final class SecuritiesJourney private (
         )
         // clear bank account details and type when no longer required after security removal
         Right(
-          new SecuritiesJourney(
+          this.copy(
             updatedJourney.answers.copy(
               bankAccountDetails =
                 if (updatedJourney.needsBanksAccountDetailsSubmission) updatedJourney.answers.bankAccountDetails
@@ -481,7 +487,7 @@ final class SecuritiesJourney private (
           val refinedReclaims: SecuritiesReclaims  =
             SortedMap(selectedTaxCodes.map(taxCode => taxCode -> existingReclaims.getOrElse(taxCode, None)): _*)
           Right(
-            new SecuritiesJourney(
+            this.copy(
               answers.copy(
                 securitiesReclaims = answers.securitiesReclaims
                   .map(_ + (securityDepositId -> refinedReclaims))
@@ -525,7 +531,7 @@ final class SecuritiesJourney private (
           })
 
         Right(
-          new SecuritiesJourney(
+          this.copy(
             answers.copy(
               securitiesReclaims = updatedSecuritiesReclaims
             )
@@ -558,7 +564,7 @@ final class SecuritiesJourney private (
           }
 
         Right(
-          new SecuritiesJourney(
+          this.copy(
             answers.copy(
               securitiesReclaims = updatedSecuritiesReclaims
             )
@@ -569,7 +575,7 @@ final class SecuritiesJourney private (
 
   def submitUserXiEori(userXiEori: UserXiEori): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(
+      this.copy(
         answers.copy(eoriNumbersVerification =
           answers.eoriNumbersVerification
             .orElse(Some(EoriNumbersVerification()))
@@ -588,7 +594,7 @@ final class SecuritiesJourney private (
           }
         )
           Right(
-            new SecuritiesJourney(
+            this.copy(
               answers.copy(eoriNumbersVerification =
                 answers.eoriNumbersVerification
                   .orElse(Some(EoriNumbersVerification()))
@@ -604,7 +610,7 @@ final class SecuritiesJourney private (
     whileClaimIsAmendable {
       if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
         Right(
-          new SecuritiesJourney(
+          this.copy(
             answers.copy(eoriNumbersVerification =
               answers.eoriNumbersVerification
                 .orElse(Some(EoriNumbersVerification()))
@@ -616,17 +622,17 @@ final class SecuritiesJourney private (
         Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     }
 
-  def submitContactDetails(contactDetails: Option[MrnContactDetails]) =
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(
+      this.copy(
         answers.copy(contactDetails = contactDetails)
       )
     }
 
-  def submitContactAddress(contactAddress: ContactAddress) =
+  def submitContactAddress(contactAddress: ContactAddress): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(
-        answers.copy(contactAddress = Some(contactAddress))
+      this.copy(
+        answers.copy(contactAddress = Some(contactAddress.computeChanges(getInitialAddressDetailsFromDeclaration)))
       )
     }
 
@@ -634,8 +640,10 @@ final class SecuritiesJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new SecuritiesJourney(
-            answers.copy(bankAccountDetails = Some(bankAccountDetails))
+          this.copy(
+            answers.copy(bankAccountDetails =
+              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
+            )
           )
         )
       else Left("submitBankAccountDetails.unexpected")
@@ -645,7 +653,7 @@ final class SecuritiesJourney private (
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
         Right(
-          new SecuritiesJourney(
+          this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
           )
         )
@@ -656,7 +664,7 @@ final class SecuritiesJourney private (
     whileClaimIsAmendable {
       if (getDocumentTypesIfRequired.exists(_.contains(documentType)))
         Right(
-          new SecuritiesJourney(
+          this.copy(
             answers.copy(selectedDocumentType = Some(documentType))
           )
         )
@@ -683,7 +691,7 @@ final class SecuritiesJourney private (
             case uf                            => uf
           }
           Right(
-            new SecuritiesJourney(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+            this.copy(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
           )
         } else
           Left("receiveUploadedFiles.invalidDocumentType")
@@ -692,22 +700,22 @@ final class SecuritiesJourney private (
 
   def submitCheckDeclarationDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(answers.copy(checkDeclarationDetailsChangeMode = enabled))
+      this.copy(answers.copy(checkDeclarationDetailsChangeMode = enabled))
     }
 
   def submitClaimFullAmountMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(answers.copy(claimFullAmountMode = enabled))
+      this.copy(answers.copy(claimFullAmountMode = enabled))
     }
 
   def resetClaimFullAmountMode(): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(answers.copy(claimFullAmountMode = true))
+      this.copy(answers.copy(claimFullAmountMode = true))
     }
 
   def submitCheckClaimDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
-      new SecuritiesJourney(answers.copy(checkClaimDetailsChangeMode = enabled))
+      this.copy(answers.copy(checkClaimDetailsChangeMode = enabled))
     }
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
@@ -716,7 +724,7 @@ final class SecuritiesJourney private (
         .fold(
           _ => this,
           _ =>
-            new SecuritiesJourney(
+            this.copy(
               answers.copy(
                 checkYourAnswersChangeMode = enabled,
                 claimFullAmountMode = true

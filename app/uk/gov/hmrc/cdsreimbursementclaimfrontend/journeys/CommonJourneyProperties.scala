@@ -110,8 +110,10 @@ trait CommonJourneyProperties {
 
   final def computeBankAccountDetails: Option[BankAccountDetails] =
     answers.bankAccountDetails
-      .orElse(getConsigneeBankAccountDetails)
-      .orElse(getDeclarantBankAccountDetails)
+      .orElse(getInitialBankAccountDetailsFromDeclaration)
+
+  final def getInitialBankAccountDetailsFromDeclaration: Option[BankAccountDetails] =
+    getConsigneeBankAccountDetails.orElse(getDeclarantBankAccountDetails)
 
   final def needsProofOfAuthorityForBankAccountDetailsChange: Boolean =
     answers.bankAccountDetails.exists { bankDetails =>
@@ -166,51 +168,75 @@ trait CommonJourneyProperties {
     authenticatedUser: AuthenticatedUser,
     verifiedEmailOpt: Option[CdsVerifiedEmail]
   ): Option[MrnContactDetails] =
-    Some(answers.contactDetails.getOrElse {
-      def currentUserEmail = verifiedEmailOpt
-        .map(_.toEmail)
-        .orElse(authenticatedUser.email)
-      (
-        getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
-        getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
-      ) match {
-        case (Some(consigneeContactDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
-          MrnContactDetails(
-            consigneeContactDetails.contactName.getOrElse(""),
-            consigneeContactDetails.maybeEmailAddress
-              .fold(currentUserEmail)(address => Some(Email(address))),
-            consigneeContactDetails.telephone.map(PhoneNumber(_))
-          )
+    Some(
+      answers.contactDetails.getOrElse(
+        getInitialContactDetailsFromDeclarationAndCurrentUser(authenticatedUser, verifiedEmailOpt)
+      )
+    )
 
-        case (_, Some(declarantContactDetails)) if getDeclarantEoriFromACC14.contains(answers.userEoriNumber) =>
-          MrnContactDetails(
-            declarantContactDetails.contactName.getOrElse(""),
-            declarantContactDetails.maybeEmailAddress
-              .fold(currentUserEmail)(address => Some(Email(address))),
-            declarantContactDetails.telephone.map(PhoneNumber(_))
-          )
+  final def getInitialContactDetailsFromDeclarationAndCurrentUser(
+    authenticatedUser: AuthenticatedUser,
+    verifiedEmailOpt: Option[CdsVerifiedEmail]
+  ): MrnContactDetails = {
+    def currentUserEmail = verifiedEmailOpt
+      .map(_.toEmail)
+      .orElse(authenticatedUser.email)
+    (
+      getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
+      getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
+    ) match {
+      case (Some(consigneeContactDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+        MrnContactDetails(
+          consigneeContactDetails.contactName.getOrElse(""),
+          consigneeContactDetails.maybeEmailAddress
+            .fold(currentUserEmail)(address => Some(Email(address))),
+          consigneeContactDetails.telephone.map(PhoneNumber(_))
+        )
 
-        case _ =>
-          MrnContactDetails(
-            authenticatedUser.name.map(_.toFullName).getOrElse(""),
-            currentUserEmail,
-            None
-          )
-      }
-    })
+      case (_, Some(declarantContactDetails)) if getDeclarantEoriFromACC14.contains(answers.userEoriNumber) =>
+        MrnContactDetails(
+          declarantContactDetails.contactName.getOrElse(""),
+          declarantContactDetails.maybeEmailAddress
+            .fold(currentUserEmail)(address => Some(Email(address))),
+          declarantContactDetails.telephone.map(PhoneNumber(_))
+        )
 
-  final def computeAddressDetails: Option[ContactAddress] = (
-    answers.contactAddress,
+      case _ =>
+        MrnContactDetails(
+          authenticatedUser.name.map(_.toFullName).getOrElse(""),
+          currentUserEmail,
+          None
+        )
+    }
+  }
+
+  final def emailAddressHasChanged: Boolean =
+    answers.contactDetails.exists(_.emailAddressHasChanged)
+
+  final def contactNameHasChanged: Boolean =
+    answers.contactDetails.exists(_.nameHasChanged)
+
+  final def phoneNumberHasChanged: Boolean =
+    answers.contactDetails.exists(_.phoneNumberHasChanged)
+
+  final def contactAddressHasChanged: Boolean =
+    answers.contactAddress.exists(_.addressHasChanged)
+
+  final def bankAccountHasChanged: Boolean =
+    answers.bankAccountDetails.exists(_.bankAccountHasChanged)
+
+  final def computeAddressDetails: Option[ContactAddress] =
+    answers.contactAddress.orElse(getInitialAddressDetailsFromDeclaration)
+
+  final def getInitialAddressDetailsFromDeclaration: Option[ContactAddress] = (
     getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails),
     getLeadDisplayDeclaration.map(_.getDeclarantDetails)
   ) match {
-    case (contactAddress @ Some(_), _, _)                                                                =>
-      contactAddress
-    case (None, Some(consigneeDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+    case (Some(consigneeDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
       Some(consigneeDetails.establishmentAddress.toContactAddress)
-    case (None, _, Some(declarantDetails))                                                               =>
+    case (_, Some(declarantDetails))                                                               =>
       Some(declarantDetails.establishmentAddress.toContactAddress)
-    case _                                                                                               => None
+    case _                                                                                         => None
   }
 
   protected def nextAfter[A](item: A)(seq: Seq[A]): Option[A] = {

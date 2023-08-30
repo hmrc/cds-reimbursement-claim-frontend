@@ -48,15 +48,17 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney(
-      { implicit request => journey =>
+    actionReadWriteJourneyAndUser(
+      { implicit request => journey => userType => verifiedEmailOpt =>
         Forms.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
               Future.successful((journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction)))),
             contactDetails => {
-              val updatedJourney = modifyJourney(journey, Some(contactDetails))
+              val previousDetails =
+                journey.getInitialContactDetailsFromDeclarationAndCurrentUser(userType, verifiedEmailOpt)
+              val updatedJourney  = modifyJourney(journey, Some(contactDetails.computeChanges(Some(previousDetails))))
               Future.successful((updatedJourney, Redirect(continueRoute)))
             }
           )

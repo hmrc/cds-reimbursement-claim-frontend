@@ -31,7 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 final case class BankAccountDetails(
   accountName: AccountName,
   sortCode: SortCode,
-  accountNumber: AccountNumber
+  accountNumber: AccountNumber,
+  bankAccountHasChanged: Boolean = false
 ) {
 
   def masked(implicit messages: Messages): BankAccountDetails =
@@ -48,9 +49,22 @@ final case class BankAccountDetails(
         this
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def computeChanges(previous: Option[BankAccountDetails]): BankAccountDetails =
+    previous.fold(this)(that =>
+      this.copy(bankAccountHasChanged =
+        this.accountName != that.accountName ||
+          this.sortCode != that.sortCode ||
+          this.accountNumber != that.accountNumber
+      )
+    )
+
 }
 
 object BankAccountDetails {
+
+  def unapply3(bankAccountDetails: BankAccountDetails): Option[(AccountName, SortCode, AccountNumber)] =
+    Some((bankAccountDetails.accountName, bankAccountDetails.sortCode, bankAccountDetails.accountNumber))
 
   val validator: Validator[Option, BankAccountDetails] = (maybeBankDetails: Option[BankAccountDetails]) =>
     maybeBankDetails
@@ -69,5 +83,5 @@ object BankAccountDetails {
     Eq.fromUniversalEquals[BankAccountDetails]
 
   implicit val format: OFormat[BankAccountDetails] =
-    Json.format[BankAccountDetails]
+    Json.using[Json.WithDefaultValues].format[BankAccountDetails]
 }

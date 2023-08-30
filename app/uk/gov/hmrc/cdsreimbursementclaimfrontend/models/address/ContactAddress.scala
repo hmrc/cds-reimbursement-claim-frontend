@@ -17,9 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
-import julienrf.json.derived
 import play.api.i18n.Messages
 import play.api.libs.json.OFormat
+import play.api.libs.json.Json
 
 final case class ContactAddress(
   line1: String,
@@ -27,8 +27,21 @@ final case class ContactAddress(
   line3: Option[String],
   line4: String,
   postcode: String,
-  country: Country
-)
+  country: Country,
+  addressHasChanged: Boolean = false
+) {
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def computeChanges(previous: Option[ContactAddress]): ContactAddress =
+    previous.fold(this)(that =>
+      this.copy(addressHasChanged =
+        this.line1 != that.line1 ||
+          this.line2 != that.line2 ||
+          this.line3 != that.line3 ||
+          this.postcode != that.postcode ||
+          this.country != that.country
+      )
+    )
+}
 
 object ContactAddress {
 
@@ -49,7 +62,7 @@ object ContactAddress {
     }
   }
 
-  implicit val addressFormat: OFormat[ContactAddress] = derived.oformat[ContactAddress]()
+  implicit val addressFormat: OFormat[ContactAddress] = Json.using[Json.WithDefaultValues].format[ContactAddress]
 
   implicit val eq: Eq[ContactAddress] = Eq.fromUniversalEquals
 }

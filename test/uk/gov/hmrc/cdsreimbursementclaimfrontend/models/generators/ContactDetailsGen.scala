@@ -17,17 +17,17 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
-import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
 object ContactDetailsGen {
-  import EmailGen._
-  import PhoneNumberGen._
 
   lazy val genMrnContactDetailsOpt: Gen[Option[MrnContactDetails]] =
-    Gen.option(arbitraryMrnContactDetails.arbitrary)
+    Gen.option(genMrnContactDetails)
 
-  lazy val genMrnContactDetails = arbitraryMrnContactDetails.arbitrary
-
-  implicit lazy val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
+  lazy val genMrnContactDetails =
+    for {
+      emailAddress <- Gen.option(EmailGen.genEmail)
+      phoneNumber  <- Gen.option(PhoneNumberGen.genUkPhoneNumber)
+      fullName     <- Gen.nonEmptyListOf(Gen.alphaChar).map(String.valueOf)
+    } yield MrnContactDetails(fullName, emailAddress, phoneNumber)
 }
