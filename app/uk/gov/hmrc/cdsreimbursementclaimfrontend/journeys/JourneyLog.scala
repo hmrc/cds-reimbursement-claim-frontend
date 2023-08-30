@@ -37,12 +37,8 @@ final case class JourneyLog(
   claimedAmountThreshold: String,
   claimedDuties: Seq[String],
   numberOfClaimedDuties: Int,
-  numberOfEvidenceFilesAttached: Int,
-  documentTypesAttached: Seq[String],
-  fileTypesAttached: Seq[String],
-  fileSizes: Seq[Long],
-  scheduleFileType: Option[String] = None,
-  scheduleFileSize: Option[Long] = None,
+  uploads: JourneyLog.Uploads,
+  changes: JourneyLog.Changes,
   userHash: String,
   caseNumber: Option[String] = None
 ) {
@@ -60,10 +56,40 @@ final case class JourneyLog(
 
 object JourneyLog {
 
+  final case class Uploads(
+    numberOfEvidenceFilesAttached: Int,
+    documentTypesAttached: Seq[String],
+    fileTypesAttached: Seq[String],
+    fileSizes: Seq[Long],
+    scheduleFileType: Option[String] = None,
+    scheduleFileSize: Option[Long] = None
+  )
+
+  final case class Changes(
+    emailAddress: Boolean = false,
+    contactName: Boolean = false,
+    phoneNumber: Boolean = false,
+    contactAddress: Boolean = false,
+    bankAccount: Boolean = false
+  )
+
+  object Changes {
+
+    def from(analytics: JourneyAnalytics): Changes =
+      Changes(
+        emailAddress = analytics.emailAddressHasChanged,
+        contactName = analytics.contactNameHasChanged,
+        phoneNumber = analytics.phoneNumberHasChanged,
+        contactAddress = analytics.contactAddressHasChanged,
+        bankAccount = analytics.bankAccountHasChanged
+      )
+  }
+
   def apply(
     output: OverpaymentsSingleJourney.Output,
     userEORI: String,
-    caseNumber: Option[String]
+    caseNumber: Option[String],
+    analytics: JourneyAnalytics
   ): JourneyLog =
     JourneyLog(
       journeyType = "overpayments",
@@ -80,12 +106,15 @@ object JourneyLog {
       claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2).sum),
       claimedDuties = output.reimbursementClaims.keySet.map(_.toString()).toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.size,
-      numberOfEvidenceFilesAttached = output.supportingEvidences.size,
-      documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
-      fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
-      fileSizes = output.supportingEvidences.map(_.size).sorted,
-      scheduleFileType = None,
-      scheduleFileSize = None,
+      uploads = Uploads(
+        numberOfEvidenceFilesAttached = output.supportingEvidences.size,
+        documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
+        fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
+        fileSizes = output.supportingEvidences.map(_.size).sorted,
+        scheduleFileType = None,
+        scheduleFileSize = None
+      ),
+      changes = Changes.from(analytics),
       userHash = hash(userEORI).take(8),
       caseNumber = caseNumber
     )
@@ -93,7 +122,8 @@ object JourneyLog {
   def apply(
     output: OverpaymentsMultipleJourney.Output,
     userEORI: String,
-    caseNumber: Option[String]
+    caseNumber: Option[String],
+    analytics: JourneyAnalytics
   ): JourneyLog =
     JourneyLog(
       journeyType = "overpayments",
@@ -110,12 +140,15 @@ object JourneyLog {
       claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2).sum).sum),
       claimedDuties = output.reimbursementClaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.map(_._2.size).sum,
-      numberOfEvidenceFilesAttached = output.supportingEvidences.size,
-      documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
-      fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
-      fileSizes = output.supportingEvidences.map(_.size).sorted,
-      scheduleFileType = None,
-      scheduleFileSize = None,
+      uploads = Uploads(
+        numberOfEvidenceFilesAttached = output.supportingEvidences.size,
+        documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
+        fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
+        fileSizes = output.supportingEvidences.map(_.size).sorted,
+        scheduleFileType = None,
+        scheduleFileSize = None
+      ),
+      changes = Changes.from(analytics),
       userHash = hash(userEORI).take(8),
       caseNumber = caseNumber
     )
@@ -123,7 +156,8 @@ object JourneyLog {
   def apply(
     output: OverpaymentsScheduledJourney.Output,
     userEORI: String,
-    caseNumber: Option[String]
+    caseNumber: Option[String],
+    analytics: JourneyAnalytics
   ): JourneyLog =
     JourneyLog(
       journeyType = "overpayments",
@@ -140,12 +174,15 @@ object JourneyLog {
       claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2.refundAmount).sum).sum),
       claimedDuties = output.reimbursementClaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.map(_._2.size).sum,
-      numberOfEvidenceFilesAttached = output.supportingEvidences.size,
-      documentTypesAttached = output.supportingEvidences.map(_.documentType.toString).sorted,
-      fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
-      fileSizes = output.supportingEvidences.map(_.size).sorted,
-      scheduleFileType = Some(output.scheduledDocument.fileMimeType),
-      scheduleFileSize = Some(output.scheduledDocument.size),
+      uploads = Uploads(
+        numberOfEvidenceFilesAttached = output.supportingEvidences.size,
+        documentTypesAttached = output.supportingEvidences.map(_.documentType.toString).sorted,
+        fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
+        fileSizes = output.supportingEvidences.map(_.size).sorted,
+        scheduleFileType = Some(output.scheduledDocument.fileMimeType),
+        scheduleFileSize = Some(output.scheduledDocument.size)
+      ),
+      changes = Changes.from(analytics),
       userHash = hash(userEORI).take(8),
       caseNumber = caseNumber
     )
@@ -153,7 +190,8 @@ object JourneyLog {
   def apply(
     output: RejectedGoodsSingleJourney.Output,
     userEORI: String,
-    caseNumber: Option[String]
+    caseNumber: Option[String],
+    analytics: JourneyAnalytics
   ): JourneyLog =
     JourneyLog(
       journeyType = "rejectedgoods",
@@ -170,12 +208,15 @@ object JourneyLog {
       claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2).sum),
       claimedDuties = output.reimbursementClaims.keySet.map(_.toString()).toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.size,
-      numberOfEvidenceFilesAttached = output.supportingEvidences.size,
-      documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
-      fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
-      fileSizes = output.supportingEvidences.map(_.size).sorted,
-      scheduleFileType = None,
-      scheduleFileSize = None,
+      uploads = Uploads(
+        numberOfEvidenceFilesAttached = output.supportingEvidences.size,
+        documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
+        fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
+        fileSizes = output.supportingEvidences.map(_.size).sorted,
+        scheduleFileType = None,
+        scheduleFileSize = None
+      ),
+      changes = Changes.from(analytics),
       userHash = hash(userEORI).take(8),
       caseNumber = caseNumber
     )
@@ -183,7 +224,8 @@ object JourneyLog {
   def apply(
     output: RejectedGoodsMultipleJourney.Output,
     userEORI: String,
-    caseNumber: Option[String]
+    caseNumber: Option[String],
+    analytics: JourneyAnalytics
   ): JourneyLog =
     JourneyLog(
       journeyType = "rejectedgoods",
@@ -200,12 +242,15 @@ object JourneyLog {
       claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2).sum).sum),
       claimedDuties = output.reimbursementClaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.map(_._2.size).sum,
-      numberOfEvidenceFilesAttached = output.supportingEvidences.size,
-      documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
-      fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
-      fileSizes = output.supportingEvidences.map(_.size).sorted,
-      scheduleFileType = None,
-      scheduleFileSize = None,
+      uploads = Uploads(
+        numberOfEvidenceFilesAttached = output.supportingEvidences.size,
+        documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
+        fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
+        fileSizes = output.supportingEvidences.map(_.size).sorted,
+        scheduleFileType = None,
+        scheduleFileSize = None
+      ),
+      changes = Changes.from(analytics),
       userHash = hash(userEORI).take(8),
       caseNumber = caseNumber
     )
@@ -213,7 +258,8 @@ object JourneyLog {
   def apply(
     output: RejectedGoodsScheduledJourney.Output,
     userEORI: String,
-    caseNumber: Option[String]
+    caseNumber: Option[String],
+    analytics: JourneyAnalytics
   ): JourneyLog =
     JourneyLog(
       journeyType = "rejectedgoods",
@@ -230,12 +276,15 @@ object JourneyLog {
       claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2.refundAmount).sum).sum),
       claimedDuties = output.reimbursementClaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.map(_._2.size).sum,
-      numberOfEvidenceFilesAttached = output.supportingEvidences.size,
-      documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
-      fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
-      fileSizes = output.supportingEvidences.map(_.size).sorted,
-      scheduleFileType = Some(output.scheduledDocument.fileMimeType),
-      scheduleFileSize = Some(output.scheduledDocument.size),
+      uploads = Uploads(
+        numberOfEvidenceFilesAttached = output.supportingEvidences.size,
+        documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
+        fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
+        fileSizes = output.supportingEvidences.map(_.size).sorted,
+        scheduleFileType = Some(output.scheduledDocument.fileMimeType),
+        scheduleFileSize = Some(output.scheduledDocument.size)
+      ),
+      changes = Changes.from(analytics),
       userHash = hash(userEORI).take(8),
       caseNumber = caseNumber
     )
@@ -243,7 +292,8 @@ object JourneyLog {
   def apply(
     output: SecuritiesJourney.Output,
     userEORI: String,
-    caseNumber: Option[String]
+    caseNumber: Option[String],
+    analytics: JourneyAnalytics
   ): JourneyLog =
     JourneyLog(
       journeyType = "securities",
@@ -260,12 +310,15 @@ object JourneyLog {
       claimedAmountThreshold = threshold(output.securitiesReclaims.map(_._2.map(_._2).sum).sum),
       claimedDuties = output.securitiesReclaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.securitiesReclaims.map(_._2.size).sum,
-      numberOfEvidenceFilesAttached = output.supportingEvidences.size,
-      documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
-      fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
-      fileSizes = output.supportingEvidences.map(_.size).sorted,
-      scheduleFileType = None,
-      scheduleFileSize = None,
+      uploads = Uploads(
+        numberOfEvidenceFilesAttached = output.supportingEvidences.size,
+        documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,
+        fileTypesAttached = output.supportingEvidences.map(_.fileMimeType).sorted,
+        fileSizes = output.supportingEvidences.map(_.size).sorted,
+        scheduleFileType = None,
+        scheduleFileSize = None
+      ),
+      changes = Changes.from(analytics),
       userHash = hash(userEORI).take(8),
       caseNumber = caseNumber
     )
@@ -289,5 +342,7 @@ object JourneyLog {
       .map("%02x".format(_))
       .mkString
 
-  implicit val formatter: OFormat[JourneyLog] = Json.format[JourneyLog]
+  implicit val formatterUploads: OFormat[Uploads] = Json.format[Uploads]
+  implicit val formatterChanges: OFormat[Changes] = Json.using[Json.WithDefaultValues].format[Changes]
+  implicit val formatter: OFormat[JourneyLog]     = Json.format[JourneyLog]
 }

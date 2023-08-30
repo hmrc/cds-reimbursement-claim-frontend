@@ -45,7 +45,9 @@ final class OverpaymentsMultipleJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsMultipleJourney]
     with OverpaymentsJourneyProperties
-    with CanSubmitMrnAndDeclaration {
+    with CanSubmitMrnAndDeclaration
+    with CanSubmitContactDetails
+    with JourneyAnalytics {
 
   type Type = OverpaymentsMultipleJourney
 
@@ -414,14 +416,14 @@ final class OverpaymentsMultipleJourney private (
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): OverpaymentsMultipleJourney =
     whileClaimIsAmendable {
       this.copy(
-        answers.copy(contactDetails = contactDetails)
+        answers.copy(contactDetails = contactDetails.map(_.computeChanges(answers.contactDetails)))
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress): OverpaymentsMultipleJourney =
     whileClaimIsAmendable {
       this.copy(
-        answers.copy(contactAddress = Some(contactAddress))
+        answers.copy(contactAddress = Some(contactAddress.computeChanges(answers.contactAddress)))
       )
     }
 
@@ -552,7 +554,7 @@ final class OverpaymentsMultipleJourney private (
       if (needsBanksAccountDetailsSubmission)
         Right(
           this.copy(
-            answers.copy(bankAccountDetails = Some(bankAccountDetails))
+            answers.copy(bankAccountDetails = Some(bankAccountDetails.computeChanges(answers.bankAccountDetails)))
           )
         )
       else Left("submitBankAccountDetails.unexpected")

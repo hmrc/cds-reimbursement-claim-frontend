@@ -25,10 +25,26 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumb
 final case class MrnContactDetails(
   fullName: String,
   emailAddress: Option[Email],
-  phoneNumber: Option[PhoneNumber]
-)
+  phoneNumber: Option[PhoneNumber],
+  emailAddressHasChanged: Boolean = false,
+  nameHasChanged: Boolean = false,
+  phoneNumberHasChanged: Boolean = false
+) {
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def computeChanges(previous: Option[MrnContactDetails]): MrnContactDetails =
+    previous.fold(this)(that =>
+      this.copy(
+        emailAddressHasChanged = this.emailAddress != that.emailAddress,
+        nameHasChanged = this.fullName != that.fullName,
+        phoneNumberHasChanged = this.phoneNumber != that.phoneNumber
+      )
+    )
+}
 
 object MrnContactDetails {
+
+  def unapply3(contactDetails: MrnContactDetails): Option[(String, Option[Email], Option[PhoneNumber])] =
+    Some((contactDetails.fullName, contactDetails.emailAddress, contactDetails.phoneNumber))
 
   implicit val equality: Eq[MrnContactDetails]    = Eq.fromUniversalEquals[MrnContactDetails]
   implicit val format: OFormat[MrnContactDetails] = Json.format[MrnContactDetails]

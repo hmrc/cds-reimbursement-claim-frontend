@@ -88,7 +88,7 @@ object Forms {
       "enter-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
       "enter-contact-details.contact-email"        -> Email.mappingMaxLength,
       "enter-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
-    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
+    )(MrnContactDetails.apply(_, _, _))(MrnContactDetails.unapply3)
   )
 
   val methodOfDisposalForm: Form[MethodOfDisposal] =
@@ -144,7 +144,7 @@ object Forms {
       "enter-bank-account-details.account-name"   -> accountNameMapping,
       "enter-bank-account-details.sort-code"      -> sortCodeMapping,
       "enter-bank-account-details.account-number" -> accountNumberMapping
-    )(BankAccountDetails.apply)(BankAccountDetails.unapply)
+    )(BankAccountDetails.apply(_, _, _))(BankAccountDetails.unapply3)
   )
 
   val enterRejectedGoodsDetailsForm: Form[String] = Form(

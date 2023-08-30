@@ -199,6 +199,21 @@ trait CommonJourneyProperties {
       }
     })
 
+  final def emailAddressHasChanged: Boolean =
+    answers.contactDetails.exists(_.emailAddressHasChanged)
+
+  final def contactNameHasChanged: Boolean =
+    answers.contactDetails.exists(_.nameHasChanged)
+
+  final def phoneNumberHasChanged: Boolean =
+    answers.contactDetails.exists(_.phoneNumberHasChanged)
+
+  final def contactAddressHasChanged: Boolean =
+    answers.contactAddress.exists(_.addressHasChanged)
+
+  final def bankAccountHasChanged: Boolean =
+    answers.bankAccountDetails.exists(_.bankAccountHasChanged)
+
   final def computeAddressDetails: Option[ContactAddress] = (
     answers.contactAddress,
     getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails),

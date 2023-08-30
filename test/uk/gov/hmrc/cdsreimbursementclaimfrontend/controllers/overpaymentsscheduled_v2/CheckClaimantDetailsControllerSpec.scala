@@ -147,17 +147,15 @@ class CheckClaimantDetailsControllerSpec
 
       "redirect to the northern ireland page and do not update the contact/address details if they are already present" in {
         forAll(displayDeclarationGen, genEmail, genName, genMrnContactDetails, genContactAddress) {
-          (displayDeclaration, email, name, contactDeatils, address) =>
+          (displayDeclaration, email, name, contactDetails, address) =>
             val journey = OverpaymentsScheduledJourney
               .empty(displayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-              .map(_.submitContactDetails(Some(contactDeatils)))
+              .map(_.submitContactDetails(Some(contactDetails)))
               .map(_.submitContactAddress(address))
               .getOrFail
 
-            val session = SessionData.empty.copy(
-              overpaymentsScheduledJourney = Some(journey)
-            )
+            val session = SessionData(journey)
 
             inSequence {
               mockAuthWithAllRetrievals(
