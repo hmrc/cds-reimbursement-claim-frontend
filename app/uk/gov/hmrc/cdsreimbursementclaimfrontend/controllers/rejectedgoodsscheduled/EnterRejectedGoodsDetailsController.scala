@@ -72,14 +72,6 @@ class EnterRejectedGoodsDetailsController @Inject() (
           details => {
             val updatedJourney = journey
               .submitDetailsOfRejectedGoods(details)
-            println("IMPORTANTT!!!!!")
-            println(journey.features.exists(_.shouldAllowSubsidyOnlyPayments))
-            println(
-              journey.getDisplayDeclarations
-                .flatMap(dis => dis.getNdrcDetailsList.map(nd => nd.map(ndrc => ndrc.hasSubsidyPaymentMethod)))
-                .flatten
-            )
-            println(journey.isSubsidyOnlyJourney)
             if (journey.isSubsidyOnlyJourney) {
               updatedJourney
                 .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.EuDuty))
