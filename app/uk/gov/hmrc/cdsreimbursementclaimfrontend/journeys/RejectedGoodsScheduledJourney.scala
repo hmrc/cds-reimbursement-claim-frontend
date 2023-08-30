@@ -244,14 +244,14 @@ final class RejectedGoodsScheduledJourney private (
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(
-        answers.copy(contactDetails = contactDetails.map(_.computeChanges(answers.contactDetails)))
+        answers.copy(contactDetails = contactDetails)
       )
     }
 
   def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(
-        answers.copy(contactAddress = Some(contactAddress.computeChanges(answers.contactAddress)))
+        answers.copy(contactAddress = Some(contactAddress.computeChanges(getInitialAddressDetailsFromDeclaration)))
       )
     }
 
@@ -405,7 +405,9 @@ final class RejectedGoodsScheduledJourney private (
       if (needsBanksAccountDetailsSubmission)
         Right(
           this.copy(
-            answers.copy(bankAccountDetails = Some(bankAccountDetails.computeChanges(answers.bankAccountDetails)))
+            answers.copy(bankAccountDetails =
+              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
+            )
           )
         )
       else Left("submitBankAccountDetails.unexpected")

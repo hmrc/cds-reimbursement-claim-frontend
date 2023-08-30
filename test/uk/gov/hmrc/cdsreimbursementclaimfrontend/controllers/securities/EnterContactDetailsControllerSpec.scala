@@ -74,9 +74,7 @@ class EnterContactDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
-  val session: SessionData = SessionData.empty.copy(
-    securitiesJourney = Some(SecuritiesJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori))
 
   private def mockCompleteJourney(journey: SecuritiesJourney, email: Email, name: contactdetails.Name) =
     inSequence {
@@ -132,7 +130,7 @@ class EnterContactDetailsControllerSpec
           inSequence {
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(securitiesJourney = Some(journey)))
-            mockAuthWithNoRetrievals()
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(securitiesJourney = Some(journey.submitContactDetails(None))))
           }
 
@@ -178,12 +176,26 @@ class EnterContactDetailsControllerSpec
             Some(Credentials("id", "GovernmentGateway")),
             Some(Name(name.name, name.lastName))
           )
-          mockGetSession(session.copy(securitiesJourney = Some(journey)))
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(securitiesJourney = Some(journey)))
+          mockGetSession(SessionData(journey))
+          mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
+          mockGetSession(SessionData(journey))
           mockStoreSession(
-            session.copy(securitiesJourney =
-              Some(journey.submitContactDetails(Some(MrnContactDetails(name.toFullName, Some(email), None))))
+            SessionData(
+              journey.submitContactDetails(
+                Some(
+                  MrnContactDetails(name.toFullName, Some(email), None)
+                    .computeChanges(
+                      Some(
+                        journey
+                          .getInitialContactDetailsFromDeclarationAndCurrentUser(
+                            uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
+                              .Individual(Some(email), journey.getClaimantEori, Some(name)),
+                            None
+                          )
+                      )
+                    )
+                )
+              )
             )
           )(Right(()))
         }
@@ -207,11 +219,26 @@ class EnterContactDetailsControllerSpec
           inSequence {
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(securitiesJourney = Some(journey)))
-            mockAuthWithNoRetrievals()
+            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
             mockGetSession(session.copy(securitiesJourney = Some(journey)))
             mockStoreSession(
               session.copy(securitiesJourney =
-                Some(journey.submitContactDetails(Some(MrnContactDetails(name.toFullName, Some(email), None))))
+                Some(
+                  journey.submitContactDetails(
+                    Some(
+                      MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
+                        Some(
+                          journey
+                            .getInitialContactDetailsFromDeclarationAndCurrentUser(
+                              uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
+                                .Individual(Some(email), journey.getClaimantEori, Some(name)),
+                              None
+                            )
+                        )
+                      )
+                    )
+                  )
+                )
               )
             )(Right(()))
           }

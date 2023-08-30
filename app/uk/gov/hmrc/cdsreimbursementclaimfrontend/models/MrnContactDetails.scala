@@ -47,5 +47,5 @@ object MrnContactDetails {
     Some((contactDetails.fullName, contactDetails.emailAddress, contactDetails.phoneNumber))
 
   implicit val equality: Eq[MrnContactDetails]    = Eq.fromUniversalEquals[MrnContactDetails]
-  implicit val format: OFormat[MrnContactDetails] = Json.format[MrnContactDetails]
+  implicit val format: OFormat[MrnContactDetails] = Json.using[Json.WithDefaultValues].format[MrnContactDetails]
 }

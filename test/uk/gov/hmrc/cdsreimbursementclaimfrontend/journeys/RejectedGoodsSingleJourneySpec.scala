@@ -613,7 +613,7 @@ class RejectedGoodsSingleJourneySpec
 
         modifiedJourney.hasCompleteAnswers     shouldBe true
         modifiedJourney.answers.contactDetails shouldBe Some(
-          contactDetails.computeChanges(journey.answers.contactDetails)
+          contactDetails
         )
       }
     }
@@ -632,7 +632,7 @@ class RejectedGoodsSingleJourneySpec
 
         modifiedJourney.hasCompleteAnswers     shouldBe true
         modifiedJourney.answers.contactAddress shouldBe Some(
-          contactAddress.computeChanges(journey.answers.contactAddress)
+          contactAddress.computeChanges(journey.getInitialAddressDetailsFromDeclaration)
         )
       }
     }

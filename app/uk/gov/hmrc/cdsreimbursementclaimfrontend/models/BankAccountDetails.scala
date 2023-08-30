@@ -83,5 +83,5 @@ object BankAccountDetails {
     Eq.fromUniversalEquals[BankAccountDetails]
 
   implicit val format: OFormat[BankAccountDetails] =
-    Json.format[BankAccountDetails]
+    Json.using[Json.WithDefaultValues].format[BankAccountDetails]
 }
