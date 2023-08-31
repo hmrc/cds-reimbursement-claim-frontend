@@ -20,7 +20,7 @@ import cats.Eq
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
-sealed abstract class TaxCode(val value: String) extends Product with Serializable {
+sealed abstract class TaxCode(val value: String, val isSubsidy: Boolean = false) extends Product with Serializable {
   override def toString: String = value
 }
 
@@ -39,11 +39,11 @@ object TaxCode {
   case object A40 extends TaxCode("A40")
   case object A45 extends TaxCode("A45")
   case object B00 extends TaxCode("B00")
-  case object A50 extends TaxCode("A50")
-  case object A70 extends TaxCode("A70")
-  case object A80 extends TaxCode("A80")
+  case object A50 extends TaxCode("A50", true)
+  case object A70 extends TaxCode("A70", true)
+  case object A80 extends TaxCode("A80", true)
   case object A85 extends TaxCode("A85")
-  case object A90 extends TaxCode("A90")
+  case object A90 extends TaxCode("A90", true)
   case object A95 extends TaxCode("A95")
   case object B05 extends TaxCode("B05")
 
