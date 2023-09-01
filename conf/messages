@@ -1067,6 +1067,7 @@ select-duty-codes.h1.biofuels=biofuels
 select-duty-codes.h1.miscellaneous-road-fuels=miscellaneous road fuels
 select-duty-codes.h1.tobacco=tobacco products
 select-duty-codes.h1.climate-change-levy=Climate Change Levy
+select-duty-codes.subsidy-text=Duties shown are all covered by subsidy.
 
 #===================================================
 #  SELECT REIMBURSEMENT METHOD PAGE

@@ -33,21 +33,34 @@
     checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(dutyType: DutyType, form: Form[List[TaxCode]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(dutyType: DutyType, form: Form[List[TaxCode]], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-duty-codes"}
 @title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
 
 @options = @{
-    dutyType.taxCodes.map { dutyCode =>
-        CheckboxItem(
-            name = Some(s"$key[]"),
-            value = dutyCode.value,
-            content = Text(messages(s"tax-code.${dutyCode.value}")),
-            checked = form.data.exists(_._2 == dutyCode.value)
-        )
+    if (isSubsidy) {
+        dutyType.taxCodes.filter(_.isSubsidy).map { dutyCode =>
+            CheckboxItem(
+                name = Some(s"$key[]"),
+                value = dutyCode.value,
+                content = Text(messages(s"tax-code.${dutyCode.value}")),
+                checked = form.data.exists(_._2 == dutyCode.value)
+            )
+        }
+    } else {
+        dutyType.taxCodes.map { dutyCode =>
+            CheckboxItem(
+                name = Some(s"$key[]"),
+                value = dutyCode.value,
+                content = Text(messages(s"tax-code.${dutyCode.value}")),
+                checked = form.data.exists(_._2 == dutyCode.value)
+            )
+        }
     }
 }
+
+
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -60,6 +73,10 @@
     @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
 
     @paragraph(Html(messages(s"$key.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
+
+    @if(isSubsidy) {
+        @paragraph(Html(messages(s"$key.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
+    }
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
