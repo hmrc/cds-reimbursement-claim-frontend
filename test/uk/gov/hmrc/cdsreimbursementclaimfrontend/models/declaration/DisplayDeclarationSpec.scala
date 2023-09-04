@@ -41,7 +41,10 @@ class DisplayDeclarationSpec extends AnyWordSpec with Matchers with ScalaCheckPr
       val drd                = initialDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(vatNdrc :: nonVatNdrc))
       val displayDeclaration = DisplayDeclaration(drd)
 
-      displayDeclaration.totalVatPaidCharges.toString() shouldBe vatPaidAmount.toDouble.toString
+      displayDeclaration.totalVatPaidCharges match {
+        case None         => vatPaidAmount.toDouble.toString shouldBe "0.0"
+        case Some(amount) => amount.toString()               shouldBe vatPaidAmount.toDouble.toString
+      }
     }
 
     "calculate the duty paid" in forAll(
