@@ -90,7 +90,7 @@ class CheckClaimDetailsControllerSpec
     headers should not be empty
 
     val expectedHeaders: Seq[String] =
-      journey.getSelectedDepositIds.map((depositId: String) => s"Security ID: $depositId").toList
+      journey.getSelectedDepositIds.map((depositId: String) => s"Security deposit: $depositId").toList
 
     headers should contain theSameElementsAs expectedHeaders
 
