@@ -219,14 +219,13 @@ object DisplayDeclaration {
   // Same as devs must know about some workaround extension class import which not always the case
   implicit class DisplayDeclarationOps(private val displayDeclaration: DisplayDeclaration) extends AnyVal {
 
-    def totalVatPaidCharges: BigDecimal =
-      BigDecimal(
-        displayDeclaration.displayResponseDetail.ndrcDetails
-          .map(
-            _.filter(ndrc => TaxCodes.vatTaxCodes.contains(TaxCode(ndrc.taxType)))
-          )
-          .fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
-      )
+    def totalVatPaidCharges: Option[BigDecimal] =
+      displayDeclaration.displayResponseDetail.ndrcDetails
+        .map(
+          _.filter(ndrc => TaxCodes.vatTaxCodes.contains(TaxCode(ndrc.taxType)))
+        )
+        .map(ndrcDetails => BigDecimal(ndrcDetails.map(s => s.amount.toDouble).sum))
+        .filter(_ > 0.0)
 
     def totalDutiesPaidCharges: BigDecimal =
       BigDecimal(
