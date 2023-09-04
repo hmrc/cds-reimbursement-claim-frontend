@@ -143,9 +143,11 @@ class CheckYourAnswersControllerSpec
     summaries should containOnlyDefinedPairsOf(
       mrnKeys ++
         Seq(
-          "Import date"                                     -> declarationDetails.map(_.acceptanceDate),
-          "Duties paid"                                     -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString),
-          "VAT paid"                                        -> declaration.map(_.totalVatPaidCharges.toPoundSterlingString),
+          "Import date" -> declarationDetails.map(_.acceptanceDate),
+          "Duties paid" -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
+        ) ++
+        declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
+        Seq(
           "Importer name"                                   -> declaration.flatMap(_.consigneeName),
           "Importer email"                                  -> declaration.flatMap(_.consigneeEmail),
           "Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone),
