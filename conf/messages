@@ -513,7 +513,7 @@ choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties
 #===================================================
 #  SELECT SECURITIES PAGE - SECURITIES
 #===================================================
-select-securities.title.caption=Security {0} of {1}
+select-securities.title.caption=Security deposit: {0} of {1}
 select-securities.title=Include this security deposit in your claim?
 select-securities.securityId=Security deposit ID: {0}
 select-securities.mrn-label=Import MRN
@@ -911,7 +911,7 @@ enter-claim.securities.title=Claim details for {0} - {1}
 enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.claim-amount=How much is to be claimed back, in pounds?
 enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
-enter-claim.securities.title.caption=Security ID: {0}
+enter-claim.securities.title.caption=Security deposit: {0}
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
 enter-claim.securities.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid
@@ -1086,7 +1086,7 @@ reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustme
 #  CONFIRM FULL REPAYMENT PAGE
 #===================================================
 
-confirm-full-repayment.caption=Security deposit {0} of {1}
+confirm-full-repayment.caption=Security deposit: {0} of {1}
 confirm-full-repayment.title=Claim back this security deposit?
 confirm-full-repayment.question=Do you want to claim back all of this security deposit?
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
@@ -1095,7 +1095,7 @@ confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like t
 #===================================================
 #  SELECT DUTIES PAGE
 #===================================================
-select-duties.caption=Security ID: {0}
+select-duties.caption=Security deposit: {0}
 select-duties.title=Select the duties you want to claim for
 select-duties.subsidies.title=Duties shown are all covered by subsidy
 select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
@@ -1255,7 +1255,7 @@ multiple-enter-claim.invalid.claim=The amount that should have been paid must be
 
 check-claim.securities.title=Check the claim details for these security deposits
 check-claim.securities.summary=Your repayment calculations are shown below. This is based on the information you provided to us.
-check-claim.securities.claim-for-security.h2=Security ID: {0}
+check-claim.securities.claim-for-security.h2=Security deposit: {0}
 check-claim.securities.hidden.claim-full-amount=Change {0} for Security ID: {1}
 check-claim.securities.hidden.duties-selected=Change {0} for Security ID: {1}
 check-claim.securities.hidden.tax-code=Change {0} amount for Security ID: {1}

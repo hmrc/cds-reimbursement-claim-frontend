@@ -95,7 +95,9 @@ class EnterClaimControllerSpec
       )
     )
     heading should ===(
-      List(s"Security ID: $securityDepositId Claim details for $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+      List(
+        s"Security deposit: $securityDepositId Claim details for $taxCode - ${messages(s"select-duties.duty.$taxCode")}"
+      )
     )
 
     doc.select("#amount-paid").text()                                       shouldBe amount.toPoundSterlingString
