@@ -111,7 +111,7 @@ class CheckYourAnswersControllerSpec
       summaryKeys.size shouldBe summaryValues.size
 
     headers     should contain allOf (
-      "First Movement Reference Number (MRN)",
+      "Lead Movement Reference Number (MRN)",
       "Declaration details",
       "Contact information for this claim",
       "Basis for claim",

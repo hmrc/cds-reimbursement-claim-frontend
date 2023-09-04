@@ -36,16 +36,22 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: RejectedGoodsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(
+    claim: RejectedGoodsScheduledJourney.Output,
+    isSubsidyOnly: Boolean,
+    displayDeclarationOpt: Option[DisplayDeclaration],
+    postAction: Call, subKey: Option[String] = None
+)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.rejectedgoods.scheduled.title")}
+@subsidySubHeading = @{if (isSubsidyOnly) "h2-subsidy" else "h2"}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"$key.reference-number.rejectedgoods", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @subHeading(Html(messages(combine(s"$key.reference-number.rejectedgoods", subKey, subsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number.rejectedgoods", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
 
     @subHeading(Html(messages(s"$key.scheduled-document.h2")))
