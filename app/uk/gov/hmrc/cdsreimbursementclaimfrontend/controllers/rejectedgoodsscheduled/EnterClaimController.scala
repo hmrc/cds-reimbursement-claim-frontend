@@ -67,16 +67,18 @@ class EnterClaimController @Inject() (
 
   final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
     implicit request => journey =>
+      val isSubsidy: Boolean                               = journey.isSubsidyOnlyJourney
       val postAction: Call                                 = routes.EnterClaimController.submit(dutyType, taxCode)
       val maybeReimbursement: Option[AmountPaidWithRefund] = journey.getReimbursementFor(dutyType, taxCode)
       val form                                             = enterScheduledClaimRejectedGoodsForm.withDefault(maybeReimbursement)
 
-      Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
+      Ok(enterClaimPage(dutyType, taxCode, form, postAction, isSubsidy)).asFuture
   }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      val postAction: Call = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
+      val postAction: Call   = routes.EnterClaimController.submit(currentDuty, currentTaxCode)
+      val isSubsidy: Boolean = journey.isSubsidyOnlyJourney
 
       Future.successful(
         enterScheduledClaimRejectedGoodsForm
@@ -90,7 +92,8 @@ class EnterClaimController @Inject() (
                     currentDuty,
                     currentTaxCode,
                     redirectVerificationMessage(formWithErrors),
-                    postAction
+                    postAction,
+                    isSubsidy
                   )
                 )
               ),
@@ -112,7 +115,8 @@ class EnterClaimController @Inject() (
                           currentDuty,
                           currentTaxCode,
                           enterScheduledClaimRejectedGoodsForm,
-                          postAction
+                          postAction,
+                          isSubsidy
                         )
                       )
                     )
