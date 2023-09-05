@@ -59,7 +59,7 @@
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
+        @summary(SummaryList(RejectedGoodsCdsDisplayDeclarationSummary.render(displayDeclaration,s"$key.declaration-details", subKey, isSubsidy = isSubsidyOnly).rows.drop(2)))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
