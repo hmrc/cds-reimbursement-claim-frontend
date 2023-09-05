@@ -1476,7 +1476,7 @@ schedule-document.upload.things-to-show.p1=The MRNs in the document must:
 schedule-document.upload.things-to-show.l1=all be from the same importer
 schedule-document.upload.things-to-show.l2=all have the same reason for overpayment
 schedule-document.upload.things-to-show.l3=have the same method of payment
-schedule-document.upload.help-text.para2=Use this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">MRN claim template (opens in new tab)</a> to help you provide the required details in the file you upload.
+schedule-document.upload.help-text.para2=Download this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">claim template</a>. You can use this to fill in the information we need to process you claim.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
 schedule-document.upload.help-text.para4=This document can be up to 10MB and must be a JPG, PNG or PDF.
 schedule-document.upload.input-title=Select a document to upload
