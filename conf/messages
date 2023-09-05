@@ -1233,6 +1233,7 @@ enter-claim-scheduled.rejected-goods.claim-amount.error.invalid=The claim amount
 enter-claim-scheduled.rejected-goods.claim-amount.invalid.claim=The claim amount must be equal to or less than the amount paid
 enter-claim-scheduled.rejected-goods.claim-amount.error.zero=The claim amount must be more than zero
 enter-claim-scheduled.rejected-goods.invalid.claim=The claim amount must be a number, like 30 or 60.55
+enter-claim-scheduled.rejected-goods.subsidy.inset-text=Your subsidy allocation balance will be credited with any claim repayments.
 
 
 #===================================================
