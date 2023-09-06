@@ -21,6 +21,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.UserAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
@@ -35,13 +36,14 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey
 
-  final val show: Action[AnyContent] =
+  final def show(confirmContactDetails: Boolean = false): Action[AnyContent] =
     actionReadJourneyAndUser { implicit request => journey => userType => verifiedEmailOpt =>
       Future.successful(
         Ok(
           enterOrChangeContactDetailsPage(
             Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
-            postAction
+            postAction,
+            confirmContactDetails
           )
         )
       )
@@ -58,7 +60,14 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
             contactDetails => {
               val previousDetails =
                 journey.getInitialContactDetailsFromDeclarationAndCurrentUser(userType, verifiedEmailOpt)
-              val updatedJourney  = modifyJourney(journey, Some(contactDetails.computeChanges(Some(previousDetails))))
+              val updatedJourney  = modifyJourney(
+                journey,
+                Some(
+                  contactDetails
+                    .computeChanges(Some(previousDetails))
+//                    .copy(source = UserAnswer)
+                )
+              )
               Future.successful((updatedJourney, Redirect(continueRoute)))
             }
           )

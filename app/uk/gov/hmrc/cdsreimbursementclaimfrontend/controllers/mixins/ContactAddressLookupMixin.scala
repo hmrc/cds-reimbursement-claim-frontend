@@ -19,12 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 import play.api.mvc._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.SignedInUserDetails
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.Unknown
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookupMixin {
 
   val redirectWhenNoAddressDetailsFound: Call
+  val confirmEmailRoute: Call
   val nextPageInTheJourney: Call
 
   def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey
@@ -35,14 +38,24 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
     implicit request => journey => authenticatedUser => verifiedEmailOpt =>
       val (maybeContactDetails, maybeAddressDetails) =
         (journey.computeContactDetails(authenticatedUser, verifiedEmailOpt), journey.computeAddressDetails)
+
+//      val emailSource = maybeContactDetails.map(_.source)
+//      if (
+//        emailSource.contains(SignedInUserDetails) ||
+//        emailSource.contains(Unknown)
+//      ) {
+//        Redirect(confirmEmailRoute).asFuture
+//      } else {
       (maybeContactDetails, maybeAddressDetails) match {
-        case (Some(cd), Some(ca)) => Ok(viewTemplate(cd)(ca)(request)).asFuture
-        case _                    =>
+        case (Some(cd), _) if cd.emailAddress.isEmpty => Redirect(confirmEmailRoute).asFuture
+        case (Some(cd), Some(ca))                     => Ok(viewTemplate(cd)(ca)(request)).asFuture
+        case _                                        =>
           logger.warn(
             s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
           )
           Redirect(redirectWhenNoAddressDetailsFound).asFuture
       }
+//      }
 
   }
 

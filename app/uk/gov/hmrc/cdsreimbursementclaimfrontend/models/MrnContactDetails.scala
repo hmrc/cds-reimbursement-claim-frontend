@@ -17,10 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import play.api.libs.json.Format
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.Unknown
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 final case class MrnContactDetails(
   fullName: String,
@@ -29,6 +32,7 @@ final case class MrnContactDetails(
   emailAddressHasChanged: Boolean = false,
   nameHasChanged: Boolean = false,
   phoneNumberHasChanged: Boolean = false
+//  source: ContactDetailsSource = Unknown
 ) {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[MrnContactDetails]): MrnContactDetails =
@@ -49,3 +53,26 @@ object MrnContactDetails {
   implicit val equality: Eq[MrnContactDetails]    = Eq.fromUniversalEquals[MrnContactDetails]
   implicit val format: OFormat[MrnContactDetails] = Json.using[Json.WithDefaultValues].format[MrnContactDetails]
 }
+//
+//sealed abstract class ContactDetailsSource(source: String) extends Product with Serializable {
+//  override def toString: String = source
+//}
+//
+//object ContactDetailsSource {
+//  val values: Map[String, ContactDetailsSource]   = Map(
+//    "Unknown"               -> Unknown,
+//    "UserAnswer"            -> UserAnswer,
+//    "Acc14DeclarantDetails" -> Acc14DeclarantDetails,
+//    "Acc14ConsigneeDetails" -> Acc14ConsigneeDetails,
+//    "SignedInUserDetails"   -> SignedInUserDetails
+//  )
+//  def apply(source: String): ContactDetailsSource = values(source)
+//  case object Unknown extends ContactDetailsSource("Unknown")
+//  case object UserAnswer extends ContactDetailsSource("UserAnswer")
+//  case object Acc14DeclarantDetails extends ContactDetailsSource("Acc14DeclarantDetails")
+//  case object Acc14ConsigneeDetails extends ContactDetailsSource("Acc14ConsigneeDetails")
+//  case object SignedInUserDetails extends ContactDetailsSource("SignedInUserDetails")
+//
+//  implicit val taxCodeEq: Eq[ContactDetailsSource]         = Eq.fromUniversalEquals[ContactDetailsSource]
+//  implicit val taxCodeFormat: Format[ContactDetailsSource] = SimpleStringFormat(ContactDetailsSource(_), _.toString)
+//}

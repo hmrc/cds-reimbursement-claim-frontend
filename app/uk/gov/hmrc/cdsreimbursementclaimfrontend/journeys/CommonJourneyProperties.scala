@@ -30,6 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.Acc14ConsigneeDetails
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.Acc14DeclarantDetails
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
 /** Common properties and computations of all of the journeys. */
@@ -37,7 +40,7 @@ trait CommonJourneyProperties {
 
   def answers: CommonAnswers
 
-  /** Case numer is the final result of successfully submitting the claim. */
+  /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
 
   def getLeadMovementReferenceNumber: Option[MRN]
@@ -54,7 +57,7 @@ trait CommonJourneyProperties {
   final val ZERO: BigDecimal = BigDecimal("0")
 
   final def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.size >= 1 &&
+    answers.supportingEvidences.nonEmpty &&
       answers.supportingEvidences.forall(_.documentType.isDefined)
 
   final def getConsigneeEoriFromACC14: Option[Eori] =
@@ -191,6 +194,7 @@ trait CommonJourneyProperties {
           consigneeContactDetails.maybeEmailAddress
             .fold(currentUserEmail)(address => Some(Email(address))),
           consigneeContactDetails.telephone.map(PhoneNumber(_))
+//          source = Acc14ConsigneeDetails
         )
 
       case (_, Some(declarantContactDetails)) if getDeclarantEoriFromACC14.contains(answers.userEoriNumber) =>
@@ -199,6 +203,7 @@ trait CommonJourneyProperties {
           declarantContactDetails.maybeEmailAddress
             .fold(currentUserEmail)(address => Some(Email(address))),
           declarantContactDetails.telephone.map(PhoneNumber(_))
+//          source = Acc14DeclarantDetails
         )
 
       case _ =>
@@ -206,6 +211,7 @@ trait CommonJourneyProperties {
           authenticatedUser.name.map(_.toFullName).getOrElse(""),
           currentUserEmail,
           None
+//          source = SignedInUserDetails
         )
     }
   }
