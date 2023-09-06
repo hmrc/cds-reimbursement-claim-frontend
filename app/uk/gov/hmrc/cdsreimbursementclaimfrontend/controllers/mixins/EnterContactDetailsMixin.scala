@@ -21,7 +21,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsSource.UserAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
@@ -65,7 +64,6 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
                 Some(
                   contactDetails
                     .computeChanges(Some(previousDetails))
-//                    .copy(source = UserAnswer)
                 )
               )
               Future.successful((updatedJourney, Redirect(continueRoute)))
