@@ -38,9 +38,9 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
         (journey.computeContactDetails(authenticatedUser, verifiedEmailOpt), journey.computeAddressDetails)
 
       (maybeContactDetails, maybeAddressDetails) match {
-        case (Some(cd), _) if cd.emailAddress.isEmpty => Redirect(confirmEmailRoute).asFuture
-        case (Some(cd), Some(ca))                     => Ok(viewTemplate(cd)(ca)(request)).asFuture
-        case _                                        =>
+        case (Some(cd), _) if !cd.emailAddress.exists(_.value.nonEmpty) => Redirect(confirmEmailRoute).asFuture
+        case (Some(cd), Some(ca))                                       => Ok(viewTemplate(cd)(ca)(request)).asFuture
+        case _                                                          =>
           logger.warn(
             s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
           )
