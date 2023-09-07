@@ -62,6 +62,9 @@ class CheckClaimantDetailsController @Inject() (
   override val redirectWhenNoAddressDetailsFound: Call =
     routes.EnterMovementReferenceNumberController.showFirst()
 
+  override val confirmEmailRoute: Call =
+    routes.EnterContactDetailsController.show()
+
   override val nextPageInTheJourney: Call =
     routes.BasisForClaimController.show()
 

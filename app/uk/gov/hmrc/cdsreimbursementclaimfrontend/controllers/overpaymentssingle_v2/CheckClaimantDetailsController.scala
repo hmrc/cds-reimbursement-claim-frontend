@@ -52,7 +52,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.CheckClaimantDetailsController.redirectToALF
 
   val changeCd: Call =
-    routes.EnterContactDetailsController.show
+    routes.EnterContactDetailsController.show()
 
   val postAction: Call =
     routes.CheckClaimantDetailsController.submit
@@ -62,6 +62,9 @@ class CheckClaimantDetailsController @Inject() (
 
   override val redirectWhenNoAddressDetailsFound: Call =
     routes.EnterMovementReferenceNumberController.show
+
+  override val confirmEmailRoute: Call =
+    routes.EnterContactDetailsController.show()
 
   override val nextPageInTheJourney: Call =
     routes.NorthernIrelandController.show

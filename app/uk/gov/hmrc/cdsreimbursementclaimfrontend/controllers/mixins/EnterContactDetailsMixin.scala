@@ -35,13 +35,14 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey
 
-  final val show: Action[AnyContent] =
+  final def show(confirmContactDetails: Boolean = false): Action[AnyContent] =
     actionReadJourneyAndUser { implicit request => journey => userType => verifiedEmailOpt =>
       Future.successful(
         Ok(
           enterOrChangeContactDetailsPage(
             Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
-            postAction
+            postAction,
+            confirmContactDetails
           )
         )
       )
@@ -58,7 +59,13 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
             contactDetails => {
               val previousDetails =
                 journey.getInitialContactDetailsFromDeclarationAndCurrentUser(userType, verifiedEmailOpt)
-              val updatedJourney  = modifyJourney(journey, Some(contactDetails.computeChanges(Some(previousDetails))))
+              val updatedJourney  = modifyJourney(
+                journey,
+                Some(
+                  contactDetails
+                    .computeChanges(Some(previousDetails))
+                )
+              )
               Future.successful((updatedJourney, Redirect(continueRoute)))
             }
           )

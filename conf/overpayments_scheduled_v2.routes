@@ -22,7 +22,7 @@ GET         /overpayments/v2/scheduled/claimant-details/update-address          
 
 GET         /overpayments/v2/scheduled/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.ProblemWithAddressController.show
 
-GET         /overpayments/v2/scheduled/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterContactDetailsController.show
+GET         /overpayments/v2/scheduled/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterContactDetailsController.show(confirmContactDetails: Boolean = false)
 POST        /overpayments/v2/scheduled/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.EnterContactDetailsController.submit
 
 GET         /overpayments/v2/scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.NorthernIrelandController.show

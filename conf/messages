@@ -620,6 +620,7 @@ claimant-details-timed-out.button=Check your contact details as registered with 
 #  ENTER OR CHANGE CONTACT DETAILS PAGE
 #===================================================
 enter-contact-details.change.title=Change contact details
+enter-contact-details.confirm.title=Confirm contact details
 enter-contact-details.add.title=Add contact details
 enter-contact-details.h2=Enter your personal details
 enter-contact-details.contact-name.label=Full name

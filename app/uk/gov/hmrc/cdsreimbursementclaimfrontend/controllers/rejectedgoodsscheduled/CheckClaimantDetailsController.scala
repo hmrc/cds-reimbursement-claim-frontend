@@ -64,6 +64,9 @@ class CheckClaimantDetailsController @Inject() (
   override val nextPageInTheJourney: Call =
     routes.BasisForClaimController.show()
 
+  override val confirmEmailRoute: Call =
+    routes.EnterContactDetailsController.show()
+
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 
   override val retrieveLookupAddress: Call = routes.CheckClaimantDetailsController.retrieveAddressFromALF()

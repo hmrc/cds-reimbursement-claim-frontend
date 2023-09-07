@@ -37,7 +37,7 @@ trait CommonJourneyProperties {
 
   def answers: CommonAnswers
 
-  /** Case numer is the final result of successfully submitting the claim. */
+  /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
 
   def getLeadMovementReferenceNumber: Option[MRN]
@@ -54,7 +54,7 @@ trait CommonJourneyProperties {
   final val ZERO: BigDecimal = BigDecimal("0")
 
   final def hasCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.size >= 1 &&
+    answers.supportingEvidences.nonEmpty &&
       answers.supportingEvidences.forall(_.documentType.isDefined)
 
   final def getConsigneeEoriFromACC14: Option[Eori] =
