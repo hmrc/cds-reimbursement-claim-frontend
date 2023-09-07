@@ -45,6 +45,8 @@ class ChooseInspectionAddressTypeController @Inject() (
   private val nextPage: Call =
     routes.CheckBankDetailsController.show()
 
+  private val chooseFilePage: Call = routes.UploadFilesController.show()
+
   override val postAction: Call =
     routes.ChooseInspectionAddressTypeController.submit()
 
@@ -68,7 +70,10 @@ class ChooseInspectionAddressTypeController @Inject() (
       journey,
       if (journey.hasCompleteAnswers)
         Redirect(checkYourAnswers)
-      else
+      else if (journey.isSubsidyOnlyJourney) {
+        Redirect(chooseFilePage)
+      } else {
         Redirect(nextPage)
+      }
     )
 }
