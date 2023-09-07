@@ -107,6 +107,9 @@ final class RejectedGoodsScheduledJourney private (
         tcs.headOption.map(tc => (dt, tc))
       }
 
+  def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
+    this.copy(answers.copy(dutiesChangeMode = enabled))
+
   def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
     getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
 
@@ -580,6 +583,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     selectedDocumentType: Option[UploadDocumentType] = None,
     scheduledDocument: Option[UploadedFile] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    dutiesChangeMode: Boolean = false,
     checkYourAnswersChangeMode: Boolean = false
   ) extends RejectedGoodsAnswers
 
@@ -694,6 +698,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
               j.submitAmountForReimbursement(dutyType, taxCode, paidAmount, claimAmount)
           })
       })
+      .map(_.withDutiesChangeMode(answers.dutiesChangeMode))
       .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
       .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)

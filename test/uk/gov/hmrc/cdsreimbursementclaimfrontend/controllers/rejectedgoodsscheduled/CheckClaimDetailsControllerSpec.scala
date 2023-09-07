@@ -152,15 +152,13 @@ class CheckClaimDetailsControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
           }
 
           checkIsRedirect(performActionSubmit("false"), routes.SelectDutyTypesController.show())
 
         }
       }
-
     }
-
   }
-
 }

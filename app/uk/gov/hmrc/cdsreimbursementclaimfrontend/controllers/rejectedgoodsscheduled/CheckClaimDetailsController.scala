@@ -53,13 +53,23 @@ class CheckClaimDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     val answers            = journey.getReimbursementClaims
     val reimbursementTotal = journey.getTotalReimbursementAmount
-
-    if (journey.hasCompleteReimbursementClaims)
-      Ok(checkClaimDetailsPage(answers, reimbursementTotal, checkClaimDetailsForm, postAction)).asFuture
-    else Redirect(selectDutiesAction).asFuture
+    (
+      journey.withDutiesChangeMode(false),
+      if (!journey.hasCompleteReimbursementClaims) Redirect(selectDutiesAction)
+      else {
+        Ok(
+          checkClaimDetailsPage(
+            answers,
+            reimbursementTotal,
+            checkClaimDetailsForm,
+            postAction
+          )
+        )
+      }
+    ).asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
@@ -87,7 +97,7 @@ class CheckClaimDetailsController @Inject() (
             {
               case Yes =>
                 (
-                  journey,
+                  journey.withDutiesChangeMode(false),
                   Redirect(
                     if (journey.hasCompleteAnswers)
                       checkYourAnswers
@@ -95,7 +105,11 @@ class CheckClaimDetailsController @Inject() (
                       routes.EnterInspectionDateController.show()
                   )
                 )
-              case No  => (journey, Redirect(selectDutiesAction))
+              case No  =>
+                (
+                  journey.withDutiesChangeMode(true),
+                  Redirect(selectDutiesAction)
+                )
             }
           )
           .asFuture
@@ -103,7 +117,6 @@ class CheckClaimDetailsController @Inject() (
     },
     fastForwardToCYAEnabled = false
   )
-
 }
 
 object CheckClaimDetailsController {
