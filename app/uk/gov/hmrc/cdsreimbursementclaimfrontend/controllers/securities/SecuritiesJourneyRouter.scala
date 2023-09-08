@@ -35,7 +35,7 @@ trait SecuritiesJourneyRouter {
       case SIMILAR_CLAIM_EXISTS_ALREADY_IN_CDFPAY                            => routes.EnterMovementReferenceNumberController.show()
       case INCOMPLETE_SECURITIES_RECLAIMS                                    => routes.CheckClaimDetailsController.show()
       case INCOMPLETE_SUPPORTING_EVIDENCES                                   => routes.ChooseFileTypeController.show()
-      case MISSING_CONTACT_DETAILS                                           => routes.EnterContactDetailsController.show()
+      case MISSING_CONTACT_DETAILS                                           => routes.EnterContactDetailsController.show(confirmContactDetails = false)
       case MISSING_CONTACT_ADDRESS                                           => routes.CheckClaimantDetailsController.redirectToALF()
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO              => routes.CheckClaimDetailsController.show()
       case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                            => routes.EnterDeclarantEoriNumberController.show()

@@ -53,7 +53,7 @@ class CheckClaimantDetailsController @Inject() (
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
 
   val postAction: Call = routes.CheckClaimantDetailsController.submit()
-  val changeCd: Call   = routes.EnterContactDetailsController.show()
+  val changeCd: Call   = routes.EnterContactDetailsController.show(confirmContactDetails = false)
 
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
@@ -67,7 +67,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterMovementReferenceNumberController.show()
 
   override val confirmEmailRoute: Call =
-    routes.EnterContactDetailsController.show()
+    routes.EnterContactDetailsController.show(confirmContactDetails = true)
 
   override val nextPageInTheJourney: Call =
     routes.ConfirmFullRepaymentController.showFirst

@@ -17,6 +17,7 @@ GET          /rejected-goods/scheduled/claimant-details/update-address          
 GET          /rejected-goods/scheduled/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ProblemWithAddressController.show()
 
 GET          /rejected-goods/scheduled/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterContactDetailsController.show(confirmContactDetails: Boolean = false)
+GET          /rejected-goods/scheduled/claimant-details/confirm-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterContactDetailsController.show(confirmContactDetails: Boolean = true)
 POST         /rejected-goods/scheduled/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterContactDetailsController.submit()
 
 GET          /rejected-goods/scheduled/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.BasisForClaimController.show()
