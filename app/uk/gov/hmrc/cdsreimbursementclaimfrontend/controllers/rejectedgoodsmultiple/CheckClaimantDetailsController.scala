@@ -51,7 +51,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.CheckClaimantDetailsController.redirectToALF()
 
   val changeCd: Call =
-    routes.EnterContactDetailsController.show()
+    routes.EnterContactDetailsController.show(confirmContactDetails = false)
 
   val postAction: Call =
     routes.CheckClaimantDetailsController.submit()
@@ -63,7 +63,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterMovementReferenceNumberController.showFirst()
 
   override val confirmEmailRoute: Call =
-    routes.EnterContactDetailsController.show()
+    routes.EnterContactDetailsController.show(confirmContactDetails = true)
 
   override val nextPageInTheJourney: Call =
     routes.BasisForClaimController.show()

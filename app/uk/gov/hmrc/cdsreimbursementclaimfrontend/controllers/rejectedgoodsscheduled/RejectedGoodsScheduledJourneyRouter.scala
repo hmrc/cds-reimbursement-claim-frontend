@@ -37,7 +37,7 @@ trait RejectedGoodsScheduledJourneyRouter {
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => undefined
       case MISSING_SCHEDULED_DOCUMENT                               => routes.UploadMrnListController.show()
       case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show()
-      case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show()
+      case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show(confirmContactDetails = false)
       case MISSING_CONTACT_ADDRESS                                  => routes.CheckClaimantDetailsController.redirectToALF()
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => undefined
       case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterDeclarantEoriNumberController.show()

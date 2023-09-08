@@ -122,7 +122,7 @@
     @summary(ClaimantInformationSummary(
         claimantInformation = claim.claimantInformation,
         key = s"$key.contact-information",
-        changeContactDetailsCall = routes.EnterContactDetailsController.show(),
+        changeContactDetailsCall = routes.EnterContactDetailsController.show(confirmContactDetails = false),
         changeContactAddressCall = Some(routes.CheckClaimantDetailsController.redirectToALF())
     ))
 
