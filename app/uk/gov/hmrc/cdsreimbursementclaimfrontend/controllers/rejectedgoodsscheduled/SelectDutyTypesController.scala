@@ -52,39 +52,41 @@ class SelectDutyTypesController @Inject() (
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    selectDutyTypesForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            BadRequest(
-              selectDutyTypesPage(
-                formWithErrors,
-                postAction
-              )
-            )
-          ),
-        dutyTypes =>
-          journey
-            .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
-            .fold(
-              errors => {
-                logger.error(s"Error updating duty types selection - $errors")
-                (journey, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction)))
-              },
-              updatedJourney =>
-                (
-                  updatedJourney,
-                  Redirect(
-                    routes.SelectDutiesController
-                      .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
-                  )
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      selectDutyTypesForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              BadRequest(
+                selectDutyTypesPage(
+                  formWithErrors,
+                  postAction
                 )
-            )
-      )
-      .asFuture
-  }
-
+              )
+            ),
+          dutyTypes =>
+            journey
+              .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+              .fold(
+                errors => {
+                  logger.error(s"Error updating duty types selection - $errors")
+                  (journey, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction)))
+                },
+                updatedJourney =>
+                  (
+                    updatedJourney,
+                    Redirect(
+                      routes.SelectDutiesController
+                        .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
+                    )
+                  )
+              )
+        )
+        .asFuture
+    },
+    fastForwardToCYAEnabled = false
+  )
 }

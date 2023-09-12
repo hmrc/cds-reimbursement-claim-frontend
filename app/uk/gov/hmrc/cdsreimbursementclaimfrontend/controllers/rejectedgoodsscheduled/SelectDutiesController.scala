@@ -42,6 +42,8 @@ class SelectDutiesController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
+  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show()
+
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
@@ -56,40 +58,41 @@ class SelectDutiesController @Inject() (
 
       Ok(selectDutyCodesPage(dutyType, form, postAction, isSubsidy)).asFuture
     } else {
-      Redirect(routes.SelectDutyTypesController.show()).asFuture
+      Redirect(selectDutiesAction).asFuture
     }
   }
 
-  def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
-    if (journey.isDutyTypeSelected) {
-      Future.successful(
-        selectDutyCodesForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
-            selectedTaxCodes =>
-              journey
-                .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
-                .fold(
-                  errors => {
-                    logger.error(s"Error updating tax codes selection - $errors")
-                    (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
-                  },
-                  updatedJourney =>
-                    (
-                      updatedJourney,
-                      selectedTaxCodes.headOption.fold(
-                        BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
-                      )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
-                    )
-                )
-          )
-      )
-    } else {
-      (journey, Redirect(routes.SelectDutyTypesController.show())).asFuture
-    }
-
-  }
-
+  def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney(
+    { implicit request => journey =>
+      val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
+      if (journey.isDutyTypeSelected) {
+        Future.successful(
+          selectDutyCodesForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
+              selectedTaxCodes =>
+                journey
+                  .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
+                  .fold(
+                    errors => {
+                      logger.error(s"Error updating tax codes selection - $errors")
+                      (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
+                    },
+                    updatedJourney =>
+                      (
+                        updatedJourney,
+                        selectedTaxCodes.headOption.fold(
+                          BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
+                        )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
+                      )
+                  )
+            )
+        )
+      } else {
+        (journey, Redirect(selectDutiesAction)).asFuture
+      }
+    },
+    fastForwardToCYAEnabled = false
+  )
 }

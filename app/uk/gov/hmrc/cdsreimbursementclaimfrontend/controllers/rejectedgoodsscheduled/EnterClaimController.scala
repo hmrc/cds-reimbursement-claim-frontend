@@ -123,20 +123,24 @@ class EnterClaimController @Inject() (
                   },
                   updatedJourney =>
                     (
-                      updatedJourney,
-                      updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
-                        case Some((nextDutyType, nextTaxCode)) =>
-                          if (journey.hasCompleteReimbursementClaims)
-                            Redirect(routes.CheckClaimDetailsController.show())
-                          else if (currentDuty.repr === nextDutyType.repr)
-                            Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
-                          else Redirect(routes.SelectDutiesController.show(nextDutyType))
-                        case None                              =>
-                          updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
-                            case Some(nextDutyType) =>
-                              Redirect(routes.SelectDutiesController.show(nextDutyType))
-                            case None               => Redirect(routes.CheckClaimDetailsController.show())
+                      updatedJourney, {
+                        if (journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode) {
+                          Redirect(routes.CheckClaimDetailsController.show())
+                        } else {
+                          updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
+                            case Some((nextDutyType, nextTaxCode)) =>
+                              if (currentDuty.repr === nextDutyType.repr)
+                                Redirect(routes.EnterClaimController.show(nextDutyType, nextTaxCode))
+                              else Redirect(routes.SelectDutiesController.show(nextDutyType))
+                            case None                              =>
+                              updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
+                                case Some(nextDutyType) =>
+                                  Redirect(routes.SelectDutiesController.show(nextDutyType))
+                                case None               =>
+                                  Redirect(routes.CheckClaimDetailsController.show())
+                              }
                           }
+                        }
                       }
                     )
                 )
