@@ -37,64 +37,75 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
-  ): SummaryList = SummaryList(
-    Seq(
-      SummaryListRow(
-        key = Key(HtmlContent("")),
-        value = Value()
-      ).some,
-      SummaryListRow(
-        key = Key(HtmlContent(messages(combine(key, subKey, "mrn-label")))),
-        value = Value(Text(declaration.displayResponseDetail.declarationId))
-      ).some,
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.import-date-label"))),
-        value = Value(Text(declaration.displayResponseDetail.acceptanceDate))
-      ).some,
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.paid-duties-charges-label"))),
-        value = Value(Text(declaration.totalDutiesPaidCharges.toPoundSterlingString))
-      ).some,
-      declaration.totalVatPaidCharges.map(vatCharges =>
+  ): SummaryList = render(declaration, key, subKey)
+
+  def render(
+    declaration: DisplayDeclaration,
+    key: String,
+    subKey: Option[String] = None,
+    showImportMrn: Boolean = true,
+    isSubsidy: Boolean = false
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.paid-vat-charges-label"))),
-          value = Value(Text(vatCharges.toPoundSterlingString))
-        )
-      ),
-      declaration.consigneeName.map { name =>
+          key = Key(HtmlContent(messages(combine(key, subKey, "mrn-label")))),
+          value = Value(Text(declaration.displayResponseDetail.declarationId))
+        ).some.filter(_ => showImportMrn),
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
-          value = Value(Text(name))
-        )
-      },
-      declaration.consigneeEmail.map { email =>
+          key = Key(HtmlContent(messages(s"$key.import-date-label"))),
+          value = Value(Text(declaration.displayResponseDetail.acceptanceDate))
+        ).some,
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-email-label"))),
-          value = Value(Text(email))
-        )
-      },
-      declaration.consigneeTelephone.map { telephone =>
+          key = Key(HtmlContent(messages(s"$key.method-of-payment-label"))),
+          value = Value(Text(messages(s"$key.subsidy-label")))
+        ).some.filter(_ => isSubsidy),
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-telephone-label"))),
-          value = Value(Text(telephone))
-        )
-      },
-      declaration.consigneeAddress.map { address =>
+          key = Key(HtmlContent(messages(s"$key.paid-duties-charges-label"))),
+          value = Value(Text(declaration.totalDutiesPaidCharges.toPoundSterlingString))
+        ).some,
+        declaration.totalVatPaidCharges.map(vatCharges =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.paid-vat-charges-label"))),
+            value = Value(Text(vatCharges.toPoundSterlingString))
+          )
+        ),
+        declaration.consigneeName.map { name =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
+            value = Value(Text(name))
+          )
+        },
+        declaration.consigneeEmail.map { email =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.importer-email-label"))),
+            value = Value(Text(email))
+          )
+        },
+        declaration.consigneeTelephone.map { telephone =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.importer-telephone-label"))),
+            value = Value(Text(telephone))
+          )
+        },
+        declaration.consigneeAddress.map { address =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.importer-address-label"))),
+            value = Value(HtmlContent(address))
+          )
+        },
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-address-label"))),
-          value = Value(HtmlContent(address))
-        )
-      },
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.declarant-name-label"))),
-        value = Value(Text(declaration.declarantName))
-      ).some,
-      declaration.declarantContactAddress.map { address =>
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.declarant-address-label"))),
-          value = Value(HtmlContent(address))
-        )
-      }
-    ).flatMap(_.toList)
-  )
+          key = Key(HtmlContent(messages(s"$key.declarant-name-label"))),
+          value = Value(Text(declaration.declarantName))
+        ).some,
+        declaration.declarantContactAddress.map { address =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.declarant-address-label"))),
+            value = Value(HtmlContent(address))
+          )
+        }
+      ).flatMap(_.toList)
+    )
 }

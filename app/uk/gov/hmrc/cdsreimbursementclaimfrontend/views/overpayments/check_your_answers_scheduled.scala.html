@@ -38,7 +38,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
@@ -55,7 +55,7 @@
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", Some("scheduled")).rows.drop(2)))
+        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration, s"$key.declaration-details", showImportMrn = false))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
