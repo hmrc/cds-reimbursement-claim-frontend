@@ -34,21 +34,29 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        caption_l: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption_l
 )
 
 @(form: Form[BigDecimal], taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim"}
-@title = @{messages(s"$key.title", taxCode.value, messages(s"select-duties.duty.$taxCode"))}
+@mrn = @{"00GB0000000101010101"}
+@taxCodeDescription = @{messages(s"$key.tax-code-description", taxCode.value, messages(s"select-duties.duty.$taxCode"))}
 @hintText = @{Html(messages(s"$key.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$taxCodeDescription"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @caption_l(Html(messages(s"$key.title")))
+
+    @heading(Html(taxCodeDescription))
+
+    @paragraph(Html(messages(s"$key.mrn")), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
+
+    @paragraph(Html(messages(s"$mrn")), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
 
     @paragraph(Html(messages(s"$key.help-text")), id = s"$key-description")
 

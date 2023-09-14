@@ -1190,7 +1190,9 @@ multiple-select-duties.help-text.1=These are the duties that have been paid unde
 #===================================================
 #  ENTER SINGLE CLAIM PAGE
 #===================================================
-enter-claim.title=Claim details for {0} - {1}
+enter-claim.title=Claim details
+enter-claim.tax-code-description={0} - {1}
+enter-claim.mrn=Movement Reference Number (MRN):
 enter-claim.help-text=This is to calculate your repayment as part of your claim.
 enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=How much was paid: {0}
