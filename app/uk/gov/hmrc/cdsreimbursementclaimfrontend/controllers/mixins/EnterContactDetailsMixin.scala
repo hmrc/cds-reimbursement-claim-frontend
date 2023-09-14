@@ -58,7 +58,13 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
               Future.successful(
                 (
                   journey,
-                  BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction(confirmContactDetails)))
+                  BadRequest(
+                    enterOrChangeContactDetailsPage(
+                      formWithErrors,
+                      postAction(confirmContactDetails),
+                      confirmContactDetails
+                    )
+                  )
                 )
               ),
             contactDetails => {
