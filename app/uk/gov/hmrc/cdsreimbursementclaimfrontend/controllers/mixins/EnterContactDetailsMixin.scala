@@ -28,7 +28,7 @@ import scala.concurrent.Future
 
 trait EnterContactDetailsMixin extends JourneyBaseController {
 
-  val postAction: Call
+  def postAction(confirmContactDetails: Boolean = false): Call
   val continueRoute: Call
 
   val enterOrChangeContactDetailsPage: enter_or_change_contact_details
@@ -41,21 +41,26 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
         Ok(
           enterOrChangeContactDetailsPage(
             Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
-            postAction,
+            postAction(confirmContactDetails),
             confirmContactDetails
           )
         )
       )
     }
 
-  final val submit: Action[AnyContent] =
+  final def submit(confirmContactDetails: Boolean = false): Action[AnyContent] =
     actionReadWriteJourneyAndUser(
       { implicit request => journey => userType => verifiedEmailOpt =>
         Forms.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              Future.successful((journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction)))),
+              Future.successful(
+                (
+                  journey,
+                  BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction(confirmContactDetails)))
+                )
+              ),
             contactDetails => {
               val previousDetails =
                 journey.getInitialContactDetailsFromDeclarationAndCurrentUser(userType, verifiedEmailOpt)

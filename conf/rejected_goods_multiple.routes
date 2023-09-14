@@ -18,8 +18,9 @@ GET          /rejected-goods/multiple/claimant-details/update-address           
 GET          /rejected-goods/multiple/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ProblemWithAddressController.show()
 
 GET          /rejected-goods/multiple/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.show(confirmContactDetails: Boolean = false)
-GET          /rejected-goods/multiple/claimant-details/confirm-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.show(confirmContactDetails: Boolean = true)
-POST         /rejected-goods/multiple/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.submit()
+POST         /rejected-goods/multiple/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.submit(confirmContactDetails: Boolean = false)
+GET          /rejected-goods/multiple/claimant-details/confirm-contact-details      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.show(confirmContactDetails: Boolean = true)
+POST         /rejected-goods/multiple/claimant-details/confirm-contact-details      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.submit(confirmContactDetails: Boolean = true)
 
 GET          /rejected-goods/multiple/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.BasisForClaimController.show()
 POST         /rejected-goods/multiple/choose-basis-for-claim                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.BasisForClaimController.submit()
