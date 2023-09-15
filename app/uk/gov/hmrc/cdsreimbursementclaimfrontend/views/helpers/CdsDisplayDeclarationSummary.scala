@@ -44,7 +44,7 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
     key: String,
     subKey: Option[String] = None,
     showImportMrn: Boolean = true,
-    isSubsidy: Boolean = false
+    showMethodOfPayment: Boolean = false
   )(implicit
     messages: Messages
   ): SummaryList =
@@ -58,10 +58,17 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
           key = Key(HtmlContent(messages(s"$key.import-date-label"))),
           value = Value(Text(declaration.displayResponseDetail.acceptanceDate))
         ).some,
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.method-of-payment-label"))),
-          value = Value(Text(messages(s"$key.subsidy-label")))
-        ).some.filter(_ => isSubsidy),
+        declaration.getMethodsOfPayment
+          .map { methods =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.method-of-payment-label"))),
+              value = {
+                methods.foreach(println)
+                Value(Text(MethodOfPaymentSummary(methods)))
+              }
+            )
+          }
+          .filter(_ => showMethodOfPayment),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.paid-duties-charges-label"))),
           value = Value(Text(declaration.totalDutiesPaidCharges.toPoundSterlingString))

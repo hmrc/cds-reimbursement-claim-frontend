@@ -59,7 +59,7 @@
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"$key.declaration-details", showImportMrn = false, isSubsidy = isSubsidyOnly))
+        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"$key.declaration-details", showImportMrn = false, showMethodOfPayment = isSubsidyOnly))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))

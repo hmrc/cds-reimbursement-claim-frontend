@@ -54,6 +54,9 @@ final case class DisplayDeclaration(
   def getNdrcDetailsList: Option[List[NdrcDetails]] =
     displayResponseDetail.ndrcDetails
 
+  def getMethodsOfPayment: Option[Set[String]] =
+    displayResponseDetail.ndrcDetails.map(_.map(_.paymentMethod).toSet)
+
   def getNdrcDetailsFor(taxType: String): Option[NdrcDetails] =
     getNdrcDetailsList.flatMap(_.find(_.taxType === taxType))
 

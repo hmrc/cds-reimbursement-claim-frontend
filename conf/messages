@@ -2182,3 +2182,14 @@ ordinal.suffix.7=th
 ordinal.suffix.8=th
 ordinal.suffix.9=th
 ordinal.suffix.1x=th
+
+#===================================================
+#  METHODS OF PAYMENT
+#===================================================
+
+method-of-payment.001=Immediate Payment
+method-of-payment.002=Deferment Account
+method-of-payment.003=Cash Account
+method-of-payment.004=Guarantee Account
+method-of-payment.005=Individual Guarantee
+method-of-payment.006=Subsidy
