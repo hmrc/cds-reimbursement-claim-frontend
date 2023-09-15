@@ -56,7 +56,17 @@ class SelectDutiesController @Inject() (
       Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
     } else {
       val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
-      Ok(selectDutiesPage(form, availableDuties, None, true, None, postAction)).asFuture
+      Ok(
+        selectDutiesPage(
+          form,
+          availableDuties,
+          None,
+          true,
+          None,
+          postAction,
+          mrn = journey.getLeadMovementReferenceNumber
+        )
+      ).asFuture
     }
   }
 

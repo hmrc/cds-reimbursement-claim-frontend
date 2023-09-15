@@ -47,16 +47,13 @@
     showCmaNotEligibleHint: Boolean,
     subKey: Option[String],
     postAction: Call,
-    isSubsidyOnly: Boolean = false,
+    isSubsidyOnly: Boolean = false, // Please remove this when working with RejectedGoods
+    mrn: Option[MRN] = None
 )(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duties"}
-    @title = @{messages(combine(key, subKey, if (isSubsidyOnly) "subsidies.title" else "title"), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
+    @title = @{messages(combine(key, subKey, "title"))}
 
-    @subsidyTitle = @{messages(s"$key.subsidies.title")}
-    @insetSubsidy = {
-        @paragraph(Html(subsidyTitle + "."))
-    }
 
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
         CheckboxItem(
@@ -74,12 +71,16 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
+        @heading(Html(title), caption = messages(s"$key.caption"))
+
+        @mrn.map { case mrn =>
+            @paragraph(Html(messages(s"$key.mrn")))
+            @paragraph(Html(s"MRN: ${mrn.value}"), Some("govuk-body govuk-!-font-weight-bold"))
+        }.getOrElse("")
+
 
         @indexAndMrnOpt.map{ case(_, mrn) =>
             @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))
-            @{if (isSubsidyOnly)
-                {insetText(content = HtmlContent(insetSubsidy))}}
         }.getOrElse("")
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {

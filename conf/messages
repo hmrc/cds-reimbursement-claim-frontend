@@ -1100,8 +1100,9 @@ confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like t
 #===================================================
 #  SELECT DUTIES PAGE
 #===================================================
-select-duties.caption=Security deposit: {0}
+select-duties.caption=Claim details
 select-duties.title=Select the duties you want to claim for
+select-duties.mrn=These are the duties that have been paid under the Movement Reference Number (MRN):
 select-duties.subsidies.title=Duties shown are all covered by subsidy
 select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
 select-duties.multiple.help-text.1=These are the duties that have been paid under MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
