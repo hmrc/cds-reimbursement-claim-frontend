@@ -62,10 +62,7 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
           .map { methods =>
             SummaryListRow(
               key = Key(HtmlContent(messages(s"$key.method-of-payment-label"))),
-              value = {
-                methods.foreach(println)
-                Value(Text(MethodOfPaymentSummary(methods)))
-              }
+              value = Value(Text(MethodOfPaymentSummary(methods)))
             )
           }
           .filter(_ => showMethodOfPayment),
