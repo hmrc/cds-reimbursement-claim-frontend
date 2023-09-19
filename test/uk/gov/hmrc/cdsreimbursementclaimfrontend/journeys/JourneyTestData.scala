@@ -143,6 +143,20 @@ trait JourneyTestData {
       accountNumber = AccountNumber("00000000")
     )
 
+  final val exampleDeclarantBankAccountDetails =
+    BankAccountDetails(
+      accountName = AccountName("Declarant"),
+      sortCode = SortCode("000001"),
+      accountNumber = AccountNumber("00000001")
+    )
+
+  final val exampleConsigneeBankAccountDetails =
+    BankAccountDetails(
+      accountName = AccountName("Consignee"),
+      sortCode = SortCode("000002"),
+      accountNumber = AccountNumber("00000002")
+    )
+
   final val exampleRejectedGoodsDetails: String        = "Some example details for rejected goods"
   final val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
 
@@ -224,6 +238,8 @@ trait JourneyTestData {
     dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty,
     consigneeContact: Option[ContactDetails] = None,
     declarantContact: Option[ContactDetails] = None,
+    declarantBankDetails: Option[BankAccountDetails] = None,
+    consigneeBankDetails: Option[BankAccountDetails] = None,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
   ): DisplayDeclaration = {
     val ndrcDetails: List[NdrcDetails] =
@@ -259,6 +275,11 @@ trait JourneyTestData {
           )
         )
 
+    val bankDetails: Option[BankDetails] = (declarantBankDetails, consigneeBankDetails) match {
+      case (None, None) => None
+      case (d, c)       => Some(BankDetails(c, d))
+    }
+
     DisplayDeclaration {
       DisplayResponseDetail(
         declarationId = id,
@@ -279,7 +300,7 @@ trait JourneyTestData {
         ),
         consigneeDetails = consigneeDetails,
         accountDetails = None,
-        bankDetails = None,
+        bankDetails = bankDetails,
         maskedBankDetails = None,
         ndrcDetails = if (ndrcDetails.isEmpty) None else Some(ndrcDetails)
       )
