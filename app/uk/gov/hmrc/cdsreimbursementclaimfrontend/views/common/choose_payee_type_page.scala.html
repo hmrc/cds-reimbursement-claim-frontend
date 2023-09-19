@@ -55,9 +55,9 @@
             items = Seq(
                 RadioItem(
                     id = Some(s"$key-importer"),
-                    value = Some("Importer"),
+                    value = Some("Consignee"),
                     content = Text(messages(s"$key.radio.importer")),
-                    checked = form.value.contains(PayeeType.Importer)
+                    checked = form.value.contains(PayeeType.Consignee)
                 ),
                 RadioItem(
                     id = Some(s"$key-declarant"),

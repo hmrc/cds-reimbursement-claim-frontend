@@ -544,15 +544,7 @@ final class OverpaymentsSingleJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      (
-        payeeType,
-        answers.displayDeclaration.flatMap(_.getConsigneeDetails)
-      ) match {
-        case (PayeeType.Declarant, _)      => Right(copy(newAnswers = answers.copy(payeeType = Some(PayeeType.Declarant))))
-        case (PayeeType.Importer, Some(_)) =>
-          Right(copy(newAnswers = answers.copy(payeeType = Some(PayeeType.Importer))))
-        case _                             => Left("submitClaimantType.consigneeNotInACC14")
-      }
+      Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
     }
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsSingleJourney] =

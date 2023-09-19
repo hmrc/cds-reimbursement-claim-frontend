@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
 import scala.concurrent.Future
 
@@ -59,15 +60,15 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
               )
             ),
           payeeType =>
-            Future.successful(
-              (
-                journey,
-                modifyJourney(journey, payeeType).fold[Result](
-                  _ => Redirect(nextPage(journey)),
-                  _ => Redirect(nextPage(journey))
-                )
+            modifyJourney(journey, payeeType)
+              .fold(
+                e => {
+                  logger.warn(e)
+                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                },
+                updatedJourney => (updatedJourney, Redirect(nextPage(journey)))
               )
-            )
+              .asFuture
         )
     }
 }

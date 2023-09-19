@@ -24,10 +24,10 @@ sealed trait PayeeType
 object PayeeType extends EnumerationFormat[PayeeType] {
 
   /** Importer of the goods. */
-  case object Importer extends PayeeType
+  case object Consignee extends PayeeType
 
   /** A representative (a.k.a. Agent) who has submitted original import declaration. */
   case object Declarant extends PayeeType
 
-  override val values: Set[PayeeType] = Set(Importer, Declarant)
+  override val values: Set[PayeeType] = Set(Consignee, Declarant)
 }
