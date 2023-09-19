@@ -108,7 +108,7 @@ trait CommonJourneyProperties {
     getLeadDisplayDeclaration
       .flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
 
-  final def computeBankAccountDetails: Option[BankAccountDetails] =
+  def computeBankAccountDetails: Option[BankAccountDetails] =
     answers.bankAccountDetails
       .orElse(getInitialBankAccountDetailsFromDeclaration)
 
