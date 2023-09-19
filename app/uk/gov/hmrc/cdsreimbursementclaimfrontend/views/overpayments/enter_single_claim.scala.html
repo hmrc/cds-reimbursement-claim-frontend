@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -35,16 +36,26 @@
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
         caption_l: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption_l
 )
 
-@(form: Form[BigDecimal], taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean,  postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim"}
 @mrn = @{"00GB0000000101010101"}
 @taxCodeDescription = @{messages(s"$key.tax-code-description", taxCode.value, messages(s"select-duties.duty.$taxCode"))}
 @hintText = @{Html(messages(s"$key.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@inset = {
+    @if(isSubsidyOnly){
+        @paragraph(Html(messages(s"$key.inset-text.subsidy")))
+    }
+    @paragraph(Html(messages(s"$key.inset-text")), id = s"$key-agent-fees-disclaimer")
+}
+
+@paidAmountLabel = @{if (isSubsidyOnly) s"$key.paid-amount-label.subsidy" else s"$key.paid-amount-label"}
 
 @layout(pageTitle = Some(s"$taxCodeDescription"), hasErrors = hasErrors) {
 
@@ -60,11 +71,11 @@
 
     @paragraph(Html(messages(s"$key.help-text")), id = s"$key-description")
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"), id = s"$key-agent-fees-disclaimer")
+    @insetText(content = HtmlContent(inset))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"$key-how-much-was-paid")
+        @paragraph(Html(messages(paidAmountLabel, paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"$key-how-much-was-paid")
 
         @inputText(
             form = form,

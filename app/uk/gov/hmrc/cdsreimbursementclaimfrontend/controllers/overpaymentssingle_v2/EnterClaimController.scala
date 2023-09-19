@@ -61,6 +61,7 @@ class EnterClaimController @Inject() (
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
+      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show).asFuture
@@ -77,7 +78,15 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                             =
                 Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
-              Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction(taxCode))).asFuture
+              Ok(
+                enterClaim(
+                  form,
+                  TaxCode(ndrcDetails.taxType),
+                  amountPaid,
+                  isSubsidyOnly,
+                  postAction(taxCode)
+                )
+              ).asFuture
           }
 
         case _ =>
@@ -88,6 +97,7 @@ class EnterClaimController @Inject() (
   final def submit(taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
       { implicit request => journey =>
+        val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
         journey.getSelectedDuties match {
           case None =>
             (journey, Redirect(routes.SelectDutiesController.show)).asFuture
@@ -108,6 +118,7 @@ class EnterClaimController @Inject() (
                               formWithErrors,
                               TaxCode(ndrcDetails.taxType),
                               BigDecimal(ndrcDetails.amount),
+                              isSubsidyOnly,
                               postAction(taxCode)
                             )
                           )
