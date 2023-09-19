@@ -22,6 +22,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -692,6 +693,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     nonce: Nonce = Nonce.random,
     userEoriNumber: Eori,
     movementReferenceNumbers: Option[Seq[MRN]] = None,
+    payeeType: Option[PayeeType] = None,
     displayDeclarations: Option[Seq[DisplayDeclaration]] = None,
     whetherNorthernIreland: Option[Boolean] = None,
     contactDetails: Option[MrnContactDetails] = None,

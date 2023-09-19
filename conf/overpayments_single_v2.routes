@@ -43,6 +43,9 @@ POST        /overpayments/v2/single/choose-basis-for-claim                      
 GET         /overpayments/v2/single/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.ChooseBankAccountTypeController.show
 POST        /overpayments/v2/single/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.ChooseBankAccountTypeController.submit
 
+GET         /overpayments/v2/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.ChoosePayeeTypeController.show
+POST         /overpayments/v2/single/choose-payee-type                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.ChoosePayeeTypeController.submit
+
 GET         /overpayments/v2/single/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.CheckBankDetailsController.show
 
 GET         /overpayments/v2/single/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.EnterBankAccountDetailsController.show

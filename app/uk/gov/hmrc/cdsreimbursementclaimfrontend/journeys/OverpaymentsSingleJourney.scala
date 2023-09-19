@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.Curr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -541,6 +542,19 @@ final class OverpaymentsSingleJourney private (
       }
     }
 
+  def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsSingleJourney] =
+    whileClaimIsAmendable {
+      (
+        payeeType,
+        answers.displayDeclaration.flatMap(_.getConsigneeDetails)
+      ) match {
+        case (PayeeType.Declarant, _)      => Right(copy(newAnswers = answers.copy(payeeType = Some(PayeeType.Declarant))))
+        case (PayeeType.Importer, Some(_)) =>
+          Right(copy(newAnswers = answers.copy(payeeType = Some(PayeeType.Importer))))
+        case _                             => Left("submitClaimantType.consigneeNotInACC14")
+      }
+    }
+
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
@@ -670,9 +684,11 @@ final class OverpaymentsSingleJourney private (
           supportingEvidences     = answers.supportingEvidences
           claimantInformation    <- getClaimantInformation
           whetherNorthernIreland <- answers.whetherNorthernIreland
+          payeeType              <- answers.payeeType
         } yield OverpaymentsSingleJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
+          payeeType = payeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           whetherNorthernIreland = whetherNorthernIreland,
@@ -712,6 +728,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
+    payeeType: Option[PayeeType] = None,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     duplicateDeclaration: Option[DuplicateDeclaration] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -734,6 +751,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     movementReferenceNumber: MRN,
     duplicateMovementReferenceNumber: Option[MRN],
     claimantType: ClaimantType,
+    payeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
     whetherNorthernIreland: Boolean,
@@ -927,6 +945,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
       .map(_.withDutiesChangeMode(answers.dutiesChangeMode))
       .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(
