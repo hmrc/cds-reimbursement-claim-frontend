@@ -157,10 +157,11 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("check-claim-summary" -> "true"),
-            if (journey.isAllSelectedDutiesAreCMAEligible)
-              routes.ReimbursementMethodController.show
-            else
-              routes.CheckBankDetailsController.show
+            routes.ChoosePayeeTypeController.show
+//            if (journey.isAllSelectedDutiesAreCMAEligible)
+//              routes.ReimbursementMethodController.show
+//            else
+//              routes.CheckBankDetailsController.show
           )
         }
 

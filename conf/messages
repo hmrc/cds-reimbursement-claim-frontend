@@ -1345,6 +1345,14 @@ sort-code.mask=Ending with {0}
 account-number.mask=Ending with {0}
 
 #===================================================
+#  CHOOSE PAYEE TYPE PAGE
+#===================================================
+choose-payee-type.title=Who will the repayment be made to?
+choose-payee-type.radio.importer=Importer
+choose-payee-type.radio.declarant=Declarant
+choose-payee-type.error.required=Select who the repayment will be made to
+
+#===================================================
 #  SELECT BANK ACCOUNT TYPE PAGE
 #===================================================
 select-bank-account-type.title=What type of account details are you providing?

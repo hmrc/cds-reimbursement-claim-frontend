@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -180,6 +181,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    payeeType: PayeeType = PayeeType.Declarant,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
@@ -200,7 +202,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       true,
       reimbursementMethod,
       taxCodes,
-      generateSubsidyPayments = generateSubsidyPayments
+      generateSubsidyPayments = generateSubsidyPayments,
+      payeeType = payeeType
     ).map(OverpaymentsSingleJourney.tryBuildFrom(_, features))
 
   def buildAnswersGen(
@@ -220,7 +223,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = true,
-    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
+    payeeType: PayeeType = PayeeType.Declarant
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -305,6 +309,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
+          payeeType = Some(payeeType),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,

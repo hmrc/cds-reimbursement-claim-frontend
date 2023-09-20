@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -66,7 +67,10 @@ class CheckBankDetailsControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)
 
-  private def sessionWithBankDetailsInACC14(maybeBankDetails: Option[BankDetails]): SessionData = {
+  private def sessionWithBankDetailsInACC14(
+    maybeBankDetails: Option[BankDetails],
+    payeeType: Option[PayeeType] = None
+  ): SessionData = {
     val displayDeclaration: DisplayDeclaration =
       displayDeclarationGen.sample.get.withBankDetails(maybeBankDetails)
 
@@ -74,6 +78,7 @@ class CheckBankDetailsControllerSpec
       OverpaymentsSingleJourney
         .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+        .flatMapWhenDefined(payeeType)(journey => p => journey.submitPayeeType(p))
         .getOrFail
 
     SessionData.empty.copy(
@@ -153,35 +158,51 @@ class CheckBankDetailsControllerSpec
         checkIsRedirect(result, routes.ChooseFileTypeController.show)
       }
 
-      "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {
+      "Ok when BankDetails has consigneeBankDetails and payeeType is Importer (Consignee)" in forAll(
+        genBankAccountDetails
+      ) { consigneeBankDetails: BankAccountDetails =>
+        val bankDetails     = BankDetails(Some(consigneeBankDetails), None)
+        val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Consignee))
+        val modifiedSession = sessionWithBankDetailsStored(session, consigneeBankDetails)
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(modifiedSession)(Right(()))
+        }
+        val request         = FakeRequest()
+        val result          = controller.show()(request)
+
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey("bank-details.title"),
+          doc =>
+            summaryKeyValueMap(doc) shouldBe Map(
+              "Name on the account" -> consigneeBankDetails.accountName.value,
+              "Sort code"           -> consigneeBankDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
+              "Account number"      -> consigneeBankDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
+            )
+        )
+      }
+
+      "Redirect when BankDetails has consigneeBankDetails but payeeType is Declarant" in forAll(genBankAccountDetails) {
         consigneeBankDetails: BankAccountDetails =>
           val bankDetails     = BankDetails(Some(consigneeBankDetails), None)
-          val session         = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Declarant))
           val modifiedSession = sessionWithBankDetailsStored(session, consigneeBankDetails)
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
-            mockStoreSession(modifiedSession)(Right(()))
           }
           val request         = FakeRequest()
           val result          = controller.show()(request)
 
-          checkPageIsDisplayed(
-            result,
-            messageFromMessageKey("bank-details.title"),
-            doc =>
-              summaryKeyValueMap(doc) shouldBe Map(
-                "Name on the account" -> consigneeBankDetails.accountName.value,
-                "Sort code"           -> consigneeBankDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
-                "Account number"      -> consigneeBankDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
-              )
-          )
+          checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
-      "Ok when BankDetails has declarantBankDetails" in forAll(genBankAccountDetails) {
+      "Ok when BankDetails has declarantBankDetails  and payeeType is Importer" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
           val bankDetails     = BankDetails(None, Some(declarantBankDetails))
-          val session         = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Declarant))
           val modifiedSession = sessionWithBankDetailsStored(session, declarantBankDetails)
           inSequence {
             mockAuthWithNoRetrievals()
@@ -201,6 +222,22 @@ class CheckBankDetailsControllerSpec
                 "Account number"      -> declarantBankDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
               )
           )
+      }
+
+      "Redirect when BankDetails has declarantBankDetails but payeeType is Importer (Consignee)" in forAll(
+        genBankAccountDetails
+      ) { declarantBankDetails: BankAccountDetails =>
+        val bankDetails     = BankDetails(None, Some(declarantBankDetails))
+        val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Consignee))
+        val modifiedSession = sessionWithBankDetailsStored(session, declarantBankDetails)
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val request         = FakeRequest()
+        val result          = controller.show()(request)
+
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
       "Ok when in change mode" in forAll(

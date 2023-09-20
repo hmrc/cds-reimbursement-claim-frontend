@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.Curr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
@@ -108,6 +109,13 @@ object Forms {
       )(InspectionDate(_))(d => Some(d.value))
     )
   }
+
+  val payeeTypeForm: Form[PayeeType] =
+    Form(
+      mapping(
+        "choose-payee-type" -> nonEmptyText.verifying(PayeeType.keys.contains _)
+      )(PayeeType.tryParse)(p => Some(PayeeType.keyOf(p)))
+    )
 
   val bankAccountTypeForm: Form[BankAccountType] =
     Form(
