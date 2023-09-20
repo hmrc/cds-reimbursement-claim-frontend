@@ -78,15 +78,21 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                             =
                 Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
-              Ok(
-                enterClaim(
-                  form,
-                  TaxCode(ndrcDetails.taxType),
-                  amountPaid,
-                  isSubsidyOnly,
-                  postAction(taxCode)
-                )
-              ).asFuture
+              journey.answers.movementReferenceNumber match {
+                case None                                                =>
+                  Redirect(routes.EnterMovementReferenceNumberController.show).asFuture
+                case Some(mrn) if journey.hasCompleteReimbursementClaims =>
+                  Ok(
+                    enterClaim(
+                      form,
+                      mrn,
+                      TaxCode(ndrcDetails.taxType),
+                      amountPaid,
+                      isSubsidyOnly,
+                      postAction(taxCode)
+                    )
+                  ).asFuture
+              }
           }
 
         case _ =>
@@ -113,15 +119,21 @@ class EnterClaimController @Inject() (
                       Future.successful(
                         (
                           journey,
-                          BadRequest(
-                            enterClaim(
-                              formWithErrors,
-                              TaxCode(ndrcDetails.taxType),
-                              BigDecimal(ndrcDetails.amount),
-                              isSubsidyOnly,
-                              postAction(taxCode)
-                            )
-                          )
+                          journey.answers.movementReferenceNumber match {
+                            case None                                                =>
+                              Redirect(routes.EnterMovementReferenceNumberController.show)
+                            case Some(mrn) if journey.hasCompleteReimbursementClaims =>
+                              BadRequest(
+                                enterClaim(
+                                  formWithErrors,
+                                  mrn,
+                                  TaxCode(ndrcDetails.taxType),
+                                  BigDecimal(ndrcDetails.amount),
+                                  isSubsidyOnly,
+                                  postAction(taxCode)
+                                )
+                              )
+                          }
                         )
                       ),
                     reimbursementAmount =>

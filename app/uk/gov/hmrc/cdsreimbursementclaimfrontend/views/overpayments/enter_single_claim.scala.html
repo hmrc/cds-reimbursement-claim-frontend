@@ -20,6 +20,7 @@
 @import play.api.mvc.Request
 @import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
@@ -40,10 +41,9 @@
         caption_l: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption_l
 )
 
-@(form: Form[BigDecimal], taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean,  postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false,  postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim"}
-@mrn = @{"00GB0000000101010101"}
 @taxCodeDescription = @{messages(s"$key.tax-code-description", taxCode.value, messages(s"select-duties.duty.$taxCode"))}
 @hintText = @{Html(messages(s"$key.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -67,7 +67,7 @@
 
     @paragraph(Html(messages(s"$key.mrn")), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
 
-    @paragraph(Html(messages(s"$mrn")), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
+    @paragraph(Html(mrn.value), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
 
     @paragraph(Html(messages(s"$key.help-text")), id = s"$key-description")
 
