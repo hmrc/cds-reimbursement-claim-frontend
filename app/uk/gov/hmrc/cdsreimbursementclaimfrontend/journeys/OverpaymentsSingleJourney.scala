@@ -73,7 +73,8 @@ final class OverpaymentsSingleJourney private (
     answers.displayDeclaration
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    answers.reimbursementMethod.isEmpty ||
+    !isSubsidyOnlyJourney &&
+      answers.reimbursementMethod.isEmpty ||
       answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
 
   def needsDuplicateMrnAndDeclaration: Boolean =
@@ -752,7 +753,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     val reimbursementMethodHasBeenProvidedIfNeeded: Validate[OverpaymentsSingleJourney] =
       all(
         whenTrue(
-          _.isAllSelectedDutiesAreCMAEligible,
+          j => j.isAllSelectedDutiesAreCMAEligible && !j.isSubsidyOnlyJourney,
           checkIsDefined(
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_MUST_BE_DEFINED

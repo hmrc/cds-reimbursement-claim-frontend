@@ -72,6 +72,7 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   journey.isAllSelectedDutiesAreCMAEligible,
+                  journey.isSubsidyOnlyJourney,
                   journey.answers.displayDeclaration,
                   postAction
                 )
