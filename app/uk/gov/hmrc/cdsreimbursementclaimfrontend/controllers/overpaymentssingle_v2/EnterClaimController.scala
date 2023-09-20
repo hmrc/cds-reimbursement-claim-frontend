@@ -78,23 +78,18 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                             =
                 Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
-              journey.answers.movementReferenceNumber match {
-                case None                                                =>
-                  Redirect(routes.EnterMovementReferenceNumberController.show).asFuture
-                case Some(mrn) if journey.hasCompleteReimbursementClaims =>
-                  Ok(
-                    enterClaim(
-                      form,
-                      mrn,
-                      TaxCode(ndrcDetails.taxType),
-                      amountPaid,
-                      isSubsidyOnly,
-                      postAction(taxCode)
-                    )
-                  ).asFuture
-              }
+              val maybeMRN = journey.getLeadMovementReferenceNumber.map(_.value)
+              Ok(
+                enterClaim(
+                  form,
+                  maybeMRN,
+                  TaxCode(ndrcDetails.taxType),
+                  amountPaid,
+                  isSubsidyOnly,
+                  postAction(taxCode)
+                )
+              ).asFuture
           }
-
         case _ =>
           redirectWhenInvalidTaxCode(journey).asFuture
       }
@@ -111,6 +106,7 @@ class EnterClaimController @Inject() (
           case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
             journey.getNdrcDetailsFor(taxCode) match {
               case Some(ndrcDetails) =>
+                val maybeMRN = journey.getLeadMovementReferenceNumber.map(_.value)
                 Forms
                   .actualAmountForm(key, BigDecimal(ndrcDetails.amount))
                   .bindFromRequest()
@@ -119,21 +115,16 @@ class EnterClaimController @Inject() (
                       Future.successful(
                         (
                           journey,
-                          journey.answers.movementReferenceNumber match {
-                            case None                                                =>
-                              Redirect(routes.EnterMovementReferenceNumberController.show)
-                            case Some(mrn) if journey.hasCompleteReimbursementClaims =>
-                              BadRequest(
-                                enterClaim(
-                                  formWithErrors,
-                                  mrn,
-                                  TaxCode(ndrcDetails.taxType),
-                                  BigDecimal(ndrcDetails.amount),
-                                  isSubsidyOnly,
-                                  postAction(taxCode)
-                                )
-                              )
-                          }
+                          BadRequest(
+                            enterClaim(
+                              formWithErrors,
+                              maybeMRN,
+                              TaxCode(ndrcDetails.taxType),
+                              BigDecimal(ndrcDetails.amount),
+                              isSubsidyOnly,
+                              postAction(taxCode)
+                            )
+                          )
                         )
                       ),
                     reimbursementAmount =>
