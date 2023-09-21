@@ -78,7 +78,7 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                             =
                 Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
-              val maybeMRN = journey.getLeadMovementReferenceNumber.map(_.value)
+              val maybeMRN                         = journey.getLeadMovementReferenceNumber.map(_.value)
               Ok(
                 enterClaim(
                   form,
@@ -90,7 +90,7 @@ class EnterClaimController @Inject() (
                 )
               ).asFuture
           }
-        case _ =>
+        case _                                                        =>
           redirectWhenInvalidTaxCode(journey).asFuture
       }
     }
