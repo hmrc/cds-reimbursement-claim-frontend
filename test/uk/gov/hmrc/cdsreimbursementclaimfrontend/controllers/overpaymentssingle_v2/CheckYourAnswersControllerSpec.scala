@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -135,9 +136,12 @@ class CheckYourAnswersControllerSpec
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
-        "MRN"         -> Some(claim.movementReferenceNumber.value),
-        "Import date" -> declarationDetails.map(_.acceptanceDate),
-        "Duties paid" -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
+        "MRN"               -> Some(claim.movementReferenceNumber.value),
+        "Import date"       -> declarationDetails.map(_.acceptanceDate),
+        "Method of payment" -> Some(
+          MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
+        ).filter(_ => journey.isSubsidyOnlyJourney),
+        "Duties paid"       -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
       ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
@@ -190,6 +194,33 @@ class CheckYourAnswersControllerSpec
       "display the page if journey has complete answers" in {
         forAll(completeJourneyGen) { journey =>
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => validateCheckYourAnswersPage(doc, journey, claim)
+          )
+        }
+      }
+
+      "display method of payment when declaration has only subsidy payments" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14DeclarantMatchesUserEori = false,
+            acc14ConsigneeMatchesUserEori = false,
+            generateSubsidyPayments = GenerateSubsidyPayments.All,
+            features = Some(
+              OverpaymentsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+            )
+          )
+        ) { j =>
+          val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)
+          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
           inSequence {
             mockAuthWithNoRetrievals()
