@@ -51,15 +51,18 @@ class CheckMovementReferenceNumbersController @Inject() (
       journey.getMovementReferenceNumbers
         .map { mrns =>
           if (journey.hasCompleteMovementReferenceNumbers)
-            Ok(
-              checkMovementReferenceNumbers(
-                mrns,
-                checkMovementReferenceNumbersForm,
-                postAction,
-                routes.EnterMovementReferenceNumberController.show,
-                routes.CheckMovementReferenceNumbersController.delete
+            if (journey.needsDeclarantAndConsigneeEoriSubmission && !journey.hasSubmittedDeclarantAndConsigneeEori) {
+              Redirect(routes.EnterImporterEoriNumberController.show())
+            } else
+              Ok(
+                checkMovementReferenceNumbers(
+                  mrns,
+                  checkMovementReferenceNumbersForm,
+                  postAction,
+                  routes.EnterMovementReferenceNumberController.show,
+                  routes.CheckMovementReferenceNumbersController.delete
+                )
               )
-            )
           else
             Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
         }
