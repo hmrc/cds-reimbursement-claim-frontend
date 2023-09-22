@@ -81,6 +81,13 @@ trait CommonJourneyProperties {
   final def needsDeclarantAndConsigneeEoriSubmission: Boolean =
     !(userHasGBEoriMatchingDeclaration || userHasXIEoriMatchingDeclaration)
 
+  final def hasSubmittedDeclarantAndConsigneeEori: Boolean =
+    answers.eoriNumbersVerification
+      .exists(d =>
+        d.declarantEoriNumber.isDefined &&
+          (!getConsigneeEoriFromACC14.isDefined || d.consigneeEoriNumber.isDefined)
+      )
+
   final def needsUserXiEoriSubmission: Boolean =
     !userHasGBEoriMatchingDeclaration &&
       getLeadDisplayDeclaration.exists(_.containsXiEori) &&
