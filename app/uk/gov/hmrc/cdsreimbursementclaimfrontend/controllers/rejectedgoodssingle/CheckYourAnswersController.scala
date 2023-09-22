@@ -73,7 +73,7 @@ class CheckYourAnswersController @Inject() (
               Ok(
                 checkYourAnswersPage(
                   output,
-                  journey.hasCmaReimbursementMethod,
+                  journey.isAllSelectedDutiesAreCMAEligible,
                   journey.answers.displayDeclaration,
                   postAction,
                   isSubsidy = journey.isSubsidyOnlyJourney

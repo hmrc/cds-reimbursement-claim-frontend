@@ -69,10 +69,8 @@
     @subHeading(Html(messages(combine(s"$key.claim-calculation", subKey, "h2"))))
     @summary(ClaimedReimbursementsAnswerSummary(claim.reimbursementClaims.toSeq, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
 
-    @if(isAllSelectedDutiesAreCMAEligible) {
-        @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
-        @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.reimbursement-method", Some(routes.ReimbursementMethodController.show)))
-    }
+    @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
+    @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ReimbursementMethodController.show) else None))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
