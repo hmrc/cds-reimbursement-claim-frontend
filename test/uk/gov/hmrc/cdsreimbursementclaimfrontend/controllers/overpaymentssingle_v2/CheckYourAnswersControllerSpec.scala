@@ -118,7 +118,7 @@ class CheckYourAnswersControllerSpec
       "Basis for claim".expectedAlways,
       "Reason for claim".expectedAlways,
       "Claim total".expectedAlways,
-      "Repayment method".expectedWhen(journey.isAllSelectedDutiesAreCMAEligible),
+      "Repayment method".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
       "Now send your claim".expectedAlways
@@ -162,13 +162,12 @@ class CheckYourAnswersControllerSpec
           "UK Duty"                                         -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Excise Duty"                                     -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Total"                                           -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Method"                                          -> (
-            if (journey.isAllSelectedDutiesAreCMAEligible) Some(claim.reimbursementMethod match {
-              case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.reimbursement-method.cma")
-              case _                                          => m("check-your-answers.reimbursement-method.bt")
-            })
-            else None
-          ),
+          "Method"                                          ->
+            Some(claim.reimbursementMethod match {
+              case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
+              case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
+              case _                                          => m("check-your-answers.repayment-method.bt")
+            }),
           "Uploaded"                                        -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"                             -> claim.bankAccountDetails.map(_.accountName.value),
           "Sort code"                                       -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),

@@ -127,8 +127,9 @@ class CheckYourAnswersControllerSpec
       "Claim total",
       "Details of inspection",
       "Supporting documents",
-      "Now send your claim"
-    ) ++ (if (whetherShowRepaymentMethod) Seq("Repayment method") else Nil)
+      "Now send your claim",
+      "Repayment method"
+    )
 
     summaryKeys should contain allElementsOf Seq(
       "MRN",
@@ -140,9 +141,8 @@ class CheckYourAnswersControllerSpec
       "Total",
       "Inspection date",
       "Inspection address type",
-      "Inspection address"
-    ) ++ (
-      if (whetherShowRepaymentMethod) Seq("Method") else Nil
+      "Inspection address",
+      "Method"
     ) ++ (
       if (claim.supportingEvidences.nonEmpty) Seq("Uploaded") else Nil
     )
@@ -158,11 +158,9 @@ class CheckYourAnswersControllerSpec
     )
     summary("These are the details of the rejected goods") shouldBe claim.detailsOfRejectedGoods
 
-    if (whetherShowRepaymentMethod) {
-      summary("Method") shouldBe messages(
-        ReimbursementMethodSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
-      )
-    }
+    summary("Method") shouldBe messages(
+      ReimbursementMethodSummary.answerKey(messagesKey + ".repayment-method", claim.reimbursementMethod)
+    )
 
     summary("Inspection date")         shouldBe claim.inspectionDate.checkYourDetailsDisplayFormat
     summary("Inspection address type") shouldBe messages(

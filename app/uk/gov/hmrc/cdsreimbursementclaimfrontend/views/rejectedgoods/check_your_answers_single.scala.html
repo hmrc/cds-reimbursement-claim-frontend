@@ -37,7 +37,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: RejectedGoodsSingleJourney.Output, hasCmaReimbursementMethod: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
@@ -77,15 +77,8 @@
     @subHeading(Html(messages(s"$key.inspection.h2")))
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
 
-    @if(hasCmaReimbursementMethod) {
-        @subHeading(Html(messages(s"$key.repayment-method.h2")))
-        @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", Some(routes.ChooseRepaymentMethodController.show())))
-    }
-
-    @if(isSubsidy) {
-        @subHeading(Html(messages(s"$key.repayment-method.h2")))
-        @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", None))
-    }
+    @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
+    @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ChooseRepaymentMethodController.show) else None))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
