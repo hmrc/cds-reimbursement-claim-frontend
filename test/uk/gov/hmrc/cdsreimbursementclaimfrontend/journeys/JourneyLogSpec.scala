@@ -61,6 +61,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.journeyVariant                        shouldBe "single"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
+      log.payeeType                             shouldBe "Declarant"
       log.basisOfClaim                          shouldBe Some("OutwardProcessingRelief")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
@@ -112,6 +113,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.journeyVariant                        shouldBe "multiple"
       log.numberOfMultipleMRNs                  shouldBe Some(2)
       log.claimantType                          shouldBe "Declarant"
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("IncorrectAdditionalInformationCode")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
@@ -172,6 +174,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.journeyVariant                        shouldBe "scheduled"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "User"
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("PersonalEffects")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
@@ -225,6 +228,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.journeyVariant                        shouldBe "single"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -279,6 +283,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.journeyVariant                        shouldBe "multiple"
       log.numberOfMultipleMRNs                  shouldBe Some(2)
       log.claimantType                          shouldBe "Consignee"
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -342,6 +347,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.journeyVariant                        shouldBe "scheduled"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "User"
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -395,6 +401,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.journeyVariant                        shouldBe "single"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe None
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
