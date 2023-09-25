@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -65,7 +66,10 @@ class CheckBankDetailsControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)
 
-  private def sessionWithBankDetailsInACC14(maybeBankDetails: Option[BankDetails]): SessionData = {
+  private def sessionWithBankDetailsInACC14(
+    maybeBankDetails: Option[BankDetails],
+    payeeType: Option[PayeeType] = None
+  ): SessionData = {
     val displayDeclaration: DisplayDeclaration =
       displayDeclarationGen.sample.get.withBankDetails(maybeBankDetails)
 
@@ -73,6 +77,7 @@ class CheckBankDetailsControllerSpec
       OverpaymentsMultipleJourney
         .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+        .flatMapWhenDefined(payeeType)(journey => payeeType => journey.submitPayeeType(payeeType))
         .getOrFail
 
     SessionData.empty.copy(
@@ -122,10 +127,10 @@ class CheckBankDetailsControllerSpec
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
-      "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {
+      "Ok when BankDetails has consigneeBankDetails and payeeType is Consignee" in forAll(genBankAccountDetails) {
         consigneeBankDetails: BankAccountDetails =>
           val bankDetails     = BankDetails(Some(consigneeBankDetails), None)
-          val session         = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Consignee))
           val modifiedSession = sessionWithBankDetailsStored(session, consigneeBankDetails)
           inSequence {
             mockAuthWithNoRetrievals()
@@ -147,10 +152,10 @@ class CheckBankDetailsControllerSpec
           )
       }
 
-      "Ok when BankDetails has declarantBankDetails" in forAll(genBankAccountDetails) {
+      "Ok when BankDetails has declarantBankDetails and payeeType is Declarant" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
           val bankDetails     = BankDetails(None, Some(declarantBankDetails))
-          val session         = sessionWithBankDetailsInACC14(Some(bankDetails))
+          val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Declarant))
           val modifiedSession = sessionWithBankDetailsStored(session, declarantBankDetails)
           inSequence {
             mockAuthWithNoRetrievals()
