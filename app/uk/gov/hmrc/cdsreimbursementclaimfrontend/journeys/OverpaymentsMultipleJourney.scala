@@ -692,9 +692,11 @@ final class OverpaymentsMultipleJourney private (
           supportingEvidences     = answers.supportingEvidences
           claimantInformation    <- getClaimantInformation
           whetherNorthernIreland <- answers.whetherNorthernIreland
+          payeeType              <- answers.payeeType
         } yield OverpaymentsMultipleJourney.Output(
           movementReferenceNumbers = mrns,
           claimantType = getClaimantType,
+          payeeType = payeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           whetherNorthernIreland = whetherNorthernIreland,
@@ -753,6 +755,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   final case class Output(
     movementReferenceNumbers: Seq[MRN],
     claimantType: ClaimantType,
+    payeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
     whetherNorthernIreland: Boolean,
