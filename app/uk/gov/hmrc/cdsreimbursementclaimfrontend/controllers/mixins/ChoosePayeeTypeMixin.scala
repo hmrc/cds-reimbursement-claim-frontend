@@ -49,10 +49,7 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => implicit journey =>
-      if (
-        journey.getDeclarantEoriFromACC14.isDefined &&
-        journey.getDeclarantEoriFromACC14 === journey.getConsigneeEoriFromACC14
-      ) {
+      if (journey.declarantEoriMatchesConsignee) {
         submitPayeeType(PayeeType.Consignee)
       } else {
         val form: Form[PayeeType] =
