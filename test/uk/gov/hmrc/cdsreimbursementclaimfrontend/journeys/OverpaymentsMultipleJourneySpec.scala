@@ -25,6 +25,7 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
@@ -662,7 +663,10 @@ class OverpaymentsMultipleJourneySpec
       forAll(completeJourneyGen, Gen.asciiPrintableStr) { (journey, additionalDetails) =>
         val modifiedJourney = journey.submitAdditionalDetails(additionalDetails)
 
-        modifiedJourney.hasCompleteAnswers                shouldBe true
+        modifiedJourney.hasCompleteAnswers shouldBe true
+
+        journey.answers.payeeType                         shouldBe Some(PayeeType.Declarant)
+        modifiedJourney.answers.payeeType                 shouldBe Some(PayeeType.Declarant)
         modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(additionalDetails)
       }
     }

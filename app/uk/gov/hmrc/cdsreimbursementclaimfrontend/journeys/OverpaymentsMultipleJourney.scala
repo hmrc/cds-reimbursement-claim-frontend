@@ -849,6 +849,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
               (taxCode, amount) => j.submitCorrectAmount(mrn, taxCode, amount)
             )
       })
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(
