@@ -92,6 +92,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
         OverpaymentsMultipleJourney.Output(
           movementReferenceNumbers = Seq(exampleMrn, anotherExampleMrn),
           claimantType = ClaimantType.Declarant,
+          payeeType = PayeeType.Declarant,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfOverpaymentClaim.IncorrectAdditionalInformationCode,
           whetherNorthernIreland = false,

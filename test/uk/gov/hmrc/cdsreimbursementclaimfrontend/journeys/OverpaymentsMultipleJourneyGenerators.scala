@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 import scala.jdk.CollectionConverters._
 import scala.util.Random
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of OverpaymentsMultipleJourney. */
 object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -101,7 +102,8 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[OverpaymentsMultipleJourney.Features] = None
+    features: Option[OverpaymentsMultipleJourney.Features] = None,
+    payeeType: Option[PayeeType] = Some(PayeeType.Declarant)
   ): Gen[OverpaymentsMultipleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -116,7 +118,8 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       maxNumberOfMRNs = maxNumberOfMRNs,
       maxSize = maxSize,
       generateSubsidyPayments = generateSubsidyPayments,
-      features = features
+      features = features,
+      payeeType = payeeType
     ).map(
       _.fold(
         error =>
@@ -157,7 +160,8 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[OverpaymentsMultipleJourney.Features] = None
+    features: Option[OverpaymentsMultipleJourney.Features] = None,
+    payeeType: Option[PayeeType] = None
   ): Gen[Either[String, OverpaymentsMultipleJourney]] =
     buildAnswersGen(
       acc14DeclarantMatchesUserEori,
@@ -172,7 +176,8 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       minNumberOfMRNs,
       maxNumberOfMRNs,
       maxSize,
-      generateSubsidyPayments = generateSubsidyPayments
+      generateSubsidyPayments = generateSubsidyPayments,
+      payeeType
     )
       .map(OverpaymentsMultipleJourney.tryBuildFrom(_, features))
 
@@ -189,7 +194,8 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     minNumberOfMRNs: Int = 2,
     maxNumberOfMRNs: Int = 6,
     maxSize: Int = 5,
-    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
+    payeeType: Option[PayeeType] = None
   ): Gen[OverpaymentsMultipleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -269,6 +275,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumbers = Some(mrns),
+          payeeType = Some(PayeeType.Declarant),
           displayDeclarations = Some(displayDeclarations),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
