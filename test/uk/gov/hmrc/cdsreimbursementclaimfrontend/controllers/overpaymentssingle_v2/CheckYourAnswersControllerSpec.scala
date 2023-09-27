@@ -148,9 +148,9 @@ class CheckYourAnswersControllerSpec
           "Importer name"                                   -> declaration.flatMap(_.consigneeName),
           "Importer email"                                  -> declaration.flatMap(_.consigneeEmail),
           "Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br />", " ")),
+          "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
           "Declarant name"                                  -> declaration.map(_.declarantName),
-          "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " ")),
+          "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
           "Contact details"                                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
           "Contact address"                                 -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
           "This is the basis behind the claim"              -> Some(

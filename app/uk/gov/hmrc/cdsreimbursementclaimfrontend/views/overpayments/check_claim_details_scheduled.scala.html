@@ -56,12 +56,12 @@
     @answers.map { claim =>
         @subHeading(Html(messages(s"duty-type.${claim._1.repr}")), classes = "govuk-heading-m", id = s"$key-duty-${claim._1.repr}")
         @summary(TaxCodeReimbursementSummary((claim._1, claim._2),key, subKey))
-    <br/>
+    <br>
     }
 
     @subHeading(Html(messages(s"$key.total.header")), classes = "govuk-heading-m")
     @summary(ScheduledReimbursementSummary(reimbursementTotal, key))
-    <br/>
+    <br>
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
