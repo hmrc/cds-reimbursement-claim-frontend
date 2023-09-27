@@ -790,7 +790,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       hasMultipleMovementReferenceNumbers,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
     )
 
   import JourneyFormats._
