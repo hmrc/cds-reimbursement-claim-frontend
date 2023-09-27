@@ -40,6 +40,9 @@ trait CommonJourneyProperties {
   /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
 
+  def declarantEoriMatchesConsignee: Boolean =
+    getDeclarantEoriFromACC14.isDefined &&
+      getDeclarantEoriFromACC14 === getConsigneeEoriFromACC14
   def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
   def needsBanksAccountDetailsSubmission: Boolean

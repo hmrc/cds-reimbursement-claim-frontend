@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
+import cats.implicits.catsSyntaxEq
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.payeeTypeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -34,15 +36,30 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
   val postAction: Call
   def nextPage(journey: Journey): Call
 
+  final def submitPayeeType(payeeType: PayeeType)(implicit journey: Journey): Future[(Journey, Result)] =
+    modifyJourney(journey, payeeType)
+      .fold(
+        e => {
+          logger.warn(e)
+          (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+        },
+        (_, Redirect(nextPage(journey)))
+      )
+      .asFuture
+
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
-      val form: Form[PayeeType] =
-        payeeTypeForm.withDefault(journey.answers.payeeType)
-      Ok(choosePayeeTypePage(form, postAction)).asFuture
+    actionReadWriteJourney { implicit request => implicit journey =>
+      if (journey.declarantEoriMatchesConsignee) {
+        submitPayeeType(PayeeType.Consignee)
+      } else {
+        val form: Form[PayeeType] =
+          payeeTypeForm.withDefault(journey.answers.payeeType)
+        (journey, Ok(choosePayeeTypePage(form, postAction))).asFuture
+      }
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteJourney { implicit request => implicit journey =>
       payeeTypeForm
         .bindFromRequest()
         .fold(
@@ -55,16 +72,7 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
                 )
               )
             ),
-          payeeType =>
-            modifyJourney(journey, payeeType)
-              .fold(
-                e => {
-                  logger.warn(e)
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                },
-                updatedJourney => (updatedJourney, Redirect(nextPage(journey)))
-              )
-              .asFuture
+          submitPayeeType
         )
     }
 }
