@@ -71,6 +71,11 @@
     @subHeading(Html(messages(s"$key.claim-total.h2")))
     @summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.CheckClaimDetailsController.show)))
 
+    @if(isSubsidy){
+        @subHeading(Html(messages(s"$key.repayment-method.h2")))
+        @summary(RepaymentMethodSummary(s"$key.repayment-method"))
+    }
+
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))
         @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show)))
