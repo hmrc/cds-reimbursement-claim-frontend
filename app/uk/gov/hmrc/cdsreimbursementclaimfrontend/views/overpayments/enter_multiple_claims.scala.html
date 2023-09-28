@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -35,13 +36,21 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
-@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidy: Boolean = false, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"multiple-enter-claim"}
 @title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumeral(mrnIndex))}
+
+@inset = {
+    @if(isSubsidy){
+        @paragraph(Html(messages(s"$key.inset-text.subsidy")))
+    }
+    @paragraph(Html(messages(s"$key.inset-text")), id = s"$key-agent-fees-disclaimer")
+}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -53,7 +62,7 @@
 
     @paragraph(Html(messages(s"$key.help-text", mrn.value)), id=s"$key.help-text")
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"), id=s"$key.inset-text")
+    @insetText(content = HtmlContent(inset))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
