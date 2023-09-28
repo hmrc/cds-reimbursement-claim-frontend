@@ -248,6 +248,39 @@ final class OverpaymentsMultipleJourney private (
         getLeadDisplayDeclaration
       )
 
+  def isPaymentMethodsMatching(displayDeclaration: DisplayDeclaration): Boolean =
+    getLeadDisplayDeclaration
+      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
+      .fold {
+        false
+      } { leadNdrcDetails: List[NdrcDetails] =>
+        displayDeclaration.getNdrcDetailsList.fold {
+          false
+        } { ndrcDetails: List[NdrcDetails] =>
+          val paymentMethodsFromDisplayDeclaration: List[String] = ndrcDetails.map(_.paymentMethod).distinct
+          val leadPaymentMethods: List[String]                   = leadNdrcDetails.map(_.paymentMethod).distinct
+          (leadPaymentMethods, paymentMethodsFromDisplayDeclaration) match {
+            case (Seq("006"), Seq("006"))                           => true
+            case (a, b) if !a.contains("006") && !b.contains("006") => true
+            case _                                                  => false
+          }
+        }
+      }
+
+  def getSubsidyError(): String =
+    getLeadDisplayDeclaration
+      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
+      .fold {
+        "submitMovementReferenceNumber.needsNonSubsidy"
+      } { leadNdrcDetails: List[NdrcDetails] =>
+        leadNdrcDetails.map(_.paymentMethod).distinct match {
+          case a if a.contains("006")                                           => "submitMovementReferenceNumber.needsSubsidy"
+          case b if b.contains("001") || b.contains("002") || b.contains("003") =>
+            "submitMovementReferenceNumber.needsNonSubsidy"
+          case _                                                                => "submitMovementReferenceNumber.needsNonSubsidy"
+        }
+      }
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
@@ -272,7 +305,11 @@ final class OverpaymentsMultipleJourney private (
         Left(
           "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
         )
-      else
+      else if (
+        index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(displayDeclaration)
+      ) {
+        Left(getSubsidyError())
+      } else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
