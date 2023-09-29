@@ -902,7 +902,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
     )
 
   import JourneyFormats._

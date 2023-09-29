@@ -38,21 +38,22 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
+@subsidySubHeading = @{if (isSubsidy) "h2-subsidy" else "h2"}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"$key.reference-number.multiple", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @subHeading(Html(messages(combine(s"$key.reference-number.multiple", subKey, subsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"$key.reference-number.rejectedgoodsmultiple", subKey, Some(routes.CheckMovementReferenceNumbersController.show)))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration, s"$key.declaration-details", showImportMrn = false))
+        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration, s"$key.declaration-details", showImportMrn = false, showMethodOfPayment = isSubsidy))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
@@ -69,6 +70,11 @@
     
     @subHeading(Html(messages(s"$key.claim-total.h2")))
     @summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.CheckClaimDetailsController.show)))
+
+    @if(isSubsidy){
+        @subHeading(Html(messages(s"$key.repayment-method.h2")))
+        @summary(RepaymentMethodSummary(s"$key.repayment-method"))
+    }
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))

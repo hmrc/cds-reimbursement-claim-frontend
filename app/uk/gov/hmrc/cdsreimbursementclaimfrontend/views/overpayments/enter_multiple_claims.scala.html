@@ -40,10 +40,17 @@
     insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
-@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidy: Boolean = false, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"multiple-enter-claim"}
 @title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
+
+@inset = {
+    @if(isSubsidy){
+        @paragraph(Html(messages(s"$key.inset-text.subsidy")))
+    }
+    @paragraph(Html(messages(s"$key.inset-text")), id = s"$key-agent-fees-disclaimer")
+}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -56,8 +63,8 @@
     @paragraph(Html(messages(s"$key.help-text", OrdinalNumeral((mrnIndex)).capitalize, mrn.value)), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
 
     @paragraph(Html(messages(s"$key.para")))
-
-    @insetText(content = HtmlContent(messages(s"$key.inset-text")))
+    
+    @insetText(content = HtmlContent(inset))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

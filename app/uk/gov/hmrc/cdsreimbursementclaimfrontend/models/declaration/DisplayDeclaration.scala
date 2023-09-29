@@ -261,7 +261,7 @@ object DisplayDeclaration {
 
     def consigneeAddress(implicit messages: Messages): Option[String] =
       displayDeclaration.displayResponseDetail.consigneeDetails.map(details =>
-        establishmentAddress(details.establishmentAddress).mkString("<br />")
+        establishmentAddress(details.establishmentAddress).mkString("<br>")
       )
 
     def declarantName: String = displayDeclaration.displayResponseDetail.declarantDetails.legalName
@@ -276,7 +276,7 @@ object DisplayDeclaration {
 
     def declarantContactAddress(implicit messages: Messages): Option[String] =
       Option(displayDeclaration.displayResponseDetail.declarantDetails.establishmentAddress).map(address =>
-        establishmentAddress(address).mkString("<br />")
+        establishmentAddress(address).mkString("<br>")
       )
 
     def declarantAddress(contactDetails: ContactDetails)(implicit messages: Messages): List[String] = {
