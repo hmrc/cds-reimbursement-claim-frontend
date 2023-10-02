@@ -27,6 +27,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
@@ -1082,6 +1083,48 @@ class OverpaymentsScheduledJourneySpec
             result3 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
           }
         }
+      }
+    }
+
+    "computeBankDetails" should {
+      "return consigneeBankDetails when payeeType is consignee" in {
+        val declaration = buildDisplayDeclaration(
+          dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)),
+          consigneeBankDetails = Some(exampleConsigneeBankAccountDetails),
+          declarantBankDetails = Some(exampleDeclarantBankAccountDetails)
+        )
+
+        val journeyEither =
+          OverpaymentsSingleJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+            .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
+            .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+            .flatMap(_.submitPayeeType(PayeeType.Consignee))
+
+        journeyEither.isRight                                shouldBe true
+        journeyEither.toOption.get.computeBankAccountDetails shouldBe Some(exampleConsigneeBankAccountDetails)
+      }
+
+      "return declarantBankDetails when payeeType is declarant" in {
+        val declaration = buildDisplayDeclaration(
+          dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)),
+          consigneeBankDetails = Some(exampleConsigneeBankAccountDetails),
+          declarantBankDetails = Some(exampleDeclarantBankAccountDetails)
+        )
+
+        val journeyEither =
+          OverpaymentsSingleJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+            .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
+            .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+            .flatMap(_.submitPayeeType(PayeeType.Declarant))
+
+        journeyEither.isRight                                shouldBe true
+        journeyEither.toOption.get.computeBankAccountDetails shouldBe Some(exampleDeclarantBankAccountDetails)
       }
     }
 

@@ -186,7 +186,7 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("check-claim-summary" -> "true"),
-            routes.CheckBankDetailsController.show
+            routes.ChoosePayeeTypeController.show
           )
         }
 
