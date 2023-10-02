@@ -25,6 +25,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CdsDisplayDeclarationSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.html.components.WarningText
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,10 +38,11 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+        warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
 )
 
-@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-declaration-details"}
 @title = @{if(isDuplicate) messages(s"$key.duplicate.title") else messages(s"$key.title")}
@@ -66,7 +69,9 @@
             )
         )
 
-        @summary(CdsDisplayDeclarationSummary.render(declaration, key, subKey, showMethodOfPayment = subKey.exists(_ == "single")))
+        @summary(CdsDisplayDeclarationSummary.render(declaration, key, subKey, showMethodOfPayment = subKey.exists(ty => ty == "single" || isSubsidy)))
+
+        @if(isSubsidy && subKey.exists(_ == "multiple")){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
 
         @radios(
             form = form,
