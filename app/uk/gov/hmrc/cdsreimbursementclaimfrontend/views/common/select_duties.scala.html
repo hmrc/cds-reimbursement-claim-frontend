@@ -53,11 +53,6 @@
     @key = @{"select-duties"}
     @title = @{messages(combine(key, subKey, if (isSubsidyOnly) "subsidies.title" else "title"), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
 
-    @subsidyTitle = @{messages(s"$key.subsidies.title")}
-    @insetSubsidy = {
-        @paragraph(Html(subsidyTitle + "."))
-    }
-
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
         CheckboxItem(
             name = Some(s"$key[]"),
@@ -78,8 +73,6 @@
 
         @indexAndMrnOpt.map{ case(_, mrn) =>
             @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))
-            @{if (isSubsidyOnly)
-                {insetText(content = HtmlContent(insetSubsidy))}}
         }.getOrElse("")
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
