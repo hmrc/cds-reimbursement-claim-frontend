@@ -1193,7 +1193,7 @@ multiple-select-duties.help-text.1=These are the duties that have been paid unde
 #===================================================
 enter-claim.title=Claim details
 enter-claim.tax-code-description={0} - {1}
-enter-claim.mrn=Movement Reference Number (MRN):
+enter-claim.mrn=Movement Reference Number (MRN):<br><span id="MRN">{0}</span>
 enter-claim.help-text=This is to calculate your repayment as part of your claim.
 enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.inset-text=HMRC does not refund agents’ fees.
@@ -1249,13 +1249,15 @@ enter-claim-scheduled.rejected-goods.subsidy.inset-text=Your subsidy allocation 
 #===================================================
 #  ENTER MULTIPLE CLAIM PAGE
 #===================================================
-multiple-enter-claim.title=Claim details for {0} - {1} under {2} MRN
-multiple-enter-claim.help-text=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
+multiple-enter-claim.caption=Claim details
+multiple-enter-claim.title={0} - {1}
+multiple-enter-claim.help-text={0} Movement Reference Number (MRN):<br><span id="MRN">{1}</span>
+multiple-enter-claim.para=This is to calculate your repayment as part of your claim.
 multiple-enter-claim.inset-text=HMRC does not refund agents’ fees.
 multiple-enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
-multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
+multiple-enter-claim.actual-amount.hint=The claim amount must be lower than or equal to the paid amount.
 multiple-enter-claim.actual-amount.error.invalid=The claim amount must be equal to or less than the amount paid
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
 multiple-enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55

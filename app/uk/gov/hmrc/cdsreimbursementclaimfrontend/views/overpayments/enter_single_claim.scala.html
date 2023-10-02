@@ -37,8 +37,7 @@
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
-        caption_l: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption_l
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
 @(form: Form[BigDecimal], maybeMRN: Option[String], taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false,  postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -61,13 +60,9 @@
 
     @errorSummary(form.errors)
 
-    @caption_l(Html(messages(s"$key.title")))
+    @heading(heading = Html(taxCodeDescription), caption = messages(s"$key.title"))
 
-    @heading(Html(taxCodeDescription))
-
-    @paragraph(Html(messages(s"$key.mrn")), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
-
-    @paragraph(Html(maybeMRN.getOrElse("")), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
+    @paragraph(Html(messages(s"$key.mrn", maybeMRN.getOrElse(""))), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
 
     @paragraph(Html(messages(s"$key.help-text")), id = s"$key-description")
 
