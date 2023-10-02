@@ -545,10 +545,12 @@ final class OverpaymentsScheduledJourney private (
           scheduledDocument      <- answers.scheduledDocument
           claimantInformation    <- getClaimantInformation
           whetherNorthernIreland <- answers.whetherNorthernIreland
+          payeeType              <- answers.payeeType
         } yield OverpaymentsScheduledJourney.Output(
           movementReferenceNumber = mrn,
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
           claimantType = getClaimantType,
+          payeeType = payeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           whetherNorthernIreland = whetherNorthernIreland,
@@ -607,6 +609,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     movementReferenceNumber: MRN,
     scheduledDocument: EvidenceDocument,
     claimantType: ClaimantType,
+    payeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
     whetherNorthernIreland: Boolean,
