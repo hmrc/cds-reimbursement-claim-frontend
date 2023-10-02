@@ -199,7 +199,7 @@ class CheckBankDetailsControllerSpec
           checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
-      "Ok when BankDetails has declarantBankDetails  and payeeType is Importer" in forAll(genBankAccountDetails) {
+      "Ok when BankDetails has declarantBankDetails  and payeeType is Declarant" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
           val bankDetails     = BankDetails(None, Some(declarantBankDetails))
           val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Declarant))

@@ -113,7 +113,7 @@ class CheckClaimDetailsController @Inject() (
                       if (journey.hasCompleteAnswers)
                         checkYourAnswers
                       else
-                        routes.CheckBankDetailsController.show
+                        routes.ChoosePayeeTypeController.show
                     )
                   )
                 case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))

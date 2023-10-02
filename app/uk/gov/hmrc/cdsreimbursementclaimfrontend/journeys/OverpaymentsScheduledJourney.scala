@@ -393,6 +393,45 @@ final class OverpaymentsScheduledJourney private (
         Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
+  def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsScheduledJourney] =
+    whileClaimIsAmendable {
+      if (answers.payeeType.contains(payeeType))
+        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      else
+        Right(
+          copy(newAnswers =
+            answers.copy(
+              payeeType = Some(payeeType),
+              bankAccountDetails = None
+            )
+          )
+        )
+    }
+
+  override def computeBankAccountDetails: Option[BankAccountDetails] =
+    answers.bankAccountDetails match {
+      case Some(details) => Some(details)
+      case None          =>
+        val maybeDeclarantBankDetails       = getDeclarantBankAccountDetails
+        val maybeConsigneeBankDetails       = getConsigneeBankAccountDetails
+        val consigneeAndDeclarantEorisMatch = (for {
+          consigneeEori <- getConsigneeEoriFromACC14
+          declarantEori <- getDeclarantEoriFromACC14
+        } yield consigneeEori === declarantEori).getOrElse(false)
+
+        (answers.payeeType, maybeDeclarantBankDetails, maybeConsigneeBankDetails) match {
+          case (Some(PayeeType.Consignee), _, Some(consigneeBankDetails))                                       =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Declarant), Some(declarantBankDetails), _)                                       =>
+            Some(declarantBankDetails)
+          case (Some(PayeeType.Declarant), None, Some(consigneeBankDetails)) if consigneeAndDeclarantEorisMatch =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Consignee), Some(declarantBankDetails), None) if consigneeAndDeclarantEorisMatch =>
+            Some(declarantBankDetails)
+          case _                                                                                                => None
+        }
+    }
+
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       Right(
@@ -601,7 +640,8 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
     )
 
   import JourneyFormats._
@@ -664,6 +704,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
               j.submitCorrectAmount(dutyType, taxCode, paidAmount, correctAmount)
           })
       })
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(
