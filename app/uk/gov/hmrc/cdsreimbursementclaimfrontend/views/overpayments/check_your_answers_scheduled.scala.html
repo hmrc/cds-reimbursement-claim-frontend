@@ -38,16 +38,17 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
+@ifSubsidySubHeading = @{if (isSubsidy) "h2-subsidy" else "h2"}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"$key.reference-number", Some("scheduled"), "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @subHeading(Html(messages(combine(s"$key.reference-number", Some("scheduled"), ifSubsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", Some("scheduled"), Some(routes.EnterMovementReferenceNumberController.show)))
 
     @subHeading(Html(messages(s"$key.scheduled-document.h2")))
