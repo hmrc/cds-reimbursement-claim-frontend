@@ -43,7 +43,7 @@
 @(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidy: Boolean = false, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"multiple-enter-claim"}
-@title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
+@title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumeral(mrnIndex))}
 
 @inset = {
     @if(isSubsidy){
@@ -58,12 +58,10 @@
 
     @errorSummary(form.errors)
 
-    @heading(heading = Html(title), caption = messages(s"$key.caption"))
+    @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text", OrdinalNumeral((mrnIndex)).capitalize, mrn.value)), classes=Some("govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-3"))
+    @paragraph(Html(messages(s"$key.help-text", mrn.value)), id=s"$key.help-text")
 
-    @paragraph(Html(messages(s"$key.para")))
-    
     @insetText(content = HtmlContent(inset))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
@@ -79,7 +77,7 @@
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
-            hintHtml = Some(Html(messages(s"$key.actual-amount.hint", taxCode, messages(s"select-duties.duty.${taxCode}")))),
+            hintHtml = Some(Html(messages(s"$key.actual-amount.hint"))),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
