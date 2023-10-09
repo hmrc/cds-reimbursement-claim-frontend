@@ -37,16 +37,15 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[MRN], subKey: Option[String], pageOrdinalValue: Int, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], subKey: Option[String], pageOrdinalValue: Int, postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @isFirst = @{pageOrdinalValue === 1}
 
 @key = @{if(isFirst) "enter-movement-reference-number" else "enter-associated-mrn"}
 
 @ordinalValueStr = @{OrdinalNumeral(pageOrdinalValue)}
-
-@title = @{if(isFirst) messages(combine(key, subKey, "title")) else messages(s"$key.title", ordinalValueStr)}
-
+@subsidyString = @{if (isSubsidy && pageOrdinalValue > 1) " subsidy" else ""}
+@title = @{messages(combine(key, subKey, "title"), ordinalValueStr, subsidyString)}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {

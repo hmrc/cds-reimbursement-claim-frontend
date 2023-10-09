@@ -72,7 +72,8 @@ class EnterMovementReferenceNumberController @Inject() (
            movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
            Some("multiple"),
            pageIndex,
-           routes.EnterMovementReferenceNumberController.submit(pageIndex)
+           routes.EnterMovementReferenceNumberController.submit(pageIndex),
+           isSubsidy = journey.isSubsidyOnlyJourney
          )
        )
      }).asFuture
