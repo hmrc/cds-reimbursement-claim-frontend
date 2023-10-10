@@ -389,7 +389,7 @@ enter-export-movement-reference-number-multiple.securities.error.import=Enter an
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
 #===================================================
-enter-associated-mrn.title=Enter the {0} Movement Reference Number (MRN)
+enter-associated-mrn.title=Enter the {0}{1} Movement Reference Number (MRN)
 enter-associated-mrn.help-text=The MRN is issued when an import is declared.
 enter-associated-mrn.details.heading=Finding your MRN
 enter-associated-mrn.details.para=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.

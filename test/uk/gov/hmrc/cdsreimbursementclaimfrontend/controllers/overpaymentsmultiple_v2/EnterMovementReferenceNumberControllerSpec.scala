@@ -441,7 +441,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number" -> mrn.value)(2),
-          messageFromMessageKey("enter-associated-mrn.title", "second"),
+          messageFromMessageKey("enter-associated-mrn.title", "second", ""),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               "enter-movement-reference-number.error.subsidy-payment-found"
