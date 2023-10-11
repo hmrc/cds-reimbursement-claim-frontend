@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
 
-import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
