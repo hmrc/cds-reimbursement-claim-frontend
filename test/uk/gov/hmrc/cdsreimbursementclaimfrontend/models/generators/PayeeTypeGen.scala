@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import magnolia.Magnolia.gen
+import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import org.scalacheck.magnolia.Typeclass
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 object PayeeTypeGen {
