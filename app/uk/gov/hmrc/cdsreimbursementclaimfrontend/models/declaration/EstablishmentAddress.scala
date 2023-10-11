@@ -18,10 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import cats.Eq
 import cats.implicits.catsSyntaxEq
-import julienrf.json.derived
+
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
+import play.api.libs.json.Json
 
 final case class EstablishmentAddress(
   addressLine1: String,
@@ -43,8 +44,7 @@ final case class EstablishmentAddress(
 
 object EstablishmentAddress {
 
-  implicit val format: OFormat[EstablishmentAddress] =
-    derived.oformat[EstablishmentAddress]()
+  implicit val format: OFormat[EstablishmentAddress] = Json.format[EstablishmentAddress]
 
   implicit val eq: Eq[EstablishmentAddress] = Eq.fromUniversalEquals
 

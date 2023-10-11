@@ -211,6 +211,13 @@ final case class DisplayDeclaration(
   def hasOnlySubsidyPayments: Boolean =
     displayResponseDetail.ndrcDetails.exists(_.forall(_.hasSubsidyPaymentMethod))
 
+  def withDeclarantContactDetails(contactDetails: ContactDetails): DisplayDeclaration =
+    copy(displayResponseDetail =
+      displayResponseDetail.copy(declarantDetails =
+        displayResponseDetail.declarantDetails.copy(contactDetails = Some(contactDetails))
+      )
+    )
+
 }
 
 object DisplayDeclaration {

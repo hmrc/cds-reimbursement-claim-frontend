@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import play.api.libs.json.Json
 
 final case class ConsigneeDetails(
   consigneeEORI: String,
@@ -31,5 +31,5 @@ final case class ConsigneeDetails(
 }
 
 object ConsigneeDetails {
-  implicit val format: OFormat[ConsigneeDetails] = derived.oformat[ConsigneeDetails]()
+  implicit val format: OFormat[ConsigneeDetails] = Json.format[ConsigneeDetails]
 }

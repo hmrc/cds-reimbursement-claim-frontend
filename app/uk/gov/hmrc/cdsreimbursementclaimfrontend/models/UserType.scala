@@ -17,12 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait UserType extends Product with Serializable
 
-object UserType {
+object UserType extends EnumerationFormat[UserType] {
 
   case object Individual extends UserType
   case object Organisation extends UserType
@@ -30,6 +30,6 @@ object UserType {
 
   implicit val eq: Eq[UserType] = Eq.fromUniversalEquals
 
-  implicit val format: OFormat[UserType] = derived.oformat()
+  override val values: Set[UserType] = Set(Individual, Organisation, NonGovernmentGatewayUser)
 
 }

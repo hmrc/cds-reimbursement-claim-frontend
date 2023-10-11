@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
@@ -42,12 +41,20 @@ object AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
   }
 
+  object Individual {
+    implicit val format: OFormat[Individual] = Json.format[Individual]
+  }
+
   final case class Organisation(
     email: Option[Email],
     eori: Eori,
     name: Option[Name]
   ) extends AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
+  }
+
+  object Organisation {
+    implicit val format: OFormat[Organisation] = Json.format[Organisation]
   }
 
   final case class NonGovernmentGatewayAuthenticatedUser(authProvider: String) extends AuthenticatedUser {
@@ -59,5 +66,26 @@ object AuthenticatedUser {
     implicit val format: OFormat[NonGovernmentGatewayAuthenticatedUser] =
       Json.format[NonGovernmentGatewayAuthenticatedUser]
   }
+
+  implicit val format: Format[AuthenticatedUser] =
+    Format(
+      Reads.apply[AuthenticatedUser](json =>
+        Individual.format
+          .reads(json)
+          .map(_.asInstanceOf[AuthenticatedUser])
+          .recoverWith(_ => Organisation.format.reads(json).map(_.asInstanceOf[AuthenticatedUser]))
+          .recoverWith(_ =>
+            NonGovernmentGatewayAuthenticatedUser.format.reads(json).map(_.asInstanceOf[AuthenticatedUser])
+          )
+      ),
+      Writes.apply {
+        case value: Individual                            =>
+          Individual.format.writes(value)
+        case value: Organisation                          =>
+          Organisation.format.writes(value)
+        case value: NonGovernmentGatewayAuthenticatedUser =>
+          NonGovernmentGatewayAuthenticatedUser.format.writes(value)
+      }
+    )
 
 }

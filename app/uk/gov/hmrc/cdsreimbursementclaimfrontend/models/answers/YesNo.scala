@@ -17,14 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait YesNo extends Product with Serializable {
   def asBoolean: Boolean
 }
 
-object YesNo {
+object YesNo extends EnumerationFormat[YesNo] {
 
   def of(flag: Boolean): YesNo = if (flag) Yes else No
 
@@ -37,5 +37,6 @@ object YesNo {
 
   implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
 
-  implicit val format: OFormat[YesNo] = derived.oformat[YesNo]()
+  override val values: Set[YesNo] = Set(Yes, No)
+
 }

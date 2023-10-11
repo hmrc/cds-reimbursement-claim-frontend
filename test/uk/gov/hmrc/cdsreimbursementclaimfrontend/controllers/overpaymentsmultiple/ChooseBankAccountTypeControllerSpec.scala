@@ -27,7 +27,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
-import shapeless.lens
+
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -125,9 +125,10 @@ class ChooseBankAccountTypeControllerSpec
 
       "reimbursement method is current month adjustment" in forAll {
         (bankAccountType: BankAccountType, declaration: DisplayDeclaration, ndrc: NdrcDetails) =>
-          val updatedDeclaration = lens[DisplayDeclaration].displayResponseDetail.modify(declaration)(
-            _.copy(ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some)
-          )
+          val updatedDeclaration =
+            declaration.copy(displayResponseDetail =
+              declaration.displayResponseDetail.copy(ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some)
+            )
 
           val sessionCopy = session.copy(overpaymentsMultipleJourney =
             OverpaymentsMultipleJourney

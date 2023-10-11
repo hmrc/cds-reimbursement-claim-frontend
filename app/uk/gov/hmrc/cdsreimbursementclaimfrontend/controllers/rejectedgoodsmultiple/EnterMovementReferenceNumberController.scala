@@ -44,6 +44,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.annotation.nowarn
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (

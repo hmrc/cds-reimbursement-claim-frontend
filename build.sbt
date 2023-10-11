@@ -74,7 +74,6 @@ lazy val microservice = Project(appName, file("."))
     routesImport := Seq(
       "_root_.controllers.Assets.Asset",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PathBinders._",
-      "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode",

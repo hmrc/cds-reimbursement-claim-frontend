@@ -22,8 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-import scala.util.Try
-
 object PathBinders {
 
   lazy val stringBinder: PathBindable[String] = implicitly[PathBindable[String]]
@@ -70,12 +68,4 @@ object PathBinders {
         AssociatedMrnIndex.toUrlIndex(associatedMrnIndex).toString
     }
 
-  implicit val journeyPathBindable: PathBindable[JourneyBindable] = new PathBindable[JourneyBindable] {
-
-    def bind(key: String, value: String): Either[String, JourneyBindable] =
-      Try(JourneyBindable.parse(value)).toEither.left.map(_.getMessage)
-
-    def unbind(key: String, bindable: JourneyBindable): String =
-      bindable.value
-  }
 }
