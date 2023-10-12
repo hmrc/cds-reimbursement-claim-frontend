@@ -207,19 +207,17 @@ class ChooseInspectionAddressTypeControllerSpec
 
     "update inspection address and redirect to the choose payee type page" when {
       "duties are not eligible for CMA and consignee/declarant EORIs DON'T match" in {
-        val declarantContactDetailsLens =
-          lens[DisplayDeclaration].displayResponseDetail.declarantDetails.contactDetails
-
         forAll { (generatedDeclaration: DisplayDeclaration, contactDetails: ContactDetails) =>
           val declaration = generatedDeclaration
             .withConsigneeEori(Eori("GB000000000000001"))
             .withDeclarantEori(Eori("GB000000000000002"))
-          val journey     =
+
+          val journey =
             RejectedGoodsSingleJourney
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 declaration.getMRN,
-                declarantContactDetailsLens.set(declaration)(contactDetails.some)
+                declaration.withDeclarantContactDetails(contactDetails)
               )
               .toOption
 
