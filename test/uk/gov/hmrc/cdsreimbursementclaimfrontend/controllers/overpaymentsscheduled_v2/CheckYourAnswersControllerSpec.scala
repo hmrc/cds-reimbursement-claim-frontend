@@ -113,7 +113,7 @@ class CheckYourAnswersControllerSpec
     summaryValues should not be empty
 
     headers should containOnlyDefinedElementsOf(
-      "First Movement Reference Number (MRN)".expectedAlways,
+      "Lead Movement Reference Number (MRN)".expectedAlways,
       "Scheduled document".expectedAlways,
       "Declaration details".expectedAlways,
       "Contact information for this claim".expectedAlways,

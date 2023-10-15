@@ -72,6 +72,7 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   journey.answers.displayDeclaration,
+                  journey.isSubsidyOnlyJourney,
                   postAction
                 )
               )
