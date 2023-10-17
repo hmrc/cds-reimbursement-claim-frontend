@@ -59,9 +59,16 @@ class CheckDeclarationDetailsController @Inject() (
     routes.CheckDeclarationDetailsController.submit
 
   override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable = {
-    case (decl, form, _) =>
+    case (decl, form, journey) =>
       implicit request =>
-        checkDeclarationDetailsPage(decl, form, false, postAction, Some("scheduled"))
+        checkDeclarationDetailsPage(
+          decl,
+          form,
+          false,
+          postAction,
+          Some("scheduled"),
+          isSubsidy = journey.isSubsidyOnlyJourney
+        )
   }
 
 }
