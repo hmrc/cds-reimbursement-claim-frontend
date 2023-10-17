@@ -188,7 +188,7 @@ class CheckBankDetailsControllerSpec
           val request         = FakeRequest()
           val result          = controller.show()(request)
 
-          checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+          checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
       }
 
       "Ok when BankDetails has declarantBankDetails  and payeeType is Declarant" in forAll(genBankAccountDetails) {
@@ -229,7 +229,7 @@ class CheckBankDetailsControllerSpec
         val request         = FakeRequest()
         val result          = controller.show()(request)
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
       }
 
       "Ok when in change mode" in forAll(
