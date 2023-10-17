@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import play.api.Logger
-import java.security.MessageDigest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
 import play.api.libs.json.JsString
 
 final case class JourneyLog(
@@ -119,7 +119,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -155,7 +155,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -191,7 +191,7 @@ object JourneyLog {
         scheduleFileSize = Some(output.scheduledDocument.size)
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -227,7 +227,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -263,7 +263,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -299,7 +299,7 @@ object JourneyLog {
         scheduleFileSize = Some(output.scheduledDocument.size)
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -335,7 +335,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -350,13 +350,6 @@ object JourneyLog {
     else if (amount >= 100) "3"
     else if (amount >= 10) "2"
     else "1"
-
-  private def hash(value: String): String =
-    MessageDigest
-      .getInstance("SHA-256")
-      .digest(value.getBytes("UTF-8"))
-      .map("%02x".format(_))
-      .mkString
 
   implicit val formatterUploads: OFormat[Uploads] = Json.format[Uploads]
   implicit val formatterChanges: OFormat[Changes] = Json.using[Json.WithDefaultValues].format[Changes]

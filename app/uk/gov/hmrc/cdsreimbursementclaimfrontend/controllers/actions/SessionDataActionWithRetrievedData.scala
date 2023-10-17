@@ -22,13 +22,16 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
+import uk.gov.hmrc.http.HeaderNames
 
 final case class RequestWithSessionDataAndRetrievedData[A](
   sessionData: SessionData,
@@ -38,6 +41,10 @@ final case class RequestWithSessionDataAndRetrievedData[A](
 
   override def messagesApi: MessagesApi =
     authenticatedRequest.request.messagesApi
+
+  override def headers: Headers =
+    authenticatedRequest.headers
+      .addIfMissing(CorrelationIdHeader.from(sessionData, authenticatedRequest.headers.get(HeaderNames.xSessionId)))
 
   def whenAuthorisedUser(f: (Eori, Option[Name]) => Future[Result])(resultIfUnsupportedUser: => Result)(implicit
     request: RequestWithSessionDataAndRetrievedData[AnyContent]
