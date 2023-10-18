@@ -36,7 +36,7 @@
 @(dutyType: DutyType, form: Form[List[TaxCode]], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-duty-codes"}
-@title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
+@title = @{messages(if (isSubsidy) s"$key.subsidy-title" else s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
 
 @options = @{
     if (isSubsidy) {
