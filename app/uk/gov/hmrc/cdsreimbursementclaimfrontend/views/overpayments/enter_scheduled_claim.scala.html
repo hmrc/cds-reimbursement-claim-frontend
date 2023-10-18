@@ -46,7 +46,7 @@
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @inset = {
-    @paragraph(Html(messages(s"$key.subsidy-inset-text")))
+    @{if (isSubsidy) paragraph(Html(messages(s"$key.subsidy-inset-text"))) else None}
     @paragraph(Html(messages(s"$key.inset-text")))
 }
 
