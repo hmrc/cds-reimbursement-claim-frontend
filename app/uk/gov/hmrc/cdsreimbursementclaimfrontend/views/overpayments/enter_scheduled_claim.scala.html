@@ -25,6 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -32,6 +33,7 @@
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
@@ -43,6 +45,11 @@
 @hintText = @{Html(messages(s"$key.actual-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
+@inset = {
+    @paragraph(Html(messages(s"$key.subsidy-inset-text")))
+    @paragraph(Html(messages(s"$key.inset-text")))
+}
+
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
@@ -51,9 +58,7 @@
 
     @paragraph(Html(messages(s"$key.help-text", messages(s"tax-code.${dutyCode.value}"))))
 
-    @paragraph(Html(messages(s"$key.p1")))
-
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+    @insetText(content = HtmlContent(inset))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
