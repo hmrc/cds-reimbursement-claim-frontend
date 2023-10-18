@@ -21,19 +21,37 @@ import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.AuthorisedFunctions
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-final case class AuthenticatedRequest[A](request: MessagesRequest[A]) extends WrappedRequest[A](request)
+final case class AuthenticatedRequest[A](request: MessagesRequest[A], maybeEori: Option[Eori] = None)
+    extends WrappedRequest[A](request) {
+
+  override def headers: Headers =
+    request.headers
+      .addIfMissing(
+        CorrelationIdHeader.from(
+          maybeEori,
+          request.session
+            .get(SessionKeys.sessionId)
+            .orElse(request.headers.get(HeaderNames.xSessionId))
+        )
+      )
+}
 
 @Singleton
 class AuthenticatedAction @Inject() (
@@ -60,7 +78,12 @@ class AuthenticatedAction @Inject() (
 
     if (featureSwitchService.isDisabled(Feature.LimitedAccess))
       auth
-        .authorised()(Future.successful(Right(AuthenticatedRequest(request))))
+        .authorised()
+        .retrieve(
+          Retrievals.allEnrolments
+        ) { case enrolments =>
+          Future.successful(Right(AuthenticatedRequest(request, getEori(enrolments))))
+        }
     else
       auth
         .authorised()
@@ -68,11 +91,21 @@ class AuthenticatedAction @Inject() (
           Retrievals.allEnrolments
         ) { case enrolments =>
           if (checkUserHasAccess(enrolments))
-            Future.successful(Right(AuthenticatedRequest(request)))
+            Future.successful(Right(AuthenticatedRequest(request, getEori(enrolments))))
           else
             Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
         }
   }
+
+  def getEori(enrolments: Enrolments): Option[Eori] =
+    enrolments.getEnrolment(EoriEnrolment.key) match {
+      case Some(eori) =>
+        eori.getIdentifier(EoriEnrolment.eoriEnrolmentIdentifier) match {
+          case Some(eori) => Some(Eori(eori.value))
+          case None       => None
+        }
+      case None       => None
+    }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   final def readHeadersFromRequestOnly(b: Boolean): AuthenticatedAction =

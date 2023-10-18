@@ -25,9 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
-import uk.gov.hmrc.http.HeaderNames
 
 final case class RequestWithSessionData[A](
   sessionData: Option[SessionData],
@@ -36,10 +33,6 @@ final case class RequestWithSessionData[A](
     with PreferredMessagesProvider {
 
   override def messagesApi: MessagesApi = authenticatedRequest.request.messagesApi
-
-  override def headers: Headers =
-    authenticatedRequest.headers
-      .addIfMissing(CorrelationIdHeader.from(sessionData, authenticatedRequest.headers.get(HeaderNames.xSessionId)))
 }
 
 @Singleton
