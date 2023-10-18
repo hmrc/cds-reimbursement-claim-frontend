@@ -73,7 +73,6 @@ object CorrelationIdHeader {
           .contains(newHeader._1)
       ) headers
       else {
-        println(newHeader)
         headers.add(newHeader)
       }
   }
