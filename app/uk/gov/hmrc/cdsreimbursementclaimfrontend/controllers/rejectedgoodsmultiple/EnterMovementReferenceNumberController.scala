@@ -188,10 +188,10 @@ class EnterMovementReferenceNumberController @Inject() (
             .map(Error.apply)
         )
       case _           =>
-        EitherT.leftT(Error("could not unbox display declaration"))
+        EitherT.leftT(Error("could not unbox display declara  tion"))
     }
 
-  private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String, isSubsidy: Boolean)(implicit
+  private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String, @annotation.nowarn isSubsidy: Boolean)(implicit
     request: Request[_]
   ) =
     enterMovementReferenceNumberPage(

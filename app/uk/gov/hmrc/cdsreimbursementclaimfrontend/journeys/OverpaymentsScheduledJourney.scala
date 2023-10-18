@@ -43,7 +43,7 @@ import scala.collection.immutable.SortedMap
 final class OverpaymentsScheduledJourney private (
   val answers: OverpaymentsScheduledJourney.Answers,
   val caseNumber: Option[String] = None,
-  @annotation.nowarn val features: Option[OverpaymentsScheduledJourney.Features] = None
+  val features: Option[OverpaymentsScheduledJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsScheduledJourney]
     with OverpaymentsJourneyProperties

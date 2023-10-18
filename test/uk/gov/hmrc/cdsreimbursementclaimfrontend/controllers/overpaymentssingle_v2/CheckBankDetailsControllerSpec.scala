@@ -186,15 +186,14 @@ class CheckBankDetailsControllerSpec
 
       "Redirect when BankDetails has consigneeBankDetails but payeeType is Declarant" in forAll(genBankAccountDetails) {
         consigneeBankDetails: BankAccountDetails =>
-          val bankDetails     = BankDetails(Some(consigneeBankDetails), None)
-          val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Declarant))
-          val modifiedSession = sessionWithBankDetailsStored(session, consigneeBankDetails)
+          val bankDetails = BankDetails(Some(consigneeBankDetails), None)
+          val session     = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Declarant))
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
           }
-          val request         = FakeRequest()
-          val result          = controller.show()(request)
+          val request     = FakeRequest()
+          val result      = controller.show()(request)
 
           checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
@@ -227,15 +226,14 @@ class CheckBankDetailsControllerSpec
       "Redirect when BankDetails has declarantBankDetails but payeeType is Importer (Consignee)" in forAll(
         genBankAccountDetails
       ) { declarantBankDetails: BankAccountDetails =>
-        val bankDetails     = BankDetails(None, Some(declarantBankDetails))
-        val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Consignee))
-        val modifiedSession = sessionWithBankDetailsStored(session, declarantBankDetails)
+        val bankDetails = BankDetails(None, Some(declarantBankDetails))
+        val session     = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Consignee))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val request         = FakeRequest()
-        val result          = controller.show()(request)
+        val request     = FakeRequest()
+        val result      = controller.show()(request)
 
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }

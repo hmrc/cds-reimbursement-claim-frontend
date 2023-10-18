@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -79,5 +78,15 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
         } else Nil
       )
     )
+  }
+
+  implicit class SelectedTaxCodesReimbursementOps(private val value: SortedMap[TaxCode, AmountPaidWithCorrect])
+      extends AnyVal {
+
+    /** Calculates claimed amount total against given tax code */
+    def subtotal: BigDecimal =
+      value.values.foldLeft(BigDecimal(0)) { (total, claim) =>
+        total + claim.refundAmount
+      }
   }
 }
