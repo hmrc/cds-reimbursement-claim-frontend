@@ -43,7 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 final class OverpaymentsSingleJourney private (
   val answers: OverpaymentsSingleJourney.Answers,
   val caseNumber: Option[String] = None,
-  @annotation.nowarn val features: Option[OverpaymentsSingleJourney.Features] = None
+  val features: Option[OverpaymentsSingleJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsSingleJourney]
     with OverpaymentsJourneyProperties

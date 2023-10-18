@@ -35,13 +35,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.ExecutionContext
@@ -51,7 +55,20 @@ final case class AuthenticatedRequestWithRetrievedData[A](
   journeyUserType: AuthenticatedUser,
   userType: Option[UserType],
   request: MessagesRequest[A]
-) extends WrappedRequest[A](request)
+) extends WrappedRequest[A](request) {
+
+  override def headers: Headers =
+    request.headers
+      .addIfMissing(
+        CorrelationIdHeader.from(
+          journeyUserType.eoriOpt,
+          request.session
+            .get(SessionKeys.sessionId)
+            .orElse(request.headers.get(HeaderNames.xSessionId))
+        )
+      )
+
+}
 
 @Singleton
 class AuthenticatedActionWithRetrievedData @Inject() (

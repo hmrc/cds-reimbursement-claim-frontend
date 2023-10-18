@@ -35,42 +35,46 @@ object CorrelationIdHeader {
   def from(eori: Eori): (String, String) =
     (headerName, Hash(eori.value).take(8) + UUID.randomUUID().toString.drop(8))
 
-  def from(uuid: UUID): (String, String) =
-    (headerName, uuid.toString.drop(8))
+  def from(uuid: UUID): (String, String) = (headerName, uuid.toString())
 
-  def from(eori: Eori, sessionId: Option[String]): (String, String) =
+  def from(eoriOpt: Option[Eori], sessionId: Option[String]): (String, String) = {
+    val uuid = UUID.randomUUID().toString
+    (
+      headerName,
+      eoriOpt
+        .map(eori => Hash(eori.value))
+        .getOrElse("xxxxxxxxxx")
+        .take(8) +
+        sessionId
+          .map(_.drop(8).take(10) + uuid.drop(18))
+          .getOrElse(uuid.drop(8))
+    )
+  }
+
+  def from(eori: Eori, sessionId: Option[String]): (String, String) = {
+    val uuid = UUID.randomUUID().toString
     (
       headerName,
       Hash(eori.value).take(8) +
         sessionId
-          .map(_.drop(8).take(10) + UUID.randomUUID().toString.drop(18))
-          .getOrElse(UUID.randomUUID().toString.drop(8))
+          .map(_.drop(8).take(10) + uuid.drop(18))
+          .getOrElse(uuid.drop(8))
     )
+  }
 
   def from(eori: Eori, uuid: UUID): (String, String) =
     (headerName, Hash(eori.value).take(8) + uuid.toString.drop(8).take(10) + UUID.randomUUID().toString.drop(18))
-
-  def from(sessionData: SessionData, sessionId: Option[String]): (String, String) =
-    sessionData match {
-      case SessionData.HasClaimantEori(eori) => from(eori, sessionId)
-      case _                                 => random()
-    }
-
-  def from(sessionDataOpt: Option[SessionData], sessionId: Option[String]): (String, String) =
-    sessionDataOpt match {
-      case Some(SessionData.HasClaimantEori(eori)) => from(eori, sessionId)
-      case _                                       => random()
-    }
 
   implicit class HeaderOps(val headers: Headers) extends AnyVal {
     def addIfMissing(newHeader: (String, String)): Headers =
       if (
         headers.keys
           .map(_.toLowerCase(Locale.UK))
-          .contains(CorrelationIdHeader.headerNameLowercase)
+          .contains(newHeader._1)
       ) headers
-      else
+      else {
         headers.add(newHeader)
+      }
   }
 
 }
