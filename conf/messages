@@ -1054,7 +1054,8 @@ select-duty-types.hidden-help=Use the find feature of your web browser to search
 select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
-select-duty-codes.title=Select the {0} duties you want to claim for
+select-duty-codes.title=Select the {0} duties you want to claim for all MRNs in the file you uploaded
+select-duty-codes.subsidy-title=Select the {0} duties you want to claim for
 select-duty-codes.error.required=Select one or more duty types you want to claim for
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
