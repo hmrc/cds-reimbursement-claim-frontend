@@ -69,7 +69,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalafmtOnCompile := true)
   .settings(scalaVersion := "2.13.12")
   .settings(TwirlKeys.templateImports := Seq.empty)
-  .settings(addCompilerPlugin(scalafixSemanticdb("4.8.12")))
   .settings(
     routesImport := Seq(
       "_root_.controllers.Assets.Asset",
