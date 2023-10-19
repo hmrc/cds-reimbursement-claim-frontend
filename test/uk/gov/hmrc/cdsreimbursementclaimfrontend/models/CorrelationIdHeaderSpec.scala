@@ -43,12 +43,16 @@ class CorrelationIdHeaderSpec extends AnyWordSpec with Matchers {
       val uuid = UUID.randomUUID()
 
       CorrelationIdHeader.from(uuid) match {
-        case ("X-Correlation-ID", v) => UUID.fromString(v) === uuid
+        case ("X-Correlation-ID", v) =>
+          UUID.fromString(v) === uuid
+          UUID.fromString(v)
         case _                       => fail()
       }
 
       CorrelationIdHeader.from(Eori("GB0000000123")) match {
-        case ("X-Correlation-ID", v) => assert(v.startsWith(Hash("GB0000000123").take(8)))
+        case ("X-Correlation-ID", v) =>
+          assert(v.startsWith(Hash("GB0000000123").take(8)))
+          UUID.fromString(v)
         case _                       => fail()
       }
 
@@ -56,13 +60,30 @@ class CorrelationIdHeaderSpec extends AnyWordSpec with Matchers {
         case ("X-Correlation-ID", v) =>
           assert(v.startsWith(Hash("GB0000000123").take(8)))
           assert(v.contains(uuid.toString.drop(8).take(10)))
+          UUID.fromString(v)
         case _                       => fail()
       }
 
       CorrelationIdHeader.from(Eori("GB0000000123"), Some("foo-bar-0123456789")) match {
         case ("X-Correlation-ID", v) =>
           assert(v.startsWith(Hash("GB0000000123").take(8)))
-          assert(v.contains("0123456789"))
+          assert(!v.contains("0123456789"))
+          UUID.fromString(v)
+        case _                       => fail()
+      }
+
+      CorrelationIdHeader.from(Eori("GB0000000123"), Some("session-b3fa06aa-9375-4ad2-8ae1-2f09b06bed46")) match {
+        case ("X-Correlation-ID", v) =>
+          assert(v.startsWith(Hash("GB0000000123").take(8)))
+          assert(v.contains("-9375-4ad2"))
+          UUID.fromString(v)
+        case _                       => fail()
+      }
+
+      CorrelationIdHeader.from(Eori("GB0000000123"), None) match {
+        case ("X-Correlation-ID", v) =>
+          assert(v.startsWith(Hash("GB0000000123").take(8)))
+          UUID.fromString(v)
         case _                       => fail()
       }
 
