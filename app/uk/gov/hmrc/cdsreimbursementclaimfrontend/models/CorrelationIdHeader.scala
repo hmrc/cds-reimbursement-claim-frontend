@@ -57,13 +57,22 @@ object CorrelationIdHeader {
       headerName,
       Hash(eori.value).take(8) +
         sessionId
-          .map(_.drop(8).take(10) + uuid.drop(18))
+          .flatMap(getUuidPart(_))
+          .map(_ + uuid.drop(18))
           .getOrElse(uuid.drop(8))
     )
   }
 
   def from(eori: Eori, uuid: UUID): (String, String) =
     (headerName, Hash(eori.value).take(8) + uuid.toString.drop(8).take(10) + UUID.randomUUID().toString.drop(18))
+
+  val uuidRegex = "^.*\\w{8}(-\\w{4}-\\w{4})-\\w{4}-\\w{12}.*$".r
+
+  def getUuidPart(value: String): Option[String] =
+    value match {
+      case uuidRegex(a) => Some(a)
+      case _            => None
+    }
 
   implicit class HeaderOps(val headers: Headers) extends AnyVal {
     def addIfMissing(newHeader: (String, String)): Headers =
