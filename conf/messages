@@ -1213,7 +1213,7 @@ enter-claim.invalid.claim=The amount that should have been paid must be less tha
 #===================================================
 enter-scheduled-claim.title=Claim details for all MRNs under {0} {1}
 enter-scheduled-claim.help-text=Provide your claim details for {0}.
-enter-scheduled-claim.p1=This is to calculate your repayment as part of your claim.
+enter-scheduled-claim.subsidy-inset-text=Your subsidy allocation balance will be credited with any claim repayments.
 enter-scheduled-claim.inset-text=HMRC does not refund agents’ fees.
 enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
