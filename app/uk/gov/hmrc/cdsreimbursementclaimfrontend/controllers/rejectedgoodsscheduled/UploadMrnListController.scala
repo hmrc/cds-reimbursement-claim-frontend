@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadMrnListCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.upload_mrn_list_description
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.upload_mrn_list_description
 
 import javax.inject.Inject
 import javax.inject.Singleton
