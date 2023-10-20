@@ -21,6 +21,7 @@ import play.api.libs.json.OFormat
 import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
 import play.api.libs.json.JsString
+import play.api.libs.json.JsObject
 
 final case class JourneyLog(
   journeyType: String,
@@ -45,14 +46,18 @@ final case class JourneyLog(
   caseNumber: Option[String] = None
 ) {
 
-  def logInfo(): Unit = {
-    val jsonString = Json.stringify(JourneyLog.formatter.writes(this))
+  def logInfo(): JsObject = {
+    val journeyLogJson = JourneyLog.formatter.writes(this)
+    val jsonString     = Json.stringify(journeyLogJson)
     Logger(getClass()).info(s"json$jsonString")
+    journeyLogJson
   }
 
-  def logError(e: Throwable): Unit = {
-    val jsonString = Json.stringify(JourneyLog.formatter.writes(this).+("error" -> JsString(e.getMessage())))
+  def logError(e: Throwable): JsObject = {
+    val journeyLogJson = JourneyLog.formatter.writes(this).+("error" -> JsString(e.getMessage()))
+    val jsonString     = Json.stringify(journeyLogJson)
     Logger(getClass()).error(s"json$jsonString")
+    journeyLogJson
   }
 }
 
