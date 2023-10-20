@@ -59,8 +59,8 @@ GET          /rejected-goods/single/reset-repayment-method                      
 GET          /rejected-goods/single/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseBankAccountTypeController.show()
 POST         /rejected-goods/single/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseBankAccountTypeController.submit()
 
-GET         /rejected-goods/v2/single/choose-payee-type                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChoosePayeeTypeController.show
-POST        /rejected-goods/v2/single/choose-payee-type                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChoosePayeeTypeController.submit
+GET          /rejected-goods/single/choose-payee-type                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChoosePayeeTypeController.show
+POST         /rejected-goods/single/choose-payee-type                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChoosePayeeTypeController.submit
 
 GET          /rejected-goods/single/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckBankDetailsController.show()
 
