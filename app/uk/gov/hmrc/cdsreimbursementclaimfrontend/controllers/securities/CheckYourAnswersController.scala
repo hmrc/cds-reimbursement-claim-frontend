@@ -25,11 +25,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SecuritiesClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -39,7 +41,8 @@ class CheckYourAnswersController @Inject() (
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers,
   confirmationOfSubmissionPage: confirmation_of_submission,
-  submitClaimFailedPage: submit_claim_error
+  submitClaimFailedPage: submit_claim_error,
+  auditService: AuditService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
     with Logging {
@@ -96,7 +99,10 @@ class CheckYourAnswersController @Inject() (
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
                   )
-                  JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey).logInfo()
+                  val summary =
+                    JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey)
+                      .logInfo()
+                  auditService.sendSuccessfulClaimEvent(journey, output, summary)
                   uploadDocumentsConnector.wipeOut
                     .map(_ =>
                       (
@@ -107,7 +113,8 @@ class CheckYourAnswersController @Inject() (
                 }
                 .recover { case e =>
                   logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
-                  JourneyLog(output, journey.answers.userEoriNumber.value, None, journey).logError(e)
+                  val summary = JourneyLog(output, journey.answers.userEoriNumber.value, None, journey).logError(e)
+                  auditService.sendFailedClaimEvent(journey, output, summary)
                   (journey, Ok(submitClaimFailedPage()))
                 }
           )
