@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
 import javax.inject.Inject
@@ -44,10 +45,29 @@ class SelectDutyTypesController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     val form = selectDutyTypesForm
 
-    Ok(selectDutyTypesPage(form, postAction)).asFuture
+    if (journey.isSubsidyOnlyJourney) {
+      journey
+        .selectAndReplaceDutyTypeSetForReimbursement(List(DutyType.EuDuty))
+        .fold(
+          errors => {
+            logger.error(s"Error updating duty types selection - $errors")
+            (journey, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction))).asFuture
+          },
+          updatedJourney =>
+            (
+              updatedJourney,
+              Redirect(
+                routes.SelectDutiesController
+                  .show(DutyType.EuDuty)
+              )
+            ).asFuture
+        )
+    } else {
+      (journey, Ok(selectDutyTypesPage(form, postAction))).asFuture
+    }
 
   }
 
