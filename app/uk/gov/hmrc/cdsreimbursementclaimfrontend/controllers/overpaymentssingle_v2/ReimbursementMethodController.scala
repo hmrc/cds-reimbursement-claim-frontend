@@ -66,42 +66,45 @@ class ReimbursementMethodController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                selectReimbursementMethodPage(
-                  formWithErrors,
-                  postAction
+    actionReadWriteJourney(
+      { implicit request => journey =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(
+                  selectReimbursementMethodPage(
+                    formWithErrors,
+                    postAction
+                  )
                 )
-              )
-            ).asFuture,
-          method =>
-            journey.submitReimbursementMethod(method) match {
-              case Right(modifiedJourney) =>
-                (
-                  modifiedJourney,
-                  Redirect(method match {
-                    case ReimbursementMethod.BankAccountTransfer =>
-                      routes.CheckBankDetailsController.show
-                    case _                                       =>
-                      routes.ChooseFileTypeController.show
-                  })
-                ).asFuture
+              ).asFuture,
+            method =>
+              journey.submitReimbursementMethod(method) match {
+                case Right(modifiedJourney) =>
+                  (
+                    modifiedJourney,
+                    Redirect(method match {
+                      case ReimbursementMethod.BankAccountTransfer =>
+                        routes.CheckBankDetailsController.show
+                      case _                                       =>
+                        routes.ChooseFileTypeController.show
+                    })
+                  ).asFuture
 
-              case Left("submitReimbursementMethod.notCMAEligible") =>
-                (
-                  journey,
-                  Redirect(routes.ChooseFileTypeController.show)
-                ).asFuture
+                case Left("submitReimbursementMethod.notCMAEligible") =>
+                  (
+                    journey,
+                    Redirect(routes.ChooseFileTypeController.show)
+                  ).asFuture
 
-              case Left(error) =>
-                Future.failed(new Exception(error))
-            }
-        )
-    }
+                case Left(error) =>
+                  Future.failed(new Exception(error))
+              }
+          )
+      },
+      fastForwardToCYAEnabled = false
+    )
 }

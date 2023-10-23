@@ -20,19 +20,22 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
+
 import scala.collection.immutable.SortedMap
 import java.time.LocalDate
 
 class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
 
-  val journeyAnalytics = new JourneyAnalytics {
-    def emailAddressHasChanged: Boolean   = true
-    def contactNameHasChanged: Boolean    = true
-    def phoneNumberHasChanged: Boolean    = true
-    def contactAddressHasChanged: Boolean = true
-    def bankAccountHasChanged: Boolean    = true
-  }
+  case class TestJourneyAnalytics(
+    emailAddressHasChanged: Boolean = true,
+    contactNameHasChanged: Boolean = true,
+    phoneNumberHasChanged: Boolean = true,
+    contactAddressHasChanged: Boolean = true,
+    bankAccountHasChanged: Boolean = true,
+    declarantEoriMatchesConsignee: Boolean = true
+  ) extends JourneyAnalytics
 
   "JourneyOutputLogger" should {
 
@@ -42,6 +45,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           movementReferenceNumber = exampleMrn,
           duplicateMovementReferenceNumber = Some(anotherExampleMrn),
           claimantType = ClaimantType.Consignee,
+          payeeType = PayeeType.Declarant,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfOverpaymentClaim.OutwardProcessingRelief,
           whetherNorthernIreland = true,
@@ -52,12 +56,19 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
+      val log = JourneyLog.apply(
+        output,
+        "123EORI",
+        Some("REF-1234"),
+        TestJourneyAnalytics(declarantEoriMatchesConsignee = false)
+      )
 
       log.journeyType                           shouldBe "overpayments"
       log.journeyVariant                        shouldBe "single"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
+      log.consigneeIsDeclarant                  shouldBe false
+      log.payeeType                             shouldBe "Declarant"
       log.basisOfClaim                          shouldBe Some("OutwardProcessingRelief")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
@@ -88,6 +99,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
         OverpaymentsMultipleJourney.Output(
           movementReferenceNumbers = Seq(exampleMrn, anotherExampleMrn),
           claimantType = ClaimantType.Declarant,
+          payeeType = PayeeType.Declarant,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfOverpaymentClaim.IncorrectAdditionalInformationCode,
           whetherNorthernIreland = false,
@@ -103,12 +115,15 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
+      val log =
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestJourneyAnalytics(emailAddressHasChanged = false))
 
       log.journeyType                           shouldBe "overpayments"
       log.journeyVariant                        shouldBe "multiple"
       log.numberOfMultipleMRNs                  shouldBe Some(2)
       log.claimantType                          shouldBe "Declarant"
+      log.consigneeIsDeclarant                  shouldBe true
+      log.payeeType                             shouldBe "Declarant"
       log.basisOfClaim                          shouldBe Some("IncorrectAdditionalInformationCode")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
@@ -127,7 +142,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.uploads.scheduleFileSize              shouldBe None
       log.caseNumber                            shouldBe Some("REF-1234")
       log.userHash                              shouldBe "931058e4"
-      log.changes.emailAddress                  shouldBe true
+      log.changes.emailAddress                  shouldBe false
       log.changes.contactName                   shouldBe true
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
@@ -140,6 +155,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           movementReferenceNumber = exampleMrn,
           scheduledDocument = exampleScheduledDocument,
           claimantType = ClaimantType.User,
+          payeeType = PayeeType.Consignee,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfOverpaymentClaim.PersonalEffects,
           whetherNorthernIreland = false,
@@ -163,12 +179,15 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
+      val log =
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestJourneyAnalytics(contactNameHasChanged = false))
 
       log.journeyType                           shouldBe "overpayments"
       log.journeyVariant                        shouldBe "scheduled"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "User"
+      log.consigneeIsDeclarant                  shouldBe true
+      log.payeeType                             shouldBe "Consignee"
       log.basisOfClaim                          shouldBe Some("PersonalEffects")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
@@ -188,7 +207,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.caseNumber                            shouldBe Some("REF-1234")
       log.userHash                              shouldBe "931058e4"
       log.changes.emailAddress                  shouldBe true
-      log.changes.contactName                   shouldBe true
+      log.changes.contactName                   shouldBe false
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe true
@@ -199,6 +218,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
         RejectedGoodsSingleJourney.Output(
           movementReferenceNumber = exampleMrn,
           claimantType = ClaimantType.Consignee,
+          payeeType = PayeeType.Consignee,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfRejectedGoodsClaim.DamagedBeforeClearance,
           basisOfClaimSpecialCircumstances = Some("BasisOfClaimSpecialCircumstances"),
@@ -216,12 +236,15 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
+      val log =
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestJourneyAnalytics(phoneNumberHasChanged = false))
 
       log.journeyType                           shouldBe "rejectedgoods"
       log.journeyVariant                        shouldBe "single"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
+      log.consigneeIsDeclarant                  shouldBe true
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -242,7 +265,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.userHash                              shouldBe "931058e4"
       log.changes.emailAddress                  shouldBe true
       log.changes.contactName                   shouldBe true
-      log.changes.phoneNumber                   shouldBe true
+      log.changes.phoneNumber                   shouldBe false
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe true
     }
@@ -270,12 +293,15 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
+      val log =
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestJourneyAnalytics(contactAddressHasChanged = false))
 
       log.journeyType                           shouldBe "rejectedgoods"
       log.journeyVariant                        shouldBe "multiple"
       log.numberOfMultipleMRNs                  shouldBe Some(2)
       log.claimantType                          shouldBe "Consignee"
+      log.consigneeIsDeclarant                  shouldBe true
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -297,7 +323,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.emailAddress                  shouldBe true
       log.changes.contactName                   shouldBe true
       log.changes.phoneNumber                   shouldBe true
-      log.changes.contactAddress                shouldBe true
+      log.changes.contactAddress                shouldBe false
       log.changes.bankAccount                   shouldBe true
     }
 
@@ -333,12 +359,15 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           supportingEvidences = exampleSupportingEvidences
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
+      val log =
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestJourneyAnalytics(bankAccountHasChanged = false))
 
       log.journeyType                           shouldBe "rejectedgoods"
       log.journeyVariant                        shouldBe "scheduled"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "User"
+      log.consigneeIsDeclarant                  shouldBe true
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -361,7 +390,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.contactName                   shouldBe true
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
-      log.changes.bankAccount                   shouldBe true
+      log.changes.bankAccount                   shouldBe false
     }
 
     "log SecuritiesJourney.Output" in {
@@ -386,12 +415,14 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           exportMovementReferenceNumber = Some(anotherExampleMrn)
         )
 
-      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), journeyAnalytics)
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestJourneyAnalytics())
 
       log.journeyType                           shouldBe "securities"
       log.journeyVariant                        shouldBe "single"
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
+      log.consigneeIsDeclarant                  shouldBe true
+      log.payeeType                             shouldBe "not implemented yet"
       log.basisOfClaim                          shouldBe None
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None

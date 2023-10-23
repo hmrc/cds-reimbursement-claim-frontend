@@ -23,6 +23,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsMultipleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -42,7 +43,8 @@ class CheckYourAnswersController @Inject() (
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: pages.check_your_answers_multiple,
   confirmationOfSubmissionPage: confirmation_of_submission,
-  submitClaimFailedPage: submit_claim_error
+  submitClaimFailedPage: submit_claim_error,
+  auditService: AuditService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
     with Logging {
@@ -104,7 +106,10 @@ class CheckYourAnswersController @Inject() (
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumbers.mkString(",")} with case number ${response.caseNumber}."
                   )
-                  JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey).logInfo()
+                  val summary =
+                    JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey)
+                      .logInfo()
+                  auditService.sendSuccessfulClaimEvent(journey, output, summary)
                   uploadDocumentsConnector.wipeOut
                     .map(_ =>
                       (
@@ -117,7 +122,8 @@ class CheckYourAnswersController @Inject() (
                   logger.error(
                     s"Failed to submit claim for ${output.movementReferenceNumbers.mkString(",")} because of $e."
                   )
-                  JourneyLog(output, journey.answers.userEoriNumber.value, None, journey).logError(e)
+                  val summary = JourneyLog(output, journey.answers.userEoriNumber.value, None, journey).logError(e)
+                  auditService.sendFailedClaimEvent(journey, output, summary)
                   (journey, Ok(submitClaimFailedPage()))
                 }
           )

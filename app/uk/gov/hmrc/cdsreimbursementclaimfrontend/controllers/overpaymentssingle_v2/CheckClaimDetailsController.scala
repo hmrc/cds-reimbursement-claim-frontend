@@ -105,10 +105,8 @@ class CheckClaimDetailsController @Inject() (
                     Redirect(
                       if (journey.userHasSeenCYAPage)
                         checkYourAnswers
-                      else if (journey.isAllSelectedDutiesAreCMAEligible)
-                        routes.ReimbursementMethodController.show
                       else
-                        routes.CheckBankDetailsController.show
+                        routes.ChoosePayeeTypeController.show
                     )
                   ).asFuture
                 case No  =>

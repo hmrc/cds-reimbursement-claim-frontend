@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -161,7 +162,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[RejectedGoodsSingleJourney.Features] = None
+    features: Option[RejectedGoodsSingleJourney.Features] = None,
+    payeeType: PayeeType = PayeeType.Consignee
   ): Gen[RejectedGoodsSingleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -175,7 +177,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       submitBankAccountDetails = submitBankAccountDetails,
       reimbursementMethod = reimbursementMethod,
       generateSubsidyPayments = generateSubsidyPayments,
-      features = features
+      features = features,
+      payeeType = Some(payeeType)
     ).map(
       _.fold(
         error =>
@@ -199,7 +202,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitBankAccountType: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[RejectedGoodsSingleJourney.Features] = None
+    features: Option[RejectedGoodsSingleJourney.Features] = None,
+    payeeType: Option[PayeeType] = None
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -277,6 +281,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
+          payeeType = payeeType,
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,

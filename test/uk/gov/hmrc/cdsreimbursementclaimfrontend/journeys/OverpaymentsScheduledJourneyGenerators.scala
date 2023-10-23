@@ -35,6 +35,7 @@ import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters._
 import scala.util.Random
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -144,7 +145,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     submitBankAccountType: Boolean = true,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[OverpaymentsScheduledJourney.Features] = None
+    features: Option[OverpaymentsScheduledJourney.Features] = None,
+    payeeType: PayeeType = PayeeType.Consignee
   ): Gen[OverpaymentsScheduledJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -157,7 +159,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       submitBankAccountDetails = submitBankAccountDetails,
       taxCodes = taxCodes,
       generateSubsidyPayments = generateSubsidyPayments,
-      features = features
+      features = features,
+      payeeType = Some(payeeType)
     ).map(
       _.fold(
         error =>
@@ -178,7 +181,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    taxCodes: Seq[TaxCode] = TaxCodes.all
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    payeeType: PayeeType = PayeeType.Consignee
   ): Gen[OverpaymentsScheduledJourney] =
     buildAnswersGen(
       acc14DeclarantMatchesUserEori,
@@ -192,7 +196,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       submitBankAccountType,
       submitEvidence = true,
       taxCodes = taxCodes,
-      emptyDocumentType = true
+      emptyDocumentType = true,
+      payeeType = Some(payeeType)
     ).map(OverpaymentsScheduledJourney.tryBuildFrom(_))
       .map(
         _.fold(
@@ -216,7 +221,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     submitBankAccountType: Boolean = true,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[OverpaymentsScheduledJourney.Features] = None
+    features: Option[OverpaymentsScheduledJourney.Features] = None,
+    payeeType: Option[PayeeType] = None
   ): Gen[Either[String, OverpaymentsScheduledJourney]] =
     buildAnswersGen(
       acc14DeclarantMatchesUserEori,
@@ -230,7 +236,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       submitBankAccountType,
       submitEvidence = true,
       taxCodes = taxCodes,
-      generateSubsidyPayments = generateSubsidyPayments
+      generateSubsidyPayments = generateSubsidyPayments,
+      payeeType = payeeType
     ).map(OverpaymentsScheduledJourney.tryBuildFrom(_, features))
 
   def buildAnswersGen(
@@ -248,7 +255,8 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     forcedTaxCodes: Seq[TaxCode] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = true,
     emptyDocumentType: Boolean = false,
-    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
+    payeeType: Option[PayeeType] = None
   ): Gen[OverpaymentsScheduledJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -333,6 +341,7 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
+          payeeType = payeeType,
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,

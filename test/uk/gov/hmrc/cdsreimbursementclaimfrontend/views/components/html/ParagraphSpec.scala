@@ -46,7 +46,7 @@ class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with
     "take two non-empty strings and wrap into an html paragraph element" in {
       Paragraph("a", "b").body shouldBe """
       |<p class="govuk-body">
-      |    a<br />b
+      |    a<br>b
       |</p>
       |""".stripMargin
     }
@@ -54,7 +54,7 @@ class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with
     "take three non-empty strings and wrap into an html paragraph element" in {
       Paragraph("abc", "123", "xyz").body shouldBe """
       |<p class="govuk-body">
-      |    abc<br />123<br />xyz
+      |    abc<br>123<br>xyz
       |</p>
       |""".stripMargin
     }
@@ -62,7 +62,7 @@ class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with
     "filter out empty strings" in {
       Paragraph("", "abc", "", "", "xyz", "").body shouldBe """
       |<p class="govuk-body">
-      |    abc<br />xyz
+      |    abc<br>xyz
       |</p>
       |""".stripMargin
     }
@@ -70,7 +70,7 @@ class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with
     "escape significant html characters" in {
       Paragraph("&", "<", "a", ">", "\"", "b").body shouldBe """
       |<p class="govuk-body">
-      |    &amp;<br />&lt;<br />a<br />&gt;<br />&quot;<br />b
+      |    &amp;<br>&lt;<br>a<br>&gt;<br>&quot;<br>b
       |</p>
       |""".stripMargin
     }
@@ -79,7 +79,7 @@ class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with
       forAll(nonEmptyStringSeqGen) { n =>
         Paragraph(n.head, n.tail.toSeq: _*).body shouldBe s"""
         |<p class="govuk-body">
-        |    ${n.map(HtmlFormat.escape).mkString("<br />")}
+        |    ${n.map(HtmlFormat.escape).mkString("<br>")}
         |</p>
         |""".stripMargin
       }

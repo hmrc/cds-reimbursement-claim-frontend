@@ -20,11 +20,10 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle_v2.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
@@ -38,7 +37,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
@@ -52,7 +51,7 @@
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", subKey).rows.drop(2)))
+        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"$key.declaration-details", showImportMrn = false, showMethodOfPayment = isSubsidy))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
@@ -70,10 +69,8 @@
     @subHeading(Html(messages(combine(s"$key.claim-calculation", subKey, "h2"))))
     @summary(ClaimedReimbursementsAnswerSummary(claim.reimbursementClaims.toSeq, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
 
-    @if(isAllSelectedDutiesAreCMAEligible) {
-        @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
-        @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.reimbursement-method", Some(routes.ReimbursementMethodController.show)))
-    }
+    @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
+    @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ReimbursementMethodController.show) else None))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"$key.bank-details.h2")))

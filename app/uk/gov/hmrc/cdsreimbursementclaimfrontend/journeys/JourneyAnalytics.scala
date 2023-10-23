@@ -22,4 +22,5 @@ trait JourneyAnalytics {
   def phoneNumberHasChanged: Boolean
   def contactAddressHasChanged: Boolean
   def bankAccountHasChanged: Boolean
+  def declarantEoriMatchesConsignee: Boolean
 }

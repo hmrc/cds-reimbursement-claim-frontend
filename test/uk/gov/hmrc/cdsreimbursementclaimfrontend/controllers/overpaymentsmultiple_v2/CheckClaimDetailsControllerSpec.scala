@@ -149,7 +149,7 @@ class CheckClaimDetailsControllerSpec
 
           checkIsRedirect(
             performAction("multiple-check-claim-summary" -> "true"),
-            routes.CheckBankDetailsController.show
+            routes.ChoosePayeeTypeController.show
           )
         }
 

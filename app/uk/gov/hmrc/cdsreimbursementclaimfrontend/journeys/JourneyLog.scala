@@ -19,14 +19,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import play.api.Logger
-import java.security.MessageDigest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
 import play.api.libs.json.JsString
+import play.api.libs.json.JsObject
 
 final case class JourneyLog(
   journeyType: String,
   journeyVariant: String,
   numberOfMultipleMRNs: Option[Int] = None,
   claimantType: String,
+  consigneeIsDeclarant: Boolean,
+  payeeType: String,
   basisOfClaim: Option[String] = None,
   basisOfClaimSpecialCircumstances: Option[String] = None,
   methodOfDisposal: Option[String] = None,
@@ -43,14 +46,18 @@ final case class JourneyLog(
   caseNumber: Option[String] = None
 ) {
 
-  def logInfo(): Unit = {
-    val jsonString = Json.stringify(JourneyLog.formatter.writes(this))
+  def logInfo(): JsObject = {
+    val journeyLogJson = JourneyLog.formatter.writes(this)
+    val jsonString     = Json.stringify(journeyLogJson)
     Logger(getClass()).info(s"json$jsonString")
+    journeyLogJson
   }
 
-  def logError(e: Throwable): Unit = {
-    val jsonString = Json.stringify(JourneyLog.formatter.writes(this).+("error" -> JsString(e.getMessage())))
+  def logError(e: Throwable): JsObject = {
+    val journeyLogJson = JourneyLog.formatter.writes(this).+("error" -> JsString(e.getMessage()))
+    val jsonString     = Json.stringify(journeyLogJson)
     Logger(getClass()).error(s"json$jsonString")
+    journeyLogJson
   }
 }
 
@@ -95,7 +102,9 @@ object JourneyLog {
       journeyType = "overpayments",
       journeyVariant = "single",
       numberOfMultipleMRNs = None,
-      claimantType = output.claimantType.toString,
+      claimantType = output.claimantType.toString(),
+      consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
+      payeeType = output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = None,
       methodOfDisposal = None,
@@ -115,7 +124,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -129,7 +138,9 @@ object JourneyLog {
       journeyType = "overpayments",
       journeyVariant = "multiple",
       numberOfMultipleMRNs = Some(output.movementReferenceNumbers.size),
-      claimantType = output.claimantType.toString,
+      claimantType = output.claimantType.toString(),
+      consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
+      payeeType = output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = None,
       methodOfDisposal = None,
@@ -149,7 +160,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -163,7 +174,9 @@ object JourneyLog {
       journeyType = "overpayments",
       journeyVariant = "scheduled",
       numberOfMultipleMRNs = None,
-      claimantType = output.claimantType.toString,
+      claimantType = output.claimantType.toString(),
+      consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
+      payeeType = output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = None,
       methodOfDisposal = None,
@@ -183,7 +196,7 @@ object JourneyLog {
         scheduleFileSize = Some(output.scheduledDocument.size)
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -197,7 +210,9 @@ object JourneyLog {
       journeyType = "rejectedgoods",
       journeyVariant = "single",
       numberOfMultipleMRNs = None,
-      claimantType = output.claimantType.toString,
+      claimantType = output.claimantType.toString(),
+      consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
+      payeeType = "not implemented yet", //output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = output.basisOfClaimSpecialCircumstances,
       methodOfDisposal = Some(output.methodOfDisposal.toString),
@@ -217,7 +232,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -231,7 +246,9 @@ object JourneyLog {
       journeyType = "rejectedgoods",
       journeyVariant = "multiple",
       numberOfMultipleMRNs = Some(output.movementReferenceNumbers.size),
-      claimantType = output.claimantType.toString,
+      claimantType = output.claimantType.toString(),
+      consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
+      payeeType = "not implemented yet", //output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = output.basisOfClaimSpecialCircumstances,
       methodOfDisposal = Some(output.methodOfDisposal.toString),
@@ -251,7 +268,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -265,7 +282,9 @@ object JourneyLog {
       journeyType = "rejectedgoods",
       journeyVariant = "scheduled",
       numberOfMultipleMRNs = None,
-      claimantType = output.claimantType.toString,
+      claimantType = output.claimantType.toString(),
+      consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
+      payeeType = "not implemented yet", //output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = output.basisOfClaimSpecialCircumstances,
       methodOfDisposal = Some(output.methodOfDisposal.toString),
@@ -285,7 +304,7 @@ object JourneyLog {
         scheduleFileSize = Some(output.scheduledDocument.size)
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -299,7 +318,9 @@ object JourneyLog {
       journeyType = "securities",
       journeyVariant = "single",
       numberOfMultipleMRNs = None,
-      claimantType = output.claimantType.toString,
+      claimantType = output.claimantType.toString(),
+      consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
+      payeeType = "not implemented yet", //output.payeeType.toString(),
       basisOfClaim = None,
       basisOfClaimSpecialCircumstances = None,
       methodOfDisposal = None,
@@ -319,7 +340,7 @@ object JourneyLog {
         scheduleFileSize = None
       ),
       changes = Changes.from(analytics),
-      userHash = hash(userEORI).take(8),
+      userHash = Hash(userEORI).take(8),
       caseNumber = caseNumber
     )
 
@@ -334,13 +355,6 @@ object JourneyLog {
     else if (amount >= 100) "3"
     else if (amount >= 10) "2"
     else "1"
-
-  private def hash(value: String): String =
-    MessageDigest
-      .getInstance("SHA-256")
-      .digest(value.getBytes("UTF-8"))
-      .map("%02x".format(_))
-      .mkString
 
   implicit val formatterUploads: OFormat[Uploads] = Json.format[Uploads]
   implicit val formatterChanges: OFormat[Changes] = Json.using[Json.WithDefaultValues].format[Changes]

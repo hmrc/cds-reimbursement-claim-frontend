@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -168,12 +169,13 @@ class ChooseInspectionAddressTypeControllerSpec
     }
 
     "update inspection address and redirect to the check bank details page" when {
-      "duties are not eligible for CMA" in {
+      "duties are not eligible for CMA and consignee/declarant EORIs match" in {
         val declarantContactDetailsLens =
           lens[DisplayDeclaration].displayResponseDetail.declarantDetails.contactDetails
 
-        forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
-          val journey =
+        forAll { (generatedDeclaration: DisplayDeclaration, contactDetails: ContactDetails) =>
+          val declaration = generatedDeclaration.withConsigneeEori(generatedDeclaration.getDeclarantEori)
+          val journey     =
             RejectedGoodsSingleJourney
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
@@ -200,7 +202,49 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
-            routes.CheckBankDetailsController.show()
+            routes.ChoosePayeeTypeController.show
+          )
+        }
+      }
+    }
+
+    "update inspection address and redirect to the choose payee type page" when {
+      "duties are not eligible for CMA and consignee/declarant EORIs DON'T match" in {
+        val declarantContactDetailsLens =
+          lens[DisplayDeclaration].displayResponseDetail.declarantDetails.contactDetails
+
+        forAll { (generatedDeclaration: DisplayDeclaration, contactDetails: ContactDetails) =>
+          val declaration = generatedDeclaration
+            .withConsigneeEori(Eori("GB000000000000001"))
+            .withDeclarantEori(Eori("GB000000000000002"))
+          val journey     =
+            RejectedGoodsSingleJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumberAndDeclaration(
+                declaration.getMRN,
+                declarantContactDetailsLens.set(declaration)(contactDetails.some)
+              )
+              .toOption
+
+          val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
+
+          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleJourney =
+            journey.map(
+              _.submitInspectionAddress(
+                InspectionAddress.ofType(InspectionAddressType.Declarant).mapFrom(contactDetails)
+              )
+            )
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(sessionWithDeclaration)
+            mockStoreSession(sessionWithInspectionAddress)(Right(()))
+          }
+
+          checkIsRedirect(
+            submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
+            routes.ChoosePayeeTypeController.show
           )
         }
       }
@@ -243,7 +287,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             submitAddress("inspection-address.type" -> InspectionAddressType.Importer.toString),
-            routes.ChooseRepaymentMethodController.show()
+            routes.ChoosePayeeTypeController.show
           )
         }
       }
@@ -296,7 +340,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             submitAddress("inspection-address.type" -> InspectionAddressType.Importer.toString),
-            routes.UploadFilesController.show()
+            routes.ChoosePayeeTypeController.show
           )
         }
       }
@@ -320,7 +364,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
       checkIsRedirect(
         retrieveAddress(Some(UUID.randomUUID())),
-        routes.CheckBankDetailsController.show()
+        routes.ChoosePayeeTypeController.show
       )
     }
 
@@ -353,7 +397,7 @@ class ChooseInspectionAddressTypeControllerSpec
           else
             checkIsRedirect(
               submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
-              routes.UploadFilesController.show()
+              routes.ChoosePayeeTypeController.show
             )
         }
       }

@@ -85,11 +85,11 @@ class EnterClaimController @Inject() (
               val actualAmountOpt =
                 journey.getCorrectedAmountFor(mrn, taxCode)
 
-              val form =
+              val form                   =
                 Forms
                   .actualAmountForm(formKey, paidAmount)
                   .withDefault(actualAmountOpt)
-
+              val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
               Ok(
                 enterMultipleClaims(
                   form,
@@ -97,6 +97,7 @@ class EnterClaimController @Inject() (
                   mrn,
                   taxCode,
                   paidAmount,
+                  isSubsidyOnly,
                   submitClaimAction(pageIndex, taxCode)
                 )
               )
@@ -117,6 +118,7 @@ class EnterClaimController @Inject() (
                 (journey, Redirect(selectDutiesAction(pageIndex)))
 
               case Some(paidAmount) =>
+                val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
                 Forms
                   .actualAmountForm(formKey, paidAmount)
                   .bindFromRequest()
@@ -131,6 +133,7 @@ class EnterClaimController @Inject() (
                             mrn,
                             taxCode,
                             paidAmount,
+                            isSubsidyOnly,
                             submitClaimAction(pageIndex, taxCode)
                           )
                         )

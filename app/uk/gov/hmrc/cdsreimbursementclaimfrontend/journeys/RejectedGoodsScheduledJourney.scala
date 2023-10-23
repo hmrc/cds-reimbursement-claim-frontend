@@ -23,6 +23,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -43,7 +44,7 @@ import scala.collection.immutable.SortedMap
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None,
-  @annotation.nowarn val features: Option[RejectedGoodsScheduledJourney.Features] = None
+  val features: Option[RejectedGoodsScheduledJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsScheduledJourney]
     with RejectedGoodsJourneyProperties
@@ -568,6 +569,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
+    payeeType: Option[PayeeType] = None,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,

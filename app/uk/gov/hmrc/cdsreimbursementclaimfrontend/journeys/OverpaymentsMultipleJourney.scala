@@ -22,6 +22,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -41,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 final class OverpaymentsMultipleJourney private (
   val answers: OverpaymentsMultipleJourney.Answers,
   val caseNumber: Option[String] = None,
-  @annotation.nowarn val features: Option[OverpaymentsMultipleJourney.Features] = None
+  val features: Option[OverpaymentsMultipleJourney.Features] = None
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsMultipleJourney]
     with OverpaymentsJourneyProperties
@@ -247,6 +248,39 @@ final class OverpaymentsMultipleJourney private (
         getLeadDisplayDeclaration
       )
 
+  def isPaymentMethodsMatching(displayDeclaration: DisplayDeclaration): Boolean =
+    getLeadDisplayDeclaration
+      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
+      .fold {
+        false
+      } { leadNdrcDetails: List[NdrcDetails] =>
+        displayDeclaration.getNdrcDetailsList.fold {
+          false
+        } { ndrcDetails: List[NdrcDetails] =>
+          val paymentMethodsFromDisplayDeclaration: List[String] = ndrcDetails.map(_.paymentMethod).distinct
+          val leadPaymentMethods: List[String]                   = leadNdrcDetails.map(_.paymentMethod).distinct
+          (leadPaymentMethods, paymentMethodsFromDisplayDeclaration) match {
+            case (Seq("006"), Seq("006"))                           => true
+            case (a, b) if !a.contains("006") && !b.contains("006") => true
+            case _                                                  => false
+          }
+        }
+      }
+
+  def getSubsidyError(): String =
+    getLeadDisplayDeclaration
+      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
+      .fold {
+        "submitMovementReferenceNumber.needsNonSubsidy"
+      } { leadNdrcDetails: List[NdrcDetails] =>
+        leadNdrcDetails.map(_.paymentMethod).distinct match {
+          case a if a.contains("006")                                           => "submitMovementReferenceNumber.needsSubsidy"
+          case b if b.contains("001") || b.contains("002") || b.contains("003") =>
+            "submitMovementReferenceNumber.needsNonSubsidy"
+          case _                                                                => "submitMovementReferenceNumber.needsNonSubsidy"
+        }
+      }
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
@@ -271,7 +305,11 @@ final class OverpaymentsMultipleJourney private (
         Left(
           "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
         )
-      else
+      else if (
+        index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(displayDeclaration)
+      ) {
+        Left(getSubsidyError())
+      } else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
@@ -549,6 +587,45 @@ final class OverpaymentsMultipleJourney private (
       }
     }
 
+  def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsMultipleJourney] =
+    whileClaimIsAmendable {
+      if (answers.payeeType.contains(payeeType))
+        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      else
+        Right(
+          copy(newAnswers =
+            answers.copy(
+              payeeType = Some(payeeType),
+              bankAccountDetails = None
+            )
+          )
+        )
+    }
+
+  override def computeBankAccountDetails: Option[BankAccountDetails] =
+    answers.bankAccountDetails match {
+      case Some(details) => Some(details)
+      case None          =>
+        val maybeDeclarantBankDetails       = getDeclarantBankAccountDetails
+        val maybeConsigneeBankDetails       = getConsigneeBankAccountDetails
+        val consigneeAndDeclarantEorisMatch = (for {
+          consigneeEori <- getConsigneeEoriFromACC14
+          declarantEori <- getDeclarantEoriFromACC14
+        } yield consigneeEori === declarantEori).getOrElse(false)
+
+        (answers.payeeType, maybeDeclarantBankDetails, maybeConsigneeBankDetails) match {
+          case (Some(PayeeType.Consignee), _, Some(consigneeBankDetails))                                       =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Declarant), Some(declarantBankDetails), _)                                       =>
+            Some(declarantBankDetails)
+          case (Some(PayeeType.Declarant), None, Some(consigneeBankDetails)) if consigneeAndDeclarantEorisMatch =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Consignee), Some(declarantBankDetails), None) if consigneeAndDeclarantEorisMatch =>
+            Some(declarantBankDetails)
+          case _                                                                                                => None
+        }
+    }
+
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
@@ -652,9 +729,11 @@ final class OverpaymentsMultipleJourney private (
           supportingEvidences     = answers.supportingEvidences
           claimantInformation    <- getClaimantInformation
           whetherNorthernIreland <- answers.whetherNorthernIreland
+          payeeType              <- answers.payeeType
         } yield OverpaymentsMultipleJourney.Output(
           movementReferenceNumbers = mrns,
           claimantType = getClaimantType,
+          payeeType = payeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           whetherNorthernIreland = whetherNorthernIreland,
@@ -692,6 +771,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     nonce: Nonce = Nonce.random,
     userEoriNumber: Eori,
     movementReferenceNumbers: Option[Seq[MRN]] = None,
+    payeeType: Option[PayeeType] = None,
     displayDeclarations: Option[Seq[DisplayDeclaration]] = None,
     whetherNorthernIreland: Option[Boolean] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -712,6 +792,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   final case class Output(
     movementReferenceNumbers: Seq[MRN],
     claimantType: ClaimantType,
+    payeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
     whetherNorthernIreland: Boolean,
@@ -746,7 +827,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       hasMultipleMovementReferenceNumbers,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
     )
 
   import JourneyFormats._
@@ -805,6 +887,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
               (taxCode, amount) => j.submitCorrectAmount(mrn, taxCode, amount)
             )
       })
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(

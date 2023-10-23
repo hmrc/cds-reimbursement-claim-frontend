@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 
 import scala.concurrent.Future
 
@@ -98,13 +99,21 @@ class CheckDeclarationDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            val expectedMainParagraph = Jsoup.parse(messageFromMessageKey(s"$messagesKey.help-text")).text()
-
+            val expectedMainParagraph       = Jsoup.parse(messageFromMessageKey(s"$messagesKey.help-text")).text()
+            val paymentMethods: Set[String] = journey.getDisplayDeclarations.flatMap(_.getMethodsOfPayment).head
             doc
               .select("main p")
               .get(0)
               .text()                                    shouldBe expectedMainParagraph
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
+            doc
+              .select(".govuk-summary-list__row dt.govuk-summary-list__key")
+              .get(2)
+              .text()                                    shouldBe "Method of payment"
+            doc
+              .select(".govuk-summary-list__row dd.govuk-summary-list__value")
+              .get(2)
+              .text()                                    shouldBe MethodOfPaymentSummary(paymentMethods)
           }
         )
       }
@@ -159,10 +168,7 @@ class CheckDeclarationDetailsControllerSpec
           performAction("check-declaration-details" -> "false"),
           routes.EnterMovementReferenceNumberController.submit
         )
-
       }
-
     }
   }
-
 }

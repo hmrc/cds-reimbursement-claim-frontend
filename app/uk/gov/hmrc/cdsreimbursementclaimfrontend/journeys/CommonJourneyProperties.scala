@@ -40,6 +40,9 @@ trait CommonJourneyProperties {
   /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
 
+  def declarantEoriMatchesConsignee: Boolean =
+    getDeclarantEoriFromACC14.isDefined &&
+      getDeclarantEoriFromACC14 === getConsigneeEoriFromACC14
   def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
   def needsBanksAccountDetailsSubmission: Boolean
@@ -81,6 +84,13 @@ trait CommonJourneyProperties {
   final def needsDeclarantAndConsigneeEoriSubmission: Boolean =
     !(userHasGBEoriMatchingDeclaration || userHasXIEoriMatchingDeclaration)
 
+  final def hasSubmittedDeclarantAndConsigneeEori: Boolean =
+    answers.eoriNumbersVerification
+      .exists(d =>
+        d.declarantEoriNumber.isDefined &&
+          (!getConsigneeEoriFromACC14.isDefined || d.consigneeEoriNumber.isDefined)
+      )
+
   final def needsUserXiEoriSubmission: Boolean =
     !userHasGBEoriMatchingDeclaration &&
       getLeadDisplayDeclaration.exists(_.containsXiEori) &&
@@ -108,7 +118,7 @@ trait CommonJourneyProperties {
     getLeadDisplayDeclaration
       .flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
 
-  final def computeBankAccountDetails: Option[BankAccountDetails] =
+  def computeBankAccountDetails: Option[BankAccountDetails] =
     answers.bankAccountDetails
       .orElse(getInitialBankAccountDetailsFromDeclaration)
 

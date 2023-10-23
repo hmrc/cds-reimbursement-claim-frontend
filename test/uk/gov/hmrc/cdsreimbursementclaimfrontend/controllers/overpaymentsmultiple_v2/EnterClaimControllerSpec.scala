@@ -72,19 +72,19 @@ class EnterClaimControllerSpec
     taxCode: TaxCode,
     actualAmountOpt: Option[BigDecimal]
   ) = {
-    formAction(doc)               shouldBe routes.EnterClaimController.submit(pageIndex, taxCode).url
+    formAction(doc)                          shouldBe routes.EnterClaimController.submit(pageIndex, taxCode).url
     assertPageElementsByIdAndExpectedText(doc)(
-      "MRN"                             -> mrn.value,
-      "multiple-enter-claim.inset-text" -> m("multiple-enter-claim.inset-text"),
-      "multiple-enter-claim-label"      -> m("multiple-enter-claim.actual-amount"),
-      "multiple-enter-claim-hint"       -> m(
+      "MRN"                                        -> mrn.value,
+      "multiple-enter-claim-agent-fees-disclaimer" -> m("multiple-enter-claim.inset-text"),
+      "multiple-enter-claim-label"                 -> m("multiple-enter-claim.actual-amount"),
+      "multiple-enter-claim-hint"                  -> m(
         "multiple-enter-claim.actual-amount.hint",
         taxCode,
         m(s"select-duties.duty.$taxCode")
       )
     )
     assertPageInputsByIdAndExpectedValue(doc)(
-      "multiple-enter-claim"            ->
+      "multiple-enter-claim"                       ->
         actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
     )
   }

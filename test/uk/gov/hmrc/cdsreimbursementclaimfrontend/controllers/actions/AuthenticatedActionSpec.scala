@@ -25,9 +25,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.EmptyRetrieval
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -76,7 +76,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
             SessionRecordNotFound()
           ).foreach { e =>
             withClue(s"For error $e: ") {
-              mockAuth(EmptyPredicate, EmptyRetrieval)(Future.failed(e))
+              mockAuth(EmptyPredicate, Retrievals.allEnrolments)(Future.failed(e))
 
               val result = performAction(FakeRequest("GET", requestUri))
               status(result) shouldBe SEE_OTHER
@@ -93,7 +93,16 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
       "handling a logged in user" must {
 
         "effect the request action" in {
-          mockAuth(EmptyPredicate, EmptyRetrieval)(Future.successful(()))
+          mockAuth(EmptyPredicate, Retrievals.allEnrolments)(
+            Future.successful(
+              Enrolments(
+                Set(
+                  Enrolment(EnrolmentConfig.EoriEnrolment.key)
+                    .withIdentifier(EnrolmentConfig.EoriEnrolment.eoriEnrolmentIdentifier, "GB0000000001")
+                )
+              )
+            )
+          )
 
           val result = performAction(FakeRequest())
           status(result) shouldBe OK
@@ -114,7 +123,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
           ).foreach { e =>
             withClue(s"For error $e: ") {
               val exception = intercept[AuthorisationException] {
-                mockAuth(EmptyPredicate, EmptyRetrieval)(Future.failed(e))
+                mockAuth(EmptyPredicate, Retrievals.allEnrolments)(Future.failed(e))
                 await(performAction(FakeRequest()))
               }
 

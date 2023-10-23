@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** Answers common to the all types of the claim journey. */
 trait CommonAnswers {
@@ -35,6 +36,7 @@ trait CommonAnswers {
   def contactDetails: Option[MrnContactDetails]
   def contactAddress: Option[ContactAddress]
   def bankAccountDetails: Option[BankAccountDetails]
+  def payeeType: Option[PayeeType]
   def bankAccountType: Option[BankAccountType]
   def selectedDocumentType: Option[UploadDocumentType]
   def supportingEvidences: Seq[UploadedFile]

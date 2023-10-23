@@ -113,7 +113,7 @@ class CheckYourAnswersControllerSpec
     summaryValues should not be empty
 
     headers should containOnlyDefinedElementsOf(
-      "First Movement Reference Number (MRN)".expectedAlways,
+      "Lead Movement Reference Number (MRN)".expectedAlways,
       "Scheduled document".expectedAlways,
       "Declaration details".expectedAlways,
       "Contact information for this claim".expectedAlways,
@@ -148,9 +148,9 @@ class CheckYourAnswersControllerSpec
           "Importer name"                                   -> declaration.flatMap(_.consigneeName),
           "Importer email"                                  -> declaration.flatMap(_.consigneeEmail),
           "Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br />", " ")),
+          "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
           "Declarant name"                                  -> declaration.map(_.declarantName),
-          "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " ")),
+          "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
           "Contact details"                                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
           "Contact address"                                 -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
           "This is the basis behind the claim"              -> Some(

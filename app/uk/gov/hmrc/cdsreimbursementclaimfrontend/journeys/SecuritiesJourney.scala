@@ -22,6 +22,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
@@ -805,6 +806,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     movementReferenceNumber: Option[MRN] = None,
     reasonForSecurity: Option[ReasonForSecurity] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
+    payeeType: Option[PayeeType] = None,
     similarClaimExistAlreadyInCDFPay: Option[Boolean] = None, // TPI04 check flag
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     exportMovementReferenceNumber: Option[MRN] =

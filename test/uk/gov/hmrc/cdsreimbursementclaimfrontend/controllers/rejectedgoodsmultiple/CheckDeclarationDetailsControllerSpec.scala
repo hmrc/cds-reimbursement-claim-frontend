@@ -130,7 +130,7 @@ class CheckDeclarationDetailsControllerSpec
             doc.select(s"#$messagesKey").attr("checked") shouldBe ""
             doc
               .select(".govuk-summary-list__row dt.govuk-summary-list__key")
-              .get(3)
+              .get(2)
               .text()                                    shouldBe "Method of payment"
           }
         )

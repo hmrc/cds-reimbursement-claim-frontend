@@ -64,7 +64,8 @@ class SelectDutiesController @Inject() (
               Some((pageIndex, mrn)),
               false,
               Some("multiple"),
-              routes.SelectDutiesController.submit(pageIndex)
+              routes.SelectDutiesController.submit(pageIndex),
+              journey.isSubsidyOnlyJourney
             )
           )
         }
@@ -96,7 +97,8 @@ class SelectDutiesController @Inject() (
                         Some((pageIndex, mrn)),
                         false,
                         Some("multiple"),
-                        routes.SelectDutiesController.submit(pageIndex)
+                        routes.SelectDutiesController.submit(pageIndex),
+                        journey.isSubsidyOnlyJourney
                       )
                     )
                   ),

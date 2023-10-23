@@ -134,11 +134,11 @@ class CheckDeclarationDetailsControllerSpec
           doc => {
             doc
               .select(".govuk-summary-list__row dt.govuk-summary-list__key")
-              .get(3)
+              .get(2)
               .text() shouldBe messageFromMessageKey(s"$messagesKey.method-of-payment-label")
             doc
               .select(".govuk-summary-list__row dd.govuk-summary-list__value")
-              .get(3)
+              .get(2)
               .text() shouldBe messageFromMessageKey(s"$messagesKey.subsidy-label")
           }
         )

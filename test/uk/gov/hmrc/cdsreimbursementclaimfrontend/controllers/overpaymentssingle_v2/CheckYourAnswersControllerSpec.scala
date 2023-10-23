@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -117,7 +118,7 @@ class CheckYourAnswersControllerSpec
       "Basis for claim".expectedAlways,
       "Reason for claim".expectedAlways,
       "Claim total".expectedAlways,
-      "Repayment method".expectedWhen(journey.isAllSelectedDutiesAreCMAEligible),
+      "Repayment method".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
       "Now send your claim".expectedAlways
@@ -135,18 +136,21 @@ class CheckYourAnswersControllerSpec
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
-        "MRN"         -> Some(claim.movementReferenceNumber.value),
-        "Import date" -> declarationDetails.map(_.acceptanceDate),
-        "Duties paid" -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
+        "MRN"               -> Some(claim.movementReferenceNumber.value),
+        "Import date"       -> declarationDetails.map(_.acceptanceDate),
+        "Method of payment" -> Some(
+          MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
+        ).filter(_ => journey.isSubsidyOnlyJourney),
+        "Duties paid"       -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
       ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
           "Importer name"                                   -> declaration.flatMap(_.consigneeName),
           "Importer email"                                  -> declaration.flatMap(_.consigneeEmail),
           "Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br />", " ")),
+          "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
           "Declarant name"                                  -> declaration.map(_.declarantName),
-          "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br />", " ")),
+          "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
           "Contact details"                                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
           "Contact address"                                 -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
           "This is the basis behind the claim"              -> Some(
@@ -158,13 +162,12 @@ class CheckYourAnswersControllerSpec
           "UK Duty"                                         -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Excise Duty"                                     -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Total"                                           -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Method"                                          -> (
-            if (journey.isAllSelectedDutiesAreCMAEligible) Some(claim.reimbursementMethod match {
-              case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.reimbursement-method.cma")
-              case _                                          => m("check-your-answers.reimbursement-method.bt")
-            })
-            else None
-          ),
+          "Method"                                          ->
+            Some(claim.reimbursementMethod match {
+              case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
+              case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
+              case _                                          => m("check-your-answers.repayment-method.bt")
+            }),
           "Uploaded"                                        -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"                             -> claim.bankAccountDetails.map(_.accountName.value),
           "Sort code"                                       -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
@@ -190,6 +193,33 @@ class CheckYourAnswersControllerSpec
       "display the page if journey has complete answers" in {
         forAll(completeJourneyGen) { journey =>
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => validateCheckYourAnswersPage(doc, journey, claim)
+          )
+        }
+      }
+
+      "display method of payment when declaration has only subsidy payments" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14DeclarantMatchesUserEori = false,
+            acc14ConsigneeMatchesUserEori = false,
+            generateSubsidyPayments = GenerateSubsidyPayments.All,
+            features = Some(
+              OverpaymentsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+            )
+          )
+        ) { j =>
+          val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)
+          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
           inSequence {
             mockAuthWithNoRetrievals()

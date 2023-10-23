@@ -175,7 +175,7 @@ class EnterClaimControllerSpec
           checkPageIsDisplayed(
             performAction(taxCode),
             messageFromMessageKey(
-              "enter-claim.title",
+              "enter-claim.tax-code-description",
               taxCode.value,
               messageFromMessageKey(s"select-duties.duty.$taxCode")
             ),
@@ -198,7 +198,7 @@ class EnterClaimControllerSpec
             checkPageIsDisplayed(
               performAction(taxCode),
               messageFromMessageKey(
-                "enter-claim.title",
+                "enter-claim.tax-code-description",
                 taxCode.value,
                 messageFromMessageKey(s"select-duties.duty.$taxCode")
               ),
@@ -307,7 +307,7 @@ class EnterClaimControllerSpec
                   checkPageIsDisplayed(
                     performAction(taxCode, Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))),
                     messageFromMessageKey(
-                      "enter-claim.title",
+                      "enter-claim.tax-code-description",
                       taxCode.value,
                       messageFromMessageKey(s"select-duties.duty.$taxCode")
                     ),
@@ -335,7 +335,7 @@ class EnterClaimControllerSpec
           checkPageIsDisplayed(
             performAction(taxCode, Seq("enter-claim" -> "")),
             messageFromMessageKey(
-              "enter-claim.title",
+              "enter-claim.tax-code-description",
               taxCode.value,
               messageFromMessageKey(s"select-duties.duty.$taxCode")
             ),

@@ -26,7 +26,7 @@ object Paragraph {
     val content = (head +: tail)
       .filter(_.nonEmpty)
       .map(HtmlFormat.escape)
-      .mkString("<br />")
+      .mkString("<br>")
     new paragraph()(Html(content))
   }
 }

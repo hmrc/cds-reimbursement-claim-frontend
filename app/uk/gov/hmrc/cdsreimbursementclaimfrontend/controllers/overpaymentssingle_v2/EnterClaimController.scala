@@ -61,6 +61,7 @@ class EnterClaimController @Inject() (
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
+      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show).asFuture
@@ -77,10 +78,19 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                             =
                 Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
-              Ok(enterClaim(form, TaxCode(ndrcDetails.taxType), amountPaid, postAction(taxCode))).asFuture
+              val maybeMRN                         = journey.getLeadMovementReferenceNumber.map(_.value)
+              Ok(
+                enterClaim(
+                  form,
+                  maybeMRN,
+                  TaxCode(ndrcDetails.taxType),
+                  amountPaid,
+                  isSubsidyOnly,
+                  postAction(taxCode)
+                )
+              ).asFuture
           }
-
-        case _ =>
+        case _                                                        =>
           redirectWhenInvalidTaxCode(journey).asFuture
       }
     }
@@ -88,6 +98,7 @@ class EnterClaimController @Inject() (
   final def submit(taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
       { implicit request => journey =>
+        val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
         journey.getSelectedDuties match {
           case None =>
             (journey, Redirect(routes.SelectDutiesController.show)).asFuture
@@ -95,6 +106,7 @@ class EnterClaimController @Inject() (
           case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
             journey.getNdrcDetailsFor(taxCode) match {
               case Some(ndrcDetails) =>
+                val maybeMRN = journey.getLeadMovementReferenceNumber.map(_.value)
                 Forms
                   .actualAmountForm(key, BigDecimal(ndrcDetails.amount))
                   .bindFromRequest()
@@ -106,8 +118,10 @@ class EnterClaimController @Inject() (
                           BadRequest(
                             enterClaim(
                               formWithErrors,
+                              maybeMRN,
                               TaxCode(ndrcDetails.taxType),
                               BigDecimal(ndrcDetails.amount),
+                              isSubsidyOnly,
                               postAction(taxCode)
                             )
                           )

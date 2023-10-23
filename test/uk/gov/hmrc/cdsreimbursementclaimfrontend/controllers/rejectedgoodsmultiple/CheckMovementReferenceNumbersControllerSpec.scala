@@ -86,12 +86,19 @@ class CheckMovementReferenceNumbersControllerSpec
 
   def addAcc14(
     journey: RejectedGoodsMultipleJourney,
-    acc14Declaration: DisplayDeclaration
+    acc14Declaration: DisplayDeclaration,
+    submitEORIs: Boolean = false
   ): Either[String, RejectedGoodsMultipleJourney] = {
     val nextIndex           = journey.getMovementReferenceNumbers.map(_.size).getOrElse(0)
     val adjustedDeclaration = adjustWithDeclarantEori(acc14Declaration, journey)
-    journey
+    val journey2            = journey
       .submitMovementReferenceNumberAndDeclaration(nextIndex, adjustedDeclaration.getMRN, adjustedDeclaration)
+
+    if (submitEORIs)
+      journey2
+        .flatMapWhenDefined(adjustedDeclaration.getConsigneeEori)(j => j.submitConsigneeEoriNumber(_))
+        .flatMap(_.submitDeclarantEoriNumber(adjustedDeclaration.getDeclarantEori))
+    else journey2
   }
 
   "Check Movement Reference Numbers Controller" when {
@@ -158,7 +165,7 @@ class CheckMovementReferenceNumbersControllerSpec
       "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
           val journey = (for {
-            j1 <- addAcc14(session.rejectedGoodsMultipleJourney.get, firstMrn)
+            j1 <- addAcc14(session.rejectedGoodsMultipleJourney.get, firstMrn, true)
             j2 <- addAcc14(j1, secondMrn)
           } yield j2).getOrFail
           journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
@@ -188,8 +195,10 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "show page with more than 2 MRNs" in forAll { acc14Declarations: List[DisplayDeclaration] =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
-            case (journey, declaration) => addAcc14(journey, declaration).getOrFail
+          val firstMrnJourney =
+            addAcc14(session.rejectedGoodsMultipleJourney.get, acc14Declarations.head, true).getOrFail
+          val journey         = acc14Declarations.tail.foldLeft(firstMrnJourney) { case (journey, declaration) =>
+            addAcc14(journey, declaration).getOrFail
           }
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)

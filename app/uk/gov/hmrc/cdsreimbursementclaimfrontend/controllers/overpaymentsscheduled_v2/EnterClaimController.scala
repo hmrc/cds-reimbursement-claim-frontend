@@ -71,7 +71,7 @@ class EnterClaimController @Inject() (
       val maybeReimbursement: Option[AmountPaidWithCorrect] = journey.getReimbursementFor(dutyType, taxCode)
       val form                                              = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
-      Ok(enterClaimPage(dutyType, taxCode, form, postAction)).asFuture
+      Ok(enterClaimPage(dutyType, taxCode, form, postAction, journey.isSubsidyOnlyJourney)).asFuture
   }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
@@ -89,7 +89,8 @@ class EnterClaimController @Inject() (
                     currentDuty,
                     currentTaxCode,
                     redirectVerificationMessage(formWithErrors),
-                    postAction
+                    postAction,
+                    journey.isSubsidyOnlyJourney
                   )
                 )
               ),
@@ -111,7 +112,8 @@ class EnterClaimController @Inject() (
                           currentDuty,
                           currentTaxCode,
                           enterScheduledClaimForm,
-                          postAction
+                          postAction,
+                          journey.isSubsidyOnlyJourney
                         )
                       )
                     )

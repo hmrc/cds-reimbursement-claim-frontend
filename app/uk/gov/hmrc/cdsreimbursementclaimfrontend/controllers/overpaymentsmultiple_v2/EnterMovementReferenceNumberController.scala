@@ -72,7 +72,8 @@ class EnterMovementReferenceNumberController @Inject() (
            movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
            Some("multiple"),
            pageIndex,
-           routes.EnterMovementReferenceNumberController.submit(pageIndex)
+           routes.EnterMovementReferenceNumberController.submit(pageIndex),
+           isSubsidy = journey.isSubsidyOnlyJourney
          )
        )
      }).asFuture
@@ -128,6 +129,18 @@ class EnterMovementReferenceNumberController @Inject() (
                   )
                 } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
+                } else if (error.message === "submitMovementReferenceNumber.needsSubsidy") {
+                  (
+                    journey,
+                    BadRequest(customError(mrn, pageIndex, "error.needsSubsidy"))
+                  )
+                } else if (error.message === "submitMovementReferenceNumber.needsNonSubsidy") {
+                  (
+                    journey,
+                    BadRequest(
+                      customError(mrn, pageIndex, "error.needsNonSubsidy")
+                    )
+                  )
                 } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                 } else {

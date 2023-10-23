@@ -57,7 +57,16 @@ trait AuthSupport {
       .returning(result)
 
   def mockAuthWithNoRetrievals(): Any =
-    mockAuth(EmptyPredicate, EmptyRetrieval)(Future.successful(()))
+    mockAuth(EmptyPredicate, Retrievals.allEnrolments)(
+      Future.successful(
+        Enrolments(
+          Set(
+            Enrolment(EoriEnrolment.key)
+              .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, "GB0000000001")
+          )
+        )
+      )
+    )
 
   val expectedRetrievals
     : Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials] ~ Option[Name]] =

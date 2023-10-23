@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.RejectedGoodsCdsDisplayDeclarationSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CdsDisplayDeclarationSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
@@ -69,7 +69,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(RejectedGoodsCdsDisplayDeclarationSummary.render(declaration, key, None, isSubsidy = isSubsidy))
+        @summary(CdsDisplayDeclarationSummary.render(declaration, key, None, showMethodOfPayment = isSubsidy))
 
         @if(isSubsidy && subKey.exists(_ == "multiple")){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
         @radios(

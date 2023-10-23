@@ -22,13 +22,13 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 
 final case class RequestWithSessionDataAndRetrievedData[A](
   sessionData: SessionData,

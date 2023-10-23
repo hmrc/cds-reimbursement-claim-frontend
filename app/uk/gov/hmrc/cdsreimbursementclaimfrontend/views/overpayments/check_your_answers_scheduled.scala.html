@@ -38,16 +38,17 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
+@ifSubsidySubHeading = @{if (isSubsidy) "h2-subsidy" else "h2"}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"$key.reference-number", Some("scheduled"), "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @subHeading(Html(messages(combine(s"$key.reference-number", Some("scheduled"), ifSubsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number", Some("scheduled"), Some(routes.EnterMovementReferenceNumberController.show)))
 
     @subHeading(Html(messages(s"$key.scheduled-document.h2")))
@@ -55,7 +56,7 @@
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(SummaryList(CdsDisplayDeclarationSummary(displayDeclaration,s"$key.declaration-details", Some("scheduled")).rows.drop(2)))
+        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration, s"$key.declaration-details", showImportMrn = false, showMethodOfPayment = isSubsidy))
     } 
 
     @subHeading(Html(messages(s"$key.contact-information.h2")))
@@ -73,9 +74,16 @@
     @subHeading(Html(messages(s"$key.claim-calculation.scheduled.h2")))
     @summary(ReimbursementsClaimsSummary.scheduledForCYA(claim.reimbursementClaims, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
 
-    @claim.bankAccountDetails.map { bankAccountDetails =>
-        @subHeading(Html(messages(s"$key.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show)))
+    @if(isSubsidy){
+        @subHeading(Html(messages(s"$key.repayment-method.h2")))
+        @summary(RepaymentMethodSummary(s"$key.repayment-method"))
+    }
+
+    @if(!isSubsidy){
+        @claim.bankAccountDetails.map { bankAccountDetails =>
+            @subHeading(Html(messages(s"$key.bank-details.h2")))
+            @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show)))
+        }
     }
 
     @subHeading(Html(messages(s"$key.attached-documents.h2")))

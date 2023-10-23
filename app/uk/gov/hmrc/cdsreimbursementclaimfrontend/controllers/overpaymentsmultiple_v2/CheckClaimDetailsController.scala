@@ -50,7 +50,7 @@ class CheckClaimDetailsController @Inject() (
   val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst
   val enterMrnAction: Call                     = routes.EnterMovementReferenceNumberController.showFirst
   val enterClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.show
-  val nextAction: Call                         = routes.CheckBankDetailsController.show
+  val nextAction: Call                         = routes.ChoosePayeeTypeController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =

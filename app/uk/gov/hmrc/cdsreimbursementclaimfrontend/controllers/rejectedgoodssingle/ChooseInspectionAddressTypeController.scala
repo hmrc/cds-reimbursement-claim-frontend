@@ -73,21 +73,8 @@ class ChooseInspectionAddressTypeController @Inject() (
           if (journey.needsBanksAccountDetailsSubmission)
             checkYourAnswers
           else
-            routes.UploadFilesController.show()
+            routes.ChoosePayeeTypeController.show
         )
       )
-    else if (journey.isSubsidyOnlyJourney)
-      (journey, Redirect(routes.UploadFilesController.show()))
-    else if (journey.isAllSelectedDutiesAreCMAEligible)
-      (journey, Redirect(routes.ChooseRepaymentMethodController.show()))
-    else
-      (
-        journey,
-        Redirect(
-          if (journey.needsBanksAccountDetailsSubmission)
-            routes.CheckBankDetailsController.show()
-          else
-            routes.UploadFilesController.show()
-        )
-      )
+    else (journey, Redirect(routes.ChoosePayeeTypeController.show))
 }

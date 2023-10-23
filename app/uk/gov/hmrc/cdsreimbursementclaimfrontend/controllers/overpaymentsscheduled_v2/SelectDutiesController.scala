@@ -52,7 +52,7 @@ class SelectDutiesController @Inject() (
       val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
       val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
 
-      Ok(selectDutyCodesPage(dutyType, form, postAction)).asFuture
+      Ok(selectDutyCodesPage(dutyType, form, postAction, journey.isSubsidyOnlyJourney)).asFuture
     } else {
       Redirect(routes.SelectDutyTypesController.show).asFuture
     }
@@ -66,20 +66,36 @@ class SelectDutiesController @Inject() (
         selectDutyCodesForm
           .bindFromRequest()
           .fold(
-            formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction, journey.isSubsidyOnlyJourney))
+              ),
             selectedTaxCodes =>
               journey
                 .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
                 .fold(
                   errors => {
                     logger.error(s"Error updating tax codes selection - $errors")
-                    (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
+                    (
+                      journey,
+                      BadRequest(
+                        selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction, journey.isSubsidyOnlyJourney)
+                      )
+                    )
                   },
                   updatedJourney =>
                     (
                       updatedJourney,
                       selectedTaxCodes.headOption.fold(
-                        BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
+                        BadRequest(
+                          selectDutyCodesPage(
+                            currentDuty,
+                            selectDutyCodesForm,
+                            postAction,
+                            journey.isSubsidyOnlyJourney
+                          )
+                        )
                       )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
                     )
                 )
