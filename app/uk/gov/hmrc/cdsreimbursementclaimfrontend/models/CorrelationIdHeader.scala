@@ -46,7 +46,8 @@ object CorrelationIdHeader {
         .getOrElse("xxxxxxxxxx")
         .take(8) +
         sessionId
-          .map(_.drop(8).take(10) + uuid.drop(18))
+          .flatMap(getUuidPart(_))
+          .map(_ + uuid.drop(18))
           .getOrElse(uuid.drop(8))
     )
   }

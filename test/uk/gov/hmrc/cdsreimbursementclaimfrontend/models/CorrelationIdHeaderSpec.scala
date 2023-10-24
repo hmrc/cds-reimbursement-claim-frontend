@@ -80,6 +80,14 @@ class CorrelationIdHeaderSpec extends AnyWordSpec with Matchers {
         case _                       => fail()
       }
 
+      CorrelationIdHeader.from(Some(Eori("GB0000000123")), Some("session-b3fa06aa-9375-4ad2-8ae1-2f09b06bed46")) match {
+        case ("X-Correlation-ID", v) =>
+          assert(v.startsWith(Hash("GB0000000123").take(8)))
+          assert(v.contains("-9375-4ad2"))
+          UUID.fromString(v)
+        case _                       => fail()
+      }
+
       CorrelationIdHeader.from(Eori("GB0000000123"), None) match {
         case ("X-Correlation-ID", v) =>
           assert(v.startsWith(Hash("GB0000000123").take(8)))
