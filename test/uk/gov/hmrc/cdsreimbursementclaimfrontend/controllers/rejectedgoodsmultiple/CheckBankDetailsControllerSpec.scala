@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -68,13 +69,17 @@ class CheckBankDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  private def sessionWithBankDetailsInACC14(maybeBankDetails: Option[BankDetails]): SessionData = {
+  private def sessionWithBankDetailsInACC14(
+    maybeBankDetails: Option[BankDetails],
+    payeeType: PayeeType = PayeeType.Consignee
+  ): SessionData = {
     val displayDeclaration: DisplayDeclaration = displayDeclarationGen.sample.get.withBankDetails(maybeBankDetails)
 
     val rejectedGoodsMultipleJourney: RejectedGoodsMultipleJourney =
       RejectedGoodsMultipleJourney
         .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+        .flatMap(_.submitPayeeType(payeeType))
         .getOrFail
 
     session.copy(rejectedGoodsMultipleJourney = Some(rejectedGoodsMultipleJourney))
@@ -127,7 +132,7 @@ class CheckBankDetailsControllerSpec
     "display the page using declarant bank details from Acc14" in forAll(genBankAccountDetails) {
       bankAccountDetails: BankAccountDetails =>
         val declarantBankDetails: BankDetails = BankDetails(None, Some(bankAccountDetails))
-        val sessionWithBankDetails            = sessionWithBankDetailsInACC14(Some(declarantBankDetails))
+        val sessionWithBankDetails            = sessionWithBankDetailsInACC14(Some(declarantBankDetails), PayeeType.Declarant)
         val modifiedSession                   = sessionWithBankDetailsStored(sessionWithBankDetails, bankAccountDetails)
 
         inSequence {

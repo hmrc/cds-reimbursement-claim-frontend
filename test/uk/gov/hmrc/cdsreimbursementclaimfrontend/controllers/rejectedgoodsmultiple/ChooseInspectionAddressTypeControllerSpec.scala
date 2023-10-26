@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.InspectionAddressUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.StringOps
@@ -287,6 +288,7 @@ class ChooseInspectionAddressTypeControllerSpec
               displayDeclaration.getMRN,
               DisplayDeclaration(displayResponseDetail)
             )
+            .flatMap(_.submitPayeeType(PayeeType.Declarant))
             .getOrFail
           val optionChosen          = Gen.oneOf(Seq(Importer, Declarant)).sample.get
           val address               = optionChosen match {
@@ -305,7 +307,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           checkIsRedirect(
             submitAddress(messagesKey -> optionChosen.toString),
-            routes.CheckBankDetailsController.show()
+            routes.ChoosePayeeTypeController.show
           )
       }
 
@@ -343,7 +345,7 @@ class ChooseInspectionAddressTypeControllerSpec
         controller.redirectToTheNextPage(emptyJourney) shouldBe (
           (
             emptyJourney,
-            Redirect(routes.CheckBankDetailsController.show())
+            Redirect(routes.ChoosePayeeTypeController.show)
           )
         )
       }

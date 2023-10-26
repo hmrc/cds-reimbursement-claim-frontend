@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -255,6 +256,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     submitConsigneeDetails: Boolean = true,
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
+    submitPayeeType: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     minNumberOfMRNs: Int = 2,
@@ -271,6 +273,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       submitConsigneeDetails = submitConsigneeDetails,
       submitContactDetails = submitContactDetails,
       submitContactAddress = submitContactAddress,
+      submitPayeeType = submitPayeeType,
       submitBankAccountDetails = submitBankAccountDetails,
       submitBankAccountType = submitBankAccountType,
       minNumberOfMRNs = minNumberOfMRNs,
@@ -311,6 +314,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     submitConsigneeDetails: Boolean = true,
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
+    submitPayeeType: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     minNumberOfMRNs: Int = 2,
@@ -328,6 +332,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       taxCodesWithAmounts <- Gen.sequence(mrns.map(_ => taxCodesAndAmountsGen(maxSize))).map(_.asScala)
       basisOfClaim        <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal    <- Gen.oneOf(MethodOfDisposal.values)
+      payeeType           <- Gen.oneOf(PayeeType.values)
 
       numberOfSupportingEvidences <- Gen.choose(1, maxSize)
       numberOfDocumentTypes       <- Gen.choose(1, maxSize - 1)
@@ -397,6 +402,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
         RejectedGoodsMultipleJourney.Answers(
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
+          payeeType = if (submitPayeeType) Some(payeeType) else None,
           movementReferenceNumbers = Some(mrns),
           displayDeclarations = Some(displayDeclarations),
           eoriNumbersVerification = eoriNumbersVerification,
