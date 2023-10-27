@@ -275,6 +275,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
         RejectedGoodsMultipleJourney.Output(
           movementReferenceNumbers = Seq(exampleMrn, anotherExampleMrn),
           claimantType = ClaimantType.Consignee,
+          payeeType = PayeeType.Consignee,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfRejectedGoodsClaim.DamagedBeforeClearance,
           basisOfClaimSpecialCircumstances = Some("BasisOfClaimSpecialCircumstances"),

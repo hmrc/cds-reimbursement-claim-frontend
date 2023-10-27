@@ -43,7 +43,7 @@ class ChooseInspectionAddressTypeController @Inject() (
     with RejectedGoodsInspectionAddressLookupMixin {
 
   private val nextPage: Call =
-    routes.CheckBankDetailsController.show()
+    routes.ChoosePayeeTypeController.show
 
   override val postAction: Call =
     routes.ChooseInspectionAddressTypeController.submit()
