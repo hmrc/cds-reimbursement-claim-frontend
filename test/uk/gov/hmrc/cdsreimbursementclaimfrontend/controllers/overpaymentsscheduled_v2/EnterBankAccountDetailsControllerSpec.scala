@@ -284,7 +284,7 @@ class EnterBankAccountDetailsControllerSpec
         "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is No or Indeterminate" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(No, Indeterminate)
+          Gen.const(No)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
@@ -372,7 +372,7 @@ class EnterBankAccountDetailsControllerSpec
         "show the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+          Gen.oneOf(Some(Inapplicable), Some(No), None)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
@@ -535,7 +535,7 @@ class EnterBankAccountDetailsControllerSpec
         "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is No or Indeterminate" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(No, Indeterminate)
+          Gen.const(No)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
@@ -623,7 +623,7 @@ class EnterBankAccountDetailsControllerSpec
         "show the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+          Gen.oneOf(Some(Inapplicable), Some(No), None)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,

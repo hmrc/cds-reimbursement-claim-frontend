@@ -177,7 +177,7 @@ class EnterBankAccountDetailsControllerSpec
             val personalResponse =
               bankaccountreputation.BankAccountReputation(
                 accountNumberWithSortCodeIsValid = status,
-                accountExists = Some(Yes),
+                accountExists = Some(status),
                 otherError = None
               )
 
@@ -318,7 +318,7 @@ class EnterBankAccountDetailsControllerSpec
         "show error on the the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+          Gen.oneOf(Some(Inapplicable), Some(No), None)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
@@ -465,7 +465,7 @@ class EnterBankAccountDetailsControllerSpec
         "show error on the the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+          Gen.oneOf(Some(Inapplicable), Some(No), None)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,

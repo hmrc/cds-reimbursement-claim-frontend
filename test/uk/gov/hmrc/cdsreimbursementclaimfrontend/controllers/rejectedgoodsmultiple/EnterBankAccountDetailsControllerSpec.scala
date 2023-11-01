@@ -167,7 +167,7 @@ class EnterBankAccountDetailsControllerSpec
           val personalResponse =
             bankaccountreputation.BankAccountReputation(
               accountNumberWithSortCodeIsValid = status,
-              accountExists = Some(Yes),
+              accountExists = Some(status),
               otherError = None
             )
 
@@ -285,7 +285,7 @@ class EnterBankAccountDetailsControllerSpec
         "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is No or Indeterminate" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(No, Indeterminate)
+          Gen.const(No)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
@@ -537,36 +537,6 @@ class EnterBankAccountDetailsControllerSpec
           )
         }
 
-        "show the bank account details page if the accountNumberWithSortCodeIsValid is Yes and accountExists is Indeterminate" in forAll(
-          genBankAccountDetails,
-          Gen.option(genPostcode),
-          Gen.const(Indeterminate)
-        ) { (bankAccountDetails, postCode, accountResponse) =>
-          val expectedResponse = bankaccountreputation.BankAccountReputation(
-            accountNumberWithSortCodeIsValid = Yes,
-            accountExists = Some(accountResponse),
-            otherError = None
-          )
-
-          inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
-          )
-
-          checkPageIsDisplayed(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              )
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
-          )
-        }
-
         "show the bank account details page if the accountNumberWithSortCodeIsValid is No" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
@@ -657,33 +627,34 @@ class EnterBankAccountDetailsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
-        val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-        val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
+      "the user enters details for the first time" in forAll(genBankAccountDetails, Gen.oneOf(Yes, Indeterminate)) {
+        (bankDetails, accountExists) =>
+          val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
+          val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
 
-        val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
-        val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
-          accountNumberWithSortCodeIsValid = Yes,
-          accountExists = Some(Yes),
-          otherError = None
-        )
+          val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
+          val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
+          val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(accountExists),
+            otherError = None
+          )
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(requiredSession)
-          mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
-          mockStoreSession(updatedSession)(Right(()))
-        }
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(requiredSession)
+            mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
+            mockStoreSession(updatedSession)(Right(()))
+          }
 
-        checkIsRedirect(
-          performAction(
-            "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
-            "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
-            "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
-          ),
-          routes.CheckBankDetailsController.show()
-        )
+          checkIsRedirect(
+            performAction(
+              "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+              "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+              "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
+            ),
+            routes.CheckBankDetailsController.show()
+          )
 
       }
 

@@ -32,11 +32,18 @@ final case class BankAccountDetails(
   accountName: AccountName,
   sortCode: SortCode,
   accountNumber: AccountNumber,
-  bankAccountHasChanged: Boolean = false
+  bankAccountHasChanged: Boolean = false,
+  existenceVerified: Boolean = true
 ) {
 
   def masked(implicit messages: Messages): BankAccountDetails =
-    BankAccountDetails(accountName, SortCode(sortCode.masked), AccountNumber(accountNumber.masked))
+    BankAccountDetails(
+      accountName,
+      SortCode(sortCode.masked),
+      AccountNumber(accountNumber.masked),
+      bankAccountHasChanged,
+      existenceVerified
+    )
 
   def withMaybeAccountName(
     nameMatchesOpt: Option[ReputationResponse],
@@ -48,6 +55,9 @@ final case class BankAccountDetails(
       case _                                                     =>
         this
     }
+
+  def withExistenceVerified(existenceVerified: Boolean): BankAccountDetails =
+    this.copy(existenceVerified = existenceVerified)
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[BankAccountDetails]): BankAccountDetails =
