@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled_v2.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -58,8 +59,7 @@ object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Ta
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    "", // TODO: investigate why we were still using old route and what to replace it with: overpaymentsScheduledRoutes.EnterScheduledClaimController.enterClaim(duty, taxCode).url,
+                  href = s"${routes.EnterClaimController.show(duty, taxCode).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))
                 )
