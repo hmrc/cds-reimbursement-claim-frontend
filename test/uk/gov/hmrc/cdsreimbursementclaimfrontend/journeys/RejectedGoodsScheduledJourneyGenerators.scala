@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
 object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -40,7 +41,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
   val emptyJourney: RejectedGoodsScheduledJourney =
     RejectedGoodsScheduledJourney.empty(exampleEori)
 
-  val journeyWithMrnAndDD: RejectedGoodsScheduledJourney =
+  val journeyWithMrnAndDeclaration: RejectedGoodsScheduledJourney =
     RejectedGoodsScheduledJourney
       .empty(exampleDisplayDeclaration.getDeclarantEori)
       .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
@@ -171,7 +172,8 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[RejectedGoodsScheduledJourney.Features] = None
+    features: Option[RejectedGoodsScheduledJourney.Features] = None,
+    payeeType: PayeeType = PayeeType.Consignee
   ): Gen[RejectedGoodsScheduledJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -183,7 +185,8 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
       generateSubsidyPayments = generateSubsidyPayments,
-      features = features
+      features = features,
+      payeeType = Some(payeeType)
     ).map(
       _.fold(
         error =>
@@ -205,7 +208,8 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[RejectedGoodsScheduledJourney.Features] = None
+    features: Option[RejectedGoodsScheduledJourney.Features] = None,
+    payeeType: Option[PayeeType] = None
   ): Gen[Either[String, RejectedGoodsScheduledJourney]] =
     for {
       userEoriNumber              <- IdGen.genEori
@@ -274,6 +278,7 @@ object RejectedGoodsScheduledJourneyGenerators extends JourneyGenerators with Jo
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
+          payeeType = payeeType,
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,

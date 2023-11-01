@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDD
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -81,7 +81,7 @@ class SelectDutyTypesControllerSpec
       "display the page for the first time" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
@@ -128,7 +128,7 @@ class SelectDutyTypesControllerSpec
       "reject an empty duty type selection" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
@@ -140,11 +140,12 @@ class SelectDutyTypesControllerSpec
       }
 
       "select valid duty types when none have been selected before" in forAll { dutyType: DutyType =>
-        val updatedJourney = journeyWithMrnAndDD.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+        val updatedJourney =
+          journeyWithMrnAndDeclaration.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
           mockStoreSession(SessionData(updatedJourney))(Right(()))
         }
 

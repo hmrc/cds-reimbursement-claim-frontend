@@ -84,7 +84,7 @@ class UploadFilesControllerSpec
       }
 
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in {
-        val journey = journeyWithMrnAndDD.submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
+        val journey = journeyWithMrnAndDeclaration.submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
@@ -106,11 +106,11 @@ class UploadFilesControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(
             SessionData(
-              journeyWithMrnAndDD
+              journeyWithMrnAndDeclaration
                 .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
                 .receiveUploadedFiles(
                   UploadDocumentType.AirWayBill,
-                  journeyWithMrnAndDD.answers.nonce,
+                  journeyWithMrnAndDeclaration.answers.nonce,
                   Seq(uploadDocument)
                 )
                 .getOrFail
@@ -175,20 +175,20 @@ class UploadFilesControllerSpec
       "return 204 if callback accepted" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDD))
+          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
           mockStoreSession(
             SessionData(
-              journeyWithMrnAndDD
+              journeyWithMrnAndDeclaration
                 .receiveUploadedFiles(
                   UploadDocumentType.CommercialInvoice,
-                  journeyWithMrnAndDD.answers.nonce,
+                  journeyWithMrnAndDeclaration.answers.nonce,
                   Seq(uploadDocument)
                 )
                 .getOrFail
             )
           )(Right(()))
         }
-        val result = performAction(callbackPayload.copy(nonce = journeyWithMrnAndDD.answers.nonce))
+        val result = performAction(callbackPayload.copy(nonce = journeyWithMrnAndDeclaration.answers.nonce))
         status(result) shouldBe 204
       }
 
@@ -196,7 +196,7 @@ class UploadFilesControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journeyWithMrnAndDD)
+            SessionData(journeyWithMrnAndDeclaration)
           )
         }
         val result = performAction(callbackPayload.copy(nonce = Nonce.random))
@@ -207,7 +207,7 @@ class UploadFilesControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            SessionData(journeyWithMrnAndDD)
+            SessionData(journeyWithMrnAndDeclaration)
           )
         }
         val result = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))

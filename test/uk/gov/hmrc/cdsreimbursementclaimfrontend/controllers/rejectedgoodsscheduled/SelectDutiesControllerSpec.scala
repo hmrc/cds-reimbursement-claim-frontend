@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDD
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.EitherOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -84,7 +84,7 @@ class SelectDutiesControllerSpec
     "show select tax codes page" when {
 
       "the user has not answered this question before" in forAll { dutyType: DutyType =>
-        val initialJourney = journeyWithMrnAndDD
+        val initialJourney = journeyWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
           .getOrFail
 
@@ -130,7 +130,7 @@ class SelectDutiesControllerSpec
 
       "select tax code page is shown" in forAll(genDutyWithRandomlySelectedTaxCode) {
         case (dutyType: DutyType, taxCode: TaxCode) =>
-          val journey = journeyWithMrnAndDD
+          val journey = journeyWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
             .getOrFail
@@ -164,7 +164,7 @@ class SelectDutiesControllerSpec
     "save user selected tax codes and redirect to the next page" when {
 
       "no other selected duties remaining" in forAll(genDutyWithRandomlySelectedTaxCode) { case (duty, taxCode) =>
-        val initialJourney = journeyWithMrnAndDD
+        val initialJourney = journeyWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
           .getOrFail
 
@@ -189,7 +189,7 @@ class SelectDutiesControllerSpec
     "save user selected tax codes and ask user to enter reclaim amount (even if there are other duty types)" in {
 
       forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise)) { (customDuty, exciseDuty) =>
-        val initialJourney = journeyWithMrnAndDD
+        val initialJourney = journeyWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
           .getOrFail
 
@@ -215,7 +215,7 @@ class SelectDutiesControllerSpec
     "show an error summary" when {
 
       "no tax code is selected" in forAll { dutyType: DutyType =>
-        val initialJourney = journeyWithMrnAndDD
+        val initialJourney = journeyWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
           .getOrFail
 

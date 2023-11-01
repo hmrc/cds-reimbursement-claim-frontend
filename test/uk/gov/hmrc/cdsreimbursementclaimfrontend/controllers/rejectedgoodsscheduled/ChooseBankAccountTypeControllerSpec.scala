@@ -54,7 +54,7 @@ class ChooseBankAccountTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
 

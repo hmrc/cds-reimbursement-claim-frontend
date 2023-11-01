@@ -89,7 +89,7 @@ class EnterBankAccountDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDD)
+  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   "Enter Bank Account Details Controller" must {
 
@@ -653,7 +653,7 @@ class EnterBankAccountDetailsControllerSpec
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
-        val initialJourney  = journeyWithMrnAndDD.submitBankAccountType(BankAccountType.Personal).getOrFail
+        val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
         val requiredSession = session.copy(rejectedGoodsScheduledJourney = Some(initialJourney))
 
         val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
@@ -701,7 +701,7 @@ class EnterBankAccountDetailsControllerSpec
       "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
-        val initialJourney  = journeyWithMrnAndDD.submitBankAccountType(BankAccountType.Personal).getOrFail
+        val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
         val requiredSession = session.copy(rejectedGoodsScheduledJourney = Some(initialJourney))
 
         val boom = new BadRequestException("Boom!")

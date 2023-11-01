@@ -82,7 +82,7 @@ class CheckClaimantDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData(journeyWithMrnAndDD)
+  private val session = SessionData(journeyWithMrnAndDeclaration)
 
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {
@@ -149,7 +149,7 @@ class CheckClaimantDetailsControllerSpec
 
       "redirect to the basis for claims page and do not update the contact/address details if they are already present" in {
         forAll(genEmail, genName, genMrnContactDetails, genContactAddress) { (email, name, contactDetails, address) =>
-          val journey = journeyWithMrnAndDD
+          val journey = journeyWithMrnAndDeclaration
             .submitContactDetails(Some(contactDetails))
             .submitContactAddress(address)
 

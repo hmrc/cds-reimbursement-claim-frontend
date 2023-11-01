@@ -54,7 +54,7 @@ class EnterRejectedGoodsDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  private val session = SessionData(journeyWithMrnAndDD)
+  private val session = SessionData(journeyWithMrnAndDeclaration)
 
   val controller: EnterRejectedGoodsDetailsController = instanceOf[EnterRejectedGoodsDetailsController]
 
