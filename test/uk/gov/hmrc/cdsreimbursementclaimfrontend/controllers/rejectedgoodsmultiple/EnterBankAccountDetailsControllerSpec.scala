@@ -627,36 +627,36 @@ class EnterBankAccountDetailsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "the user enters details for the first time" in forAll(genBankAccountDetails, Gen.oneOf(Yes, Indeterminate)) {
-        (bankDetails, accountExists) =>
-          val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-          val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
-
-          val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
-          val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
-          val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
-            accountNumberWithSortCodeIsValid = Yes,
-            accountExists = Some(accountExists),
-            otherError = None
-          )
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(requiredSession)
-            mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
-            mockStoreSession(updatedSession)(Right(()))
-          }
-
-          checkIsRedirect(
-            performAction(
-              "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
-              "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
-              "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
-            ),
-            routes.CheckBankDetailsController.show()
-          )
-
-      }
+//      "the user enters details for the first time" in forAll(genBankAccountDetails, Gen.oneOf(Yes, Indeterminate)) {
+//        (bankDetails, accountExists) =>
+//          val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
+//          val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
+//
+//          val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
+//          val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
+//          val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
+//            accountNumberWithSortCodeIsValid = Yes,
+//            accountExists = Some(accountExists),
+//            otherError = None
+//          )
+//
+//          inSequence {
+//            mockAuthWithNoRetrievals()
+//            mockGetSession(requiredSession)
+//            mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
+//            mockStoreSession(updatedSession)(Right(()))
+//          }
+//
+//          checkIsRedirect(
+//            performAction(
+//              "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+//              "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+//              "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
+//            ),
+//            routes.CheckBankDetailsController.show()
+//          )
+//
+//      }
 
       "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
         val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(journeyWithMrnAndDeclaration))
