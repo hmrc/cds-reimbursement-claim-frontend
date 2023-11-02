@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AmountPaidWithCorrect, DutyType, TaxCode}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.{ScheduledReimbursementSummary, TaxCodeReimbursementSummary}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.{ScheduledReimbursementSummary, TaxCodeReimbursementScheduledOverpaymentsSummary}
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
@@ -55,7 +55,7 @@
     @paragraph(Html(messages(s"$key.scheduled.help-text")), classes = Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"), id = s"$key-help-text")
     @answers.map { claim =>
         @subHeading(Html(messages(s"duty-type.${claim._1.repr}")), classes = "govuk-heading-m", id = s"$key-duty-${claim._1.repr}")
-        @summary(TaxCodeReimbursementSummary((claim._1, claim._2),key, subKey))
+        @summary(TaxCodeReimbursementScheduledOverpaymentsSummary((claim._1, claim._2),key, subKey))
     <br>
     }
 
