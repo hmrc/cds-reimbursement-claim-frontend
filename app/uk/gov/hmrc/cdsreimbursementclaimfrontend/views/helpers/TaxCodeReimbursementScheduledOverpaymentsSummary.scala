@@ -34,7 +34,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
 import scala.collection.immutable.SortedMap
 
-object TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])] {
+object TaxCodeReimbursementScheduledOverpaymentsSummary
+    extends AnswerSummary[(DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])] {
 
   override def render(
     answer: (DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]),
