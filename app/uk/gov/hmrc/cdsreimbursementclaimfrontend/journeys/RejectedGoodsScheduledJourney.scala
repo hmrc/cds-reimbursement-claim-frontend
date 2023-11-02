@@ -305,6 +305,45 @@ final class RejectedGoodsScheduledJourney private (
       )
     }
 
+  def submitPayeeType(payeeType: PayeeType): Either[String, RejectedGoodsScheduledJourney] =
+    whileClaimIsAmendable {
+      if (answers.payeeType.contains(payeeType))
+        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      else
+        Right(
+          copy(newAnswers =
+            answers.copy(
+              payeeType = Some(payeeType),
+              bankAccountDetails = None
+            )
+          )
+        )
+    }
+
+  override def computeBankAccountDetails: Option[BankAccountDetails] =
+    answers.bankAccountDetails match {
+      case Some(details) => Some(details)
+      case None          =>
+        val maybeDeclarantBankDetails       = getDeclarantBankAccountDetails
+        val maybeConsigneeBankDetails       = getConsigneeBankAccountDetails
+        val consigneeAndDeclarantEorisMatch = (for {
+          consigneeEori <- getConsigneeEoriFromACC14
+          declarantEori <- getDeclarantEoriFromACC14
+        } yield consigneeEori === declarantEori).getOrElse(false)
+
+        (answers.payeeType, maybeDeclarantBankDetails, maybeConsigneeBankDetails) match {
+          case (Some(PayeeType.Consignee), _, Some(consigneeBankDetails))                                       =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Declarant), Some(declarantBankDetails), _)                                       =>
+            Some(declarantBankDetails)
+          case (Some(PayeeType.Declarant), None, Some(consigneeBankDetails)) if consigneeAndDeclarantEorisMatch =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Consignee), Some(declarantBankDetails), None) if consigneeAndDeclarantEorisMatch =>
+            Some(declarantBankDetails)
+          case _                                                                                                => None
+        }
+    }
+
   def selectAndReplaceDutyTypeSetForReimbursement(
     dutyTypes: Seq[DutyType]
   ): Either[String, RejectedGoodsScheduledJourney] =
@@ -520,9 +559,11 @@ final class RejectedGoodsScheduledJourney private (
           inspectionAddress      <- answers.inspectionAddress
           scheduledDocument      <- answers.scheduledDocument
           claimantInformation    <- getClaimantInformation
+          payeeType              <- answers.payeeType
         } yield RejectedGoodsScheduledJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
+          payeeType = payeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           methodOfDisposal = methodOfDisposal,
@@ -593,6 +634,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
   final case class Output(
     movementReferenceNumber: MRN,
     claimantType: ClaimantType,
+    payeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfRejectedGoodsClaim,
     basisOfClaimSpecialCircumstances: Option[String],
@@ -635,7 +677,8 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
+      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
     )
 
   import JourneyFormats._
@@ -703,6 +746,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       .map(_.withDutiesChangeMode(answers.dutiesChangeMode))
       .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
       .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(

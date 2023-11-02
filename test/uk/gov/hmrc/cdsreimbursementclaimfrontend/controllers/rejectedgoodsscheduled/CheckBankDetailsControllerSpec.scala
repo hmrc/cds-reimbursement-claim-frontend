@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -67,13 +68,17 @@ class CheckBankDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  private def sessionWithBankDetailsInACC14(maybeBankDetails: Option[BankDetails]): SessionData = {
+  private def sessionWithBankDetailsInACC14(
+    maybeBankDetails: Option[BankDetails],
+    payeeType: Option[PayeeType] = None
+  ): SessionData = {
     val displayDeclaration: DisplayDeclaration = displayDeclarationGen.sample.get.withBankDetails(maybeBankDetails)
 
     SessionData(
       RejectedGoodsScheduledJourney
         .empty(displayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+        .flatMapWhenDefined(payeeType)(journey => p => journey.submitPayeeType(p))
         .getOrFail
     )
   }
@@ -94,60 +99,93 @@ class CheckBankDetailsControllerSpec
       status(performAction()) shouldBe NOT_FOUND
     }
 
-    "display the page using consignee bank details from Acc14" in forAll(genBankAccountDetails) {
-      bankAccountDetails: BankAccountDetails =>
-        val consigneeBankDetails: BankDetails = BankDetails(Some(bankAccountDetails), None)
-        val sessionWithBankDetails            = sessionWithBankDetailsInACC14(Some(consigneeBankDetails))
-        val modifiedSession                   = sessionWithBankDetailsStored(sessionWithBankDetails, bankAccountDetails)
+    "display the page using consignee bank details from Acc14 and payeeType is Importer (Consignee)" in forAll(
+      genBankAccountDetails
+    ) { bankAccountDetails: BankAccountDetails =>
+      val consigneeBankDetails: BankDetails = BankDetails(Some(bankAccountDetails), None)
+      val sessionWithBankDetails            = sessionWithBankDetailsInACC14(Some(consigneeBankDetails), Some(PayeeType.Consignee))
+      val modifiedSession                   = sessionWithBankDetailsStored(sessionWithBankDetails, bankAccountDetails)
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(sessionWithBankDetails)
-          mockStoreSession(modifiedSession)(Right(()))
-        }
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(sessionWithBankDetails)
+        mockStoreSession(modifiedSession)(Right(()))
+      }
 
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("bank-details.title"),
-          doc =>
-            summaryKeyValueMap(doc) shouldBe Map(
-              "Name on the account" -> bankAccountDetails.accountName.value,
-              "Sort code"           -> bankAccountDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
-              "Account number"      -> bankAccountDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
-            )
-        )
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey("bank-details.title"),
+        doc =>
+          summaryKeyValueMap(doc) shouldBe Map(
+            "Name on the account" -> bankAccountDetails.accountName.value,
+            "Sort code"           -> bankAccountDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
+            "Account number"      -> bankAccountDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
+          )
+      )
 
     }
 
-    "display the page using declarant bank details from Acc14" in forAll(genBankAccountDetails) {
-      bankAccountDetails: BankAccountDetails =>
-        val declarantBankDetails: BankDetails = BankDetails(None, Some(bankAccountDetails))
-        val sessionWithBankDetails            = sessionWithBankDetailsInACC14(Some(declarantBankDetails))
-        val modifiedSession                   = sessionWithBankDetailsStored(sessionWithBankDetails, bankAccountDetails)
-
+    "Redirect when BankDetails has consigneeBankDetails but payeeType is Declarant" in forAll(genBankAccountDetails) {
+      consigneeBankDetails: BankAccountDetails =>
+        val bankDetails     = BankDetails(Some(consigneeBankDetails), None)
+        val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Declarant))
+        val modifiedSession = sessionWithBankDetailsStored(session, consigneeBankDetails)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(sessionWithBankDetails)
-          mockStoreSession(modifiedSession)(Right(()))
+          mockGetSession(session)
         }
+        val request         = FakeRequest()
+        val result          = controller.show()(request)
 
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("bank-details.title"),
-          doc =>
-            summaryKeyValueMap(doc) shouldBe Map(
-              "Name on the account" -> bankAccountDetails.accountName.value,
-              "Sort code"           -> bankAccountDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
-              "Account number"      -> bankAccountDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
-            )
-        )
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+    }
 
+    "display the page using declarant bank details from Acc14 and payeeType is Declarant" in forAll(
+      genBankAccountDetails
+    ) { bankAccountDetails: BankAccountDetails =>
+      val declarantBankDetails: BankDetails = BankDetails(None, Some(bankAccountDetails))
+      val sessionWithBankDetails            = sessionWithBankDetailsInACC14(Some(declarantBankDetails), Some(PayeeType.Declarant))
+      val modifiedSession                   = sessionWithBankDetailsStored(sessionWithBankDetails, bankAccountDetails)
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(sessionWithBankDetails)
+        mockStoreSession(modifiedSession)(Right(()))
+      }
+
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey("bank-details.title"),
+        doc =>
+          summaryKeyValueMap(doc) shouldBe Map(
+            "Name on the account" -> bankAccountDetails.accountName.value,
+            "Sort code"           -> bankAccountDetails.sortCode.masked(MessagesImpl(Lang("en"), theMessagesApi)),
+            "Account number"      -> bankAccountDetails.accountNumber.masked(MessagesImpl(Lang("en"), theMessagesApi))
+          )
+      )
+
+    }
+
+    "Redirect when BankDetails has declarantBankDetails but payeeType is Importer (Consignee)" in forAll(
+      genBankAccountDetails
+    ) { declarantBankDetails: BankAccountDetails =>
+      val bankDetails     = BankDetails(None, Some(declarantBankDetails))
+      val session         = sessionWithBankDetailsInACC14(Some(bankDetails), Some(PayeeType.Consignee))
+      val modifiedSession = sessionWithBankDetailsStored(session, declarantBankDetails)
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+      val request         = FakeRequest()
+      val result          = controller.show()(request)
+
+      checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
     }
 
     "display the page with submitted bank details" in forAll(genBankAccountDetails) { bankDetails: BankAccountDetails =>
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(sessionWithBankDetailsStored(SessionData(journeyWithMrnAndDD), bankDetails))
+        mockGetSession(sessionWithBankDetailsStored(SessionData(journeyWithMrnAndDeclaration), bankDetails))
       }
 
       checkPageIsDisplayed(
