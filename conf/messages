@@ -1336,6 +1336,7 @@ enter-inspection-date.rejected-goods.error.before1900=Enter the date your goods 
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
+bank-details.warning=We have been unable to check the details of this bank account. You should check the details that you have entered are correct before continuing
 bank-details.p1=These are the details of where your repayments will be made in the UK based on our records.
 bank-details.details.heading=How to change bank details if you are a representative
 bank-details.details.p1=If you are a representative and want to change these bank details, you will need to provide:

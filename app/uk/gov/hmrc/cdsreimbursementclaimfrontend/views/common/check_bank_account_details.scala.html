@@ -22,6 +22,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.BankAccountDetailsSummary
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.govukfrontend.views.html.components.WarningText
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,7 +32,8 @@
     buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
 )
 
 @(bankAccount: BankAccountDetails, continueAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -41,6 +44,10 @@
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
+
+    @if(!bankAccount.existenceVerified){
+        @warningText(WarningText(content = Text(messages(s"$key.warning"))))
+    }
 
     @paragraph(Html(messages(s"$key.p1")))
 

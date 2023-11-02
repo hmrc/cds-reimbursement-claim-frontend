@@ -34,7 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Partial
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.LoggerOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
 import scala.concurrent.Future
@@ -164,12 +166,17 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     bankAccountReputation match {
       case BankAccountReputation(
             Yes | Indeterminate,
-            Some(Yes),
+            accountExists @ Some(Yes | Indeterminate),
             None,
             accountNameOpt,
             nameMatchesOpt @ (Some(Yes) | Some(Partial) | None)
           ) =>
-        modifyJourney(journey, bankAccountDetails.withMaybeAccountName(nameMatchesOpt, accountNameOpt))
+        modifyJourney(
+          journey,
+          bankAccountDetails
+            .withMaybeAccountName(nameMatchesOpt, accountNameOpt)
+            .withExistenceVerified(accountExists.contains(ReputationResponse.Yes))
+        )
           .fold(
             error => {
               logger.warn(s"cannot submit bank account details because of $error")

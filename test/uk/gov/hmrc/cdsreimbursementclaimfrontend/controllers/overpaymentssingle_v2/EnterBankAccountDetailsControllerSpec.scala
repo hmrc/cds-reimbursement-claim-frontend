@@ -317,7 +317,7 @@ class EnterBankAccountDetailsControllerSpec
         "show error on the the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+          Gen.oneOf(Some(Inapplicable), Some(No), None)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
@@ -345,12 +345,13 @@ class EnterBankAccountDetailsControllerSpec
       "business account" must {
         "redirect to the check bank accounts page if a business account that exists with a valid sort code is specified" in forAll(
           genBankAccountDetails,
-          Gen.option(genPostcode)
-        ) { (bankAccountDetails, postCode) =>
+          Gen.option(genPostcode),
+          Gen.oneOf(Yes, Indeterminate)
+        ) { (bankAccountDetails, postCode, accountExists) =>
           val personalResponse =
             bankaccountreputation.BankAccountReputation(
               accountNumberWithSortCodeIsValid = Yes,
-              accountExists = Some(Yes),
+              accountExists = Some(accountExists),
               otherError = None
             )
 
@@ -464,7 +465,7 @@ class EnterBankAccountDetailsControllerSpec
         "show error on the the bank account details page if the account number is not valid" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
-          Gen.oneOf(Some(Inapplicable), Some(Indeterminate), Some(No), None)
+          Gen.oneOf(Some(Inapplicable), Some(No), None)
         ) { (bankAccountDetails, postCode, accountResponse) =>
           val expectedResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
