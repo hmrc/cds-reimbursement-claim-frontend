@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.implicits._
+import cats.syntax.eq._
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -26,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
@@ -157,6 +159,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     getBankAccountTypePath: Call
   )
 
+  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
   private def processBankAccountReputation(
     journey: Journey,
     bankAccountReputation: BankAccountReputation,
@@ -170,7 +173,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             None,
             accountNameOpt,
             nameMatchesOpt @ (Some(Yes) | Some(Partial) | None)
-          ) =>
+          ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
         modifyJourney(
           journey,
           bankAccountDetails
