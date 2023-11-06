@@ -76,10 +76,12 @@ object ClaimantInformation {
 
   private def concat(lineA: Option[String], lineB: Option[String]): Option[String] =
     (lineA, lineB) match {
-      case (Some(s1), Some(s2)) => Some(s"$s1 $s2")
-      case (Some(s1), None)     => Some(s1)
-      case (None, Some(s2))     => Some(s2)
-      case _                    => Some("")
+      case (Some(s1), Some(s2)) if s1.trim().endsWith(s2.trim)   => Some(s1)
+      case (Some(s1), Some(s2)) if s2.trim().startsWith(s1.trim) => Some(s2)
+      case (Some(s1), Some(s2))                                  => Some(s"$s1 $s2")
+      case (Some(s1), None)                                      => Some(s1)
+      case (None, Some(s2))                                      => Some(s2)
+      case _                                                     => Some("")
     }
 
   implicit val eq: Eq[ClaimantInformation]         = Eq.fromUniversalEquals[ClaimantInformation]
