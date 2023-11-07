@@ -66,7 +66,7 @@ class CheckClaimDetailsController @Inject() (
               checkClaimDetails(
                 whetherClaimDetailsCorrect,
                 mrn,
-                journey.getReimbursementClaims.toSeq,
+                journey.getReimbursements,
                 enterClaimAction,
                 routes.CheckClaimDetailsController.submit
               )
@@ -92,7 +92,7 @@ class CheckClaimDetailsController @Inject() (
                     checkClaimDetails(
                       formWithErrors,
                       mrn,
-                      journey.getReimbursementClaims.toSeq,
+                      journey.getReimbursements,
                       enterClaimAction,
                       routes.CheckClaimDetailsController.submit
                     )

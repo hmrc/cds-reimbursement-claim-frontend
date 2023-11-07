@@ -31,6 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -265,15 +267,15 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
+      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
           .zip(correctAmount)
           .map { case (t, a) =>
-            (t, Option(a))
+            (t, Some(DefaultMethodReimbursementClaim(a)))
           }
           .toMap
 
@@ -449,10 +451,10 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
+      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
           .map { t =>
@@ -539,15 +541,15 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]    =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
+      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
           .zip(correctAmount)
           .map { case (t, a) =>
-            (t, Option(a))
+            (t, Some(DefaultMethodReimbursementClaim(a)))
           }
           .toMap
 

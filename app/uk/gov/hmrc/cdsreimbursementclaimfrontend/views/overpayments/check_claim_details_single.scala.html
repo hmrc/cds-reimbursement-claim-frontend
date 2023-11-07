@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -40,7 +41,7 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[YesNo], mrn: MRN, claims: Seq[(TaxCode, BigDecimal)], enterClaimAction: TaxCode => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], mrn: MRN, claims: Seq[Reimbursement], enterClaimAction: TaxCode => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-claim-summary"}
 @title = @{messages(s"$key.title")}
@@ -57,9 +58,7 @@
 
     @subHeading(Html(messages(s"$key.duty.label",mrn.value)), classes = "govuk-heading-m", id = s"$key-section-${mrn.value}")
 
-    @summary(SummaryList(ClaimSummaryHelper.makeClaimSummary(
-        claims.map{case (taxCode, claimAmount) => (taxCode, claimAmount, enterClaimAction(taxCode))}
-    )))
+    @summary(SummaryList(ClaimSummaryHelper.makeClaimSummary(claims, enterClaimAction)))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(

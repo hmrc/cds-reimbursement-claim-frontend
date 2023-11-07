@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -75,7 +76,7 @@ class CheckClaimDetailsControllerSpec
       "check-claim-summary-yes-no"        -> s"${m("check-claim-summary.are-duties-correct")} ${m("check-claim-summary.yes")} ${m("check-claim-summary.no")}"
     )
     summaryKeyValueList(doc)          should containOnlyPairsOf(
-      journey.getReimbursementClaims.toSeq.map { case (taxCode, amount) =>
+      journey.getReimbursements.map { case Reimbursement(taxCode, amount, _) =>
         (s"$taxCode - ${m(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
       } ++
         Seq(m("check-claim-summary.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)

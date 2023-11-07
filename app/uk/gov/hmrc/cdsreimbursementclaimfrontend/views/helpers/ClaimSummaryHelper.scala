@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
-import cats.data.NonEmptyList
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -28,17 +26,32 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 object ClaimSummaryHelper {
 
-  private val key                                                                                                   = "check-claim-summary"
-  def makeClaimSummary(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): List[SummaryListRow] =
-    makeClaimSummaryRows(claims) ++ makeTotalRow(claims)
+  private val key = "check-claim-summary"
 
-  def makeClaimSummaryRows(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def makeClaimSummary(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): Seq[SummaryListRow] = {
+    val reimbursements: Seq[Reimbursement] =
+      claims.map { case (taxCode, amount, _) => Reimbursement(taxCode, amount, null) }
+
+    val claimAction: TaxCode => Call       =
+      claims.map { case (taxCode, _, call) => (taxCode, call) }.toMap
+
+    makeClaimSummaryRows(reimbursements, claimAction) ++ makeTotalRow(reimbursements)
+  }
+
+  def makeClaimSummary(claims: Seq[Reimbursement], claimAction: TaxCode => Call)(implicit
     messages: Messages
-  ): List[SummaryListRow] =
-    claims.toList.zipWithIndex.map { case ((taxCode, claimAmount, changeCall), index) =>
+  ): Seq[SummaryListRow] =
+    makeClaimSummaryRows(claims, claimAction) ++ makeTotalRow(claims)
+
+  def makeClaimSummaryRows(claims: Seq[Reimbursement], claimAction: TaxCode => Call)(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    claims.zipWithIndex.map { case (Reimbursement(taxCode, claimAmount, _), index) =>
       SummaryListRow(
         key = Key(Text(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")),
         value = Value(Text(claimAmount.toPoundSterlingString)),
@@ -46,7 +59,7 @@ object ClaimSummaryHelper {
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${changeCall.url}",
+                href = s"${claimAction(taxCode).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
                   s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
@@ -59,17 +72,10 @@ object ClaimSummaryHelper {
       )
     }
 
-  def makeTotalRow(claims: NonEmptyList[ClaimedReimbursement])(implicit messages: Messages): List[SummaryListRow] =
+  def makeTotalRow(claims: Seq[Reimbursement])(implicit messages: Messages): List[SummaryListRow] =
     SummaryListRow(
       key = Key(HtmlContent(messages(s"$key.total"))),
-      value = Value(Text(claims.toList.map(_.claimAmount).sum.toPoundSterlingString)),
-      classes = "govuk-!-margin-bottom-9"
-    ) :: Nil
-
-  def makeTotalRow(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): List[SummaryListRow] =
-    SummaryListRow(
-      key = Key(HtmlContent(messages(s"$key.total"))),
-      value = Value(Text(claims.map(_._2).sum.toPoundSterlingString)),
+      value = Value(Text(claims.map(_.amount).sum.toPoundSterlingString)),
       classes = "govuk-!-margin-bottom-9"
     ) :: Nil
 

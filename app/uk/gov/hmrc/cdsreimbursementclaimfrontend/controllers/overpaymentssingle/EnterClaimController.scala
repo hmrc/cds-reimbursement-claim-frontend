@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_single_claim
 
@@ -73,7 +74,7 @@ class EnterClaimController @Inject() (
 
             case Some(ndrcDetails) =>
               val actualAmount: Option[BigDecimal] =
-                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
+                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten).map(_.getAmount)
               val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
               val form                             =
@@ -129,7 +130,7 @@ class EnterClaimController @Inject() (
                       ),
                     reimbursementAmount =>
                       journey
-                        .submitCorrectAmount(taxCode, reimbursementAmount)
+                        .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(reimbursementAmount))
                         .fold(
                           error =>
                             Future.failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),

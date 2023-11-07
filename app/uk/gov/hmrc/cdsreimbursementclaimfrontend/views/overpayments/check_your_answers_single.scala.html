@@ -67,7 +67,7 @@
     @summary(AdditionalDetailsSummary(claim.additionalDetails, s"$key.additional-details", Some(routes.EnterAdditionalDetailsController.show)))
     
     @subHeading(Html(messages(combine(s"$key.claim-calculation", subKey, "h2"))))
-    @summary(ClaimedReimbursementsAnswerSummary(claim.reimbursementClaims.toSeq, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
+    @summary(ClaimedReimbursementsAnswerSummary.fromReimbursements(claim.reimbursements, s"$key.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
 
     @subHeading(Html(messages(s"$key.reimbursement-method.h2")))
     @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"$key.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ReimbursementMethodController.show) else None))

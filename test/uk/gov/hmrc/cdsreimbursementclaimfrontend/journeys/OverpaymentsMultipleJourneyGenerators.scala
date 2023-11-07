@@ -275,7 +275,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumbers = Some(mrns),
-          payeeType = Some(PayeeType.Declarant),
+          payeeType = payeeType,
           displayDeclarations = Some(displayDeclarations),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,

@@ -112,9 +112,9 @@ object JourneyLog {
       reasonForSecurity = None,
       temporaryAdmissionMethodOfDisposal = None,
       reimbursementMethod = output.reimbursementMethod.toString,
-      claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2).sum),
-      claimedDuties = output.reimbursementClaims.keySet.map(_.toString()).toSeq.sorted,
-      numberOfClaimedDuties = output.reimbursementClaims.size,
+      claimedAmountThreshold = threshold(output.reimbursements.map(_.amount).sum),
+      claimedDuties = output.reimbursements.map(_.taxCode.toString).sorted,
+      numberOfClaimedDuties = output.reimbursements.size,
       uploads = Uploads(
         numberOfEvidenceFilesAttached = output.supportingEvidences.size,
         documentTypesAttached = output.supportingEvidences.map(_.documentType.toString()).sorted,

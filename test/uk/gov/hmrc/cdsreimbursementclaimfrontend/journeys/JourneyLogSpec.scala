@@ -21,6 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import scala.collection.immutable.SortedMap
@@ -50,7 +51,18 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           basisOfClaim = BasisOfOverpaymentClaim.OutwardProcessingRelief,
           whetherNorthernIreland = true,
           additionalDetails = "foo bar",
-          reimbursementClaims = Map(TaxCode.A00 -> BigDecimal("1234.56"), TaxCode.A30 -> BigDecimal("12.34")),
+          reimbursements = Seq(
+            Reimbursement(
+              TaxCode.A00,
+              BigDecimal("1234.56"),
+              ReimbursementMethod.CurrentMonthAdjustment
+            ),
+            Reimbursement(
+              TaxCode.A30,
+              BigDecimal("12.34"),
+              ReimbursementMethod.CurrentMonthAdjustment
+            )
+          ),
           reimbursementMethod = ReimbursementMethod.CurrentMonthAdjustment,
           bankAccountDetails = Some(exampleBankAccountDetails),
           supportingEvidences = exampleSupportingEvidences

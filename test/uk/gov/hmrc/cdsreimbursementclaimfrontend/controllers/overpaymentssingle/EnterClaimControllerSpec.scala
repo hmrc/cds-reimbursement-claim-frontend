@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -193,7 +194,7 @@ class EnterClaimControllerSpec
             }
 
             val actualAmountOpt: Option[BigDecimal] =
-              journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
+              journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten).map(_.getAmount)
 
             checkPageIsDisplayed(
               performAction(taxCode),
@@ -272,7 +273,7 @@ class EnterClaimControllerSpec
                   mockStoreSession(
                     SessionData(
                       journey
-                        .submitCorrectAmount(taxCode, actualAmount)
+                        .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(actualAmount))
                         .getOrFail
                     )
                   )(

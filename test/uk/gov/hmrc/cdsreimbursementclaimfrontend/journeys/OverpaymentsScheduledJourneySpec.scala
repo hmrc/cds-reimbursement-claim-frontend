@@ -1095,12 +1095,12 @@ class OverpaymentsScheduledJourneySpec
         )
 
         val journeyEither =
-          OverpaymentsSingleJourney
+          OverpaymentsScheduledJourney
             .empty(exampleEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-            .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
-            .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+            .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
+            .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
             .flatMap(_.submitPayeeType(PayeeType.Consignee))
 
         journeyEither.isRight                                shouldBe true
@@ -1115,12 +1115,12 @@ class OverpaymentsScheduledJourneySpec
         )
 
         val journeyEither =
-          OverpaymentsSingleJourney
+          OverpaymentsScheduledJourney
             .empty(exampleEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-            .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
-            .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+            .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
+            .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
             .flatMap(_.submitPayeeType(PayeeType.Declarant))
 
         journeyEither.isRight                                shouldBe true
