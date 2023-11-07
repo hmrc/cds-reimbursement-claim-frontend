@@ -45,7 +45,7 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None,
-  val features: Option[RejectedGoodsSingleJourney.Features] = None
+  val features: Option[RejectedGoodsSingleJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsSingleJourney]
     with RejectedGoodsJourneyProperties

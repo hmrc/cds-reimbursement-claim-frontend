@@ -44,7 +44,7 @@ import scala.collection.immutable.SortedMap
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None,
-  val features: Option[RejectedGoodsScheduledJourney.Features] = None
+  val features: Option[RejectedGoodsScheduledJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsScheduledJourney]
     with RejectedGoodsJourneyProperties

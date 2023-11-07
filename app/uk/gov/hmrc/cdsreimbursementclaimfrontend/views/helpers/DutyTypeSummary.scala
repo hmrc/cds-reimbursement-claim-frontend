@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 sealed abstract class DutyTypeSummary(val total: BigDecimal, val messageKey: String)
 
@@ -39,6 +40,28 @@ object DutyTypeSummary {
   def buildFrom(reimbursements: Seq[(TaxCode, BigDecimal)]): Seq[DutyTypeSummary] = {
     val totals = reimbursements
       .foldLeft(Array[BigDecimal](xs = 0, 0, 0)) { case (buff, (taxCode, claimAmount)) =>
+        if (TaxCodes.ukTaxCodeSet.contains(taxCode)) {
+          buff(0) += claimAmount
+          buff
+        } else if (TaxCodes.euTaxCodeSet.contains(taxCode)) {
+          buff(1) += claimAmount
+          buff
+        } else if (TaxCodes.exciseTaxCodeSet.contains(taxCode)) {
+          buff(2) += claimAmount
+          buff
+        } else buff
+      }
+
+    Seq[DutyTypeSummary](
+      UKDutyTypeSummary(totals(0)),
+      EUDutyTypeSummary(totals(1)),
+      ExciseDutyTypeSummary(totals(2))
+    ).filter(_.total > 0)
+  }
+
+  def buildFromReimbursements(reimbursements: Seq[Reimbursement]): Seq[DutyTypeSummary] = {
+    val totals = reimbursements
+      .foldLeft(Array[BigDecimal](xs = 0, 0, 0)) { case (buff, Reimbursement(taxCode, claimAmount, _)) =>
         if (TaxCodes.ukTaxCodeSet.contains(taxCode)) {
           buff(0) += claimAmount
           buff

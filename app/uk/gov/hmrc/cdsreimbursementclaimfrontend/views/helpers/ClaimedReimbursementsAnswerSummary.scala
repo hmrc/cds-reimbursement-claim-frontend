@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 object ClaimedReimbursementsAnswerSummary {
 
@@ -45,7 +46,28 @@ object ClaimedReimbursementsAnswerSummary {
   ): SummaryList = {
 
     val individualClaimSummaries = DutyTypeSummary.buildFrom(reimbursements)
+    buildSummaryList(individualClaimSummaries, key, changeCallOpt)
+  }
 
+  def fromReimbursements(
+    reimbursements: Seq[Reimbursement],
+    key: String,
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
+  ): SummaryList = {
+
+    val individualClaimSummaries = DutyTypeSummary.buildFromReimbursements(reimbursements)
+    buildSummaryList(individualClaimSummaries, key, changeCallOpt)
+  }
+
+  private def buildSummaryList(
+    individualClaimSummaries: Seq[DutyTypeSummary],
+    key: String,
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
+  ) =
     SummaryList(rows =
       individualClaimSummaries
         .map { summary =>
@@ -83,5 +105,4 @@ object ClaimedReimbursementsAnswerSummary {
           )
         )
     )
-  }
 }
