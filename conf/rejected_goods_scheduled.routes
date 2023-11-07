@@ -55,8 +55,8 @@ GET          /rejected-goods/scheduled/inspection-address/update-address        
 GET          /rejected-goods/scheduled/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterInspectionDateController.show()
 POST         /rejected-goods/scheduled/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterInspectionDateController.submit()
 
-GET         /rejected-goods/v2/scheduled/choose-payee-type                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChoosePayeeTypeController.show
-POST        /rejected-goods/v2/scheduled/choose-payee-type                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChoosePayeeTypeController.submit
+GET          /rejected-goods/scheduled/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChoosePayeeTypeController.show
+POST         /rejected-goods/scheduled/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChoosePayeeTypeController.submit
 
 GET          /rejected-goods/scheduled/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseBankAccountTypeController.show()
 POST         /rejected-goods/scheduled/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ChooseBankAccountTypeController.submit()
