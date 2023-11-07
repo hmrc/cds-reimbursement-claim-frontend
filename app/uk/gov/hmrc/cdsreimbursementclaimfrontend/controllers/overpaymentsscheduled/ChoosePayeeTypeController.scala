@@ -46,9 +46,6 @@ class ChoosePayeeTypeController @Inject() (
 
   final val postAction: Call                 = routes.ChoosePayeeTypeController.submit
   final def nextPage(journey: Journey): Call =
-    if (journey.isSubsidyOnlyJourney)
-      routes.ChooseFileTypeController.show
-    else
-      routes.CheckBankDetailsController.show
+    routes.CheckBankDetailsController.show
 
 }
