@@ -47,25 +47,25 @@ GET         /overpayments/multiple/enter-additional-details                     
 POST        /overpayments/multiple/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterAdditionalDetailsController.submit
 
 GET         /overpayments/multiple/select-duties                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectDutiesController.showFirst
-GET         /overpayments/v1/multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectDutiesController.show(index: Int)
-POST        /overpayments/v1/multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectDutiesController.submit(index: Int)
+GET         /overpayments/multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectDutiesController.show(index: Int)
+POST        /overpayments/multiple/select-duties/:index                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.SelectDutiesController.submit(index: Int)
 
-GET         /overpayments/v1/multiple/enter-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.showFirst
-GET         /overpayments/v1/multiple/enter-claim/:index                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.showFirstByIndex(index: Int)
-GET         /overpayments/v1/multiple/enter-claim/:index/:taxCode                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.show(index: Int, taxCode: TaxCode)
-POST        /overpayments/v1/multiple/enter-claim/:index/:taxCode                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.submit(index: Int, taxCode: TaxCode)
+GET         /overpayments/multiple/enter-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.showFirst
+GET         /overpayments/multiple/enter-claim/:index                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.showFirstByIndex(index: Int)
+GET         /overpayments/multiple/enter-claim/:index/:taxCode                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.show(index: Int, taxCode: TaxCode)
+POST        /overpayments/multiple/enter-claim/:index/:taxCode                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.submit(index: Int, taxCode: TaxCode)
 
-GET         /overpayments/v1/multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimDetailsController.show
-POST        /overpayments/v1/multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimDetailsController.submit
+GET         /overpayments/multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimDetailsController.show
+POST        /overpayments/multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimDetailsController.submit
 
-GET         /overpayments/v1/multiple/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.show
-POST        /overpayments/v1/multiple/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.submit
+GET         /overpayments/multiple/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.show
+POST        /overpayments/multiple/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.submit
 
-GET         /overpayments/v1/multiple/choose-files                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.show
+GET         /overpayments/multiple/choose-files                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.show
 +nocsrf
-POST        /overpayments/v1/multiple/choose-files                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.submit
-GET         /overpayments/v1/multiple/upload-summary                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.summary
+POST        /overpayments/multiple/choose-files                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.submit
+GET         /overpayments/multiple/upload-summary                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.UploadFilesController.summary
 
-POST        /overpayments/v1/multiple/submit-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController.submit
-GET         /overpayments/v1/multiple/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController.showConfirmation
-GET         /overpayments/v1/multiple/check-your-answers                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController.show
+POST        /overpayments/multiple/submit-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController.submit
+GET         /overpayments/multiple/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController.showConfirmation
+GET         /overpayments/multiple/check-your-answers                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController.show

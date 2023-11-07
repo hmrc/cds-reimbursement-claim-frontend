@@ -83,7 +83,7 @@ class SelectDutiesControllerSpec
     mrnElement.attr("class") shouldBe "govuk-!-font-weight-bold"
     hasContinueButton(doc)
 
-    formAction(doc) shouldBe s"/claim-back-import-duty-vat/overpayments/v1/multiple/select-duties/$pageIndex"
+    formAction(doc) shouldBe s"/claim-back-import-duty-vat/overpayments/multiple/select-duties/$pageIndex"
   }
 
   "SelectDutiesController" when {
@@ -277,7 +277,7 @@ class SelectDutiesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-back-import-duty-vat/overpayments/v1/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/overpayments/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -295,7 +295,7 @@ class SelectDutiesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-back-import-duty-vat/overpayments/v1/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/overpayments/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -321,7 +321,7 @@ class SelectDutiesControllerSpec
 
               checkIsRedirect(
                 performAction(mrnIndex + 1, newSelectedTaxCodes),
-                s"/claim-back-import-duty-vat/overpayments/v1/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
+                s"/claim-back-import-duty-vat/overpayments/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
               )
             }
           }
