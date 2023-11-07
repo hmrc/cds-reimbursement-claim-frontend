@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v2
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v1
 
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple_v1.SelectDutiesController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -82,7 +83,7 @@ class SelectDutiesControllerSpec
     mrnElement.attr("class") shouldBe "govuk-!-font-weight-bold"
     hasContinueButton(doc)
 
-    formAction(doc) shouldBe s"/claim-back-import-duty-vat/overpayments/v2/multiple/select-duties/$pageIndex"
+    formAction(doc) shouldBe s"/claim-back-import-duty-vat/overpayments/v1/multiple/select-duties/$pageIndex"
   }
 
   "SelectDutiesController" when {
@@ -276,7 +277,7 @@ class SelectDutiesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-back-import-duty-vat/overpayments/v2/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/overpayments/v1/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -294,7 +295,7 @@ class SelectDutiesControllerSpec
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
-              s"/claim-back-import-duty-vat/overpayments/v2/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
+              s"/claim-back-import-duty-vat/overpayments/v1/multiple/enter-claim/${mrnIndex + 1}/${selectedTaxCodes.head.value}"
             )
           }
         }
@@ -320,7 +321,7 @@ class SelectDutiesControllerSpec
 
               checkIsRedirect(
                 performAction(mrnIndex + 1, newSelectedTaxCodes),
-                s"/claim-back-import-duty-vat/overpayments/v2/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
+                s"/claim-back-import-duty-vat/overpayments/v1/multiple/enter-claim/${mrnIndex + 1}/${newSelectedTaxCodes.head.value}"
               )
             }
           }
