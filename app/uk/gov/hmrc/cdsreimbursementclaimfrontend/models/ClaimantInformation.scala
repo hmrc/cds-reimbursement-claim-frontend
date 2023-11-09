@@ -61,8 +61,8 @@ object ClaimantInformation {
       ),
       contactInformation = ContactInformation(
         contactPerson = contactDetails.fullName.asSomeIfNonEmpty,
-        addressLine1 = contactAddress.line1.asSomeIfNonEmpty,
-        addressLine2 = contactAddress.line2,
+        addressLine1 = line1(contactAddress.line1.asSomeIfNonEmpty, contactAddress.line2),
+        addressLine2 = line2(contactAddress.line1.asSomeIfNonEmpty, contactAddress.line2),
         addressLine3 = contactAddress.line3,
         street = concat(contactAddress.line1.asSomeIfNonEmpty, contactAddress.line2),
         city = contactAddress.line4.asSomeIfNonEmpty,
@@ -83,6 +83,18 @@ object ClaimantInformation {
       case (None, Some(s2))                                      => Some(s2)
       case _                                                     => Some("")
     }
+
+  private def line1: (Option[String], Option[String]) => Option[String] = {
+    case (Some(s1), Some(s2)) if s1.trim().endsWith(s2.trim) =>
+      Some(s1.replace(s2, "").trim())
+    case (s1, _)                                             => s1
+  }
+
+  private def line2: (Option[String], Option[String]) => Option[String] = {
+    case (Some(s1), Some(s2)) if s2.trim().startsWith(s1.trim) =>
+      Some(s2.replace(s1, "").trim())
+    case (_, s2)                                               => s2
+  }
 
   implicit val eq: Eq[ClaimantInformation]         = Eq.fromUniversalEquals[ClaimantInformation]
   implicit val format: Format[ClaimantInformation] = Json.format[ClaimantInformation]
