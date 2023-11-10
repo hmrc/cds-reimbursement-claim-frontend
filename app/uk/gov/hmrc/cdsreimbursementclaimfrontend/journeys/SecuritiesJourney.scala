@@ -210,6 +210,45 @@ final class SecuritiesJourney private (
     getSelectedDepositIds.nonEmpty &&
       !isAllSelectedDutiesAreGuaranteeEligible
 
+  def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (answers.payeeType.contains(payeeType))
+        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      else
+        Right(
+          copy(newAnswers =
+            answers.copy(
+              payeeType = Some(payeeType),
+              bankAccountDetails = None
+            )
+          )
+        )
+    }
+
+  override def computeBankAccountDetails: Option[BankAccountDetails] =
+    answers.bankAccountDetails match {
+      case Some(details) => Some(details)
+      case None          =>
+        val maybeDeclarantBankDetails       = getDeclarantBankAccountDetails
+        val maybeConsigneeBankDetails       = getConsigneeBankAccountDetails
+        val consigneeAndDeclarantEorisMatch = (for {
+          consigneeEori <- getConsigneeEoriFromACC14
+          declarantEori <- getDeclarantEoriFromACC14
+        } yield consigneeEori === declarantEori).getOrElse(false)
+
+        (answers.payeeType, maybeDeclarantBankDetails, maybeConsigneeBankDetails) match {
+          case (Some(PayeeType.Consignee), _, Some(consigneeBankDetails))                                       =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Declarant), Some(declarantBankDetails), _)                                       =>
+            Some(declarantBankDetails)
+          case (Some(PayeeType.Declarant), None, Some(consigneeBankDetails)) if consigneeAndDeclarantEorisMatch =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Consignee), Some(declarantBankDetails), None) if consigneeAndDeclarantEorisMatch =>
+            Some(declarantBankDetails)
+          case _                                                                                                => None
+        }
+    }
+
   def needsMethodOfDisposalSubmission: Boolean =
     getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions)
 
@@ -765,9 +804,11 @@ final class SecuritiesJourney private (
           rfs                 <- getReasonForSecurity
           supportingEvidences  = answers.supportingEvidences
           claimantInformation <- getClaimantInformation
+          payeeType           <- answers.payeeType
         } yield SecuritiesJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
+          payeeType = payeeType,
           claimantInformation = claimantInformation,
           reasonForSecurity = rfs,
           securitiesReclaims = getSecuritiesReclaims,
@@ -827,6 +868,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
   final case class Output(
     movementReferenceNumber: MRN,
+    payeeType: PayeeType,
     claimantType: ClaimantType,
     claimantInformation: ClaimantInformation,
     reasonForSecurity: ReasonForSecurity,
@@ -898,7 +940,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       reclaimAmountsHasBeenDeclared,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided
+      supportingEvidenceHasBeenProvided,
+      payeeTypeIsDefined
     )
 
   import JourneyFormats._
@@ -954,6 +997,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       })
       .map(_.submitClaimFullAmountMode(answers.claimFullAmountMode))
       .map(_.submitCheckClaimDetailsChangeMode(answers.checkClaimDetailsChangeMode))
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(
