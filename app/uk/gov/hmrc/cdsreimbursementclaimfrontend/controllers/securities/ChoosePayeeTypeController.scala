@@ -45,16 +45,8 @@ class ChoosePayeeTypeController @Inject() (
   final override def modifyJourney(journey: Journey, payeeType: PayeeType): Either[String, Journey] =
     journey.submitPayeeType(payeeType)
 
-  final val postAction: Call                 = routes.ChoosePayeeTypeController.submit
-  final def nextPage(journey: Journey): Call =
-    if (journey.needsBanksAccountDetailsSubmission) {
-      if (journey.haveBankDetailsOnAcc14)
-        routes.CheckBankDetailsController.show()
-      else
-        routes.ChooseBankAccountTypeController.show()
-    } else if (journey.needsDocumentTypeSelection)
-      routes.ChooseFileTypeController.show()
-    else
-      routes.UploadFilesController.show()
-
+  final val postAction: Call = routes.ChoosePayeeTypeController.submit
+  final def nextPage(journey: Journey): Call = {
+    routes.CheckBankDetailsController.show()
+  }
 }
