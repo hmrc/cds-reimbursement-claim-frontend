@@ -45,8 +45,12 @@ object ClaimantInformation {
       fullName = claimantDetails.map(_.legalName).getOrElse(""),
       establishmentAddress = ContactInformation(
         contactPerson = claimantDetails.map(_.legalName),
-        addressLine1 = claimantDetails.map(_.establishmentAddress.addressLine1),
-        addressLine2 = claimantDetails.flatMap(_.establishmentAddress.addressLine2),
+        addressLine1 = claimantDetails.flatMap(x =>
+          line1(x.establishmentAddress.addressLine1.asSomeIfNonEmpty, x.establishmentAddress.addressLine2)
+        ),
+        addressLine2 = claimantDetails.flatMap(x =>
+          line2(x.establishmentAddress.addressLine1.asSomeIfNonEmpty, x.establishmentAddress.addressLine2)
+        ),
         addressLine3 = None,
         street = concat(
           claimantDetails.map(_.establishmentAddress.addressLine1),
