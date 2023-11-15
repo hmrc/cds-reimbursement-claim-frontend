@@ -123,6 +123,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     } yield (mrn, rfs, acc14)
 
+
   def mrnWithRfsWithDisplayDeclarationGen(
     reasonsForSecurity: Seq[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
