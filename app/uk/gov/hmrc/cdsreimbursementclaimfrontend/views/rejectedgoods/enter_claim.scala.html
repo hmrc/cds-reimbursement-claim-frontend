@@ -42,7 +42,7 @@
 
 @key = @{"enter-claim.rejected-goods"}
 @title = @{messages(combine(key, subKey, "title"), taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumber.label(indexOpt.getOrElse(0)))}
-@hintText = @{Html(messages(s"$key.claim-amount.hint", paidAmount.toPoundSterlingString))}
+@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 @p1Text = @{ maybeMrn.fold(messages(s"$key.paragraph")) { mrn => messages(s"$key.for-mrn.paragraph", mrn.value)} }
 
