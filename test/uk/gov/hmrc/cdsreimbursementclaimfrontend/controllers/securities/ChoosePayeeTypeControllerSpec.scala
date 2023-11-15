@@ -17,7 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -25,10 +28,20 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.{EitherOps, exampleEori, exampleMrn, securitiesDisplayDeclarationGuaranteeEligibleGen, securitiesDisplayDeclarationNotGuaranteeEligibleGen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, Nonce, ReasonForSecurity, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.EitherOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.exampleMrn
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.securitiesDisplayDeclarationGuaranteeEligibleGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.securitiesDisplayDeclarationNotGuaranteeEligibleGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.BankDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
@@ -49,15 +62,15 @@ class ChoosePayeeTypeControllerSpec
     )
 
   private def initialJourney(
-                                                    guarantee: Boolean
-                                                  ): SecuritiesJourney = {
+    guarantee: Boolean
+  ): SecuritiesJourney = {
     val displayDeclaration =
       (
         if (guarantee)
           securitiesDisplayDeclarationGuaranteeEligibleGen
         else
           securitiesDisplayDeclarationNotGuaranteeEligibleGen
-        ).sample.get
+      ).sample.get
         .withBankDetails(Some(BankDetails(None, None)))
         .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)
 
@@ -71,10 +84,10 @@ class ChoosePayeeTypeControllerSpec
   }
 
   val initialJourneyNonGuarantee: SecuritiesJourney = initialJourney(true)
-  val sessionNonGuarantee: SessionData = SessionData(initialJourneyNonGuarantee)
+  val sessionNonGuarantee: SessionData              = SessionData(initialJourneyNonGuarantee)
 
   val initialJourneyGuarantee: SecuritiesJourney = initialJourney(false)
-  val sessionGuarantee: SessionData = SessionData(initialJourneyGuarantee)
+  val sessionGuarantee: SessionData              = SessionData(initialJourneyGuarantee)
 
   val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
 
@@ -137,7 +150,7 @@ class ChoosePayeeTypeControllerSpec
     }
 
     "successfully submit bank account type" when {
-      "one of the options selected non-guarantee" in forAll { payeeType: PayeeType =>
+      "one of the options selected and payment type is non-guarantee" in forAll { payeeType: PayeeType =>
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(sessionNonGuarantee)
@@ -154,7 +167,7 @@ class ChoosePayeeTypeControllerSpec
         )
       }
 
-      "one of the options selected guarantee" in forAll { payeeType: PayeeType =>
+      "one of the options selected and payment type is guarantee" in forAll { payeeType: PayeeType =>
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(sessionGuarantee)
