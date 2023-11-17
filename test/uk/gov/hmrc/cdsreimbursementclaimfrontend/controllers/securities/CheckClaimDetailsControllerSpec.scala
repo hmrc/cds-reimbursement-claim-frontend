@@ -175,12 +175,7 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          if (initialJourney.needsBanksAccountDetailsSubmission)
-            routes.CheckBankDetailsController.show()
-          else if (initialJourney.needsDocumentTypeSelection)
-            routes.ChooseFileTypeController.show()
-          else
-            routes.UploadFilesController.show()
+          routes.ChoosePayeeTypeController.show
         )
       }
 
@@ -195,43 +190,6 @@ class CheckClaimDetailsControllerSpec
           routes.CheckYourAnswersController.show()
         )
       }
-
-      "when at least one security that has bank payment method but no bank details in ACC14, clicking continue should go to the enter bank details when confirm full repayment is yes" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = true, submitBankAccountDetails = false)) { journey =>
-          whenever(
-            journey.needsBanksAccountDetailsSubmission && !journey.haveBankDetailsOnAcc14
-          ) {
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(journey))
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.ChooseBankAccountTypeController.show()
-            )
-          }
-        }
-      }
-
-      "when at least one security that has bank payment method but no bank details in ACC14, clicking continue should go to the enter bank details when confirm full repayment is no" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = false, submitBankAccountDetails = false)) { journey =>
-          whenever(
-            journey.needsBanksAccountDetailsSubmission && !journey.haveBankDetailsOnAcc14
-          ) {
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(journey))
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.ChooseBankAccountTypeController.show()
-            )
-          }
-        }
-      }
     }
   }
-
 }

@@ -412,6 +412,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
         SecuritiesJourney.Output(
           movementReferenceNumber = exampleMrn,
           claimantType = ClaimantType.Consignee,
+          payeeType = PayeeType.Consignee,
           claimantInformation = exampleClaimantInformation,
           reasonForSecurity = ReasonForSecurity.MissingLicenseQuota,
           securitiesReclaims = SortedMap

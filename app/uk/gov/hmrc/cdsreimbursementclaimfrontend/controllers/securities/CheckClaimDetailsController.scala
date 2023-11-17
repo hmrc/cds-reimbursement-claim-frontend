@@ -93,13 +93,5 @@ class CheckClaimDetailsController @Inject() (
   private def decideNextPage(journey: SecuritiesJourney): Result =
     if (journey.userHasSeenCYAPage)
       Redirect(routes.CheckYourAnswersController.show())
-    else if (journey.needsBanksAccountDetailsSubmission) {
-      if (journey.haveBankDetailsOnAcc14)
-        Redirect(routes.CheckBankDetailsController.show())
-      else
-        Redirect(routes.ChooseBankAccountTypeController.show())
-    } else if (journey.needsDocumentTypeSelection)
-      Redirect(routes.ChooseFileTypeController.show())
-    else
-      Redirect(routes.UploadFilesController.show())
+    else Redirect(routes.ChoosePayeeTypeController.show)
 }

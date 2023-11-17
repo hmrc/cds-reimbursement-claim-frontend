@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData with SeqUtils {
@@ -347,6 +348,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
       numberOfSecurities          <- Gen.choose(2, 5)
+      payeeType                   <- Gen.oneOf(PayeeType.values)
       reclaimsDetails             <-
         listOfExactlyN(
           numberOfSecurities,
@@ -415,6 +417,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           movementReferenceNumber = Some(mrn),
           reasonForSecurity = Some(rfs),
           displayDeclaration = Some(acc14),
+          payeeType = Some(payeeType),
           similarClaimExistAlreadyInCDFPay = Some(false),
           eoriNumbersVerification = eoriNumbersVerification,
           exportMovementReferenceNumber = exportMrn,

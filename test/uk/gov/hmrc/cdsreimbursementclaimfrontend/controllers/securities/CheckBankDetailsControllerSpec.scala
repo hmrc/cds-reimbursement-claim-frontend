@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -69,7 +70,8 @@ class CheckBankDetailsControllerSpec
 
   private def initialJourneyWithBankDetailsinACC14(
     maybeBankDetails: Option[BankDetails],
-    bankDetailsRequired: Boolean
+    bankDetailsRequired: Boolean,
+    declarantIsPayee: Boolean = false
   ): SecuritiesJourney = {
     val displayDeclaration =
       (
@@ -87,6 +89,7 @@ class CheckBankDetailsControllerSpec
       .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(false))
       .flatMap(_.selectSecurityDepositIds(displayDeclaration.getSecurityDepositIds.get))
+      .flatMap(_.submitPayeeType(if (declarantIsPayee) PayeeType.Declarant else PayeeType.Consignee))
       .getOrFail
   }
 
@@ -151,7 +154,7 @@ class CheckBankDetailsControllerSpec
       "Ok when BankDetails has declarantBankDetails" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
           val bankDetails = BankDetails(None, Some(declarantBankDetails))
-          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true)
+          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true, true)
 
           inSequence {
             mockAuthWithNoRetrievals()

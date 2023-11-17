@@ -210,6 +210,21 @@ final class SecuritiesJourney private (
     getSelectedDepositIds.nonEmpty &&
       !isAllSelectedDutiesAreGuaranteeEligible
 
+  def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if (answers.payeeType.contains(payeeType))
+        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      else
+        Right(
+          copy(newAnswers =
+            answers.copy(
+              payeeType = Some(payeeType),
+              bankAccountDetails = None
+            )
+          )
+        )
+    }
+
   def needsMethodOfDisposalSubmission: Boolean =
     getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions)
 
@@ -765,9 +780,11 @@ final class SecuritiesJourney private (
           rfs                 <- getReasonForSecurity
           supportingEvidences  = answers.supportingEvidences
           claimantInformation <- getClaimantInformation
+          payeeType           <- answers.payeeType
         } yield SecuritiesJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
+          payeeType = payeeType,
           claimantInformation = claimantInformation,
           reasonForSecurity = rfs,
           securitiesReclaims = getSecuritiesReclaims,
@@ -827,6 +844,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
   final case class Output(
     movementReferenceNumber: MRN,
+    payeeType: PayeeType,
     claimantType: ClaimantType,
     claimantInformation: ClaimantInformation,
     reasonForSecurity: ReasonForSecurity,
@@ -898,7 +916,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       reclaimAmountsHasBeenDeclared,
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided
+      supportingEvidenceHasBeenProvided,
+      payeeTypeIsDefined
     )
 
   import JourneyFormats._
@@ -954,6 +973,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       })
       .map(_.submitClaimFullAmountMode(answers.claimFullAmountMode))
       .map(_.submitCheckClaimDetailsChangeMode(answers.checkClaimDetailsChangeMode))
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
       .flatMapEach(
