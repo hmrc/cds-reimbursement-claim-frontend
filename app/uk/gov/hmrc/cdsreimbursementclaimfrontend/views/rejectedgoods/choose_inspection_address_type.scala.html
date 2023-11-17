@@ -51,16 +51,16 @@
             hint = Some(Hint(content = Text(messages(s"$key.$addressType.hint")))),
             checked = form.data.exists(_._2 == s"$addressType")
         )
-    }
-}
-
-@otherAddressRadioItems = @{
+    } :+
+    RadioItem(
+        divider = Some(messages("radio.divider"))
+    ) :+
     RadioItem(
         id = Some(s"$key-radio-${InspectionAddressType.Other}"),
         value = Some(InspectionAddressType.Other.toString),
         content = Text(messages(s"$key.${InspectionAddressType.Other}")),
         checked = form.data.exists(_._2 == "Other")
-    ) :: Nil
+    )
 }
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
@@ -77,17 +77,6 @@
             classes = "govuk-fieldset__legend--xl",
             paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = acc14AddressRadioItems
-        )
-
-        @divider(messages(s"$key.or"))
-
-        @radios(
-            form = form,
-            name = key,
-            legend = title,
-            classes = "govuk-visually-hidden",
-            items = otherAddressRadioItems,
-            hideError = true
         )
 
         @submitButton("button.continue", classes = Some("govuk-!-margin-top-5"))
