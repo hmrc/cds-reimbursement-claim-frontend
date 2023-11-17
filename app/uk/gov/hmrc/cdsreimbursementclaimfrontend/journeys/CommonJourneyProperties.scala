@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
@@ -118,9 +119,29 @@ trait CommonJourneyProperties {
     getLeadDisplayDeclaration
       .flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
 
-  def computeBankAccountDetails: Option[BankAccountDetails] =
-    answers.bankAccountDetails
-      .orElse(getInitialBankAccountDetailsFromDeclaration)
+  final def computeBankAccountDetails: Option[BankAccountDetails] =
+    answers.bankAccountDetails match {
+      case Some(details) => Some(details)
+      case None          =>
+        val maybeDeclarantBankDetails       = getDeclarantBankAccountDetails
+        val maybeConsigneeBankDetails       = getConsigneeBankAccountDetails
+        val consigneeAndDeclarantEorisMatch = (for {
+          consigneeEori <- getConsigneeEoriFromACC14
+          declarantEori <- getDeclarantEoriFromACC14
+        } yield consigneeEori === declarantEori).getOrElse(false)
+
+        (answers.payeeType, maybeDeclarantBankDetails, maybeConsigneeBankDetails) match {
+          case (Some(PayeeType.Consignee), _, Some(consigneeBankDetails))                                       =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Declarant), Some(declarantBankDetails), _)                                       =>
+            Some(declarantBankDetails)
+          case (Some(PayeeType.Declarant), None, Some(consigneeBankDetails)) if consigneeAndDeclarantEorisMatch =>
+            Some(consigneeBankDetails)
+          case (Some(PayeeType.Consignee), Some(declarantBankDetails), None) if consigneeAndDeclarantEorisMatch =>
+            Some(declarantBankDetails)
+          case _                                                                                                => None
+        }
+    }
 
   final def getInitialBankAccountDetailsFromDeclaration: Option[BankAccountDetails] =
     getConsigneeBankAccountDetails.orElse(getDeclarantBankAccountDetails)

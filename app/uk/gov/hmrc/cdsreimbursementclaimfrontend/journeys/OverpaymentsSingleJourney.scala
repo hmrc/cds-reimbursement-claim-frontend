@@ -287,30 +287,6 @@ final class OverpaymentsSingleJourney private (
       )
     }
 
-  override def computeBankAccountDetails: Option[BankAccountDetails] =
-    answers.bankAccountDetails match {
-      case Some(details) => Some(details)
-      case None          =>
-        val maybeDeclarantBankDetails       = getDeclarantBankAccountDetails
-        val maybeConsigneeBankDetails       = getConsigneeBankAccountDetails
-        val consigneeAndDeclarantEorisMatch = (for {
-          consigneeEori <- getConsigneeEoriFromACC14
-          declarantEori <- getDeclarantEoriFromACC14
-        } yield consigneeEori === declarantEori).getOrElse(false)
-
-        (answers.payeeType, maybeDeclarantBankDetails, maybeConsigneeBankDetails) match {
-          case (Some(PayeeType.Consignee), _, Some(consigneeBankDetails))                                       =>
-            Some(consigneeBankDetails)
-          case (Some(PayeeType.Declarant), Some(declarantBankDetails), _)                                       =>
-            Some(declarantBankDetails)
-          case (Some(PayeeType.Declarant), None, Some(consigneeBankDetails)) if consigneeAndDeclarantEorisMatch =>
-            Some(consigneeBankDetails)
-          case (Some(PayeeType.Consignee), Some(declarantBankDetails), None) if consigneeAndDeclarantEorisMatch =>
-            Some(declarantBankDetails)
-          case _                                                                                                => None
-        }
-    }
-
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       if (needsDeclarantAndConsigneeEoriSubmission)
