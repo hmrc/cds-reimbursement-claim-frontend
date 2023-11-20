@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_claim
 
@@ -82,7 +83,7 @@ class EnterClaimController @Inject() (
               val amountPaid                        =
                 BigDecimal(ndrcDetails.amount)
               val form                              =
-                Forms.claimAmountForm(key, amountPaid).withDefault(claimedAmount)
+                Forms.rejectedClaimAmountForm(key, amountPaid).withDefault(claimedAmount)
               Ok(
                 enterClaim(
                   form,
@@ -115,7 +116,7 @@ class EnterClaimController @Inject() (
             journey.getNdrcDetailsFor(taxCode) match {
               case Some(ndrcDetails) =>
                 Forms
-                  .claimAmountForm(key, BigDecimal(ndrcDetails.amount))
+                  .rejectedClaimAmountForm(key, BigDecimal(ndrcDetails.amount))
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
@@ -137,16 +138,22 @@ class EnterClaimController @Inject() (
                       ),
                     reimbursementAmount =>
                       journey
-                        .submitAmountForReimbursement(taxCode, reimbursementAmount)
-                        .fold(
-                          error =>
-                            Future.failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),
-                          updatedJourney =>
-                            (
-                              updatedJourney,
-                              redirectToNextPage(updatedJourney, taxCode)
-                            ).asFuture
-                        )
+                        .getNdrcDetailsFor(taxCode) match {
+                        case None       => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
+                        case Some(ndrc) =>
+                          journey
+                            .submitAmountForReimbursement(taxCode, BigDecimal(ndrc.amount) - reimbursementAmount)
+                            .fold(
+                              error =>
+                                Future
+                                  .failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),
+                              updatedJourney =>
+                                (
+                                  updatedJourney,
+                                  redirectToNextPage(updatedJourney, taxCode)
+                                ).asFuture
+                            )
+                      }
                   )
 
               case None =>

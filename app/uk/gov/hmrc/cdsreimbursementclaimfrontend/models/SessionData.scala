@@ -44,6 +44,7 @@ final case class SessionData(
   def withExistingUserData(sessionData: SessionData): SessionData =
     copy(verifiedEmail = sessionData.verifiedEmail)
 
+  override def toString: String = Json.prettyPrint(Json.toJson(this))
 }
 
 object SessionData {
