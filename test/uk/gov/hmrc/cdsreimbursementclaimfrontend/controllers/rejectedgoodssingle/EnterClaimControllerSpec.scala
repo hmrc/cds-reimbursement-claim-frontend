@@ -339,7 +339,8 @@ class EnterClaimControllerSpec
           whenever(ndrcDetails.amount.toInt > 11) {
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
             val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
-            val amountToClaim  = BigDecimal(ndrcDetails.amount) - 10
+            val ndrcAmount     = BigDecimal(ndrcDetails.amount)
+            val amountToClaim  = ndrcAmount - 10
             val updatedJourney =
               journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).getOrFail
             val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -352,7 +353,7 @@ class EnterClaimControllerSpec
 
             val result = performAction(
               ndrcDetails.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> (ndrcAmount - amountToClaim).toString()
             )
 
             checkIsRedirect(
@@ -381,7 +382,7 @@ class EnterClaimControllerSpec
 
             val result = performAction(
               ndrcDetails.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> (amountToClaim - amountToClaim).toString()
             )
 
             checkIsRedirect(
@@ -397,7 +398,8 @@ class EnterClaimControllerSpec
           whenever(ndrcDetails1.amount.toInt > 11 && ndrcDetails1.taxType =!= ndrcDetails2.taxType) {
             val session        = sessionWithNdrcDetails(List(ndrcDetails1, ndrcDetails2), displayDeclaration)
             val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
-            val amountToClaim  = BigDecimal(ndrcDetails1.amount) - 10
+            val ndrcAmount1    = BigDecimal(ndrcDetails1.amount)
+            val amountToClaim  = ndrcAmount1 - 10
             val updatedJourney =
               journey.submitAmountForReimbursement(TaxCode(ndrcDetails1.taxType), amountToClaim).getOrFail
             val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
@@ -410,7 +412,7 @@ class EnterClaimControllerSpec
 
             val result = performAction(
               ndrcDetails1.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
+              "enter-claim.rejected-goods.claim-amount" -> (ndrcAmount1 - amountToClaim).toString()
             )
 
             checkIsRedirect(
