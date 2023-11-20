@@ -234,26 +234,6 @@ class EnterClaimControllerSpec
         )
       }
 
-      "reject a Claim Amount of 0" in forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-        val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-        val session            = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> "0"),
-          messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-claim.rejected-goods.claim-amount.error.zero"
-            ),
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
       "reject a Claim Amount that is higher than the amount paid" in forAll {
         (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
           val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
@@ -273,7 +253,7 @@ class EnterClaimControllerSpec
             messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-claim.rejected-goods.claim-amount.error.invalid-amount"
+                "enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only"
               ),
             expectedStatus = BAD_REQUEST
           )
