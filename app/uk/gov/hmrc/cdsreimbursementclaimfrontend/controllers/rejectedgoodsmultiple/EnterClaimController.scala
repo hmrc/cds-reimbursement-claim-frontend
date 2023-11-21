@@ -68,7 +68,7 @@ class EnterClaimController @Inject() (
 
             case Some(paidAmount) =>
               val claimedAmountOpt = journey.getReimbursementClaimFor(mrn, taxCode)
-              val form             = Forms.claimAmountForm(formKey, paidAmount).withDefault(claimedAmountOpt)
+              val form             = Forms.rejectedClaimAmountForm(formKey, paidAmount).withDefault(claimedAmountOpt)
               Ok(
                 enterClaim(
                   form,
@@ -99,7 +99,7 @@ class EnterClaimController @Inject() (
 
               case Some(paidAmount) =>
                 Forms
-                  .claimAmountForm(formKey, paidAmount)
+                  .rejectedClaimAmountForm(formKey, paidAmount)
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
@@ -118,7 +118,7 @@ class EnterClaimController @Inject() (
                       ),
                     amount =>
                       journey
-                        .submitAmountForReimbursement(mrn, taxCode, amount)
+                        .submitCorrectAmount(mrn, taxCode, amount)
                         .fold(
                           error => {
                             logger.error(s"Error submitting reimbursement claim amount - $error")

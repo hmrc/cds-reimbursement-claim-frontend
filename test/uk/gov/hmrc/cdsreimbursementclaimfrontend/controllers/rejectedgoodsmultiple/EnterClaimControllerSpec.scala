@@ -189,7 +189,7 @@ class EnterClaimControllerSpec
                 mockAuthWithNoRetrievals()
                 mockGetSession(SessionData(journey))
                 mockStoreSession(
-                  SessionData(journey.submitAmountForReimbursement(mrn, taxCode, claimAmount).getOrFail)
+                  SessionData(journey.submitCorrectAmount(mrn, taxCode, claimAmount).getOrFail)
                 )(
                   Right(())
                 )

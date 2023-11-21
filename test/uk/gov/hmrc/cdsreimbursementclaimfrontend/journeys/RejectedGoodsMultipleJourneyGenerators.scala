@@ -132,7 +132,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     subsidyOnly: Boolean = false
   ): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
     def submitData(journey: RejectedGoodsMultipleJourney)(data: (MRN, TaxCode, BigDecimal)) =
-      journey.submitAmountForReimbursement(data._1, data._2, data._3)
+      journey.submitCorrectAmount(data._1, data._2, data._3)
 
     incompleteJourneyWithSelectedDutiesGen(n, subsidyOnly).map { case (journey, mrns) =>
       val data: Seq[(MRN, TaxCode, BigDecimal)] = mrns.flatMap { mrn =>

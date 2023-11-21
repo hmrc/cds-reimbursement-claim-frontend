@@ -20,6 +20,7 @@ import cats.Eq
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.CorrectedAmounts
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
@@ -115,14 +116,30 @@ final class RejectedGoodsMultipleJourney private (
   def getReimbursementClaimFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     getReimbursementClaimsFor(mrn).flatMap(_.get(taxCode).flatten)
 
-  def getReimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]] =
+  def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
+    getDisplayDeclarationFor(declarationId)
+      .flatMap(_.getNdrcDutiesWithAmount)
+      .getOrElse(Seq.empty)
+
+  def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
     answers.reimbursementClaims
-      .map(
-        _.view.view
-          .mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
-          .to(OrderedMap)
-      )
-      .getOrElse(OrderedMap.empty)
+      .map(_.map { case (mrn, correctedAmountsPerMrn) =>
+        val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
+          getAvailableTaxCodesWithPaidAmountsFor(mrn).toMap
+        (
+          mrn,
+          correctedAmountsPerMrn
+            .map { case (taxCode, correctAmountOpt) =>
+              for {
+                correctAmount <- correctAmountOpt
+                paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
+              } yield (taxCode, paidAmount - correctAmount)
+            }
+            .collect { case Some(x) => x }
+            .toMap
+        )
+      })
+      .getOrElse(Map.empty)
 
   def needsBanksAccountDetailsSubmission: Boolean =
     !this.isSubsidyOnlyJourney
@@ -505,45 +522,44 @@ final class RejectedGoodsMultipleJourney private (
       }
     }
 
-  def isValidReimbursementAmount(reimbursementAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    reimbursementAmount > 0 && reimbursementAmount <= BigDecimal(ndrcDetails.amount)
+  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
-  def submitAmountForReimbursement(
-    mrn: MRN,
+  def submitCorrectAmount(
+    declarationId: MRN,
     taxCode: TaxCode,
-    reimbursementAmount: BigDecimal
+    correctAmount: BigDecimal
   ): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      getDisplayDeclarationFor(mrn) match {
+      getDisplayDeclarationFor(declarationId) match {
         case None =>
-          Left("submitAmountForReimbursement.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingDisplayDeclaration")
 
         case Some(_) =>
-          getNdrcDetailsFor(mrn, taxCode) match {
+          getNdrcDetailsFor(declarationId, taxCode) match {
             case None =>
-              Left("submitAmountForReimbursement.taxCodeNotInACC14")
+              Left("submitCorrectAmount.taxCodeNotInACC14")
 
-            case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
-              if (getSelectedDuties(mrn).exists(_.contains(taxCode))) {
-                val newReimbursementClaims: RejectedGoodsMultipleJourney.ReimbursementClaims =
-                  getReimbursementClaimsFor(mrn) match {
-                    case None                      => OrderedMap(taxCode -> Some(reimbursementAmount))
-                    case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
-                  }
+            case Some(ndrcDetails) if isValidCorrectAmount(correctAmount, ndrcDetails) =>
+              if (getSelectedDuties(declarationId).exists(_.contains(taxCode))) {
+                val newCorrectedAmounts = answers.reimbursementClaims.flatMap(_.get(declarationId)) match {
+                  case None                   => OrderedMap[TaxCode, Option[BigDecimal]](taxCode -> Some(correctAmount))
+                  case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
+                }
                 Right(
                   this.copy(
                     answers.copy(reimbursementClaims =
                       answers.reimbursementClaims
-                        .map(_ + (mrn -> newReimbursementClaims))
-                        .orElse(Some(OrderedMap(mrn -> newReimbursementClaims)))
+                        .orElse(Some(OrderedMap.empty[MRN, OrderedMap[TaxCode, Option[BigDecimal]]]))
+                        .map(_.updated(declarationId, newCorrectedAmounts))
                     )
                   )
                 )
               } else
-                Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
+                Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
-              Left("submitAmountForReimbursement.invalidReimbursementAmount")
+              Left("submitCorrectAmount.invalidReimbursementAmount")
           }
       }
     }
@@ -687,7 +703,7 @@ final class RejectedGoodsMultipleJourney private (
           detailsOfRejectedGoods = detailsOfRejectedGoods,
           inspectionDate = inspectionDate,
           inspectionAddress = inspectionAddress,
-          reimbursementClaims = getReimbursementClaims,
+          reimbursementClaims = OrderedMap(getReimbursementClaims),
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod =
@@ -847,7 +863,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
         case (mrn: MRN, reimbursements: Map[TaxCode, Option[BigDecimal]]) =>
           j.selectAndReplaceTaxCodeSetForReimbursement(mrn, reimbursements.keySet.toSeq)
             .flatMapEachWhenMappingDefined(reimbursements)(j =>
-              (taxCode, amount) => j.submitAmountForReimbursement(mrn, taxCode, amount)
+              (taxCode, amount) => j.submitCorrectAmount(mrn, taxCode, amount)
             )
       })
       .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
