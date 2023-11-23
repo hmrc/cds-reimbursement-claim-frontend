@@ -246,7 +246,7 @@ check-eori-details.error.invalid=Select yes if the EORI details are correct
 #===================================================
 #  REJECTED GOODS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
-rejected-goods.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
+rejected-goods.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit in this claim?
 rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
 rejected-goods.choose-how-many-mrns.p1-xi-info=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
