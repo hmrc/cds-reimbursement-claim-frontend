@@ -264,9 +264,10 @@ rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
 rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 
+#===================================================
 #  OVERPAYMENTS - CHOOSE HOW MANY MRNS PAGE
 #===================================================
-overpayments.choose-how-many-mrns.title=Choose how many MRNs you want to submit in this claim
+overpayments.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit in this claim?
 overpayments.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
 overpayments.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 overpayments.choose-how-many-mrns.inset.title=Entering Multiple MRNs
@@ -281,22 +282,6 @@ overpayments.choose-how-many-mrns.multiple.hint=Manually enter details for each 
 overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 overpayments.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
 overpayments.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
-
-#===================================================
-#  SELECT NUMBER OF CLAIMS PAGE
-#===================================================
-select-number-of-claims.title=Choose how many MRNs you want to submit in this claim
-select-number-of-claims.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.
-select-number-of-claims.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-select-number-of-claims.inset.title=Entering Multiple MRNs
-select-number-of-claims.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with both GB and XI EORI numbers. 
-select-number-of-claims.individual.title=Enter one MRN
-select-number-of-claims.multiple.title=Enter multiple MRNs
-select-number-of-claims.multiple.hint=Manually enter details for each MRN.
-select-number-of-claims.scheduled.title=Upload multiple MRNs
-select-number-of-claims.scheduled.hint=Create and upload a single list containing details of all MRNs.
-select-number-of-claims.error.required=Select how many MRNs you want to submit in this claim
-select-number-of-claims.invalid=Select how many MRNs you want to submit in this claim
 
 #===================================================
 #  ENTER MRN PAGE
