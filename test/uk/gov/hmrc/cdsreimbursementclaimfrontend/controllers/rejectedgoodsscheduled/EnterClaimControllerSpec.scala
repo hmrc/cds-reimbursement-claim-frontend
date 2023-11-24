@@ -164,7 +164,7 @@ class EnterClaimControllerSpec
               .submitAmountForReimbursement(
                 customDuty,
                 customDuty.taxCodes.head,
-                reimbursement.refundAmount,
+                reimbursement.paidAmount - reimbursement.refundAmount,
                 reimbursement.paidAmount
               )
               .getOrFail
@@ -200,7 +200,7 @@ class EnterClaimControllerSpec
             .submitAmountForReimbursement(
               dutyType,
               dutyType.taxCodes.head,
-              reimbursement.refundAmount,
+              reimbursement.paidAmount - reimbursement.refundAmount,
               reimbursement.paidAmount
             )
             .getOrFail

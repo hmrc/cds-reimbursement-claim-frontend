@@ -102,7 +102,7 @@ class EnterClaimController @Inject() (
                 .submitAmountForReimbursement(
                   currentDuty,
                   currentTaxCode,
-                  reimbursement.refundAmount,
+                  reimbursement.paidAmount - reimbursement.refundAmount,
                   reimbursement.paidAmount
                 )
                 .fold(
