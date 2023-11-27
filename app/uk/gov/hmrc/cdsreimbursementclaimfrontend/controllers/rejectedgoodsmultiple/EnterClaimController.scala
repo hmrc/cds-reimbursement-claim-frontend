@@ -53,7 +53,7 @@ class EnterClaimController @Inject() (
   val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show
   val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit
 
-  val formKey: String = "enter-claim.rejected-goods"
+  val formKey: String = "multiple-enter-claim"
 
   final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
@@ -67,8 +67,8 @@ class EnterClaimController @Inject() (
               Redirect(selectDutiesAction(pageIndex))
 
             case Some(paidAmount) =>
-              val claimedAmountOpt = journey.getReimbursementClaimFor(mrn, taxCode)
-              val form             = Forms.rejectedClaimAmountForm(formKey, paidAmount).withDefault(claimedAmountOpt)
+              val actualAmountOpt = journey.getCorrectedAmountFor(mrn, taxCode)
+              val form            = Forms.actualAmountForm(formKey, paidAmount).withDefault(actualAmountOpt)
               Ok(
                 enterClaim(
                   form,
@@ -99,8 +99,9 @@ class EnterClaimController @Inject() (
 
               case Some(paidAmount) =>
                 Forms
-                  .rejectedClaimAmountForm(formKey, paidAmount)
-                  .bindFromRequest()
+                  .actualAmountForm(formKey, paidAmount)
+                  .bindFromRequest(
+                  )
                   .fold(
                     formWithErrors =>
                       (
