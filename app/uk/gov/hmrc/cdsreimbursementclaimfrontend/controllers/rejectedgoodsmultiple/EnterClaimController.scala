@@ -23,12 +23,13 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_multiple_claims
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,7 +38,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterClaim: enter_claim,
+  enterMultipleClaims: enter_multiple_claims,
   mrnDoesNotExistPage: mrn_does_not_exist
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
@@ -55,9 +56,24 @@ class EnterClaimController @Inject() (
 
   val formKey: String = "multiple-enter-claim"
 
+  final val showFirst: Action[AnyContent] =
+    showFirstByIndex(1)
+
+  final def showFirstByIndex(pageIndex: Int): Action[AnyContent] =
+    simpleActionReadJourney { journey =>
+      Redirect(
+        journey
+          .getNthMovementReferenceNumber(pageIndex - 1)
+          .flatMap(journey.getSelectedDuties(_))
+          .flatMap(_.headOption)
+          .fold(routes.SelectDutiesController.showFirst)(taxCode =>
+            routes.EnterClaimController.show(pageIndex, taxCode)
+          )
+      )
+    }
+
   final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
-      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey
         .getNthMovementReferenceNumber(pageIndex - 1)
         .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
@@ -67,18 +83,23 @@ class EnterClaimController @Inject() (
               Redirect(selectDutiesAction(pageIndex))
 
             case Some(paidAmount) =>
-              val actualAmountOpt = journey.getCorrectedAmountFor(mrn, taxCode)
-              val form            = Forms.actualAmountForm(formKey, paidAmount).withDefault(actualAmountOpt)
+              val actualAmountOpt =
+                journey.getCorrectedAmountFor(mrn, taxCode)
+
+              val form                   =
+                Forms
+                  .actualAmountForm(formKey, paidAmount)
+                  .withDefault(actualAmountOpt)
+              val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
               Ok(
-                enterClaim(
+                enterMultipleClaims(
                   form,
+                  pageIndex,
+                  mrn,
                   taxCode,
-                  Some(pageIndex),
                   paidAmount,
-                  subKey,
-                  submitClaimAction(pageIndex, taxCode),
-                  Some(mrn),
-                  isSubsidyOnly
+                  isSubsidyOnly,
+                  submitClaimAction(pageIndex, taxCode)
                 )
               )
           }
@@ -98,21 +119,22 @@ class EnterClaimController @Inject() (
                 (journey, Redirect(selectDutiesAction(pageIndex)))
 
               case Some(paidAmount) =>
+                val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
                 Forms
                   .actualAmountForm(formKey, paidAmount)
-                  .bindFromRequest(
-                  )
+                  .bindFromRequest()
                   .fold(
                     formWithErrors =>
                       (
                         journey,
                         BadRequest(
-                          enterClaim(
+                          enterMultipleClaims(
                             formWithErrors,
+                            pageIndex,
+                            mrn,
                             taxCode,
-                            Some(pageIndex),
                             paidAmount,
-                            subKey,
+                            isSubsidyOnly,
                             submitClaimAction(pageIndex, taxCode)
                           )
                         )
@@ -156,4 +178,5 @@ class EnterClaimController @Inject() (
           }
       }
     }
+
 }
