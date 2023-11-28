@@ -85,7 +85,6 @@ class CheckClaimDetailsControllerSpec
     val claimedTaxCodes = claims.flatMap(_._2.keys).map(tc => messages(s"tax-code.${tc.value}")).toSet
     val claimedAmounts  = claims.flatMap(_._2.values.map(_.get)).map(_.toPoundSterlingString).toSet
     val mrnTotals       = claims.map(_._2.values.map(_.get).sum).map(_.toPoundSterlingString).toSet
-
     keys   should contain allElementsOf claimedTaxCodes
     values should contain allElementsOf claimedAmounts
     values should contain allElementsOf mrnTotals
@@ -112,7 +111,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           val claims: Map[MRN, Map[TaxCode, Option[BigDecimal]]] =
-            journey.answers.reimbursementClaims.get
+            journey.answers.correctedAmounts.get
 
           checkPageIsDisplayed(
             performAction(),

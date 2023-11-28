@@ -34,10 +34,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -61,7 +62,7 @@ class EnterClaimControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "enter-claim.rejected-goods"
+  private val messagesKey: String = "multiple-enter-claim"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
@@ -69,21 +70,30 @@ class EnterClaimControllerSpec
   def validateEnterClaimPage(
     doc: Document,
     pageIndex: Int,
-    amountPaid: String,
-    claimAmount: String,
-    taxCode: TaxCode
+    mrn: MRN,
+    taxCode: TaxCode,
+    actualAmountOpt: Option[BigDecimal]
   ) = {
-    hasContinueButton(doc)
-    doc.select("#amount-paid").text()                                                 shouldBe amountPaid
-    doc.select("input[name='enter-claim.rejected-goods.claim-amount']").attr("value") shouldBe claimAmount
-    formAction(
-      doc
-    )                                                                                 shouldBe s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/$pageIndex/$taxCode"
+    formAction(doc)                          shouldBe routes.EnterClaimController.submit(pageIndex, taxCode).url
+    assertPageElementsByIdAndExpectedText(doc)(
+      "MRN"                                        -> mrn.value,
+      "multiple-enter-claim-agent-fees-disclaimer" -> m("multiple-enter-claim.inset-text"),
+      "multiple-enter-claim-label"                 -> m("multiple-enter-claim.actual-amount"),
+      "multiple-enter-claim-hint"                  -> m(
+        "multiple-enter-claim.actual-amount.hint",
+        taxCode,
+        m(s"select-duties.duty.$taxCode")
+      )
+    )
+    assertPageInputsByIdAndExpectedValue(doc)(
+      "multiple-enter-claim"                       ->
+        actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
+    )
   }
 
   "EnterClaimController" when {
 
-    "Show enter claim amount" must {
+    "Show enter claim" must {
 
       def performAction(pageIndex: Int, taxCode: TaxCode): Future[Result] =
         controller.show(pageIndex, taxCode)(FakeRequest())
@@ -95,128 +105,178 @@ class EnterClaimControllerSpec
         }
       }
 
-      "display the page if mrn exists and tax code has been selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(9)) { case (journey, mrns) =>
+      "display the page" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
-            val selectedTaxCodes = journey.getSelectedDuties(mrn).get
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
             selectedTaxCodes.foreach { taxCode =>
               inSequence {
                 mockAuthWithNoRetrievals()
                 mockGetSession(SessionData(journey))
               }
 
-              val amountPaid = journey.getAmountPaidFor(mrn, taxCode).get
+              val pageIndex = mrnIndex + 1
 
               checkPageIsDisplayed(
-                performAction(mrnIndex + 1, taxCode),
+                performAction(pageIndex, taxCode),
                 messageFromMessageKey(
-                  s"$messagesKey.multiple.title",
-                  taxCode.value,
+                  s"$messagesKey.title",
+                  taxCode,
                   messages(s"select-duties.duty.$taxCode"),
-                  OrdinalNumber.label(mrnIndex + 1)
+                  OrdinalNumeral(pageIndex)
                 ),
-                doc => validateEnterClaimPage(doc, mrnIndex + 1, amountPaid.toPoundSterlingString, "", taxCode)
+                doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, None)
               )
             }
           }
         }
       }
 
-      "re-display the page with existing claim amount" in {
-        forAll(completeJourneyGen) { case journey =>
-          val mrns = journey.answers.movementReferenceNumbers.get
+      "display the page in the change mode" in {
+        forAll(incompleteJourneyWithCompleteClaimsGen(5)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
-            val selectedTaxCodes = journey.getSelectedDuties(mrn).get
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
             selectedTaxCodes.foreach { taxCode =>
               inSequence {
                 mockAuthWithNoRetrievals()
                 mockGetSession(SessionData(journey))
               }
 
-              val amountPaid  = journey.getAmountPaidFor(mrn, taxCode).get
-              val claimAmount = journey.getReimbursementClaimFor(mrn, taxCode).get
-
-              val claimAmountString = formatAmount(claimAmount)
+              val pageIndex = mrnIndex + 1
 
               checkPageIsDisplayed(
-                performAction(mrnIndex + 1, taxCode),
+                performAction(pageIndex, taxCode),
                 messageFromMessageKey(
-                  s"$messagesKey.multiple.title",
-                  taxCode.value,
+                  s"$messagesKey.title",
+                  taxCode,
                   messages(s"select-duties.duty.$taxCode"),
-                  OrdinalNumber.label(mrnIndex + 1)
+                  OrdinalNumeral(pageIndex)
                 ),
-                doc =>
-                  validateEnterClaimPage(
-                    doc,
-                    mrnIndex + 1,
-                    amountPaid.toPoundSterlingString,
-                    claimAmountString,
-                    taxCode
-                  )
+                doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, journey.getCorrectedAmountFor(mrn, taxCode))
               )
             }
           }
+        }
+      }
+
+      "display the page back when in the change mode from CYA" in {
+        forAll(completeJourneyGen) { journey =>
+          journey.getMovementReferenceNumbers.get.zipWithIndex
+            .foreach { case (mrn, mrnIndex) =>
+              val selectedTaxCodes: Seq[TaxCode] =
+                journey
+                  .getSelectedDuties(mrn)
+                  .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
+              selectedTaxCodes.foreach { taxCode =>
+                inSequence {
+                  mockAuthWithNoRetrievals()
+                  mockGetSession(SessionData(journey))
+                }
+
+                val pageIndex = mrnIndex + 1
+
+                checkPageIsDisplayed(
+                  performAction(pageIndex, taxCode),
+                  messageFromMessageKey(
+                    s"$messagesKey.title",
+                    taxCode,
+                    messages(s"select-duties.duty.$taxCode"),
+                    OrdinalNumeral(pageIndex)
+                  ),
+                  doc =>
+                    validateEnterClaimPage(doc, pageIndex, mrn, taxCode, journey.getCorrectedAmountFor(mrn, taxCode))
+                )
+              }
+            }
         }
       }
     }
 
-    "Submit claim amount" must {
+    "Submit Enter Claim page" must {
+      def performAction(pageIndex: Int, taxCode: TaxCode, data: Seq[(String, String)] = Seq.empty): Future[Result] =
+        controller.submit(pageIndex, taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      def performAction(pageIndex: Int, taxCode: TaxCode, claimAmount: String): Future[Result] =
-        controller.submit(pageIndex, taxCode)(
-          FakeRequest()
-            .withFormUrlEncodedBody("enter-claim.rejected-goods.claim-amount" -> claimAmount)
-        )
+      "not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+      }
 
       "fail if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
         forAll(Gen.choose(1, 1000), TaxCodeGen.genTaxCode) { (pageIndex: Int, taxCode: TaxCode) =>
-          status(performAction(pageIndex, taxCode, formatAmount(BigDecimal("1.00")))) shouldBe NOT_FOUND
+          status(
+            performAction(pageIndex, taxCode, Seq("multiple-enter-claim" -> formatAmount(BigDecimal("1.00"))))
+          ) shouldBe NOT_FOUND
         }
       }
 
-      "save the amount and redirect to the next page" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(9)) { case (journey, mrns) =>
+      "accept valid amount and redirect to the next page" in
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
-            val selectedTaxCodes = journey.getSelectedDuties(mrn).get
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
 
-            selectedTaxCodes.foreach { taxCode =>
-              val amountPaid  = journey.getAmountPaidFor(mrn, taxCode).get
-              val claimAmount = BigDecimal(formatAmount(amountPaid / 2))
+            selectedTaxCodes.zipWithIndex.foreach { case (taxCode, dutyIndex) =>
+              val pageIndex    = mrnIndex + 1
+              val actualAmount = BigDecimal("0.01")
+
+              val expectedRoute =
+                if (dutyIndex == selectedTaxCodes.size - 1) {
+                  if (mrnIndex == mrns.size - 1)
+                    routes.CheckClaimDetailsController.show
+                  else
+                    routes.SelectDutiesController.show(pageIndex + 1) // select duties for the next MRN
+                } else
+                  routes.EnterClaimController
+                    .show(pageIndex, selectedTaxCodes(dutyIndex + 1)) // input amount for the next duty of current MRN
 
               inSequence {
                 mockAuthWithNoRetrievals()
                 mockGetSession(SessionData(journey))
                 mockStoreSession(
-                  SessionData(journey.submitCorrectAmount(mrn, taxCode, claimAmount).getOrFail)
+                  SessionData(
+                    journey
+                      .submitCorrectAmount(mrn, taxCode, actualAmount)
+                      .getOrFail
+                  )
                 )(
                   Right(())
                 )
               }
 
               checkIsRedirect(
-                performAction(mrnIndex + 1, taxCode, claimAmount.toString()),
-                if (taxCode === selectedTaxCodes.last) {
-                  if (mrnIndex === mrns.size - 1)
-                    "/claim-back-import-duty-vat/rejected-goods/multiple/check-claim"
-                  else
-                    s"/claim-back-import-duty-vat/rejected-goods/multiple/select-duties/${mrnIndex + 2}"
-                } else
-                  s"/claim-back-import-duty-vat/rejected-goods/multiple/enter-claim/${mrnIndex + 1}/${nextTaxCode(selectedTaxCodes, taxCode)}"
+                performAction(
+                  pageIndex,
+                  taxCode,
+                  Seq("multiple-enter-claim" -> actualAmount.toPoundSterlingString.drop(1))
+                ),
+                expectedRoute
               )
             }
           }
         }
-      }
 
-      "re-display the form if claim amount is invalid" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(9)) { case (journey, mrns) =>
+      "reject invalid amount and display error message" in
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
-            val selectedTaxCodes = journey.getSelectedDuties(mrn).get
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
             selectedTaxCodes.foreach { taxCode =>
-              val amountPaid  = journey.getAmountPaidFor(mrn, taxCode).get
-              val claimAmount = BigDecimal(formatAmount(amountPaid + 0.01))
+              val pageIndex  = mrnIndex + 1
+              val paidAmount = journey.getAmountPaidFor(mrn, taxCode).get
 
               inSequence {
                 mockAuthWithNoRetrievals()
@@ -224,29 +284,26 @@ class EnterClaimControllerSpec
               }
 
               checkPageIsDisplayed(
-                performAction(mrnIndex + 1, taxCode, claimAmount.toString()),
-                messageFromMessageKey(
-                  s"$messagesKey.multiple.title",
-                  taxCode.value,
-                  messages(s"select-duties.duty.$taxCode"),
-                  OrdinalNumber.label(mrnIndex + 1)
+                performAction(
+                  pageIndex,
+                  taxCode,
+                  Seq("multiple-enter-claim" -> paidAmount.toPoundSterlingString.drop(1))
                 ),
-                doc =>
-                  validateEnterClaimPage(
-                    doc,
-                    mrnIndex + 1,
-                    amountPaid.toPoundSterlingString,
-                    claimAmount.toString(),
-                    taxCode
-                  ),
-                expectedStatus = 400
+                messageFromMessageKey(
+                  s"$messagesKey.title",
+                  taxCode,
+                  messages(s"select-duties.duty.$taxCode"),
+                  OrdinalNumeral(pageIndex)
+                ),
+                doc => {
+                  validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some(paidAmount))
+                  assertShowsInputError(doc, Some(m("multiple-enter-claim.invalid.claim")))
+                },
+                expectedStatus = BAD_REQUEST
               )
             }
           }
         }
-      }
-
     }
   }
-
 }

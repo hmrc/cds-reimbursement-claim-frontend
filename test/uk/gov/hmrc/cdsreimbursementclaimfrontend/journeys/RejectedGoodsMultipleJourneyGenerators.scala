@@ -298,12 +298,14 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
     taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
     paidAmounts              <- Gen.listOfN(numberOfTaxCodes, amountNumberGen)
-    reimbursementAmounts     <-
+    correctedAmounts         <-
       Gen
         .sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts.take(numberOfSelectedTaxCodes).map(a => Gen.choose(BigDecimal.exact("0.01"), a))
+          paidAmounts
+            .take(numberOfSelectedTaxCodes)
+            .map(a => Gen.choose(BigDecimal("0.00"), a - BigDecimal.exact("0.01")))
         )
-  } yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, reimbursementAmounts)
+  } yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, correctedAmounts)
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -354,7 +356,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
           (mrn, taxCodes.zip(paidAmounts).map { case (t, r) => (t, r, allDutiesCmaEligible) })
         }
 
-      val reimbursementClaims: OrderedMap[MRN, OrderedMap[TaxCode, Option[BigDecimal]]] =
+      val correctedAmounts: OrderedMap[MRN, OrderedMap[TaxCode, Option[BigDecimal]]] =
         OrderedMap.from(
           mrns
             .zip(taxCodesWithAmounts)
@@ -414,7 +416,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
             else None,
           methodOfDisposal = Some(methodOfDisposal),
           detailsOfRejectedGoods = Some("rejected goods details"),
-          reimbursementClaims = Some(reimbursementClaims),
+          correctedAmounts = Some(correctedAmounts),
           inspectionDate = Some(exampleInspectionDate),
           inspectionAddress = Some(exampleInspectionAddress),
           selectedDocumentType = None,

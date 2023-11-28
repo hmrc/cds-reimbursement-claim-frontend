@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 class RejectedGoodsMultipleJourneySpec
     extends AnyWordSpec
@@ -62,7 +63,7 @@ class RejectedGoodsMultipleJourneySpec
       emptyJourney.answers.inspectionAddress                                      shouldBe None
       emptyJourney.answers.inspectionDate                                         shouldBe None
       emptyJourney.answers.methodOfDisposal                                       shouldBe None
-      emptyJourney.answers.reimbursementClaims                                    shouldBe None
+      emptyJourney.answers.correctedAmounts                                       shouldBe None
       emptyJourney.answers.selectedDocumentType                                   shouldBe None
       emptyJourney.answers.supportingEvidences                                    shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode                             shouldBe false
@@ -229,11 +230,11 @@ class RejectedGoodsMultipleJourneySpec
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
         modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
-        modifiedJourney.answers.reimbursementClaims     shouldBe None
+        modifiedJourney.answers.correctedAmounts        shouldBe None
         modifiedJourney.answers.inspectionAddress       shouldBe None
         modifiedJourney.answers.inspectionDate          shouldBe None
         modifiedJourney.answers.methodOfDisposal        shouldBe None
-        modifiedJourney.answers.reimbursementClaims     shouldBe None
+        modifiedJourney.answers.correctedAmounts        shouldBe None
         modifiedJourney.answers.selectedDocumentType    shouldBe None
         modifiedJourney.answers.supportingEvidences     shouldBe Seq.empty
       }
@@ -1049,7 +1050,7 @@ class RejectedGoodsMultipleJourneySpec
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)
             .flatMap(_.submitCorrectAmount(mrn, wrongTaxCode, BigDecimal("5.00")))
 
-          journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
+          journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
         }
       }
     }
@@ -1062,16 +1063,16 @@ class RejectedGoodsMultipleJourneySpec
           val paidAmount    = journey.getNdrcDetailsFor(mrn).map(_.map(_.amount).map(BigDecimal.apply)).getOrElse(Nil).head
           val journeyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(mrn, Seq(taxCode))
 
-          val journeyEitherTestZero     =
-            journeyEither.flatMap(_.submitCorrectAmount(mrn, taxCode, BigDecimal("0.00")))
           val journeyEitherTestNegative =
             journeyEither.flatMap(_.submitCorrectAmount(mrn, taxCode, BigDecimal("-10.00")))
           val journeyEitherTestGreater  =
             journeyEither.flatMap(_.submitCorrectAmount(mrn, taxCode, paidAmount + 1))
+          val journeyEitherTestSame     =
+            journeyEither.flatMap(_.submitCorrectAmount(mrn, taxCode, paidAmount))
 
-          journeyEitherTestZero     shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
-          journeyEitherTestNegative shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
-          journeyEitherTestGreater  shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+          journeyEitherTestNegative shouldBe Left("submitCorrectAmount.invalidReimbursementAmount")
+          journeyEitherTestGreater  shouldBe Left("submitCorrectAmount.invalidReimbursementAmount")
+          journeyEitherTestSame     shouldBe Left("submitCorrectAmount.invalidReimbursementAmount")
         }
       }
     }
@@ -1084,7 +1085,7 @@ class RejectedGoodsMultipleJourneySpec
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
         .flatMap(_.submitCorrectAmount(exampleMrn, TaxCode.A80, BigDecimal("0.00")))
 
-      journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }
 
     "change to valid amount for selected tax code" in {
@@ -1107,11 +1108,11 @@ class RejectedGoodsMultipleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val leadMrn                              = journey.getLeadMovementReferenceNumber.get
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims(leadMrn).toSeq
-        for ((taxCode, amount) <- taxCodes) {
-          val newAmount     = BigDecimal("0.00")
+        for ((taxCode, _) <- taxCodes) {
+          val newAmount     = BigDecimal("-10.00")
           val journeyEither = journey.submitCorrectAmount(leadMrn, taxCode, newAmount)
 
-          journeyEither shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+          journeyEither shouldBe Left("submitCorrectAmount.invalidReimbursementAmount")
         }
       }
     }
@@ -1123,7 +1124,7 @@ class RejectedGoodsMultipleJourneySpec
           journey.getNdrcDetailsFor(leadMrn).map(_.map(_.taxType).map(TaxCode.apply).toSet).getOrElse(Set.empty)
         val wrongTaxCode  = TaxCodes.all.find(taxCode => !taxCodeSet.contains(taxCode)).getOrElse(TaxCode.NI633)
         val journeyEither = journey.submitCorrectAmount(leadMrn, wrongTaxCode, BigDecimal("10.00"))
-        journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
+        journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
       }
     }
 
@@ -1172,7 +1173,7 @@ class RejectedGoodsMultipleJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00)))
-          .flatMap(_.submitCorrectAmount(exampleMrn, TaxCode.A00, BigDecimal("1.00")))
+          .flatMap(_.submitCorrectAmount(exampleMrn, TaxCode.A00, BigDecimal("0.50")))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
