@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 class RejectedGoodsMultipleJourneySpec
     extends AnyWordSpec
@@ -1093,12 +1092,12 @@ class RejectedGoodsMultipleJourneySpec
         journey.answers.movementReferenceNumbers.get.foreach { mrn =>
           val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
           val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims(mrn).toSeq
-          for ((taxCode, amount) <- taxCodes) {
-            val newAmount     = amount / 2
-            val journeyEither = journey.submitCorrectAmount(mrn, taxCode, newAmount)
-            journeyEither.isRight shouldBe true
-            val modifiedJourney = journeyEither.getOrFail
-            modifiedJourney.getTotalReimbursementAmount shouldBe (totalAmount - newAmount)
+          for ((taxCode, reimbursementAmount) <- taxCodes) {
+            val paidAmount         = journey.getAmountPaidFor(mrn, taxCode).get
+            val newCorrectedAmount = (paidAmount - reimbursementAmount) / 2
+            val journeyEither      = journey.submitCorrectAmount(mrn, taxCode, newCorrectedAmount)
+            val modifiedJourney    = journeyEither.getOrFail
+            modifiedJourney.getTotalReimbursementAmount shouldBe (totalAmount + newCorrectedAmount)
           }
         }
       }
