@@ -67,7 +67,7 @@ class CheckClaimDetailsControllerSpec
 
   def validateCheckClaimDetailsPage(
     doc: Document,
-    claims: Map[MRN, Map[TaxCode, Option[BigDecimal]]]
+    claims: Map[MRN, Map[TaxCode, BigDecimal]]
   ) = {
     val (keys, values) = summaryKeyValue(doc)
 
@@ -75,7 +75,7 @@ class CheckClaimDetailsControllerSpec
       case (mrn, i) =>
         messages("check-claim.rejected-goods.multiple.duty.label", OrdinalNumber.label(i + 1).capitalize, mrn.value)
     }
-    doc.select("#overall-total").text() shouldBe claims.map(_._2.values.map(_.get).sum).sum.toPoundSterlingString
+    doc.select("#overall-total").text() shouldBe claims.map(_._2.values.sum).sum.toPoundSterlingString
 
     hasContinueButton(doc)
     formAction(
@@ -83,9 +83,8 @@ class CheckClaimDetailsControllerSpec
     ) shouldBe "/claim-back-import-duty-vat/rejected-goods/multiple/check-claim"
 
     val claimedTaxCodes = claims.flatMap(_._2.keys).map(tc => messages(s"tax-code.${tc.value}")).toSet
-    val claimedAmounts  = claims.flatMap(_._2.values.map(_.get)).map(_.toPoundSterlingString).toSet
-    val mrnTotals       = claims.map(_._2.values.map(_.get).sum).map(_.toPoundSterlingString).toSet
-
+    val claimedAmounts  = claims.flatMap(_._2.values).map(_.toPoundSterlingString).toSet
+    val mrnTotals       = claims.map(_._2.values.sum).map(_.toPoundSterlingString).toSet
     keys   should contain allElementsOf claimedTaxCodes
     values should contain allElementsOf claimedAmounts
     values should contain allElementsOf mrnTotals
@@ -111,13 +110,10 @@ class CheckClaimDetailsControllerSpec
             mockGetSession(SessionData(journey))
           }
 
-          val claims: Map[MRN, Map[TaxCode, Option[BigDecimal]]] =
-            journey.answers.reimbursementClaims.get
-
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.multiple.title"),
-            doc => validateCheckClaimDetailsPage(doc, claims)
+            doc => validateCheckClaimDetailsPage(doc, journey.getReimbursementClaims)
           )
         }
       }

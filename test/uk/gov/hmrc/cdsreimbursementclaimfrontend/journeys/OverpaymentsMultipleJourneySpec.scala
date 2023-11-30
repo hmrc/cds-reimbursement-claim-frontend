@@ -907,7 +907,7 @@ class OverpaymentsMultipleJourneySpec
                 .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, taxCodes))
                 .getOrFail
               val journeyToTest  = ndrcDetails.dropRight(1).foldLeft(initialJourney) { case (journey, ndrcDetails) =>
-                journey.submitAmountForReimbursement(exampleMrn, TaxCode(ndrcDetails.taxType), 1).getOrFail
+                journey.submitCorrectAmount(exampleMrn, TaxCode(ndrcDetails.taxType), 1).getOrFail
               }
               journeyToTest.hasCompleteReimbursementClaims shouldBe false
             }

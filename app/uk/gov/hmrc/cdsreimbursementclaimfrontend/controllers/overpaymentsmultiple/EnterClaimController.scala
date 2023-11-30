@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_multiple_claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_multiple_claims
 
 import javax.inject.Inject
 import javax.inject.Singleton

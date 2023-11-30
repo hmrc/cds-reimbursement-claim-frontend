@@ -135,7 +135,7 @@ class CheckClaimDetailsControllerSpec
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      "do not find the page if rejected goods feature is disabled" in {
+      "do not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
 
         status(performAction()) shouldBe NOT_FOUND
