@@ -44,7 +44,7 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
     key: String,
     subKey: Option[String] = None,
     showImportMrn: Boolean = true,
-    showMethodOfPayment: Boolean = false
+    showMethodOfPayment: Boolean = true
   )(implicit
     messages: Messages
   ): SummaryList =

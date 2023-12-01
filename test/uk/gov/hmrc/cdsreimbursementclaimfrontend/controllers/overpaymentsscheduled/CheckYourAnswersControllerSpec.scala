@@ -49,6 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -139,6 +140,9 @@ class CheckYourAnswersControllerSpec
     summaries should containOnlyDefinedPairsOf(
       Seq(
         "First MRN"          -> Some(claim.movementReferenceNumber.value),
+        "Method of payment"  -> Some(
+          MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
+        ),
         "Scheduled document" -> Some(claim.scheduledDocument.fileName),
         "Import date"        -> declarationDetails.map(_.acceptanceDate),
         "Duties paid"        -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)

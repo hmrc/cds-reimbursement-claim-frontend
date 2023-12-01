@@ -69,7 +69,7 @@
             )
         )
 
-        @summary(CdsDisplayDeclarationSummary.render(declaration, key, subKey, showMethodOfPayment = true))
+        @summary(CdsDisplayDeclarationSummary.render(declaration, key, subKey))
 
         @if(isSubsidy && subKey.exists(key => key == "multiple" || key == "scheduled")){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
 

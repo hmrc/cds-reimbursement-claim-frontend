@@ -69,7 +69,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(CdsDisplayDeclarationSummary.render(declaration, key, None, showMethodOfPayment = isSubsidy))
+        @summary(CdsDisplayDeclarationSummary.render(declaration, key, None))
 
         @if(isSubsidy && subKey.exists(key => key == "multiple" || key == "scheduled")){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
 
