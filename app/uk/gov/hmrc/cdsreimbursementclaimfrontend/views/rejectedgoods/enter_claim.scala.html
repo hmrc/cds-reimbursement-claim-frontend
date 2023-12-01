@@ -55,7 +55,7 @@
     @paragraph(Html(p1Text))
 
     @if(isSubsidy) {
-        @paragraph(Html(messages("enter-claim.rejected-goods.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
+        @paragraph(Html(messages(s"$key.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
     }
 
     @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8 govuk-!-margin-top-0"))
