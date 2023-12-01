@@ -140,7 +140,7 @@ class CheckYourAnswersControllerSpec
         "Import date"       -> declarationDetails.map(_.acceptanceDate),
         "Method of payment" -> Some(
           MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
-        ).filter(_ => journey.isSubsidyOnlyJourney),
+        ),
         "Duties paid"       -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
       ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
