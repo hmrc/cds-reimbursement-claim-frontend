@@ -63,8 +63,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
     "check completeness and produce the correct output" in {
       forAll(completeJourneyGen) { journey =>
-        journey.answers.securitiesReclaims.isDefined shouldBe true
-        journey.hasCompleteSecuritiesReclaims        shouldBe true
+        journey.answers.correctedAmounts.isDefined shouldBe true
+        journey.hasCompleteSecuritiesReclaims      shouldBe true
 
         val output: SecuritiesJourney.Output =
           journey.toOutput.fold(e => fail(s"Cannot build output because of $e"), identity)
@@ -504,7 +504,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
-        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
@@ -551,7 +551,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
-        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe false
@@ -707,7 +707,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                     .flatMapEach(
                       args._2,
                       (journey: SecuritiesJourney) =>
-                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                        (args2: (TaxCode, BigDecimal)) => journey.submitCorrectAmount(args._1, args2._1, args2._2)
                     )
             )
             .getOrFail
@@ -725,7 +725,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
-        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe true
@@ -742,7 +742,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
           depositIds.map { sid =>
-            (sid, decl.getSecurityDetailsFor(sid).map(_.taxDetails.map(td => (td.getTaxCode, td.getAmount))).get)
+            (sid, decl.getSecurityDetailsFor(sid).map(_.taxDetails.map(td => (td.getTaxCode, BigDecimal("0.00")))).get)
           }
 
         reclaimsBySecurityDepositId should not be empty
@@ -762,7 +762,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                     .flatMapEach(
                       args._2,
                       (journey: SecuritiesJourney) =>
-                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                        (args2: (TaxCode, BigDecimal)) => journey.submitCorrectAmount(args._1, args2._1, args2._2)
                     )
             )
             .getOrFail
@@ -779,7 +779,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
-        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe true
@@ -790,7 +790,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    "reject submission of a zero reclaim amount for any valid securityDepositId and taxCode" in {
+    "reject submission of a full deposit amount for any valid securityDepositId and taxCode" in {
       forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
@@ -814,11 +814,16 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                     .flatMapEach(
                       args._2,
                       (journey: SecuritiesJourney) =>
-                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                        (args2: (TaxCode, BigDecimal)) =>
+                          journey.submitCorrectAmount(
+                            args._1,
+                            args2._1,
+                            journey.getSecurityDepositAmountFor(args._1, args2._1).get - args2._2
+                          )
                     )
             )
 
-        journeyResult shouldBe Left("submitAmountForReclaim.invalidAmount")
+        journeyResult shouldBe Left("submitCorrectAmount.invalidAmount")
       }
     }
 
@@ -848,7 +853,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                       (journey: SecuritiesJourney) =>
                         (args2: (TaxCode, BigDecimal)) =>
                           journey
-                            .submitAmountForReclaim(
+                            .submitCorrectAmount(
                               args._1,
                               args2._1,
                               journey.getSecurityDepositAmountFor(args._1, args2._1).get + BigDecimal("0.01")
@@ -856,7 +861,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                     )
             )
 
-        journeyResult shouldBe Left("submitAmountForReclaim.invalidAmount")
+        journeyResult shouldBe Left("submitCorrectAmount.invalidAmount")
       }
     }
 
@@ -884,11 +889,11 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                     .flatMapEach(
                       args._2,
                       (journey: SecuritiesJourney) =>
-                        (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim("bogus", args2._1, args2._2)
+                        (args2: (TaxCode, BigDecimal)) => journey.submitCorrectAmount("bogus", args2._1, args2._2)
                     )
             )
 
-        journeyResult shouldBe Left("submitAmountForReclaim.invalidSecurityDepositId")
+        journeyResult shouldBe Left("submitCorrectAmount.invalidSecurityDepositId")
       }
     }
 
@@ -917,7 +922,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                       args._2,
                       (journey: SecuritiesJourney) =>
                         (args2: (TaxCode, BigDecimal)) =>
-                          journey.submitAmountForReclaim(
+                          journey.submitCorrectAmount(
                             args._1,
                             journey
                               .getSecurityTaxCodesFor(args._1)
@@ -928,7 +933,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                     )
             )
 
-        journeyResult shouldBe Left("submitAmountForReclaim.invalidTaxCode")
+        journeyResult shouldBe Left("submitCorrectAmount.invalidTaxCode")
       }
     }
 
@@ -936,13 +941,15 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(completeJourneyGen) { journey =>
         val depositId: String                     = journey.getSelectedDepositIds.head
         val taxCode: TaxCode                      = journey.getSecurityTaxCodesFor(depositId).head
+        val depositAmount: BigDecimal             = journey.getSecurityDepositAmountFor(depositId, taxCode).get
         val currentAmount: BigDecimal             = journey.getReclaimAmountFor(depositId, taxCode).get
-        val newAmount: BigDecimal                 = currentAmount / 2
+        val newCorrectAmount: BigDecimal          = depositAmount / 3
         val currentTotalReclaimAmount: BigDecimal = journey.getTotalReclaimAmount
-        val newTotalReclaimAmount: BigDecimal     = currentTotalReclaimAmount - currentAmount + newAmount
+        val newTotalReclaimAmount: BigDecimal     =
+          currentTotalReclaimAmount - currentAmount + (depositAmount - newCorrectAmount)
 
         val modifiedJourney = journey
-          .submitAmountForReclaim(depositId, taxCode, newAmount)
+          .submitCorrectAmount(depositId, taxCode, newCorrectAmount)
           .getOrFail
 
         modifiedJourney.getTotalReclaimAmount shouldBe newTotalReclaimAmount
@@ -960,21 +967,21 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val securityAmount: BigDecimal = journey.getSecurityDepositAmountFor(depositId, taxCode).get
 
         val journeyResult = journey
-          .submitAmountForReclaim(depositId, taxCode, securityAmount + BigDecimal("0.01"))
+          .submitCorrectAmount(depositId, taxCode, securityAmount + BigDecimal("0.01"))
 
-        journeyResult shouldBe Left("submitAmountForReclaim.invalidAmount")
+        journeyResult shouldBe Left("submitCorrectAmount.invalidAmount")
       }
     }
 
-    "reject change of the reclaim amount with zero" in {
+    "reject change of the reclaim amount with full deposit value" in {
       forAll(completeJourneyGen) { journey =>
         val depositId: String = journey.getSelectedDepositIds.head
         val taxCode: TaxCode  = journey.getSecurityTaxCodesFor(depositId).head
 
         val journeyResult = journey
-          .submitAmountForReclaim(depositId, taxCode, BigDecimal("0.00"))
+          .submitCorrectAmount(depositId, taxCode, journey.getSecurityDepositAmountFor(depositId, taxCode).get)
 
-        journeyResult shouldBe Left("submitAmountForReclaim.invalidAmount")
+        journeyResult shouldBe Left("submitCorrectAmount.invalidAmount")
       }
     }
 
@@ -990,16 +997,16 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             .flatMap(_.selectSecurityDepositIds(depositIds))
             .flatMapEach(
               depositIds,
-              (journey: SecuritiesJourney) => journey.submitFullAmountsForReclaim(_)
+              (journey: SecuritiesJourney) => journey.submitFullCorrectedAmounts(_)
             )
             .getOrFail
 
-        val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
+        val expectedCorrectedAmounts: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
           SortedMap(
             decl.displayResponseDetail.securityDetails.getOrElse(Nil).map { sd =>
               (
                 sd.securityDepositId,
-                SortedMap(sd.taxDetails.map(td => (td.getTaxCode, Some(td.getAmount))): _*)
+                SortedMap(sd.taxDetails.map(td => (td.getTaxCode, Some(BigDecimal("0.00")))): _*)
               )
             }: _*
           )
@@ -1008,7 +1015,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
         journey.answers.displayDeclaration.contains(decl)     shouldBe true
         journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
-        journey.answers.securitiesReclaims                    shouldBe Some(expectedSecuritiesReclaims)
+        journey.answers.correctedAmounts                      shouldBe Some(expectedCorrectedAmounts)
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe false
         journey.hasCompleteSecuritiesReclaims                 shouldBe true
@@ -1025,7 +1032,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             .submitReasonForSecurityAndDeclaration(rfs, decl)
             .flatMap(_.submitClaimDuplicateCheckStatus(false))
             .flatMap(_.selectSecurityDepositIds(depositIds))
-            .flatMap(_.submitFullAmountsForReclaim("invalid-security-deposit-id"))
+            .flatMap(_.submitFullCorrectedAmounts("invalid-security-deposit-id"))
 
         journeyResult shouldBe Left("submitFullAmountForReclaim.invalidSecurityDepositId")
       }
@@ -1041,7 +1048,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
               .flatMap(_.selectSecurityDepositIds(depositIds.halfNonEmpty))
-              .flatMap(_.submitFullAmountsForReclaim(depositIds.last))
+              .flatMap(_.submitFullCorrectedAmounts(depositIds.last))
 
           journeyResult shouldBe Left("submitFullAmountForReclaim.securityDepositIdNotSelected")
         }
@@ -1485,7 +1492,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       val displayDeclarationNotAllGuaranteeEligible =
         buildSecuritiesDisplayDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
-          reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
+          depositDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
           allDutiesGuaranteeEligible = false
         )
       val journey                                   =
@@ -1509,7 +1516,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       val displayDeclarationAllGuaranteeEligible =
         buildSecuritiesDisplayDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
-          reclaimsDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
+          depositDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
           allDutiesGuaranteeEligible = true
         )
       val journeyEither                          =

@@ -141,7 +141,7 @@ class ConfirmFullRepaymentController @Inject() (
     request: Request[_]
   ): Future[(SecuritiesJourney, Result)] =
     journey
-      .submitFullAmountsForReclaim(securityId)
+      .submitFullCorrectedAmounts(securityId)
       .fold(
         { error =>
           logger.warn(error)

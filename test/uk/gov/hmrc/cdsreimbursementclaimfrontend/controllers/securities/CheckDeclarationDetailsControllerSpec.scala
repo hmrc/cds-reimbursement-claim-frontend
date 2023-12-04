@@ -93,7 +93,7 @@ class CheckDeclarationDetailsControllerSpec
     summaryKeys   should not be empty
     summaryValues should not be empty
 
-    val securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] = journey.getSecuritiesReclaims
+    val correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]] = journey.getSecuritiesReclaims
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
@@ -123,13 +123,13 @@ class CheckDeclarationDetailsControllerSpec
           .map(_.getTotalSecuritiesAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
         "Total security deposit paid"  -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesPaidAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
-        "Method of payment"            -> (if (securitiesReclaims.isEmpty)
+        "Method of payment"            -> (if (correctedAmounts.isEmpty)
                                   Some("Unavailable")
                                 else
                                   journey.answers.displayDeclaration
                                     .map(
                                       _.isAllSelectedSecuritiesEligibleForGuaranteePayment(
-                                        securitiesReclaims.keySet
+                                        correctedAmounts.keySet
                                       )
                                     )
                                     .map {
@@ -142,7 +142,7 @@ class CheckDeclarationDetailsControllerSpec
           .getOrElse(Seq.empty)
           .map { sid =>
             s"Claim for $sid" -> Some(
-              if (securitiesReclaims.contains(sid))
+              if (correctedAmounts.contains(sid))
                 "Yes"
               else
                 "No"

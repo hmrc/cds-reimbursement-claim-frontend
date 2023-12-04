@@ -107,16 +107,11 @@ class CheckClaimDetailsControllerSpec
               .mkString(" ")
           )),
           ("Total"             -> Some(journey.getTotalReclaimAmountFor(sid).getOrElse(BigDecimal("0.00")).toPoundSterlingString))
-        ) ++ journey.answers.securitiesReclaims.get
+        ) ++ journey.getSecuritiesReclaims
           .get(sid)
           .get
-          .map {
-            case (taxCode, Some(amount)) =>
-              (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
-            case (taxCode, None)         =>
-              throw new Exception(
-                s"Expected claims to be provided for all duties for depositId=$sid, but missing one for the $taxCode"
-              )
+          .map { case (taxCode, amount) =>
+            (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
           }
       )
 

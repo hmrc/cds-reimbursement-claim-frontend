@@ -192,11 +192,11 @@ class SelectDutiesControllerSpec
       "move on to enter claim page when at least one checkbox has been changed" in
         forAll(partialGen) { journey =>
           val securityIdOpt = securityIdWithMoreChoicesThanThoseSelected(journey)
-          whenever(journey.answers.securitiesReclaims.nonEmpty && securityIdOpt.isDefined) {
+          whenever(journey.answers.correctedAmounts.nonEmpty && securityIdOpt.isDefined) {
             val securityId                                        = securityIdOpt.get
             val availableTaxCodes: List[TaxCode]                  = journey.getSecurityTaxCodesFor(securityId).toList
             val previouslySelectedTaxCodes: List[TaxCode]         =
-              journey.answers.securitiesReclaims
+              journey.answers.correctedAmounts
                 .map(_(securityId))
                 .toList
                 .flatMap(_.keys)
@@ -237,7 +237,7 @@ class SelectDutiesControllerSpec
         }
 
       "redisplay the page with an error when no checkboxes are selected" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.answers.securitiesReclaims.nonEmpty) {
+        whenever(journey.answers.correctedAmounts.nonEmpty) {
           securityIdWithTaxCodes(journey).fold(
             throw new Throwable("unexpectedly found securities reclaims already populated")
           ) { securityId =>
@@ -256,7 +256,7 @@ class SelectDutiesControllerSpec
       }
 
       "redirect back to the CYA when the same duties has been selected" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.answers.securitiesReclaims.nonEmpty) {
+        whenever(journey.answers.correctedAmounts.nonEmpty) {
           journey.getSelectedDepositIds.foreach { securityId =>
             val selectedDuties: Seq[TaxCode] =
               journey.getSelectedDutiesFor(securityId).get
@@ -302,7 +302,7 @@ class SelectDutiesControllerSpec
       }
 
       "redirect to the check claim page when new duty has been selected" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.answers.securitiesReclaims.nonEmpty) {
+        whenever(journey.answers.correctedAmounts.nonEmpty) {
           journey.getSelectedDepositIds.foreach { securityId =>
             val availableDuties: Set[TaxCode] =
               journey.getSecurityTaxCodesFor(securityId).toSet
@@ -349,7 +349,7 @@ object SelectDutiesControllerSpec {
     val securityId = securityIdWithTaxCodes(journey)
     securityId.fold(Option.empty[String]) { securityId =>
       val choices: List[TaxCode]  = journey.getSecurityTaxCodesFor(securityId).toList
-      val selected: List[TaxCode] = journey.answers.securitiesReclaims
+      val selected: List[TaxCode] = journey.answers.correctedAmounts
         .map(_(securityId))
         .map(_.keys)
         .toList

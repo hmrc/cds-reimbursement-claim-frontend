@@ -31,7 +31,7 @@ import scala.collection.immutable.SortedMap
 object SecuritiesSelectionSummary {
 
   def apply(
-    securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
+    correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
     declaration: DisplayDeclaration,
     key: String,
     changeCall: String => Call,
@@ -45,7 +45,7 @@ object SecuritiesSelectionSummary {
         value = Value(
           Text(
             messages(
-              if (securitiesReclaims.contains(securityDepositId))
+              if (correctedAmounts.contains(securityDepositId))
                 s"$key.claim-for-security.yes"
               else
                 s"$key.claim-for-security.no"
@@ -69,7 +69,7 @@ object SecuritiesSelectionSummary {
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.claim-for-security.total"))),
           value = Value(
-            Text(declaration.getTotalSecuritiesAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+            Text(declaration.getTotalSecuritiesAmountFor(correctedAmounts.keySet).toPoundSterlingString)
           )
         )
       )
@@ -78,7 +78,7 @@ object SecuritiesSelectionSummary {
               SummaryListRow(
                 key = Key(HtmlContent(messages(s"$key.claim-for-security.paid-total"))),
                 value = Value(
-                  Text(declaration.getTotalSecuritiesPaidAmountFor(securitiesReclaims.keySet).toPoundSterlingString)
+                  Text(declaration.getTotalSecuritiesPaidAmountFor(correctedAmounts.keySet).toPoundSterlingString)
                 )
               )
             )

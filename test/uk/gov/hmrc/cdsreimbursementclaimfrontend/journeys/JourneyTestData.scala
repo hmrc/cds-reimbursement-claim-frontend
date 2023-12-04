@@ -312,12 +312,12 @@ trait JourneyTestData {
     securityReason: String,
     declarantEORI: Eori = exampleEori,
     consigneeEORI: Option[Eori] = None,
-    reclaimsDetails: Seq[(String, Seq[(TaxCode, BigDecimal)])] = Seq.empty,
+    depositDetails: Seq[(String, Seq[(TaxCode, BigDecimal)])] = Seq.empty,
     consigneeContact: Option[ContactDetails] = None,
     declarantContact: Option[ContactDetails] = None,
     allDutiesGuaranteeEligible: Boolean = false
   ): DisplayDeclaration = {
-    val securityDetails: List[SecurityDetails] = reclaimsDetails.map { case (securityDepositId, taxDetails) =>
+    val securityDetails: List[SecurityDetails] = depositDetails.map { case (securityDepositId, taxDetails) =>
       val totalAmount = taxDetails.map(_._2).sum
       SecurityDetails(
         securityDepositId = securityDepositId,
