@@ -43,7 +43,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(displayDeclaration: DisplayDeclaration, securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(displayDeclaration: DisplayDeclaration, correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{
     "check-declaration-details"
@@ -54,7 +54,7 @@
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @if(securitiesReclaims.isEmpty) {
+    @if(correctedAmounts.isEmpty) {
         @notificationBanner(messages(s"$key.banner.empty-securities-selection"))
     }
 
@@ -79,13 +79,13 @@
         routes.ChooseReasonForSecurityController.show()
     ).rows ++
             SecuritiesSelectionSummary(
-                securitiesReclaims,
+                correctedAmounts,
                 displayDeclaration,
                 "check-your-answers",
                 routes.SelectSecuritiesController.show,
                 showTotalSecuritiesPaidAmount = true
             ).rows ++
-            (if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securitiesReclaims.keySet)) {
+            (if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(correctedAmounts.keySet)) {
                 Seq.empty[SummaryListRow]
             } else {
                 Seq(
@@ -93,13 +93,13 @@
                         key = Key(Text(messages(s"$key.method-of-payment-label"))),
                         value = Value(Text(
                             messages(
-                                if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securitiesReclaims.keySet)) {
+                                if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.guarantee"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(securitiesReclaims.keySet)) {
+                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.bt"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(securitiesReclaims.keySet)) {
+                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.cash-account"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(securitiesReclaims.keySet)) {
+                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.duty-deferment"
                                 } else {
                                     s"check-declaration-details.payment-method.unavailable"
@@ -109,7 +109,7 @@
             })
     ))
 
-    @if(securitiesReclaims.nonEmpty) {
+    @if(correctedAmounts.nonEmpty) {
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
             @submitButton("button.continue")
         }

@@ -62,18 +62,18 @@ class SecuritiesJourneyFormatSpec extends AnyWordSpec with JsonFormatTest with M
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          securitiesReclaims = Some(SortedMap("ABC123" -> SortedMap(TaxCode.A00 -> Some(BigDecimal("12.99")))))
+          correctedAmounts = Some(SortedMap("ABC123" -> SortedMap(TaxCode.A00 -> Some(BigDecimal("12.99")))))
         )
       )
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          securitiesReclaims =
+          correctedAmounts =
             Some(SortedMap("ABC123" -> SortedMap(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None)))
         )
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, securitiesReclaims = Some(SortedMap()))
+        Answers(userEoriNumber = exampleEori, correctedAmounts = Some(SortedMap()))
       )
 
       validateCanReadAndWriteJson(

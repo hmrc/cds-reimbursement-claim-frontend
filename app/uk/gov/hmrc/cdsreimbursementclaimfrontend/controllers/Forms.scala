@@ -296,8 +296,8 @@ object Forms {
       mapping(
         s"$key.claim-amount" -> moneyMapping(
           errorMsg = "error.invalid-text",
-          zeroErrorMsg = Some("error.zero")
-        ).verifying("error.invalid-amount", _ <= paidAmount)
+          allowZero = true
+        ).verifying("error.invalid-amount", amount => amount >= 0 && amount < paidAmount)
       )(identity)(Some.apply)
     )
 

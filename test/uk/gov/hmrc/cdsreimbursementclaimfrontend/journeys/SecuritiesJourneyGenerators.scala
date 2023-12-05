@@ -49,7 +49,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
               .map(sd =>
                 sd.taxDetails.halfNonEmpty.map(td =>
                   Gen
-                    .choose(BigDecimal.exact("0.01"), td.getAmount)
+                    .choose(BigDecimal.exact("0.00"), td.getAmount - BigDecimal.exact("0.01"))
                     .map(amount => (sd.securityDepositId, td.getTaxCode, amount))
                 )
               )
@@ -66,7 +66,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           .flatMap(depositId =>
             decl
               .getSecurityDetailsFor(depositId)
-              .map(sd => sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, td.getAmount)))
+              .map(sd => sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, BigDecimal("0.00"))))
               .getOrElse(Seq.empty)
           )
       )
@@ -349,7 +349,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
       numberOfSecurities          <- Gen.choose(2, 5)
       payeeType                   <- Gen.oneOf(PayeeType.values)
-      reclaimsDetails             <-
+      depositsDetails             <-
         listOfExactlyN(
           numberOfSecurities,
           Gen.zip(depositIdGen, taxCodesWithAmountsGen)
@@ -360,7 +360,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                                        securityReason = rfs.acc14Code,
                                        declarantEORI = declarantEORI,
                                        consigneeEORI = if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-                                       reclaimsDetails = reclaimsDetails,
+                                       depositDetails = depositsDetails,
                                        allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
                                        consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
                                        declarantContact = declarantContact
@@ -388,7 +388,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
-      val securitiesReclaims: SortedMap[String, SecuritiesJourney.SecuritiesReclaims] =
+      val correctedAmounts: SortedMap[String, SecuritiesJourney.CorrectedAmounts] =
         SortedMap(
           reclaims
             .groupBy(_._1)
@@ -424,7 +424,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           temporaryAdmissionMethodOfDisposal = methodOfDisposal,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-          securitiesReclaims = Some(securitiesReclaims),
+          correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
           supportingEvidences = supportingEvidencesExpanded,
           bankAccountDetails =

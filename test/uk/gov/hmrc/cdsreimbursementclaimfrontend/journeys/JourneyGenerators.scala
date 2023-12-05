@@ -151,7 +151,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
-      reclaimsDetails = reclaimsDetails,
+      depositDetails = reclaimsDetails,
       allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
       declarantContact = Some(declarantContact)
     )

@@ -233,7 +233,7 @@ class EnterClaimControllerSpec
               val expectedRoute =
                 if (dutyIndex == selectedTaxCodes.size - 1) {
                   if (mrnIndex == mrns.size - 1)
-                    routes.CheckClaimDetailsController.show
+                    routes.CheckClaimDetailsController.show()
                   else
                     routes.SelectDutiesController.show(pageIndex + 1) // select duties for the next MRN
                 } else

@@ -166,7 +166,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
                 .flatMapEach(
                   args._2,
                   (journey: SecuritiesJourney) =>
-                    (args2: (TaxCode, BigDecimal)) => journey.submitAmountForReclaim(args._1, args2._1, args2._2)
+                    (args2: (TaxCode, BigDecimal)) => journey.submitCorrectAmount(args._1, args2._1, args2._2)
                 )
         )
         .getOrFail

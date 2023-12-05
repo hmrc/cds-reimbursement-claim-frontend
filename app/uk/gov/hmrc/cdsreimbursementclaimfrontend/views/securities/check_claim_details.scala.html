@@ -35,7 +35,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(displayDeclaration: DisplayDeclaration,securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(displayDeclaration: DisplayDeclaration,correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]],postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-claim.securities"}
 @title = @{messages(s"$key.title")}
@@ -46,7 +46,7 @@
 
     @paragraph(Html(messages(s"$key.summary")))
 
-    @securitiesReclaims.map { case (securityDepositId, reclaims) =>
+    @correctedAmounts.map { case (securityDepositId, reclaims) =>
         @subHeading(Html(messages(s"$key.claim-for-security.h2", securityDepositId)))
         @summary(SecuritiesReclaimDetailsSummary(
             securityDepositId,

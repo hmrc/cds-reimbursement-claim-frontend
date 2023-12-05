@@ -900,8 +900,8 @@ enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 #===================================================
 enter-claim.securities.title=Claim details for {0} - {1}
 enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
-enter-claim.securities.claim-amount=How much is to be claimed back, in pounds?
-enter-claim.securities.claim-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.securities.claim-amount=How much should have been paid, in pounds?
+enter-claim.securities.claim-amount.hint=The amount must be lower than the amount paid. For example £110.40.
 enter-claim.securities.title.caption=Security deposit: {0}
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30

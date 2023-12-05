@@ -146,7 +146,7 @@ class EnterClaimControllerSpec
         )
       ) { case (initialJourney, _) =>
         val depositIdsWithNoneDutiesSelected: Set[String] =
-          initialJourney.answers.securitiesReclaims.map(_.filter(_._2.isEmpty)).get.keySet
+          initialJourney.answers.correctedAmounts.map(_.filter(_._2.isEmpty)).get.keySet
 
         depositIdsWithNoneDutiesSelected.nonEmpty shouldBe true
 
@@ -357,7 +357,7 @@ class EnterClaimControllerSpec
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(
               SessionData(
-                initialJourney.submitAmountForReclaim(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                initialJourney.submitCorrectAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
               )
             )(Right(()))
 
@@ -395,7 +395,7 @@ class EnterClaimControllerSpec
 
           val updatedJourney = initialJourney
             .submitCheckClaimDetailsChangeMode(true)
-            .submitAmountForReclaim(depositId, taxCode, BigDecimal("0.01"))
+            .submitCorrectAmount(depositId, taxCode, BigDecimal("0.01"))
             .getOrFail
 
           val next: Option[Either[String, (String, TaxCode)]] = updatedJourney.getNextDepositIdAndTaxCodeToClaim
@@ -430,7 +430,7 @@ class EnterClaimControllerSpec
 
       }
 
-      "re-display the page with error message if claimed amount is zero" in forSomeWith(
+      "re-display the page with error message if claimed amount is full amount" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
@@ -443,10 +443,12 @@ class EnterClaimControllerSpec
             mockGetSession(SessionData(initialJourney))
           }
 
+          val amount = initialJourney.getSecurityDepositAmountFor(depositId, taxCode)
+
           checkPageWithErrorIsDisplayed(
-            performAction(depositId, taxCode, "enter-claim.securities.claim-amount" -> "0"),
+            performAction(depositId, taxCode, "enter-claim.securities.claim-amount" -> amount.get.doubleValue.toString),
             messageFromMessageKey(s"$messagesKey.title", taxCode, messages(s"select-duties.duty.$taxCode")),
-            "Claim amount must be 0.01 or more"
+            "Claim amount must be lower than or equal to the amount paid"
           )
         }
       }
@@ -554,7 +556,7 @@ class EnterClaimControllerSpec
                 mockGetSession(SessionData(initialJourney))
                 mockStoreSession(
                   SessionData(
-                    initialJourney.submitAmountForReclaim(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                    initialJourney.submitCorrectAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
                   )
                 )(Right(()))
               }

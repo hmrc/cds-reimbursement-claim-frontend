@@ -75,7 +75,7 @@ class CheckClaimDetailsController @Inject() (
     journey: SecuritiesJourney
   )(body: => (SecuritiesJourney, Result)): Future[(SecuritiesJourney, Result)] =
     (
-      if (journey.answers.securitiesReclaims.noneIfEmpty.isEmpty)
+      if (journey.answers.correctedAmounts.noneIfEmpty.isEmpty)
         (journey, Redirect(routes.CheckDeclarationDetailsController.show()))
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {

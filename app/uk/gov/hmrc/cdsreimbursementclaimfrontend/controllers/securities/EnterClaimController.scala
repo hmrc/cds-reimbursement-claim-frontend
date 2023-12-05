@@ -71,10 +71,10 @@ class EnterClaimController @Inject() (
       validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
         _.fold(
           identity,
-          { case (existingReclaimAmountOpt, totalAmount) =>
+          { case (existingCorrectedAmountOpt, totalAmount) =>
             val form = Forms
               .claimAmountForm(key, totalAmount)
-              .withDefault(existingReclaimAmountOpt)
+              .withDefault(existingCorrectedAmountOpt)
 
             Ok(
               enterClaimPage(
@@ -121,7 +121,7 @@ class EnterClaimController @Inject() (
                         .exists(_ === reclaimAmount)
                     if (amountHasChanged)
                       journey
-                        .submitAmountForReclaim(securityDepositId, taxCode, reclaimAmount)
+                        .submitCorrectAmount(securityDepositId, taxCode, reclaimAmount)
                         .fold(
                           error =>
                             (
@@ -149,8 +149,8 @@ class EnterClaimController @Inject() (
   private def validateDepositIdAndTaxCode(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode)(
     implicit request: Request[_]
   ): Future[Either[Result, (Option[BigDecimal], BigDecimal)]] = {
-    val reclaimsForDepositId: Option[SecuritiesJourney.SecuritiesReclaims] =
-      journey.answers.securitiesReclaims.flatMap(_.get(securityDepositId))
+    val reclaimsForDepositId: Option[SecuritiesJourney.CorrectedAmounts] =
+      journey.answers.correctedAmounts.flatMap(_.get(securityDepositId))
 
     (reclaimsForDepositId match {
       case None =>
