@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import cats.implicits.catsSyntaxApply
+import cats.syntax.apply._
 
 import play.api.libs.json.OFormat
 import play.api.libs.json.Json
