@@ -19,8 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Id
 import cats.implicits.catsSyntaxOption
 import cats.kernel.Eq
-import julienrf.json.derived
-import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -122,9 +120,6 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
 
   implicit val basisOfClaimEquality: Eq[BasisOfOverpaymentClaim] =
     Eq.fromUniversalEquals[BasisOfOverpaymentClaim]
-
-  implicit val basisOfClaimFormat: OFormat[BasisOfOverpaymentClaim] =
-    derived.oformat[BasisOfOverpaymentClaim]()
 
   implicit val ordering: Ordering[BasisOfOverpaymentClaim] =
     Ordering.by[BasisOfOverpaymentClaim, Int](_.order)

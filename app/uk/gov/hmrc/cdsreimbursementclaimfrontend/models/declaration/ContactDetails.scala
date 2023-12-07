@@ -17,8 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import cats.syntax.apply._
-import julienrf.json.derived
+
 import play.api.libs.json.OFormat
+import play.api.libs.json.Json
 
 final case class ContactDetails(
   contactName: Option[String],
@@ -45,5 +46,5 @@ final case class ContactDetails(
 }
 
 object ContactDetails {
-  implicit val format: OFormat[ContactDetails] = derived.oformat[ContactDetails]()
+  implicit val format: OFormat[ContactDetails] = Json.format[ContactDetails]
 }

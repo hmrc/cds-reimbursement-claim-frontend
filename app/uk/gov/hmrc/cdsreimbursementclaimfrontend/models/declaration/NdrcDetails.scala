@@ -28,8 +28,9 @@ final case class NdrcDetails(
   cmaEligible: Option[String]
 ) {
 
-  def isCmaEligible: Boolean           = cmaEligible.getOrElse("0") === "1"
-  def hasSubsidyPaymentMethod: Boolean = paymentMethod === "006"
+  def isCmaEligible: Boolean               = cmaEligible.getOrElse("0") === "1"
+  def hasSubsidyPaymentMethod: Boolean     = paymentMethod === "006"
+  def withCMAEligible(cmaEligible: String) = copy(cmaEligible = Some(cmaEligible))
 }
 
 object NdrcDetails {

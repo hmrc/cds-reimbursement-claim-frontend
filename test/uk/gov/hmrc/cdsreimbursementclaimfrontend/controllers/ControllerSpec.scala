@@ -43,9 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.Metrics
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.MockMetrics
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FeatureSet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -130,10 +127,7 @@ trait ControllerSpec
 
   private lazy val additionalConfig = Configuration()
 
-  def buildFakeApplication(): Application = {
-    val metricsBinding: GuiceableModule =
-      bind[Metrics].toInstance(MockMetrics.metrics)
-
+  def buildFakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
         Configuration(
@@ -149,10 +143,9 @@ trait ControllerSpec
         ).withFallback(additionalConfig)
       )
       .disable[PlayMongoModule]
-      .overrides(featuresCacheBinding :: metricsBinding :: overrideBindings: _*)
+      .overrides(featuresCacheBinding :: overrideBindings: _*)
       .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
       .build()
-  }
 
   lazy val fakeApplication: Application = buildFakeApplication()
   lazy val theMessagesApi               = fakeApplication.injector.instanceOf[MessagesApi]
@@ -253,12 +246,6 @@ trait ControllerSpec
   }
 
   final def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
-
-  final def toTypeOfClaim(journeyBindable: JourneyBindable): TypeOfClaimAnswer = journeyBindable match {
-    case JourneyBindable.Single    => TypeOfClaimAnswer.Individual
-    case JourneyBindable.Multiple  => TypeOfClaimAnswer.Multiple
-    case JourneyBindable.Scheduled => TypeOfClaimAnswer.Scheduled
-  }
 
   final def isCheckboxChecked(document: Document, fieldValue: String): Boolean =
     document.select(s"""input[value="$fieldValue"] """).hasAttr("checked")

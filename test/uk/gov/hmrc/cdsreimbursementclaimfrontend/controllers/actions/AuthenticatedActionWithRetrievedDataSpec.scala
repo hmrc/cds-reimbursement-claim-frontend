@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
-import julienrf.json.derived
 import org.scalamock.scalatest.MockFactory
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.libs.json.OFormat
 import play.api.mvc.Results.Ok
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
@@ -55,8 +53,6 @@ class AuthenticatedActionWithRetrievedDataSpec
     with MockFactory
     with SessionSupport
     with AuthActionSpec {
-
-  implicit val format: OFormat[AuthenticatedUser] = derived.oformat[AuthenticatedUser]()
 
   val retrievals: Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials] ~ Option[Name]] =
     Retrievals.affinityGroup and
@@ -142,7 +138,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser](
             AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(providerType)
           )
         }
@@ -166,7 +162,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Individual](
             AuthenticatedUser
               .Individual(
                 Some(Email("email")),
@@ -189,7 +185,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Organisation](
             AuthenticatedUser
               .Organisation(
                 Some(Email("email")),
@@ -348,7 +344,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Individual](
             AuthenticatedUser
               .Individual(
                 Some(Email("email")),
@@ -371,7 +367,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser](
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Organisation](
             AuthenticatedUser
               .Organisation(
                 Some(Email("email")),

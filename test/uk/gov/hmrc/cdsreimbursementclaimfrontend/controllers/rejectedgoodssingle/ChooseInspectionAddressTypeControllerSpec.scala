@@ -25,7 +25,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import shapeless.lens
+
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
@@ -169,18 +169,15 @@ class ChooseInspectionAddressTypeControllerSpec
     }
 
     "update inspection address and redirect to the check bank details page" when {
-      "duties are not eligible for CMA and consignee/declarant EORIs match" in {
-        val declarantContactDetailsLens =
-          lens[DisplayDeclaration].displayResponseDetail.declarantDetails.contactDetails
 
-        forAll { (generatedDeclaration: DisplayDeclaration, contactDetails: ContactDetails) =>
-          val declaration = generatedDeclaration.withConsigneeEori(generatedDeclaration.getDeclarantEori)
-          val journey     =
+      "duties are not eligible for CMA" in {
+        forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
+          val journey =
             RejectedGoodsSingleJourney
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 declaration.getMRN,
-                declarantContactDetailsLens.set(declaration)(contactDetails.some)
+                declaration.withDeclarantContactDetails(contactDetails)
               )
               .toOption
 
@@ -210,19 +207,17 @@ class ChooseInspectionAddressTypeControllerSpec
 
     "update inspection address and redirect to the choose payee type page" when {
       "duties are not eligible for CMA and consignee/declarant EORIs DON'T match" in {
-        val declarantContactDetailsLens =
-          lens[DisplayDeclaration].displayResponseDetail.declarantDetails.contactDetails
-
         forAll { (generatedDeclaration: DisplayDeclaration, contactDetails: ContactDetails) =>
           val declaration = generatedDeclaration
             .withConsigneeEori(Eori("GB000000000000001"))
             .withDeclarantEori(Eori("GB000000000000002"))
-          val journey     =
+
+          val journey =
             RejectedGoodsSingleJourney
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 declaration.getMRN,
-                declarantContactDetailsLens.set(declaration)(contactDetails.some)
+                declaration.withDeclarantContactDetails(contactDetails)
               )
               .toOption
 
@@ -253,12 +248,13 @@ class ChooseInspectionAddressTypeControllerSpec
     "update inspection address and redirect to the choose repayment method page" when {
       "duties are eligible for CMA" in {
         forAll { (declaration: DisplayDeclaration, consigneeDetails: ConsigneeDetails, ndrc: NdrcDetails) =>
-          val updatedDeclaration = lens[DisplayDeclaration].displayResponseDetail.modify(declaration)(
-            _.copy(
-              consigneeDetails = consigneeDetails.some,
-              ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some
+          val updatedDeclaration =
+            declaration.copy(displayResponseDetail =
+              declaration.displayResponseDetail.copy(
+                ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some,
+                consigneeDetails = consigneeDetails.some
+              )
             )
-          )
 
           val journey =
             RejectedGoodsSingleJourney

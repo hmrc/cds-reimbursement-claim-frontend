@@ -34,25 +34,6 @@ class ClaimantDetailsHelper @Inject() () {
 
   protected val key = "claimant-details"
 
-//  def renderDetailsRegisteredWithCDS(
-//    namePhoneEmail: NamePhoneEmail,
-//    establishmentAddress: Option[EstablishmentAddress]
-//  )(implicit messages: Messages): List[SummaryListRow] =
-//    List(
-//      if (namePhoneEmail.nonEmpty()) Some(renderContactRegisteredWithCDS(namePhoneEmail)) else None,
-//      establishmentAddress.map(renderEstablishmentAddress(_))
-//    ).flattenOption
-//
-//  def renderContactDetails(
-//    maybeContactDetails: Option[MrnContactDetails],
-//    maybeContactAddress: Option[ContactAddress],
-//    journey: JourneyBindable
-//  )(implicit messages: Messages): List[SummaryListRow] =
-//    List(
-//      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, journey)),
-//      maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, journey))
-//    ).flattenOption
-
   def renderContactRegisteredWithCDS(namePhoneEmail: NamePhoneEmail)(implicit messages: Messages): SummaryListRow = {
     val data = List(
       namePhoneEmail.name.map(getParagraph),
@@ -81,67 +62,6 @@ class ClaimantDetailsHelper @Inject() () {
       Value(new HtmlContent(HtmlFormat.fill(data)))
     )
   }
-
-//  def renderContactDetails(contactDetails: MrnContactDetails, journey: JourneyBindable)(implicit
-//    messages: Messages
-//  ): SummaryListRow = {
-//    val data = List(
-//      Some(getParagraph(contactDetails.fullName)),
-//      Some(getParagraph(contactDetails.emailAddress.value)),
-//      contactDetails.phoneNumber.map(a => getParagraph(a.value))
-//    ).flattenOption
-//
-//    SummaryListRow(
-//      Key(HtmlContent(messages(s"$key.contact.details"))),
-//      Value(new HtmlContent(HtmlFormat.fill(data))),
-//      "",
-//      Some(
-//        Actions(
-//          "govuk-link",
-//          List(
-//            ActionItem(
-//              href = s"${OverpaymentsRoutes.EnterContactDetailsController.changeContactDetails(journey).url}",
-//              content = Text(messages("claimant-details.change")),
-//              visuallyHiddenText = Some(messages(s"$key.contact.details"))
-//            )
-//          )
-//        )
-//      )
-//    )
-//
-//  }
-
-//  def renderContactAddress(contactAddress: ContactAddress, journey: JourneyBindable)(implicit
-//    messages: Messages
-//  ): SummaryListRow = {
-//    val data = List(
-//      getParagraph(contactAddress.line1).some,
-//      contactAddress.line2.map(getParagraph),
-//      contactAddress.line3.map(getParagraph),
-//      getParagraph(contactAddress.line4).some,
-//      getParagraph(contactAddress.postcode).some,
-//      getParagraph(messages(contactAddress.country.messageKey)).some
-//    ).flattenOption
-//
-//    SummaryListRow(
-//      Key(HtmlContent(messages(s"$key.contact.address"))),
-//      Value(new HtmlContent(HtmlFormat.fill(data))),
-//      "",
-//      Some(
-//        Actions(
-//          "govuk-link",
-//          List(
-//            ActionItem(
-//              href = s"${OverpaymentsRoutes.CheckContactDetailsController.redirectToALF(journey).url}",
-//              content = Text(messages("claimant-details.change")),
-//              visuallyHiddenText = Some(messages(s"$key.contact.address"))
-//            )
-//          )
-//        )
-//      )
-//    )
-//
-//  }
 
   def getParagraph(in: String): HtmlFormat.Appendable = new paragraph()(Html(in))
 

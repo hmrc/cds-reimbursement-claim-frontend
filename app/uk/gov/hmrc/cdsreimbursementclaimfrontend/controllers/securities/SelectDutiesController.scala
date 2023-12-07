@@ -23,7 +23,6 @@ import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Result
-import shapeless.syntax.std.tuple.productTupleOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
@@ -105,7 +104,7 @@ class SelectDutiesController @Inject() (
               errors => {
                 logger.warn(
                   s"Selection of duties to be repaid failed for $securityId because of errors:" +
-                    s"${errors.mkString("", ",", "")}"
+                    s"${errors.errors.mkString("", ",", "")}"
                 )
                 (
                   journey,
