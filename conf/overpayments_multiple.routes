@@ -32,11 +32,11 @@ POST        /overpayments/multiple/claim-northern-ireland                       
 GET         /overpayments/multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.BasisForClaimController.show
 POST        /overpayments/multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.BasisForClaimController.submit
 
-GET         /overpayments/multiple/choose-payee-type                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChoosePayeeTypeController.show
-POST        /overpayments/multiple/choose-payee-type                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChoosePayeeTypeController.submit
+GET         /overpayments/multiple/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChoosePayeeTypeController.show
+POST        /overpayments/multiple/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChoosePayeeTypeController.submit
 
-GET         /overpayments/multiple/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseBankAccountTypeController.show
-POST        /overpayments/multiple/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseBankAccountTypeController.submit
+GET         /overpayments/multiple/choose-bank-account-type                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseBankAccountTypeController.show
+POST        /overpayments/multiple/choose-bank-account-type                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseBankAccountTypeController.submit
 
 GET         /overpayments/multiple/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckBankDetailsController.show
 
