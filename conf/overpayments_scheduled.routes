@@ -33,8 +33,8 @@ POST        /overpayments/scheduled/claim-northern-ireland                      
 GET         /overpayments/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.BasisForClaimController.show
 POST        /overpayments/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.BasisForClaimController.submit
 
-GET         /overpayments/scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseBankAccountTypeController.show
-POST        /overpayments/scheduled/bank-account-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseBankAccountTypeController.submit
+GET         /overpayments/scheduled/choose-bank-account-type                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseBankAccountTypeController.show
+POST        /overpayments/scheduled/choose-bank-account-type                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChooseBankAccountTypeController.submit
 
 GET         /overpayments/scheduled/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChoosePayeeTypeController.show
 POST        /overpayments/scheduled/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChoosePayeeTypeController.submit
