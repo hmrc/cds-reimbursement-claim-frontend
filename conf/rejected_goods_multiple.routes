@@ -56,8 +56,8 @@ GET          /rejected-goods/multiple/inspection-address/update-address         
 GET          /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.show()
 POST         /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.submit()
 
-GET          /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.show()
-POST         /rejected-goods/multiple/bank-account-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.submit()
+GET          /rejected-goods/multiple/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.show()
+POST         /rejected-goods/multiple/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseBankAccountTypeController.submit()
 
 GET          /rejected-goods/multiple/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChoosePayeeTypeController.show
 POST         /rejected-goods/multiple/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChoosePayeeTypeController.submit
