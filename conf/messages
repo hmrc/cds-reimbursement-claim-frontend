@@ -525,7 +525,6 @@ select-securities.error.required=Select Yes if you are claiming for this Securit
 #===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
-enter-your-contact-details.help-text=These are the details if we need to contact you about this claim application.
 enter-your-contact-details.title=Enter your contact details
 enter-your-contact-details.caption=Contact details
 enter-your-contact-details.help-text=These are the contact details if we need to get in touch about this claim.
@@ -657,8 +656,6 @@ check-declaration-details.error.invalid=Select yes to continue with this MRN
 check-declaration-details.error.number=Select yes to continue with this MRN
 check-declaration-details.error.required=Select yes to continue with this MRN
 check-declaration-details.scheduled.mrn-number.label=First MRN
-check-declaration-details.method-of-payment-label=Method of payment
-check-declaration-details.subsidy-label=Subsidy
 check-declaration-details.payment-method.unavailable=Unavailable
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
 check-declaration-details.label=Declaration details
@@ -913,7 +910,6 @@ enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
 #===================================================
 check-claim.rejected-goods.single.title=Check the repayment claim total for the MRN
 check-claim.rejected-goods.multiple.title=Check the repayment totals for this claim
-check-claim.rejected-goods.single.label=Your repayment or remission calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim.rejected-goods.description=Your repayment calculations are shown below. This is based on the information you provided to us.
 check-claim.rejected-goods.single.label=MRN: {0}
 check-claim.rejected-goods.single.total=Repayment for this MRN
@@ -971,11 +967,8 @@ tax-code.440 = 440 - UK produced beer, production between 5,000 and 60,000 hecto
 tax-code.441 = 441 - Imported beer, production between 5,000 and 60,000 hectolitres per year
 tax-code.442 = 442 - UK produced beer, production of no more than 5,000 hectolitres per year
 tax-code.443 = 443 - Imported beer, production of no more than 5,000 hectolitres per year
-tax-code.444 = 444 - UK produced beer, reduced rate of general beer duty (applies to beer exceeding 1.2% alcohol by volume (ABV) but not exceeding 2.8% ABV)
 tax-code.445 = 445 - UK produced beer, high strength beer duty (applies to beer exceeding 7.5% ABV). General Beer duty is also due on all UK produced high strength beer
-tax-code.446 = 446 - Imported beer, reduced rate of general beer duty (applies to beer exceeding 1.2% ABV but not exceeding 2.8% ABV)
 tax-code.447 = 447 - Imported beer, high strength beer duty (applies to beer exceeding 7.5% ABV). General Beer duty is also due on all imported high strength beer)
-tax-code.473 = 473 - Imported beer (that is, annual production more than 60,000 hectolitres)
 tax-code.411 = 411 - Sparkling, 8.5% and above but not exceeding 15%
 tax-code.412 = 412 - Sparkling, exceeding 5.5% but less than 8.5%
 tax-code.413 = 413 - Still, exceeding 5.5% but not exceeding 15%
@@ -986,7 +979,6 @@ tax-code.422 = 422 - Sparkling, exceeding 5.5% but less than 8.5%
 tax-code.423 = 423 - Still, exceeding 5.5% but not exceeding 15%
 tax-code.425 = 425 - Still or sparkling, exceeding 15% but not exceeding 22%
 tax-code.429 = 429 - Still or sparkling, exceeding 22%
-tax-code.431 = 431 - Not exceeding 1.2% volume
 tax-code.433 = 433 - Exceeding 1.2% volume but not exceeding 4.0% volume
 tax-code.435 = 435 - Exceeding 4.0% volume but not exceeding 5.5% volume
 tax-code.444 = 444 - Beer-based beverages made in the UK exceeding 1.2% volume but not exceeding 2.8% volume
