@@ -102,7 +102,7 @@ class UploadDocumentsConnectorSpec
       content = UploadDocumentsSessionConfig
         .Content(
           serviceName = "service.title",
-          title = "choose-files.rejected-goods.title",
+          title = "choose-files.title",
           descriptionHtml = "descriptionHtml",
           serviceUrl = "homePageUrl",
           accessibilityStatementUrl = "accessibilityStatementUrl",

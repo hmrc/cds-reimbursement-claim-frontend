@@ -54,7 +54,7 @@ class UploadFilesController @Inject() (
   final val callbackAction: Call               = routes.UploadFilesController.submit()
 
   final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
-    documentType => messages => upload_files_description("choose-files.rejected-goods", documentType)(messages)
+    documentType => messages => upload_files_description(documentType)(messages)
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
