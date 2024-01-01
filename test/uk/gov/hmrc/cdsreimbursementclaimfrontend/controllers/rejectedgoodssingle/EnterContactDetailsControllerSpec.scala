@@ -142,10 +142,10 @@ class EnterContactDetailsControllerSpec
             messageFromMessageKey("enter-contact-details.change.title"),
             doc => {
               getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-your-contact-details.contact-name.error.required"
+                "enter-contact-details.contact-name.error.required"
               )
               getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-your-contact-details.contact-email.error.required"
+                "enter-contact-details.contact-email.error.required"
               )
             },
             expectedStatus = BAD_REQUEST

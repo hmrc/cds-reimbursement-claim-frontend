@@ -143,11 +143,13 @@ class EnterContactDetailsControllerSpec
             performAction(),
             messageFromMessageKey("enter-contact-details.change.title"),
             doc => {
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-your-contact-details.contact-name.error.required"
+              val errors = getErrorSummary(doc)
+              println(errors)
+              errors contains messageFromMessageKey(
+                "enter-contact-details.contact-name.error.required"
               )
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-your-contact-details.contact-email.error.required"
+              errors contains messageFromMessageKey(
+                "enter-contact-details.contact-email.error.required"
               )
             },
             expectedStatus = BAD_REQUEST
