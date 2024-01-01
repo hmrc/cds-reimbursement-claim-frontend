@@ -84,6 +84,14 @@ class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks 
 |landing.before.heading
 |landing-securities.before.heading
 |landing.start-button
-|landing-securities.start-button""".stripMargin.linesIterator.toSet
+|landing-securities.start-button
+|invalid-reason-for-security.submit
+|declaration-not-found.submit
+|claimant-details.contact.title
+|claimant-details.contact.details
+|check-claimant-details.contact.details
+|check-claimant-details.change-hint.contact
+|select-securities.title.caption
+|confirm-full-repayment.caption""".stripMargin.linesIterator.toSet
 
 }

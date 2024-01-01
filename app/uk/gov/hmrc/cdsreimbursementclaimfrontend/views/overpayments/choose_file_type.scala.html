@@ -38,8 +38,7 @@
 
 @(form: Form[_], supportingEvidenceHints: DropdownHints,  typesOfEvidences: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"supporting-evidence.choose-document-type"}
-    @title = @{messages(s"supporting-evidence.choose-document-type.title")}
+    @title = @{messages("choose-file-type.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -50,7 +49,7 @@
                 id = Some(s"choose-file-type.file-type.$evidenceTypeKey"),
                 value = Some(evidenceTypeKey),
                 content = Text(messages(s"choose-file-type.file-type.$evidenceTypeKey")),
-                checked = form(s"supporting-evidence.choose-document-type").value.contains(evidenceTypeKey)
+                checked = form("choose-file-type").value.contains(evidenceTypeKey)
             )
         }   
     }
@@ -61,9 +60,9 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"supporting-evidence.choose-document-type.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(s"choose-file-type.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("supporting-evidence.upload"))
+        @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("choose-file-type.file-type"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

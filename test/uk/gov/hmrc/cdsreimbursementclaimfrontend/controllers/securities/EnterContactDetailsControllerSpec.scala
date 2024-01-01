@@ -144,7 +144,6 @@ class EnterContactDetailsControllerSpec
             messageFromMessageKey("enter-contact-details.change.title"),
             doc => {
               val errors = getErrorSummary(doc)
-              println(errors)
               errors contains messageFromMessageKey(
                 "enter-contact-details.contact-name.error.required"
               )

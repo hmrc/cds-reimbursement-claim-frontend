@@ -69,7 +69,7 @@
 
     @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-    @dropdownDetails(summary = s"select-basis-for-claim.details.heading", content = basisOfClaimsHints.renderHintsWithLabels(key))
+    @dropdownDetails(summary = s"select-basis-for-claim.heading", content = basisOfClaimsHints.renderHintsWithLabels(key))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

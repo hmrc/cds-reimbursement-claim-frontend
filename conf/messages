@@ -694,52 +694,52 @@ select-basis-for-claim.error.number=Select the reason for making this claim
 select-basis-for-claim.error.required=Select the reason for making this claim
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=Select one option from list.
-select-basis-for-claim.details.heading=Examples of basis of claim
+select-basis-for-claim.heading=Examples of basis of claim
 
-select-basis-for-claim.details.bullet.0=Duplicate Movement Reference Number (MRN):
-select-basis-for-claim.details.hint.0=A shipment was declared more than once by error and duties were overpaid.
+select-basis-for-claim.0.bullet=Duplicate Movement Reference Number (MRN):
+select-basis-for-claim.0.description=A shipment was declared more than once by error and duties were overpaid.
 
-select-basis-for-claim.details.bullet.1=Duty suspension:
-select-basis-for-claim.details.hint.1=Claim temporary duty suspensions and tariff quotas for goods imported into the UK.
+select-basis-for-claim.1.bullet=Duty suspension:
+select-basis-for-claim.1.description=Claim temporary duty suspensions and tariff quotas for goods imported into the UK.
 
-select-basis-for-claim.details.bullet.2=End use relief:
-select-basis-for-claim.details.hint.2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries.
+select-basis-for-claim.2.bullet=End use relief:
+select-basis-for-claim.2.description=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries.
 
-select-basis-for-claim.details.bullet.3=Incorrect additional information code (excluding NIAID):
-select-basis-for-claim.details.hint.3=Goods were declared as ’at risk’ in error and the tariff was paid by the importer.
+select-basis-for-claim.3.bullet=Incorrect additional information code (excluding NIAID):
+select-basis-for-claim.3.description=Goods were declared as ’at risk’ in error and the tariff was paid by the importer.
 
-select-basis-for-claim.details.bullet.4=Incorrect commodity code:
-select-basis-for-claim.details.hint.4=An incorrect commodity code was entered and duties were overpaid.
+select-basis-for-claim.4.bullet=Incorrect commodity code:
+select-basis-for-claim.4.description=An incorrect commodity code was entered and duties were overpaid.
 
-select-basis-for-claim.details.bullet.5=Incorrect customs procedure code (CPC):
-select-basis-for-claim.details.hint.5=An incorrect CPC was entered and and duties were overpaid.
+select-basis-for-claim.5.bullet=Incorrect customs procedure code (CPC):
+select-basis-for-claim.5.description=An incorrect CPC was entered and and duties were overpaid.
 
-select-basis-for-claim.details.bullet.6=Incorrect excise value:
-select-basis-for-claim.details.hint.6=An error was made calculating excise duty. For goods imported into Northern Ireland, claims can only be made under excise tax codes.
+select-basis-for-claim.6.bullet=Incorrect excise value:
+select-basis-for-claim.6.description=An error was made calculating excise duty. For goods imported into Northern Ireland, claims can only be made under excise tax codes.
 
-select-basis-for-claim.details.bullet.7=Incorrect value:
-select-basis-for-claim.details.hint.7=Total customs value was entered incorrectly and duties were overpaid.
+select-basis-for-claim.7.bullet=Incorrect value:
+select-basis-for-claim.7.description=Total customs value was entered incorrectly and duties were overpaid.
 
-select-basis-for-claim.details.bullet.8=Inward processing relief from Customs Duty:
-select-basis-for-claim.details.hint.8=Delay or reduce import duties or VAT on goods that were processed or repaired.
+select-basis-for-claim.8.bullet=Inward processing relief from Customs Duty:
+select-basis-for-claim.8.description=Delay or reduce import duties or VAT on goods that were processed or repaired.
 
-select-basis-for-claim.details.bullet.9=Outward processing relief:
-select-basis-for-claim.details.hint.9=A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported.
+select-basis-for-claim.9.bullet=Outward processing relief:
+select-basis-for-claim.9.description=A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported.
 
-select-basis-for-claim.details.bullet.10=Personal effects
-select-basis-for-claim.details.hint.10=
+select-basis-for-claim.10.bullet=Personal effects
+select-basis-for-claim.10.description=
 
-select-basis-for-claim.details.bullet.11=Preferential rate of duty:
-select-basis-for-claim.details.hint.11=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates.
+select-basis-for-claim.11.bullet=Preferential rate of duty:
+select-basis-for-claim.11.description=Post-clearance scrutiny and verification of documents to support a claim to preferential duty rates.
 
-select-basis-for-claim.details.bullet.12=Proof of return or refund given:
-select-basis-for-claim.details.hint.12=Proof of return or refund provided and duties were overpaid.
+select-basis-for-claim.12.bullet=Proof of return or refund given:
+select-basis-for-claim.12.description=Proof of return or refund provided and duties were overpaid.
 
-select-basis-for-claim.details.bullet.13=Returned goods relief (RGR)
-select-basis-for-claim.details.hint.13=
+select-basis-for-claim.13.bullet=Returned goods relief (RGR)
+select-basis-for-claim.13.description=
 
-select-basis-for-claim.details.bullet.14=Other reason:
-select-basis-for-claim.details.hint.14=For any other reason not listed.
+select-basis-for-claim.14.bullet=Other reason:
+select-basis-for-claim.14.description=For any other reason not listed.
 
 select-basis-for-claim.reason.DuplicateEntry=Duplicate Movement Reference Number (MRN)
 select-basis-for-claim.reason.DutySuspension=Duty suspension
@@ -1377,57 +1377,51 @@ supporting-evidence.scan-failed.l3=You tried to upload the wrong type of documen
 supporting-evidence.scan-failed.p2=The selected file must be a JPG, PNG or PDF.
 supporting-evidence.scan-failed.p3=You will need to upload your file again
 supporting-evidence.scan-failed.button.tryAgain=Try again
-supporting-evidence.choose-document-type.title=Add supporting documents to your claim
-supporting-evidence.choose-document-type.error.number=Select the type of document to add to your claim
-supporting-evidence.choose-document-type.error.required=Select the type of document to add to your claim
-supporting-evidence.choose-document-type.help-text=You can repeat this step to add more types of documents to your claim
 
-supporting-evidence.upload.details.bullet.AirWayBill=Air waybill:
-supporting-evidence.upload.details.hint.AirWayBill=Transport document that accompanies the commodities (goods) and provides information about them.
+choose-file-type.file-type.AirWayBill.bullet=Air waybill:
+choose-file-type.file-type.AirWayBill.description=Transport document that accompanies the commodities (goods) and provides information about them.
 
-supporting-evidence.upload.details.bullet.BillOfLading=Bill of lading:
-supporting-evidence.upload.details.hint.BillOfLading=Transport document that accompanies the commodities (goods) and provides information about them.
+choose-file-type.file-type.BillOfLading.bullet=Bill of lading:
+choose-file-type.file-type.BillOfLading.description=Transport document that accompanies the commodities (goods) and provides information about them.
 
-supporting-evidence.upload.details.bullet.CommercialInvoice=Commercial invoice:
-supporting-evidence.upload.details.hint.CommercialInvoice=Proof of sale and describes the commodities being sold; their price, description and quantity.
+choose-file-type.file-type.CommercialInvoice.bullet=Commercial invoice:
+choose-file-type.file-type.CommercialInvoice.description=Proof of sale and describes the commodities being sold; their price, description and quantity.
 
-supporting-evidence.upload.details.bullet.CorrespondenceTrader=Correspondence between trader and agent:
-supporting-evidence.upload.details.hint.CorrespondenceTrader=An email chain or letters between you and the trader.
+choose-file-type.file-type.CorrespondenceTrader.bullet=Correspondence between trader and agent:
+choose-file-type.file-type.CorrespondenceTrader.description=An email chain or letters between you and the trader.
 
-supporting-evidence.upload.details.bullet.ImportAndExportDeclaration=Import and export declaration:
-supporting-evidence.upload.details.hint.ImportAndExportDeclaration=Proof of the import or export being declared.
+choose-file-type.file-type.ImportAndExportDeclaration.bullet=Import and export declaration:
+choose-file-type.file-type.ImportAndExportDeclaration.description=Proof of the import or export being declared.
 
-supporting-evidence.upload.details.bullet.PackingList=Packing list:
-supporting-evidence.upload.details.hint.PackingList=A document that lists product type in each package.
+choose-file-type.file-type.PackingList.bullet=Packing list:
+choose-file-type.file-type.PackingList.description=A document that lists product type in each package.
 
-supporting-evidence.upload.details.bullet.ProofOfAuthority=Proof of authority:
-supporting-evidence.upload.details.hint.ProofOfAuthority=In case you change your bank account details.
+choose-file-type.file-type.ProofOfAuthority.bullet=Proof of authority:
+choose-file-type.file-type.ProofOfAuthority.description=In case you change your bank account details.
 
-supporting-evidence.upload.details.bullet.SubstituteEntry=Substitute entry:
-supporting-evidence.upload.details.hint.SubstituteEntry=A copy of the original customs declaration amended to show the correct details.
+choose-file-type.file-type.SubstituteEntry.bullet=Substitute entry:
+choose-file-type.file-type.SubstituteEntry.description=A copy of the original customs declaration amended to show the correct details.
 
-supporting-evidence.upload.details.bullet.Other=Other documents:
-supporting-evidence.upload.details.hint.Other=If you have alternative supporting documents.
+choose-file-type.file-type.Other.bullet=Other documents:
+choose-file-type.file-type.Other.description=If you have alternative supporting documents.
 
-supporting-evidence.upload.details.bullet.ScheduleOfMRNs=Scheduled document
-supporting-evidence.upload.details.hint.ScheduleOfMRNs=Scheduled document.
+choose-file-type.file-type.ScheduleOfMRNs.bullet=Scheduled document
+choose-file-type.file-type.ScheduleOfMRNs.description=Scheduled document.
 
-supporting-evidence.upload.details.bullet.AdditionalSupportingDocuments=Additional supporting documents:
-supporting-evidence.upload.details.hint.AdditionalSupportingDocuments=Additional supporting documents.
+choose-file-type.file-type.AdditionalSupportingDocuments.bullet=Additional supporting documents:
+choose-file-type.file-type.AdditionalSupportingDocuments.description=Additional supporting documents.
 
-supporting-evidence.upload.details.bullet.LetterOfAuthority=Letter of authority:
-supporting-evidence.upload.details.hint.LetterOfAuthority=Letter of authority.
+choose-file-type.file-type.LetterOfAuthority.bullet=Letter of authority:
+choose-file-type.file-type.LetterOfAuthority.description=Letter of authority.
 
-supporting-evidence.upload.details.bullet.ProofOfExportOrDestruction=Proof of export or destruction:
-supporting-evidence.upload.details.hint.ProofOfExportOrDestruction=Proof of export or destruction.
+choose-file-type.file-type.ProofOfExportOrDestruction.bullet=Proof of export or destruction:
+choose-file-type.file-type.ProofOfExportOrDestruction.description=Proof of export or destruction.
 
-supporting-evidence.upload.details.bullet.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof:
-supporting-evidence.upload.details.hint.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered.
+choose-file-type.file-type.DocumentaryProofFaultyOrNotWhatOrdered.bullet=Documentary proof:
+choose-file-type.file-type.DocumentaryProofFaultyOrNotWhatOrdered.description=Documentary proof that the goods are faulty or not what you ordered.
 
-supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
-supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet.
-
-supporting-evidence.choose-document-type.error.invalid-document-type=The selected file must be a JPG, PNG or PDF
+choose-file-type.file-type.CalculationWorksheet.bullet=Calculation worksheet:
+choose-file-type.file-type.CalculationWorksheet.description=Calculation worksheet.
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES

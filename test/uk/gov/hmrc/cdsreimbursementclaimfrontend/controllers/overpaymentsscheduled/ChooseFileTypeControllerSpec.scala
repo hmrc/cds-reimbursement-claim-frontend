@@ -62,7 +62,7 @@ class ChooseFileTypeControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "supporting-evidence.choose-document-type"
+  private val messagesKey: String = "choose-file-type"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)

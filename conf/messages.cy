@@ -789,7 +789,7 @@ supporting-evidence.scan-failed.l4=gwnaethoch uwchlwytho ffeil sy’n fwy na 10M
 supporting-evidence.scan-failed.p2=Dim ond y mathau hyn o ffeiliau rydyn ni’n eu derbyn: JPG, PNG, a PDF.
 supporting-evidence.scan-failed.p3=Bydd angen i chi roi cynnig arall arni.
 supporting-evidence.scan-failed.button.tryAgain=Rhowch gynnig arall arni
-supporting-evidence.choose-document-type.title=Dewiswch ddisgrifiad o’r ffeil rydych chi newydd ei huwchlwytho
+
 supporting-evidence.choose-document-type.error.number=Dewiswch fath o ffeil i gefnogi’ch hawliad
 supporting-evidence.choose-document-type.error.required=Dewiswch fath o ffeil i gefnogi’ch hawliad
 supporting-evidence.choose-document-type.help-text=Dewiswch ddiffiniad o’r ffeil o’r rhestr hon. Bydd hyn yn ein helpu i brosesu’ch hawliad yn fwy effeithlon.
