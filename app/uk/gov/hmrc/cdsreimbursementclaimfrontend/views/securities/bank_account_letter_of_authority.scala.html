@@ -38,7 +38,7 @@
 @(form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"bank_account_letter_of_authority"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"bank_account_letter_of_authority.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
@@ -47,37 +47,37 @@
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(s"$key.subheading1")), "govuk-heading-m")
+    @subHeading(Html(messages(s"bank_account_letter_of_authority.subheading1")), "govuk-heading-m")
 
-    @paragraph(Html(messages(s"$key.p1")))
+    @paragraph(Html(messages(s"bank_account_letter_of_authority.p1")))
 
-    @subHeading(Html(messages(s"$key.subheading2")), "govuk-heading-m")
+    @subHeading(Html(messages(s"bank_account_letter_of_authority.subheading2")), "govuk-heading-m")
 
-    @paragraph(Html(messages(s"$key.p2")))
+    @paragraph(Html(messages(s"bank_account_letter_of_authority.p2")))
 
-    @paragraph(Html(messages(s"$key.p3")))
+    @paragraph(Html(messages(s"bank_account_letter_of_authority.p3")))
 
-    @paragraph(Html(messages(s"$key.p4")))
+    @paragraph(Html(messages(s"bank_account_letter_of_authority.p4")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.label"),
+            legend = messages(s"bank_account_letter_of_authority.label"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key-yes"),
+                    id = Some(s"bank_account_letter_of_authority-yes"),
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = Text(messages(s"bank_account_letter_of_authority.yes")),
                     checked = form.value.contains(Yes)
                 ),
                 RadioItem(
-                    id = Some(s"$key-no"),
+                    id = Some(s"bank_account_letter_of_authority-no"),
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = Text(messages(s"bank_account_letter_of_authority.no")),
                     checked = form.value.contains(No)
                 )
             )

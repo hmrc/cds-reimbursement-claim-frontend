@@ -55,10 +55,10 @@
 
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
         CheckboxItem(
-            name = Some(s"$key[]"),
+            name = Some(s"select-duties[]"),
             value = taxCode.value,
-            content = Text(taxCode.value + " - " + messages(s"$key.duty.$taxCode")),
-            hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = HtmlContent(messages(s"$key.duty.hint")))),
+            content = Text(taxCode.value + " - " + messages(s"select-duties.duty.$taxCode")),
+            hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = HtmlContent(messages(s"select-duties.duty.hint")))),
             checked = form.data.exists(_._2 == taxCode.value)
         )
     }}
@@ -78,7 +78,7 @@
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @checkboxes(
-                field = form(s"$key"),
+                field = form(s"select-duties"),
                 legendAsHeading = false,
                 legendClasses = Some("govuk-visually-hidden"),
                 legend = HtmlContent(title),    

@@ -37,8 +37,8 @@
 @(form: Form[ClaimAmount], reimbursement: ClaimedReimbursement, postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim"}
-@title = @{messages(s"$key.title", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}"))}
-@hintText = @{Html(messages(s"$key.actual-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))}
+@title = @{messages(s"enter-claim.title", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}"))}
+@hintText = @{Html(messages(s"enter-claim.actual-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
@@ -47,19 +47,19 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")))
+    @paragraph(Html(messages(s"enter-claim.help-text")))
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"enter-claim.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.paid-amount-label", reimbursement.paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
+        @paragraph(Html(messages(s"enter-claim.paid-amount-label", reimbursement.paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
 
         @inputText(
             form = form,
             id = key,
             name = key,
-            label = s"$key.actual-amount",
+            label = s"enter-claim.actual-amount",
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
             hintHtml = Some(hintText),

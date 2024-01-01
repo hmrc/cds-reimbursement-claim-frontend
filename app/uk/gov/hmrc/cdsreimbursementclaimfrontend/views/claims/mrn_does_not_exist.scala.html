@@ -30,13 +30,13 @@
 @()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"mrn-does-not-exist"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"mrn-does-not-exist.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-top-8"))
+    @paragraph(Html(messages(s"mrn-does-not-exist.help-text")), Some("govuk-body govuk-!-margin-top-8"))
 
     @button("button.go-back", href = "javascript:history.back()".some)
 }

@@ -44,7 +44,7 @@
 
 
 @key = @{"multiple-check-claim-summary"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"multiple-check-claim-summary.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -54,29 +54,29 @@
     @heading(Html(title))
 
     @for((index, mrn, claims) <- mrnWithClaimsList.toList){
-        @subHeading(Html(messages(s"$key.duty.label",OrdinalNumeral(index+1).capitalize,mrn.value)))
+        @subHeading(Html(messages(s"multiple-check-claim-summary.duty.label",OrdinalNumeral(index+1).capitalize,mrn.value)))
         @summary(SummaryList(MultipleClaimSummaryHelper.makeClaimSummaryRows(index+1,claims,changeCall)))
     }
 
-    @subHeading(Html(messages(s"$key.overall-total.header")))
+    @subHeading(Html(messages(s"multiple-check-claim-summary.overall-total.header")))
     @summary(SummaryList(List(MultipleClaimSummaryHelper.makeOverallTotalRow(mrnWithClaimsList)), classes = "govuk-!-margin-bottom-9"))
 
     @formWithCSRF(submitCall, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.are-duties-correct"),
+            legend = messages(s"multiple-check-claim-summary.are-duties-correct"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = Text(messages(s"multiple-check-claim-summary.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = Text(messages(s"multiple-check-claim-summary.no")),
                     checked = false
                 )
             )

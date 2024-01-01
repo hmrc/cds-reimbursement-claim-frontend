@@ -37,7 +37,7 @@
 @(form: Form[ReimbursementMethod], postAction: Call)(implicit request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"reimbursement-method"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"reimbursement-method.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -55,15 +55,15 @@
             paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key-cma"),
+                    id = Some(s"reimbursement-method-cma"),
                     value = Some("0"),
-                    content = HtmlContent(messages(s"$key.cma")),
+                    content = HtmlContent(messages(s"reimbursement-method.cma")),
                     checked = form.value.contains(CurrentMonthAdjustment)
                 ),
                 RadioItem(
-                    id = Some(s"$key-bank-transfer"),
+                    id = Some(s"reimbursement-method-bank-transfer"),
                     value = Some("1"),
-                    content = HtmlContent(messages(s"$key.bank-transfer")),
+                    content = HtmlContent(messages(s"reimbursement-method.bank-transfer")),
                     checked = form.value.contains(BankAccountTransfer)
                 )
             )

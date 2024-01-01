@@ -38,10 +38,10 @@
 @(form: Form[BigDecimal], securityDepositId: String, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim.securities"}
-@title = @{messages(s"$key.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
-@caption = @{messages(s"$key.title.caption", securityDepositId)}
+@title = @{messages(s"enter-claim.securities.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
+@caption = @{messages(s"enter-claim.securities.title.caption", securityDepositId)}
 @pageTitleWithCaption = @{s"$caption: $title"}
-@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
+@hintText = @{Html(messages(s"enter-claim.securities.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$pageTitleWithCaption"), hasErrors = hasErrors) {
@@ -52,13 +52,13 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-m"))
+        @paragraph(Html(messages(s"enter-claim.securities.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-m"))
 
         @inputText(
             form = form,
-            id = s"$key.claim-amount",
-            name = s"$key.claim-amount",
-            label = s"$key.claim-amount",
+            id = s"enter-claim.securities.claim-amount",
+            name = s"enter-claim.securities.claim-amount",
+            label = s"enter-claim.securities.claim-amount",
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
@@ -70,4 +70,3 @@
         @submitButton("button.continue")
     }
 }
-

@@ -29,10 +29,10 @@
 @()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"bank-service-unavailable"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"bank-service-unavailable.title")}
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.help", viewConfig.contactCdsTeamUrl)))
+    @paragraph(Html(messages(s"bank-service-unavailable.help", viewConfig.contactCdsTeamUrl)))
     @button(s"button.go-back", href = Some("javascript:history.back()"))
 }

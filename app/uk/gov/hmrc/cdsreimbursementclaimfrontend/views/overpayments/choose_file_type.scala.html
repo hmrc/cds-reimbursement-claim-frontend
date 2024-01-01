@@ -39,7 +39,7 @@
 @(form: Form[_], supportingEvidenceHints: DropdownHints,  typesOfEvidences: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"supporting-evidence.choose-document-type"}
-    @title = @{messages(s"$key.title")}
+    @title = @{messages(s"supporting-evidence.choose-document-type.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -47,10 +47,10 @@
         typesOfEvidences.map { evidenceType =>
             val evidenceTypeKey = UploadDocumentType.keyOf(evidenceType)
             RadioItem(
-                id = Some(s"$key.document-type.$evidenceTypeKey"),
+                id = Some(s"supporting-evidence.choose-document-type.document-type.$evidenceTypeKey"),
                 value = Some(evidenceTypeKey),
-                content = Text(messages(s"$key.document-type.$evidenceTypeKey")),
-                checked = form(s"$key").value.contains(evidenceTypeKey)
+                content = Text(messages(s"supporting-evidence.choose-document-type.document-type.$evidenceTypeKey")),
+                checked = form(s"supporting-evidence.choose-document-type").value.contains(evidenceTypeKey)
             )
         }   
     }
@@ -61,7 +61,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(s"supporting-evidence.choose-document-type.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
         @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("supporting-evidence.upload"))
 

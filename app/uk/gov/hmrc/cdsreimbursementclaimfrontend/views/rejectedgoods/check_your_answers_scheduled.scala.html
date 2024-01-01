@@ -44,66 +44,65 @@
 )(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
-@title = @{messages(s"$key.rejectedgoods.scheduled.title")}
+@title = @{messages(s"check-your-answers.rejectedgoods.scheduled.title")}
 @subsidySubHeading = @{if (isSubsidyOnly) "h2-subsidy" else "h2"}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"$key.reference-number.rejectedgoods", subKey, subsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"$key.reference-number.rejectedgoods", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
+    @subHeading(Html(messages(combine(s"check-your-answers.reference-number.rejectedgoods", subKey, subsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number.rejectedgoods", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
 
-    @subHeading(Html(messages(s"$key.scheduled-document.h2")))
-    @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"$key.scheduled-document",Some(routes.UploadMrnListController.show())))
+    @subHeading(Html(messages(s"check-your-answers.scheduled-document.h2")))
+    @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"check-your-answers.scheduled-document",Some(routes.UploadMrnListController.show())))
 
     @displayDeclarationOpt.map { displayDeclaration =>
-        @subHeading(Html(messages(s"$key.declaration-details.h2")))
-        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"$key.declaration-details", showImportMrn = false))
+        @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
+        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"check-your-answers.declaration-details", showImportMrn = false))
     } 
 
-    @subHeading(Html(messages(s"$key.contact-information.h2")))
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"$key.contact-information", routes.CheckClaimantDetailsController.show(), Some(routes.CheckClaimantDetailsController.show())))
+    @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.CheckClaimantDetailsController.show(), Some(routes.CheckClaimantDetailsController.show())))
 
-    @subHeading(Html(messages(s"$key.basis.h2")))
-    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"$key.basis", subKey, routes.BasisForClaimController.show()))
+    @subHeading(Html(messages(s"check-your-answers.basis.h2")))
+    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"check-your-answers.basis", subKey, routes.BasisForClaimController.show()))
 
     @claim.basisOfClaimSpecialCircumstances.map { specialCircumstances =>
-        @subHeading(Html(messages(s"$key.special-circumstances.h2")))
-        @summary(SpecialCircumstancesSummary(specialCircumstances,s"$key.special-circumstances", subKey, routes.EnterSpecialCircumstancesController.show()))
+        @subHeading(Html(messages(s"check-your-answers.special-circumstances.h2")))
+        @summary(SpecialCircumstancesSummary(specialCircumstances,s"check-your-answers.special-circumstances", subKey, routes.EnterSpecialCircumstancesController.show()))
     }
 
-    @subHeading(Html(messages(s"$key.disposal-method.h2")))
-    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"$key.disposal-method", subKey, routes.DisposalMethodController.show()))
+    @subHeading(Html(messages(s"check-your-answers.disposal-method.h2")))
+    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"check-your-answers.disposal-method", subKey, routes.DisposalMethodController.show()))
 
-    @subHeading(Html(messages(s"$key.details-rejected-goods.h2")))
-    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"$key.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
+    @subHeading(Html(messages(s"check-your-answers.details-rejected-goods.h2")))
+    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"check-your-answers.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
     
-    @subHeading(Html(messages(s"$key.claim-total.h2")))
-    @summary(ReimbursementClaimsRejectedGoodsSummary.scheduledForCYA(claim.reimbursementClaims, s"$key.claim-total", Some(routes.CheckClaimDetailsController.show())))
+    @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
+    @summary(ReimbursementClaimsRejectedGoodsSummary.scheduledForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", Some(routes.CheckClaimDetailsController.show())))
 
-    @subHeading(Html(messages(s"$key.inspection.h2")))
-    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"$key.inspection", routes.EnterInspectionDateController.show(),
+    @subHeading(Html(messages(s"check-your-answers.inspection.h2")))
+    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show(),
         routes.ChooseInspectionAddressTypeController.show(), Some(routes.ChooseInspectionAddressTypeController.redirectToALF)))
 
     @if(isSubsidyOnly){
-        @subHeading(Html(messages(s"$key.repayment-method.h2")))
-        @summary(RepaymentMethodSummary(s"$key.repayment-method"))
+        @subHeading(Html(messages(s"check-your-answers.repayment-method.h2")))
+        @summary(RepaymentMethodSummary(s"check-your-answers.repayment-method"))
     }
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
-        @subHeading(Html(messages(s"$key.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"$key.bank-details", Some(routes.CheckBankDetailsController.show())))
+        @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.CheckBankDetailsController.show())))
     }
     
-    @subHeading(Html(messages(s"$key.attached-documents.h2")))
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"$key.attached-documents", Some(routes.UploadFilesController.summary())))
+    @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
+    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", Some(routes.UploadFilesController.summary())))
 
-    @subHeading(Html(messages(combine(s"$key", subKey, "confirmation-statement.h2"))))
-    @paragraph(Html(messages(s"$key.confirmation-statement")))
+    @subHeading(Html(messages(combine(s"check-your-answers", subKey, "confirmation-statement.h2"))))
+    @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
     }
 }
-

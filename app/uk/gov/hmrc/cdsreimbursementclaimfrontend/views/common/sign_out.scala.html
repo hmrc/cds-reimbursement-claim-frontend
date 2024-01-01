@@ -45,27 +45,27 @@
 
 
 @key = @{"sign-out"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"sign-out.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressSignOutLink = true) {
     @heading(Html(title))
 
-    @insetText(HtmlContent(messages(s"$key.close")))
+    @insetText(HtmlContent(messages(s"sign-out.close")))
 
-    @subHeading(Html(messages(s"$key.point1.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
-    @paragraph(Html(messages(s"$key.point1.p1", baseRoutes.LandingPageController.showLandingPage())))
-    @paragraph(Html(messages(s"$key.point1.p2", baseRoutes.LandingPageController.showLandingPage())))
-    @paragraph(Html(messages(s"$key.point1.p3", baseRoutes.LandingPageController.showLandingPage())))
+    @subHeading(Html(messages(s"sign-out.point1.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
+    @paragraph(Html(messages(s"sign-out.point1.p1", baseRoutes.LandingPageController.showLandingPage())))
+    @paragraph(Html(messages(s"sign-out.point1.p2", baseRoutes.LandingPageController.showLandingPage())))
+    @paragraph(Html(messages(s"sign-out.point1.p3", baseRoutes.LandingPageController.showLandingPage())))
 
-    @subHeading(Html(messages(s"$key.point2.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
-    @paragraph(Html(messages(s"$key.point2.p1", viewConfig.viewUploadUrl)))
+    @subHeading(Html(messages(s"sign-out.point2.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
+    @paragraph(Html(messages(s"sign-out.point2.p1", viewConfig.viewUploadUrl)))
 
-    @subHeading(Html(messages(s"$key.point3.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
-    @paragraph(Html(messages(s"$key.point3.p1", baseRoutes.LandingPageController.showLandingPage())))
-    @paragraph(Html(messages(s"$key.point3.p2", baseRoutes.LandingPageController.showLandingPage())))
+    @subHeading(Html(messages(s"sign-out.point3.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
+    @paragraph(Html(messages(s"sign-out.point3.p1", baseRoutes.LandingPageController.showLandingPage())))
+    @paragraph(Html(messages(s"sign-out.point3.p2", baseRoutes.LandingPageController.showLandingPage())))
 
-    @subHeading(Html(messages(s"$key.point4.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
-    @paragraph(Html(messages(s"$key.point4.p1")))
-    @paragraph(Html(messages(s"$key.point4.p2", viewConfig.feedbackUrl)))
+    @subHeading(Html(messages(s"sign-out.point4.h")), classes = "govuk-heading-m govuk-!-margin-top-9")
+    @paragraph(Html(messages(s"sign-out.point4.p1")))
+    @paragraph(Html(messages(s"sign-out.point4.p2", viewConfig.feedbackUrl)))
 
 }

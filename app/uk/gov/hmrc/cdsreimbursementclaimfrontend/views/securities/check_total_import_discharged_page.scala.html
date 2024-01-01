@@ -35,7 +35,7 @@
 @(form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-total-import-discharged"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"check-total-import-discharged.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -52,7 +52,7 @@
             legendAsHeading = true,
             classes = "govuk-fieldset__legend--xl",
             paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
-            hintKey = Some(s"$key.help-text"),
+            hintKey = Some(s"check-total-import-discharged.help-text"),
             inline = true,
             items = Seq(
                 RadioItem(

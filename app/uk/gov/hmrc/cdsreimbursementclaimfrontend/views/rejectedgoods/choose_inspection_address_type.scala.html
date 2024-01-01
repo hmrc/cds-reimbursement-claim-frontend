@@ -38,17 +38,17 @@
 
 @key = @{"inspection-address.type"}
 
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"inspection-address.type.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @acc14AddressRadioItems = @{
     addresses.map { case (addressType, address) =>
         RadioItem(
-            id = Some(s"$key-radio-$addressType"),
+            id = Some(s"inspection-address.type-radio-$addressType"),
             value = Some(addressType.toString),
             content = Text(address),
-            hint = Some(Hint(content = Text(messages(s"$key.$addressType.hint")))),
+            hint = Some(Hint(content = Text(messages(s"inspection-address.type.$addressType.hint")))),
             checked = form.data.exists(_._2 == s"$addressType")
         )
     } :+
@@ -56,9 +56,9 @@
         divider = Some(messages("radio.divider"))
     ) :+
     RadioItem(
-        id = Some(s"$key-radio-${InspectionAddressType.Other}"),
+        id = Some(s"inspection-address.type-radio-${InspectionAddressType.Other}"),
         value = Some(InspectionAddressType.Other.toString),
-        content = Text(messages(s"$key.${InspectionAddressType.Other}")),
+        content = Text(messages(s"inspection-address.type.${InspectionAddressType.Other}")),
         checked = form.data.exists(_._2 == "Other")
     )
 }

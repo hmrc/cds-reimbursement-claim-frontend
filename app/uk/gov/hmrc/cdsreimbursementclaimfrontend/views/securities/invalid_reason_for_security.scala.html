@@ -31,28 +31,28 @@
 @(enterMRN: Call, reasonForSecurityDeposit: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"invalid-reason-for-security"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"invalid-reason-for-security.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.because")))
+    @paragraph(Html(messages(s"invalid-reason-for-security.because")))
 
     @bullets(
         Seq(
-            Html(messages(s"$key.point.1")),
-            Html(messages(s"$key.point.2")),
-            Html(messages(s"$key.point.3"))
+            Html(messages(s"invalid-reason-for-security.point.1")),
+            Html(messages(s"invalid-reason-for-security.point.2")),
+            Html(messages(s"invalid-reason-for-security.point.3"))
         )
     )
 
 
     <div class="govuk-button-group">
         @formWithCSRF(enterMRN, 'novalidate -> "novalidate") {
-            @submitButton(s"$key.submit")
+            @submitButton(s"invalid-reason-for-security.submit")
         }
 
         @formWithCSRF(reasonForSecurityDeposit, 'novalidate -> "novalidate") {
-            @submitButton(s"$key.reason", classes = Some("govuk-button--secondary"))
+            @submitButton(s"invalid-reason-for-security.reason", classes = Some("govuk-button--secondary"))
         }
     </div>
 }

@@ -41,16 +41,16 @@
 )(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
-  @title = @{messages(s"$key.title")}
+  @title = @{messages(s"select-duties.title")}
 
   @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
 
         val isCmaEligible: Boolean = cmaEligibleList.nonEmpty && cmaEligibleList(index)
         CheckboxItem(
-            name = Some(s"$key[]"),
+            name = Some(s"select-duties[]"),
             value = duty.taxCode.value,
-            content = Text(duty.taxCode.value + " - " + messages(s"$key.duty.${duty.taxCode.value}")),
-            hint = if(isCmaEligible) None else Some(Hint(content = HtmlContent(messages(s"$key.duty.hint")))),
+            content = Text(duty.taxCode.value + " - " + messages(s"select-duties.duty.${duty.taxCode.value}")),
+            hint = if(isCmaEligible) None else Some(Hint(content = HtmlContent(messages(s"select-duties.duty.hint")))),
             checked = form.data.exists(_._2 == duty.taxCode.value)
         )
     }}
@@ -64,7 +64,7 @@
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @checkboxes(
-                field = form(s"$key"),
+                field = form(s"select-duties"),
                 legendAsHeading = true,
                 legend = HtmlContent(title),
                 items = options.toList,

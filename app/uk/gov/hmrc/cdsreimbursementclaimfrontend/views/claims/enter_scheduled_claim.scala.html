@@ -36,9 +36,9 @@
 @(dutyType: DutyType, dutyCode: TaxCode, form : Form[AmountPaidWithCorrect], postAction: Call)(implicit request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-scheduled-claim"}
-@title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
+@title = @{messages(s"enter-scheduled-claim.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
 
-@hintText = @{Html(messages(s"$key.actual-amount.hint"))}
+@hintText = @{Html(messages(s"enter-scheduled-claim.actual-amount.hint"))}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -48,19 +48,19 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text", messages(s"tax-code.${dutyCode.value}"))))
+    @paragraph(Html(messages(s"enter-scheduled-claim.help-text", messages(s"tax-code.${dutyCode.value}"))))
 
-    @paragraph(Html(messages(s"$key.p1")))
+    @paragraph(Html(messages(s"enter-scheduled-claim.p1")))
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"enter-scheduled-claim.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @inputText(
             form = form,
-            id = s"$key.paid-amount",
-            name = s"$key.paid-amount",
-            label = s"$key.paid-amount",
+            id = s"enter-scheduled-claim.paid-amount",
+            name = s"enter-scheduled-claim.paid-amount",
+            label = s"enter-scheduled-claim.paid-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,
@@ -71,9 +71,9 @@
 
         @inputText(
             form = form,
-            id = s"$key.actual-amount",
-            name = s"$key.actual-amount",
-            label = s"$key.actual-amount",
+            id = s"enter-scheduled-claim.actual-amount",
+            name = s"enter-scheduled-claim.actual-amount",
+            label = s"enter-scheduled-claim.actual-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,

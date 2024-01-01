@@ -31,22 +31,22 @@
 @(postAction: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"problem-with-address"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"problem-with-address.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.paragraph.1")))
-    @paragraph(Html(messages(s"$key.paragraph.2")))
+    @paragraph(Html(messages(s"problem-with-address.paragraph.1")))
+    @paragraph(Html(messages(s"problem-with-address.paragraph.2")))
 
     @bullets(
         Seq(
-            Html(messages(s"$key.point.1")),
-            Html(messages(s"$key.point.2")),
-            Html(messages(s"$key.point.3"))
+            Html(messages(s"problem-with-address.point.1")),
+            Html(messages(s"problem-with-address.point.2")),
+            Html(messages(s"problem-with-address.point.3"))
         )
     )
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-        @submitButton(s"$key.button.tryAgain")
+        @submitButton(s"problem-with-address.button.tryAgain")
     }
 }

@@ -40,7 +40,7 @@
 @(references: Seq[MRN], form: Form[YesNo], postAction: Call, changeUrl: Int => Call, removeUrl: MRN => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-movement-reference-numbers.rejected-goods"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"check-movement-reference-numbers.rejected-goods.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -48,7 +48,7 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+    @paragraph(Html(messages(s"check-movement-reference-numbers.rejected-goods.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -56,12 +56,12 @@
 
         <dl class="govuk-summary-list cds-multi-action">
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">@Html(messages(s"$key.reference-number.multiple.label"))</dt>
+                <dt class="govuk-summary-list__key">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
                     <a class="govuk-link" href=@changeUrl(1).url>
                         @{messages(s"cya.change")}
-                        <span class="govuk-visually-hidden">@Html(messages(s"$key.reference-number.multiple.label"))</span>
+                        <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.multiple.label"))</span>
                     </a>
                 </dd>
                 <dd class="govuk-summary-list__actions"></dd>
@@ -69,19 +69,19 @@
             @references.zipWithIndex.drop(1).map { mrnWithIndex =>
                 @defining(mrnWithIndex._2) { index =>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@Html(messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</dt>
+                        <dt class="govuk-summary-list__key">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link" href=@changeUrl(index + 1).url>
                                 @{messages(s"cya.change")}
-                                <span class="govuk-visually-hidden">@Html(messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
                             </a>
                         </dd>
                         <dd class="govuk-summary-list__actions">
                         @if(references.size > 2) {
                             <a class="govuk-link" href=@removeUrl(mrnWithIndex._1).url>
                                 @{messages(s"cya.remove")}
-                                <span class="govuk-visually-hidden">@Html(messages(s"$key.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
                             </a>
                         }
                         </dd>
@@ -93,7 +93,7 @@
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.add-another-mrn-question"),
+            legend = messages(s"check-movement-reference-numbers.rejected-goods.add-another-mrn-question"),
             hintKey = None,
             inline = true,
             items = Seq(

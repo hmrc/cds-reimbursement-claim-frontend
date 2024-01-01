@@ -38,16 +38,16 @@
 @(displayDeclaration: DisplayDeclaration,correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]],postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-claim.securities"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"check-claim.securities.title")}
 
 @layout(pageTitle = Some(title)) {
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.summary")))
+    @paragraph(Html(messages(s"check-claim.securities.summary")))
 
     @correctedAmounts.map { case (securityDepositId, reclaims) =>
-        @subHeading(Html(messages(s"$key.claim-for-security.h2", securityDepositId)))
+        @subHeading(Html(messages(s"check-claim.securities.claim-for-security.h2", securityDepositId)))
         @summary(SecuritiesReclaimDetailsSummary(
             securityDepositId,
             reclaims,

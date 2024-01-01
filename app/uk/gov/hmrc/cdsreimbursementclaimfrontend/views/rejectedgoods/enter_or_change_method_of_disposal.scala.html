@@ -37,14 +37,14 @@
 
 @key = @{"select-method-of-disposal.rejected-goods"}
 
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"select-method-of-disposal.rejected-goods.title")}
 
 @radioItems = @{
     Seq(Export, PostalExport, DonationToCharity, PlacedInCustomsWarehouse, ExportInBaggage, Destruction).map { methodOfDisposal: MethodOfDisposal =>
         RadioItem(
-            id = Some(s"$key-radio-$methodOfDisposal"),
+            id = Some(s"select-method-of-disposal.rejected-goods-radio-$methodOfDisposal"),
             value = Some(methodOfDisposal.toString),
-            content = Text(messages(s"$key.method.$methodOfDisposal")),
+            content = Text(messages(s"select-method-of-disposal.rejected-goods.method.$methodOfDisposal")),
             checked = form.value.contains(methodOfDisposal)
         )
     }.toList

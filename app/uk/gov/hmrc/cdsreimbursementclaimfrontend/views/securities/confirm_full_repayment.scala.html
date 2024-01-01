@@ -41,8 +41,8 @@
 @(form: Form[YesNo], securityId: String, index: Int, size: Int, summaryItems: SummaryList, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"confirm-full-repayment"}
-@title = @{messages(s"$key.title")}
-@caption = @{messages(s"$key.caption", index, size)}
+@title = @{messages(s"confirm-full-repayment.title")}
+@caption = @{messages(s"confirm-full-repayment.caption", index, size)}
 @pageTitleWithCaption = @{s"$caption: $title"}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -60,7 +60,7 @@
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.question"),
+            legend = messages(s"confirm-full-repayment.question"),
             hintKey = None,
             inline = true,
             items = Seq(

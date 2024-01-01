@@ -36,7 +36,7 @@
 @(form: Form[InspectionDate], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-inspection-date.rejected-goods"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"enter-inspection-date.rejected-goods.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -46,15 +46,15 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")))
+    @paragraph(Html(messages(s"enter-inspection-date.rejected-goods.help-text")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @dateInput(
             form = form,
-            legendContent = s"$key.label",
+            legendContent = s"enter-inspection-date.rejected-goods.label",
             legendClasses = "govuk-fieldset__legend--s",
             legendAsPageHeading = false,
-            hintText = Some(s"$key.hint"),
+            hintText = Some(s"enter-inspection-date.rejected-goods.hint"),
             id = key
         )
 

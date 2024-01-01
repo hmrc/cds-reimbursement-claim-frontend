@@ -32,18 +32,18 @@
 
 
 @key = @{"error-claim-invalid-TPI04"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"error-claim-invalid-TPI04.title")}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.para.1")))
+    @paragraph(Html(messages(s"error-claim-invalid-TPI04.para.1")))
 
     @bullets(
         Seq(
-            Html(messages(s"$key.bullet.1")),
-            Html(messages(s"$key.bullet.2", commonRoutes.ChooseClaimTypeController.show(), viewConfig.contactHmrcUrl))
+            Html(messages(s"error-claim-invalid-TPI04.bullet.1")),
+            Html(messages(s"error-claim-invalid-TPI04.bullet.2", commonRoutes.ChooseClaimTypeController.show(), viewConfig.contactHmrcUrl))
         )
     )
 

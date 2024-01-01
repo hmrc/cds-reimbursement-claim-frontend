@@ -28,9 +28,9 @@
 @()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"ineligible"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"ineligible.title")}
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.help", viewConfig.contactCdsTeamUrl)))
+    @paragraph(Html(messages(s"ineligible.help", viewConfig.contactCdsTeamUrl)))
 }

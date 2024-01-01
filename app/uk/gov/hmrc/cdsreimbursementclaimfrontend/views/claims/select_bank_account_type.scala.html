@@ -34,7 +34,7 @@
 @(form: Form[BankAccountType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-bank-account-type"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"select-bank-account-type.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -55,15 +55,15 @@
             inline = false,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key-business-bank-account"),
+                    id = Some(s"select-bank-account-type-business-bank-account"),
                     value = Some("Business"),
-                    content = Text(messages(s"$key.business-bank-account")),
+                    content = Text(messages(s"select-bank-account-type.business-bank-account")),
                     checked = form.value.contains(BankAccountType.Business)
                 ),
                 RadioItem(
-                    id = Some(s"$key-personal-bank-account"),
+                    id = Some(s"select-bank-account-type-personal-bank-account"),
                     value = Some("Personal"),
-                    content = Text(messages(s"$key.personal-bank-account")),
+                    content = Text(messages(s"select-bank-account-type.personal-bank-account")),
                     checked = form.value.contains(BankAccountType.Personal)
                 )
             )

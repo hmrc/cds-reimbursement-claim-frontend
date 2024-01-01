@@ -33,54 +33,54 @@
 @()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"landing"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"landing.title")}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help.p1")))
-    @paragraph(Html(messages(s"$key.help.p2")))
+    @paragraph(Html(messages(s"landing.help.p1")))
+    @paragraph(Html(messages(s"landing.help.p2")))
 
-    @subHeading(Html(messages(s"$key.who.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+    @subHeading(Html(messages(s"landing.who.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
-    @paragraph(Html(messages(s"$key.who.p1")))
-    @paragraph(Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl)))
-    @paragraph(Html(messages(s"$key.who.p3")))
+    @paragraph(Html(messages(s"landing.who.p1")))
+    @paragraph(Html(messages(s"landing.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl)))
+    @paragraph(Html(messages(s"landing.who.p3")))
 
-    @bulletList((1 to 3).map(i => Html(messages(s"$key.who.l$i"))))
+    @bulletList((1 to 3).map(i => Html(messages(s"landing.who.l$i"))))
 
-    @paragraph(Html(messages(s"$key.who.p4")))
+    @paragraph(Html(messages(s"landing.who.p4")))
 
-    @subHeading(Html(messages(s"$key.why.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+    @subHeading(Html(messages(s"landing.why.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
-    @paragraph(Html(messages(s"$key.why.p1")))
+    @paragraph(Html(messages(s"landing.why.p1")))
 
     @bulletList(
         Seq(
-            Html(messages(s"$key.why.l1")),
-            Html(messages(s"$key.why.l2"))
+            Html(messages(s"landing.why.l1")),
+            Html(messages(s"landing.why.l2"))
         )
     )
 
     <p class="govuk-body">
         <a href="@{routes.StartController.startNewClaim()}" role="button" draggable="false" class="govuk-button govuk-!-margin-top-2 govuk-!-margin-bottom-8 govuk-button--start" data-module="govuk-button">
-            @messages(s"$key.start-button")
+            @messages(s"landing.start-button")
             <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
                 <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
             </svg>
         </a>
     </p>
 
-    @subHeading(Html(messages(s"$key.before.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+    @subHeading(Html(messages(s"landing.before.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
 
-    @paragraph(Html(messages(s"$key.before.p1")))
+    @paragraph(Html(messages(s"landing.before.p1")))
 
-    @bulletList((1 to 9).map(i => Html(messages(s"$key.before.l$i"))))
+    @bulletList((1 to 9).map(i => Html(messages(s"landing.before.l$i"))))
 
-    @dropdownDetails(summary = s"$key.details.heading",
+    @dropdownDetails(summary = s"landing.details.heading",
         html(
-            paragraph(Html(messages(s"$key.details.p1"))),
-            bulletList((1 to 10).map(i => Html(messages(s"$key.details.l$i"))))
+            paragraph(Html(messages(s"landing.details.p1"))),
+            bulletList((1 to 10).map(i => Html(messages(s"landing.details.l$i"))))
         ))
 }

@@ -39,8 +39,8 @@
 @(dutyType: DutyType, dutyCode: TaxCode, form : Form[AmountPaidWithRefund], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim-scheduled.rejected-goods"}
-@title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
-@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
+@title = @{messages(s"enter-claim-scheduled.rejected-goods.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
+@hintText = @{Html(messages(s"enter-claim-scheduled.rejected-goods.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
@@ -49,21 +49,21 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text", messages(s"tax-code.${dutyCode.value}"))))
+    @paragraph(Html(messages(s"enter-claim-scheduled.rejected-goods.help-text", messages(s"tax-code.${dutyCode.value}"))))
 
     @if(isSubsidy) {
-        @paragraph(Html(messages(s"$key.subsidy.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
+        @paragraph(Html(messages(s"enter-claim-scheduled.rejected-goods.subsidy.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
     }
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-top-0 govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"enter-claim-scheduled.rejected-goods.inset-text")), Some("govuk-inset-text govuk-!-margin-top-0 govuk-!-margin-bottom-8"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @inputText(
             form = form,
-            id = s"$key.paid-amount",
-            name = s"$key.paid-amount",
-            label = s"$key.paid-amount",
+            id = s"enter-claim-scheduled.rejected-goods.paid-amount",
+            name = s"enter-claim-scheduled.rejected-goods.paid-amount",
+            label = s"enter-claim-scheduled.rejected-goods.paid-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,
@@ -74,9 +74,9 @@
 
         @inputText(
             form = form,
-            id = s"$key.claim-amount",
-            name = s"$key.claim-amount",
-            label = s"$key.claim-amount",
+            id = s"enter-claim-scheduled.rejected-goods.claim-amount",
+            name = s"enter-claim-scheduled.rejected-goods.claim-amount",
+            label = s"enter-claim-scheduled.rejected-goods.claim-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,
@@ -88,4 +88,3 @@
         @submitButton("button.continue")
     }
 }
-
