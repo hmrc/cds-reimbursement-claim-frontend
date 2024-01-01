@@ -48,7 +48,7 @@ object EvidenceDocumentsSummary {
                   .map(document =>
                     Paragraph(
                       document.fileName,
-                      messages(s"supporting-evidence.choose-document-type.document-type.${document.documentType}")
+                      messages(s"choose-file-type.file-type.${document.documentType}")
                     ).toString
                   )
                   .toList

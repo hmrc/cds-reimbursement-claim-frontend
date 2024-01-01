@@ -1381,49 +1381,49 @@ supporting-evidence.choose-document-type.title=Add supporting documents to your 
 supporting-evidence.choose-document-type.error.number=Select the type of document to add to your claim
 supporting-evidence.choose-document-type.error.required=Select the type of document to add to your claim
 supporting-evidence.choose-document-type.help-text=You can repeat this step to add more types of documents to your claim
-supporting-evidence.choose-document-type.document-type.AirWayBill=Air waybill
+
 supporting-evidence.upload.details.bullet.AirWayBill=Air waybill:
 supporting-evidence.upload.details.hint.AirWayBill=Transport document that accompanies the commodities (goods) and provides information about them.
-supporting-evidence.choose-document-type.document-type.BillOfLading=Bill of lading
+
 supporting-evidence.upload.details.bullet.BillOfLading=Bill of lading:
 supporting-evidence.upload.details.hint.BillOfLading=Transport document that accompanies the commodities (goods) and provides information about them.
-supporting-evidence.choose-document-type.document-type.CommercialInvoice=Commercial invoice
+
 supporting-evidence.upload.details.bullet.CommercialInvoice=Commercial invoice:
 supporting-evidence.upload.details.hint.CommercialInvoice=Proof of sale and describes the commodities being sold; their price, description and quantity.
-supporting-evidence.choose-document-type.document-type.CorrespondenceTrader=Correspondence between trader and agent
+
 supporting-evidence.upload.details.bullet.CorrespondenceTrader=Correspondence between trader and agent:
 supporting-evidence.upload.details.hint.CorrespondenceTrader=An email chain or letters between you and the trader.
-supporting-evidence.choose-document-type.document-type.ImportAndExportDeclaration=Import and export declaration
+
 supporting-evidence.upload.details.bullet.ImportAndExportDeclaration=Import and export declaration:
 supporting-evidence.upload.details.hint.ImportAndExportDeclaration=Proof of the import or export being declared.
-supporting-evidence.choose-document-type.document-type.PackingList=Packing list
+
 supporting-evidence.upload.details.bullet.PackingList=Packing list:
 supporting-evidence.upload.details.hint.PackingList=A document that lists product type in each package.
-supporting-evidence.choose-document-type.document-type.ProofOfAuthority=Proof of authority
+
 supporting-evidence.upload.details.bullet.ProofOfAuthority=Proof of authority:
 supporting-evidence.upload.details.hint.ProofOfAuthority=In case you change your bank account details.
-supporting-evidence.choose-document-type.document-type.SubstituteEntry=Substitute entry
+
 supporting-evidence.upload.details.bullet.SubstituteEntry=Substitute entry:
 supporting-evidence.upload.details.hint.SubstituteEntry=A copy of the original customs declaration amended to show the correct details.
-supporting-evidence.choose-document-type.document-type.Other=Other documents
+
 supporting-evidence.upload.details.bullet.Other=Other documents:
 supporting-evidence.upload.details.hint.Other=If you have alternative supporting documents.
-supporting-evidence.choose-document-type.document-type.ScheduleOfMRNs=Scheduled document
+
 supporting-evidence.upload.details.bullet.ScheduleOfMRNs=Scheduled document
 supporting-evidence.upload.details.hint.ScheduleOfMRNs=Scheduled document.
-supporting-evidence.choose-document-type.document-type.AdditionalSupportingDocuments=Additional supporting documents
+
 supporting-evidence.upload.details.bullet.AdditionalSupportingDocuments=Additional supporting documents:
 supporting-evidence.upload.details.hint.AdditionalSupportingDocuments=Additional supporting documents.
-supporting-evidence.choose-document-type.document-type.LetterOfAuthority=Letter of authority
+
 supporting-evidence.upload.details.bullet.LetterOfAuthority=Letter of authority:
 supporting-evidence.upload.details.hint.LetterOfAuthority=Letter of authority.
-supporting-evidence.choose-document-type.document-type.ProofOfExportOrDestruction=Proof of export or destruction
+
 supporting-evidence.upload.details.bullet.ProofOfExportOrDestruction=Proof of export or destruction:
 supporting-evidence.upload.details.hint.ProofOfExportOrDestruction=Proof of export or destruction.
-supporting-evidence.choose-document-type.document-type.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered
+
 supporting-evidence.upload.details.bullet.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof:
 supporting-evidence.upload.details.hint.DocumentaryProofFaultyOrNotWhatOrdered=Documentary proof that the goods are faulty or not what you ordered.
-supporting-evidence.choose-document-type.document-type.CalculationWorksheet=Calculation worksheet
+
 supporting-evidence.upload.details.bullet.CalculationWorksheet=Calculation worksheet:
 supporting-evidence.upload.details.hint.CalculationWorksheet=Calculation worksheet.
 
@@ -1801,7 +1801,6 @@ choose-file-type.file-type.CommercialInvoice=Commercial invoice
 choose-file-type.file-type.CorrespondenceTrader=Correspondence between trader and agent
 choose-file-type.file-type.DocumentaryProofFaultyOrNotWhatOrdered=	Documentary proof that the goods are faulty or not what you ordered
 choose-file-type.file-type.ImportAndExportDeclaration=Import and export declaration
-choose-file-type.file-type.LetterOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfExportOrDestruction=Proof of export or destruction
 choose-file-type.file-type.Other=Other documents
 
@@ -1815,6 +1814,8 @@ choose-file-type.file-type.ProofOfOrigin=Proof of origin
 choose-file-type.file-type.ProofOfOrigin.hint=Proof of origin documentation is required for this claim.
 choose-file-type.file-type.ProofOfAuthority=Letter of authority
 choose-file-type.file-type.ProofOfAuthority.hint=Required when bank account details have been updated.
+choose-file-type.file-type.LetterOfAuthority=Letter of authority
+choose-file-type.file-type.LetterOfAuthority.hint=Required when bank account details have been updated.
 choose-file-type.file-type.CalculationWorksheetOrFinalSalesFigures=Calculation Worksheet or Final Sales Figures
 choose-file-type.file-type.BillOfDischarge3=Bill of discharge 3
 choose-file-type.file-type.BillOfDischarge3.hint=A completed BOD3 form is required for this claim.

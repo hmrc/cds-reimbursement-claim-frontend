@@ -47,9 +47,9 @@
         typesOfEvidences.map { evidenceType =>
             val evidenceTypeKey = UploadDocumentType.keyOf(evidenceType)
             RadioItem(
-                id = Some(s"supporting-evidence.choose-document-type.document-type.$evidenceTypeKey"),
+                id = Some(s"choose-file-type.file-type.$evidenceTypeKey"),
                 value = Some(evidenceTypeKey),
-                content = Text(messages(s"supporting-evidence.choose-document-type.document-type.$evidenceTypeKey")),
+                content = Text(messages(s"choose-file-type.file-type.$evidenceTypeKey")),
                 checked = form(s"supporting-evidence.choose-document-type").value.contains(evidenceTypeKey)
             )
         }   
