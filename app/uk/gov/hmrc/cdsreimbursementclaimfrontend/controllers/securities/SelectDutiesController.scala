@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error => CdsError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.select_duties
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -43,7 +43,7 @@ import scala.concurrent.Future
 @Singleton
 class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectDutiesPage: securities.select_duties // todo check SecurityId display / clone page or
+  selectDutiesPage: select_duties
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
