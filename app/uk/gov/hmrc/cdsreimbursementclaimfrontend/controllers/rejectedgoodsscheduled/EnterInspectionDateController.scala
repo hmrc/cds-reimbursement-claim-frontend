@@ -22,7 +22,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_inspection_date
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class EnterInspectionDateController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterInspectionDatePage: pages.enter_inspection_date
+  enterInspectionDatePage: enter_inspection_date
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 

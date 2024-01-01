@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_duty_types
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +35,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class SelectDutyTypesController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectDutyTypesPage: pages.select_duty_types
+  selectDutyTypesPage: select_duty_types
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController {
 

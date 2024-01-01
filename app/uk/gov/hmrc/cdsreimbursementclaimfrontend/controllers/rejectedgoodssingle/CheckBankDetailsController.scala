@@ -26,14 +26,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_account_details
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckBankDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  val checkBankAccountDetailsPage: pages.check_bank_account_details
+  val checkBankAccountDetailsPage: check_bank_account_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController
     with CheckBankDetailsMixin {

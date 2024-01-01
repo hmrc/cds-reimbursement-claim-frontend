@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Importer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_inspection_address_type
 
 trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController with AddressLookupMixin {
 
@@ -39,7 +39,7 @@ trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController wi
   val startAddressLookup: Call
   val postAction: Call
 
-  val inspectionAddressPage: pages.choose_inspection_address_type
+  val inspectionAddressPage: choose_inspection_address_type
 
   def modifyJourney(journey: Journey, inspectionAddress: InspectionAddress): Journey
 

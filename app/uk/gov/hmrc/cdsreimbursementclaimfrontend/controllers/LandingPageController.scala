@@ -23,13 +23,13 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.landing_page
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 @Singleton
 class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  landingPage: views.html.landing_page
+  landingPage: landing_page
 )(implicit viewConfig: ViewConfig)
     extends FrontendBaseController
     with Logging {

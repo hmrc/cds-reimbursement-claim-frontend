@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspecti
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_inspection_date
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 @Singleton
 class EnterInspectionDateController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterInspectionDatePage: pages.enter_inspection_date
+  enterInspectionDatePage: enter_inspection_date
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 

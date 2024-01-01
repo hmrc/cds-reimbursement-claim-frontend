@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_special_circumstances
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 @Singleton
 class EnterSpecialCircumstancesController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterSpecialCircumstancesPage: pages.enter_special_circumstances
+  enterSpecialCircumstancesPage: enter_special_circumstances
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 

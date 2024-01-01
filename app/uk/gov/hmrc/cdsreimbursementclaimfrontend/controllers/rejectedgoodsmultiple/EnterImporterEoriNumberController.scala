@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterImporte
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_importer_eori_number
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
-  val enterImporterEoriNumber: pages.enter_importer_eori_number
+  val enterImporterEoriNumber: enter_importer_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController
     with EnterImporterEoriNumberMixin {

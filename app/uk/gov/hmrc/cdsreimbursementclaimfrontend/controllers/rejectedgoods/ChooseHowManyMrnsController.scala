@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
@@ -59,7 +59,7 @@ class ChooseHowManyMrnsController @Inject() (
   val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val sessionStore: SessionCache,
   featureSwitchService: FeatureSwitchService,
-  chooseHowManyMrnsPage: pages.choose_how_many_mrns
+  chooseHowManyMrnsPage: choose_how_many_mrns
 )(implicit
   val ec: ExecutionContext,
   viewConfig: ViewConfig,
