@@ -72,7 +72,6 @@ class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks 
             }
             .mkString("\n")
         )
-        fail()
       }
     }
   }
