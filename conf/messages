@@ -1345,7 +1345,7 @@ bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
-supporting-evidence.upload.details.heading=Examples of supporting documents
+choose-file-type.heading=Examples of supporting documents
 supporting-evidence.check-your-answers.title=You have added {0} document{1} to your claim
 supporting-evidence.check-your-answers.help-text=These are the documents you have added so far to support this claim. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.check-your-answers.add-another-document-question=Do you want to add another document?

@@ -757,7 +757,7 @@ enter-bank-account-details.error.INVALID_SORTCODE=Cod didoli annilys
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
-supporting-evidence.upload.details.heading=Enghreifftiau o ffeiliau
+choose-file-type.heading=Enghreifftiau o ffeiliau
 supporting-evidence.check-your-answers.title=Cadarnhewch mai dyma’r ffeiliau rydych chi am eu cyflwyno
 supporting-evidence.check-your-answers.help-text=Gallwch ychwanegu mwy o ffeiliau fel tystiolaeth i gefnogi’ch hawliad.
 supporting-evidence.check-your-answers.add-another-document-question=

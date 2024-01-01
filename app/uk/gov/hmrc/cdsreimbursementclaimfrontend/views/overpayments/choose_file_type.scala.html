@@ -62,7 +62,7 @@
 
         @paragraph(Html(messages(s"choose-file-type.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("choose-file-type.file-type"))
+        @dropdownDetails(summary = s"choose-file-type.heading", content = supportingEvidenceHints.renderHintsWithLabels("choose-file-type.file-type"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
