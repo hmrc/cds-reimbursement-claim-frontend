@@ -28,11 +28,11 @@
 @(securitiesStartPageUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"claim-invalid-not-exported-all"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"claim-invalid-not-exported-all.title")}
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.paragraph1")))
-    @paragraph(Html(messages(s"$key.paragraph2", viewConfig.homePageUrl, securitiesStartPageUrl)))
-    @paragraph(Html(messages(s"$key.paragraph3", viewConfig.contactCdsTeamUrl)))
+    @paragraph(Html(messages(s"claim-invalid-not-exported-all.paragraph1")))
+    @paragraph(Html(messages(s"claim-invalid-not-exported-all.paragraph2", viewConfig.homePageUrl, securitiesStartPageUrl)))
+    @paragraph(Html(messages(s"claim-invalid-not-exported-all.paragraph3", viewConfig.contactCdsTeamUrl)))
 }

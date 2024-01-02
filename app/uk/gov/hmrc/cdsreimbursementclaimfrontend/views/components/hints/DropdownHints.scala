@@ -32,15 +32,15 @@ final case class DropdownHints(keys: Seq[String]) extends Hints {
       bulletList(
         keys.map(key =>
           titleAndDescription(
-            messages(s"$parentKey.details.bullet.$key"),
-            messages(s"$parentKey.details.hint.$key")
+            messages(s"$parentKey.$key.bullet"),
+            messages(s"$parentKey.$key.description")
           )
         )
       )
     )
 
   def renderHints(parentKey: String)(implicit messages: Messages): Html = {
-    val listOfMessages: Seq[Html] = for (i <- keys) yield Html(messages(s"$parentKey.details.hint.$i"))
+    val listOfMessages: Seq[Html] = for (i <- keys) yield Html(messages(s"$parentKey.$i.description"))
     html(
       bulletList(
         listOfMessages

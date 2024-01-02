@@ -29,14 +29,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{securities => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_movement_reference_number
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterMovementReferenceNumberPage: pages.enter_movement_reference_number
+  enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 

@@ -35,7 +35,7 @@
 @(form: Form[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-rejected-goods-details.rejected-goods"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"enter-rejected-goods-details.rejected-goods.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -45,15 +45,15 @@
 
  @heading(Html(title))
 
- @paragraph(Html(messages(s"$key.help-text")))
- @paragraph(Html(messages(s"$key.p1")))
+ @paragraph(Html(messages(s"enter-rejected-goods-details.rejected-goods.help-text")))
+ @paragraph(Html(messages(s"enter-rejected-goods-details.rejected-goods.p1")))
 
  @bulletList(
   Seq(
-   Html(messages(s"$key.bullet.1")),
-   Html(messages(s"$key.bullet.2")),
-   Html(messages(s"$key.bullet.3")),
-   Html(messages(s"$key.bullet.4"))
+   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.1")),
+   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.2")),
+   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.3")),
+   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.4"))
   )
  )
 
@@ -65,7 +65,7 @@
    id = key,
    name = key,
    isPageHeading = false,
-   label = s"$key.label",
+   label = s"enter-rejected-goods-details.rejected-goods.label",
    labelClasses = Some("govuk-visually-hidden"),
    hint = None,
    value = form(key).value,

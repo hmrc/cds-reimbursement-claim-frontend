@@ -38,7 +38,7 @@
 @(form: Form[Option[UploadDocumentType]], availableFileTypes: Seq[UploadDocumentType], hasExistingUploads: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"choose-file-type"}
-    @title = @{messages(s"$key.title")}
+    @title = @{messages(s"choose-file-type.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -46,10 +46,10 @@
         availableFileTypes.map { fileType =>
             val fileTypeKey = UploadDocumentType.keyOf(fileType)
             RadioItem(
-                id = Some(s"$key.file-type.$fileTypeKey"),
+                id = Some(s"choose-file-type.file-type.$fileTypeKey"),
                 value = Some(fileTypeKey),
-                content = Text(messages(s"$key.file-type.$fileTypeKey")),
-                checked = form(s"$key").value.exists(_.contains(fileTypeKey))
+                content = Text(messages(s"choose-file-type.file-type.$fileTypeKey")),
+                checked = form(s"choose-file-type").value.exists(_.contains(fileTypeKey))
             )
         }  
     }
@@ -60,7 +60,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(s"choose-file-type.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-6"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -76,7 +76,7 @@
 
             @if(hasExistingUploads) {
 
-                @divider(messages(s"$key.or"))
+                @divider(messages(s"choose-file-type.or"))
 
                 @radios(
                     form = form,
@@ -87,10 +87,10 @@
                     inline = false,
                     items = Seq(
                         RadioItem(
-                            id = Some(s"$key.file-type.none"),
+                            id = Some(s"choose-file-type.file-type.none"),
                             value = Some("none"),
-                            content = Text(messages(if(hasExistingUploads) s"$key.file-type.none.more" else s"$key.file-type.none")),
-                            checked = form(s"$key").value.exists(_.contains("none"))
+                            content = Text(messages(if(hasExistingUploads) s"choose-file-type.file-type.none.more" else s"choose-file-type.file-type.none")),
+                            checked = form(s"choose-file-type").value.exists(_.contains("none"))
                         )
                     ),
                     hideError = true

@@ -28,12 +28,12 @@
 @()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"submit-claim-error"}
-    @title = @{messages(s"$key.title")}
+    @title = @{messages(s"submit-claim-error.title")}
 
     @layout(pageTitle = Some(s"$title")) {
 
         @heading(Html(title))
-        @paragraph(Html(messages(s"$key.p1")))
-        @paragraph(Html(messages(s"$key.p2", viewConfig.importExportUrl)))
+        @paragraph(Html(messages(s"submit-claim-error.p1")))
+        @paragraph(Html(messages(s"submit-claim-error.p2", viewConfig.importExportUrl)))
 
     }

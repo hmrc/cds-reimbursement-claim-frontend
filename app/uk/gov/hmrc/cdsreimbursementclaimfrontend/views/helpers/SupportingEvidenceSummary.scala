@@ -47,7 +47,7 @@ object SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer
                     uploadDocument.fileName,
                     uploadDocument.documentType
                       .map { documentType =>
-                        messages(s"supporting-evidence.choose-document-type.document-type.$documentType")
+                        messages(s"choose-file-type.file-type.$documentType")
                       }
                       .getOrElse("")
                   ).toString

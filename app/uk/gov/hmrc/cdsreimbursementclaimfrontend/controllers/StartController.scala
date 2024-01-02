@@ -27,7 +27,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.timed_out
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.we_only_support_gg
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
@@ -42,8 +43,8 @@ class StartController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val config: Configuration,
-  weOnlySupportGGPage: views.html.we_only_support_gg,
-  timedOutPage: views.html.timed_out
+  weOnlySupportGGPage: we_only_support_gg,
+  timedOutPage: timed_out
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendBaseController
     with WithAuthRetrievalsAndSessionDataAction

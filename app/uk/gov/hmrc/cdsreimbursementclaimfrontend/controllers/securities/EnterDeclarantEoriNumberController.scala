@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{common => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -46,7 +46,7 @@ import scala.language.postfixOps
 class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   DeclarationConnector: DeclarationConnector,
-  enterDeclarantEoriNumberPage: pages.enter_declarant_eori_number
+  enterDeclarantEoriNumberPage: enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
 

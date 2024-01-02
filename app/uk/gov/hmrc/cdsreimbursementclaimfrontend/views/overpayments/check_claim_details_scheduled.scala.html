@@ -42,7 +42,7 @@
 @(answers: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
 @key = @{"check-claim-summary"}
-@title = @{messages(s"$key.scheduled.title")}
+@title = @{messages(s"check-claim-summary.scheduled.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -52,14 +52,14 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.scheduled.help-text")), classes = Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"), id = s"$key-help-text")
+    @paragraph(Html(messages(s"check-claim-summary.scheduled.help-text")), classes = Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"), id = s"check-claim-summary-help-text")
     @answers.map { claim =>
-        @subHeading(Html(messages(s"duty-type.${claim._1.repr}")), classes = "govuk-heading-m", id = s"$key-duty-${claim._1.repr}")
+        @subHeading(Html(messages(s"duty-type.${claim._1.repr}")), classes = "govuk-heading-m", id = s"check-claim-summary-duty-${claim._1.repr}")
         @summary(TaxCodeReimbursementScheduledOverpaymentsSummary((claim._1, claim._2),key, subKey))
     <br>
     }
 
-    @subHeading(Html(messages(s"$key.total.header")), classes = "govuk-heading-m")
+    @subHeading(Html(messages(s"check-claim-summary.total.header")), classes = "govuk-heading-m")
     @summary(ScheduledReimbursementSummary(reimbursementTotal, key))
     <br>
 
@@ -68,21 +68,21 @@
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.are-duties-correct"),
+            legend = messages(s"check-claim-summary.are-duties-correct"),
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = Text(messages(s"check-claim-summary.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = Text(messages(s"check-claim-summary.no")),
                     checked = false
                 )
             ),
-            id = s"$key-yes-no"
+            id = s"check-claim-summary-yes-no"
         )
 
         @submitButton("button.continue")

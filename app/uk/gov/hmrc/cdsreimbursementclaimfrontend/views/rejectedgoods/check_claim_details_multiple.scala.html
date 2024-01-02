@@ -43,7 +43,7 @@
 @(form: Form[YesNo], claims: Seq[(MRN,Int,Map[TaxCode,BigDecimal])], enterClaimAction: (Int,TaxCode) => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-claim.rejected-goods"}
-@title = @{messages(s"$key.multiple.title")}
+@title = @{messages(s"check-claim.rejected-goods.multiple.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
@@ -53,29 +53,29 @@
     @heading(Html(title))
 
     @for((mrn, index, claim) <- claims){
-        @subHeading(Html(messages(s"$key.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value)), classes = "govuk-heading-m heading-mrn")
+        @subHeading(Html(messages(s"check-claim.rejected-goods.multiple.duty.label",OrdinalNumber.label(index).capitalize, mrn.value)), classes = "govuk-heading-m heading-mrn")
         @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_),Some(index)))
     }
 
-    @subHeading(Html(messages(s"$key.multiple.overall-total.header")), classes = "govuk-heading-m")
+    @subHeading(Html(messages(s"check-claim.rejected-goods.multiple.overall-total.header")), classes = "govuk-heading-m")
     @summary(ReimbursementsClaimsSummary.multipleOverallTotalRow(claims, key))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.are-duties-correct"),
+            legend = messages(s"check-claim.rejected-goods.are-duties-correct"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = Text(messages(s"check-claim.rejected-goods.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = Text(messages(s"check-claim.rejected-goods.no")),
                     checked = false
                 )
             )

@@ -22,7 +22,7 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.Html
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.error_template
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
 import javax.inject.Inject
@@ -31,7 +31,7 @@ import javax.inject.Singleton
 @Singleton
 class ErrorHandler @Inject() (
   val messagesApi: MessagesApi,
-  error_template: views.html.error_template
+  error_template: error_template
 )(implicit
   val appConfig: ViewConfig
 ) extends FrontendErrorHandler {

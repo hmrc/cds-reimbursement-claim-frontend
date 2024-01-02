@@ -32,22 +32,22 @@
 @(enterMRN: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"declaration-not-found"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"declaration-not-found.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.because")))
+    @paragraph(Html(messages(s"declaration-not-found.because")))
 
     @bullets(
         Seq(
-            Html(messages(s"$key.point.1"))
+            Html(messages(s"declaration-not-found.point.1"))
         )
     )
 
-    @paragraph(Html(messages(s"$key.must-be")))
-    @paragraph(Html(messages(s"$key.already-paid", routes.LandingPageController.showLandingPage().url)))
+    @paragraph(Html(messages(s"declaration-not-found.must-be")))
+    @paragraph(Html(messages(s"declaration-not-found.already-paid", routes.LandingPageController.showLandingPage().url)))
 
     @formWithCSRF(enterMRN, 'novalidate -> "novalidate") {
-        @submitButton(s"$key.submit")
+        @submitButton(s"declaration-not-found.submit")
     }
 }

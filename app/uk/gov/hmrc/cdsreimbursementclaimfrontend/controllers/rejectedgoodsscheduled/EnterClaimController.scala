@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_claim_scheduled
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,7 +41,7 @@ import scala.concurrent.Future
 @Singleton
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterClaimPage: pages.enter_claim_scheduled
+  enterClaimPage: enter_claim_scheduled
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 

@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_or_change_method_of_disposal
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 @Singleton
 class DisposalMethodController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterOrChangeMethodOfDisposal: pages.enter_or_change_method_of_disposal
+  enterOrChangeMethodOfDisposal: enter_or_change_method_of_disposal
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with Logging {

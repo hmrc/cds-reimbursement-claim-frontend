@@ -31,7 +31,7 @@
 @(form: Form[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-special-circumstances.rejected-goods"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"enter-special-circumstances.rejected-goods.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -46,9 +46,9 @@
             id = key,
             name = key,
             isPageHeading = true,
-            label = s"$key.label",
+            label = s"enter-special-circumstances.rejected-goods.label",
             labelClasses = Some("govuk-label govuk-label--xl"),
-            hint = Some(s"$key.label"),
+            hint = Some(s"enter-special-circumstances.rejected-goods.label"),
             value = form(key).value,
             maxLength = Some(500)
         )

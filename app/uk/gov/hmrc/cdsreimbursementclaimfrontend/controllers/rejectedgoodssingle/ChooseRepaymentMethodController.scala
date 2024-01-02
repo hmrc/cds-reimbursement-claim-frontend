@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_repayment_method
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class ChooseRepaymentMethodController @Inject() (
   val jcc: JourneyControllerComponents,
-  chooseReimbursementMethod: pages.choose_repayment_method
+  chooseReimbursementMethod: choose_repayment_method
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 

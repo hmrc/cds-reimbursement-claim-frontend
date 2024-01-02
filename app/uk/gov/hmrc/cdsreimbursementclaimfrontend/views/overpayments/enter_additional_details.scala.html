@@ -36,7 +36,7 @@
 @(form: Form[_], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-additional-details"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"enter-additional-details.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -46,18 +46,18 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text")))
+    @paragraph(Html(messages(s"enter-additional-details.help-text")))
 
     @bulletList(
         Seq(
-            Html(messages(s"$key.bullet.1")),
-            Html(messages(s"$key.bullet.2")),
-            Html(messages(s"$key.bullet.3")),
-            Html(messages(s"$key.bullet.4"))
+            Html(messages(s"enter-additional-details.bullet.1")),
+            Html(messages(s"enter-additional-details.bullet.2")),
+            Html(messages(s"enter-additional-details.bullet.3")),
+            Html(messages(s"enter-additional-details.bullet.4"))
         )
     )
 
-    @paragraph(Html(messages(s"$key.p1")))
+    @paragraph(Html(messages(s"enter-additional-details.p1")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -66,9 +66,9 @@
             id = key,
             name = key,
             isPageHeading = false,
-            label = s"$key.label",
+            label = s"enter-additional-details.label",
             labelClasses = Some("govuk-visually-hidden"),
-            hint = Some(s"$key.hint"),
+            hint = Some(s"enter-additional-details.hint"),
             value = form(key).value,
             maxLength = Some(500)
         )

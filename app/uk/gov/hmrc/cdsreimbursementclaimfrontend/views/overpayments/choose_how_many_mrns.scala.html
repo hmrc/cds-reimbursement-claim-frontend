@@ -45,15 +45,15 @@
 @(form: Form[OverpaymentsJourneyType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"overpayments.choose-how-many-mrns"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"overpayments.choose-how-many-mrns.title")}
 
 @inset = {
-    @subHeading(Html(messages(s"$key.inset.title")), classes = "govuk-heading-s")
-    @paragraph(Html(messages(s"$key.inset.paragraph-xi-info")))
+    @subHeading(Html(messages(s"overpayments.choose-how-many-mrns.inset.title")), classes = "govuk-heading-s")
+    @paragraph(Html(messages(s"overpayments.choose-how-many-mrns.inset.paragraph-xi-info")))
     @bullets(Seq(
-        Html(messages(s"$key.inset.bullet.importer")),
-        Html(messages(s"$key.inset.bullet.reason")),
-        Html(messages(s"$key.inset.bullet.mop"))
+        Html(messages(s"overpayments.choose-how-many-mrns.inset.bullet.importer")),
+        Html(messages(s"overpayments.choose-how-many-mrns.inset.bullet.reason")),
+        Html(messages(s"overpayments.choose-how-many-mrns.inset.bullet.mop"))
     ))
 }
 
@@ -65,9 +65,9 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.p1")))
+    @paragraph(Html(messages(s"overpayments.choose-how-many-mrns.p1")))
 
-    @paragraph(Html(messages(s"$key.p2")))
+    @paragraph(Html(messages(s"overpayments.choose-how-many-mrns.p2")))
 
     @insetText(content = HtmlContent(inset))
 
@@ -81,23 +81,23 @@
             classes = "govuk-visually-hidden",
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key.individual"),
+                    id = Some(s"overpayments.choose-how-many-mrns.individual"),
                     value = Some(Individual.toString),
-                    content = HtmlContent(messages(s"$key.individual.title")),
+                    content = HtmlContent(messages(s"overpayments.choose-how-many-mrns.individual.title")),
                     checked = form.value.contains(Individual)
                 ),
                 RadioItem(
-                    id = Some(s"$key.multiple"),
+                    id = Some(s"overpayments.choose-how-many-mrns.multiple"),
                     value = Some(Multiple.toString),
-                    content = HtmlContent(messages(s"$key.multiple.title")),
-                    hint = Some(Hint(content = HtmlContent(messages(s"$key.multiple.hint")))),
+                    content = HtmlContent(messages(s"overpayments.choose-how-many-mrns.multiple.title")),
+                    hint = Some(Hint(content = HtmlContent(messages(s"overpayments.choose-how-many-mrns.multiple.hint")))),
                     checked = form.value.contains(Multiple)
                 ),
                 RadioItem(
-                    id = Some(s"$key.scheduled"),
+                    id = Some(s"overpayments.choose-how-many-mrns.scheduled"),
                     value = Some(Scheduled.toString),
-                    content = HtmlContent(messages(s"$key.scheduled.title")),
-                    hint = Some(Hint(content = HtmlContent(messages(s"$key.scheduled.hint")))),
+                    content = HtmlContent(messages(s"overpayments.choose-how-many-mrns.scheduled.title")),
+                    hint = Some(Hint(content = HtmlContent(messages(s"overpayments.choose-how-many-mrns.scheduled.hint")))),
                     checked = form.value.contains(Scheduled)
                 )
             )

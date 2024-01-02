@@ -34,7 +34,7 @@
 @(form: Form[PayeeType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-payee-type"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"choose-payee-type.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -54,15 +54,15 @@
             inline = false,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key-importer"),
+                    id = Some(s"choose-payee-type-importer"),
                     value = Some("Consignee"),
-                    content = Text(messages(s"$key.radio.importer")),
+                    content = Text(messages(s"choose-payee-type.radio.importer")),
                     checked = form.value.contains(PayeeType.Consignee)
                 ),
                 RadioItem(
-                    id = Some(s"$key-declarant"),
+                    id = Some(s"choose-payee-type-declarant"),
                     value = Some("Declarant"),
-                    content = Text(messages(s"$key.radio.declarant")),
+                    content = Text(messages(s"choose-payee-type.radio.declarant")),
                     checked = form.value.contains(PayeeType.Declarant)
                 )
             )

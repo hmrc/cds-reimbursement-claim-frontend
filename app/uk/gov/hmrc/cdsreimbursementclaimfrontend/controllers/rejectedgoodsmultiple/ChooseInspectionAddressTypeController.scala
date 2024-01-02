@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoods => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_inspection_address_type
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 class ChooseInspectionAddressTypeController @Inject() (
   val jcc: JourneyControllerComponents,
   val addressLookupService: AddressLookupService,
-  val inspectionAddressPage: pages.choose_inspection_address_type
+  val inspectionAddressPage: choose_inspection_address_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends RejectedGoodsMultipleJourneyBaseController
     with RejectedGoodsInspectionAddressLookupMixin {

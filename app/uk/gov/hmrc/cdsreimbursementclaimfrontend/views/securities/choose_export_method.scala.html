@@ -34,7 +34,7 @@
 @(form: Form[Option[TemporaryAdmissionMethodOfDisposal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-export-method"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"choose-export-method.title")}
 @radioItems = @{TemporaryAdmissionMethodOfDisposalSummary(messages, form)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -52,7 +52,7 @@
             name = key,
             legend = "",
             legendAsHeading = false,
-            hintKey = Some(s"$key.help-text"),
+            hintKey = Some(s"choose-export-method.help-text"),
             classes = "govuk-fieldset__legend govuk-fieldset__legend--m",
             inline = false,
             items = radioItems

@@ -63,7 +63,7 @@ class ChooseFileTypeControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "supporting-evidence.choose-document-type"
+  private val messagesKey: String = "choose-file-type"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
@@ -78,7 +78,7 @@ class ChooseFileTypeControllerSpec
         ("Correspondence between trader and agent", "CorrespondenceTrader"),
         ("Import and export declaration", "ImportAndExportDeclaration"),
         ("Packing list", "PackingList"),
-        ("Proof of authority", "ProofOfAuthority"),
+        ("Letter of authority", "ProofOfAuthority"),
         ("Substitute entry", "SubstituteEntry"),
         ("Other documents", "Other")
       )

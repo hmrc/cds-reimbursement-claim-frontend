@@ -45,7 +45,7 @@
 @(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-declaration-details"}
-@title = @{if(isDuplicate) messages(s"$key.duplicate.title") else messages(s"$key.title")}
+@title = @{if(isDuplicate) messages(s"check-declaration-details.duplicate.title") else messages(s"check-declaration-details.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -55,39 +55,39 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+    @paragraph(Html(messages(s"check-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @dropdownDetails(
-            summary = s"$key.details.title",
+            summary = s"check-declaration-details.details.title",
             html(
-                subHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"$key.details.p1"))),
-                subHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"$key.details.p2")))
+                subHeading(Html(messages(s"check-declaration-details.details.h1")), classes = "govuk-heading-s"),
+                paragraph(Html(messages(s"check-declaration-details.details.p1"))),
+                subHeading(Html(messages(s"check-declaration-details.details.h2")), classes = "govuk-heading-s"),
+                paragraph(Html(messages(s"check-declaration-details.details.p2")))
             )
         )
 
         @summary(CdsDisplayDeclarationSummary.render(declaration, key, subKey))
 
-        @if(isSubsidy && subKey.exists(key => key == "multiple" || key == "scheduled")){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
+        @if(isSubsidy && subKey.exists(key => key == "multiple" || key == "scheduled")){@warningText(WarningText(content = Text(messages(s"check-declaration-details.multiple.subsidy-warning"))))}
 
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.is-information-correct"),
+            legend = messages(s"check-declaration-details.is-information-correct"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = HtmlContent(messages(s"$key.yes")),
+                    content = HtmlContent(messages(s"check-declaration-details.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = HtmlContent(messages(s"$key.no")),
+                    content = HtmlContent(messages(s"check-declaration-details.no")),
                     checked = false
                 )
             )

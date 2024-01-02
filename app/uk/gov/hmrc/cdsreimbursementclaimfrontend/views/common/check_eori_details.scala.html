@@ -41,7 +41,7 @@
 @(eori: Eori, name: String, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-eori-details"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"check-eori-details.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -53,25 +53,25 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"$key.paragraph", viewConfig.eoriNumberHelpUrl)))
+        @paragraph(Html(messages(s"check-eori-details.paragraph", viewConfig.eoriNumberHelpUrl)))
 
         @summary(SummaryList(eoriDetailsHelper.eoriSummary(eori, name)))
 
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.eori-correct-label"),
+            legend = messages(s"check-eori-details.eori-correct-label"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"$key.eori-correct")),
+                    content = Text(messages(s"check-eori-details.eori-correct")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"$key.eori-incorrect")),
+                    content = Text(messages(s"check-eori-details.eori-incorrect")),
                     checked = false
                 )
             )

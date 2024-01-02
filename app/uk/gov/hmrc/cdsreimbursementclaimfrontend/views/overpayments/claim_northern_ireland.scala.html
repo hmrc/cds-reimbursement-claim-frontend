@@ -38,7 +38,7 @@
 @(form: Form[YesNo], subkey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"claim-northern-ireland"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"claim-northern-ireland.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -59,15 +59,15 @@
             inline = true,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key-yes"),
+                    id = Some(s"claim-northern-ireland-yes"),
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes.title")),
+                    content = Text(messages(s"claim-northern-ireland.yes.title")),
                     checked = form.value.contains(Yes)
                 ),
                 RadioItem(
-                    id = Some(s"$key-no"),
+                    id = Some(s"claim-northern-ireland-no"),
                     value = Some("false"),
-                    content = Text(messages(s"$key.no.title")),
+                    content = Text(messages(s"claim-northern-ireland.no.title")),
                     checked = form.value.contains(No)
                 )
             )

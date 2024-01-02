@@ -41,8 +41,8 @@
 @(form: Form[YesNo], declaration: DisplayDeclaration, securityDepositId: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-securities"}
-@title = @{messages(s"$key.title")}
-@caption = @{messages(s"$key.title.caption", currentIndex, maxIndex)}
+@title = @{messages(s"select-securities.title")}
+@caption = @{messages(s"select-securities.title.caption", currentIndex, maxIndex)}
 @pageTitleWithCaption = @{s"$caption: $title"}
 @currentIndex = @{declaration.getSecurityDepositIdIndex(securityDepositId) + 1}
 @maxIndex = @{declaration.getNumberOfSecurityDeposits}
@@ -57,27 +57,27 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @subHeading(Html(messages(s"$key.securityId",securityDepositId)))
+        @subHeading(Html(messages(s"select-securities.securityId",securityDepositId)))
 
         @summary(SecurityDetailsSummary(declaration, securityDepositId, key))
 
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.legend"),
+            legend = messages(s"select-securities.legend"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key-yes"),
+                    id = Some(s"select-securities-yes"),
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = Text(messages(s"select-securities.yes")),
                     checked = form.value.contains(Yes)
                 ),
                 RadioItem(
-                    id = Some(s"$key-no"),
+                    id = Some(s"select-securities-no"),
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = Text(messages(s"select-securities.no")),
                     checked = form.value.contains(No)
                 )
             )

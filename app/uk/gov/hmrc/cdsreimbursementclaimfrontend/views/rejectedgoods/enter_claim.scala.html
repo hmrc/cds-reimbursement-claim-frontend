@@ -42,9 +42,9 @@
 
 @key = @{"enter-claim.rejected-goods"}
 @title = @{messages(combine(key, subKey, "title"), taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumber.label(indexOpt.getOrElse(0)))}
-@hintText = @{Html(messages(s"$key.claim-amount.hint"))}
+@hintText = @{Html(messages(s"enter-claim.rejected-goods.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-@p1Text = @{ maybeMrn.fold(messages(s"$key.paragraph")) { mrn => messages(s"$key.for-mrn.paragraph", mrn.value)} }
+@p1Text = @{ maybeMrn.fold(messages(s"enter-claim.rejected-goods.paragraph")) { mrn => messages(s"enter-claim.rejected-goods.for-mrn.paragraph", mrn.value)} }
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
@@ -55,20 +55,20 @@
     @paragraph(Html(p1Text))
 
     @if(isSubsidy) {
-        @paragraph(Html(messages(s"$key.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
+        @paragraph(Html(messages(s"enter-claim.rejected-goods.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
     }
 
-    @paragraph(Html(messages(s"$key.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8 govuk-!-margin-top-0"))
+    @paragraph(Html(messages(s"enter-claim.rejected-goods.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8 govuk-!-margin-top-0"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
+        @paragraph(Html(messages(s"enter-claim.rejected-goods.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
 
         @inputText(
             form = form,
-            id = s"$key.claim-amount",
-            name = s"$key.claim-amount",
-            label = s"$key.claim-amount",
+            id = s"enter-claim.rejected-goods.claim-amount",
+            name = s"enter-claim.rejected-goods.claim-amount",
+            label = s"enter-claim.rejected-goods.claim-amount",
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
@@ -80,4 +80,3 @@
         @submitButton("button.continue")
     }
 }
-

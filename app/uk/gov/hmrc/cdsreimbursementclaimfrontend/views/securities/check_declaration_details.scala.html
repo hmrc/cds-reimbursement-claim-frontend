@@ -45,30 +45,28 @@
 
 @(displayDeclaration: DisplayDeclaration, correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{
-    "check-declaration-details"
-}
+@key = @{"check-declaration-details"}
 @title = @{
-    messages(s"$key.title")
+    messages(s"check-declaration-details.title")
 }
 
 @layout(pageTitle = Some(s"$title")) {
 
     @if(correctedAmounts.isEmpty) {
-        @notificationBanner(messages(s"$key.banner.empty-securities-selection"))
+        @notificationBanner(messages(s"check-declaration-details.banner.empty-securities-selection"))
     }
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+    @paragraph(Html(messages(s"check-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
     @dropdownDetails(
-        summary = s"$key.details.title",
+        summary = s"check-declaration-details.details.title",
         html(
-            subHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s"),
-            paragraph(Html(messages(s"$key.details.p1"))),
-            subHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s"),
-            paragraph(Html(messages(s"$key.details.p2")))
+            subHeading(Html(messages(s"check-declaration-details.details.h1")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"check-declaration-details.details.p1"))),
+            subHeading(Html(messages(s"check-declaration-details.details.h2")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"check-declaration-details.details.p2")))
         )
     )
 
@@ -90,7 +88,7 @@
             } else {
                 Seq(
                     SummaryListRow(
-                        key = Key(Text(messages(s"$key.method-of-payment-label"))),
+                        key = Key(Text(messages(s"check-declaration-details.method-of-payment-label"))),
                         value = Value(Text(
                             messages(
                                 if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(correctedAmounts.keySet)) {
@@ -115,4 +113,3 @@
         }
     }
 }
-

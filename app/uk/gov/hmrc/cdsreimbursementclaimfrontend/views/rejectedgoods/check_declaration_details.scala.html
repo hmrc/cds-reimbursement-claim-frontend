@@ -45,8 +45,8 @@
 @(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @subKeyDetail = @{subKey.map(sk => s".$sk").getOrElse("")}
-@key = @{s"check-declaration-details"}
-@title = @{if(isDuplicate) messages(s"$key.duplicate.title") else messages(s"$key.title")}
+@key = @{"check-declaration-details"}
+@title = @{if(isDuplicate) messages(s"check-declaration-details.duplicate.title") else messages(s"check-declaration-details.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -56,14 +56,14 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+    @paragraph(Html(messages(s"check-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
-    @dropdownDetails(summary = s"$key.details.title",
+    @dropdownDetails(summary = s"check-declaration-details.details.title",
         html(
-            subHeading(Html(messages(s"$key.details.h1")), classes = "govuk-heading-s"),
-            paragraph(Html(messages(s"$key.details.p1"))),
-            subHeading(Html(messages(s"$key.details.h2")), classes = "govuk-heading-s"),
-            paragraph(Html(messages(s"$key.details.p2")))
+            subHeading(Html(messages(s"check-declaration-details.details.h1")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"check-declaration-details.details.p1"))),
+            subHeading(Html(messages(s"check-declaration-details.details.h2")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"check-declaration-details.details.p2")))
         )
     )
 
@@ -71,23 +71,23 @@
 
         @summary(CdsDisplayDeclarationSummary.render(declaration, key, None))
 
-        @if(isSubsidy && subKey.exists(key => key == "multiple" || key == "scheduled")){@warningText(WarningText(content = Text(messages(s"$key.multiple.subsidy-warning"))))}
+        @if(isSubsidy && subKey.exists(key => key == "multiple" || key == "scheduled")){@warningText(WarningText(content = Text(messages(s"check-declaration-details.multiple.subsidy-warning"))))}
 
         @radios(
             form = form,
-            name = s"$key",
-            legend = messages(s"$key$subKeyDetail.is-information-correct"),
+            name = s"check-declaration-details",
+            legend = messages(s"check-declaration-details$subKeyDetail.is-information-correct"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = Text(messages(s"check-declaration-details.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = Text(messages(s"check-declaration-details.no")),
                     checked = false
                 )
             )

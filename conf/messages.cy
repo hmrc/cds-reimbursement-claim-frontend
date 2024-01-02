@@ -281,45 +281,6 @@ address-line2.error.pattern=Nodwch gyfeiriad dilys – llinell 2
 address-line3.error.pattern=Nodwch gyfeiriad dilys – llinell 3
 address-line4.error.pattern=Nodwch dref neu ddinas ddilys
 
-
-#===================================================
-#  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
-#===================================================
-enter-your-contact-details.help-text=Dyma’r manylion cyswllt y byddwn yn eu defnyddio os bydd angen i ni gysylltu ynghylch yr hawliad hwn.
-enter-your-contact-details.title=Nodwch eich manylion cyswllt
-enter-your-contact-details.caption=Manylion cyswllt
-enter-your-contact-details.help-text=Dyma’r manylion cyswllt y byddwn yn eu defnyddio os bydd angen i ni gysylltu ynghylch yr hawliad hwn.
-enter-your-contact-details.contact-name.label=Enw llawn
-enter-your-contact-details.contact-name.error.required=Nodwch eich enw llawn
-enter-your-contact-details.contact-name.error.maxLength=Nodwch enw byrrach
-enter-your-contact-details.contact-email.label=Cyfeiriad e-bost
-enter-your-contact-details.contact-email.error.required=Nodwch gyfeiriad e-bost dilys
-enter-your-contact-details.contact-email.error.maxLength=Nodwch gyfeiriad e-bost dilys
-enter-your-contact-details.contact-email.invalid=Nodwch gyfeiriad e-bost dilys
-enter-your-contact-details.contact-phone-number.error.required=Nodwch rif ffôn dilys
-enter-your-contact-details.contact-phone-number.error.maxLength=Nodwch rif ffôn dilys
-enter-your-contact-details.contact-phone-number.invalid=Nodwch rif ffôn dilys
-enter-your-contact-details.contact-phone-number.label=Rhif ffôn
-enter-your-contact-details.contact-phone-number.help=Ar gyfer rhifau rhyngwladol, cofiwch gynnwys cod y wlad.
-enter-your-contact-details.importer-contact-address.label=Cyfeiriad cyswllt
-enter-your-contact-details.address.building.label=Rhif neu enw’r adeilad
-enter-your-contact-details.address-building.error.required=Nodwch rif neu enw’r adeilad
-enter-your-contact-details.address.line1.label=Cyfeiriad – llinell 1
-enter-your-contact-details.address.line1.error.required=Nodwch gyfeiriad – llinell 1
-enter-your-contact-details.address-line1.error.required=Nodwch gyfeiriad – llinell 1
-enter-your-contact-details.address.line2.label=Cyfeiriad – llinell 2 (dewisol)
-enter-your-contact-details.address.line3.label=Cyfeiriad – llinell 3 (dewisol)
-enter-your-contact-details.address.line4.label=Tref neu ddinas
-enter-your-contact-details.address-line4.error.required=Nodwch dref neu ddinas
-enter-your-contact-details.address.line5.label=Cod post
-enter-your-contact-details.address.line6.label=Gwlad
-enter-your-contact-details.countryCode.error.required=Nodwch wlad
-enter-your-contact-details.add-company-details.label=<h2>A ydych am ychwanegu manylion y cwmni?</h2>
-enter-your-contact-details.add-company-details.no=Na
-enter-your-contact-details.add-company-details.yes=Iawn
-enter-your-contact-details.add-company-details.error.required=Dewiswch os ydych am ychwanegu manylion y cwmni
-countryCode.enter-your-contact-details.error.required=Nodwch wlad
-
 #===================================================
 #  CLAIMANT DETAILS PAGE
 #===================================================
@@ -796,7 +757,7 @@ enter-bank-account-details.error.INVALID_SORTCODE=Cod didoli annilys
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
-supporting-evidence.upload.details.heading=Enghreifftiau o ffeiliau
+choose-file-type.heading=Enghreifftiau o ffeiliau
 supporting-evidence.check-your-answers.title=Cadarnhewch mai dyma’r ffeiliau rydych chi am eu cyflwyno
 supporting-evidence.check-your-answers.help-text=Gallwch ychwanegu mwy o ffeiliau fel tystiolaeth i gefnogi’ch hawliad.
 supporting-evidence.check-your-answers.add-another-document-question=
@@ -828,7 +789,7 @@ supporting-evidence.scan-failed.l4=gwnaethoch uwchlwytho ffeil sy’n fwy na 10M
 supporting-evidence.scan-failed.p2=Dim ond y mathau hyn o ffeiliau rydyn ni’n eu derbyn: JPG, PNG, a PDF.
 supporting-evidence.scan-failed.p3=Bydd angen i chi roi cynnig arall arni.
 supporting-evidence.scan-failed.button.tryAgain=Rhowch gynnig arall arni
-supporting-evidence.choose-document-type.title=Dewiswch ddisgrifiad o’r ffeil rydych chi newydd ei huwchlwytho
+
 supporting-evidence.choose-document-type.error.number=Dewiswch fath o ffeil i gefnogi’ch hawliad
 supporting-evidence.choose-document-type.error.required=Dewiswch fath o ffeil i gefnogi’ch hawliad
 supporting-evidence.choose-document-type.help-text=Dewiswch ddiffiniad o’r ffeil o’r rhestr hon. Bydd hyn yn ein helpu i brosesu’ch hawliad yn fwy effeithlon.

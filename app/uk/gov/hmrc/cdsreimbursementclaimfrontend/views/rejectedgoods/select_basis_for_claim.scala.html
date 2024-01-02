@@ -37,14 +37,14 @@
 @(form: Form[BasisOfRejectedGoodsClaim], claimTypes: Set[BasisOfRejectedGoodsClaim], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-basis-for-claim.rejected-goods"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"select-basis-for-claim.rejected-goods.title")}
 
 @radioItems = @{
   claimTypes.map { basisOfClaim =>
     RadioItem(
-      id = Some(s"$key-radio-$basisOfClaim"),
+      id = Some(s"select-basis-for-claim.rejected-goods-radio-$basisOfClaim"),
       value = Some(basisOfClaim.toString),
-      content = HtmlContent(messages(s"$key.reason.$basisOfClaim")),
+      content = HtmlContent(messages(s"select-basis-for-claim.rejected-goods.reason.$basisOfClaim")),
       checked = form.value.contains(basisOfClaim)
     )
   }.toList

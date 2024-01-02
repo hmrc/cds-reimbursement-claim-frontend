@@ -42,7 +42,7 @@
 @(form: Form[YesNo], mrn: MRN, claims: Seq[(TaxCode, BigDecimal)], enterClaimAction: TaxCode => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-claim.rejected-goods"}
-@title = @{messages(s"$key.single.title")}
+@title = @{messages(s"check-claim.rejected-goods.single.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
@@ -51,9 +51,9 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.description")))
+    @paragraph(Html(messages(s"check-claim.rejected-goods.description")))
 
-    @subHeading(Html(messages(s"$key.single.label", mrn.value)), classes = "govuk-heading-m")
+    @subHeading(Html(messages(s"check-claim.rejected-goods.single.label", mrn.value)), classes = "govuk-heading-m")
 
     @summary(ReimbursementsClaimsSummary.singleFull(claims, key, enterClaimAction, None))
 
@@ -61,18 +61,18 @@
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.are-duties-correct"),
+            legend = messages(s"check-claim.rejected-goods.are-duties-correct"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"$key.yes")),
+                    content = Text(messages(s"check-claim.rejected-goods.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"$key.no")),
+                    content = Text(messages(s"check-claim.rejected-goods.no")),
                     checked = false
                 )
             )

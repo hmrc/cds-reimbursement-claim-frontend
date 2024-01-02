@@ -195,7 +195,7 @@ trait UploadFilesMixin extends JourneyBaseController {
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
-      title = messages("choose-files.rejected-goods.title", documentTypeLabel),
+      title = messages("choose-files.title", documentTypeLabel),
       descriptionHtml = descriptionHtml,
       serviceUrl = viewConfig.homePageUrl,
       accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
@@ -207,14 +207,13 @@ trait UploadFilesMixin extends JourneyBaseController {
       timeoutSeconds = viewConfig.ggTimeoutSeconds.toInt,
       countdownSeconds = viewConfig.ggCountdownSeconds.toInt,
       pageTitleClasses = "govuk-heading-xl",
-      allowedFilesTypesHint = messages("choose-files.rejected-goods.allowed-file-types"),
+      allowedFilesTypesHint = messages("choose-files.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
-      chooseFirstFileLabel = messages("choose-files.rejected-goods.choose.first.label", documentTypeLabel),
-      chooseNextFileLabel = Some(messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel)),
-      addAnotherDocumentButtonText = Some(messages("choose-files.rejected-goods.choose.next.label", documentTypeLabel)),
-      yesNoQuestionText = Some(messages("choose-files.rejected-goods.add-another-document-question")),
-      yesNoQuestionRequiredError =
-        Some(messages("choose-files.rejected-goods.add-another-document-question.error.required"))
+      chooseFirstFileLabel = messages("choose-files.choose.first.label", documentTypeLabel),
+      chooseNextFileLabel = Some(messages("choose-files.choose.next.label", documentTypeLabel)),
+      addAnotherDocumentButtonText = Some(messages("choose-files.choose.next.label", documentTypeLabel)),
+      yesNoQuestionText = Some(messages("choose-files.add-another-document-question")),
+      yesNoQuestionRequiredError = Some(messages("choose-files.add-another-document-question.error.required"))
     )
   }
 

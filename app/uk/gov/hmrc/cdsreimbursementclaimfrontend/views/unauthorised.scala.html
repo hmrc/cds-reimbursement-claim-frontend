@@ -28,10 +28,10 @@
 @()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"unauthorised"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"unauthorised.title")}
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"$key.help")))
-    @paragraph(Html(messages(s"$key.help-text", viewConfig.eoriNumberHelpUrl)))
+    @paragraph(Html(messages(s"unauthorised.help")))
+    @paragraph(Html(messages(s"unauthorised.help-text", viewConfig.eoriNumberHelpUrl)))
 }

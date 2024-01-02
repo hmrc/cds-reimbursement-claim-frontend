@@ -38,19 +38,19 @@
 @(form: Form[Option[UploadDocumentType]], availableFileTypes: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"choose-file-type"}
-    @title = @{messages(s"$key.securities.title")}
+    @title = @{messages(s"choose-file-type.securities.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @radioItems = @{
         availableFileTypes.map { fileType =>
             val fileTypeKey = UploadDocumentType.keyOf(fileType)
-            val hintKey = s"$key.file-type.$fileTypeKey.hint"
+            val hintKey = s"choose-file-type.file-type.$fileTypeKey.hint"
             RadioItem(
-                id = Some(s"$key.file-type.$fileTypeKey"),
+                id = Some(s"choose-file-type.file-type.$fileTypeKey"),
                 value = Some(fileTypeKey),
-                content = Text(messages(s"$key.file-type.$fileTypeKey")),
-                checked = form(s"$key").value.exists(_.contains(fileTypeKey)),
+                content = Text(messages(s"choose-file-type.file-type.$fileTypeKey")),
+                checked = form(s"choose-file-type").value.exists(_.contains(fileTypeKey)),
                 hint = if(messages.isDefinedAt(hintKey)) Some(Hint(content = HtmlContent(messages(hintKey)))) else None
             )
         }  
@@ -62,7 +62,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"$key.securities.help-text")), Some("govuk-body govuk-!-margin-bottom-6 govuk-inset-text"))
+        @paragraph(Html(messages(s"choose-file-type.securities.help-text")), Some("govuk-body govuk-!-margin-bottom-6 govuk-inset-text"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

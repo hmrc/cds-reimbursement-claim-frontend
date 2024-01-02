@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_duty_codes
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,7 +38,7 @@ import scala.concurrent.Future
 @Singleton
 class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectDutyCodesPage: pages.select_duty_codes
+  selectDutyCodesPage: select_duty_codes
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 

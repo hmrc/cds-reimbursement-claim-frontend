@@ -34,7 +34,7 @@
 @(form: Form[Eori], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-declarant-eori-number"}
-    @title = @{messages(s"$key.title")}
+    @title = @{messages(s"enter-declarant-eori-number.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -44,7 +44,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"$key.help")), Some("govuk-body govuk-!-margin-bottom-4"))
+        @paragraph(Html(messages(s"enter-declarant-eori-number.help")), Some("govuk-body govuk-!-margin-bottom-4"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -52,9 +52,9 @@
                 form = form,
                 id = key,
                 name = key,
-                label = s"$key.input-label",
+                label = s"enter-declarant-eori-number.input-label",
                 isPageHeading = false,
-                hint = Some(s"$key.help-text"),
+                hint = Some(s"enter-declarant-eori-number.help-text"),
                 classes = Some("govuk-input--width-20")
             )
 

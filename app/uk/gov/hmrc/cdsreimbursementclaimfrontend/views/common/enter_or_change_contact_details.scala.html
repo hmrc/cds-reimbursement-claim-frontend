@@ -36,7 +36,7 @@
 
 @key = @{"enter-contact-details"}
 
-@title = @{if (confirmContactDetails) messages(s"$key.confirm.title") else messages(s"$key.change.title")}
+@title = @{if (confirmContactDetails) messages(s"enter-contact-details.confirm.title") else messages(s"enter-contact-details.change.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -46,15 +46,15 @@
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(s"$key.h2")), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @subHeading(Html(messages(s"enter-contact-details.h2")), classes = "govuk-heading-m govuk-!-margin-top-7")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @inputText(
             form = form,
-            id = s"$key.contact-name",
-            name = s"$key.contact-name",
-            label = s"$key.contact-name.label",
+            id = s"enter-contact-details.contact-name",
+            name = s"enter-contact-details.contact-name",
+            label = s"enter-contact-details.contact-name.label",
             isPageHeading = false,
             autocomplete = Some("name"),
             classes = Some("govuk-input--width-20")
@@ -62,9 +62,9 @@
 
         @inputText(
             form = form,
-            id = s"$key.contact-email",
-            name = s"$key.contact-email",
-            label = s"$key.contact-email.label",
+            id = s"enter-contact-details.contact-email",
+            name = s"enter-contact-details.contact-email",
+            label = s"enter-contact-details.contact-email.label",
             isPageHeading = false,
             inputType = "email",
             autocomplete = Some("email"),
@@ -74,9 +74,9 @@
 
         @inputText(
             form = form,
-            id = s"$key.contact-phone-number",
-            name = s"$key.contact-phone-number",
-            label = s"$key.contact-phone-number.label",
+            id = s"enter-contact-details.contact-phone-number",
+            name = s"enter-contact-details.contact-phone-number",
+            label = s"enter-contact-details.contact-phone-number.label",
             inputType = "tel",
             autocomplete = Some("tel"),
             isPageHeading = false,

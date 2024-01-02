@@ -36,13 +36,13 @@
 @(dutyType: DutyType, form: Form[List[TaxCode]], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-duty-codes"}
-@title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
+@title = @{messages(s"select-duty-codes.title", messages(s"select-duty-codes.h1.${dutyType.repr}"))}
 
 @options = @{
     if (isSubsidy) {
         dutyType.taxCodes.filter(_.isSubsidy).map { dutyCode =>
             CheckboxItem(
-                name = Some(s"$key[]"),
+                name = Some(s"select-duty-codes[]"),
                 value = dutyCode.value,
                 content = Text(messages(s"tax-code.${dutyCode.value}")),
                 checked = form.data.exists(_._2 == dutyCode.value)
@@ -51,7 +51,7 @@
     } else {
         dutyType.taxCodes.map { dutyCode =>
             CheckboxItem(
-                name = Some(s"$key[]"),
+                name = Some(s"select-duty-codes[]"),
                 value = dutyCode.value,
                 content = Text(messages(s"tax-code.${dutyCode.value}")),
                 checked = form.data.exists(_._2 == dutyCode.value)
@@ -70,18 +70,18 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
+    @paragraph(Html(messages(s"select-duty-codes.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
 
-    @paragraph(Html(messages(s"$key.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
+    @paragraph(Html(messages(s"select-duty-codes.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
 
     @if(isSubsidy) {
-        @paragraph(Html(messages(s"$key.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
+        @paragraph(Html(messages(s"select-duty-codes.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
     }
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @checkboxes(
-            field = form(s"$key"),
+            field = form(s"select-duty-codes"),
             legend = HtmlContent(messages(s"duty-type.${dutyType.repr}")),
             legendAsHeading = false,
             items = options

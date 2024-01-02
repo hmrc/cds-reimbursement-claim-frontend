@@ -41,18 +41,18 @@
 @(form: Form[BasisOfOverpaymentClaim], claimTypes: Set[BasisOfOverpaymentClaim], basisOfClaimsHints: DropdownHints, subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-basis-for-claim"}
-@title = @{messages(s"$key.title")}
+@title = @{messages(s"select-basis-for-claim.title")}
 
 @radioItems = @{
   claimTypes.toList.sorted.map { basisOfClaim =>
-     val hint = if (messages.isDefinedAt(s"$key.reason.hint.$basisOfClaim"))
-            Some(Hint(content = HtmlContent(messages(s"$key.reason.hint.$basisOfClaim"))))
+     val hint = if (messages.isDefinedAt(s"select-basis-for-claim.reason.hint.$basisOfClaim"))
+            Some(Hint(content = HtmlContent(messages(s"select-basis-for-claim.reason.hint.$basisOfClaim"))))
         else
             None
     RadioItem(
-      id = Some(s"$key-radio-$basisOfClaim"),
+      id = Some(s"select-basis-for-claim-radio-$basisOfClaim"),
       value = Some(basisOfClaim.toString),
-      content = HtmlContent(messages(s"$key.reason.$basisOfClaim")),
+      content = HtmlContent(messages(s"select-basis-for-claim.reason.$basisOfClaim")),
       hint = hint,
       checked = form.value.contains(basisOfClaim)
     )
@@ -69,7 +69,7 @@
 
     @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-    @dropdownDetails(summary = s"$key.details.heading", content = basisOfClaimsHints.renderHintsWithLabels(key))
+    @dropdownDetails(summary = s"select-basis-for-claim.heading", content = basisOfClaimsHints.renderHintsWithLabels(key))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
