@@ -73,7 +73,7 @@ trait AddressLookupMixin extends JourneyBaseController {
             },
             contactAddress =>
               redirectToTheNextPage(
-                modifyJourney(journey, contactAddress)
+                modifyJourney(journey, contactAddress.removeRedundantInformation().overflowExcessCharacters())
               )
           )
       },

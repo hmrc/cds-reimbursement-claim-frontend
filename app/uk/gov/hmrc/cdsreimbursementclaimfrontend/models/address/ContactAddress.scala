@@ -17,10 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
-import play.api.i18n.Messages
-import play.api.libs.json.OFormat
 import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
+import scala.annotation.tailrec
+
+/** Address model returned from the Address Lookup Frontend service */
 final case class ContactAddress(
   line1: String,
   line2: Option[String],
@@ -30,6 +32,56 @@ final case class ContactAddress(
   country: Country,
   addressHasChanged: Boolean = false
 ) {
+
+  @tailrec
+  def overflowExcessCharacters(): ContactAddress =
+    this match {
+      case ca @ ContactAddress(line1, line2, _, _, _, _, _) if line1.length > 35 =>
+        val (l1, l2) = overflow(line1, line2, 35)
+        ca.copy(line1 = l1, line2 = l2).overflowExcessCharacters()
+
+      case ca @ ContactAddress(_, Some(line2), line3, _, _, _, _) if line2.length > 35 =>
+        val (l2, l3) = overflow(line2, line3, 35)
+        ca.copy(line2 = Some(l2), line3 = l3).overflowExcessCharacters()
+
+      case ca @ ContactAddress(_, _, Some(line3), _, _, _, _) if line3.length > 35 =>
+        val (l3, _) = overflow(line3, None, 35)
+        ca.copy(line3 = Some(l3))
+
+      case other =>
+        other
+    }
+
+  private def overflow(a: String, b: Option[String], maxLength: Int): (String, Option[String]) = {
+    val i       = a.take(maxLength).lastIndexOf(" ") match {
+      case i if i >= 0 => i
+      case _           => maxLength - 1
+    }
+    val a1      = a.take(i + 1)
+    val a1Check = a1.endsWith(" ")
+    val a2      = a.drop(i + 1)
+    val a2Check = a2.endsWith(".") || a2.endsWith(",") || a2.endsWith(";")
+    (
+      if (a1Check) a1.dropRight(1) else a1,
+      Some(a2 + b.map(l => if (a2Check) s" $l" else s", $l").getOrElse(""))
+    )
+  }
+
+  def removeRedundantInformation(): ContactAddress = {
+    val (l1, l2) = line2 match {
+      case Some(l2) if line1.trim().endsWith(l2.trim())   => (line1, None)
+      case Some(l2) if l2.trim().startsWith(line1.trim()) => (l2, None)
+      case _                                              => (line1, line2)
+    }
+    this.copy(
+      line1 = l1.trim(),
+      line2 = l2.map(_.trim()),
+      line3 = line3.map(_.trim()),
+      line4 = line4.trim(),
+      postcode = postcode.trim()
+    )
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[ContactAddress]): ContactAddress =
     previous.fold(this)(that =>
@@ -44,23 +96,6 @@ final case class ContactAddress(
 }
 
 object ContactAddress {
-
-  implicit class AddressOps(private val a: ContactAddress) extends AnyVal {
-
-    def getAddressLines(implicit messages: Messages): List[String] = {
-      val lines =
-        List(
-          Some(a.line1),
-          a.line2,
-          a.line3,
-          Some(a.line4),
-          Some(a.postcode),
-          messages.translate(s"country.${a.country.code}", Seq.empty)
-        )
-
-      lines.collect { case Some(s) => s }
-    }
-  }
 
   implicit val addressFormat: OFormat[ContactAddress] = Json.using[Json.WithDefaultValues].format[ContactAddress]
 
