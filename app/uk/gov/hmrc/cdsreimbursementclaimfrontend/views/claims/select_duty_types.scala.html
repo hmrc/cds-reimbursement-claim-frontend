@@ -37,7 +37,7 @@
 @(form: Form[List[DutyType]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-duty-types"}
-@title = @{messages(s"select-duty-types.title")}
+@title = @{messages(s"$key.title")}
 
 @customsOptions = @{
     DutyTypes.custom.map { dutyType =>
@@ -69,24 +69,24 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"select-duty-types.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
+    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
 
-    @paragraph(Html(messages(s"select-duty-types.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
+    @paragraph(Html(messages(s"$key.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         <div class="cds-combined-checkbox-groups">
 
             @checkboxes(
-                field = form(s"select-duty-types"),
-                legend = HtmlContent(messages(s"select-duty-types.checkbox-legend.1")),
+                field = form(s"$key"),
+                legend = HtmlContent(messages(s"$key.checkbox-legend.1")),
                 legendAsHeading = false,
                 items = customsOptions
             )
 
             @checkboxes(
-                field = form(s"select-duty-types"),
-                legend = HtmlContent(messages(s"select-duty-types.checkbox-legend.2")),
+                field = form(s"$key"),
+                legend = HtmlContent(messages(s"$key.checkbox-legend.2")),
                 legendAsHeading = false,
                 items = exciseOptions,
                 idPrefix = s"select-duty-types-excise",
