@@ -159,15 +159,15 @@ check-declaration-details.title=Check these declaration details are correct
 check-declaration-details.yes=Yes
 
 check-eori-details.eori-correct=Yes
-check-eori-details.eori-correct-label=Select yes if the EORI details are correct
+check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-incorrect=No
 check-eori-details.eori-number.label=EORI number
 check-eori-details.error.invalid=Select yes if the EORI details are correct
 check-eori-details.error.required=Select yes if the EORI details are correct
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.name.label=Name
-check-eori-details.paragraph=These are the EORI details associated with your Government Gateway Account.
-check-eori-details.title=Check these EORI details are correct
+check-eori-details.paragraph=This is the EORI number linked to your Government Gateway Account. Check these details are correct.
+check-eori-details.title=Check your EORI Number
 
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
 check-movement-reference-numbers.error.invalid=Select yes to add another Movement Reference Number (MRN)
