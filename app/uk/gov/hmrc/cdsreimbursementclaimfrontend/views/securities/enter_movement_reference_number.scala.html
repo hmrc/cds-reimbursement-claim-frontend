@@ -50,8 +50,6 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
-
         @dropdownDetails(summary = combine(key, subKey, "details.heading").head ,
         html(
             paragraph(Html(messages(combine(key, subKey, "details.paragraph").head)))
