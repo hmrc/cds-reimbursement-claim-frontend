@@ -27,6 +27,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -34,6 +36,7 @@
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
@@ -46,6 +49,7 @@
 
 @key = @{"overpayments.choose-how-many-mrns"}
 @title = @{messages(s"overpayments.choose-how-many-mrns.title")}
+
 
 @inset = {
     @subHeading(Html(messages(s"overpayments.choose-how-many-mrns.inset.title")), classes = "govuk-heading-s")
@@ -65,11 +69,10 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"overpayments.choose-how-many-mrns.p1")))
-
-    @paragraph(Html(messages(s"overpayments.choose-how-many-mrns.p2")))
-
-    @insetText(content = HtmlContent(inset))
+    @dropdownDetails(summary = s"overpayments.choose-how-many-mrns.details.heading",
+        html(
+            paragraph(Html(messages(s"overpayments.choose-how-many-mrns.details.paragraph")))
+    ))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -79,6 +82,7 @@
             legend = title,
             hintKey = None,
             classes = "govuk-visually-hidden",
+            paddingClasses = "govuk-!-margin-bottom-0",
             items = Seq(
                 RadioItem(
                     id = Some(s"overpayments.choose-how-many-mrns.individual"),
@@ -103,7 +107,8 @@
             )
         )
 
-        @submitButton("button.continue")
+        @insetText(content = HtmlContent(inset), classes = Some("govuk-!-margin-top-0"))
 
+        @submitButton("button.continue")
     }
 }

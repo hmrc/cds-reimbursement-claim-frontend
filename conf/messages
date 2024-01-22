@@ -1306,7 +1306,12 @@ overpayments.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a uniq
 overpayments.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agent.
 overpayments.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
 overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-overpayments.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit in this claim?
+overpayments.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit?
+overpayments.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
+overpayments.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+overpayments.choose-how-many-mrns.multiple-mrns.heading=Entering Multiple MRNs
+overpayments.choose-how-many-mrns.multiple-mrns.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+
 
 phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
 phasebanner.phase=Beta
@@ -1346,7 +1351,10 @@ rejected-goods.choose-how-many-mrns.p1-xi-info=A Movement Reference Number (MRN)
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agent.
 rejected-goods.choose-how-many-mrns.scheduled.hint=Create and upload a single list containing details of all MRNs.
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-rejected-goods.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit in this claim?
+rejected-goods.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit?
+rejected-goods.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
+rejected-goods.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+
 
 schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 schedule-document.upload.allowed-file-types=JPG, PNG, or PDF

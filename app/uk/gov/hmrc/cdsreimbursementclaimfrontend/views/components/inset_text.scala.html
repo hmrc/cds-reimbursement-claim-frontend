@@ -18,6 +18,12 @@
 
 @this(govukInsetText: GovukInsetText)
 
-@(content: Content, id: Option[String] = None)
+@(content: Content, id: Option[String] = None, classes: Option[String] = None)
 
-@govukInsetText(InsetText(id, content = content))
+@govukInsetText(
+ InsetText(
+  id,
+  classes = classes.getOrElse(""),
+  content = content
+ )
+)

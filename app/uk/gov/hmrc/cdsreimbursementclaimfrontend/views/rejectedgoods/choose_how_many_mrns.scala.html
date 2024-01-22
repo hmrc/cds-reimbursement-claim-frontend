@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -34,6 +35,7 @@
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
@@ -65,11 +67,10 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"rejected-goods.choose-how-many-mrns.${if (showXiContent) "p1-xi-info" else "p1"}")))
-
-    @paragraph(Html(messages(s"rejected-goods.choose-how-many-mrns.p2")))
-
-    @insetText(content = HtmlContent(inset))
+    @dropdownDetails(summary = s"rejected-goods.choose-how-many-mrns.details.heading",
+        html(
+            paragraph(Html(messages(s"rejected-goods.choose-how-many-mrns.details.paragraph")))
+    ))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -103,7 +104,8 @@
             )
         )
 
-        @submitButton("button.continue")
+        @insetText(content = HtmlContent(inset), classes = Some("govuk-!-margin-top-0"))
 
+        @submitButton("button.continue")
     }
 }
