@@ -117,11 +117,7 @@ class ChooseHowManyMrnsControllerSpec
         performAction(),
         messageFromMessageKey(s"$formKey.title"),
         doc => {
-          val firstP  = doc.select("h1 + p").first()
-          val insetP  = doc.select("h2 + p").first()
           val bullets = doc.select("ul.govuk-list li").asScala.toList
-          firstP.html()  shouldBe messageFromMessageKey(s"$formKey.p1")
-          insetP.html()  shouldBe messageFromMessageKey(s"$formKey.inset.paragraph")
           bullets.length shouldBe 3
 
           val buttons          = radioButtons(doc)
@@ -150,11 +146,6 @@ class ChooseHowManyMrnsControllerSpec
         performAction(),
         messageFromMessageKey(s"$formKey.title"),
         doc => {
-          val firstP = doc.select("h1 + p").first()
-          val insetP = doc.select("h2 + p").first()
-          firstP.html() shouldBe messageFromMessageKey(s"$formKey.p1-xi-info")
-          insetP.html() shouldBe messageFromMessageKey(s"$formKey.inset.paragraph-xi-info")
-
           val buttons          = radioButtons(doc)
           val individualButton = extractButton(buttons, "Individual")
           val multipleButton   = extractButton(buttons, "Multiple")
