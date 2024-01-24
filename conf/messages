@@ -1433,7 +1433,7 @@ select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Goods were d
 select-basis-for-claim.rejected-goods.reason.Defective=Goods are defective
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Goods are not in accordance with contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
-select-basis-for-claim.rejected-goods.title=Choose the reason for making this claim
+select-basis-for-claim.rejected-goods.title=Why are you making this claim?
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.title=Choose the reason for making this claim
 
