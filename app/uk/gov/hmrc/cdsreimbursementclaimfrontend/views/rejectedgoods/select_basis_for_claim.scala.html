@@ -36,7 +36,6 @@
 
 @(form: Form[BasisOfRejectedGoodsClaim], claimTypes: Set[BasisOfRejectedGoodsClaim], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"select-basis-for-claim.rejected-goods"}
 @title = @{messages(s"select-basis-for-claim.rejected-goods.title")}
 
 @radioItems = @{
@@ -58,11 +57,13 @@
 
     @heading(Html(title))
 
+    @paragraph(Html(messages(s"select-basis-for-claim.rejected-goods.p1")))
+
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
-            name = key,
+            name = "select-basis-for-claim.rejected-goods",
             legend = title,
             classes = "govuk-visually-hidden",
             items = radioItems
