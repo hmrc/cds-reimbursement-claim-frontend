@@ -1433,6 +1433,7 @@ select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Goods were d
 select-basis-for-claim.rejected-goods.reason.Defective=Goods are defective
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Goods are not in accordance with contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
+select-basis-for-claim.rejected-goods.p1=Select one option from the list
 select-basis-for-claim.rejected-goods.title=Why are you making this claim?
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.title=Choose the reason for making this claim
@@ -1557,7 +1558,8 @@ select-method-of-disposal.rejected-goods.method.Export=Return the goods by road,
 select-method-of-disposal.rejected-goods.method.ExportInBaggage=Return the goods in person or by hand
 select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Place the goods in a customs warehouse
 select-method-of-disposal.rejected-goods.method.PostalExport=Return the goods by post
-select-method-of-disposal.rejected-goods.title=Choose how you will dispose of the goods
+select-method-of-disposal.rejected-goods.p1=Select one option from the list
+select-method-of-disposal.rejected-goods.title=How will you dispose of the goods?
 
 select-securities.acceptance-date-label=Acceptance date
 select-securities.bta-due-date-label=Date duty collected
