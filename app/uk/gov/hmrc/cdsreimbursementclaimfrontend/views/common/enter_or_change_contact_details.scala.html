@@ -46,8 +46,6 @@
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(s"enter-contact-details.h2")), classes = "govuk-heading-m govuk-!-margin-top-7")
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @inputText(
