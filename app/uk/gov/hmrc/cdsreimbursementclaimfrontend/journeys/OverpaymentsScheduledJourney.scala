@@ -187,7 +187,7 @@ final class OverpaymentsScheduledJourney private (
 
   override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
-      .excludeNorthernIrelandClaims(false, answers.whetherNorthernIreland.getOrElse(false), answers.displayDeclaration)
+      .excludeNorthernIrelandClaims(false, answers.displayDeclaration)
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -291,13 +291,6 @@ final class OverpaymentsScheduledJourney private (
   def submitBasisOfClaim(basisOfClaim: BasisOfOverpaymentClaim): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
-    }
-
-  def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsScheduledJourney =
-    whileClaimIsAmendable {
-      this.copy(
-        answers.copy(whetherNorthernIreland = Some(whetherNorthernIreland))
-      )
     }
 
   def submitAdditionalDetails(
@@ -515,13 +508,12 @@ final class OverpaymentsScheduledJourney private (
       .map(_.messages)
       .flatMap(_ =>
         (for {
-          mrn                    <- getLeadMovementReferenceNumber
-          basisOfClaim           <- answers.basisOfClaim
-          additionalDetails      <- answers.additionalDetails
-          scheduledDocument      <- answers.scheduledDocument
-          claimantInformation    <- getClaimantInformation
-          whetherNorthernIreland <- answers.whetherNorthernIreland
-          payeeType              <- answers.payeeType
+          mrn                 <- getLeadMovementReferenceNumber
+          basisOfClaim        <- answers.basisOfClaim
+          additionalDetails   <- answers.additionalDetails
+          scheduledDocument   <- answers.scheduledDocument
+          claimantInformation <- getClaimantInformation
+          payeeType           <- answers.payeeType
         } yield OverpaymentsScheduledJourney.Output(
           movementReferenceNumber = mrn,
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
@@ -529,7 +521,6 @@ final class OverpaymentsScheduledJourney private (
           payeeType = payeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
-          whetherNorthernIreland = whetherNorthernIreland,
           additionalDetails = additionalDetails,
           reimbursementClaims = getReimbursementClaims,
           supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
@@ -570,7 +561,6 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
-    whetherNorthernIreland: Option[Boolean] = None,
     additionalDetails: Option[String] = None,
     correctedAmounts: Option[CorrectedAmounts] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
@@ -588,7 +578,6 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     payeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
-    whetherNorthernIreland: Boolean,
     additionalDetails: String,
     reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
     reimbursementMethod: ReimbursementMethod,
@@ -670,7 +659,6 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       .map(_.submitContactDetails(answers.contactDetails))
       .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
-      .mapWhenDefined(answers.whetherNorthernIreland)(_.submitWhetherNorthernIreland)
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(

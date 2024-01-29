@@ -34,9 +34,6 @@ POST        /overpayments/single/enter-declarant-eori-of-duplicate-declaration  
 GET         /overpayments/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.show
 POST        /overpayments/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.submit
 
-GET         /overpayments/single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.show
-POST        /overpayments/single/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.NorthernIrelandController.submit
-
 GET         /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.show
 POST        /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.submit
 

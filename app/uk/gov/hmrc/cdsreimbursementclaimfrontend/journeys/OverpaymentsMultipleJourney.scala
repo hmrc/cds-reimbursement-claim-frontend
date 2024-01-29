@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 
-/** An encapsulated C&E1179 single MRN journey logic.
+/** An encapsulated C285 multiple MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
   *
   * The journey uses two nested case classes:
@@ -244,7 +244,6 @@ final class OverpaymentsMultipleJourney private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        answers.whetherNorthernIreland.getOrElse(false),
         getLeadDisplayDeclaration
       )
 
@@ -465,23 +464,6 @@ final class OverpaymentsMultipleJourney private (
       )
     }
 
-  def submitWhetherNorthernIreland(whetherNorthernIreland: Boolean): OverpaymentsMultipleJourney =
-    whileClaimIsAmendable {
-      this.copy(
-        answers.copy(
-          whetherNorthernIreland = Some(whetherNorthernIreland),
-          basisOfClaim =
-            if (whetherNorthernIreland) answers.basisOfClaim
-            else
-              // review basis of claim if nothern ireland claims should not be allowed
-              answers.basisOfClaim.flatMap { case basisOfClaim =>
-                if (BasisOfOverpaymentClaim.northernIreland.contains(basisOfClaim)) None
-                else Some(basisOfClaim)
-              }
-        )
-      )
-    }
-
   def submitBasisOfClaim(basisOfClaim: BasisOfOverpaymentClaim): OverpaymentsMultipleJourney =
     whileClaimIsAmendable {
       basisOfClaim match {
@@ -699,20 +681,18 @@ final class OverpaymentsMultipleJourney private (
       .map(_.messages)
       .flatMap(_ =>
         (for {
-          mrns                   <- answers.movementReferenceNumbers
-          basisOfClaim           <- answers.basisOfClaim
-          additionalDetails      <- answers.additionalDetails
-          supportingEvidences     = answers.supportingEvidences
-          claimantInformation    <- getClaimantInformation
-          whetherNorthernIreland <- answers.whetherNorthernIreland
-          payeeType              <- answers.payeeType
+          mrns                <- answers.movementReferenceNumbers
+          basisOfClaim        <- answers.basisOfClaim
+          additionalDetails   <- answers.additionalDetails
+          supportingEvidences  = answers.supportingEvidences
+          claimantInformation <- getClaimantInformation
+          payeeType           <- answers.payeeType
         } yield OverpaymentsMultipleJourney.Output(
           movementReferenceNumbers = mrns,
           claimantType = getClaimantType,
           payeeType = payeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
-          whetherNorthernIreland = whetherNorthernIreland,
           additionalDetails = additionalDetails,
           reimbursementClaims = OrderedMap(getReimbursementClaims),
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
@@ -749,7 +729,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     movementReferenceNumbers: Option[Seq[MRN]] = None,
     payeeType: Option[PayeeType] = None,
     displayDeclarations: Option[Seq[DisplayDeclaration]] = None,
-    whetherNorthernIreland: Option[Boolean] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
@@ -771,7 +750,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     payeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
-    whetherNorthernIreland: Boolean,
     additionalDetails: String,
     reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
     reimbursementMethod: ReimbursementMethod,
@@ -853,7 +831,6 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
-      .mapWhenDefined(answers.whetherNorthernIreland)(_.submitWhetherNorthernIreland)
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMapEachWhenDefined(answers.correctedAmounts)(j => {

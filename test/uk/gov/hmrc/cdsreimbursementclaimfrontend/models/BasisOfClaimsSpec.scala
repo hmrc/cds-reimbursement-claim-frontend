@@ -28,21 +28,20 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
   "The basis of claims" should {
 
-    "filter Northern Ireland claims" in {
-      val journeyAnswers =
+    "contain Northern Ireland claims" in {
+      val draftC285Claim =
         OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
           .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
           .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            whetherNorthernIreland = Some(false)
+            displayDeclaration = None
           )
 
       val claims: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          journeyAnswers.whetherNorthernIreland.getOrElse(false),
-          journeyAnswers.displayDeclaration
+          draftC285Claim.displayDeclaration
         )
 
       claims should be(
@@ -50,6 +49,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           DuplicateEntry,
           DutySuspension,
           EndUseRelief,
+          IncorrectAdditionalInformationCode,
           IncorrectCommodityCode,
           IncorrectCpc,
           IncorrectValue,
@@ -63,87 +63,48 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         )
       )
     }
-  }
 
-  "contain Northern Ireland claims" in {
-    val draftC285Claim =
-      OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
-        .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
-        .answers
-        .copy(
-          movementReferenceNumber = Some(sample[MRN]),
-          whetherNorthernIreland = Some(true),
-          displayDeclaration = None
+    "filter DuplicateEntry basis of claim" in {
+      (BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry) should be(
+        Set[BasisOfOverpaymentClaim](
+          DutySuspension,
+          EndUseRelief,
+          IncorrectAdditionalInformationCode,
+          IncorrectCommodityCode,
+          IncorrectCpc,
+          IncorrectExciseValue,
+          IncorrectValue,
+          InwardProcessingReliefFromCustomsDuty,
+          OutwardProcessingRelief,
+          PersonalEffects,
+          Preference,
+          ProofOfReturnRefundGiven,
+          RGR,
+          Miscellaneous
         )
-
-    val claims: Set[BasisOfOverpaymentClaim] =
-      BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
-        true,
-        draftC285Claim.whetherNorthernIreland.getOrElse(false),
-        draftC285Claim.displayDeclaration
       )
+    }
 
-    claims should be(
-      Set[BasisOfOverpaymentClaim](
-        DuplicateEntry,
-        DutySuspension,
-        EndUseRelief,
-        IncorrectAdditionalInformationCode,
-        IncorrectCommodityCode,
-        IncorrectCpc,
-        IncorrectValue,
-        InwardProcessingReliefFromCustomsDuty,
-        OutwardProcessingRelief,
-        PersonalEffects,
-        Preference,
-        ProofOfReturnRefundGiven,
-        RGR,
-        Miscellaneous
+    "contain DuplicateEntry basis of claim" in {
+      BasisOfOverpaymentClaim.values should be(
+        Set[BasisOfOverpaymentClaim](
+          DuplicateEntry,
+          DutySuspension,
+          EndUseRelief,
+          IncorrectAdditionalInformationCode,
+          IncorrectCommodityCode,
+          IncorrectCpc,
+          IncorrectExciseValue,
+          IncorrectValue,
+          InwardProcessingReliefFromCustomsDuty,
+          OutwardProcessingRelief,
+          PersonalEffects,
+          Preference,
+          ProofOfReturnRefundGiven,
+          RGR,
+          Miscellaneous
+        )
       )
-    )
+    }
   }
-
-  "filter DuplicateEntry basis of claim" in {
-    (BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry) should be(
-      Set[BasisOfOverpaymentClaim](
-        DutySuspension,
-        EndUseRelief,
-        IncorrectAdditionalInformationCode,
-        IncorrectCommodityCode,
-        IncorrectCpc,
-        IncorrectExciseValue,
-        IncorrectValue,
-        InwardProcessingReliefFromCustomsDuty,
-        OutwardProcessingRelief,
-        PersonalEffects,
-        Preference,
-        ProofOfReturnRefundGiven,
-        RGR,
-        Miscellaneous
-      )
-    )
-  }
-
-  "contain DuplicateEntry basis of claim" in {
-    BasisOfOverpaymentClaim.values should be(
-      Set[BasisOfOverpaymentClaim](
-        DuplicateEntry,
-        DutySuspension,
-        EndUseRelief,
-        IncorrectAdditionalInformationCode,
-        IncorrectCommodityCode,
-        IncorrectCpc,
-        IncorrectExciseValue,
-        IncorrectValue,
-        InwardProcessingReliefFromCustomsDuty,
-        OutwardProcessingRelief,
-        PersonalEffects,
-        Preference,
-        ProofOfReturnRefundGiven,
-        RGR,
-        Miscellaneous
-      )
-    )
-  }
-
 }

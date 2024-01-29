@@ -119,7 +119,6 @@ class CheckYourAnswersControllerSpec
       "Movement Reference Numbers (MRNs)".expectedAlways,
       "Declaration details".expectedAlways,
       "Contact information for this claim".expectedAlways,
-      "Were your goods imported into Northern Ireland?".expectedAlways,
       "Basis for claim".expectedAlways,
       "Reason for claim".expectedAlways,
       "Claim total".expectedAlways,
@@ -152,24 +151,23 @@ class CheckYourAnswersControllerSpec
         ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
-          "Importer name"                                   -> declaration.flatMap(_.consigneeName),
-          "Importer email"                                  -> declaration.flatMap(_.consigneeEmail),
-          "Importer telephone"                              -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"                                -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
-          "Declarant name"                                  -> declaration.map(_.declarantName),
-          "Declarant address"                               -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
-          "Contact details"                                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Contact address"                                 -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "This is the basis behind the claim"              -> Some(
+          "Importer name"                      -> declaration.flatMap(_.consigneeName),
+          "Importer email"                     -> declaration.flatMap(_.consigneeEmail),
+          "Importer telephone"                 -> declaration.flatMap(_.consigneeTelephone),
+          "Importer address"                   -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
+          "Declarant name"                     -> declaration.map(_.declarantName),
+          "Declarant address"                  -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
+          "Contact details"                    -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+          "Contact address"                    -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+          "This is the basis behind the claim" -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
-          "Were your goods imported into Northern Ireland?" -> Some(YesNo.of(claim.whetherNorthernIreland).toString),
-          "This is the reason for the claim"                -> Some(claim.additionalDetails),
-          "Total"                                           -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Uploaded"                                        -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
-          "Name on the account"                             -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                                       -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
-          "Account number"                                  -> claim.bankAccountDetails.map(_.accountNumber.masked(messages))
+          "This is the reason for the claim"   -> Some(claim.additionalDetails),
+          "Total"                              -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+          "Uploaded"                           -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Name on the account"                -> claim.bankAccountDetails.map(_.accountName.value),
+          "Sort code"                          -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
+          "Account number"                     -> claim.bankAccountDetails.map(_.accountNumber.masked(messages))
         ) ++
         claim.reimbursementClaims.map { case (mrn, claims) =>
           (mrn.value, Some(claims.values.sum.toPoundSterlingString))

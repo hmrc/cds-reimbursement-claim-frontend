@@ -293,8 +293,6 @@ check-your-answers.inspection.inspection-address=Inspection address
 check-your-answers.inspection.inspection-address-type=Inspection address type
 check-your-answers.inspection.inspection-date=Inspection date
 check-your-answers.multiple-claim-totals.label=Claim total
-check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
-check-your-answers.northern-ireland-claim.label=Were your goods imported into Northern Ireland?
 check-your-answers.payment-method.bt=Bank account transfer
 check-your-answers.payment-method.cash-account=Cash account
 check-your-answers.payment-method.duty-deferment=Duty deferment account
@@ -486,15 +484,6 @@ claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guar
 claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}">claim back import duty and VAT guidance</a> or  <a href="{1}">start a new security deposit claim</a>
 claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" target="_blank">contact HMRC (opens in new tab)</a>
 claim-invalid-not-exported-all.title=Requirement for claiming back a security deposit or guarantee
-
-claim-northern-ireland.error.invalid=Select yes if all the MRNs in this claim were moved through or imported to Northern Ireland
-claim-northern-ireland.error.required=Select yes if all the MRNs in this claim were moved through or imported to Northern Ireland
-claim-northern-ireland.help-text=You can find this information in documentation from your supplier, shipping company, freight forwarder, agency or fast parcel operator.
-claim-northern-ireland.multiple.help-text=If you select Yes, then all the Movement Reference Numbers (MRNs) in this claim must have been imported to or moved through Northern Ireland.
-claim-northern-ireland.no.title=No
-claim-northern-ireland.scheduled.help-text=If you select Yes, then all the Movement Reference Numbers (MRNs) in this claim must have been imported to or moved through Northern Ireland.
-claim-northern-ireland.title=Were your goods moved through or imported to Northern Ireland?
-claim-northern-ireland.yes.title=Yes
 
 confirm-full-repayment.caption=Security deposit: {0} of {1}
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount

@@ -205,7 +205,6 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       taxCodesWithAmounts         <- Gen.sequence(mrns.map(_ => taxCodesAndAmountsGen(maxSize))).map(_.asScala)
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
-      whetherNorthernIreland      <- Gen.oneOf(true, false)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
       documentTypes               <-
@@ -281,7 +280,6 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
-          whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(OrderedMap(correctedAmounts)),
           selectedDocumentType = None,

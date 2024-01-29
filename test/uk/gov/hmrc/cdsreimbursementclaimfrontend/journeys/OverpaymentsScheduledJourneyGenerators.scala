@@ -273,7 +273,6 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
                                        )
                                        .map(_ ++ forcedTaxCodes)
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
-      whetherNorthernIreland      <- Gen.oneOf(true, false)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
       documentTypes               <-
@@ -346,7 +345,6 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
-          whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
@@ -449,23 +447,22 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
     forcedTaxCodes: Seq[TaxCode] = Seq.empty
   ): Gen[OverpaymentsScheduledJourney.Answers] =
     for {
-      userEoriNumber         <- IdGen.genEori
-      mrn                    <- IdGen.genMRN
-      declarantEORI          <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI          <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      reimbursements         <- dutyTypesWithTaxCodesGen
-      basisOfClaim           <- Gen.oneOf(BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry)
-      numberOfTaxCodes       <- Gen.choose(1, 5)
-      taxCodes               <- Gen
-                                  .pick(
-                                    numberOfTaxCodes,
-                                    if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
-                                  )
-                                  .map(_ ++ forcedTaxCodes)
-      paidAmounts            <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
-      whetherNorthernIreland <- Gen.oneOf(true, false)
-      consigneeContact       <- Gen.option(Acc14Gen.genContactDetails)
-      declarantContact       <- Gen.option(Acc14Gen.genContactDetails)
+      userEoriNumber   <- IdGen.genEori
+      mrn              <- IdGen.genMRN
+      declarantEORI    <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI    <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      reimbursements   <- dutyTypesWithTaxCodesGen
+      basisOfClaim     <- Gen.oneOf(BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry)
+      numberOfTaxCodes <- Gen.choose(1, 5)
+      taxCodes         <- Gen
+                            .pick(
+                              numberOfTaxCodes,
+                              if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
+                            )
+                            .map(_ ++ forcedTaxCodes)
+      paidAmounts      <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      consigneeContact <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
@@ -510,7 +507,6 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
-          whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           checkYourAnswersChangeMode = false

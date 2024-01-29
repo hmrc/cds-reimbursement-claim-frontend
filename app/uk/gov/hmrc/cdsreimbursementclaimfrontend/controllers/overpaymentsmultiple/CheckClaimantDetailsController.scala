@@ -68,7 +68,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterContactDetailsController.show(confirmContactDetails = true)
 
   override val nextPageInTheJourney: Call =
-    routes.NorthernIrelandController.show
+    routes.BasisForClaimController.show
 
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 

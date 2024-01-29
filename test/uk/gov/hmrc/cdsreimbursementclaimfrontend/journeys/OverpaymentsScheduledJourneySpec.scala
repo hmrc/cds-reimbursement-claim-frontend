@@ -972,12 +972,9 @@ class OverpaymentsScheduledJourneySpec
       val displayDeclaration     = exampleDisplayDeclaration
       val availableDocumentTypes = UploadDocumentType.overpaymentsScheduledDocumentTypes
 
-      val availableClaimTypesNotNi      =
+      val availableClaimTypes =
         BasisOfOverpaymentClaim
-          .excludeNorthernIrelandClaims(false, false, Some(displayDeclaration))
-      val availableClaimTypesIncludesNi =
-        BasisOfOverpaymentClaim
-          .excludeNorthernIrelandClaims(false, true, Some(displayDeclaration))
+          .excludeNorthernIrelandClaims(false, Some(displayDeclaration))
 
       val journey = OverpaymentsScheduledJourney
         .empty(exampleEori)
@@ -986,17 +983,7 @@ class OverpaymentsScheduledJourneySpec
 
       journey.getDocumentTypesIfRequired shouldBe Some(availableDocumentTypes)
 
-      journey.getAvailableClaimTypes shouldBe availableClaimTypesNotNi
-
-      val journeyNotNi = journey
-        .submitWhetherNorthernIreland(false)
-
-      val journeyNi = journey
-        .submitWhetherNorthernIreland(true)
-
-      journeyNotNi.getAvailableClaimTypes shouldBe availableClaimTypesNotNi
-
-      journeyNi.getAvailableClaimTypes shouldBe availableClaimTypesIncludesNi
+      journey.getAvailableClaimTypes shouldBe availableClaimTypes
 
       for (document <- availableDocumentTypes) {
         val result = journey.submitDocumentTypeSelection(document)
