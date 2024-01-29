@@ -47,7 +47,7 @@
     @heading(Html(title))
 
     @paragraph(Html(messages(s"enter-bank-account-details.p1", viewConfig.contactCdsTeamUrl)))
-    @paragraph(Html(messages(s"enter-bank-account-details.p2", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"enter-bank-account-details.p2", viewConfig.contactCdsTeamUrl)))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
