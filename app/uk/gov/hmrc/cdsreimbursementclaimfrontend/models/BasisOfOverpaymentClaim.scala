@@ -78,7 +78,6 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
 
   def excludeNorthernIrelandClaims(
     hasDuplicateEntryClaim: Boolean,
-    isNorthernIrelandJourney: Boolean,
     displayDeclarationOpt: Option[DisplayDeclaration]
   ): Set[BasisOfOverpaymentClaim] = {
 
@@ -94,13 +93,8 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
       if (hasDuplicateEntryClaim) values
       else values - DuplicateEntry
 
-    isNorthernIrelandJourney match {
-      case false =>
-        baseClaims.diff(northernIreland)
-      case true  =>
-        if (hasNorthernIrelandExciseCodes) baseClaims
-        else baseClaims - IncorrectExciseValue
-    }
+    if (hasNorthernIrelandExciseCodes) baseClaims
+    else baseClaims - IncorrectExciseValue
   }
 
   val validator: Validator[Id, BasisOfOverpaymentClaim] = maybeBasisOfClaim =>

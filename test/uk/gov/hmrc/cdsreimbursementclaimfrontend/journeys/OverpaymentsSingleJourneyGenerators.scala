@@ -248,7 +248,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         )
       duplicateMrn                <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
                                      else Gen.const(None)
-      whetherNorthernIreland      <- Gen.oneOf(true, false)
       reimbursementMethod         <-
         reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.nonSubsidyValues))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
@@ -318,7 +317,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
-          whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
@@ -445,7 +443,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       duplicateMrn             <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
                                   else Gen.const(None)
-      whetherNorthernIreland   <- Gen.oneOf(true, false)
       numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
       consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
@@ -494,7 +491,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
-          whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           checkYourAnswersChangeMode = false
@@ -535,7 +531,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         )
       duplicateMrn             <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
                                   else Gen.const(None)
-      whetherNorthernIreland   <- Gen.oneOf(true, false)
       numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
       consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
@@ -585,7 +580,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
-          whetherNorthernIreland = Some(whetherNorthernIreland),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           checkYourAnswersChangeMode = false

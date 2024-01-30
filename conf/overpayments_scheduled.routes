@@ -27,9 +27,6 @@ POST        /overpayments/scheduled/claimant-details/change-contact-details     
 GET         /overpayments/scheduled/claimant-details/confirm-contact-details                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterContactDetailsController.show(confirmContactDetails: Boolean = true)
 POST        /overpayments/scheduled/claimant-details/confirm-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterContactDetailsController.submit(confirmContactDetails: Boolean = true)
 
-GET         /overpayments/scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.show
-POST        /overpayments/scheduled/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.NorthernIrelandController.submit
-
 GET         /overpayments/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.BasisForClaimController.show
 POST        /overpayments/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.BasisForClaimController.submit
 

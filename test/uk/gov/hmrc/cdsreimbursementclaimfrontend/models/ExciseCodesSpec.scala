@@ -36,29 +36,7 @@ import scala.util.Random
 class ExciseCodesSpec extends AnyWordSpec with Matchers {
 
   "ExciseCodes" should {
-    "Return only excise codes not related to Northern Ireland" in {
-      val overpaymentsJourneyAnswers =
-        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
-          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
-          .answers
-          .copy(
-            movementReferenceNumber = Some(sample[MRN]),
-            whetherNorthernIreland = Some(false)
-          )
-
-      val codes: Set[BasisOfOverpaymentClaim] =
-        BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
-          true,
-          overpaymentsJourneyAnswers.whetherNorthernIreland.getOrElse(false),
-          overpaymentsJourneyAnswers.displayDeclaration
-        )
-
-      codes.size shouldBe 13
-      codes        should not contain IncorrectExciseValue
-      codes        should not contain IncorrectAdditionalInformationCode
-    }
-
-    "Return all excise codes for Northern Ireland" in {
+    "Return all excise codes" in {
       val ndrcs = Random
         .shuffle(TaxCodes.excise)
         .take(3)
@@ -77,13 +55,11 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            whetherNorthernIreland = Some(true),
             displayDeclaration = Some(acc14)
           )
       val codes: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          journeyAnswers.whetherNorthernIreland.getOrElse(false),
           journeyAnswers.displayDeclaration
         )
 
@@ -92,7 +68,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       codes        should contain(IncorrectAdditionalInformationCode)
     }
 
-    "Return all excise codes except IncorrectExciseValue for Northern Ireland" in {
+    "Return all excise codes except IncorrectExciseValue" in {
       val ndrcs = List(sample[NdrcDetails].copy(taxType = "A10"))
       val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
@@ -104,14 +80,12 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            whetherNorthernIreland = Some(true),
             displayDeclaration = Some(acc14)
           )
 
       val codes: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          journeyAnswers.whetherNorthernIreland.getOrElse(false),
           journeyAnswers.displayDeclaration
         )
 

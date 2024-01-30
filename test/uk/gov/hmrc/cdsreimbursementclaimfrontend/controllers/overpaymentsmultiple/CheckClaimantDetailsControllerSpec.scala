@@ -176,7 +176,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.NorthernIrelandController.show
+              routes.BasisForClaimController.show
             )
         }
       }
@@ -217,7 +217,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.NorthernIrelandController.show
+              routes.BasisForClaimController.show
             )
         }
       }
@@ -250,7 +250,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.NorthernIrelandController.show
+            routes.BasisForClaimController.show
           )
         }
       }

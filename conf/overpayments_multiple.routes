@@ -26,9 +26,6 @@ POST        /overpayments/multiple/claimant-details/change-contact-details      
 GET         /overpayments/multiple/claimant-details/confirm-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.show(confirmContactDetails: Boolean = true)
 POST        /overpayments/multiple/claimant-details/confirm-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.submit(confirmContactDetails: Boolean = true)
 
-GET         /overpayments/multiple/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.NorthernIrelandController.show
-POST        /overpayments/multiple/claim-northern-ireland                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.NorthernIrelandController.submit
-
 GET         /overpayments/multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.BasisForClaimController.show
 POST        /overpayments/multiple/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.BasisForClaimController.submit
 

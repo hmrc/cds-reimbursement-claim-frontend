@@ -49,7 +49,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           payeeType = PayeeType.Declarant,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfOverpaymentClaim.OutwardProcessingRelief,
-          whetherNorthernIreland = true,
           additionalDetails = "foo bar",
           reimbursements = Seq(
             Reimbursement(
@@ -84,7 +83,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaim                          shouldBe Some("OutwardProcessingRelief")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
-      log.whetherNorthernIreland                shouldBe Some(true)
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "CurrentMonthAdjustment"
@@ -114,7 +112,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           payeeType = PayeeType.Declarant,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfOverpaymentClaim.IncorrectAdditionalInformationCode,
-          whetherNorthernIreland = false,
           additionalDetails = "foo bar",
           reimbursementClaims = OrderedMap.from(
             Seq(
@@ -139,7 +136,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaim                          shouldBe Some("IncorrectAdditionalInformationCode")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
-      log.whetherNorthernIreland                shouldBe Some(false)
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
@@ -170,7 +166,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           payeeType = PayeeType.Consignee,
           claimantInformation = exampleClaimantInformation,
           basisOfClaim = BasisOfOverpaymentClaim.PersonalEffects,
-          whetherNorthernIreland = false,
           additionalDetails = "foo bar",
           reimbursementClaims = SortedMap.from(
             Seq(
@@ -203,7 +198,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaim                          shouldBe Some("PersonalEffects")
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
-      log.whetherNorthernIreland                shouldBe Some(false)
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
@@ -260,7 +254,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
-      log.whetherNorthernIreland                shouldBe None
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
@@ -318,7 +311,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
-      log.whetherNorthernIreland                shouldBe None
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
@@ -385,7 +377,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
-      log.whetherNorthernIreland                shouldBe None
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
@@ -441,7 +432,6 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaim                          shouldBe None
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
-      log.whetherNorthernIreland                shouldBe None
       log.reasonForSecurity                     shouldBe Some("MissingLicenseQuota")
       log.temporaryAdmissionMethodOfDisposal    shouldBe Some("DeclaredToEndUse")
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"

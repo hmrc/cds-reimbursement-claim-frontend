@@ -23,5 +23,4 @@ trait OverpaymentsAnswers extends CommonAnswers {
 
   def basisOfClaim: Option[BasisOfOverpaymentClaim]
   def additionalDetails: Option[String]
-  def whetherNorthernIreland: Option[Boolean]
 }

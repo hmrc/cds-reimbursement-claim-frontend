@@ -57,9 +57,6 @@
     @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
     @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.CheckClaimantDetailsController.show, Some(routes.CheckClaimantDetailsController.show)))
     
-    @subHeading(Html(messages(s"check-your-answers.northern-ireland-claim.h2")))
-    @summary(NorthernIrelandAnswerSummary(YesNo.of(claim.whetherNorthernIreland), s"check-your-answers.northern-ireland-claim", Some(routes.NorthernIrelandController.show)))
-    
     @subHeading(Html(messages(s"check-your-answers.basis.h2")))
     @summary(BasisOfClaimSummary(claim.basisOfClaim,s"check-your-answers.basis", Some(routes.BasisForClaimController.show)))
     
