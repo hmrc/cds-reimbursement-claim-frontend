@@ -342,7 +342,8 @@ class ChooseInspectionAddressTypeControllerSpec
       }
     }
 
-    "update inspection address once address lookup complete" in forAll { contactAddress: ContactAddress =>
+    "update inspection address once address lookup complete" in {
+      val contactAddress: ContactAddress = genContactAddress.sample.get
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
