@@ -70,10 +70,8 @@ check-claim-summary.error.invalid=Select yes if the claim details are correct
 check-claim-summary.error.required=Select yes if the claim details are correct
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
-check-claim-summary.help-text=Your repayment or remissions calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.no=No, select different duties
 check-claim-summary.overall-total.label=Overall total
-check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
 check-claim-summary.scheduled.title=Check the repayment totals for this claim
 check-claim-summary.title=Check the repayment claim total for the MRN
 check-claim-summary.total=Repayment for this MRN
@@ -87,7 +85,6 @@ check-claim-timed-out.p2=To access the Claim back import duty and VAT service, y
 check-claim-timed-out.title=Your session has ended due to inactivity
 
 check-claim.rejected-goods.are-duties-correct=Are these duties correct?
-check-claim.rejected-goods.description=Your repayment calculations are shown below. This is based on the information you provided to us.
 check-claim.rejected-goods.error.invalid=Select yes if these duties are correct
 check-claim.rejected-goods.error.required=Select yes if these duties are correct
 check-claim.rejected-goods.multiple.duty.label={0} MRN: {1}
@@ -103,7 +100,6 @@ check-claim.securities.claim-for-security.h2=Security deposit: {0}
 check-claim.securities.hidden.claim-full-amount=Change {0} for Security ID: {1}
 check-claim.securities.hidden.duties-selected=Change {0} for Security ID: {1}
 check-claim.securities.hidden.tax-code=Change {0} amount for Security ID: {1}
-check-claim.securities.summary=Your repayment calculations are shown below. This is based on the information you provided to us.
 check-claim.securities.title=Check the claim details for these security deposits
 
 check-claimant-details.change-hint.address=Contact address

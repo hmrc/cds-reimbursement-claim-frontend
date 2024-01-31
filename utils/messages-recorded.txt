@@ -46,16 +46,13 @@ check-claim-summary.are-duties-correct
 check-claim-summary.duty-code.row.key
 check-claim-summary.duty-code.total.key
 check-claim-summary.duty.label
-check-claim-summary.help-text
 check-claim-summary.no
-check-claim-summary.scheduled.help-text
 check-claim-summary.scheduled.title
 check-claim-summary.title
 check-claim-summary.total
 check-claim-summary.total.header
 check-claim-summary.yes
 check-claim.rejected-goods.are-duties-correct
-check-claim.rejected-goods.description
 check-claim.rejected-goods.multiple.duty.label
 check-claim.rejected-goods.multiple.overall-total.header
 check-claim.rejected-goods.multiple.overall-total.label
@@ -69,7 +66,6 @@ check-claim.securities.claim-for-security.h2
 check-claim.securities.hidden.claim-full-amount
 check-claim.securities.hidden.duties-selected
 check-claim.securities.hidden.tax-code
-check-claim.securities.summary
 check-claim.securities.title
 check-claimant-details.change-hint.address
 check-claimant-details.change-hint.contact

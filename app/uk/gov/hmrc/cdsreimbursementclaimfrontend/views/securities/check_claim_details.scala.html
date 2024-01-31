@@ -44,8 +44,6 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"check-claim.securities.summary")))
-
     @correctedAmounts.map { case (securityDepositId, reclaims) =>
         @subHeading(Html(messages(s"check-claim.securities.claim-for-security.h2", securityDepositId)))
         @summary(SecuritiesReclaimDetailsSummary(

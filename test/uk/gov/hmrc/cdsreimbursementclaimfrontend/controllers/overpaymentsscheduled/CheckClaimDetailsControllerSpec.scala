@@ -74,17 +74,15 @@ class CheckClaimDetailsControllerSpec
     doc: Document,
     journey: OverpaymentsScheduledJourney
   ): Unit = {
-    val key    = "check-claim-summary"
     val claims = journey.getReimbursementClaims
 
     assertPageElementsByIdAndExpectedText(doc)(
-      s"$key-help-text" -> m(s"$key.scheduled.help-text"),
-      s"$key-yes-no"    -> s"${m(s"$key.are-duties-correct")} ${m(s"$key.yes")} ${m(s"$key.no")}"
+      s"check-claim-summary-yes-no" -> s"${m(s"check-claim-summary.are-duties-correct")} ${m(s"check-claim-summary.yes")} ${m(s"check-claim-summary.no")}"
     )
 
     claims.map { claim =>
       assertPageElementsByIdAndExpectedText(doc)(
-        s"$key-duty-${claim._1.repr}" -> m(s"duty-type.${claim._1.repr}")
+        s"check-claim-summary-duty-${claim._1.repr}" -> m(s"duty-type.${claim._1.repr}")
       )
     }
 
@@ -93,21 +91,24 @@ class CheckClaimDetailsControllerSpec
         .map(_._2)
         .flatMap(
           _.map { case (taxCode, amount: AmountPaidWithCorrect) =>
-            (m(s"$key.duty-code.row.key", m(s"tax-code.$taxCode")), amount.refundAmount.toPoundSterlingString)
+            (
+              m(s"check-claim-summary.duty-code.row.key", m(s"tax-code.$taxCode")),
+              amount.refundAmount.toPoundSterlingString
+            )
           }
         ) ++
         claims
           .filter(claim => claim._2.size > 1)
           .map { (claim: (DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])) =>
             (
-              s"${m(s"$key.duty-code.total.key", m(s"duty-type.${claim._1.repr}"))}",
+              s"${m(s"check-claim-summary.duty-code.total.key", m(s"duty-type.${claim._1.repr}"))}",
               journey
                 .getTaxCodesSubtotal(claim._2)
                 .toPoundSterlingString
             )
           }
           .toSeq ++ Seq(
-          (m(s"$key.total"), journey.getTotalReimbursementAmount.toPoundSterlingString)
+          (m(s"check-claim-summary.total"), journey.getTotalReimbursementAmount.toPoundSterlingString)
         )
     )
   }
