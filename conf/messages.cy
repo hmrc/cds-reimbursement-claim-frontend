@@ -686,7 +686,6 @@ enter-claim.invalid.claim=Nodwch swm hawliad sy’n llai na’r swm a dalwyd neu
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
 check-claim-summary.title=
-check-claim-summary.help-text=
 check-claim-summary.uk-duty.label=
 check-claim-summary.eu-duty.label=
 check-claim-summary.excise-duty.label=

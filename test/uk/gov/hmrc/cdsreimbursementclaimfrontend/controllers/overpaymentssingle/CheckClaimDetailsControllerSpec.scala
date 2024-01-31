@@ -71,7 +71,6 @@ class CheckClaimDetailsControllerSpec
   ): Unit = {
     val mrn = journey.getLeadMovementReferenceNumber.get.value
     assertPageElementsByIdAndExpectedText(doc)(
-      "check-claim-summary-help-text"     -> m("check-claim-summary.help-text"),
       s"check-claim-summary-section-$mrn" -> m("check-claim-summary.duty.label", mrn),
       "check-claim-summary-yes-no"        -> s"${m("check-claim-summary.are-duties-correct")} ${m("check-claim-summary.yes")} ${m("check-claim-summary.no")}"
     )

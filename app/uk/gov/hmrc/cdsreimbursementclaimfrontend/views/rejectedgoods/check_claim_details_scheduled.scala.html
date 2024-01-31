@@ -52,8 +52,6 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"check-claim-summary.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
-
     @answer.map { claims =>
         @subHeading(Html(messages(s"duty-type.${claims._1.repr}")), classes = "govuk-heading-m")
         @summary(TaxCodeReimbursementRejectedGoodsSummary((claims._1, claims._2),key, subKey))

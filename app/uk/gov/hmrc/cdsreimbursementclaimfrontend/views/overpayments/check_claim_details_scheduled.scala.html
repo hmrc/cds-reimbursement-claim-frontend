@@ -52,7 +52,6 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"check-claim-summary.scheduled.help-text")), classes = Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"), id = s"check-claim-summary-help-text")
     @answers.map { claim =>
         @subHeading(Html(messages(s"duty-type.${claim._1.repr}")), classes = "govuk-heading-m", id = s"check-claim-summary-duty-${claim._1.repr}")
         @summary(TaxCodeReimbursementScheduledOverpaymentsSummary((claim._1, claim._2),key, subKey))

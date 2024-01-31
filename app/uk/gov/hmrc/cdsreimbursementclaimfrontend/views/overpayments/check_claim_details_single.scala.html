@@ -54,8 +54,6 @@
 
     @heading(Html(title))
 
-    @paragraph(Html(messages(s"check-claim-summary.help-text")), id = s"check-claim-summary-help-text")
-
     @subHeading(Html(messages(s"check-claim-summary.duty.label",mrn.value)), classes = "govuk-heading-m", id = s"check-claim-summary-section-${mrn.value}")
 
     @summary(SummaryList(ClaimSummaryHelper.makeClaimSummary(claims, enterClaimAction)))
