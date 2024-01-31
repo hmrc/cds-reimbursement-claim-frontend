@@ -34,7 +34,6 @@
 
 @(form: Form[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-rejected-goods-details.rejected-goods"}
 @title = @{messages(s"enter-rejected-goods-details.rejected-goods.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -62,13 +61,13 @@
 
   @textArea(
    form = form,
-   id = key,
-   name = key,
+   id = "enter-rejected-goods-details.rejected-goods",
+   name = "enter-rejected-goods-details.rejected-goods",
    isPageHeading = false,
    label = s"enter-rejected-goods-details.rejected-goods.label",
    labelClasses = Some("govuk-visually-hidden"),
    hint = None,
-   value = form(key).value,
+   value = form("enter-rejected-goods-details.rejected-goods").value,
    maxLength = Some(500)
   )
 
