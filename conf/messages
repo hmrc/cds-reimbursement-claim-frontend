@@ -1033,12 +1033,12 @@ enter-rejected-goods-details.rejected-goods.bullet.1=what the goods are
 enter-rejected-goods-details.rejected-goods.bullet.2=the quantity of goods being claimed for
 enter-rejected-goods-details.rejected-goods.bullet.3=the value of the goods being claimed for
 enter-rejected-goods-details.rejected-goods.bullet.4=the reason for rejection
-enter-rejected-goods-details.rejected-goods.error.maxLength=Details of the rejected goods must be 500 characters or fewer
+enter-rejected-goods-details.rejected-goods.error.maxLength=Details of the rejected goods must be 500 characters or less
 enter-rejected-goods-details.rejected-goods.error.required=Enter details of the rejected goods
-enter-rejected-goods-details.rejected-goods.help-text=Provide any information that may help process your claim.
+enter-rejected-goods-details.rejected-goods.help-text=Tell HMRC any additional details that help to support your claim. This may include:
 enter-rejected-goods-details.rejected-goods.label=Provide details of the rejected goods
 enter-rejected-goods-details.rejected-goods.p1=This can include:
-enter-rejected-goods-details.rejected-goods.title=Provide details of the rejected goods
+enter-rejected-goods-details.rejected-goods.title=Additional claim details
 
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
 enter-scheduled-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
