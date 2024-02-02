@@ -64,14 +64,14 @@
             )
         )
 
-        @subHeading(Html(messages(s"$key.view-upload")), classes = "govuk-heading-s")
-        <p class="govuk-body govuk-!-margin-bottom-4"><a href="@{viewConfig.viewUploadUrl}" class="govuk-link">@messages(s"$key.view-upload")</a></p>
+        @subHeading(Html(messages(s"$key.next-steps")), classes = "govuk-heading-s")
+        @bulletList(
+            Seq(
+                Html(messages(s"$key.view-upload", viewConfig.viewUploadUrl)),
+                Html(messages(s"$key.what-next.link.1.start-another-claim", routes.LandingPageController.showLandingPage().url)),
+            )
+        )
 
-        @subHeading(Html(messages(s"$key.what-next.link.1.start-another-claim")), classes = "govuk-heading-s")
-        <p class="govuk-body govuk-!-margin-bottom-4"><a href="@{routes.LandingPageController.showLandingPage().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
-
-        @subHeading(Html(messages(s"$key.feedback-subheading")), classes = "govuk-heading-s")
-        @paragraph(Html(messages(s"$key.feedback-paragraph")))
-        <p class="govuk-body govuk-!-margin-bottom-9"><a href="@{viewConfig.feedbackUrl}" class="govuk-link">@messages(s"$key.feedback-link")</a></p>
+        <p class="govuk-body govuk-!-margin-top-9 govuk-!-margin-bottom-5"><a href="@{viewConfig.feedbackUrl}" class="govuk-link">@messages(s"$key.feedback-link")</a></p>
 
 }
