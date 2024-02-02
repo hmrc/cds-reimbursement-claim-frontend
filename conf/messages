@@ -493,16 +493,16 @@ confirm-full-repayment.title=Claim back this security deposit?
 
 confirmation-of-submission.claim-reference=Your claim reference number
 confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your spam folder or <a class="govuk-link" rel="noreferrer noopener" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" target="_blank">contact HMRC (opens in new tab)</a>.
-confirmation-of-submission.feedback-link=Give feedback
-confirmation-of-submission.feedback-paragraph=Tell us about your experience using this service to help us improve it.
-confirmation-of-submission.feedback-subheading=Help us improve the service
+confirmation-of-submission.feedback-link=What did you think of this service?
 confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.title=Claim submitted
-confirmation-of-submission.view-upload=View or update an existing claim
+
 confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
-confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
+confirmation-of-submission.next-steps=Next steps
+confirmation-of-submission.view-upload=<a class="govuk-link" rel="noreferrer noopener" href="{0}">View an existing claim or upload documents</a>
+confirmation-of-submission.what-next.link.1.start-another-claim=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Start a new claim</a>
 confirmation-of-submission.what-next.p1=Your claim will be reviewed by HMRC and we will email or write to you within 30 working days with the outcome.
 confirmation-of-submission.what-next.p2=We will contact you to either:
 confirmation-of-submission.whatNext=What happens next?
