@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,14 +31,15 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
+    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
 )
 
 
 @(form: Form[List[DutyType]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"select-duty-types"}
 @title = @{messages(s"select-duty-types.title")}
+@caption = @{messages(s"select-duty-types.title.caption")}
 
 @customsOptions = @{
     DutyTypes.custom.map { dutyType =>
@@ -67,9 +69,15 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @heading(Html(title), caption = caption)
 
-    @paragraph(Html(messages(s"select-duty-types.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
+    @dropdownDetails(summary = s"select-duty-types.details.heading",
+        html(
+            paragraph(Html(messages(s"select-duty-types.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
+        )
+    )
+
+    @paragraph(Html(messages(s"select-duty-types.inset")),Some("govuk-inset-text govuk-!-margin-bottom-5"))
 
     @paragraph(Html(messages(s"select-duty-types.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
 
@@ -77,7 +85,7 @@
 
         <div class="cds-combined-checkbox-groups">
 
-            @checkboxes(
+            @checkboxes(    
                 field = form(s"select-duty-types"),
                 legend = HtmlContent(messages(s"select-duty-types.checkbox-legend.1")),
                 legendAsHeading = false,

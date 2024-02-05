@@ -1530,8 +1530,11 @@ select-duty-types.checkbox-legend.2=Excise Duties
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.error.required=Choose the duties you want to include in your claim
 select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
-select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
+select-duty-types.title=Which duties do you want to claim for?
+select-duty-types.title.caption=Claim details
+select-duty-types.details.heading=Find out more about duties
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-types.inset=Select all duty types you want to claim for all MRNs in the claim summary file you uploaded.
 
 select-method-of-disposal.rejected-goods.error.required=Select the method of disposal
 select-method-of-disposal.rejected-goods.method.Destruction=Destroy the goods
