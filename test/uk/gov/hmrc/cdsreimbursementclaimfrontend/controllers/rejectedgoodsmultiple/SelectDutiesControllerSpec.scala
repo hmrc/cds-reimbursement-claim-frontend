@@ -109,7 +109,7 @@ class SelectDutiesControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(1)),
+            messageFromMessageKey(s"$messagesKey.title"),
             doc => validateSelectDutiesPage(doc, 1, mrns.head, displayedTaxCodes, Seq.empty)
           )
         }
@@ -132,7 +132,7 @@ class SelectDutiesControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(1)),
+            messageFromMessageKey(s"$messagesKey.title"),
             doc => validateSelectDutiesPage(doc, 1, mrn, displayedTaxCodes, selectedTaxCodes)
           )
         }
@@ -155,7 +155,7 @@ class SelectDutiesControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(1)),
+            messageFromMessageKey(s"$messagesKey.title"),
             doc => validateSelectDutiesPage(doc, 1, mrn, displayedTaxCodes, selectedTaxCodes)
           )
         }
@@ -187,7 +187,7 @@ class SelectDutiesControllerSpec
 
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
-              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
+              messageFromMessageKey(s"$messagesKey.title"),
               doc => validateSelectDutiesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, Seq.empty)
             )
           }
@@ -210,7 +210,7 @@ class SelectDutiesControllerSpec
 
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
-              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
+              messageFromMessageKey(s"$messagesKey.title"),
               doc => validateSelectDutiesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
             )
           }
@@ -233,7 +233,7 @@ class SelectDutiesControllerSpec
 
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
-              messageFromMessageKey(s"$messagesKey.multiple.title", OrdinalNumber.label(mrnIndex + 1)),
+              messageFromMessageKey(s"$messagesKey.title"),
               doc => validateSelectDutiesPage(doc, mrnIndex + 1, mrn, displayedTaxCodes, selectedTaxCodes)
             )
           }

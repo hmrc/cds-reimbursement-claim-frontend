@@ -38,7 +38,7 @@
 @(form : Form[Seq[TaxCode]], securityId: String, dutiesToDisplay : Seq[DutyAmount], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
-  @title = @{messages(s"select-duties.title")}
+  @title = @{messages(s"select-duties.securities.title")}
   @caption = @{messages(s"select-duties.caption", securityId)}
   @pageTitleWithCaption = @{s"$caption: $title"}
 

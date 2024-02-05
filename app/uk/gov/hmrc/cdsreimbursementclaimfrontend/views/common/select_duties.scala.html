@@ -51,7 +51,8 @@
 )(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duties"}
-    @title = @{messages(combine(key, subKey, if (isSubsidyOnly) "subsidies.title" else "title"), indexAndMrnOpt.map{case (index, _) => OrdinalNumber.label(index)}.getOrElse(""))}
+    @title = @{messages(s"select-duties.title")}
+    @caption = @{messages(s"select-duties.title.caption")}
 
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
         CheckboxItem(
@@ -69,11 +70,15 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
+        @heading(Html(title), caption = caption)
 
-        @indexAndMrnOpt.map{ case(_, mrn) =>
-            @paragraph(Html(messages(combine(key, subKey, "help-text.1"), mrn.value)))
-        }.getOrElse("")
+        @if(subKey.getOrElse("") == "multiple"){
+            @indexAndMrnOpt.map{ case(_, mrn) =>
+                @paragraph(Html(messages(s"select-duties.multiple.paragraph", mrn.value)))
+            }.getOrElse("")
+        } else {
+            @paragraph(Html(messages(s"select-duties.paragraph")),Some("govuk-body"))
+        }
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

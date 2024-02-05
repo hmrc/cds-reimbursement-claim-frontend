@@ -62,7 +62,7 @@ class SelectDutiesController @Inject() (
           availableDuties,
           None,
           !journey.isSubsidyOnlyJourney,
-          None,
+          Some("single"),
           postAction,
           journey.isSubsidyOnlyJourney
         )
@@ -90,7 +90,7 @@ class SelectDutiesController @Inject() (
                     availableDuties,
                     None,
                     !journey.isSubsidyOnlyJourney,
-                    None,
+                    Some("single"),
                     postAction,
                     journey.isSubsidyOnlyJourney
                   )
