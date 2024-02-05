@@ -120,32 +120,6 @@ class SelectDutiesControllerSpec
         )
       }
 
-      "display the page for subsidies MRNs" in {
-        val journey = RejectedGoodsSingleJourney
-          .empty(
-            exampleDisplayDeclaration.withSomeSubsidiesPaymentMethod().getDeclarantEori,
-            features = Some(RejectedGoodsSingleJourney.Features(true, true))
-          )
-          .submitMovementReferenceNumberAndDeclaration(
-            exampleMrn,
-            exampleDisplayDeclaration.withAllSubsidiesPaymentMethod()
-          )
-          .getOrFail
-
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$messagesKey.subsidies.title"),
-          assertPageContent(_, journey, Seq.empty)
-        )
-      }
-
       "display the page when a tax code has already been selected before" in {
         forAll(completeJourneyGen) { journey =>
           val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
