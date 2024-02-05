@@ -1522,7 +1522,10 @@ select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.wine=wine
 select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-codes.subsidy-text=Duties shown are all covered by subsidy.
-select-duty-codes.title=Select the {0} duties you want to claim for all MRNs in the file you uploaded
+select-duty-codes.title.caption=Claim details
+select-duty-codes.title=Which {0} duties do you want to claim for?
+select-duty-codes.p1=Select all duty types you want to claim for all MRNs in the claim summary file you uploaded.
+select-duty-codes.details.heading=Find out more about duties
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 
 select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
