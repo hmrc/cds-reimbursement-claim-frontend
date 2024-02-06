@@ -80,10 +80,14 @@ class EnterClaimControllerSpec
         .map(BigDecimal.apply)
         .getOrElse(fail(s"Missing paid amount for $taxCode"))
 
-    assertPageElementsByIdAndExpectedText(doc)(
-      "enter-claim-description"           -> m("enter-claim.help-text"),
+    assertPageElementsByIdAndExpectedHtml(doc)(
       "enter-claim-agent-fees-disclaimer" -> m("enter-claim.inset-text"),
-      "enter-claim-how-much-was-paid"     -> m("enter-claim.paid-amount-label", paidAmount.toPoundSterlingString),
+      "enter-claim-how-much-was-paid"     -> m(
+        "enter-claim.paid-amount-label",
+        paidAmount.toPoundSterlingString,
+        taxCode,
+        m(s"select-duties.duty.$taxCode")
+      ),
       "enter-claim-label"                 -> m("enter-claim.actual-amount"),
       "enter-claim-hint"                  -> m("enter-claim.actual-amount.hint", taxCode, m(s"select-duties.duty.$taxCode"))
     )

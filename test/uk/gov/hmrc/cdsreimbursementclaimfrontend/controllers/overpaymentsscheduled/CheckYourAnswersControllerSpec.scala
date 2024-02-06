@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber

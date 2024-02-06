@@ -357,6 +357,18 @@ trait ControllerSpec
       }
     }
 
+  final def assertPageElementsByIdAndExpectedHtml(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =
+    idsWithExpectedContentMap.foreach { case (elementId, expectedHtml) =>
+      val element = doc.getElementById(elementId)
+      if (element == null) {
+        fail(s"""Missing page element with id="$elementId"""")
+      } else {
+        withClue(s"Inside ${element.outerHtml()} has text ")(
+          element.html shouldBe expectedHtml
+        )
+      }
+    }
+
   final def assertPageElementsBySelectorAndExpectedText(doc: Document)(
     selectorsWithExpectedContentMap: (String, String)*
   ): Any =
