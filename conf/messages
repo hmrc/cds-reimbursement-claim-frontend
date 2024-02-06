@@ -857,16 +857,15 @@ enter-claim-scheduled.rejected-goods.title=Claim details for all MRNs under {0} 
 
 enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
-enter-claim.actual-amount.hint=The claim amount must be lower than or equal to the paid amount.
+enter-claim.actual-amount.hint=The claim amount must be lower than the amount paid.
 enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
-enter-claim.help-text=This is to calculate your repayment as part of your claim.
 enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
-enter-claim.mrn=Movement Reference Number (MRN):
-enter-claim.paid-amount-label=How much was paid: {0}
-enter-claim.paid-amount-label.subsidy=How much was paid by subsidy: {0}
+enter-claim.mrn=MRN:
+enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
+enter-claim.paid-amount-label.subsidy=How much {1} - {2} was paid by subsidy: <span id="paid-amount">{0}</span>
 enter-claim.rejected-goods.claim-amount=How much should have been paid, in pounds?
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
 enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Claim amount must be less than the amount paid
