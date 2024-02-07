@@ -61,7 +61,7 @@ class EnterClaimControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "multiple-enter-claim"
+  private val messagesKey: String = "enter-claim"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
@@ -73,19 +73,19 @@ class EnterClaimControllerSpec
     taxCode: TaxCode,
     actualAmountOpt: Option[BigDecimal]
   ) = {
-    formAction(doc)                          shouldBe routes.EnterClaimController.submit(pageIndex, taxCode).url
+    formAction(doc)                 shouldBe routes.EnterClaimController.submit(pageIndex, taxCode).url
     assertPageElementsByIdAndExpectedText(doc)(
-      "MRN"                                        -> mrn.value,
-      "multiple-enter-claim-agent-fees-disclaimer" -> m("multiple-enter-claim.inset-text"),
-      "multiple-enter-claim-label"                 -> m("multiple-enter-claim.actual-amount"),
-      "multiple-enter-claim-hint"                  -> m(
-        "multiple-enter-claim.actual-amount.hint",
+      "MRN"                               -> mrn.value,
+      "enter-claim-agent-fees-disclaimer" -> m("enter-claim.inset-text"),
+      "enter-claim-label"                 -> m("enter-claim.actual-amount"),
+      "enter-claim-hint"                  -> m(
+        "enter-claim.actual-amount.hint",
         taxCode,
         m(s"select-duties.duty.$taxCode")
       )
     )
     assertPageInputsByIdAndExpectedValue(doc)(
-      "multiple-enter-claim"                       ->
+      "enter-claim"                       ->
         actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
     )
   }
@@ -248,7 +248,7 @@ class EnterClaimControllerSpec
                 performAction(
                   pageIndex,
                   taxCode,
-                  Seq("multiple-enter-claim" -> actualAmount.toPoundSterlingString.drop(1))
+                  Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))
                 ),
                 expectedRoute
               )
@@ -277,7 +277,7 @@ class EnterClaimControllerSpec
                 performAction(
                   pageIndex,
                   taxCode,
-                  Seq("multiple-enter-claim" -> paidAmount.toPoundSterlingString.drop(1))
+                  Seq("enter-claim" -> paidAmount.toPoundSterlingString.drop(1))
                 ),
                 messageFromMessageKey(
                   s"$messagesKey.title",
@@ -287,7 +287,7 @@ class EnterClaimControllerSpec
                 ),
                 doc => {
                   validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some(paidAmount))
-                  assertShowsInputError(doc, Some(m("multiple-enter-claim.invalid.claim")))
+                  assertShowsInputError(doc, Some(m("enter-claim.invalid.claim")))
                 },
                 expectedStatus = BAD_REQUEST
               )
