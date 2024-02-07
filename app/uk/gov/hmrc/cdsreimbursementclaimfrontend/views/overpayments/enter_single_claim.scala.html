@@ -43,10 +43,9 @@
 
 @(form: Form[BigDecimal], maybeMRN: Option[String], taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false,  postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-claim"}
-@taxCodeDescription = @{messages(s"enter-claim.tax-code-description", taxCode.value, messages(s"select-duties.duty.$taxCode"))}
+@title = @{messages(s"enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
+@caption = @{messages(s"enter-claim.title.caption")}
 @hintText = @{Html(messages(s"enter-claim.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
-@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @inset = {
     @if(isSubsidyOnly){
@@ -57,13 +56,13 @@
 
 @paidAmountLabel = @{if (isSubsidyOnly) s"enter-claim.paid-amount-label.subsidy" else s"enter-claim.paid-amount-label"}
 
-@layout(pageTitle = Some(s"$taxCodeDescription"), hasErrors = hasErrors) {
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @caption_l(Html(messages(s"enter-claim.title")))
-
-    @heading(Html(taxCodeDescription))
+    @heading(Html(title), caption = caption)
 
     <p class="govuk-body">
         @messages(s"enter-claim.mrn")

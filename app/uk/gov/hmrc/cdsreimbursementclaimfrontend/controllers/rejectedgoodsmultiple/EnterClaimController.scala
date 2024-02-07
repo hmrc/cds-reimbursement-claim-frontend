@@ -54,7 +54,7 @@ class EnterClaimController @Inject() (
   val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show
   val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit
 
-  val formKey: String = "multiple-enter-claim"
+  val formKey: String = "enter-claim"
 
   final val showFirst: Action[AnyContent] =
     showFirstByIndex(1)

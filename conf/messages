@@ -890,8 +890,8 @@ enter-claim.securities.claim-amount.hint=The amount must be lower than the amoun
 enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.title=Claim details for {0} - {1}
 enter-claim.securities.title.caption=Security deposit: {0}
-enter-claim.tax-code-description={0} - {1}
-enter-claim.title=Claim details
+enter-claim.title={0} - {1}
+enter-claim.title.caption=Claim details
 
 enter-contact-details.add.title=Add contact details
 enter-contact-details.change.title=Change contact details
@@ -1234,18 +1234,6 @@ multiple-check-claim-summary.overall-total.label=Total repayment
 multiple-check-claim-summary.title=Check the repayment totals for this claim
 multiple-check-claim-summary.total=Repayment for this MRN
 multiple-check-claim-summary.yes=Yes
-
-multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
-multiple-enter-claim.actual-amount.error.invalid=The claim amount must be equal to or less than the amount paid
-multiple-enter-claim.actual-amount.hint=The amount must be lower than the amount paid. For example £110.40
-multiple-enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
-multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
-multiple-enter-claim.help-text=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
-multiple-enter-claim.inset-text=HMRC does not refund agents’ fees.
-multiple-enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
-multiple-enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
-multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
-multiple-enter-claim.title=Claim details for {0} - {1} under {2} MRN
 
 multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: <strong>{0}</strong>
 multiple-select-duties.title=Select the duties you want to claim for under {0} MRN

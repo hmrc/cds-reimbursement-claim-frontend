@@ -40,17 +40,20 @@
     insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
-@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidy: Boolean = false, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"multiple-enter-claim"}
-@title = @{messages(s"multiple-enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumeral(mrnIndex))}
+@title = @{messages(s"enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumeral(mrnIndex))}
+@caption = @{messages(s"enter-claim.title.caption")}
+@hintText = @{Html(messages(s"enter-claim.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
 
 @inset = {
-    @if(isSubsidy){
-        @paragraph(Html(messages(s"multiple-enter-claim.inset-text.subsidy")))
+    @if(isSubsidyOnly){
+        @paragraph(Html(messages(s"enter-claim.inset-text.subsidy")))
     }
-    @paragraph(Html(messages(s"multiple-enter-claim.inset-text")), id = s"multiple-enter-claim-agent-fees-disclaimer")
+    @paragraph(Html(messages(s"enter-claim.inset-text")), id = s"enter-claim-agent-fees-disclaimer")
 }
+
+@paidAmountLabel = @{if (isSubsidyOnly) s"enter-claim.paid-amount-label.subsidy" else s"enter-claim.paid-amount-label"}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -58,26 +61,29 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @heading(Html(title), caption = caption)
 
-    @paragraph(Html(messages(s"multiple-enter-claim.help-text", mrn.value)), id=s"multiple-enter-claim.help-text")
+    <p class="govuk-body">
+        @messages(s"enter-claim.mrn")
+        <span id="MRN" class="govuk-!-font-weight-bold">@{mrn.value}</span>
+    </p>
 
     @insetText(content = HtmlContent(inset))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"multiple-enter-claim.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
+        @paragraph(Html(messages(paidAmountLabel, paidAmount.toPoundSterlingString, taxCode, messages(s"select-duties.duty.${taxCode}"))), Some("govuk-body-l govuk-!-font-weight-bold"))
 
         @inputText(
             form = form,
-            id = key,
-            name = key,
-            label = s"multiple-enter-claim.actual-amount",
-            labelClasses = Some("govuk-label govuk-label--m"),
+            id = s"enter-claim",
+            name = s"enter-claim",
+            label = s"enter-claim.actual-amount",
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
-            hintHtml = Some(Html(messages(s"multiple-enter-claim.actual-amount.hint"))),
+            hintHtml = Some(hintText),
+            labelClasses = Some("govuk-label govuk-label--m"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
