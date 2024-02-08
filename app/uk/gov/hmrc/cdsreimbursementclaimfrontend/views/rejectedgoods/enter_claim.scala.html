@@ -38,31 +38,35 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, subKey: Option[String], postAction: Call, maybeMrn: Option[MRN] = None, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], taxCode: TaxCode, indexOpt: Option[Int], paidAmount: BigDecimal, subKey: Option[String], postAction: Call, maybeMRN: Option[String] = None, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-claim.rejected-goods"}
-@title = @{messages(combine(key, subKey, "title"), taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumber.label(indexOpt.getOrElse(0)))}
+@title = @{messages(s"enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
+@caption = @{messages(s"enter-claim.title.caption")}
 @hintText = @{Html(messages(s"enter-claim.rejected-goods.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-@p1Text = @{ maybeMrn.fold(messages(s"enter-claim.rejected-goods.paragraph")) { mrn => messages(s"enter-claim.rejected-goods.for-mrn.paragraph", mrn.value)} }
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @heading(Html(title), caption = caption)
 
-    @paragraph(Html(p1Text))
+    <p class="govuk-body">
+        @messages(s"enter-claim.mrn")
+        <span id="MRN" class="govuk-!-font-weight-bold">@{maybeMRN.getOrElse("")}</span>
+    </p>
+
 
     @if(isSubsidy) {
         @paragraph(Html(messages(s"enter-claim.rejected-goods.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
     }
 
-    @paragraph(Html(messages(s"enter-claim.rejected-goods.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8 govuk-!-margin-top-0"))
+    @paragraph(Html(messages(s"enter-claim.rejected-goods.inset-text")), Some("govuk-inset-text govuk-!-margin-top-0"))
+
+    @paragraph(Html(messages(s"enter-claim.paid-amount-label", paidAmount.toPoundSterlingString, taxCode.value, messages(s"select-duties.duty.$taxCode"))), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"enter-claim-how-much-was-paid")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-
-        @paragraph(Html(messages(s"enter-claim.rejected-goods.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
 
         @inputText(
             form = form,
