@@ -117,7 +117,7 @@ class EnterClaimControllerSpec
 
       }
 
-      " the user revisits enter claim page again" in forAll(completeJourneyGen) { journey =>
+      "the user revisits enter claim page again" in forAll(completeJourneyGen) { journey =>
         val dutyType: DutyType                   = journey.getReimbursementClaims.head._1
         val taxCode: TaxCode                     = journey.getReimbursementClaimsFor(dutyType).get.head._1
         val reimbursement: AmountPaidWithCorrect = journey.getReimbursementClaimsFor(dutyType).get.head._2.get
@@ -134,7 +134,8 @@ class EnterClaimControllerSpec
           messageFromMessageKey(
             messageKey = s"$enterClaimKey.title",
             messages(s"duty-type.${dutyType.repr}"),
-            taxCode.value
+            taxCode.value,
+            messages(s"select-duties.duty.$taxCode")
           ),
           doc => {
             val elements = doc.select("input")
@@ -259,7 +260,8 @@ class EnterClaimControllerSpec
                 messageFromMessageKey(
                   messageKey = s"$enterClaimKey.title",
                   messages(s"duty-type.${dutyType.repr}"),
-                  taxCode.value
+                  taxCode.value,
+                  messages(s"select-duties.duty.$taxCode")
                 ),
                 doc => {
                   doc
@@ -289,7 +291,8 @@ class EnterClaimControllerSpec
                 messageFromMessageKey(
                   messageKey = s"$enterClaimKey.title",
                   messages(s"duty-type.${dutyType.repr}"),
-                  taxCode.value
+                  taxCode.value,
+                  messages(s"select-duties.duty.$taxCode")
                 ),
                 doc =>
                   doc
@@ -315,7 +318,8 @@ class EnterClaimControllerSpec
                 messageFromMessageKey(
                   messageKey = s"$enterClaimKey.title",
                   messages(s"duty-type.${dutyType.repr}"),
-                  taxCode.value
+                  taxCode.value,
+                  messages(s"select-duties.duty.$taxCode")
                 ),
                 doc =>
                   doc
