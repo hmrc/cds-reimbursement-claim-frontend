@@ -83,6 +83,7 @@ class EnterClaimController @Inject() (
                 BigDecimal(ndrcDetails.amount)
               val form                              =
                 Forms.rejectedClaimAmountForm(key, amountPaid).withDefault(claimedAmount)
+              val maybeMRN                          = journey.getLeadMovementReferenceNumber.map(_.value)
               Ok(
                 enterClaim(
                   form,
@@ -91,6 +92,7 @@ class EnterClaimController @Inject() (
                   amountPaid,
                   subKey,
                   postAction(taxCode),
+                  maybeMRN = maybeMRN,
                   isSubsidy = isSubsidy
                 )
               ).asFuture

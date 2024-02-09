@@ -114,7 +114,7 @@ class EnterClaimControllerSpec
       "display the enter claim page on a new journey" in forAll {
         (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
           val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-          val amountPaid         = BigDecimal(ndrcDetails.amount)
+          val paidAmount         = BigDecimal(ndrcDetails.amount)
           val session            = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
 
           inSequence {
@@ -128,12 +128,12 @@ class EnterClaimControllerSpec
 
           checkPageIsDisplayed(
             result,
-            messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
+            messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
             doc => {
               doc
                 .select("p.govuk-inset-text")
                 .html()                                                                   shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
-              doc.select("#amount-paid").text()                                           shouldBe amountPaid.toPoundSterlingString
+              doc.select("#paid-amount").text()                                           shouldBe paidAmount.toPoundSterlingString
               doc.select("input[name='enter-claim.rejected-goods.claim-amount']").`val`() shouldBe ""
               doc.select("form").attr("action")                                           shouldBe routes.EnterClaimController.submit(taxCode).url
             }
@@ -147,7 +147,7 @@ class EnterClaimControllerSpec
             val updatedDd          = displayDeclaration.copy(displayResponseDetail = drd)
             val taxCode            = TaxCode(ndrcDetails.taxType)
             val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-            val amountPaid         = BigDecimal(ndrcDetails.amount)
+            val paidAmount         = BigDecimal(ndrcDetails.amount)
             val amountClaimed      = BigDecimal(ndrcDetails.amount) - 10
             val journey            = RejectedGoodsSingleJourney
               .empty(displayDeclaration.getDeclarantEori)
@@ -166,12 +166,12 @@ class EnterClaimControllerSpec
 
             checkPageIsDisplayed(
               result,
-              messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
+              messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
               doc => {
                 doc
                   .select("p.govuk-inset-text")
                   .html()                         shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
-                doc.select("#amount-paid").text() shouldBe amountPaid.toPoundSterlingString
+                doc.select("#paid-amount").text() shouldBe paidAmount.toPoundSterlingString
                 doc
                   .select("input[name='enter-claim.rejected-goods.claim-amount']")
                   .`val`()                        shouldBe f"$amountClaimed%1.2f"
@@ -225,7 +225,7 @@ class EnterClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> ""),
-          messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
+          messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               "enter-claim.rejected-goods.claim-amount.error.required"
@@ -250,7 +250,7 @@ class EnterClaimControllerSpec
               ndrcDetails.taxType,
               "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
             ),
-            messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
+            messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey(
                 "enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only"
@@ -271,7 +271,7 @@ class EnterClaimControllerSpec
 
           checkPageIsDisplayed(
             performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> "invalid"),
-            messageFromMessageKey("enter-claim.rejected-goods.single.title", ndrcDetails.taxType, taxCodeDescription),
+            messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey(
                 "enter-claim.rejected-goods.claim-amount.error.invalid-text"
