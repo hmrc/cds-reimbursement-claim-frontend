@@ -18,26 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
-
-  val ZERO = BigDecimal("0.00")
 
   val emptyJourney: OverpaymentsSingleJourney =
     OverpaymentsSingleJourney.empty(exampleEori)

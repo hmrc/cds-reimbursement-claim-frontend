@@ -47,8 +47,6 @@ final class OverpaymentsSingleJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsSingleJourney]
     with OverpaymentsJourneyProperties
-    with CanSubmitMrnAndDeclaration
-    with CanSubmitContactDetails
     with JourneyAnalytics {
 
   type Type = OverpaymentsSingleJourney

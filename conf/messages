@@ -839,22 +839,6 @@ enter-bank-account-details.sort-code.invalid=Enter a valid sort code like 309430
 enter-bank-account-details.sort-code.label=Sort code
 enter-bank-account-details.title=Enter your bank account details
 
-enter-claim-scheduled.rejected-goods.claim-amount=How much should have been paid, in pounds?
-enter-claim-scheduled.rejected-goods.claim-amount.error.invalid=The claim amount must be a number, like 30 or 60.55
-enter-claim-scheduled.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
-enter-claim-scheduled.rejected-goods.claim-amount.error.zero=The claim amount must be more than zero
-enter-claim-scheduled.rejected-goods.claim-amount.hint=The amount must be lower than the amount paid. For example £110.40.
-enter-claim-scheduled.rejected-goods.claim-amount.invalid.claim=The claim amount must be equal to or less than the amount paid
-enter-claim-scheduled.rejected-goods.help-text=Provide your claim details for {0}.
-enter-claim-scheduled.rejected-goods.inset-text=HMRC does not refund agents’ fees.
-enter-claim-scheduled.rejected-goods.invalid.claim=The claim amount must be a number, like 30 or 60.55
-enter-claim-scheduled.rejected-goods.paid-amount=How much was paid, in pounds?
-enter-claim-scheduled.rejected-goods.paid-amount.error.invalid=The amount paid must be a number, like 30 or 60.55
-enter-claim-scheduled.rejected-goods.paid-amount.error.required=Enter the amount that was paid, in pounds
-enter-claim-scheduled.rejected-goods.paid-amount.error.zero=The amount paid must be more than zero
-enter-claim-scheduled.rejected-goods.subsidy.inset-text=Your subsidy allocation balance will be credited with any claim repayments.
-enter-claim-scheduled.rejected-goods.title=Claim details for all MRNs under {0} {1}
-
 enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.actual-amount.hint=The claim amount must be lower than the amount paid.

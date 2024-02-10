@@ -54,7 +54,13 @@ class EnterBankAccountDetailsController @Inject() (
   ): Either[String, SecuritiesJourney] =
     journey.submitBankAccountDetails(bankAccountDetails)
 
-  override val routesPack: RoutesPack = RoutesPack(
+  override val routesPack = EnterBankAccountDetailsController.routesPack
+
+}
+
+object EnterBankAccountDetailsController {
+
+  val routesPack = EnterBankAccountDetailsMixin.RoutesPack(
     errorPath = commonRoutes.BankAccountVerificationUnavailable.show(),
     retryPath = routes.EnterBankAccountDetailsController.show(),
     successPath = routes.CheckBankDetailsController.show(),

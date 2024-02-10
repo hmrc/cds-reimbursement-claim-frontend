@@ -18,29 +18,24 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 import scala.collection.immutable.SortedMap
-import scala.jdk.CollectionConverters._
 import scala.util.Random
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
-object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with JourneyTestData {
-
-  val ZERO = BigDecimal("0.00")
+object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators with JourneyTestData {
 
   val emptyJourney: OverpaymentsScheduledJourney =
     OverpaymentsScheduledJourney.empty(exampleEori)
@@ -78,60 +73,6 @@ object OverpaymentsScheduledJourneyGenerators extends JourneyGenerators with Jou
       completeJourneyWithMatchingUserEoriGen,
       completeJourneyWithNonNatchingUserEoriGen
     )
-
-  val amountPaidWithCorrectGen: Gen[AmountPaidWithCorrect] =
-    for {
-      correctAmount <- Gen.choose(BigDecimal("0.01"), BigDecimal("1000.00"))
-      random        <- Gen.choose(BigDecimal("0.01"), BigDecimal("100.00"))
-      paidAmount     = random + correctAmount
-    } yield AmountPaidWithCorrect(paidAmount, correctAmount)
-
-  val dutyTypesGen: Gen[Seq[DutyType]] =
-    for {
-      n   <- Gen.choose(2, DutyTypes.all.size - 1)
-      dts <- Gen.pick(n, DutyTypes.all)
-    } yield dts.sorted.toSeq
-
-  def taxCodesGen(dutyType: DutyType): Gen[Seq[TaxCode]] =
-    for {
-      n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
-      tcs <- Gen.pick(n, dutyType.taxCodes)
-    } yield tcs.sorted.toSeq
-
-  val dutyTypesWithTaxCodesGen: Gen[Seq[(DutyType, Seq[TaxCode])]] = dutyTypesGen.flatMap(dutyTypes =>
-    Gen.sequence[Seq[(DutyType, Seq[TaxCode])], (DutyType, Seq[TaxCode])](
-      dutyTypes.map(dutyType =>
-        for {
-          n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
-          tcs <- Gen.pick(n, dutyType.taxCodes)
-        } yield (dutyType, tcs.sorted.toSeq)
-      )
-    )
-  )
-
-  type TaxCodeWithAmounts = (TaxCode, BigDecimal, BigDecimal)
-
-  def taxCodesWithClaimAmountsGen(dutyType: DutyType): Gen[Seq[TaxCodeWithAmounts]] =
-    for {
-      n       <- Gen.choose(1, dutyType.taxCodes.size - 1)
-      tcs     <- Gen.pick(n, dutyType.taxCodes)
-      amounts <- Gen.sequence[Seq[TaxCodeWithAmounts], TaxCodeWithAmounts](
-                   tcs.sorted.map(tc =>
-                     amountNumberGen
-                       .flatMap(paid =>
-                         amountNumberInRangeGen(ZERO, paid - BigDecimal("0.01"))
-                           .map(correct => (tc, paid, correct))
-                       )
-                   )
-                 )
-    } yield amounts
-
-  val dutyTypesWithTaxCodesWithClaimAmountsGen: Gen[Seq[(DutyType, Seq[TaxCodeWithAmounts])]] =
-    for {
-      dutyTypes <- dutyTypesGen
-      result    <-
-        Gen.sequence(dutyTypes.map(dutyType => taxCodesWithClaimAmountsGen(dutyType).map(tcs => dutyType -> tcs)))
-    } yield result.asScala.toSeq
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(

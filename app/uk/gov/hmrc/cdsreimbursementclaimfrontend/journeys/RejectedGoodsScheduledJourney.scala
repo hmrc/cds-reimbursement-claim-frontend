@@ -48,8 +48,7 @@ final class RejectedGoodsScheduledJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsScheduledJourney]
     with RejectedGoodsJourneyProperties
-    with CanSubmitMrnAndDeclaration
-    with CanSubmitContactDetails
+    with ScheduledVariantProperties
     with HaveInspectionDetails
     with JourneyAnalytics {
 
@@ -65,97 +64,8 @@ final class RejectedGoodsScheduledJourney private (
   ): RejectedGoodsScheduledJourney =
     new RejectedGoodsScheduledJourney(newAnswers, caseNumber, features)
 
-  /** Check if all the selected duties have reimbursement and paid amounts provided. */
-  def hasCompleteReimbursementClaims: Boolean =
-    answers.reimbursementClaims
-      .exists(rc =>
-        rc.exists(_._2.nonEmpty) && rc.forall { case (dutyType, claims) =>
-          claims.nonEmpty && claims.forall {
-            case (taxCode, Some(claimAmounts)) =>
-              dutyType.taxCodes.contains(taxCode) &&
-                isValidClaimAmounts(
-                  claimAmounts.refundAmount,
-                  claimAmounts.paidAmount
-                )
-            case _                             => false
-          }
-        }
-      )
-
-  def getLeadMovementReferenceNumber: Option[MRN] =
-    answers.movementReferenceNumber
-
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    answers.displayDeclaration
-
-  def needsBanksAccountDetailsSubmission: Boolean =
-    !this.isSubsidyOnlyJourney
-
-  def getSelectedDutyTypes: Option[Seq[DutyType]] =
-    answers.reimbursementClaims.map(_.keys.toSeq)
-
-  def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
-    answers.reimbursementClaims
-      .map(_.view.mapValues(_.keys.toSeq).to(SortedMap))
-      .getOrElse(SortedMap.empty)
-
-  def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
-    answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
-
-  def getFirstDutyToClaim: Option[(DutyType, TaxCode)] =
-    getSelectedDuties.headOption
-      .flatMap { case (dt, tcs) =>
-        tcs.headOption.map(tc => (dt, tc))
-      }
-
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
     this.copy(answers.copy(dutiesChangeMode = enabled))
-
-  def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
-    getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
-
-  def findNextSelectedTaxCodeAfter(dutyType: DutyType, taxCode: TaxCode): Option[(DutyType, TaxCode)] =
-    getSelectedDutiesFor(dutyType).flatMap(nextAfter(taxCode) _) match {
-      case Some(taxCode) => Some((dutyType, taxCode))
-      case None          =>
-        findNextSelectedDutyAfter(dutyType)
-          .flatMap(dt =>
-            getSelectedDutiesFor(dt)
-              .flatMap(_.headOption)
-              .map(tc => (dt, tc))
-          )
-    }
-
-  def findNextDutyToSelectDuties: Option[DutyType] =
-    answers.reimbursementClaims.flatMap(_.find(_._2.isEmpty).map(_._1))
-
-  def getReimbursementClaimsFor(
-    dutyType: DutyType
-  ): Option[SortedMap[TaxCode, Option[AmountPaidWithRefund]]] =
-    answers.reimbursementClaims.flatMap(_.find(_._1 === dutyType)).map(_._2)
-
-  def getReimbursementFor(
-    dutyType: DutyType,
-    taxCode: TaxCode
-  ): Option[AmountPaidWithRefund] =
-    getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
-
-  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
-    answers.reimbursementClaims
-      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
-
-  val isDutyTypeSelected: Boolean                                   = answers.reimbursementClaims.exists(_.nonEmpty)
-
-  def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]] =
-    answers.reimbursementClaims
-      .map(_.view.mapValues(_.collect { case (tc, Some(r)) => (tc, r) }).to(SortedMap))
-      .getOrElse(SortedMap.empty)
-
-  def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.refundAmount)).sum
-
-  def getTotalPaidAmount: BigDecimal =
-    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsScheduledDocumentTypes)
@@ -327,15 +237,15 @@ final class RejectedGoodsScheduledJourney private (
       if (dutyTypes.isEmpty)
         Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
       else {
-        val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]] =
+        val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
           SortedMap(
             dutyTypes
               .map(dutyType =>
                 (dutyType -> getReimbursementClaimsFor(dutyType)
-                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithRefund]]))
+                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]]))
               ): _*
           )
-        Right(this.copy(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+        Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
       }
     }
 
@@ -352,7 +262,7 @@ final class RejectedGoodsScheduledJourney private (
         val allTaxCodesMatchDutyType = taxCodes.forall(tc => dutyType.taxCodes.contains(tc))
         if (allTaxCodesMatchDutyType) {
           val newReimbursementClaims =
-            answers.reimbursementClaims
+            answers.correctedAmounts
               .map { rc =>
                 SortedMap(rc.toSeq.map {
                   case (dt, reimbursementClaims) if dt.repr === dutyType.repr =>
@@ -362,39 +272,41 @@ final class RejectedGoodsScheduledJourney private (
                   case other                                                  => other
                 }: _*)
               }
-          Right(this.copy(answers.copy(reimbursementClaims = newReimbursementClaims)))
+          Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
         } else
           Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
     }
 
-  def isValidClaimAmounts(claimAmount: BigDecimal, paidAmount: BigDecimal): Boolean =
-    paidAmount > 0 && claimAmount > 0 && claimAmount <= paidAmount
+  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
+    answers.correctedAmounts
+      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
-  def submitAmountForReimbursement(
+  def submitCorrectAmount(
     dutyType: DutyType,
     taxCode: TaxCode,
-    claimAmount: BigDecimal,
-    paidAmount: BigDecimal
-  ): Either[String, RejectedGoodsScheduledJourney] =
+    paidAmount: BigDecimal,
+    correctAmount: BigDecimal
+  ): Either[String, RejectedGoodsScheduledJourney]                  =
     whileClaimIsAmendable {
       if (dutyType.taxCodes.contains(taxCode)) {
         if (isDutySelected(dutyType, taxCode)) {
-          if (isValidClaimAmounts(claimAmount, paidAmount)) {
+          val amounts = AmountPaidWithCorrect(paidAmount, correctAmount)
+          if (amounts.isValid) {
             val newReimbursementClaims =
-              answers.reimbursementClaims
+              answers.correctedAmounts
                 .map(rc =>
                   SortedMap(rc.toSeq.map {
                     case (dt, reimbursementClaims) if dt === dutyType =>
                       dt -> SortedMap(reimbursementClaims.toSeq.map {
                         case (tc, _) if tc === taxCode =>
-                          tc -> Some(AmountPaidWithRefund(paidAmount, claimAmount))
+                          tc -> Some(amounts)
                         case other                     => other
                       }: _*)
                     case other                                        => other
                   }: _*)
                 )
-            Right(this.copy(answers.copy(reimbursementClaims = newReimbursementClaims)))
+            Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
           } else
             Left("submitAmountForReimbursement.invalidReimbursementAmount")
         } else
@@ -573,7 +485,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
   ): RejectedGoodsScheduledJourney =
     new RejectedGoodsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
 
-  type ReimbursementClaims = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithRefund]]]
+  type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
   final case class Features(
     shouldBlockSubsidies: Boolean,
@@ -594,7 +506,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     basisOfClaimSpecialCircumstances: Option[String] = None,
     methodOfDisposal: Option[MethodOfDisposal] = None,
     detailsOfRejectedGoods: Option[String] = None,
-    reimbursementClaims: Option[ReimbursementClaims] = None,
+    correctedAmounts: Option[CorrectedAmounts] = None,
     inspectionDate: Option[InspectionDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
@@ -605,6 +517,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     dutiesChangeMode: Boolean = false,
     checkYourAnswersChangeMode: Boolean = false
   ) extends RejectedGoodsAnswers
+      with ScheduledVariantAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
@@ -618,7 +531,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     detailsOfRejectedGoods: String,
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
-    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithRefund]],
+    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
     reimbursementMethod: ReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     scheduledDocument: EvidenceDocument,
@@ -709,14 +622,14 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       )
       .mapWhenDefined(answers.methodOfDisposal)(_.submitMethodOfDisposal)
       .mapWhenDefined(answers.detailsOfRejectedGoods)(_.submitDetailsOfRejectedGoods)
-      .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
+      .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
         _.selectAndReplaceDutyTypeSetForReimbursement
       )
-      .flatMapEachWhenDefined(answers.reimbursementClaims)(j => { case (dutyType, reimbursements) =>
+      .flatMapEachWhenDefined(answers.correctedAmounts)(j => { case (dutyType, reimbursements) =>
         j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, reimbursements.keySet.toSeq)
           .flatMapEachWhenMappingDefined(reimbursements)(j => {
-            case (taxCode, AmountPaidWithRefund(paidAmount, claimAmount)) =>
-              j.submitAmountForReimbursement(dutyType, taxCode, paidAmount, claimAmount)
+            case (taxCode, AmountPaidWithCorrect(paidAmount, claimAmount)) =>
+              j.submitCorrectAmount(dutyType, taxCode, paidAmount, claimAmount)
           })
       })
       .map(_.withDutiesChangeMode(answers.dutiesChangeMode))

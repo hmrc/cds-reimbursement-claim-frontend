@@ -26,7 +26,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 import scala.jdk.CollectionConverters._
 
+/** Common functions and helpers supporting creation of the test journeys. */
 trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
+
+  final val ZERO = BigDecimal("0.00")
 
   final def listOfExactlyN[A](n: Int, gen: Gen[A]): Gen[List[A]] =
     Gen.sequence((1 to n).map(_ => gen)).map(_.asScala.toList)

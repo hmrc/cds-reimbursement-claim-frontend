@@ -49,8 +49,6 @@ final class RejectedGoodsSingleJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsSingleJourney]
     with RejectedGoodsJourneyProperties
-    with CanSubmitMrnAndDeclaration
-    with CanSubmitContactDetails
     with HaveInspectionDetails
     with JourneyAnalytics {
 

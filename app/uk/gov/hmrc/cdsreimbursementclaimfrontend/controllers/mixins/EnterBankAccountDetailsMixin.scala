@@ -41,11 +41,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 
 import scala.concurrent.Future
 
+object EnterBankAccountDetailsMixin {
+  final case class RoutesPack(
+    errorPath: Call,
+    retryPath: Call,
+    successPath: Call,
+    submitPath: Call,
+    getBankAccountTypePath: Call
+  )
+}
+
 trait EnterBankAccountDetailsMixin extends JourneyBaseController {
 
   val enterBankAccountDetailsPage: enter_bank_account_details
   val bankAccountReputationService: BankAccountReputationService
-  val routesPack: RoutesPack
+  val routesPack: EnterBankAccountDetailsMixin.RoutesPack
 
   implicit val errorHandler: ErrorHandler
 
@@ -149,20 +159,12 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
         logAndDisplayError("could not process bank account details: ", e)
     }
 
-  case class RoutesPack(
-    errorPath: Call,
-    retryPath: Call,
-    successPath: Call,
-    submitPath: Call,
-    getBankAccountTypePath: Call
-  )
-
   @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
   private def processBankAccountReputation(
     journey: Journey,
     bankAccountReputation: BankAccountReputation,
     bankAccountDetails: BankAccountDetails,
-    nextPage: RoutesPack
+    nextPage: EnterBankAccountDetailsMixin.RoutesPack
   )(implicit request: Request[_]): (Journey, Result) =
     bankAccountReputation match {
       case BankAccountReputation(

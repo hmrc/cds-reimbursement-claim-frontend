@@ -16,12 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import scala.collection.immutable.SortedMap
 
-trait CanSubmitContactDetails {
-  this: Journey =>
+/** Common answers of the scheduled journey variant. */
+trait ScheduledVariantAnswers extends CommonAnswers {
 
-  def submitContactDetails(contactDetails: Option[MrnContactDetails]): Journey
-  def submitContactAddress(contactAddress: ContactAddress): Journey
+  def movementReferenceNumber: Option[MRN]
+  def scheduledDocument: Option[UploadedFile]
+  def displayDeclaration: Option[DisplayDeclaration]
+  def correctedAmounts: Option[SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]]
+
 }

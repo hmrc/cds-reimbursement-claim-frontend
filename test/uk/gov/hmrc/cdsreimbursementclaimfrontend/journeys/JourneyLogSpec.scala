@@ -21,6 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
@@ -350,12 +351,12 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
             Seq(
               DutyType.UkDuty -> SortedMap.from(
                 Seq(
-                  TaxCode.A90 -> AmountPaidWithRefund(BigDecimal("200000"), BigDecimal("84.56"))
+                  TaxCode.A80 -> AmountPaidWithCorrect(BigDecimal("200000"), BigDecimal("1234.56"))
                 )
               ),
               DutyType.EuDuty -> SortedMap.from(
                 Seq(
-                  TaxCode.A80 -> AmountPaidWithRefund(BigDecimal("2000"), BigDecimal("42.34"))
+                  TaxCode.A90 -> AmountPaidWithCorrect(BigDecimal("2000"), BigDecimal("12.34"))
                 )
               )
             )
@@ -380,7 +381,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold                shouldBe "3"
+      log.claimedAmountThreshold                shouldBe "6"
       log.claimedDuties                         shouldBe Seq("A80", "A90")
       log.numberOfClaimedDuties                 shouldBe 2
       log.uploads.numberOfEvidenceFilesAttached shouldBe 2

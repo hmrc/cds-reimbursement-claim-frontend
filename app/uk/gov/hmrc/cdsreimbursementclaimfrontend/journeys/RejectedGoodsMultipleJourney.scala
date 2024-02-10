@@ -48,8 +48,6 @@ final class RejectedGoodsMultipleJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsMultipleJourney]
     with RejectedGoodsJourneyProperties
-    with CanSubmitMrnAndDeclaration
-    with CanSubmitContactDetails
     with HaveInspectionDetails
     with JourneyAnalytics {
 
@@ -262,7 +260,7 @@ final class RejectedGoodsMultipleJourney private (
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ) =
+  ): Either[String, RejectedGoodsMultipleJourney] =
     submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
 
   def submitMovementReferenceNumberAndDeclaration(

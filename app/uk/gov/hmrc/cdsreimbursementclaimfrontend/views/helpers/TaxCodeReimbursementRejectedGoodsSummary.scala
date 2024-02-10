@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -34,10 +34,10 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import scala.collection.immutable.SortedMap
 
 object TaxCodeReimbursementRejectedGoodsSummary
-    extends AnswerSummary[(DutyType, SortedMap[TaxCode, AmountPaidWithRefund])] {
+    extends AnswerSummary[(DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])] {
 
   def render(
-    answer: (DutyType, SortedMap[TaxCode, AmountPaidWithRefund]),
+    answer: (DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]),
     key: String,
     subKey: Option[String],
     changeCallOpt: Option[Call]
@@ -48,7 +48,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
     val claimsMadeAgainstTaxCodes = answer._2
 
     SummaryList(
-      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, AmountPaidWithRefund) =>
+      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect) =>
         val taxCode       = taxCodeWithClaim._1
         val reimbursement = taxCodeWithClaim._2
 

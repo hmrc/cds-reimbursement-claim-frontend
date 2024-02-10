@@ -24,7 +24,8 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -32,38 +33,41 @@
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(dutyType: DutyType, dutyCode: TaxCode, form : Form[AmountPaidWithRefund], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(dutyType: DutyType, taxCode: TaxCode, form : Form[AmountPaidWithCorrect], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-claim-scheduled.rejected-goods"}
-@title = @{messages(s"enter-claim-scheduled.rejected-goods.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
-@hintText = @{Html(messages(s"enter-claim-scheduled.rejected-goods.claim-amount.hint"))}
+@title = @{messages(s"enter-scheduled-claim.title", messages(s"duty-type.${dutyType.repr}"), taxCode.value, messages(s"select-duties.duty.${taxCode}"))}
+@caption = @{messages(s"enter-claim.title.caption")}
+@hintText = @{Html(messages(s"enter-scheduled-claim.actual-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@inset = {
+    @{if (isSubsidy) paragraph(Html(messages(s"enter-scheduled-claim.subsidy-inset-text"))) else None}
+    @paragraph(Html(messages(s"enter-scheduled-claim.inset-text")))
+}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @heading(Html(title), caption = caption)
 
-    @paragraph(Html(messages(s"enter-claim-scheduled.rejected-goods.help-text", messages(s"tax-code.${dutyCode.value}"))))
+    @insetText(content = HtmlContent(inset))
 
-    @if(isSubsidy) {
-        @paragraph(Html(messages(s"enter-claim-scheduled.rejected-goods.subsidy.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-0"))
-    }
-
-    @paragraph(Html(messages(s"enter-claim-scheduled.rejected-goods.inset-text")), Some("govuk-inset-text govuk-!-margin-top-0 govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"enter-scheduled-claim.help-text", messages(s"duty-type.${dutyType.repr}"), taxCode.value)))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @inputText(
             form = form,
-            id = s"enter-claim-scheduled.rejected-goods.paid-amount",
-            name = s"enter-claim-scheduled.rejected-goods.paid-amount",
-            label = s"enter-claim-scheduled.rejected-goods.paid-amount",
+            id = s"enter-scheduled-claim.paid-amount",
+            name = s"enter-scheduled-claim.paid-amount",
+            label = s"enter-scheduled-claim.paid-amount",
+            headingMessageArgs = Seq(messages(s"duty-type.${dutyType.repr}"), taxCode.value),
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,
@@ -71,12 +75,11 @@
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
-
         @inputText(
             form = form,
-            id = s"enter-claim-scheduled.rejected-goods.claim-amount",
-            name = s"enter-claim-scheduled.rejected-goods.claim-amount",
-            label = s"enter-claim-scheduled.rejected-goods.claim-amount",
+            id = s"enter-scheduled-claim.actual-amount",
+            name = s"enter-scheduled-claim.actual-amount",
+            label = s"enter-scheduled-claim.actual-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,

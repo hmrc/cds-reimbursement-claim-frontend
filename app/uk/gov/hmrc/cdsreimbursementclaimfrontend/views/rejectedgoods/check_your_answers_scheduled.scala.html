@@ -79,8 +79,8 @@
     @subHeading(Html(messages(s"check-your-answers.details-rejected-goods.h2")))
     @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"check-your-answers.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
     
-    @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
-    @summary(ReimbursementClaimsRejectedGoodsSummary.scheduledForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", Some(routes.CheckClaimDetailsController.show())))
+    @subHeading(Html(messages(s"check-your-answers.claim-calculation.scheduled.h2")))
+    @summary(ReimbursementsClaimsSummary.scheduledForCYA(claim.reimbursementClaims, s"check-your-answers.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
 
     @subHeading(Html(messages(s"check-your-answers.inspection.h2")))
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show(),

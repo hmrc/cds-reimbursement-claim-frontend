@@ -56,6 +56,7 @@ trait SessionSupport { this: MockFactory =>
     (mockSessionCache
       .store(_: SessionData)(_: HeaderCarrier))
       .expects(session, *)
+      .noMoreThanOnce()
       .returning(Future.successful(result))
 
   def mockStoreSession(
@@ -64,5 +65,6 @@ trait SessionSupport { this: MockFactory =>
     (mockSessionCache
       .store(_: SessionData)(_: HeaderCarrier))
       .expects(*, *)
+      .noMoreThanOnce()
       .returning(Future.successful(result))
 }
