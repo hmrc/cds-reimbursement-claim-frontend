@@ -39,12 +39,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -94,12 +97,15 @@ class CheckYourAnswersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  @annotation.nowarn
-  def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsScheduledJourney.Output): Unit = {
-    val headers       = doc.select("h2.govuk-heading-m").eachText()
+  def validateCheckYourAnswersPage(
+    doc: Document,
+    journey: RejectedGoodsScheduledJourney,
+    claim: RejectedGoodsScheduledJourney.Output
+  ): Unit = {
+    val headers       = doc.select("h2.govuk-heading-m").eachText().asScala.toSeq
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-    val summary       = summaryKeys.asScala.zip(summaryValues.asScala).toMap
+    val summaries     = summaryKeys.asScala.zip(summaryValues.asScala).toSeq
 
     headers       should not be empty
     summaryKeys   should not be empty
@@ -110,77 +116,146 @@ class CheckYourAnswersControllerSpec
     else
       summaryKeys.size shouldBe summaryValues.size
 
-    headers     should contain allOf (
-      "Lead Movement Reference Number (MRN)",
-      "Declaration details",
-      "Contact information for this claim",
-      "Basis for claim",
-      "Disposal method",
-      "Details of rejected goods",
-      "Claim total",
-      "Details of inspection",
-      "Supporting documents",
-      "Now send your claim"
+    headers should containOnlyDefinedElementsOf(
+      "Lead Movement Reference Number (MRN)".expectedAlways,
+      "Scheduled document".expectedAlways,
+      "Declaration details".expectedAlways,
+      "Contact information for this claim".expectedAlways,
+      "Basis for claim".expectedAlways,
+      "Disposal method".expectedAlways,
+      "Details of rejected goods".expectedAlways,
+      "Special circumstances".expectedWhen(claim.basisOfClaimSpecialCircumstances),
+      "Details of inspection".expectedAlways,
+      "Total repayment claim for all MRNs".expectedAlways,
+      "Bank details".expectedWhen(claim.bankAccountDetails),
+      "Supporting documents".expectedAlways,
+      "Now send your claim".expectedAlways
     )
 
-    summaryKeys should contain allOf (
-      "Contact details",
-      "Contact address",
+    val declaration: Option[DisplayDeclaration]           = journey.answers.displayDeclaration
+    val declarationDetails: Option[DisplayResponseDetail] = declaration.map(_.displayResponseDetail)
+
+    val expectedDocuments: Seq[String] =
+      journey.answers.supportingEvidences.map { uploadDocument =>
+        s"${uploadDocument.fileName} ${uploadDocument.documentType
+          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+      }
+
+    summaries should containOnlyDefinedPairsOf(
       Seq(
-        "First MRN",
-        "Scheduled document",
-        "This is the basis behind the claim",
-        "This is how the goods will be disposed of",
-        "These are the details of the rejected goods",
-        "Total",
-        "Inspection date",
-        "Inspection address type",
-        "Inspection address"
-      ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded")): _*
+        "First MRN"          -> Some(claim.movementReferenceNumber.value),
+        "Method of payment"  -> Some(
+          MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
+        ),
+        "Scheduled document" -> Some(claim.scheduledDocument.fileName),
+        "Import date"        -> declarationDetails.map(_.acceptanceDate),
+        "Duties paid"        -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
+      ) ++
+        declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
+        Seq(
+          "Importer name"                                    -> declaration.flatMap(_.consigneeName),
+          "Importer email"                                   -> declaration.flatMap(_.consigneeEmail),
+          "Importer telephone"                               -> declaration.flatMap(_.consigneeTelephone),
+          "Importer address"                                 -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
+          "Declarant name"                                   -> declaration.map(_.declarantName),
+          "Declarant address"                                -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
+          "Contact details"                                  -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+          "Contact address"                                  -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+          "This is the basis behind the claim"               -> Some(
+            m(s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}")
+          ),
+          "This is how the goods will be disposed of"        -> Some(
+            m(s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}")
+          ),
+          "Any special circumstances relating to your claim" -> claim.basisOfClaimSpecialCircumstances,
+          "These are the details of the rejected goods"      -> Some(claim.detailsOfRejectedGoods),
+          "EU Duty"                                          -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "UK Duty"                                          -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "Excise Duty"                                      -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "Total"                                            -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+          "Uploaded"                                         -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Name on the account"                              -> claim.bankAccountDetails.map(_.accountName.value),
+          "Sort code"                                        -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
+          "Account number"                                   -> claim.bankAccountDetails.map(_.accountNumber.masked(messages)),
+          "Inspection date"                                  -> Some(claim.inspectionDate.checkYourDetailsDisplayFormat),
+          "Inspection address type"                          -> Some(
+            m(s"inspection-address.type.${claim.inspectionAddress.addressType}")
+          ),
+          "Inspection address"                               -> Some(summaryAddress(claim.inspectionAddress, " "))
+        )
     )
 
-    summary("First MRN")                                   shouldBe claim.movementReferenceNumber.value
-    summary("Scheduled document")                          shouldBe claim.scheduledDocument.fileName
-    summary("Contact details")                             shouldBe ClaimantInformationSummary.getContactDataString(claim.claimantInformation)
-    summary("Contact address")                             shouldBe ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)
-    summary("This is the basis behind the claim")          shouldBe messages(
-      s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}"
-    )
-    summary("This is how the goods will be disposed of")   shouldBe messages(
-      s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}"
-    )
-    summary("These are the details of the rejected goods") shouldBe claim.detailsOfRejectedGoods
-    summary("Inspection date")                             shouldBe claim.inspectionDate.checkYourDetailsDisplayFormat
-    summary("Inspection address type")                     shouldBe messages(
-      s"inspection-address.type.${claim.inspectionAddress.addressType}"
-    )
-    summary("Inspection address")                          shouldBe summaryAddress(claim.inspectionAddress, " ")
+    // headers     should contain allOf (
+    //   "Lead Movement Reference Number (MRN)",
+    //   "Declaration details",
+    //   "Contact information for this claim",
+    //   "Basis for claim",
+    //   "Disposal method",
+    //   "Details of rejected goods",
+    //   "Claim total",
+    //   "Details of inspection",
+    //   "Supporting documents",
+    //   "Now send your claim"
+    // )
 
-    claim.reimbursementClaims.foreachEntry { case (dutyType, claims) =>
-      summary(messages(s"duty-type.${dutyType.repr}")) shouldBe claims.values
-        .map(_.refundAmount)
-        .sum
-        .toPoundSterlingString
-    }
+    // summaryKeys should contain allOf (
+    //   "Contact details",
+    //   "Contact address",
+    //   Seq(
+    //     "First MRN",
+    //     "Scheduled document",
+    //     "This is the basis behind the claim",
+    //     "This is how the goods will be disposed of",
+    //     "These are the details of the rejected goods",
+    //     "Total",
+    //     "Inspection date",
+    //     "Inspection address type",
+    //     "Inspection address"
+    //   ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded")): _*
+    // )
 
-    summary("Total") shouldBe claim.reimbursementClaims.values
-      .map(_.values.map(_.refundAmount).sum)
-      .sum
-      .toPoundSterlingString
+    // summary("First MRN")                                   shouldBe claim.movementReferenceNumber.value
+    // summary("Scheduled document")                          shouldBe claim.scheduledDocument.fileName
+    // summary("Contact details")                             shouldBe ClaimantInformationSummary.getContactDataString(claim.claimantInformation)
+    // summary("Contact address")                             shouldBe ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)
+    // summary("This is the basis behind the claim")          shouldBe messages(
+    //   s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}"
+    // )
+    // summary("This is how the goods will be disposed of")   shouldBe messages(
+    //   s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}"
+    // )
+    // summary("These are the details of the rejected goods") shouldBe claim.detailsOfRejectedGoods
+    // summary("Inspection date")                             shouldBe claim.inspectionDate.checkYourDetailsDisplayFormat
+    // summary("Inspection address type")                     shouldBe messages(
+    //   s"inspection-address.type.${claim.inspectionAddress.addressType}"
+    // )
+    // summary("Inspection address")                          shouldBe summaryAddress(claim.inspectionAddress, " ")
 
-    claim.bankAccountDetails.foreach { value =>
-      headers                          should contain("Bank details")
-      summaryKeys                      should contain allOf ("Name on the account", "Sort code", "Account number")
-      summary("Name on the account") shouldBe value.accountName.value
-      summary("Sort code")           shouldBe value.sortCode.masked
-      summary("Account number")      shouldBe value.accountNumber.masked
-    }
+    // claim.reimbursementClaims.foreachEntry { case (dutyType, claims) =>
+    //   summary(messages(s"duty-type.${dutyType.repr}")) shouldBe claims.values
+    //     .map(_.refundAmount)
+    //     .sum
+    //     .toPoundSterlingString
+    // }
 
-    claim.basisOfClaimSpecialCircumstances.foreach { value =>
-      headers                                                       should contain("Special circumstances")
-      summaryKeys                                                   should contain("Any special circumstances relating to your claim")
-      summary("Any special circumstances relating to your claim") shouldBe value
-    }
+    // summary("Total") shouldBe claim.reimbursementClaims.values
+    //   .map(_.values.map(_.refundAmount).sum)
+    //   .sum
+    //   .toPoundSterlingString
+
+    // claim.bankAccountDetails.foreach { value =>
+    //   headers                          should contain("Bank details")
+    //   summaryKeys                      should contain allOf ("Name on the account", "Sort code", "Account number")
+    //   summary("Name on the account") shouldBe value.accountName.value
+    //   summary("Sort code")           shouldBe value.sortCode.masked
+    //   summary("Account number")      shouldBe value.accountNumber.masked
+    // }
+
+    // claim.basisOfClaimSpecialCircumstances.foreach { value =>
+    //   headers                                                       should contain("Special circumstances")
+    //   summaryKeys                                                   should contain("Any special circumstances relating to your claim")
+    //   summary("Any special circumstances relating to your claim") shouldBe value
+    // }
   }
 
   def validateConfirmationPage(doc: Document, caseNumber: String): Assertion =
@@ -209,7 +284,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("check-your-answers.rejectedgoods.scheduled.title"),
-            doc => validateCheckYourAnswersPage(doc, claim)
+            doc => validateCheckYourAnswersPage(doc, journey, claim)
           )
         }
       }

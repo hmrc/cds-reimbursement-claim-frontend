@@ -271,18 +271,6 @@ object Forms {
         )
   )
 
-  val enterScheduledClaimRejectedGoodsForm: Form[AmountPaidWithRefund] = Form(
-    "enter-claim-scheduled.rejected-goods" ->
-      mapping(
-        "paid-amount"  -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero")),
-        "claim-amount" -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero"))
-      )(AmountPaidWithRefund.apply)(AmountPaidWithRefund.unapply)
-        .verifying(
-          "invalid.claim",
-          _.isValid
-        )
-  )
-
   val inspectionAddressTypeForm: Form[InspectionAddressType] =
     Form(
       "inspection-address.type" ->

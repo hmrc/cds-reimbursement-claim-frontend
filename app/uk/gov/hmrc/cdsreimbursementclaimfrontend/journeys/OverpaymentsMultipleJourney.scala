@@ -46,8 +46,6 @@ final class OverpaymentsMultipleJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsMultipleJourney]
     with OverpaymentsJourneyProperties
-    with CanSubmitMrnAndDeclaration
-    with CanSubmitContactDetails
     with JourneyAnalytics {
 
   type Type = OverpaymentsMultipleJourney
@@ -375,7 +373,8 @@ final class OverpaymentsMultipleJourney private (
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
-  ) = submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
+  ): Either[String, OverpaymentsMultipleJourney] =
+    submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
 
   def removeMovementReferenceNumberAndDisplayDeclaration(mrn: MRN): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {

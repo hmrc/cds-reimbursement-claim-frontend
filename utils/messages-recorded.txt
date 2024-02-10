@@ -395,13 +395,6 @@ enter-bank-account-details.p2
 enter-bank-account-details.sort-code.help-text
 enter-bank-account-details.sort-code.label
 enter-bank-account-details.title
-enter-claim-scheduled.rejected-goods.claim-amount
-enter-claim-scheduled.rejected-goods.claim-amount.hint
-enter-claim-scheduled.rejected-goods.help-text
-enter-claim-scheduled.rejected-goods.inset-text
-enter-claim-scheduled.rejected-goods.paid-amount
-enter-claim-scheduled.rejected-goods.subsidy.inset-text
-enter-claim-scheduled.rejected-goods.title
 enter-claim.actual-amount
 enter-claim.actual-amount.hint
 enter-claim.help-text

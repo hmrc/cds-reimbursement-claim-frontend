@@ -57,7 +57,7 @@ class RejectedGoodsScheduledJourneySpec
       emptyJourney.answers.inspectionAddress                                      shouldBe None
       emptyJourney.answers.inspectionDate                                         shouldBe None
       emptyJourney.answers.methodOfDisposal                                       shouldBe None
-      emptyJourney.answers.reimbursementClaims                                    shouldBe None
+      emptyJourney.answers.correctedAmounts                                       shouldBe None
       emptyJourney.answers.selectedDocumentType                                   shouldBe None
       emptyJourney.answers.supportingEvidences                                    shouldBe Seq.empty
       emptyJourney.answers.checkYourAnswersChangeMode                             shouldBe false
@@ -239,7 +239,7 @@ class RejectedGoodsScheduledJourneySpec
             .getOrFail
         modifiedJourney.answers.movementReferenceNumber shouldBe Some(exampleMrn)
         modifiedJourney.answers.displayDeclaration      shouldBe Some(exampleDisplayDeclaration)
-        modifiedJourney.answers.reimbursementClaims     shouldBe None
+        modifiedJourney.answers.correctedAmounts        shouldBe None
         modifiedJourney.hasCompleteAnswers              shouldBe false
         modifiedJourney.hasCompleteReimbursementClaims  shouldBe false
         modifiedJourney.hasCompleteSupportingEvidences  shouldBe false
@@ -877,11 +877,12 @@ class RejectedGoodsScheduledJourneySpec
         val dutyTypes: Seq[DutyType]                                              = data.map(_._1)
         val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                  = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
         val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap { case (dt, tca) =>
-          tca.map { case (tc, ra, pa) => (dt, tc, ra, pa) }
+          tca.map { case (tc, pa, ca) => (dt, tc, pa, ca) }
         }
-        val expectedTotalReimbursementAmount                                      = taxCodesWithAmounts.map(_._3).sum
+        val expectedTotalReimbursementAmount                                      =
+          taxCodesWithAmounts.map { case (_, _, pa, ca) => pa - ca }.sum
 
-        val journey = RejectedGoodsScheduledJourney
+        val journey                                                               = RejectedGoodsScheduledJourney
           .empty(exampleEori)
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
@@ -890,8 +891,7 @@ class RejectedGoodsScheduledJourneySpec
           )
           .flatMapEach(
             taxCodesWithAmounts,
-            j =>
-              (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitAmountForReimbursement(d._1, d._2, d._3, d._4)
+            j => (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitCorrectAmount(d._1, d._2, d._3, d._4)
           )
           .getOrFail
 
@@ -911,7 +911,7 @@ class RejectedGoodsScheduledJourneySpec
         val dutyTypes: Seq[DutyType]                                              = data.map(_._1)
         val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                  = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
         val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap { case (dt, tca) =>
-          tca.map { case (tc, ra, pa) => (dt, tc, ra, pa) }
+          tca.map { case (tc, pa, ca) => (dt, tc, pa, ca) }
         }
 
         def taxCodeNotMatchingDutyType(dutyType: DutyType): TaxCode =
@@ -928,7 +928,7 @@ class RejectedGoodsScheduledJourneySpec
             taxCodesWithAmounts,
             j =>
               (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) =>
-                j.submitAmountForReimbursement(d._1, taxCodeNotMatchingDutyType(d._1), d._3, d._4)
+                j.submitCorrectAmount(d._1, taxCodeNotMatchingDutyType(d._1), d._3, d._4)
           )
 
         result shouldBe Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
@@ -940,7 +940,7 @@ class RejectedGoodsScheduledJourneySpec
         val dutyTypes: Seq[DutyType]                                              = data.map(_._1)
         val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                  = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
         val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap { case (dt, tca) =>
-          tca.map { case (tc, ra, pa) => (dt, tc, ra, pa) }
+          tca.map { case (tc, pa, ca) => (dt, tc, pa, ca) }
         }
 
         def taxCodeNotSelected(dutyType: DutyType): TaxCode =
@@ -962,7 +962,7 @@ class RejectedGoodsScheduledJourneySpec
             taxCodesWithAmounts,
             j =>
               (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) =>
-                j.submitAmountForReimbursement(d._1, taxCodeNotSelected(d._1), d._3, d._4)
+                j.submitCorrectAmount(d._1, taxCodeNotSelected(d._1), d._3, d._4)
           )
 
         result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
@@ -974,7 +974,7 @@ class RejectedGoodsScheduledJourneySpec
         val dutyTypes: Seq[DutyType]                                              = data.map(_._1)
         val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                  = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
         val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap { case (dt, tca) =>
-          tca.map { case (tc, ra, pa) => (dt, tc, ra, pa) }
+          tca.map { case (tc, pa, ca) => (dt, tc, pa, ca) }
         }
 
         val result = RejectedGoodsScheduledJourney
@@ -988,9 +988,8 @@ class RejectedGoodsScheduledJourneySpec
             taxCodesWithAmounts,
             j =>
               (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) =>
-                j.submitAmountForReimbursement(d._1, d._2, d._4, d._3) // swaped amounts
+                j.submitCorrectAmount(d._1, d._2, d._4, d._3) // swaped amounts
           )
-
         result shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
       }
     }
@@ -999,13 +998,14 @@ class RejectedGoodsScheduledJourneySpec
       forAll(completeJourneyGen) { journey =>
         val totalReimbursementAmount = journey.getTotalReimbursementAmount
         val totalPaidAmount          = journey.getTotalPaidAmount
-        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
-          tca.foreachEntry { case (taxCode, AmountPaidWithRefund(pa, ra)) =>
-            val modifiedJourney =
-              journey.submitAmountForReimbursement(dutyType, taxCode, ra * 0.7, pa * 0.85).getOrFail
 
-            modifiedJourney.getTotalReimbursementAmount shouldBe totalReimbursementAmount - ra * 0.3
-            modifiedJourney.getTotalPaidAmount          shouldBe totalPaidAmount - pa * 0.15
+        journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
+          tca.foreachEntry { case (taxCode, AmountPaidWithCorrect(pa, ca)) =>
+            val modifiedJourney =
+              journey.submitCorrectAmount(dutyType, taxCode, pa * 0.8, ca * 0.8).getOrFail
+
+            modifiedJourney.getTotalReimbursementAmount shouldBe totalReimbursementAmount - ((pa - ca) * 0.2)
+            modifiedJourney.getTotalPaidAmount          shouldBe totalPaidAmount - pa * 0.2
 
           }
         }
@@ -1021,9 +1021,9 @@ class RejectedGoodsScheduledJourneySpec
             .getOrElse(fail())
 
         journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
-          tca.foreachEntry { case (_, AmountPaidWithRefund(pa, ra)) =>
+          tca.foreachEntry { case (_, AmountPaidWithCorrect(pa, ca)) =>
             val result =
-              journey.submitAmountForReimbursement(dutyType, taxCodeNotSelected(dutyType), ra, pa)
+              journey.submitCorrectAmount(dutyType, taxCodeNotSelected(dutyType), pa, ca)
             result shouldBe Left("submitAmountForReimbursement.taxCodeNotSelected")
           }
         }
@@ -1033,14 +1033,18 @@ class RejectedGoodsScheduledJourneySpec
     "reject change to invalid amount for valid selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         journey.getReimbursementClaims.foreachEntry { case (dutyType, tca) =>
-          tca.foreachEntry { case (taxCode, AmountPaidWithRefund(pa, _)) =>
+          tca.foreachEntry { case (taxCode, AmountPaidWithCorrect(pa, _)) =>
             val result1 =
-              journey.submitAmountForReimbursement(dutyType, taxCode, pa + 0.01, pa)
+              journey.submitCorrectAmount(dutyType, taxCode, pa, pa)
             result1 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
 
             val result2 =
-              journey.submitAmountForReimbursement(dutyType, taxCode, 0, pa)
+              journey.submitCorrectAmount(dutyType, taxCode, pa, BigDecimal("-0.01"))
             result2 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+
+            val result3 =
+              journey.submitCorrectAmount(dutyType, taxCode, pa, pa + BigDecimal("0.01"))
+            result3 shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
           }
         }
       }
@@ -1092,11 +1096,11 @@ class RejectedGoodsScheduledJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
-          .flatMap(_.submitAmountForReimbursement(DutyType.UkDuty, TaxCode.A00, BigDecimal("1.00"), BigDecimal("2.00")))
+          .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
-      journeyEither.isRight shouldBe true
+      journeyEither.getOrFail
     }
 
     "change bankAccountDetails in a complete journey with all duties CMA eligible" in {

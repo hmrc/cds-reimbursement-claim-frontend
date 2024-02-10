@@ -73,7 +73,7 @@ class EnterClaimControllerSpec
 
   "Enter Claim Controller" should {
 
-    "not find the page if rejected goods feature is disabled" in forAll(journeyGen) { journey =>
+    "not find the page if overpayments feature is disabled" in forAll(journeyGen) { journey =>
       featureSwitch.disable(Feature.Overpayments_v2)
 
       val (dutyType, taxCode) = journey.getFirstDutyToClaim.get

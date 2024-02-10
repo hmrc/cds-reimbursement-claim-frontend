@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithRefund
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
@@ -48,14 +48,14 @@ class RejectedGoodsScheduledJourneyFormatSpec
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          reimbursementClaims = Some(
+          correctedAmounts = Some(
             SortedMap(
               DutyType.UkDuty -> (SortedMap(
-                TaxCode.A00 -> Some(AmountPaidWithRefund(BigDecimal("21.00"), BigDecimal("12.99"))),
+                TaxCode.A00 -> Some(AmountPaidWithCorrect(BigDecimal("21.00"), BigDecimal("12.99"))),
                 TaxCode.A40 -> None
               )),
               DutyType.EuDuty -> (SortedMap(
-                TaxCode.A50 -> Some(AmountPaidWithRefund(BigDecimal("12.99"), BigDecimal("1.01"))),
+                TaxCode.A50 -> Some(AmountPaidWithCorrect(BigDecimal("12.99"), BigDecimal("1.01"))),
                 TaxCode.A70 -> None
               ))
             )
@@ -63,7 +63,7 @@ class RejectedGoodsScheduledJourneyFormatSpec
         )
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(SortedMap()))
+        Answers(userEoriNumber = exampleEori, correctedAmounts = Some(SortedMap()))
       )
 
       validateCanReadAndWriteJson(

@@ -48,7 +48,6 @@ final class SecuritiesJourney private (
   val caseNumber: Option[String] = None
 ) extends JourneyBase
     with CommonJourneyProperties
-    with CanSubmitContactDetails
     with DirectFluentSyntax[SecuritiesJourney]
     with SeqUtils
     with JourneyAnalytics {

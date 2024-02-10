@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
@@ -47,8 +46,7 @@ final class OverpaymentsScheduledJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsScheduledJourney]
     with OverpaymentsJourneyProperties
-    with CanSubmitMrnAndDeclaration
-    with CanSubmitContactDetails
+    with ScheduledVariantProperties
     with JourneyAnalytics {
 
   type Type = OverpaymentsScheduledJourney
@@ -63,131 +61,8 @@ final class OverpaymentsScheduledJourney private (
   ): OverpaymentsScheduledJourney =
     new OverpaymentsScheduledJourney(newAnswers, caseNumber, features)
 
-  /** Check if all the selected duties have reimbursement amount provided. */
-  def hasCompleteReimbursementClaims: Boolean =
-    answers.correctedAmounts
-      .exists(rc =>
-        rc.forall { case (dutyType, claims) =>
-          claims.nonEmpty && claims.forall {
-            case (taxCode, Some(claimAmounts)) =>
-              dutyType.taxCodes.contains(taxCode) &&
-                claimAmounts.isValid
-            case _                             => false
-          }
-        }
-      )
-
-  def getLeadMovementReferenceNumber: Option[MRN] =
-    answers.movementReferenceNumber
-
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    answers.displayDeclaration
-
-  def needsBanksAccountDetailsSubmission: Boolean =
-    true
-
-  def getSelectedDocumentType: Option[UploadDocumentType] =
-    answers.selectedDocumentType
-
-  def getNdrcDetails: Option[List[NdrcDetails]] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
-
-  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
-
-  def getSelectedDutyTypes: Option[Seq[DutyType]] =
-    answers.correctedAmounts.map(_.keys.toSeq)
-
-  def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
-    answers.correctedAmounts
-      .map(_.view.mapValues(_.keys.toSeq).to(SortedMap))
-      .getOrElse(SortedMap.empty)
-
-  def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
-    answers.correctedAmounts.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
-
-  def getFirstDutyToClaim: Option[(DutyType, TaxCode)] =
-    getSelectedDuties.headOption
-      .flatMap { case (dt, tcs) =>
-        tcs.headOption.map(tc => (dt, tc))
-      }
-
-  def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
-    getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
-
-  def findNextSelectedTaxCodeAfter(dutyType: DutyType, taxCode: TaxCode): Option[(DutyType, TaxCode)] =
-    getSelectedDutiesFor(dutyType).flatMap(nextAfter(taxCode) _) match {
-      case Some(taxCode) => Some((dutyType, taxCode))
-      case None          =>
-        findNextSelectedDutyAfter(dutyType)
-          .flatMap(dt =>
-            getSelectedDutiesFor(dt)
-              .flatMap(_.headOption)
-              .map(tc => (dt, tc))
-          )
-    }
-
-  def findNextDutyToSelectDuties: Option[DutyType] =
-    answers.correctedAmounts.flatMap(_.find(_._2.isEmpty).map(_._1))
-
-  val isDutyTypeSelected: Boolean = answers.correctedAmounts.exists(_.nonEmpty)
-
-  def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]] =
-    answers.correctedAmounts
-      .map(_.view.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }).to(SortedMap))
-      .getOrElse(SortedMap.empty)
-
-  def getReimbursementFor(
-    dutyType: DutyType,
-    taxCode: TaxCode
-  ): Option[AmountPaidWithCorrect] =
-    getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
-
-  def getReimbursementClaimsFor(dutyType: DutyType): Option[SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
-    answers.correctedAmounts.flatMap(_.find(_._1 === dutyType)).map(_._2)
-
-  def getUKDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(_ === DutyType.UkDuty)
-
-  def getEUDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(_ === DutyType.EuDuty)
-
-  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(dt => dt =!= DutyType.UkDuty && dt =!= DutyType.EuDuty)
-
-  private def getReimbursementTotalBy(include: DutyType => Boolean): Option[BigDecimal] = {
-    val total = getReimbursementClaims.iterator.map { case (dutyType, reimbursements) =>
-      if (include(dutyType)) reimbursements.map(_._2.refundAmount).sum else ZERO
-    }.sum
-    if (total === ZERO) None else Some(total)
-  }
-
-  def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
-    answers.correctedAmounts
-      .flatMap(
-        _.values
-          .flatMap(_.toSeq)
-          .collectFirst { case (taxCode: TaxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor)
-      )
-
-  def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =
-    taxCodes.values.foldLeft(BigDecimal(0)) { (total, claim) =>
-      total + claim.refundAmount
-    }
-
-  def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.refundAmount)).sum
-
-  def getTotalPaidAmount: BigDecimal =
-    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
-
-  override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+  def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
-
-  override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
-    BasisOfOverpaymentClaim
-      .excludeNorthernIrelandClaims(false, answers.displayDeclaration)
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -570,6 +445,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     dutiesChangeMode: Boolean = false,
     checkYourAnswersChangeMode: Boolean = false
   ) extends OverpaymentsAnswers
+      with ScheduledVariantAnswers
 
   final case class Output(
     movementReferenceNumber: MRN,
