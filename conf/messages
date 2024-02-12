@@ -856,7 +856,7 @@ enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Claim amo
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be more than zero
-enter-claim.rejected-goods.claim-amount.hint=The amount must be lower than the amount paid.
+enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than the amount paid.
 enter-claim.rejected-goods.for-mrn.paragraph=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
