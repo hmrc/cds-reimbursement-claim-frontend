@@ -39,7 +39,7 @@
 
 @key = @{"enter-claim.securities"}
 @title = @{messages(s"enter-claim.securities.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
-@caption = @{messages(s"enter-claim.securities.title.caption", securityDepositId)}
+@caption = @{messages(s"enter-claim.title.caption")}
 @pageTitleWithCaption = @{s"$caption: $title"}
 @hintText = @{Html(messages(s"enter-claim.securities.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -50,9 +50,14 @@
 
     @heading(Html(title), caption = caption)
 
+    <p class="govuk-body">
+        @messages(s"enter-claim.securities.securityIdLabel")
+        <span id="securityDepositId" class="govuk-!-font-weight-bold">@{securityDepositId}</span>
+    </p>
+
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"enter-claim.securities.paid-amount-label", paidAmount.toPoundSterlingString)), Some("govuk-body-m"))
+        @paragraph(Html(messages("enter-claim.securities.paid-amount-label", paidAmount.toPoundSterlingString, taxCode.value, messages(s"select-duties.duty.$taxCode"))), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"enter-claim-how-much-was-paid")
 
         @inputText(
             form = form,
@@ -63,7 +68,7 @@
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
             hintHtml = Some(hintText),
-            labelClasses = Some("govuk-label"),
+            labelClasses = Some("govuk-label govuk-label--m"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
