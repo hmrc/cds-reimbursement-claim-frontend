@@ -867,10 +867,10 @@ enter-claim.securities.claim-amount.error.invalid-amount=Claim amount must be lo
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
-enter-claim.securities.claim-amount.hint=The amount must be lower than the amount paid. For example £110.40.
-enter-claim.securities.paid-amount-label=How much was paid: <span id="amount-paid">{0}</span>
-enter-claim.securities.title=Claim details for {0} - {1}
-enter-claim.securities.title.caption=Security deposit: {0}
+enter-claim.securities.claim-amount.hint=The claim amount must be lower than the amount paid.
+enter-claim.securities.paid-amount-label=How much {1} - {2} was paid: <span id="amount-paid">{0}</span>
+enter-claim.securities.title={0} - {1}
+enter-claim.securities.securityIdLabel=Security ID: 
 enter-claim.title={0} - {1}
 enter-claim.title.caption=Claim details
 

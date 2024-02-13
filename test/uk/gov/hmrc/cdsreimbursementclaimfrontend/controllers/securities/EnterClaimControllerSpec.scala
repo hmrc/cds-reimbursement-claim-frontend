@@ -86,19 +86,8 @@ class EnterClaimControllerSpec
     val caption = doc.select("span.govuk-caption-xl").eachText().asScala.toList
     val heading = doc.select(".govuk-heading-xl").eachText().asScala.toList
 
-    caption should ===(
-      List(
-        messages(
-          "enter-claim.securities.title.caption",
-          securityDepositId
-        )
-      )
-    )
-    heading should ===(
-      List(
-        s"Security deposit: $securityDepositId Claim details for $taxCode - ${messages(s"select-duties.duty.$taxCode")}"
-      )
-    )
+    caption shouldBe List(messages("enter-claim.title.caption"))
+    heading shouldBe List(s"Claim details $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
 
     doc.select("#amount-paid").text()                                       shouldBe amount.toPoundSterlingString
     doc.select("input[name='enter-claim.securities.claim-amount']").`val`() shouldBe ""
