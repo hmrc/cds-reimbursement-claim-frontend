@@ -1389,7 +1389,7 @@ select-basis-for-claim.rejected-goods.title=Why are you making this claim?
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.title=Choose the reason for making this claim
 
-select-duties.caption=Security deposit: {0}
+select-duties.caption=Security deposit ID: {0}
 select-duties.duty.407=Beer made in the UK (standard rate, that is, annual production more than 60,000 hectolitres)
 select-duties.duty.411=Wine (sparkling), of fresh grape, 8.5% vol. and above, but not exceeding 15% vol.
 select-duties.duty.412=Wine (sparkling), of fresh grape, exceeding 5.5% vol. but less than 8.5% vol.
@@ -1472,7 +1472,7 @@ select-duties.multiple.paragraph=Select all duty types you want to claim for MRN
 select-duties.multiple.subsidies.title=Duties shown are all covered by subsidy
 select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
 select-duties.paragraph=Select all of the duties you want to claim for.
-select-duties.securities.title=Select the duties you want to claim for
+select-duties.securities.title=Which duties do you want to claim for?
 select-duties.subsidies.title=Duties shown are all covered by subsidy
 select-duties.title=Which duties do you want to claim for?
 select-duties.title.caption=Claim details
