@@ -70,10 +70,22 @@
         )
     )
 
-    @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
+    @summary(SummaryList(SecuritiesCdsDisplayDeclarationImportMrnSummary(
         displayDeclaration,
         key,
         routes.EnterMovementReferenceNumberController.show(),
+    ).rows))
+
+    @subHeading(Html(messages(s"check-declaration-details.details.contact-details.h2")), classes="govuk-heading-m govuk-!-margin-top-1")
+    @summary(SummaryList(SecuritiesCdsDisplayDeclarationContactDetailsSummary(
+        displayDeclaration,
+        key,
+    ).rows))
+
+    @subHeading(Html(messages(s"check-declaration-details.details.claim-details.h2")), classes="govuk-heading-m govuk-!-margin-top-1")
+    @summary(SummaryList(SecuritiesCdsDisplayDeclarationClaimDetailsSummary(
+        displayDeclaration,
+        key,
         routes.ChooseReasonForSecurityController.show()
     ).rows ++
             SecuritiesSelectionSummary(

@@ -89,11 +89,13 @@ class CheckDeclarationDetailsControllerSpec
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-    headers     shouldBe empty
+    headers       should not be empty
     summaryKeys   should not be empty
     summaryValues should not be empty
 
     val correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]] = journey.getSecuritiesReclaims
+
+    headers.toSeq should contain theSameElementsAs Seq("Contact details", "Claim details")
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
